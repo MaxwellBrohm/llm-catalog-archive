@@ -4,7 +4,61 @@
   <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commits/dev"/>
   <link type="application/atom+xml" rel="self" href="https://github.com/anomalyco/models.dev/commits/dev.atom"/>
   <title>Recent Commits to models.dev:dev</title>
-  <updated>2026-08-26T21:25:05Z</updated>
+  <updated>2026-08-26T22:16:53Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/bfc2f0e440c0bfa651144aa5192613d0cd6d9ded</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/bfc2f0e440c0bfa651144aa5192613d0cd6d9ded"/>
+    <title>
+        chore(sync): update LLM Gateway model catalog (#5593)
+    </title>
+    <updated>2026-08-26T22:16:53Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update LLM Gateway model catalog (#5593)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/3f93d08ccf0a63cdf028fcdafa661eb8f7f2f657</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/3f93d08ccf0a63cdf028fcdafa661eb8f7f2f657"/>
+    <title>
+        chore(sync): update OpenRouter model catalog (#5594)
+    </title>
+    <updated>2026-08-26T22:16:39Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#5594)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/9da1ee01a77fe259c7c3034d6c347f930391fc9d</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9da1ee01a77fe259c7c3034d6c347f930391fc9d"/>
+    <title>
+        chore(sync): update Kilo model catalog (#5592)
+    </title>
+    <updated>2026-08-26T22:16:33Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#5592)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
   <entry>
     <id>tag:github.com,2008:Grit::Commit/797ec04841cd75f55e03f9bc87d6273472fde6df</id>
     <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/797ec04841cd75f55e03f9bc87d6273472fde6df"/>
@@ -336,60 +390,6 @@ Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;g
     </author>
     <content type="html">
       &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(empiriolabs): omit redundant reasoning toggles (#5576)
-
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/5437a9ff7ae7f99cc4dea173c57c4b622c95bc90</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/5437a9ff7ae7f99cc4dea173c57c4b622c95bc90"/>
-    <title>
-        fix(crossmodel): omit redundant reasoning toggles (#5577)
-    </title>
-    <updated>2026-08-26T19:37:35Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(crossmodel): omit redundant reasoning toggles (#5577)
-
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/aeabb86bd5ece15e66fab3faf59429aebd4d12d8</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/aeabb86bd5ece15e66fab3faf59429aebd4d12d8"/>
-    <title>
-        fix(merge-gateway): sync explicitly advertised thinking budgets (#5574)
-    </title>
-    <updated>2026-08-26T19:37:21Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(merge-gateway): sync explicitly advertised thinking budgets (#5574)
-
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/b82943b8d9cfefd4d5c6dd5f14d778507a9873a1</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b82943b8d9cfefd4d5c6dd5f14d778507a9873a1"/>
-    <title>
-        fix(openrouter): sync optional reasoning toggles without effort lists…
-    </title>
-    <updated>2026-08-26T19:37:02Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(openrouter): sync optional reasoning toggles without effort lists (#5575)
 
 Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
