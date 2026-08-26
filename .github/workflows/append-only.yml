@@ -1,0 +1,33 @@
+name: append-only
+on: [pull_request, push]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Ledgers may only gain lines
+        run: |
+          set -euo pipefail
+          base="${{ github.event.before || 'HEAD~1' }}"
+          # A brand new branch or repository reports an all-zeroes "before" sha,
+          # and the very first commit has no HEAD~1. Neither is a diff base git
+          # will accept, so there is nothing to compare against on that run.
+          case "$base" in
+            *[!0]*) ;;
+            *)
+              echo "::notice::no diff base (before-sha is all zeroes, i.e. the first push to this branch); skipping the append-only check"
+              exit 0
+              ;;
+          esac
+          if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "::notice::no diff base ($base is not a commit in this repository); skipping the append-only check"
+            exit 0
+          fi
+          for f in meta/corrections.jsonl meta/retractions.jsonl; do
+            removed=$(git diff "$base" HEAD -- "$f" | grep -c '^-[^-]' || true)
+            if [ "$removed" -ne 0 ]; then
+              echo "::error::$f is append-only; $removed line(s) removed or modified"
+              exit 1
+            fi
+          done
