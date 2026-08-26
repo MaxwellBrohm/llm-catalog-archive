@@ -9,11 +9,16 @@ const DATE_14 = 'Tue, 26 Aug 2026 14:00:00 GMT';
 
 // A HeaderRecord built directly, bypassing Headers. Node's Headers strips
 // leading and trailing whitespace from every value, so `new Headers({age: '   '})`
-// yields '' and a whitespace-only Age can never reach originDateMs by that
-// route. It can arrive through a headers.json sidecar read back from the
-// archive, which is an ordinary HeaderRecord that no Headers object touched.
-// Routing the whitespace case through `cap` would silently retest the blank
-// case instead, and the trim guard would go unexercised.
+// yields '' and routing the whitespace case through `cap` would silently
+// retest the blank case, leaving the trim guard unexercised.
+//
+// Stated honestly: no current path produces a whitespace-only age. The only
+// producer of a HeaderRecord today is captureHeaders via a real Headers, which
+// strips, and nothing reads headers.json back. The widening from `=== ''` to
+// `.trim() === ''` is defensive against a future non-Headers producer, and
+// Plan 2's backfill importer is the named one. The guard is cheap, the failure
+// it prevents is a source stalling on a silently wrong origin, and this test
+// is what keeps the widening from rotting into untested code.
 const record = (over: Partial<HeaderRecord>): HeaderRecord => ({
   fetchedAt: '2026-08-26T14:00:00.000Z',
   finalUrl: 'https://x/y',
@@ -197,21 +202,6 @@ describe('originDateMs', () => {
   });
 });
 
-// Why the negative-age guard is not merely tidiness. The two tests below are a
-// pair: the first shows the damage a future origin does once stored, the
-// second shows the guard is what keeps a negative Age from ever becoming one.
-// 14:00 Date minus an Age of -3600 is 15:00, an hour into the future, and the
-// stored value below is that exact number written out rather than derived.
-describe('a future origin poisons a source, which is why a negative age is null', () => {
-  it('skips the next honest poll once a future origin is stored', () => {
-    expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), '2026-08-26T15:00:00.000Z')).toBe(true);
-  });
-
-  it('never derives that future origin from a negative age', () => {
-    expect(originDateMs(cap({ date: DATE_14, age: '-3600' }))).toBe(null);
-  });
-});
-
 describe('isStaleGeneration', () => {
   it('rejects a response whose origin is older than what is already stored', () => {
     expect(isStaleGeneration(cap({ date: DATE_14, age: '3600' }), '2026-08-26T13:30:00.000Z')).toBe(true);
@@ -239,5 +229,16 @@ describe('isStaleGeneration', () => {
 
   it('accepts when the stored origin does not parse', () => {
     expect(isStaleGeneration(cap({ date: DATE_14, age: '3600' }), 'not a date')).toBe(false);
+  });
+
+  // What makes the negative-age guard in originDateMs load bearing rather than
+  // tidy. A 14:00 Date with an Age of -3600 would compute to 15:00, an hour
+  // into the FUTURE, and this test shows what storing such a value does: the
+  // next honest poll is judged stale and skipped, and so is every one after
+  // it. The stored timestamp below is that future value written out literally,
+  // not derived from originDateMs, so this test still stands if the guard is
+  // removed.
+  it('skips the next honest poll once a future origin is stored', () => {
+    expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), '2026-08-26T15:00:00.000Z')).toBe(true);
   });
 });
