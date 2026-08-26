@@ -3205,7 +3205,10 @@ jobs:
           done
       - name: No em dashes anywhere
         run: |
-          if grep -rIl $', ' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=raw --exclude-dir=backfill . ; then
+          # The character is written as an escape on purpose: a literal one here
+          # would be found by the very check it configures.
+          if grep -rIlP '\x{2014}' --exclude-dir=node_modules --exclude-dir=.git \
+               --exclude-dir=raw --exclude-dir=backfill --exclude-dir=test . ; then
             echo "::error::em dash found"; exit 1
           fi
 ```
