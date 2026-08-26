@@ -1001,6 +1001,7 @@ git commit -m "feat: identify ourselves, follow moves on purpose, and refuse hal
 
 **Files:**
 - Create: `src/git.ts`, `src/run.ts`, `src/cli.ts`
+- Modify: `src/headers.ts` (add `buildSidecar`)
 - Create: `.github/workflows/collect-daily.yml`
 - Test: `test/git.test.ts`, `test/run.test.ts`
 
@@ -1245,7 +1246,7 @@ Expected: FAIL, cannot resolve `../src/run.js`
 // minimal run has no status store. Task 10 widens `RunResult.status`.
 import type { Source } from './config.js';
 import type { FetchOutcome } from './fetch.js';
-import { originDateMs } from './headers.js';
+import { buildSidecar } from './headers.js';
 
 export type RunDeps = {
   cwd: string;
@@ -1296,7 +1297,7 @@ export async function runTier(
 
       // Verbatim. The bytes written are the bytes received, always.
       deps.writeFile(s.path, got.observed.body);
-      deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(got.headers, null, 2) + '\n'));
+      deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(buildSidecar(got.headers), null, 2) + '\n'));
       deps.commitPaths([s.path, headersPathFor(s)], `${s.id}: changed (${got.observed.body.byteLength} bytes, HTTP ${got.observed.status})`);
       trace.push(`changed:${s.id}`);
       deps.log(`${s.id}: changed, ${got.observed.body.byteLength} bytes`);
@@ -1311,7 +1312,43 @@ export async function runTier(
 }
 ```
 
-- [ ] **Step 7: Write `src/cli.ts`**
+- [ ] **Step 7: Add `buildSidecar` to `src/headers.ts`**
+
+Spec section 9 names the two timestamps `observed_at` and `origin_date`.
+`HeaderRecord` carries neither: it has `fetchedAt` and the raw `date`/`age`
+inputs. So the sidecar is not the record, and something has to map it.
+
+It is **one exported function called from both `runTier`s**, not an inline
+object literal in each. An earlier revision of this plan wrote the mapping
+inline in Task 11's `runTier` and left Task 5's writing the bare record, with an
+orphan import that made the diff read as though Task 5 handled it. Task 5 is the
+task that goes live, and R7 forbids rewriting history, so every commit from
+Task 5 until Task 11 would have carried a sidecar permanently missing the field.
+One function with two call sites is what makes that divergence impossible rather
+than merely unlikely.
+
+```ts
+/** The committed sidecar shape. Spec section 9 names both timestamps. */
+export function buildSidecar(h: HeaderRecord): Record<string, unknown> {
+  const originMs = originDateMs(h);
+  return {
+    ...h,
+    observed_at: h.fetchedAt,
+    origin_date: originMs === null ? null : new Date(originMs).toISOString(),
+  };
+}
+```
+
+Test it directly, each claim in its own `it()`: it carries `observed_at` equal
+to `fetchedAt`; it carries `origin_date` derived from `date` minus `age`; it
+carries `origin_date: null` when either input is absent; and it preserves every
+key of the original record. Then assert the invariant that actually protects the
+archive: **the object `runTier` writes to `raw/<id>/headers.json` contains both
+`observed_at` and `origin_date`.** Assert it against what the write receives, in
+both `runTier` call sites, not against `buildSidecar` in isolation. A test of the
+function alone would have passed throughout the defect described above.
+
+- [ ] **Step 8: Write `src/cli.ts`**
 
 ```ts
 import fs from 'node:fs';
@@ -1354,12 +1391,12 @@ process.exit(result.exitCode);
 
 Fetching is serial here. Task 12 adds the politeness pool. Thirteen sources at a 60 second timeout is under fifteen minutes in the worst case and typically well under one, which is comfortably inside a daily slot.
 
-- [ ] **Step 8: Run the whole suite**
+- [ ] **Step 9: Run the whole suite**
 
 Run: `npm test && npm run typecheck`
 Expected: PASS
 
-- [ ] **Step 9: Dry run against the real world, without pushing**
+- [ ] **Step 10: Dry run against the real world, without pushing**
 
 ```bash
 LCA_NO_PUSH=1 npx tsx src/cli.ts --tier daily
@@ -1377,10 +1414,10 @@ git log --oneline -3
 
 Expected: **no new commits.** If this produces commits, a source is changing on every request for a reason that is not content, and it must be marked `pending` before this ships rather than after, because those commits are permanent.
 
-- [ ] **Step 10: Set the real identification values**
+- [ ] **Step 11: Set the real identification values**
 
 `meta/sources.json` ships `userAgent` and `contact` as `OWNER/REPO` placeholders. This is the
-first task that sends a request to a third party, so they must be real before Step 11:
+first task that sends a request to a third party, so they must be real before Step 12:
 
 ```json
 "userAgent": "llm-catalog-archive/1.0 (+https://github.com/MaxwellBrohm/llm-catalog-archive)",
@@ -1391,14 +1428,14 @@ first task that sends a request to a third party, so they must be real before St
 header goes to sixteen third parties and lands in their logs; an issues URL is a real contact
 channel that exposes nothing personal. A provider that wants to complain can open an issue.
 
-- [ ] **Step 11: Create the repository and go live**
+- [ ] **Step 12: Create the repository and go live**
 
 ```bash
 gh repo create llm-catalog-archive --public --source=. --remote=origin --push
 ```
 
 **This step creates a public repository and is not delegated.** It is an outward-facing publish,
-so the implementer stops after Step 9's dry run and the controller performs Steps 10 and 11.
+so the implementer stops after Step 10's dry run and the controller performs Steps 11 and 12.
 
 `.github/workflows/collect-daily.yml`:
 ```yaml
@@ -1434,7 +1471,7 @@ git fetch origin && git log --oneline origin/main -5
 
 **Do not proceed to Task 6 until a commit made by the workflow itself appears on `origin/main`.** Everything after this improves a running collector; this step is the difference between a running collector and a repository.
 
-- [ ] **Step 11: Commit**
+- [ ] **Step 13: Commit**
 
 ```bash
 git add src/git.ts src/run.ts src/cli.ts test/git.test.ts test/run.test.ts .github/workflows/collect-daily.yml
@@ -2767,7 +2804,7 @@ import type { Source } from './config.js';
 import { checkHealth } from './health.js';
 import { hasChanged } from './predicates.js';
 import { checkMagnitude } from './magnitude.js';
-import { isStaleGeneration, originDateMs } from './headers.js';
+import { buildSidecar, isStaleGeneration, originDateMs } from './headers.js';
 import { applyOutcome, shouldCommitStatus, exitCodeFor, type StatusFile, type SourceStatus, type Outcome } from './status.js';
 import type { FetchOutcome } from './fetch.js';
 
@@ -2841,19 +2878,7 @@ export async function runTier(
             } else {
               // 5. write, verbatim, plus its sidecar. 6. commit, together.
               deps.writeFile(s.path, got.observed.body);
-              // Spec section 9 names the two timestamps `observed_at` and
-              // `origin_date`. `HeaderRecord` carries `fetchedAt` and the raw
-              // `date`/`age` inputs, so the serializer maps them here. Without
-              // this the archive never carries the field the spec names, and
-              // nothing downstream would notice until a published timestamp was
-              // wrong.
-              const originMs = originDateMs(got.headers);
-              const sidecar = {
-                ...got.headers,
-                observed_at: got.headers.fetchedAt,
-                origin_date: originMs === null ? null : new Date(originMs).toISOString(),
-              };
-              deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(sidecar, null, 2) + '\n'));
+              deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(buildSidecar(got.headers), null, 2) + '\n'));
               deps.commitPaths([s.path, headersPathFor(s)], `${s.id}: changed (${got.observed.body.byteLength} bytes, HTTP ${got.observed.status})`);
               trace.push(`changed:${s.id}`);
               outcome = { health: verdict.state, countsAsFailure: false, httpStatus: got.observed.status,
