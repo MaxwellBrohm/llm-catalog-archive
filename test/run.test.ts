@@ -46,6 +46,19 @@ const HDR: HeaderRecord = {
   contentLength: null,
 };
 
+/**
+ * What meta/sources.json really declares for every non-text source. A canary
+ * only stands in where "parses as its declared type" would be vacuous, which
+ * is text and nothing else.
+ */
+const NO_CANARY = {
+  minBytes: 1,
+  requiredKeyPath: null,
+  minRecords: null,
+  canary: null,
+  sizeBand: [0.1, 10],
+} as Source['invariants'];
+
 const source = (over: Partial<Source> = {}): Source =>
   ({
     id: 'a',
@@ -140,12 +153,12 @@ describe('runTier, minimal', () => {
   // source() in this file is `text`, so without these two a normaliser that
   // gates on contentType is invisible to the whole suite.
   it('writes a json body verbatim, neither pretty-printed nor re-serialised', async () => {
-    const d = await runOne(source({ contentType: 'json', path: 'raw/a/response.json' }), JSON_BODY);
+    const d = await runOne(source({ contentType: 'json', path: 'raw/a/response.json', invariants: NO_CANARY }), JSON_BODY);
     expect(d.files['raw/a/response.json']).toEqual(JSON_BODY);
   });
 
   it('writes an xml body verbatim, keeping its BOM and its CRLFs', async () => {
-    const d = await runOne(source({ contentType: 'xml', path: 'raw/a/response.xml' }), XML_BODY);
+    const d = await runOne(source({ contentType: 'xml', path: 'raw/a/response.xml', invariants: NO_CANARY }), XML_BODY);
     expect(d.files['raw/a/response.xml']).toEqual(XML_BODY);
   });
 
@@ -376,5 +389,191 @@ describe('the sidecar runTier writes', () => {
   it('ends with a newline, so the file is a well-formed text line', async () => {
     const d = await runWith(withOrigin);
     expect(dec(d.files['raw/a/headers.json']).endsWith('\n')).toBe(true);
+  });
+});
+
+/**
+ * The health gate at its call site.
+ *
+ * A guard that exists but is never called protects nothing, and this collector
+ * ran live and unguarded until these tests existed. Every claim here is about
+ * `runTier`, not about `checkHealth`: the module has its own suite, and an
+ * earlier revision of this plan would have shipped a fully tested health module
+ * that `runTier` never consulted.
+ */
+describe('runTier consults the health gate before it writes', () => {
+  const feedSource = (over: Partial<Source> = {}): Source =>
+    source({
+      contentType: 'xml',
+      path: 'raw/a/response.atom',
+      expectedRoot: 'feed',
+      invariants: NO_CANARY,
+      freshness: { kind: 'feed', maxQuietDays: 7 },
+      ...over,
+    });
+
+  /** Carries the canary, so only the interstitial denylist can reject it. */
+  const CHALLENGE = enc('CANARY\n<title>Just a moment...</title>\n__CF$cv$params\n');
+  const LAST_GOOD = enc('CANARY\nthe bytes that were good\n');
+
+  const feedDated = (iso: string) =>
+    enc(`<?xml version="1.0"?>\n<feed><entry><id>1</id><updated>${iso}</updated></entry></feed>\n`);
+
+  const runWith = async (s: Source, body: Uint8Array, files: Record<string, Uint8Array>, over: Partial<RunDeps> = {}) => {
+    const d = deps(
+      {
+        fetchOne: async () => {
+          d.trace.push('fetch');
+          return {
+            ok: true as const,
+            attempts: 1,
+            observed: { status: 200, body, finalUrl: s.url, redirectCount: 0, headers: {} },
+            headers: HDR,
+          };
+        },
+        ...over,
+      },
+      files,
+    );
+    await runTier([s], 'daily', null, d);
+    return d;
+  };
+
+  // The whole trace, not the absence of a write: `some(...) === false` is also
+  // satisfied by a runTier that returns without fetching anything.
+  it('fetches an interstitial and then writes nothing and commits nothing', async () => {
+    const d = await runWith(source(), CHALLENGE, { 'raw/a/response.txt': LAST_GOOD });
+    expect(d.trace).toEqual(['fetch', 'push']);
+  });
+
+  // The claim the whole task exists for.
+  it('leaves the last-good bytes on disk untouched when a challenge page arrives at 200', async () => {
+    const d = await runWith(source(), CHALLENGE, { 'raw/a/response.txt': LAST_GOOD });
+    expect(d.files['raw/a/response.txt']).toEqual(LAST_GOOD);
+  });
+
+  it('says which check refused the write', async () => {
+    const d = await runWith(source(), CHALLENGE, { 'raw/a/response.txt': LAST_GOOD });
+    expect(d.logs).toContain('a: failed, not written: interstitial marker present: __CF$cv$params');
+  });
+
+  it('records the refusal in the trace it returns', async () => {
+    const d = deps(
+      {
+        fetchOne: async () => ({
+          ok: true as const,
+          attempts: 1,
+          observed: { status: 200, body: CHALLENGE, finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+          headers: HDR,
+        }),
+      },
+      { 'raw/a/response.txt': LAST_GOOD },
+    );
+    const r = await runTier([source()], 'daily', null, d);
+    expect(r.trace).toEqual(['failed:a']);
+  });
+
+  it('writes nothing for a source with no stored artifact at all rather than creating a bad one', async () => {
+    const d = await runWith(source(), CHALLENGE, {});
+    expect(d.files['raw/a/response.txt']).toBeUndefined();
+  });
+
+  it('keeps collecting the next source after one fails health', async () => {
+    const bodies: Uint8Array[] = [CHALLENGE, enc('CANARY\nb is fine\n')];
+    let n = 0;
+    const d = deps({
+      fetchOne: async (s) => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body: bodies[n++]!, finalUrl: s.url, redirectCount: 0, headers: {} },
+        headers: HDR,
+      }),
+    });
+    await runTier([source(), source({ id: 'b', path: 'raw/b/response.txt' })], 'daily', null, d);
+    expect(d.files['raw/b/response.txt']).toEqual(enc('CANARY\nb is fine\n'));
+  });
+
+  it('does not write a stale feed', async () => {
+    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
+    expect(d.trace).toEqual(['fetch', 'push']);
+  });
+
+  // Stale is not failed, and the log has to say so, because this is the line an
+  // operator reads before deciding whether anything is broken.
+  it('reports a quiet feed as stale rather than as failed', async () => {
+    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
+    expect(d.logs).toContain('a: stale, not written: newest item 238 days old, limit 7');
+  });
+
+  // The band is a ratio against the stored artifact. If runTier passed a
+  // hardcoded null the band could never fire, which is a guard spelled to look
+  // configured. These two differ only in the size of the file already on disk.
+  it('writes a body that sits inside the band around the stored size', async () => {
+    const s = source({ invariants: { ...source().invariants, sizeBand: [0.5, 2.0] } });
+    const d = await runWith(s, BODY, { 'raw/a/response.txt': new Uint8Array(16).fill(1) });
+    expect(d.files['raw/a/response.txt']).toEqual(BODY);
+  });
+
+  it('refuses a body that sits outside the band around the stored size', async () => {
+    const s = source({ invariants: { ...source().invariants, sizeBand: [0.5, 2.0] } });
+    const stored = new Uint8Array(4).fill(1);
+    const d = await runWith(s, BODY, { 'raw/a/response.txt': stored });
+    expect(d.files['raw/a/response.txt']).toEqual(stored);
+  });
+
+  // The freshness window is measured against the run clock, not against the
+  // wall clock. These two differ only in what nowIso returns.
+  it('writes a feed that is fresh at the run clock', async () => {
+    const d = await runWith(feedSource(), feedDated('2026-08-20T00:00:00Z'), {});
+    expect(d.files['raw/a/response.atom']).toEqual(feedDated('2026-08-20T00:00:00Z'));
+  });
+
+  it('refuses the same feed once the run clock has passed the quiet limit', async () => {
+    const d = await runWith(feedSource(), feedDated('2026-08-20T00:00:00Z'), {}, {
+      nowIso: () => '2026-09-30T00:00:00.000Z',
+    });
+    expect(d.files['raw/a/response.atom']).toBeUndefined();
+  });
+
+  it('writes a relocated source, because the bytes are good and the url is not', async () => {
+    const d = deps({
+      fetchOne: async () => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body: BODY, finalUrl: 'https://moved.example/f', redirectCount: 1, headers: {} },
+        headers: HDR,
+      }),
+    });
+    await runTier([source()], 'daily', null, d);
+    expect(d.files['raw/a/response.txt']).toEqual(BODY);
+  });
+
+  it('says where a relocated source has moved to', async () => {
+    const d = deps({
+      fetchOne: async () => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body: BODY, finalUrl: 'https://moved.example/f', redirectCount: 1, headers: {} },
+        headers: HDR,
+      }),
+    });
+    await runTier([source()], 'daily', null, d);
+    expect(d.logs).toContain('a: relocated, final url is https://moved.example/f, declared https://a.example/f');
+  });
+
+  it('refuses a non-2xx body that the fetch layer handed up as a success', async () => {
+    const d = deps(
+      {
+        fetchOne: async () => ({
+          ok: true as const,
+          attempts: 1,
+          observed: { status: 404, body: BODY, finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+          headers: HDR,
+        }),
+      },
+      { 'raw/a/response.txt': LAST_GOOD },
+    );
+    await runTier([source()], 'daily', null, d);
+    expect(d.files['raw/a/response.txt']).toEqual(LAST_GOOD);
   });
 });

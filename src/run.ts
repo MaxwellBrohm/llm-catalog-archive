@@ -2,6 +2,7 @@
 // minimal run has no status store. Task 10 widens `RunResult.status`.
 import type { Source } from './config.js';
 import type { FetchOutcome } from './fetch.js';
+import { checkHealth } from './health.js';
 import { buildSidecar } from './headers.js';
 
 export type RunDeps = {
@@ -26,12 +27,19 @@ function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 /**
- * MINIMAL SHAPE. Tasks 6 through 10 insert the health check, the full predicate
- * dispatch, the magnitude guard and the status store into this pipeline, and
- * Task 11 locks the resulting order with tests that assert it.
+ * The pipeline, in the one order it can have:
  *
- * It ships in this state on purpose: a day not collected cannot be recovered,
- * while a wrong snapshot stays recoverable beside the right one in history.
+ *   fetch -> health check -> change predicate -> write -> commit -> push
+ *
+ * A response that fails the health check is never written and never committed,
+ * so the last-good bytes on disk are never clobbered by a challenge page, a
+ * soft 404 or a redirect stub. The health check reads the size of the stored
+ * artifact to compute its band, which is why the stored bytes are loaded
+ * before the verdict rather than after it; reading is not writing and the
+ * order above still holds.
+ *
+ * Tasks 7 through 10 insert the full predicate dispatch, the magnitude guard
+ * and the status store; Task 11 locks the resulting order with tests.
  */
 export async function runTier(
   sources: Source[],
@@ -59,6 +67,27 @@ export async function runTier(
       }
 
       const stored = deps.readFile(s.path);
+
+      const health = checkHealth(
+        s,
+        got.observed,
+        { bytes: stored === null ? null : stored.byteLength },
+        Date.parse(deps.nowIso()),
+      );
+      if (!health.writeAllowed) {
+        // Not written, not committed. The bytes already in the archive are the
+        // last ones that passed, and an error page served at 200 must not be
+        // the thing that replaces them in a history R7 forbids rewriting.
+        deps.log(`${s.id}: ${health.state}, not written: ${health.reason}`);
+        trace.push(`${health.state}:${s.id}`);
+        continue;
+      }
+      if (health.state === 'relocated') {
+        // Writable, and worth saying out loud: the bytes are good and it is the
+        // url in meta/sources.json that has gone stale.
+        deps.log(`${s.id}: relocated, ${health.reason}`);
+      }
+
       if (stored !== null && sameBytes(got.observed.body, stored)) continue;
 
       // Verbatim. The bytes written are the bytes received, always.

@@ -124,7 +124,7 @@
         "minBytes": 6705,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "## Deprecation history",
         "sizeBand": [
           0.5,
           2.0
@@ -160,7 +160,7 @@
         "minBytes": 31985,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# Anthropic Developer Documentation",
         "sizeBand": [
           0.5,
           2.0
@@ -196,7 +196,7 @@
         "minBytes": 33272,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# OpenRouter | Documentation",
         "sizeBand": [
           0.5,
           2.0
@@ -269,7 +269,7 @@
         "minBytes": 17216,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# OpenAI API docs",
         "sizeBand": [
           0.5,
           2.0
@@ -305,7 +305,7 @@
         "minBytes": 30860,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# Together AI docs",
         "sizeBand": [
           0.5,
           2.0
@@ -341,7 +341,7 @@
         "minBytes": 21664,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# Perplexity",
         "sizeBand": [
           0.5,
           2.0
@@ -377,7 +377,7 @@
         "minBytes": 7329,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# MistralAI",
         "sizeBand": [
           0.5,
           2.0
@@ -413,7 +413,7 @@
         "minBytes": 398626,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "# https://console.groq.com llms-full.txt",
         "sizeBand": [
           0.5,
           2.0
@@ -449,7 +449,7 @@
         "minBytes": 732703,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "__CANARY_PLACEHOLDER_TASK_6__",
+        "canary": "https://api.x.ai/v1",
         "sizeBand": [
           0.5,
           2.0

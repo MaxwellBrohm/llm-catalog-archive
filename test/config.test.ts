@@ -369,12 +369,15 @@ describe('the shipped meta/sources.json', () => {
 
   it('gives every text source a canary and every other source none', () => {
     for (const s of shipped().sources) {
-      // The exact placeholder, not merely a truthy string. A wrong but
-      // plausible canary written now would fail health silently once Task 11
-      // wires the check in, and the guard that catches a SURVIVING placeholder
-      // cannot see one that was replaced early with a guess.
-      if (s.contentType === 'text')
-        expect(s.invariants.canary, s.id).toBe('__CANARY_PLACEHOLDER_TASK_6__');
+      // Task 6 replaced the placeholders this used to pin. Non-emptiness is
+      // already enforced by loadSources, which shipped() goes through, so what
+      // is left here is the structural claim: a canary stands in exactly where
+      // "parses as its declared type" would be vacuous, and nowhere else.
+      //
+      // A canary that is present but WRONG is not visible from here at all. It
+      // is caught in test/health.test.ts, which runs each configured canary
+      // against the bytes actually archived under raw/<id>/.
+      if (s.contentType === 'text') expect(s.invariants.canary, s.id).not.toBe('__CANARY_PLACEHOLDER_TASK_6__');
       else expect(s.invariants.canary, s.id).toBeNull();
     }
   });
