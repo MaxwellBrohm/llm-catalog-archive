@@ -133,7 +133,7 @@ and vice versa.
 ```json
 {
   "version": 1,
-  "user_agent": "ainews-collector/1.0 (+https://github.com/OWNER/REPO)",
+  "user_agent": "llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)",
   "contact": "OWNER@example.com",
   "sources": [
     {
@@ -317,7 +317,7 @@ the unconditional daily commit fails to happen precisely when sources are
 failing, re-arming the 60-day disable that section 8 exists to prevent.
 
 **Identification.** Every request sends
-`User-Agent: ainews-collector/1.0 (+https://github.com/OWNER/REPO)` and a
+`User-Agent: llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)` and a
 contact address, declared once in `sources.json` and identical for every
 source. **Spoofing a browser or feed-reader UA is forbidden** by the same rule
 that forbids circumventing bot detection: if a source only serves a fake UA, it
