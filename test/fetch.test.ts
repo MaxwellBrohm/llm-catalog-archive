@@ -6,6 +6,10 @@ import type { Source } from '../src/config.js';
 // injected, so a regression here fails on logic and never on connectivity.
 
 const UA = 'llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)';
+// Deliberately not UA. Used wherever the claim is "the module forwards the user
+// agent it was handed", which an assertion against UA cannot distinguish from a
+// hardcoded copy of the declared string.
+const OTHER_UA = 'llm-catalog-archive/1.0 (+https://github.com/real-owner/real-repo)';
 const NOW = '2026-08-26T14:00:00.000Z';
 const START = 'https://a.example/f';
 
@@ -53,6 +57,21 @@ describe('fetchSource identifies itself', () => {
   // else echoed the value back.
   it('sends the declared user agent verbatim', async () => {
     expect(new Headers((await firstInit()).headers).get('user-agent')).toBe(UA);
+  });
+
+  // The test above cannot tell a threaded argument from a hardcoded copy of the
+  // declared string. Task 5 replaces the OWNER/REPO placeholder with the real
+  // repository before the first live fetch, so a module that ignored this
+  // argument would introduce itself to sixteen third parties as OWNER/REPO
+  // forever, with a green suite. Hence a UA unlike the fixture default.
+  it('sends the user agent it was given rather than one of its own', async () => {
+    const seen: RequestInit[] = [];
+    const impl: FetchImpl = async (_u, i) => {
+      seen.push(i);
+      return res('ok');
+    };
+    await fetchSource(src(), opts(impl, { userAgent: OTHER_UA }));
+    expect(new Headers(seen[0]!.headers).get('user-agent')).toBe(OTHER_UA);
   });
 
   it('asks for the encodings it can decode', async () => {
@@ -129,7 +148,10 @@ describe('the header sidecar', () => {
 
   const sidecar = async (h: Record<string, string> = {}) => {
     const impl: FetchImpl = async () => res('body', { status: 203, headers: h });
-    const out = await fetchSource(src({ url: SIDECAR_URL }), opts(impl, { nowIso: () => CLOCK }));
+    const out = await fetchSource(
+      src({ url: SIDECAR_URL }),
+      opts(impl, { nowIso: () => CLOCK, userAgent: OTHER_UA }),
+    );
     return succeeded(out).headers;
   };
 
@@ -137,8 +159,11 @@ describe('the header sidecar', () => {
     expect((await sidecar()).fetchedAt).toBe(CLOCK);
   });
 
-  it('records the user agent that was sent', async () => {
-    expect((await sidecar()).userAgent).toBe(UA);
+  // Same reasoning as the wire header: a hardcoded copy of the declared string
+  // would satisfy an assertion against UA. The sidecar is what the archive
+  // commits, so a stale user agent there is a permanent false record.
+  it('records the user agent it was given rather than one of its own', async () => {
+    expect((await sidecar()).userAgent).toBe(OTHER_UA);
   });
 
   it('records the url that was finally fetched', async () => {
@@ -370,6 +395,26 @@ describe('the retry predicate', () => {
       expect(f.calls()).toBe(2);
     });
   }
+
+  // The upper bound of the 5xx range. `new Response` throws RangeError above
+  // 599, but that constructor is not the only producer: an origin can put any
+  // three digits on the status line and node's fetch hands the number back, and
+  // `fetchImpl` is injected and never validated. So this input is reachable and
+  // the bound is not dead code.
+  it('does not retry a status above 599', async () => {
+    let n = 0;
+    const impl: FetchImpl = async () => {
+      n++;
+      return {
+        status: 600,
+        headers: new Headers(),
+        body: null,
+        arrayBuffer: async () => new ArrayBuffer(0),
+      } as unknown as Response;
+    };
+    await fetchSource(src({ retries: 2 }), opts(impl));
+    expect(n).toBe(1);
+  });
 
   // A missing page will still be missing, and a bad request will still be bad.
   for (const status of [400, 404, 499]) {
@@ -644,35 +689,31 @@ describe('the per-attempt timeout', () => {
     return { impl, signal: () => signal! };
   };
 
+  // These three deliberately do not await the fetchSource promise. It settles
+  // only because of the abort under test, so awaiting it would turn a broken
+  // timeout into a five second hang instead of a one line assertion failure.
   it('has not aborted one millisecond before the timeout', async () => {
     vi.useFakeTimers();
     const h = hanging();
-    const run = fetchSource(src({ timeoutS: 5, retries: 0 }), opts(h.impl));
+    void fetchSource(src({ timeoutS: 5, retries: 0 }), opts(h.impl));
     await vi.advanceTimersByTimeAsync(4999);
-    const early = h.signal().aborted;
-    await vi.advanceTimersByTimeAsync(1);
-    await run;
-    expect(early).toBe(false);
+    expect(h.signal().aborted).toBe(false);
   });
 
   it('aborts once timeoutS has elapsed', async () => {
     vi.useFakeTimers();
     const h = hanging();
-    const run = fetchSource(src({ timeoutS: 5, retries: 0 }), opts(h.impl));
+    void fetchSource(src({ timeoutS: 5, retries: 0 }), opts(h.impl));
     await vi.advanceTimersByTimeAsync(5000);
-    await run;
     expect(h.signal().aborted).toBe(true);
   });
 
   it('scales the timeout with timeoutS', async () => {
     vi.useFakeTimers();
     const h = hanging();
-    const run = fetchSource(src({ timeoutS: 25, retries: 0 }), opts(h.impl));
+    void fetchSource(src({ timeoutS: 25, retries: 0 }), opts(h.impl));
     await vi.advanceTimersByTimeAsync(5000);
-    const early = h.signal().aborted;
-    await vi.advanceTimersByTimeAsync(20000);
-    await run;
-    expect(early).toBe(false);
+    expect(h.signal().aborted).toBe(false);
   });
 
   it('reports a timed out attempt as a failure', async () => {
@@ -681,5 +722,47 @@ describe('the per-attempt timeout', () => {
     const run = fetchSource(src({ timeoutS: 5, retries: 0 }), opts(h.impl));
     await vi.advanceTimersByTimeAsync(5000);
     expect((await run).ok).toBe(false);
+  });
+
+  // The abort timer must be cleared on every path out of an attempt, or a
+  // finished collector sits holding one live handle per source. Nothing in the
+  // returned outcome shows this, so the assertion is on the timer count itself:
+  // pristine leaves none pending, a missing clearTimeout leaves one per attempt.
+  it('clears the per-attempt timer after a successful attempt', async () => {
+    vi.useFakeTimers();
+    const impl: FetchImpl = async () => res('ok');
+    await fetchSource(src({ timeoutS: 5, retries: 0 }), opts(impl));
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('clears the per-attempt timer when the redirect cap ends the attempt', async () => {
+    vi.useFakeTimers();
+    let n = 0;
+    const impl: FetchImpl = async () => {
+      n++;
+      return new Response(null, { status: 301, headers: { location: `https://a.example/${n}` } });
+    };
+    await fetchSource(src({ timeoutS: 5, retries: 0, maxRedirects: 2 }), opts(impl));
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('clears the per-attempt timer of an attempt it retried past', async () => {
+    vi.useFakeTimers();
+    let n = 0;
+    const impl: FetchImpl = async () => {
+      n++;
+      return n < 2 ? res('transient', { status: 503 }) : res('good');
+    };
+    await fetchSource(src({ timeoutS: 5, retries: 1 }), opts(impl));
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('clears the per-attempt timer when the attempt throws', async () => {
+    vi.useFakeTimers();
+    const impl: FetchImpl = async () => {
+      throw new Error('ECONNRESET');
+    };
+    await fetchSource(src({ timeoutS: 5, retries: 0 }), opts(impl));
+    expect(vi.getTimerCount()).toBe(0);
   });
 });
