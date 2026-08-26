@@ -151,8 +151,10 @@ import fs from 'node:fs';
 describe('scaffold', () => {
   it('marks raw and backfill as binary so git never rewrites stored bytes', () => {
     const attrs = fs.readFileSync('.gitattributes', 'utf8');
-    expect(attrs).toContain('raw/** -text -diff=auto');
-    expect(attrs).toContain('backfill/** -text -diff=auto');
+    expect(attrs).toContain('raw/** -text');
+    expect(attrs).toContain('backfill/** -text');
+    // -diff would make git print "Binary files differ" instead of the change.
+    expect(attrs).not.toMatch(/^raw\/\*\* .*-diff/m);
   });
 
   it('ships both append-only ledgers, empty', () => {
@@ -220,9 +222,11 @@ export default defineConfig({ test: { environment: 'node', include: ['test/**/*.
 
 `.gitattributes`:
 ```
-raw/** -text -diff=auto
-backfill/** -text -diff=auto
+raw/** -text
+backfill/** -text
 ```
+
+`-text` only. Do **not** add `-diff`: it marks the path binary for diff purposes and `git log -p raw/<id>/response.json` then prints `Binary files ... differ` instead of the change, which is the one query the whole archive exists to answer.
 
 `.gitignore`:
 ```
@@ -988,7 +992,7 @@ The archive's value compounds with elapsed time, and a day not collected is hist
 
 | Must be right now | Why it cannot wait |
 |---|---|
-| `.gitattributes` marking `raw/**` as `-text -diff=auto` (Task 1) | Without it git may normalize line endings on write. The original bytes are then gone, not merely wrong, and R1 is silently violated in a way that looks correct in a working tree. |
+| `.gitattributes` marking `raw/**` as `-text` (Task 1) | Without it git may normalize line endings on write. The original bytes are then gone, not merely wrong, and R1 is silently violated in a way that looks correct in a working tree. |
 | The path layout `raw/<id>/response.*` | Changing it later splits the history of a source across two paths and breaks `git log -p` on either. |
 | The headers sidecar, committed with its body | Backfilling provenance onto commits that already exist is impossible under R7, so these commits would carry a permanent hole. |
 | A change predicate, even a byte-comparison one | Committing on every run at 15 minute cadence is 35,000 commits a year of noise, permanently, in a history that can never be rewritten. |
@@ -1043,7 +1047,7 @@ describe('commitPaths', () => {
   // R1 is the load-bearing rule and this is the only test that can catch it
   // being violated by configuration rather than by code.
   it('stores bytes verbatim through a commit and checkout round trip', () => {
-    fs.writeFileSync(path.join(repo, '.gitattributes'), 'raw/** -text -diff=auto\n');
+    fs.writeFileSync(path.join(repo, '.gitattributes'), 'raw/** -text\n');
     commitPaths(repo, ['.gitattributes'], 'attrs');
     fs.mkdirSync(path.join(repo, 'raw/y'), { recursive: true });
     const bytes = new Uint8Array([...new TextEncoder().encode('a\r\nb\r\nc'), 0xff]);

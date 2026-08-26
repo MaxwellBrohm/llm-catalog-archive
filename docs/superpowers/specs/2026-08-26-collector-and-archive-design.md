@@ -69,8 +69,10 @@ so the wire form stays reconstructable. Without this clause an implementer
 following R1 literally stores gzip blobs, `git log -p` shows nothing readable,
 delta compression stops working, and R2's artifact link points at a binary.
 
-`.gitattributes` marks `raw/**` and `backfill/**` as `-text -diff=auto` so git
-never applies EOL or text normalization to a stored artifact.
+`.gitattributes` marks `raw/**` and `backfill/**` as `-text` so git never
+applies EOL or text normalization to a stored artifact. It must **not** also
+unset `diff`: `-diff` makes git print `Binary files ... differ` in place of a
+real diff, which would destroy the `git log -p` query this design rests on.
 
 **R2. Verbatim is what makes the artifact link honest.** Auto-published events
 link the raw artifact they came from. An artifact reshaped by us is not
@@ -100,7 +102,7 @@ requires them to be permanent. Enforced by branch protection.
 
 ```
 llm-catalog-archive/
-  .gitattributes             raw/** and backfill/** are -text -diff=auto
+  .gitattributes             raw/** and backfill/** are -text (never -diff)
   .github/workflows/
     collect-fast.yml         */15 * * * *
     collect-daily.yml        20 0 * * *
