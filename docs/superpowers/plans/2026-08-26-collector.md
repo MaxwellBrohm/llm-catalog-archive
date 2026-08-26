@@ -1513,7 +1513,11 @@ Each is a real captured response, not a synthetic. Run from the repo root:
 ```bash
 mkdir -p test/fixtures
 UA='llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)'
-c() { curl -sS -m 60 -A "$UA" "$2" -o "test/fixtures/$1"; echo "$1 $(wc -c < test/fixtures/$1)"; }
+# -L IS NOT OPTIONAL. Several of these now answer with a redirect, and without
+# -L curl stores a 15-byte or 0-byte stub, which silently turns the test that
+# uses it vacuous. This bit Task 6: two trap fixtures were captured as stubs and
+# the traps they existed to prove were simply absent from them.
+c() { curl -sSL -m 90 -A "$UA" "$2" -o "test/fixtures/$1"; echo "$1 $(wc -c < test/fixtures/$1)"; }
 
 c healthy-claude-llms.txt      https://platform.claude.com/llms.txt
 c healthy-openrouter.json      https://openrouter.ai/api/v1/models

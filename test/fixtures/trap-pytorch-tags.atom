@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>tag:github.com,2008:https://github.com/pytorch/pytorch/releases</id>
+  <link type="text/html" rel="alternate" href="https://github.com/pytorch/pytorch/releases"/>
+  <link type="application/atom+xml" rel="self" href="https://github.com/pytorch/pytorch/releases.atom"/>
+  <title>Release notes from pytorch</title>
+  <updated>2026-08-26T14:28:01Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787771115</id>
+    <updated>2026-08-26T14:28:01Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787771115"/>
+    <title>viable/strict/1787771115</title>
+    <content type="html">&lt;p&gt;[Testcase Refactoring] Add hw_classification in test_shape_inference.…&lt;/p&gt;</content>
+    <author>
+      <name>dingsheng758</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/50263869?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787762273</id>
+    <updated>2026-08-26T12:21:32Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787762273"/>
+    <title>viable/strict/1787762273</title>
+    <content type="html">&lt;p&gt;[Testcase Refactoring] Add hw_classification in test/fx/test_source_m…&lt;/p&gt;</content>
+    <author>
+      <name>dingsheng758</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/50263869?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787759504</id>
+    <updated>2026-08-26T10:41:40Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787759504"/>
+    <title>viable/strict/1787759504</title>
+    <content type="html">&lt;p&gt;[Testcase Refactoring] Add hw_classification in test/fx/test_subgraph…&lt;/p&gt;</content>
+    <author>
+      <name>dingsheng758</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/50263869?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787738484</id>
+    <updated>2026-08-26T05:39:51Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787738484"/>
+    <title>viable/strict/1787738484: Re-enable expandable segments for CUDA Graph (#194767) (#194767)</title>
+    <content type="html">&lt;p&gt;Summary:&lt;/p&gt;
+&lt;p&gt;Previously we temporarily disabled expandable segments for CUDA Graph due to some issues. Now, since the issues were fixed, we re-enable it&lt;/p&gt;
+&lt;p&gt;Test Plan:&lt;br&gt;
+baseline:  f1125979746&lt;br&gt;
+QPS: 28.5k&lt;br&gt;
+peak memory: 97.08%&lt;/p&gt;
+&lt;p&gt;re-enabled: f1131430315&lt;br&gt;
+QPS: 28.7k&lt;br&gt;
+peak memory: 89.28%&lt;/p&gt;
+&lt;p&gt;Differential Revision: D117308651&lt;/p&gt;
+&lt;p&gt;Pull Request resolved: &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5249012137&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194767&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194767/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194767&quot;&gt;#194767&lt;/a&gt;&lt;br&gt;
+Approved by: &lt;a href=&quot;https://github.com/Skylion007&quot;&gt;https://github.com/Skylion007&lt;/a&gt;, &lt;a href=&quot;https://github.com/eqy&quot;&gt;https://github.com/eqy&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Microve</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/150552556?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787736531</id>
+    <updated>2026-08-26T05:11:10Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787736531"/>
+    <title>viable/strict/1787736531: [vllm hash update] update the pinned vllm hash (#194672)</title>
+    <content type="html">&lt;p&gt;This PR is auto-generated nightly by &lt;a href=&quot;https://github.com/pytorch/pytorch/blob/main/.github/workflows/nightly.yml&quot;&gt;this action&lt;/a&gt;.&lt;br&gt;
+Update the pinned vllm hash.&lt;br&gt;
+Pull Request resolved: &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5239911256&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194672&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194672/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194672&quot;&gt;#194672&lt;/a&gt;&lt;br&gt;
+Approved by: &lt;a href=&quot;https://github.com/pytorchbot&quot;&gt;https://github.com/pytorchbot&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>pytorchupdatebot</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/133916390?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787727979</id>
+    <updated>2026-08-26T02:52:10Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787727979"/>
+    <title>viable/strict/1787727979</title>
+    <content type="html">&lt;p&gt;Revert &quot;Move c10/util math helper headers into torch/headeronly (&lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;186663807&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194&quot;&gt;#194&lt;/a&gt;…&lt;/p&gt;</content>
+    <author>
+      <name>pytorchmergebot</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/97764156?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787723889</id>
+    <updated>2026-08-26T00:54:44Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787723889"/>
+    <title>viable/strict/1787723889: Remove dead mixed_mm remnants from inductor and torchgen (#193721)</title>
+    <content type="html">&lt;p&gt;The tuned mixed_mm kernel path was removed in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2852299723&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/147151&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/147151/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/147151&quot;&gt;#147151&lt;/a&gt;, but its support machinery&lt;br&gt;
+was left behind. This PR removes the dead remnants and formalizes the deprecation&lt;br&gt;
+of the two config knobs:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;use_mixed_mm&lt;/code&gt; and &lt;code&gt;mixed_mm_choice&lt;/code&gt; were comment-marked &quot;DEPRECATED. This&lt;br&gt;
+setting is ignored.&quot; but silently no-oped; they now use the formal&lt;br&gt;
+&lt;code&gt;Config(deprecated=True)&lt;/code&gt; mechanism, so setting them emits a FutureWarning&lt;br&gt;
+(matching the existing precedent in &lt;code&gt;torch/_dynamo/config.py&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Delete the learned-heuristic artifacts &lt;code&gt;_MixedMMA100.py&lt;/code&gt; / &lt;code&gt;_MixedMMH100.py&lt;/code&gt;&lt;br&gt;
+(shipped in every wheel, loaded by nothing) and their trainer directory&lt;br&gt;
+&lt;code&gt;torchgen/_autoheuristic/mixed_mm/&lt;/code&gt; (8 files); fix &lt;code&gt;torchgen/_autoheuristic/test.sh&lt;/code&gt;&lt;br&gt;
+which still cd&#39;d into the deleted directory, and drop the now-dead README links.&lt;/li&gt;
+&lt;li&gt;Remove &lt;code&gt;autoheuristic_collect.mixed_mm&lt;/code&gt; / &lt;code&gt;autoheuristic_use.mixed_mm&lt;/code&gt;, the&lt;br&gt;
+&lt;code&gt;&quot;mixed_mm&quot;&lt;/code&gt; default of &lt;code&gt;TORCHINDUCTOR_AUTOHEURISTIC_USE&lt;/code&gt;, the dead&lt;br&gt;
+&lt;code&gt;mixed_mm_operations()&lt;/code&gt; / &lt;code&gt;get_mixedmm_precondition()&lt;/code&gt; helpers, and the fuzzer&lt;br&gt;
+combinations for the removed knobs.&lt;/li&gt;
+&lt;li&gt;Remove the unused &lt;code&gt;mixed_mm_configs&lt;/code&gt; list in the triton template heuristics:&lt;br&gt;
+its sibling lists are all consumed while it has zero references — happy to&lt;br&gt;
+drop this hunk if it is intentionally kept.&lt;/li&gt;
+&lt;li&gt;Remove two dead tests: &lt;code&gt;test_global_feedback&lt;/code&gt; (permanently skipped as broken&lt;br&gt;
+since &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2852299723&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/147151&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/147151/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/147151&quot;&gt;#147151&lt;/a&gt;) and &lt;code&gt;test_mixed_mm_a100&lt;/code&gt; (exercises the deleted heuristic).&lt;br&gt;
+The mixed-dtype mm workload tests in &lt;code&gt;test_pattern_matcher.py&lt;/code&gt; /&lt;br&gt;
+&lt;code&gt;test_torchinductor.py&lt;/code&gt; are untouched — that path is alive.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Test Plan:&lt;/strong&gt; all touched modules import cleanly; setting&lt;br&gt;
+&lt;code&gt;torch._inductor.config.use_mixed_mm&lt;/code&gt; now emits the FutureWarning;&lt;br&gt;
+&lt;code&gt;pytest test/inductor/test_autoheuristic.py&lt;/code&gt; gives identical results before and&lt;br&gt;
+after the change on this machine (5 pre-existing environment-dependent GPU&lt;br&gt;
+failures on a CPU-only box, verified against the clean tree); ruff + flake8&lt;br&gt;
+clean on all touched files. Details in the commit message.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Developed with AI assistance; I have reviewed and understand all changes.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;Update (addressing review):&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Also deleted &lt;code&gt;between_op()&lt;/code&gt; / &lt;code&gt;between_ops()&lt;/code&gt;: this PR&#39;s removal of&lt;br&gt;
+&lt;code&gt;mixed_mm_operations()&lt;/code&gt; orphaned them (it was their only caller). Verified no&lt;br&gt;
+remaining callers and that no retained artifact uses the generated &lt;code&gt;LEQ&lt;/code&gt;&lt;br&gt;
+feature names. &lt;code&gt;pow2_op&lt;/code&gt; is left alone — it was already orphaned before this&lt;br&gt;
+PR and is out of scope.&lt;/li&gt;
+&lt;li&gt;Why deprecate rather than delete the two config knobs: they are already&lt;br&gt;
+silent no-ops, so deleting them would turn a harmless stale setting into an&lt;br&gt;
+AttributeError for out-of-tree code that still sets them.&lt;br&gt;
+&lt;code&gt;Config(deprecated=True)&lt;/code&gt; gives those users one FutureWarning cycle&lt;br&gt;
+(mirroring the &lt;code&gt;torch/_dynamo/config.py&lt;/code&gt; precedent) and makes the eventual&lt;br&gt;
+removal PR trivial. Happy to delete outright instead if an inductor owner&lt;br&gt;
+prefers.&lt;/li&gt;
+&lt;li&gt;Testing note: removing &lt;code&gt;test_global_feedback&lt;/code&gt; leaves the&lt;br&gt;
+&lt;code&gt;AutoHeuristicSelectAlgorithm&lt;/code&gt; global-feedback path without direct coverage&lt;br&gt;
+(it had been skipped-as-broken since &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2852299723&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/147151&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/147151/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/147151&quot;&gt;#147151&lt;/a&gt;, so there was no live coverage&lt;br&gt;
+in practice either). Filed &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5169312031&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/193777&quot; data-hovercard-type=&quot;issue&quot; data-hovercard-url=&quot;/pytorch/pytorch/issues/193777/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/issues/193777&quot;&gt;#193777&lt;/a&gt; to re-cover it via the live &lt;code&gt;mm&lt;/code&gt;&lt;br&gt;
+collection path, which does not depend on any deleted machinery.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Pull Request resolved: &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5164312619&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/193721&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/193721/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/193721&quot;&gt;#193721&lt;/a&gt;&lt;br&gt;
+Approved by: &lt;a href=&quot;https://github.com/jansel&quot;&gt;https://github.com/jansel&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Co-authored-by: Claude Fable 5 &lt;a href=&quot;mailto:noreply@anthropic.com&quot;&gt;noreply@anthropic.com&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>egeboy35</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96656842?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787722055</id>
+    <updated>2026-08-26T00:20:52Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787722055"/>
+    <title>viable/strict/1787722055: Fix the version gate on the free-threaded profiler warning (#194697)</title>
+    <content type="html">&lt;blockquote&gt;
+&lt;p&gt;IS_PYTHON_3_14_PLUS is always defined (as &lt;code&gt;PY_VERSION_HEX &amp;gt;= 0x030E0000&lt;/code&gt;), so &lt;code&gt;!defined(IS_PYTHON_3_14_PLUS)&lt;/code&gt; was always false and the warning never fired on 3.13t. Introduced in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;4147974505&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/178551&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/178551/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/178551&quot;&gt;#178551&lt;/a&gt;, which almost certainly meant to check the macro&#39;s boolean value, not whether it&#39;s defined. Fix uses the macro&#39;s value instead.&lt;/p&gt;
+&lt;p&gt;Test plan: compiled a probe with the guard against free-threaded 3.14 headers; old form is unreachable on every version, new form is reachable only when pinned to a 3.13 &lt;code&gt;PY_VERSION_HEX&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Pull Request resolved: &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5242251003&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194697&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194697/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194697&quot;&gt;#194697&lt;/a&gt;&lt;br&gt;
+Approved by: &lt;a href=&quot;https://github.com/ryanzhang22&quot;&gt;https://github.com/ryanzhang22&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>cyyever</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/17618148?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/viable/strict/1787720427</id>
+    <updated>2026-08-26T00:05:06Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/viable%2Fstrict%2F1787720427"/>
+    <title>viable/strict/1787720427: [inductor] Fix loop-local load CSE lifetime (#194786)</title>
+    <content type="html">&lt;p&gt;Human context: fix for &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5225679421&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194490&quot; data-hovercard-type=&quot;issue&quot; data-hovercard-url=&quot;/pytorch/pytorch/issues/194490/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/issues/194490&quot;&gt;#194490&lt;/a&gt;) exposed by &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;4473103467&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/184287&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/184287/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/184287&quot;&gt;#184287&lt;/a&gt; although the underlying cause was prior CSE / loop hoisting logic (and ultimately the fact that this is all tied to one very complicated file)..&lt;/p&gt;
+&lt;p&gt;Triton load placement and CSE lifetime used separate heuristics. An indirect load emitted inside a loop could consequently remain cached after loop closure and be reused by an epilogue even though its temporary did not dominate that use.&lt;/p&gt;
+&lt;p&gt;Use the selected load buffer as the source of truth for whether a CSE value survives loop closure. Also prevent loads carrying reduction masks from being hoisted before those masks are defined.&lt;/p&gt;
+&lt;p&gt;Test Plan:&lt;/p&gt;
+&lt;div class=&quot;snippet-clipboard-content notranslate position-relative overflow-auto&quot; data-snippet-clipboard-copy-content=&quot;python test/inductor/test_indexing.py ReductionInvariantIndexingTests
+python test/inductor/test_codegen_triton.py -k reduction_invariant_load_indexing
+git diff --check
+lintrunner -a test/inductor/test_indexing.py torch/_inductor/codegen/triton.py&quot;&gt;&lt;pre class=&quot;notranslate&quot;&gt;&lt;code&gt;python test/inductor/test_indexing.py ReductionInvariantIndexingTests
+python test/inductor/test_codegen_triton.py -k reduction_invariant_load_indexing
+git diff --check
+lintrunner -a test/inductor/test_indexing.py torch/_inductor/codegen/triton.py
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The two test commands and git diff check pass. Lintrunner was invoked, but Pyrefly failed on unrelated repository-wide missing-attribute errors because this detached worktree has no initialized lintrunner data.&lt;/p&gt;
+&lt;p&gt;AI-Assisted: Author reviewed and validated all AI-generated content.&lt;/p&gt;
+&lt;p&gt;Pull Request resolved: &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5249761327&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194786&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194786/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194786&quot;&gt;#194786&lt;/a&gt;&lt;br&gt;
+Approved by: &lt;a href=&quot;https://github.com/atalman&quot;&gt;https://github.com/atalman&lt;/a&gt;, &lt;a href=&quot;https://github.com/karthickai&quot;&gt;https://github.com/karthickai&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>eellison</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/11477974?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/65600975/v2.14.0-rc9</id>
+    <updated>2026-08-26T18:20:51Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/pytorch/pytorch/releases/tag/v2.14.0-rc9"/>
+    <title>v2.14.0-rc9: Pin cython &lt; 3.3.0 for the Windows Triton wheel build (#194931)</title>
+    <content type="html">&lt;p&gt;Pin cython &amp;lt; 3.3.0 for the Windows Triton wheel build (&lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5259099213&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194914&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194914/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194914&quot;&gt;#194914&lt;/a&gt;)&lt;/p&gt;
+&lt;h2&gt;Summary&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;Build Triton Windows Wheel (3.15, xpu)&lt;/code&gt; fails in &lt;code&gt;setup.py bdist_wheel&lt;/code&gt; with exit status &lt;strong&gt;3221225477&lt;/strong&gt; (&lt;code&gt;0xC0000005&lt;/code&gt;, access violation) — a hard crash, not a build error:&lt;/p&gt;
+&lt;div class=&quot;snippet-clipboard-content notranslate position-relative overflow-auto&quot; data-snippet-clipboard-copy-content=&quot;subprocess.CalledProcessError: Command &#39;[...\python.exe&#39;, &#39;setup.py&#39;, &#39;bdist_wheel&#39;]&#39;
+  returned non-zero exit status 3221225477&quot;&gt;&lt;pre class=&quot;notranslate&quot;&gt;&lt;code&gt;subprocess.CalledProcessError: Command &#39;[...\python.exe&#39;, &#39;setup.py&#39;, &#39;bdist_wheel&#39;]&#39;
+  returned non-zero exit status 3221225477
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Failing job: &lt;a href=&quot;https://github.com/pytorch/pytorch/actions/runs/32979657567/job/98212890807&quot;&gt;https://github.com/pytorch/pytorch/actions/runs/32979657567/job/98212890807&lt;/a&gt; (tag &lt;code&gt;v2.14.0-rc8&lt;/code&gt;)&lt;/p&gt;
+&lt;p&gt;Same issue on trunk: &lt;a href=&quot;https://github.com/pytorch/pytorch/actions/runs/32820378685/job/97717024597&quot;&gt;https://github.com/pytorch/pytorch/actions/runs/32820378685/job/97717024597&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;cython&lt;/code&gt; was the only unpinned package on the install line in &lt;code&gt;.github/scripts/windows/build_triton.bat&lt;/code&gt;, so it resolves to &lt;strong&gt;3.3.0&lt;/strong&gt; (released 2026-08-22), whose compiled cp315 extension access-violates under CPython 3.15. Nothing in PyTorch changed to trigger this — the Cython release did.&lt;/p&gt;
+&lt;p&gt;This is the same defect already worked around for the Windows and macOS wheel builds in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5236997736&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194618&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194618/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194618&quot;&gt;#194618&lt;/a&gt; and &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5246201660&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194734&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194734/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194734&quot;&gt;#194734&lt;/a&gt; (on macOS it surfaces as &lt;code&gt;-11&lt;/code&gt;/SIGSEGV instead of &lt;code&gt;0xC0000005&lt;/code&gt;).&lt;/p&gt;
+&lt;h2&gt;Evidence that it&#39;s Cython&#39;s compiled extension&lt;/h2&gt;
+&lt;p&gt;The 3.15 vs 3.15t split within the same run isolates it:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;job&lt;/th&gt;
+&lt;th&gt;cython artifact installed&lt;/th&gt;
+&lt;th&gt;result&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;3.10 – 3.14, 3.14t&lt;/td&gt;
+&lt;td&gt;compiled wheels, older ABI&lt;/td&gt;
+&lt;td&gt;pass&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;3.15&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;cython-3.3.0-cp315-cp315-win_amd64.whl&lt;/code&gt; (2.9 MB, compiled)&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;crash&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;3.15t&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;cython-3.3.0-py3-none-any.whl&lt;/code&gt; (1.3 MB, pure Python)&lt;/td&gt;
+&lt;td&gt;pass&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Same Cython &lt;em&gt;version&lt;/em&gt; in both. 3.15t falls back to the pure-Python wheel because no free-threaded cp315t build exists, and it does not crash — so the fault is in the compiled cp315 extension, not in Cython&#39;s logic or in Triton. All 34 Linux Triton jobs in that run passed too.&lt;/p&gt;
+&lt;h2&gt;Change&lt;/h2&gt;
+&lt;div class=&quot;highlight highlight-source-diff notranslate position-relative overflow-auto&quot; data-snippet-clipboard-copy-content=&quot;-%PYTHON_EXEC% -m pip install wheel pybind11 certifi cython cmake==3.31.6 setuptools==72.1.0 ninja==1.11.1.4
++%PYTHON_EXEC% -m pip install wheel pybind11 certifi &amp;quot;cython&amp;lt;3.3.0&amp;quot; cmake==3.31.6 setuptools==72.1.0 ninja==1.11.1.4&quot;&gt;&lt;pre&gt;&lt;span class=&quot;pl-md&quot;&gt;&lt;span class=&quot;pl-md&quot;&gt;-&lt;/span&gt;%PYTHON_EXEC% -m pip install wheel pybind11 certifi cython cmake==3.31.6 setuptools==72.1.0 ninja==1.11.1.4&lt;/span&gt;
+&lt;span class=&quot;pl-mi1&quot;&gt;&lt;span class=&quot;pl-mi1&quot;&gt;+&lt;/span&gt;%PYTHON_EXEC% -m pip install wheel pybind11 certifi &quot;cython&amp;lt;3.3.0&quot; cmake==3.31.6 setuptools==72.1.0 ninja==1.11.1.4&lt;/span&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Applied unconditionally rather than gated on 3.15: every other Python version was already resolving to a working Cython, so &lt;code&gt;&amp;lt;3.3.0&lt;/code&gt; just holds them at the last good release instead of changing their behaviour.&lt;/p&gt;
+&lt;h2&gt;Notes&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Release-blocking for &lt;strong&gt;v2.14.0-rc8&lt;/strong&gt; — intended for cherry-pick to &lt;code&gt;release/2.14&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;CRLF line endings preserved (the file is an existing Windows &lt;code&gt;.bat&lt;/code&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Filed with the help of Claude Code.&lt;/p&gt;
+&lt;p&gt;Pull Request resolved: &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;5259099213&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/pytorch/pytorch/issues/194914&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/pytorch/pytorch/pull/194914/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/pull/194914&quot;&gt;#194914&lt;/a&gt;&lt;br&gt;
+Approved by: &lt;a href=&quot;https://github.com/georgehong&quot;&gt;https://github.com/georgehong&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;(cherry picked from commit &lt;a class=&quot;commit-link&quot; data-hovercard-type=&quot;commit&quot; data-hovercard-url=&quot;https://github.com/pytorch/pytorch/commit/4569435782d463ee5ce6ef8ddf55b5ae02b2b391/hovercard&quot; href=&quot;https://github.com/pytorch/pytorch/commit/4569435782d463ee5ce6ef8ddf55b5ae02b2b391&quot;&gt;&lt;tt&gt;4569435&lt;/tt&gt;&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;Co-authored-by: Andrey Talman &lt;a href=&quot;mailto:atalman@fb.com&quot;&gt;atalman@fb.com&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>pytorchbot</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/21957446?s=60&amp;v=4"/>
+  </entry>
+</feed>
