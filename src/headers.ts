@@ -59,8 +59,20 @@ export function captureHeaders(
 export function originDateMs(h: HeaderRecord): number | null {
   if (h.date === null || h.age === null) return null;
   const d = Date.parse(h.date);
+  // Blank before Number(), because Number('') and Number('   ') are both 0 and
+  // not NaN. Left to the numeric guard, a blank Age would claim the response
+  // was generated exactly at its Date header, while an absent Age correctly
+  // returns null. The lenient case would be the malformed one.
+  if (h.age.trim() === '') return null;
   const a = Number(h.age);
-  if (Number.isNaN(d) || !Number.isFinite(a)) return null;
+  // RFC 9111 defines Age as non-negative delta-seconds, so a negative value is
+  // malformed. Treated as arithmetic it yields an origin in the FUTURE of the
+  // Date header, and once a future origin is stored every later honest
+  // response is judged stale and the source stops collecting for good. That is
+  // the exact failure the permissiveness contract exists to prevent, arriving
+  // through the arithmetic rather than through the guards, and it would also
+  // publish a future timestamp. Null is the consistent treatment.
+  if (Number.isNaN(d) || !Number.isFinite(a) || a < 0) return null;
   return d - a * 1000;
 }
 
