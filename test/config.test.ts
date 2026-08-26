@@ -144,9 +144,22 @@ describe('loadSources', () => {
     expect(loadSources(ok).sources[0]!.invariants.canary).toBe('# OpenRouter');
   });
 
-  it('rejects an inverted sizeBand', () => {
+  it('rejects a sizeBand whose lower bound is above 1', () => {
+    // Was "rejects an inverted sizeBand" with [2.0, 0.5]. That pair violates
+    // both tuple bounds at once, so neither bound proved itself and the name
+    // claimed an ordering check that the loader body no longer performs on it.
+    // [2.0, 3.0] is well ordered and still cannot mean "within a ratio of the
+    // last accepted snapshot", so it exercises lo <= 1 alone.
     const bad = minimal();
-    only(bad).invariants.sizeBand = [2.0, 0.5];
+    only(bad).invariants.sizeBand = [2.0, 3.0];
+    expect(() => loadSources(bad)).toThrow(/sizeBand/i);
+  });
+
+  it('rejects a sizeBand whose upper bound is below 1', () => {
+    // [0.5, 0.9] accepts a response only if it shrank. Exercises hi >= 1
+    // alone, so that bound and the lower one each stand on their own.
+    const bad = minimal();
+    only(bad).invariants.sizeBand = [0.5, 0.9];
     expect(() => loadSources(bad)).toThrow(/sizeBand/i);
   });
 
@@ -177,6 +190,15 @@ describe('loadSources', () => {
   it('rejects a url that is not https', () => {
     const bad = minimal();
     only(bad).url = 'javascript:alert(1)';
+    expect(() => loadSources(bad)).toThrow(/url/i);
+  });
+
+  it('rejects an http url, not only a non http scheme', () => {
+    // Removing the protocol option entirely dies to javascript:alert(1), but
+    // relaxing /^https$/ to /^https?$/ is the likelier edit and nothing else
+    // in the suite would notice it: all 16 shipped sources are https.
+    const bad = minimal();
+    only(bad).url = 'http://openrouter.ai/api/v1/models';
     expect(() => loadSources(bad)).toThrow(/url/i);
   });
 
@@ -320,10 +342,11 @@ describe('the shipped meta/sources.json', () => {
         expect(s.notes, `${s.id} notes`).toContain(s.predicate.extractor);
       }
       // `arena` is a substring of the id and of arena.ai, and `xai` of its own
-      // id, so naming the extractor is cheap to satisfy by accident. Naming
-      // the default that was rejected is not: it forces the note to say why
-      // bytes is wrong here.
-      expect(s.notes, `${s.id} notes`).toContain('bytes');
+      // id, so naming the extractor is cheap to satisfy by accident. So is the
+      // bare word `bytes`: it is the unit word in every size measurement, and
+      // 15 of the 16 shipped notes contain it. The note has to reject the
+      // default in so many words, which no size measurement does by accident.
+      expect(s.notes, `${s.id} notes`).toMatch(/not bytes|bytes predicate|bytes is wrong/);
     }
   });
 
@@ -398,21 +421,38 @@ describe('the shipped meta/sources.json', () => {
     });
   });
 
-  it('gives every xml and html source an expectedRoot', () => {
-    // Without it, spec health rule 2 collapses to "parses as XML", which is
-    // exactly the cohere feed that parses happily with root=html.
-    for (const s of shipped().sources) {
-      if (s.contentType === 'xml' || s.contentType === 'html') {
-        expect(s.expectedRoot, s.id).toBeTruthy();
-      }
-    }
+  it('declares the right expectedRoot, not merely some expectedRoot', () => {
+    // Presence is the wrong assertion, because the failure this field exists
+    // to stop is a wrong value. `html` is a legitimate expectedRoot elsewhere
+    // in this same file, on arena-leaderboard, so copying it onto the sitemap
+    // is the edit a reviewer's eye slides over, and it collapses spec health
+    // rule 2 to "parses as XML": the cohere feed that a parser accepts happily
+    // with root=html. Pinning the values also catches a source acquiring an
+    // expectedRoot it should not have, as an extra key.
+    const declared = Object.fromEntries(
+      shipped()
+        .sources.filter((s) => s.expectedRoot !== null)
+        .map((s) => [s.id, s.expectedRoot]),
+    );
+    expect(declared).toEqual({
+      'arena-leaderboard': 'html',
+      'anthropic-sitemap': 'urlset',
+      'openrouter-sitemap': 'urlset',
+      'modelsdev-commits': 'feed',
+      'claude-status': 'feed',
+      'openai-status': 'feed',
+    });
   });
 
-  it('gives every json source a requiredKeyPath', () => {
+  it('declares the right requiredKeyPath, not merely some requiredKeyPath', () => {
     // Same reasoning one type over: valid JSON of the wrong shape is still
-    // valid JSON, so the parse alone proves nothing.
-    for (const s of shipped().sources) {
-      if (s.contentType === 'json') expect(s.invariants.requiredKeyPath, s.id).toBeTruthy();
-    }
+    // valid JSON, and `models` would read as plausible while pointing at
+    // nothing in a body whose list lives under `data`.
+    const declared = Object.fromEntries(
+      shipped()
+        .sources.filter((s) => s.invariants.requiredKeyPath !== null)
+        .map((s) => [s.id, s.invariants.requiredKeyPath]),
+    );
+    expect(declared).toEqual({ 'openrouter-models': 'data' });
   });
 });
