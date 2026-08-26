@@ -681,8 +681,21 @@ export function captureHeaders(
 export function originDateMs(h: HeaderRecord): number | null {
   if (h.date === null || h.age === null) return null;
   const d = Date.parse(h.date);
+  // Age is delta-seconds and RFC 9111 defines it as non-negative, so a negative
+  // or blank value is malformed and returns null like any other unknown.
+  //
+  // Not hypothetical tidiness. A negative Age puts the origin timestamp in the
+  // FUTURE, that future value gets stored, and every subsequent honest response
+  // is then judged older than it and skipped. The source stalls permanently,
+  // which is the exact failure the permissiveness rule exists to prevent,
+  // arriving through the arithmetic instead of through the guards.
+  //
+  // Blank is separate from absent and must not be lenient: Number('') is 0, so a
+  // blank Age would fabricate an origin equal to the Date header, while an
+  // absent one correctly returns null.
+  if (h.age.trim() === '') return null;
   const a = Number(h.age);
-  if (Number.isNaN(d) || !Number.isFinite(a)) return null;
+  if (Number.isNaN(d) || !Number.isFinite(a) || a < 0) return null;
   return d - a * 1000;
 }
 
@@ -1232,6 +1245,7 @@ Expected: FAIL, cannot resolve `../src/run.js`
 // minimal run has no status store. Task 10 widens `RunResult.status`.
 import type { Source } from './config.js';
 import type { FetchOutcome } from './fetch.js';
+import { originDateMs } from './headers.js';
 
 export type RunDeps = {
   cwd: string;
@@ -2827,7 +2841,19 @@ export async function runTier(
             } else {
               // 5. write, verbatim, plus its sidecar. 6. commit, together.
               deps.writeFile(s.path, got.observed.body);
-              deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(got.headers, null, 2) + '\n'));
+              // Spec section 9 names the two timestamps `observed_at` and
+              // `origin_date`. `HeaderRecord` carries `fetchedAt` and the raw
+              // `date`/`age` inputs, so the serializer maps them here. Without
+              // this the archive never carries the field the spec names, and
+              // nothing downstream would notice until a published timestamp was
+              // wrong.
+              const originMs = originDateMs(got.headers);
+              const sidecar = {
+                ...got.headers,
+                observed_at: got.headers.fetchedAt,
+                origin_date: originMs === null ? null : new Date(originMs).toISOString(),
+              };
+              deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(sidecar, null, 2) + '\n'));
               deps.commitPaths([s.path, headersPathFor(s)], `${s.id}: changed (${got.observed.body.byteLength} bytes, HTTP ${got.observed.status})`);
               trace.push(`changed:${s.id}`);
               outcome = { health: verdict.state, countsAsFailure: false, httpStatus: got.observed.status,
