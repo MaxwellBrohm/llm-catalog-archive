@@ -367,6 +367,22 @@ describe('checkHealth, the xml root element', () => {
   it('returns null when the body opens with no element at all', () => {
     expect(xmlRootElement('Moved Permanently. Redirecting to https://example.com/')).toBeNull();
   });
+
+  // The no-root branch with nothing standing in front of it. Deleting it is
+  // invisible to every other test here, because the root comparison then
+  // rejects the same body with `root element is <null>, expected <rss>`.
+  // expectedRoot is nullable in the schema, so for an xml source that declares
+  // none this branch is the only structural check there is.
+  it('fails a body with no root element even when the source declares no expected root', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: null,
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    expect(checkHealth(s, obs(fxBytes('trap-openai-redirect-stub.txt')), { bytes: null }, NOW).reason).toBe(
+      'no xml root element found',
+    );
+  });
 });
 
 describe('checkHealth, the json invariants', () => {
@@ -417,6 +433,18 @@ describe('checkHealth, the json invariants', () => {
   it('fails a body that is not json at all', () => {
     expect(checkHealth(jsonSrc(), obs(enc('<html>nope, an error page</html>')), { bytes: null }, NOW).state).toBe(
       'failed',
+    );
+  });
+
+  // The parse itself, with nothing standing in front of it. The assertion
+  // above survives replacing the parse with `parsed = {}`, because
+  // requiredKeyPath rejects the same body one line later. requiredKeyPath is
+  // nullable in the schema, so the day a json source ships without one, the
+  // parse is that source's only structural check.
+  it('fails an unparseable body even when the source declares no required key', () => {
+    const s = jsonSrc({ requiredKeyPath: null, minRecords: null });
+    expect(checkHealth(s, obs(enc('<html>nope, an error page</html>')), { bytes: null }, NOW).reason).toMatch(
+      /^json parse failed: /,
     );
   });
 
@@ -488,10 +516,16 @@ describe('checkHealth, feed freshness', () => {
   });
 
   /**
-   * status.claude.com stamps the feed-level `<updated>` with the time of the
-   * request. Measured 2026-08-26: feed-level 20:55:09Z, newest entry two days
-   * earlier. A document-wide date scan would read the feed level and the
-   * staleness check on every Atom status feed could never fire.
+   * An Atom feed's own `<updated>` advances on wall-clock time independently
+   * of its entries. Not "on every request": three fetches minutes apart
+   * returned the same stamp under the same etag. The evidence is this
+   * repository's history, which is better than a probe anyway: commits
+   * 3a80c22 and 690dd60 are 49 minutes apart, and the entire delta between
+   * the two 33,787-byte claude-status captures is one line, the feed-level
+   * `<updated>` moving 19:04:25Z to 20:55:09Z, every entry byte-identical.
+   *
+   * A document-wide date scan reads that line, and the staleness check on
+   * every Atom status feed could then never fire.
    */
   const selfStamping =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -505,7 +539,7 @@ describe('checkHealth, feed freshness', () => {
     '  </entry>\n' +
     '</feed>\n';
 
-  it('ignores a feed-level updated stamp that is regenerated on every request', () => {
+  it('ignores a feed-level updated stamp that advances independently of the entries', () => {
     const s = src({
       contentType: 'xml',
       expectedRoot: 'feed',
@@ -525,6 +559,34 @@ describe('checkHealth, feed freshness', () => {
     );
   });
 
+  // Two different things, and only one of them is a defect. A provider that
+  // has published nothing is the quiet case, and by this module's own
+  // reasoning a quiet provider must not drive a failure. `openai-status` goes
+  // active in Task 8 and can legitimately be empty.
+  it('calls a feed with no items at all stale rather than failed', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: null }, NOW).state).toBe('stale');
+  });
+
+  it('does not count an empty feed as a failure', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: null }, NOW).countsAsFailure).toBe(false);
+  });
+
+  // The other side of the same branch: items ARE present and none of them is
+  // dated, which is malformed rather than quiet.
   it('fails a feed carrying no parseable item date', () => {
     const s = src({
       contentType: 'xml',

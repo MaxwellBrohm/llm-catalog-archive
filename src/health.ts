@@ -114,20 +114,31 @@ export function xmlRootElement(text: string): string | null {
   }
 }
 
+const FEED_ITEM = /<(entry|item)(?:\s[^>]*)?>([\s\S]*?)<\/\1\s*>/g;
+
+/** How many `<entry>` or `<item>` elements the document carries. */
+export function countFeedItems(text: string): number {
+  return [...text.matchAll(FEED_ITEM)].length;
+}
+
 /**
- * The newest item date in a feed, or null when it carries none.
+ * The newest item date in a feed, or null when no item carries one.
  *
  * Scoped to `<entry>` and `<item>` elements, which is not a detail. A
- * document-wide scan also picks up the feed-level `<updated>`, and
- * status.claude.com regenerates that stamp on every request: measured on
- * 2026-08-26, its feed-level `<updated>` read 20:55:09Z while its newest
- * entry was two days old. Reading the feed level would make the staleness
- * check on every Atom status feed permanently unable to fire, which is a
- * guard spelled to look configured.
+ * document-wide scan also picks up the feed-level `<updated>`, and that stamp
+ * advances on wall-clock time independently of the entries. The evidence is
+ * this repository's own history: commits 3a80c22 and 690dd60 are 49 minutes
+ * apart, and the whole delta between the two 33,787-byte claude-status
+ * captures is one line, the feed-level `<updated>` moving 19:04:25Z to
+ * 20:55:09Z, with every entry byte-identical.
+ *
+ * Reading the feed level would therefore make the staleness check on every
+ * Atom status feed permanently unable to fire: claude-status could go two
+ * years without an incident and still look fresh every single day.
  */
 export function newestFeedDate(text: string): number | null {
   let newest: number | null = null;
-  for (const item of text.matchAll(/<(entry|item)(?:\s[^>]*)?>([\s\S]*?)<\/\1\s*>/g)) {
+  for (const item of text.matchAll(FEED_ITEM)) {
     for (const d of item[2]!.matchAll(/<(?:published|updated|pubDate|dc:date)>([^<]+)<\//g)) {
       const t = Date.parse(d[1]!.trim());
       if (!Number.isNaN(t) && (newest === null || t > newest)) newest = t;
@@ -202,7 +213,23 @@ export function checkHealth(
 
   if (source.freshness.kind === 'feed' && source.freshness.maxQuietDays !== null) {
     const newest = newestFeedDate(text);
-    if (newest === null) return fail('feed carries no parseable item date');
+    if (newest === null) {
+      // Two different things reach here and only one of them is a defect. A
+      // feed with no items at all is a provider that has published nothing,
+      // which is the quiet case this whole four-state design exists to spare
+      // from a failure email. A feed WITH items but no parseable date on any
+      // of them is malformed. `openai-status` goes active in Task 8 and can
+      // legitimately be empty.
+      if (countFeedItems(text) === 0) {
+        return {
+          state: 'stale',
+          writeAllowed: false,
+          countsAsFailure: false,
+          reason: 'feed carries no items at all',
+        };
+      }
+      return fail('feed carries no parseable item date');
+    }
     const days = (nowMs - newest) / 86_400_000;
     if (days > source.freshness.maxQuietDays) {
       // Stale, not failed, and the difference is the whole point. A quiet

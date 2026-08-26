@@ -478,7 +478,7 @@ describe('runTier consults the health gate before it writes', () => {
     expect(d.files['raw/a/response.txt']).toBeUndefined();
   });
 
-  it('keeps collecting the next source after one fails health', async () => {
+  const twoSources = async () => {
     const bodies: Uint8Array[] = [CHALLENGE, enc('CANARY\nb is fine\n')];
     let n = 0;
     const d = deps({
@@ -490,7 +490,20 @@ describe('runTier consults the health gate before it writes', () => {
       }),
     });
     await runTier([source(), source({ id: 'b', path: 'raw/b/response.txt' })], 'daily', null, d);
+    return d;
+  };
+
+  it('keeps collecting the next source after one fails health', async () => {
+    const d = await twoSources();
     expect(d.files['raw/b/response.txt']).toEqual(enc('CANARY\nb is fine\n'));
+  });
+
+  // The sibling that makes the one above mean what its name says. On its own
+  // it passes with checkHealth stubbed to always return ok, because b gets
+  // written either way and nothing there ever checks that a was refused.
+  it('and the source that failed health wrote nothing', async () => {
+    const d = await twoSources();
+    expect(d.files['raw/a/response.txt']).toBeUndefined();
   });
 
   it('does not write a stale feed', async () => {
@@ -533,6 +546,34 @@ describe('runTier consults the health gate before it writes', () => {
       nowIso: () => '2026-09-30T00:00:00.000Z',
     });
     expect(d.files['raw/a/response.atom']).toBeUndefined();
+  });
+
+  /**
+   * The pin for "health check BEFORE the change predicate". That ordering is
+   * observable in a RETURN VALUE, not only in a log line: for a response whose
+   * bytes are unchanged, the shipped order returns `['stale:a']` and the
+   * swapped order returns `[]`, because the predicate short-circuits before
+   * the verdict is ever computed.
+   *
+   * Not hypothetical. `modelsdev-commits` carries `maxQuietDays: 7`, and a
+   * genuinely quiet week serves byte-identical bytes, so this ordering is the
+   * only reason a quiet source is visible to the run at all.
+   */
+  it('reports a stale verdict for a source whose bytes did not change', async () => {
+    const body = feedDated('2026-01-01T00:00:00Z');
+    const d = deps(
+      {
+        fetchOne: async (s) => ({
+          ok: true as const,
+          attempts: 1,
+          observed: { status: 200, body, finalUrl: s.url, redirectCount: 0, headers: {} },
+          headers: HDR,
+        }),
+      },
+      { 'raw/a/response.atom': body },
+    );
+    const r = await runTier([feedSource()], 'daily', null, d);
+    expect(r.trace).toEqual(['stale:a']);
   });
 
   it('writes a relocated source, because the bytes are good and the url is not', async () => {

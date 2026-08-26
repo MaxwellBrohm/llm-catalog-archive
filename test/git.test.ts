@@ -244,22 +244,61 @@ describe('pushWithRebase', () => {
   /**
    * R7, and the only test that catches the likely regression rather than the
    * dramatic one. The divergent-remote test above only fails if the rebase is
-   * also removed, so `pull --rebase` followed by `push --force` slips past all
-   * 230 tests: the rebase makes the push a fast-forward, and force changes
-   * nothing observable. That is exactly the shape of the real mistake, where
-   * pushes keep getting rejected and someone adds a flag to make it stop.
+   * also removed, so `pull --rebase` followed by `push --force` slips past
+   * every behavioural test here: the rebase makes the push a fast-forward, and
+   * force then changes nothing observable. That is exactly the shape of the
+   * real mistake, where pushes keep getting rejected and someone adds a flag
+   * to make it stop.
    *
    * So this reads the SHIPPED source, in the same spirit as copying the real
    * .gitattributes rather than retyping it. Quoted forms only, so the prose in
-   * that file saying "Never force" cannot satisfy or trip it, and backticks are
-   * in the delimiter class because the form that got past the first draft of
-   * this test was a template literal: `+refs/heads/${branch}`, a forced update
-   * spelled as a refspec rather than as a flag.
+   * that file saying "Never force" cannot satisfy or trip it, and backticks
+   * are in the delimiter class because a template literal is how the first
+   * draft was defeated.
+   *
+   * Each alternative below was verified against a bare remote with a published
+   * commit and a diverged local clone. Every one of these DESTROYS the
+   * published commit, and the first four were missed by the previous pattern:
+   *
+   *   ['push', '-qf', 'origin', branch]            bundled short flags
+   *   ['push', 'origin', `+${branch}`]             short force refspec
+   *   ['push', 'origin', '+' + 'refs/heads/' + b]  split force refspec
+   *   ['-c', 'remote.origin.push=+refs/heads/*', 'push', 'origin']
+   *   ['push', '--force', 'origin', branch]
+   *
+   * `+${branch}` is the one that matters most: it is the nearest neighbour of
+   * the template literal that defeated the first draft, and the fix then
+   * hardcoded `\+refs` where it should have hardcoded `\+`.
+   *
+   * TWO LIMITS, stated rather than implied, because a guard read as complete
+   * when it is not is worse than no guard at all:
+   *
+   * 1. Concatenation and any dynamically built argv defeat this and every
+   *    other textual scan. `'--for' + 'ce'` is not caught, and neither is
+   *    `args.push(flagFromSomewhere)`. Only `'+' + '...'` happens to be
+   *    caught, and only because the `+` sits alone inside its own quotes.
+   * 2. It reads `src/git.ts` and nothing else. That is currently sufficient
+   *    only because git.ts is the sole module importing node:child_process,
+   *    which the next test asserts rather than assumes.
+   *
+   * The real backstop for both is not in this file: .github/workflows/
+   * append-only.yml fails when github.event.before is unreachable, so an
+   * actual force push to main is caught after the fact.
    */
-  it('never hands git a force flag', () => {
+  it('never hands git a force flag, a force refspec, or a forcing config', () => {
     expect(fs.readFileSync('src/git.ts', 'utf8')).not.toMatch(
-      /['"`](-f|--force[^'"`]*|\+refs[^'"`]*)['"`]/,
+      /['"`](-[A-Za-z]*f[A-Za-z]*|--force[^'"`]*|\+[^'"`]*|[^'"`]*\.push=[^'"`]*)['"`]/,
     );
+  });
+
+  // Limit 2 above, made checkable. The moment a second module spawns a
+  // process, the scan's scope is a lie and this goes red.
+  it('keeps src/git.ts the only module that can spawn a process', () => {
+    const spawners = fs
+      .readdirSync('src')
+      .filter((f) => f.endsWith('.ts'))
+      .filter((f) => fs.readFileSync(path.join('src', f), 'utf8').includes('node:child_process'));
+    expect(spawners).toEqual(['git.ts']);
   });
 
   it('throws when the remote cannot be reached', () => {
