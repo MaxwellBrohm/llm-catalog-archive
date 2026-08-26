@@ -15,10 +15,11 @@ const DATE_14 = 'Tue, 26 Aug 2026 14:00:00 GMT';
 // Stated honestly: no current path produces a whitespace-only age. The only
 // producer of a HeaderRecord today is captureHeaders via a real Headers, which
 // strips, and nothing reads headers.json back. The widening from `=== ''` to
-// `.trim() === ''` is defensive against a future non-Headers producer, and
-// Plan 2's backfill importer is the named one. The guard is cheap, the failure
-// it prevents is a source stalling on a silently wrong origin, and this test
-// is what keeps the widening from rotting into untested code.
+// `.trim() === ''` is defensive against a future producer that does not go
+// through Headers; no current path constructs a HeaderRecord any other way.
+// The guard is cheap, the failure it prevents is a source stalling on a
+// silently wrong origin, and this test is what keeps the widening from rotting
+// into untested code.
 const record = (over: Partial<HeaderRecord>): HeaderRecord => ({
   fetchedAt: '2026-08-26T14:00:00.000Z',
   finalUrl: 'https://x/y',
