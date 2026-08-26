@@ -58,8 +58,13 @@ see through their volatility.
 
 ### How the run grows
 
-`src/run.ts` is written minimal in Task 5 and gains one decision per task. The
-complete final pipeline is given as real code in Task 11.
+`src/run.ts` is written minimal in Task 5. Tasks 6 to 10 build and test their
+decision modules **in isolation**; the wiring happens once, in Task 11, which
+carries the complete final pipeline as authoritative code. Between Task 5 and
+Task 11 the live collector therefore runs degraded, which is the state Task 5
+establishes deliberately.
+
+The table below is the logical growth, not a per-task wiring instruction.
 
 | Task | Inserts into `runTier` | Where |
 |---|---|---|
@@ -103,6 +108,7 @@ however green the suite is.
 | File | Responsibility |
 |---|---|
 | `src/config.ts` | `sources.json` types, zod schema, loader. The only place source config shape is defined. |
+| `src/types.ts` | `Observed`, shared by `fetch.ts` and `health.ts`. Pure, imports nothing. |
 | `src/health.ts` | The five-condition health predicate. Pure. |
 | `src/predicates.ts` | `bytes` / `mask` / `extracted` change-decision dispatch. Pure. |
 | `src/extractors/arena.ts` | Record tuples from the arena RSC payload, and the label-variant filter. Pure. |
@@ -113,7 +119,7 @@ however green the suite is.
 | `src/headers.ts` | Header capture shape, `origin_date` derivation, cache-skew rejection. Pure. |
 | `src/fetch.ts` | HTTP: UA, manual redirects, retries, timeouts, content-length guard. I/O. |
 | `src/git.ts` | Stage, commit, pull-rebase, push. I/O. |
-| `src/run.ts` | The orchestrated pipeline. Created minimal in Task 5, grown by Tasks 6 to 10, locked in Task 11. |
+| `src/run.ts` | The orchestrated pipeline. Created minimal in Task 5, assembled in Task 11. |
 | `src/cli.ts` | `collect --tier fast\|daily` entrypoint, exit codes. Created in Task 5, extended in Task 12. |
 | `test/fixtures/` | Bytes captured 2026-08-26, one file per trap. |
 | `.github/workflows/collect-fast.yml`, `collect-daily.yml` | Schedules, concurrency group. |
@@ -493,10 +499,10 @@ git commit -m "feat: one strict table drives the collector, and a typo is an err
 
 ---
 
-### Task 3: Headers, origin timestamps, and cache-generation skew
+### Task 3: Shared types, headers, origin timestamps, and cache-generation skew
 
 **Files:**
-- Create: `src/headers.ts`
+- Create: `src/types.ts`, `src/headers.ts`
 - Test: `test/headers.test.ts`
 
 **Interfaces:**
@@ -509,7 +515,24 @@ git commit -m "feat: one strict table drives the collector, and a typo is an err
 
 `headers.json` is a **sidecar**: written in the same commit as the body it describes, and only when that body is accepted. Never on an independent schedule. An earlier design put it on the status cadence, which for the fast tier discarded 95 of every 96 daily header states and guaranteed the committed etag was not the etag of the committed body.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write `src/types.ts`**
+
+One pure module with no imports, holding the shape a fetch produces. It exists
+so `src/fetch.ts` (Task 4) and `src/health.ts` (Task 6) can share it without
+`health.ts`, which must stay pure, importing the I/O module.
+
+```ts
+/** Everything the health check and the run need to know about one response. */
+export type Observed = {
+  status: number;
+  body: Uint8Array;
+  finalUrl: string;
+  redirectCount: number;
+  headers: Record<string, string>;
+};
+```
+
+- [ ] **Step 2: Write the failing headers test**
 
 ```ts
 // test/headers.test.ts
@@ -579,12 +602,12 @@ describe('isStaleGeneration', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 3: Run test to verify it fails**
 
 Run: `npx vitest run test/headers.test.ts`
 Expected: FAIL, cannot resolve `../src/headers.js`
 
-- [ ] **Step 3: Write `src/headers.ts`**
+- [ ] **Step 4: Write `src/headers.ts`**
 
 ```ts
 export type HeaderRecord = {
@@ -661,15 +684,15 @@ export function isStaleGeneration(next: HeaderRecord, storedOriginIso: string | 
 }
 ```
 
-- [ ] **Step 4: Run tests**
+- [ ] **Step 5: Run tests**
 
 Run: `npx vitest run test/headers.test.ts`
 Expected: PASS, 8 tests
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add src/headers.ts test/headers.test.ts
+git add src/types.ts src/headers.ts test/headers.test.ts
 git commit -m "feat: when it was made, not when we happened to see it"
 ```
 
@@ -684,7 +707,7 @@ git commit -m "feat: when it was made, not when we happened to see it"
 - Test: `test/fetch.test.ts`
 
 **Interfaces:**
-- Consumes: `Source` from `src/config.ts`, `Observed` from `src/health.ts`, `HeaderRecord` and `captureHeaders` from `src/headers.ts`
+- Consumes: `Source` from `src/config.ts`, `Observed` from `src/types.ts`, `HeaderRecord` and `captureHeaders` from `src/headers.ts`
 - Produces:
   - `type FetchImpl = (url: string, init: RequestInit) => Promise<Response>`
   - `type FetchOutcome = { ok: true; observed: Observed; headers: HeaderRecord; attempts: number } | { ok: false; error: string; attempts: number }`
@@ -820,7 +843,7 @@ Expected: FAIL, cannot resolve `../src/fetch.js`
 
 ```ts
 import type { Source } from './config.js';
-import type { Observed } from './health.js';
+import type { Observed } from './types.js';
 import { captureHeaders, type HeaderRecord } from './headers.js';
 
 export type FetchImpl = (url: string, init: RequestInit) => Promise<Response>;
@@ -953,7 +976,7 @@ git commit -m "feat: identify ourselves, follow moves on purpose, and refuse hal
   - `git(args: string[], cwd: string): { stdout: string; stderr: string; status: number }`
   - `commitPaths(cwd: string, paths: string[], message: string): boolean`
   - `pushWithRebase(cwd: string, branch: string, attempts?: number): void`
-  - `type RunDeps`, `type RunResult`, `runTier(sources, tier, prevStatus, deps): Promise<RunResult>` (minimal shape; Tasks 6 through 10 extend it in place, Task 11 locks the ordering)
+  - `type RunDeps`, `type RunResult = { exitCode: number; status: null; trace: string[] }`, `runTier(sources, tier, prevStatus, deps): Promise<RunResult>` (minimal; Task 11 assembles the final pipeline and widens `status`)
 
 **This task is the point of the whole plan, and it is deliberately early.**
 
@@ -1181,9 +1204,10 @@ Expected: FAIL, cannot resolve `../src/run.js`
 - [ ] **Step 6: Write the minimal `src/run.ts`**
 
 ```ts
+// No status import: `src/status.ts` does not exist until Task 10, and this
+// minimal run has no status store. Task 10 widens `RunResult.status`.
 import type { Source } from './config.js';
 import type { FetchOutcome } from './fetch.js';
-import type { StatusFile } from './status.js';
 
 export type RunDeps = {
   cwd: string;
@@ -1196,7 +1220,7 @@ export type RunDeps = {
   log: (line: string) => void;
 };
 
-export type RunResult = { exitCode: number; status: StatusFile | null; trace: string[] };
+export type RunResult = { exitCode: number; status: null; trace: string[] };
 
 const headersPathFor = (s: Source) => `raw/${s.id}/headers.json`;
 
@@ -1217,7 +1241,7 @@ function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
 export async function runTier(
   sources: Source[],
   _tier: 'fast' | 'daily',
-  _prevStatus: StatusFile | null,
+  _prevStatus: null,
   deps: RunDeps,
 ): Promise<RunResult> {
   const trace: string[] = [];
@@ -1372,11 +1396,10 @@ git commit -m "feat: start collecting, because a missed day cannot be recovered"
 - Test: `test/health.test.ts`
 
 **Interfaces:**
-- Consumes: `Source` from `src/config.ts`
+- Consumes: `Source` from `src/config.ts`, `Observed` from `src/types.ts`
 - Produces:
   - `type HealthState = 'ok' | 'relocated' | 'failed' | 'stale'`
   - `type HealthVerdict = { state: HealthState; writeAllowed: boolean; countsAsFailure: boolean; reason: string | null }`
-  - `type Observed = { status: number; body: Uint8Array; finalUrl: string; redirectCount: number; headers: Record<string, string> }`
   - `checkHealth(source: Source, obs: Observed, prev: { bytes: number | null }, nowMs: number): HealthVerdict`
 
 The four states matter and are not interchangeable. `ok` and `relocated` allow the write; `failed` and `stale` do not. Only `failed` increments the consecutive-failure counter, because a provider with a genuinely quiet quarter must not produce a daily failure email, which is how alerting channels get muted.
@@ -1419,7 +1442,8 @@ If `trap-neuron-403.html` is no longer a Cloudflare page, hand-write `test/fixtu
 // test/health.test.ts
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { checkHealth, type Observed } from '../src/health.js';
+import { checkHealth } from '../src/health.js';
+import type { Observed } from '../src/types.js';
 import type { Source } from '../src/config.js';
 
 const fx = (n: string) => new Uint8Array(fs.readFileSync(`test/fixtures/${n}`));
@@ -1537,6 +1561,7 @@ Expected: FAIL, cannot resolve `../src/health.js`
 
 ```ts
 import type { Source } from './config.js';
+import type { Observed } from './types.js';
 
 export type HealthState = 'ok' | 'relocated' | 'failed' | 'stale';
 
@@ -1547,14 +1572,6 @@ export type HealthVerdict = {
   /** only `failed` advances the consecutive-failure counter. */
   countsAsFailure: boolean;
   reason: string | null;
-};
-
-export type Observed = {
-  status: number;
-  body: Uint8Array;
-  finalUrl: string;
-  redirectCount: number;
-  headers: Record<string, string>;
 };
 
 /**
@@ -3150,7 +3167,7 @@ describe('config and spec agree', () => {
 describe('pure modules stay pure', () => {
   // This is the property that makes every decision testable without a network.
   it('no pure module imports fetch, git, or node:fs', () => {
-    const pure = ['config', 'health', 'predicates', 'magnitude', 'status', 'headers', 'pool',
+    const pure = ['types', 'config', 'health', 'predicates', 'magnitude', 'status', 'headers', 'pool',
                   'extractors/arena', 'extractors/xai', 'extractors/sitemapLoc'];
     for (const m of pure) {
       const src = fs.readFileSync(path.join('src', `${m}.ts`), 'utf8');
