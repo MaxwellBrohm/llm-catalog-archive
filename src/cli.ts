@@ -12,6 +12,7 @@ import { loadSources, activeSourcesForTier } from './config.js';
 import { fetchSource } from './fetch.js';
 import { runTier } from './run.js';
 import { commitPaths, pushWithRebase } from './git.js';
+import { parseStatusFile } from './status.js';
 
 const cwd = process.cwd();
 const i = process.argv.indexOf('--tier');
@@ -33,7 +34,26 @@ const writeFile = (p: string, b: Uint8Array): void => {
 
 const file = loadSources(JSON.parse(fs.readFileSync(path.join(cwd, 'meta/sources.json'), 'utf8')));
 
-const result = await runTier(activeSourcesForTier(file, tier), tier, null, {
+/**
+ * The committed counters. This read is the reason the counters exist: the
+ * runner is ephemeral, so a failure count that is not read back from the
+ * archive starts at zero on every run and the source never reaches its
+ * threshold.
+ *
+ * An unreadable file is reported and treated as absent rather than thrown on. A
+ * throw here kills the collector before it can commit anything, and no commits
+ * is what starts GitHub's 60-day inactivity clock. Saying so out loud matters:
+ * one rejection costs a counter reset and heals on the next daily write, while
+ * a rejection on EVERY run is a counter pinned at zero forever and only this
+ * line would show it.
+ */
+const rawStatus = readFile('meta/status.json');
+const prevStatus = rawStatus === null ? null : parseStatusFile(new TextDecoder().decode(rawStatus));
+if (rawStatus !== null && prevStatus === null) {
+  console.log('meta/status.json is present but not readable as a status file; counters restart from zero this run');
+}
+
+const result = await runTier(activeSourcesForTier(file, tier), tier, prevStatus, {
   cwd,
   nowIso: () => new Date().toISOString(),
   fetchOne: (s) => fetchSource(s, { userAgent: file.userAgent, nowIso: () => new Date().toISOString() }),

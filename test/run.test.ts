@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { runTier, type RunDeps } from '../src/run.js';
 import type { Source } from '../src/config.js';
 import type { HeaderRecord } from '../src/headers.js';
+import { parseStatusFile, shouldCommitStatus, type SourceStatus, type StatusFile } from '../src/status.js';
 
 const enc = (s: string) => new TextEncoder().encode(s);
 const dec = (b: Uint8Array | undefined) => new TextDecoder().decode(b);
@@ -182,18 +183,19 @@ describe('runTier, minimal', () => {
 
   // The whole trace, not the absence of a write. `some(...) === false` is also
   // satisfied by a runTier that returns immediately without fetching anything,
-  // and a no-op passed it. This says the fetch happened, nothing was written,
-  // nothing was committed, and the push still ran.
-  it('fetches and then writes nothing when the stored bytes are identical', async () => {
+  // and a no-op passed it. This says the fetch happened, no ARTIFACT was
+  // written, no artifact was committed, the daily status heartbeat still went
+  // out, and the push still ran.
+  it('fetches and then writes no artifact when the stored bytes are identical', async () => {
     const d = deps({}, { 'raw/a/response.txt': BODY });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace).toEqual(['fetch', 'push']);
+    expect(d.trace).toEqual(['fetch', 'write:meta/status.json', 'commit:meta/status.json', 'push']);
   });
 
-  it('does not commit when the stored bytes are identical', async () => {
+  it('does not commit an artifact when the stored bytes are identical', async () => {
     const d = deps({}, { 'raw/a/response.txt': BODY });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('commit:'))).toBe(false);
+    expect(d.trace.filter((t) => t.startsWith('commit:'))).toEqual(['commit:meta/status.json']);
   });
 
   it('commits when one byte differs at the same length', async () => {
@@ -230,7 +232,7 @@ describe('runTier, minimal', () => {
   it('does not commit a source marked pending', async () => {
     const d = deps();
     await runTier([source({ status: 'pending' })], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('commit:'))).toBe(false);
+    expect(d.trace.filter((t) => t.startsWith('commit:'))).toEqual(['commit:meta/status.json']);
   });
 
   it('says which source it skipped and why', async () => {
@@ -287,13 +289,13 @@ describe('runTier, minimal', () => {
   it('does not write a source whose fetch reported failure', async () => {
     const d = deps({ fetchOne: async () => ({ ok: false as const, error: 'status 503', attempts: 3 }) });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('write:'))).toBe(false);
+    expect(d.trace.filter((t) => t.startsWith('write:'))).toEqual(['write:meta/status.json']);
   });
 
   it('does not commit a source whose fetch reported failure', async () => {
     const d = deps({ fetchOne: async () => ({ ok: false as const, error: 'status 503', attempts: 3 }) });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('commit:'))).toBe(false);
+    expect(d.trace.filter((t) => t.startsWith('commit:'))).toEqual(['commit:meta/status.json']);
   });
 
   it('reports the failure a fetch gave up on', async () => {
@@ -441,9 +443,9 @@ describe('runTier consults the health gate before it writes', () => {
 
   // The whole trace, not the absence of a write: `some(...) === false` is also
   // satisfied by a runTier that returns without fetching anything.
-  it('fetches an interstitial and then writes nothing and commits nothing', async () => {
+  it('fetches an interstitial and then writes and commits nothing but the heartbeat', async () => {
     const d = await runWith(source(), CHALLENGE, { 'raw/a/response.txt': LAST_GOOD });
-    expect(d.trace).toEqual(['fetch', 'push']);
+    expect(d.trace).toEqual(['fetch', 'write:meta/status.json', 'commit:meta/status.json', 'push']);
   });
 
   // The claim the whole task exists for.
@@ -508,7 +510,7 @@ describe('runTier consults the health gate before it writes', () => {
 
   it('does not write a stale feed', async () => {
     const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
-    expect(d.trace).toEqual(['fetch', 'push']);
+    expect(d.trace).toEqual(['fetch', 'write:meta/status.json', 'commit:meta/status.json', 'push']);
   });
 
   // Stale is not failed, and the log has to say so, because this is the line an
@@ -616,5 +618,349 @@ describe('runTier consults the health gate before it writes', () => {
     );
     await runTier([source()], 'daily', null, d);
     expect(d.files['raw/a/response.txt']).toEqual(LAST_GOOD);
+  });
+});
+
+/**
+ * The status store at its call site.
+ *
+ * GitHub disables a scheduled workflow after 60 days of repository inactivity,
+ * and under commit-only-on-change a dead collector stops committing, which IS
+ * that inactivity. The counter that detects the death lives only in the
+ * committed file, because the runner is ephemeral, so every claim here is about
+ * what `runTier` COMMITS and returns, not about what `src/status.ts` computes.
+ * The module has its own suite; a module that is never called protects nothing.
+ */
+describe('runTier keeps the status file, which is the only place a counter survives', () => {
+  const statusWritten = (files: Record<string, Uint8Array>): StatusFile =>
+    JSON.parse(dec(files['meta/status.json'])) as StatusFile;
+
+  const entry = (over: Partial<SourceStatus> = {}): SourceStatus => ({
+    lastAttemptAt: '2026-08-25T14:00:00.000Z',
+    lastSuccessAt: '2026-08-25T14:00:00.000Z',
+    lastChangeAt: null,
+    consecutiveFailures: 0,
+    failing: false,
+    health: 'ok',
+    httpStatus: 200,
+    bytes: BODY_BYTES,
+    originDate: null,
+    held: null,
+    ...over,
+  });
+
+  const committed = (sources: Record<string, SourceStatus>): StatusFile => ({
+    version: 1,
+    updatedAt: '2026-08-25T14:00:00.000Z',
+    sources,
+  });
+
+  const unreachable = () => ({ fetchOne: async () => ({ ok: false as const, error: 'ECONNRESET', attempts: 3 }) });
+
+  // The defect that made the alert eight days late. Revision 1 committed on
+  // transitions only, so the run that computed 2 never wrote it and the next
+  // run read 1 again.
+  it('advances the counter from the committed copy rather than from zero', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 1, health: 'failed' }) }), d);
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(2);
+  });
+
+  // The half that matters. A counter that advances in memory and is not written
+  // dies with the runner, which is the whole bug.
+  it('writes the advanced counter into the file it commits', async () => {
+    const d = deps(unreachable());
+    await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 1, health: 'failed' }) }), d);
+    expect(statusWritten(d.files).sources['a']?.consecutiveFailures).toBe(2);
+  });
+
+  it('resets the counter when the source comes back', async () => {
+    const d = deps();
+    const r = await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 5, health: 'failed' }) }), d);
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
+  });
+
+  it('counts a source that threw as a failure', async () => {
+    const d = deps({
+      fetchOne: async () => {
+        throw new Error('boom');
+      },
+    });
+    const r = await runTier([source()], 'daily', null, d);
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(1);
+  });
+
+  // Task 6 established that a genuinely quiet feed is stale rather than failed.
+  // A daily failure email about good news is how an alerting channel gets muted,
+  // after which nothing else in this file works.
+  it('does not count a quiet feed as a failure', async () => {
+    const s = source({
+      contentType: 'xml',
+      path: 'raw/a/response.atom',
+      expectedRoot: 'feed',
+      invariants: NO_CANARY,
+      freshness: { kind: 'feed', maxQuietDays: 7 },
+    });
+    const quiet = enc('<?xml version="1.0"?>\n<feed><entry><id>1</id><updated>2026-01-01T00:00:00Z</updated></entry></feed>\n');
+    const d = deps({
+      fetchOne: async () => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body: quiet, finalUrl: s.url, redirectCount: 0, headers: {} },
+        headers: HDR,
+      }),
+    });
+    const r = await runTier([s], 'daily', committed({ a: entry({ consecutiveFailures: 2 }) }), d);
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
+  });
+
+  it('records the stale verdict against the source anyway', async () => {
+    const s = source({
+      contentType: 'xml',
+      path: 'raw/a/response.atom',
+      expectedRoot: 'feed',
+      invariants: NO_CANARY,
+      freshness: { kind: 'feed', maxQuietDays: 7 },
+    });
+    const quiet = enc('<?xml version="1.0"?>\n<feed><entry><id>1</id><updated>2026-01-01T00:00:00Z</updated></entry></feed>\n');
+    const d = deps({
+      fetchOne: async () => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body: quiet, finalUrl: s.url, redirectCount: 0, headers: {} },
+        headers: HDR,
+      }),
+    });
+    const r = await runTier([s], 'daily', null, d);
+    expect(r.status?.sources['a']?.health).toBe('stale');
+  });
+
+  /**
+   * The ordering the whole task exists for. The natural implementation
+   * evaluates counters first or aborts on the exception, and then the
+   * unconditional daily commit fails to happen precisely when sources are
+   * failing, which re-arms the 60-day clock this is defending against.
+   *
+   * Every source here fails and the committed counter is already past the daily
+   * threshold, so this run is as bad as a run gets.
+   */
+  it('commits the status file on a run in which every source is failing', async () => {
+    const d = deps(unreachable());
+    await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 7, failing: true, health: 'failed' }) }), d);
+    expect(d.trace).toContain('commit:meta/status.json');
+  });
+
+  it('and that same run still reports a non-zero exit code', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 7, failing: true, health: 'failed' }) }), d);
+    expect(r.exitCode).toBe(1);
+  });
+
+  it('commits the status file even when every source threw', async () => {
+    const d = deps({
+      fetchOne: async () => {
+        throw new Error('boom');
+      },
+    });
+    await runTier([source()], 'daily', null, d);
+    expect(d.trace).toContain('commit:meta/status.json');
+  });
+
+  /**
+   * A heartbeat committed after the push is a heartbeat that never leaves the
+   * runner, and GitHub counts pushes, not commits.
+   *
+   * The two events are filtered out of the trace and compared as a sequence
+   * rather than by index. `indexOf(commit) < indexOf(push)` is satisfied by a
+   * run that never committed at all, because a missing entry is -1, and a stub
+   * that committed nothing passed it.
+   */
+  it('commits the status file before it pushes', async () => {
+    const d = deps(unreachable());
+    await runTier([source()], 'daily', null, d);
+    expect(d.trace.filter((t) => t === 'commit:meta/status.json' || t === 'push')).toEqual([
+      'commit:meta/status.json',
+      'push',
+    ]);
+  });
+
+  it('exits zero while the counter is under this tier threshold', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 1, health: 'failed' }) }), d);
+    expect(r.exitCode).toBe(0);
+  });
+
+  it('exits non-zero at the daily threshold of three', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'daily', committed({ a: entry({ consecutiveFailures: 2, health: 'failed' }) }), d);
+    expect(r.exitCode).toBe(1);
+  });
+
+  // Eight fast runs is two hours; three daily runs is three days. The same
+  // committed counter must mean different things to the two jobs.
+  it('does not exit non-zero at three on the fast tier, whose threshold is eight', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'fast', committed({ a: entry({ consecutiveFailures: 2, health: 'failed' }) }), d);
+    expect(r.exitCode).toBe(0);
+  });
+
+  it('exits non-zero at the fast threshold of eight', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'fast', committed({ a: entry({ consecutiveFailures: 7, health: 'failed' }) }), d);
+    expect(r.exitCode).toBe(1);
+  });
+
+  it('does not let a source from another tier trip this tier exit code', async () => {
+    const d = deps(unreachable());
+    const r = await runTier([source()], 'daily', committed({ a: entry(), other: entry({ consecutiveFailures: 99, failing: true, health: 'failed' }) }), d);
+    expect(r.exitCode).toBe(0);
+  });
+
+  // Both tiers share one file. A fast run that rewrote it from its own sources
+  // alone would erase every daily counter twice an hour.
+  it('keeps the entries of sources this run did not touch', async () => {
+    const d = deps();
+    const r = await runTier([source()], 'fast', committed({ a: entry(), other: entry({ consecutiveFailures: 4, failing: true, health: 'failed' }) }), d);
+    expect(r.status?.sources['other']?.consecutiveFailures).toBe(4);
+  });
+
+  it('reads back what it wrote, using the parser the collector reads it with', async () => {
+    const d = deps();
+    const r = await runTier([source()], 'daily', null, d);
+    expect(parseStatusFile(dec(d.files['meta/status.json']))).toEqual(r.status);
+  });
+
+  it('ends the status file with a newline, so it is a well-formed text file', async () => {
+    const d = deps();
+    await runTier([source()], 'daily', null, d);
+    expect(dec(d.files['meta/status.json']).endsWith('\n')).toBe(true);
+  });
+
+  it('dates the daily heartbeat commit, so the log itself shows the cadence', async () => {
+    const d = deps();
+    await runTier([source()], 'daily', null, d);
+    expect(d.messages.find((m) => m.startsWith('status:'))).toBe('status: daily heartbeat 2026-08-26');
+  });
+
+  it('says why a fast run committed status at all', async () => {
+    const d = deps(unreachable());
+    await runTier([source()], 'fast', null, d);
+    expect(d.messages.find((m) => m.startsWith('status:'))).toBe('status: source state changed');
+  });
+});
+
+/**
+ * The cadence, run against run, on the tier where it is load bearing.
+ *
+ * The daily job commits unconditionally, so only the fast job can tell a
+ * working rule from a broken one. Each pair below runs `runTier` twice with a
+ * DIFFERENT `nowIso`, which is what makes the clocks move; with one clock the
+ * pair would pass even if every self-ticking field were still being compared.
+ */
+describe('two consecutive fast runs', () => {
+  const later = { nowIso: () => '2026-08-26T14:15:00.000Z' };
+  const unreachable = { fetchOne: async () => ({ ok: false as const, error: 'ECONNRESET', attempts: 3 }) };
+
+  /** Steady health: the stored bytes already match, so nothing changes anywhere. */
+  const healthyPair = async () => {
+    const files = { 'raw/a/response.txt': BODY };
+    const first = deps({}, files);
+    const r1 = await runTier([source()], 'fast', null, first);
+    const second = deps(later, files);
+    const r2 = await runTier([source()], 'fast', r1.status, second);
+    return { first, second, r1, r2 };
+  };
+
+  const outagePair = async () => {
+    const first = deps(unreachable);
+    const r1 = await runTier([source()], 'fast', null, first);
+    const second = deps({ ...unreachable, ...later }, first.files);
+    const r2 = await runTier([source()], 'fast', r1.status, second);
+    return { first, second, r1, r2 };
+  };
+
+  it('moves the clocks, which is what makes the two claims below distinguishable', async () => {
+    const { r1, r2 } = await healthyPair();
+    expect(r2.status?.sources['a']?.lastAttemptAt).not.toBe(r1.status?.sources['a']?.lastAttemptAt);
+  });
+
+  it('does not commit status on the second run when the source is healthy and unchanged', async () => {
+    const { second } = await healthyPair();
+    expect(second.trace).toEqual(['fetch', 'push']);
+  });
+
+  // The trace this whole task exists to make possible: fail at 00:15 and commit
+  // 1, fail at 00:30 and commit 2. Revision 1 committed only on transitions, so
+  // the second run's 2 died with the runner and 00:45 read 1 again.
+  it('advances the counter to two on the second run of an outage', async () => {
+    const { r2 } = await outagePair();
+    expect(r2.status?.sources['a']?.consecutiveFailures).toBe(2);
+  });
+
+  it('and commits that two, so the third run can read it', async () => {
+    const { second } = await outagePair();
+    expect(second.trace).toContain('commit:meta/status.json');
+  });
+
+  it('so the file left on disk carries two, not one', async () => {
+    const { second } = await outagePair();
+    expect((JSON.parse(dec(second.files['meta/status.json'])) as StatusFile).sources['a']?.consecutiveFailures).toBe(2);
+  });
+});
+
+/**
+ * The other cadence, and the one the 60-day clock actually depends on.
+ *
+ * A daily run must commit its heartbeat even when NOTHING moved, because
+ * "nothing moved" is what a healthy archive looks like for weeks at a time and
+ * GitHub reads a quiet repository as an abandoned one. The fast-tier pair above
+ * proves the same two runs would not have committed on their own, so the commit
+ * below can only be the unconditional daily rule.
+ */
+describe('two consecutive daily runs', () => {
+  const dailyPair = async () => {
+    const files = { 'raw/a/response.txt': BODY };
+    const first = deps({}, files);
+    const r1 = await runTier([source()], 'daily', null, first);
+    const second = deps({ nowIso: () => '2026-08-27T14:00:00.000Z' }, files);
+    const r2 = await runTier([source()], 'daily', r1.status, second);
+    return { first, second, r1, r2 };
+  };
+
+  // The fixture check. If anything meaningful HAD moved between these two runs,
+  // the claim below would pass without the daily rule existing at all.
+  it('leave nothing meaningful moved between them', async () => {
+    const { r1, r2 } = await dailyPair();
+    expect(shouldCommitStatus(r1.status, r2.status!, false)).toBe(false);
+  });
+
+  it('and the second one commits its heartbeat anyway', async () => {
+    const { second } = await dailyPair();
+    expect(second.trace).toContain('commit:meta/status.json');
+  });
+});
+
+describe('the change clock runTier records', () => {
+  it('is stamped with the run clock when an artifact is written', async () => {
+    const d = deps();
+    const r = await runTier([source()], 'daily', null, d);
+    expect(r.status?.sources['a']?.lastChangeAt).toBe('2026-08-26T14:00:00.000Z');
+  });
+
+  // Days since the last content change is what tells an operator a source has
+  // gone quiet. A run that changed nothing must not restamp it.
+  it('is left alone on a run whose bytes were identical', async () => {
+    const files = { 'raw/a/response.txt': BODY };
+    const first = deps({}, files);
+    const r1 = await runTier([source()], 'daily', null, first);
+    const second = deps({ nowIso: () => '2026-08-27T14:00:00.000Z' }, files);
+    const r2 = await runTier([source()], 'daily', r1.status, second);
+    expect(r2.status?.sources['a']?.lastChangeAt).toBe(r1.status?.sources['a']?.lastChangeAt ?? null);
+  });
+
+  it('starts null for a source that has never changed under our watch', async () => {
+    const d = deps({}, { 'raw/a/response.txt': BODY });
+    const r = await runTier([source()], 'daily', null, d);
+    expect(r.status?.sources['a']?.lastChangeAt).toBeNull();
   });
 });
