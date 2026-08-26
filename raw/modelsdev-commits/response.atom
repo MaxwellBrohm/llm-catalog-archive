@@ -4,7 +4,25 @@
   <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commits/dev"/>
   <link type="application/atom+xml" rel="self" href="https://github.com/anomalyco/models.dev/commits/dev.atom"/>
   <title>Recent Commits to models.dev:dev</title>
-  <updated>2026-08-26T21:08:29Z</updated>
+  <updated>2026-08-26T21:25:05Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/797ec04841cd75f55e03f9bc87d6273472fde6df</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/797ec04841cd75f55e03f9bc87d6273472fde6df"/>
+    <title>
+        chore(sync): update Cloudflare Workers AI model catalog (#5539)
+    </title>
+    <updated>2026-08-26T21:25:05Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Cloudflare Workers AI model catalog (#5539)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
   <entry>
     <id>tag:github.com,2008:Grit::Commit/ca6dc8eec924f89816baa8d4cccf50fc425fb69c</id>
     <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ca6dc8eec924f89816baa8d4cccf50fc425fb69c"/>
@@ -373,31 +391,6 @@ Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;g
     <content type="html">
       &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(openrouter): sync optional reasoning toggles without effort lists (#5575)
 
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/da2f2a8d84ffb735183f83471a1dab12f01f3fed</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/da2f2a8d84ffb735183f83471a1dab12f01f3fed"/>
-    <title>
-        chore(sync): update Deep Infra model catalog (#5547)
-    </title>
-    <updated>2026-08-26T19:16:34Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Deep Infra model catalog (#5547)
-
-* chore(sync): update Deep Infra model catalog
-
-* fix(deepinfra): declare GLM-5.3-Flash reasoning effort
-
----------
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;
 Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
