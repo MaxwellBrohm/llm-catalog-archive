@@ -3178,6 +3178,15 @@ describe('config and spec agree', () => {
   it('every text source has a canary', () => {
     for (const s of file.sources) if (s.contentType === 'text') expect(s.invariants.canary, s.id).toBeTruthy();
   });
+
+  // Task 2 ships placeholders; Task 6 replaces them with real strings taken from
+  // the live files. A placeholder that survives to here would make every text
+  // source fail health the moment Task 11 wires the check in.
+  it('no canary is still a placeholder', () => {
+    for (const s of file.sources) {
+      expect(s.invariants.canary ?? '', s.id).not.toContain('PLACEHOLDER');
+    }
+  });
 });
 
 describe('pure modules stay pure', () => {
