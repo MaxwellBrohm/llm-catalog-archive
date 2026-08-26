@@ -277,13 +277,18 @@ describe('the shipped meta/sources.json', () => {
     expect(shipped().sources).toHaveLength(16);
   });
 
-  it('marks exactly the three per-request volatile sources pending', () => {
+  // Five, not the three this list started as. The go-live dry run fetched every
+  // active source twice and two more came back different: anthropic-sitemap
+  // re-stamps 24 of its 516 lastmod values per request, and openai-status
+  // re-stamps its feed level updated AND permutes 690 component names. Both
+  // would have committed on every run forever under a bytes predicate.
+  it('marks exactly the five per-request volatile sources pending', () => {
     expect(
       shipped().sources
         .filter((s) => s.status === 'pending')
         .map((s) => s.id)
         .sort(),
-    ).toEqual(['arena-leaderboard', 'openrouter-sitemap', 'xai-llms-txt']);
+    ).toEqual(['anthropic-sitemap', 'arena-leaderboard', 'openai-status', 'openrouter-sitemap', 'xai-llms-txt']);
   });
 
   it('puts only openrouter-models in the fast tier', () => {
@@ -295,8 +300,14 @@ describe('the shipped meta/sources.json', () => {
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(13);
-    for (const id of ['arena-leaderboard', 'openrouter-sitemap', 'xai-llms-txt']) {
+    expect(fetched).toHaveLength(11);
+    for (const id of [
+      'anthropic-sitemap',
+      'arena-leaderboard',
+      'openai-status',
+      'openrouter-sitemap',
+      'xai-llms-txt',
+    ]) {
       expect(fetched).not.toContain(id);
     }
   });

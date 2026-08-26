@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { captureHeaders, originDateMs, isStaleGeneration, type HeaderRecord } from '../src/headers.js';
+import { captureHeaders, originDateMs, isStaleGeneration, buildSidecar, type HeaderRecord } from '../src/headers.js';
 
 const cap = (h: Record<string, string>, status = 200): HeaderRecord =>
   captureHeaders({ status, headers: new Headers(h) },
@@ -241,5 +241,41 @@ describe('isStaleGeneration', () => {
   // removed.
   it('skips the next honest poll once a future origin is stored', () => {
     expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), '2026-08-26T15:00:00.000Z')).toBe(true);
+  });
+});
+
+describe('buildSidecar', () => {
+  it('carries observed_at, taken from the capture time', () => {
+    expect(buildSidecar(cap({}))['observed_at']).toBe('2026-08-26T14:00:00.000Z');
+  });
+
+  it('carries origin_date, date minus age', () => {
+    expect(buildSidecar(cap({ date: DATE_14, age: '600' }))['origin_date']).toBe('2026-08-26T13:50:00.000Z');
+  });
+
+  it('carries origin_date as null when age is absent', () => {
+    expect(buildSidecar(cap({ date: DATE_14 }))['origin_date']).toBeNull();
+  });
+
+  it('carries origin_date as null when date is absent', () => {
+    expect(buildSidecar(cap({ age: '600' }))['origin_date']).toBeNull();
+  });
+
+  // The derived timestamps are additions, not a replacement. Losing the raw
+  // date/age/etag would make the committed provenance underivable, and R7 means
+  // it could never be added back to a commit that already exists.
+  it('preserves every key of the record it was given', () => {
+    const h = everything();
+    expect(DECLARED_KEYS.every((k) => k in buildSidecar(h))).toBe(true);
+  });
+
+  it('preserves the value of a key it was given', () => {
+    expect(buildSidecar(everything())['etag']).toBe('abc123');
+  });
+
+  it('adds exactly the two derived keys and nothing else', () => {
+    expect(Object.keys(buildSidecar(everything())).sort()).toEqual(
+      [...DECLARED_KEYS, 'observed_at', 'origin_date'].sort(),
+    );
   });
 });

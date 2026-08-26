@@ -1,0 +1,20 @@
+name: collect-daily
+on:
+  schedule: [{ cron: '20 0 * * *' }]
+  workflow_dispatch:
+concurrency: { group: collector-archive, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - run: npm ci
+      - name: Identify the committer
+        run: |
+          git config user.name 'llm-catalog-archive[bot]'
+          git config user.email 'llm-catalog-archive@users.noreply.github.com'
+      - run: npx tsx src/cli.ts --tier daily
+        env: { LCA_BRANCH: main }

@@ -99,3 +99,25 @@ export function isStaleGeneration(next: HeaderRecord, storedOriginIso: string | 
   if (Number.isNaN(stored)) return false;
   return nextOrigin < stored;
 }
+
+/**
+ * The committed sidecar shape. Spec section 9 names both timestamps, and
+ * `HeaderRecord` carries neither: it has `fetchedAt` and the raw `date`/`age`
+ * inputs, so something has to map it.
+ *
+ * One exported function with two call sites, deliberately, rather than an
+ * object literal inline in each `runTier`. An earlier revision of this plan
+ * wrote the mapping inline in the later task's `runTier` and left the shipping
+ * one writing the bare record. R7 forbids rewriting history, so every commit
+ * between the two tasks would have carried a sidecar permanently missing
+ * `origin_date`. A single function makes that divergence impossible rather than
+ * merely unlikely.
+ */
+export function buildSidecar(h: HeaderRecord): Record<string, unknown> {
+  const originMs = originDateMs(h);
+  return {
+    ...h,
+    observed_at: h.fetchedAt,
+    origin_date: originMs === null ? null : new Date(originMs).toISOString(),
+  };
+}
