@@ -5,7 +5,14 @@ const Invariants = z.strictObject({
   requiredKeyPath: z.string().nullable(),
   minRecords: z.number().int().nonnegative().nullable(),
   canary: z.string().nullable(),
-  sizeBand: z.tuple([z.number().positive(), z.number().positive()]),
+  /**
+   * Bounded, not merely ordered. `lo < hi` alone accepts [0.01, 100.0], which
+   * admits the 350 KB SPA shell and the 81-byte redirect stub that the band
+   * exists to reject. A lower bound above 1 or an upper bound below 1 would
+   * exclude the last accepted size itself, so the ratios straddle 1 by
+   * construction.
+   */
+  sizeBand: z.tuple([z.number().gt(0).lte(1), z.number().gte(1).lte(10)]),
 });
 
 const Freshness = z.strictObject({
@@ -21,7 +28,10 @@ const Predicate = z.discriminatedUnion('type', [
 
 const SourceSchema = z.strictObject({
   id: z.string().regex(/^[a-z0-9-]+$/),
-  url: z.url(),
+  // Protocol bound, because a bare z.url() accepts javascript:alert(1) and
+  // ftp://x. All 16 sources are https and a collector has no business
+  // dereferencing anything else.
+  url: z.url({ protocol: /^https$/ }),
   tier: z.enum(['fast', 'daily']),
   /**
    * `pending` sources are validated and reported but never fetched.
@@ -40,9 +50,14 @@ const SourceSchema = z.strictObject({
   predicate: Predicate,
   timeoutS: z.number().int().positive(),
   retries: z.number().int().nonnegative(),
-  maxRedirects: z.number().int().nonnegative(),
+  // At least 1. Zero disables the relocation detection that spec health rule 4
+  // depends on: five relocations were already found by following redirects and
+  // comparing the effective URL.
+  maxRedirects: z.number().int().min(1),
   rateLimit: z.strictObject({ maxAutoEventsPerDay: z.number().int().positive() }),
-  magnitudeGuard: z.strictObject({ maxShrinkPct: z.number().min(0).max(100) }),
+  // Capped at 90, because 100 is a guard that can never fire, spelled to look
+  // like a configured one.
+  magnitudeGuard: z.strictObject({ maxShrinkPct: z.number().min(0).max(90) }),
   notes: z.string(),
 });
 

@@ -145,7 +145,7 @@
       "maxRedirects": 3,
       "rateLimit": { "maxAutoEventsPerDay": 8 },
       "magnitudeGuard": { "maxShrinkPct": 25 },
-      "notes": "66,545 bytes on 2026-08-26, so minBytes is half that. Note the /docs/ path: openrouter.ai/llms.txt is not this file."
+      "notes": "66,545 bytes when spec section 4 was probed on 2026-08-26, so minBytes is half that; a second probe the same day read 69,285, so this file drifts and no size equality is asserted anywhere. The /docs/ path is load bearing and the two files were measured side by side on 2026-08-26: openrouter.ai/docs/llms.txt is 69,285 bytes, md5 32a32f3aa92fae497c7addebe303c6c7, opening '# OpenRouter | Documentation', while openrouter.ai/llms.txt is 72,739 bytes, md5 2a015c6c8ae672e20cac55541a96f38e, opening '# OpenRouter'. Different files, not a redirect."
     },
     {
       "id": "openrouter-sitemap",
