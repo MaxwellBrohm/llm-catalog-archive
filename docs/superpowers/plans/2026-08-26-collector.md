@@ -66,13 +66,19 @@ see through their volatility.
 
 ### How the run grows
 
-`src/run.ts` is written minimal in Task 5. Tasks 6 to 10 build and test their
-decision modules **in isolation**; the wiring happens once, in Task 11, which
-carries the complete final pipeline as authoritative code. Between Task 5 and
-Task 11 the live collector therefore runs degraded, which is the state Task 5
-establishes deliberately.
+**AMENDED after Task 5 went live.** An earlier ruling deferred all wiring to
+Task 11 and built Tasks 6 to 10 as isolated modules. That was defensible while
+nothing was collecting. It is wrong now: the collector is live and unguarded,
+so a module that exists but is not wired protects nothing, and deferring the
+health gate and the heartbeat to Task 11 leaves the archive exposed for every
+day in between.
 
-The table below is the logical growth, not a per-task wiring instruction.
+**Each task now wires its own module into `runTier` and proves it there**, in
+the same task, with a test asserting the behaviour at the call site rather than
+on the module alone. Task 11 becomes assembly and ordering-lock rather than
+first integration. The precedent is Task 5's `buildSidecar`: a test of the
+function in isolation would have passed throughout a defect that a write-site
+test caught immediately.
 
 | Task | Inserts into `runTier` | Where |
 |---|---|---|
@@ -83,6 +89,9 @@ The table below is the logical growth, not a per-task wiring instruction.
 | 9 | `checkMagnitude` | between the change decision and the write |
 | 10 | `applyOutcome`, `shouldCommitStatus`, `exitCodeFor`, `isStaleGeneration` | status commit always before the exit-code evaluation |
 | 11 | nothing new; asserts the assembled order | the ordering tests |
+
+Each row's task owns both the module and its wiring. A task is not done while
+its guard is written but unreachable.
 
 ## Standing review contract
 
