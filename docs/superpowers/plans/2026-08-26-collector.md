@@ -414,7 +414,7 @@ const Freshness = z.strictObject({
 const Predicate = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('bytes') }),
   z.strictObject({ type: z.literal('mask'), patterns: z.array(z.string()).min(1) }),
-  z.strictObject({ type: z.literal('extracted'), extractor: z.enum(['arena', 'xai', 'sitemapLoc']) }),
+  z.strictObject({ type: z.literal('extracted'), extractor: z.enum(['arena', 'xai', 'sitemapLoc', 'sitemapDated', 'atomStatus']) }),
 ]);
 
 const SourceSchema = z.strictObject({
@@ -492,7 +492,7 @@ export function activeSourcesForTier(f: SourcesFile, tier: 'fast' | 'daily'): So
 
 - [ ] **Step 4: Write `meta/sources.json` with all 16 sources**
 
-Transcribe every row from spec section 4. `openrouter-models` is `tier: "fast"`; the other 15 are `tier: "daily"`. **`arena-leaderboard`, `xai-llms-txt` and `openrouter-sitemap` are `status: "pending"`; the other 13 are `status: "active"`.** Non-default predicates, taken from spec section 7:
+Transcribe every row from spec section 4. `openrouter-models` is `tier: "fast"`; the other 15 are `tier: "daily"`. **Five sources are `status: "pending"`: `arena-leaderboard`, `xai-llms-txt`, `openrouter-sitemap`, and (found by Task 5's dry run) `anthropic-sitemap` and `openai-status`. The other 11 are `status: "active"`.** Non-default predicates, taken from spec section 7:
 
 | id | predicate | notes must say |
 |---|---|---|
@@ -1894,7 +1894,7 @@ git commit -m "feat: decide whether to write by looking, and write what arrived"
 
 ---
 
-### Task 8: The three extractors, and the codename filter
+### Task 8: The five extractors, and the codename filter
 
 **Files:**
 - Create: `src/extractors/arena.ts`, `src/extractors/xai.ts`, `src/extractors/sitemapLoc.ts`

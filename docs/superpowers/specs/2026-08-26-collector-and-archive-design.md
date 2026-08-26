@@ -191,7 +191,7 @@ source with measured sub-daily change; O3 resolves it, provisionally via
 | Source | URL | Notes |
 |---|---|---|
 | `arena-leaderboard` | `https://arena.ai/leaderboard` | Section 7. Hourly during the O4 measurement window. |
-| `anthropic-sitemap` | `https://www.anthropic.com/sitemap.xml` | 515 URLs, 515 with `lastmod`, 67,354 bytes. Root URL excluded by name: its `lastmod` ticked 12:51:24.149Z to 13:04:36.700Z in 13 minutes. |
+| `anthropic-sitemap` | `https://www.anthropic.com/sitemap.xml` | 516 URLs, all with `lastmod`. **Per-request volatile, measured 2026-08-26 during Task 5's dry run and confirmed independently.** Two fetches 4 seconds apart differ in **24 of 516** `lastmod` values while the `<loc>` set is identical, and the values oscillate *backwards* (20:00:59.964Z to 20:00:41.964Z), which is two edge-cache generations both live rather than a rebuild. Predicate `extracted`/`sitemapDated`. |
 | `anthropic-deprecations` | `https://platform.claude.com/docs/en/about-claude/model-deprecations.md` | 13,410 bytes against 1,006,482 for the HTML. The forecasting artifact. Non-numeric families exist (`claude-fable-5`, `claude-mythos-preview`), so no `claude-(opus\|sonnet\|haiku)-N` regex. 8+ further tables follow the master one. |
 | `claude-llms-txt` | `https://platform.claude.com/llms.txt` | 63,970 bytes. |
 | `openrouter-llms-txt` | `https://openrouter.ai/docs/llms.txt` | 66,545 bytes. |
@@ -204,13 +204,46 @@ source with measured sub-daily change; O3 resolves it, provisionally via
 | `xai-llms-txt` | `https://docs.x.ai/llms.txt` | 1,465,407 bytes. Row-permuting, see section 7. No `llms-full` exists. |
 | `modelsdev-commits` | `https://github.com/anomalyco/models.dev/commits.atom` | 20 entries, 20,239 bytes, no API rate limit. Observed 20-entry window spanning **24m29s**, so a daily poll loses commits and even a fast tier could. See O3. |
 | `claude-status` | `https://status.claude.com/history.atom` | 25 entries, all with `<published>`, newest 2026-08-24T20:26:21Z. Key on `published`: 16 of 25 share a bulk backfill `updated` of 2026-08-14. |
-| `openai-status` | `https://status.openai.com/history.atom` | 90 entries, **zero `<published>` elements**, `<updated>` only. Its date handling differs from `claude-status` and must not share code paths blindly. |
+| `openai-status` | `https://status.openai.com/history.atom` | 91 entries, **zero `<published>` elements**, `<updated>` only, so its date handling differs from `claude-status` and must not share code paths blindly. **Per-request volatile, measured 2026-08-26.** Six fetches gave two distinct md5s at an identical 92,282 bytes: the feed-level `<updated>` re-stamps per cache generation, and the component-name list inside every entry is **permuted** (`Conversations (Operational)</li><li>ChatGPT Work` becomes `ChatGPT Work (Operational)</li><li>Conversati...`), 493 differing runs across 15,600 bytes. Entry `<id>` order and set are stable. Predicate `extracted`/`atomStatus`. |
 
 ### Baselines
 
 Hashes are volatile facts, not spec invariants, so they live in a dated file
 (`ai-news-llmstxt-baseline-2026-08-26.tsv`) rather than in this table, recording
 both raw and sorted md5 per source. O1 re-checks against that file.
+
+### The volatile set is five, not three
+
+Three sources were known volatile before implementation began. Task 5's double
+dry run found two more, and it found them the only way they can be found:
+by fetching twice in succession and demanding zero commits on the second run.
+The source-health sweep did not catch either, because it compared fetches taken
+minutes apart inside one session and both of these depend on which edge cache
+answers.
+
+| Source | What is not content | Predicate |
+|---|---|---|
+| `arena-leaderboard` | per-request `userId`, a 37 to 41 key A/B flag map, a Cloudflare ray id and clock | `extracted`/`arena` |
+| `xai-llms-txt` | markdown table rows re-permuted per request | `extracted`/`xai` |
+| `openrouter-sitemap` | ~100 `lastmod` values rewritten per rebuild | `extracted`/`sitemapLoc` |
+| `anthropic-sitemap` | 24 of 516 `lastmod` values oscillating between two live edge generations | `extracted`/`sitemapDated` |
+| `openai-status` | feed-level `<updated>` per generation, plus a permuted component list in every entry | `extracted`/`atomStatus` |
+
+**The two new extractors preserve signal rather than discarding it**, which is
+the whole difficulty. Keying on the `<loc>` set alone would make the Anthropic
+sitemap add/remove only, and this spec records elsewhere that its per-URL
+`lastmod` is a strict upgrade because it makes edits detectable. So:
+
+- **`sitemapDated`** projects the `<loc>` set plus each URL's `lastmod`, dropping
+  any `lastmod` value shared by three or more URLs at the same millisecond.
+  That is the shared-`lastmod` anomaly rule from section 11 applied at the
+  predicate level instead of the publishing level, and it is what separates a
+  build stamp from a real edit. The 24 oscillating values share one timestamp.
+- **`atomStatus`** projects each entry's `id`, its `updated`, and its component
+  list **sorted**. Sorting kills the permutation while still detecting a
+  component being added or removed, which is what a status feed actually leaks:
+  section 4 of the research notes that status pages reveal product surfaces and
+  quiet withdrawals, and that lives in the component list.
 
 ### Explicitly excluded
 
