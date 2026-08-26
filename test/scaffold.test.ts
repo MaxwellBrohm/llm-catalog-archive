@@ -17,10 +17,17 @@ function attributeLines(): string[] {
 
 // Isolate git from this machine's global and system config, so a personal
 // core.attributesFile or commit.gpgsign cannot change what these tests observe.
+// GIT_DIR, GIT_WORK_TREE and GIT_INDEX_FILE are cleared for a sharper reason:
+// git hooks run with them set, so `npm test` from a husky pre-commit would
+// otherwise point the temp-repo init/add/commit below at the real repository
+// and still report green.
 const gitEnv = {
   ...process.env,
   GIT_CONFIG_GLOBAL: '/dev/null',
   GIT_CONFIG_SYSTEM: '/dev/null',
+  GIT_DIR: undefined,
+  GIT_WORK_TREE: undefined,
+  GIT_INDEX_FILE: undefined,
   GIT_AUTHOR_NAME: 'test',
   GIT_AUTHOR_EMAIL: 'test@example.invalid',
   GIT_COMMITTER_NAME: 'test',
