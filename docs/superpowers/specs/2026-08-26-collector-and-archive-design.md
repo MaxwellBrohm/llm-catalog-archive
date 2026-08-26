@@ -1,7 +1,8 @@
 # Collector and Archive: design
 
 Date: 2026-08-26
-Revision: 2, after adversarial review (5 blockers, 21 majors, 28 factual corrections)
+Revision: 3. Revision 2 applied an adversarial review (5 blockers, 21 majors, 28
+factual corrections); revision 3 applies the review of that revision.
 Status: pending review of this document
 Sub-project: A1 of A-F (see "Where this sits")
 
@@ -98,7 +99,7 @@ requires them to be permanent. Enforced by branch protection.
 ## 3. Repository layout
 
 ```
-ainews/
+llm-catalog-archive/
   .gitattributes             raw/** and backfill/** are -text -diff=auto
   .github/workflows/
     collect-fast.yml         */15 * * * *
@@ -144,8 +145,10 @@ and vice versa.
         "min_bytes": 400000,
         "required_key_path": "data",
         "min_records": 300,
-        "max_record_drop_pct": 20
+        "canary": null,
+        "size_band": [0.5, 2.0]
       },
+      "magnitude_guard": { "max_shrink_pct": 25 },
       "freshness": { "kind": "none", "max_quiet_days": null },
       "predicate": { "type": "bytes" },
       "timeout_s": 60,
@@ -230,10 +233,24 @@ A response is healthy only if **all** hold:
 2. It parses as its declared `content_type`, **and** the root element or
    required key path matches `expected_root` / `invariants.required_key_path`.
    The cohere case is why the parse alone is not enough.
-3. Declared invariants hold: `min_bytes`, `min_records`, and no record-count
-   collapse beyond `max_record_drop_pct` against the currently stored bytes.
-   An 81-byte redirect body is caught by size and never by parsing. A catalog
-   that drops from 417 models to 3 is caught here and nowhere else.
+
+   For the eight `.txt` sources, where "parses as its declared type" is
+   vacuous, three cheap checks stand in for it, all declared per source:
+   - **`canary`**: a known stable substring that must be present, chosen from
+     content that has been in that file for months (a top-level heading, a
+     section title). Absent canary means unhealthy, full stop.
+   - **`interstitial_denylist`**: the body must not contain
+     `__CF$cv$params`, `cf-mitigated`, `Just a moment`, `Enable JavaScript and
+     cookies to continue`, or `Attention Required!`. A challenge page that
+     happens to contain the canary is still caught here.
+   - **`size_band`**: byte count within a declared ratio of the last accepted
+     snapshot (default 0.5x to 2.0x). An 81-byte redirect body and a 350 KB
+     SPA shell are both outside any sane band around a 64 KB text file.
+3. Declared invariants hold: `min_bytes`, `min_records`, `canary`,
+   `interstitial_denylist`, `size_band`. An 81-byte redirect body is caught by
+   size and never by parsing. Content collapse is **not** checked here: that is
+   the magnitude guard's job (section 6.1), deliberately separate because health
+   catches known-bad shapes and the guard catches unknown ones.
 4. Redirects resolved within `max_redirects`. If the final effective URL differs
    from the declared URL, the source is marked **`relocated`**, reported, and
    not silently healthy. This is how the five relocations in section 1 get
@@ -321,6 +338,29 @@ stored file is not overwritten: a 25s timeout against a HuggingFace endpoint
 during probing truncated mid-body at 23,404 of 57,859 bytes and produced
 unparseable JSON rather than an error status. One source's exhausted retry
 chain counts as exactly one increment of its counter.
+
+### 6.1 The magnitude guard
+
+Independent of the health check, and deliberately not part of it. Health
+gating catches **known** unhealthy shapes: the traps in section 4's fixture
+list, the canary, the denylist. It cannot catch an unknown one, and the next
+failure will not be a Cloudflare page.
+
+**Rule: if an accepted snapshot would remove more than `max_shrink_pct` of
+entries (for structured sources) or lines (for text sources) versus the last
+accepted snapshot for that source, it is held for review instead of
+committed.** Default 25%. The run records the hold in `status.json`, exits
+zero (this is not a source failure), and reports it. A human accepts or
+rejects; acceptance commits the held bytes unchanged.
+
+This is a *write-time* gate, so it sits between the change predicate and the
+write, and it is the general case of which the 616-page-deletion scenario is
+one instance. It also catches the case health can never see: a source that
+legitimately parses, carries its canary, sits inside its size band, and has
+simply lost most of its content.
+
+Growth is not guarded. A source doubling is a story; a source vanishing is
+usually a bug, and the asymmetry is deliberate.
 
 **Commits.** One commit per changed source per run, touching exactly that
 source's `response.*` and its `headers.json`. Message:
@@ -433,12 +473,23 @@ change, `days_since_last_content_change`, consecutive failure count, health
 state, most recent HTTP status, byte count, derived origin timestamp, and the
 auto-event counter (section 11).
 
-**Commit cadence.** Once per day by the daily job, unconditionally, **and on
-any run in which a field that drives a decision changes**: consecutive failure
-count, last success, last change, health state.
+**Commit cadence.** Commit `meta/status.json` whenever its **meaningful fields**
+differ from the committed copy, plus an unconditional daily commit for
+liveness.
 
-The earlier revision committed only on daily plus failure transitions, which
-made the counter unable to advance. Trace: the 00:15 fast run fails, transition
+Meaningful fields are per-source last-success, HTTP status, byte count,
+consecutive-failure count, health state and hold state. The comparison
+**ignores any pure heartbeat timestamp**, because a last-attempt clock that
+ticks every run would make every field-comparison trivially true and turn this
+back into a commit-every-run rule.
+
+The behaviour that falls out is the point: during an outage the counter
+increments, so the meaningful content differs, so it commits every run and the
+counter advances correctly. In steady health nothing meaningful moves and it
+commits once a day.
+
+Revision 1 committed only on daily plus failure transitions, which made the
+counter unable to advance. Trace: the 00:15 fast run fails, transition
 committed with count 1; 00:30 fails, reads 1, computes 2, this is neither a
 transition nor the daily job, so nothing commits and the 2 dies with the
 ephemeral runner; 00:45 reads 1 again. The counter pins at 1 for the whole
@@ -484,17 +535,20 @@ Every fetch records into `raw/<id>/headers.json`: `etag`, `last-modified`,
 `date`, `age`, `cache-control`, `cf-cache-status`, `content-encoding`,
 `content-length`, the final effective URL, and the UA sent.
 
-**A commit that changes `raw/<id>/response.*` must carry that source's
-`headers.json` in the same commit.** The headers committed alongside an
-artifact are the headers of that artifact's own fetch. The earlier revision put
+**`headers.json` is a sidecar, written in the same commit as the body it
+describes, and only when that body is accepted. Never on an independent
+schedule.** If the body does not change, the headers do not update, so the
+committed headers always describe the committed bytes. The earlier revision put
 headers on the status schedule, which for the fast tier discarded ~95 of 96
 daily header states and guaranteed the committed headers described a different
 fetch than the body beside them: the etag might not be the etag of the
 committed body, breaking conditional requests, and a permalink would carry
 corroborating evidence that corroborates nothing. That is worse than having no
-headers, because it looks like evidence. Only in the no-change case does
-`headers.json` follow the status cadence, so a never-changing source still shows
-liveness.
+headers, because it looks like evidence.
+
+Liveness is `status.json`'s job, not the sidecar's. A source that never changes
+shows liveness through the daily status commit, and its sidecar correctly stays
+frozen alongside its frozen body.
 
 `headers.json` is the authority on the artifact's own fetch. `status.json`'s
 copy is last-attempt liveness telemetry and includes failed attempts. Where they
@@ -612,11 +666,57 @@ the whole `pricing` object, because OpenRouter progressively added sub-keys
 (`input_cache_read`, `input_cache_write`, `web_search`, `internal_reasoning`,
 `image`, `audio`, `request`).
 
-Worked examples: `z-ai/glm-5.2` has 51 distinct price states since 2026-06-17.
-`deepseek/deepseek-chat` context went 128000, 65536, 64000, 16000, 131072,
-16000. `google/gemini-2.0-flash-001` recorded **18 transitions between
-2026-04-17 and 2026-05-30** across 20 context states, 7 of them in April. It is
-a six-week condition, not a one-month blip.
+### 10.1 Worked examples, and the claim form they are allowed to take
+
+**This subsection exists because the examples were being told wrong, and they
+are the first thing the project would have shipped at scale.**
+
+Earlier drafts described `deepseek/deepseek-chat`'s context sequence (128000,
+65536, 64000, 16000, 131072, 16000) as "a model's usable context cut to an
+eighth and restored." That is inference, not observation, and it is probably
+wrong.
+
+OpenRouter's `context_length` is the maximum across the providers currently
+routing a model, not a property the lab controls. The catalog says so directly:
+**38 of 417 models today carry a `top_provider.context_length` that disagrees
+with the model's `context_length`**, including `deepseek/deepseek-v4-flash-0731`
+at 1,310,720 against a top-provider 1,048,576. A provider joining or leaving the
+routing pool moves the catalog number with nothing changing at the lab. So the
+sequence above is at least as likely to be routing churn as a decision by
+DeepSeek, and we have no evidence which.
+
+**The rule, which binds every worked example in this document and every
+templated event the collector's data produces:**
+
+| Form | Status |
+|---|---|
+| "OpenRouter's catalog `context_length` for X changed from A to B on D" | Observation. Auto-publishes. |
+| "X's usable context was cut to an eighth" | Inference. Held for review, and needs corroboration from the lab's own docs before anyone writes it. |
+
+The mechanical form names the catalog as the subject and the field as the
+object. It is safe precisely because it claims nothing about why. Every event
+records both `context_length` and `top_provider.context_length`, so a reader can
+see the routing explanation without us asserting one.
+
+The same discipline applies to prices: "OpenRouter's listed prompt price for X
+changed from A to B" is an observation; "X got 30% cheaper" is a claim about the
+lab's pricing that a routing change can falsify.
+
+Restated safely, the findings are:
+
+- `z-ai/glm-5.2` has **51 distinct listed-price states** in OpenRouter's catalog
+  since 2026-06-17.
+- OpenRouter's catalog `context_length` for `deepseek/deepseek-chat` took the
+  values 128000, 65536, 64000, 16000, 131072 and 16000 across four months. Cause
+  unestablished.
+- OpenRouter's catalog `context_length` for `google/gemini-2.0-flash-001`
+  recorded **18 transitions between 2026-04-17 and 2026-05-30** across 20 states,
+  7 of them in April. A six-week condition, not a one-month blip. Cause
+  unestablished.
+
+None of these is less interesting in the honest form. "A number in the catalog
+teams depend on moved 18 times in six weeks and nobody said why" is the story,
+and it is one we can stand behind.
 
 ### Precision, and the schema consequence
 
@@ -658,9 +758,11 @@ News and Prism News died of.
 **Permalinks.** An artifact permalink is `<repo-url>/blob/<commit-sha>/<path>`,
 where the sha is the commit that changed that artifact. Every event records that
 sha. R5's overwrite-in-place does not break this: the sha pins the content. R7
-is what makes it permanent, and the repository must therefore be public, or
-serve artifacts through its own resolver. O6 must be decided as a dependency of
-this, not independently.
+is what makes it permanent, **and the repository is public** (O6). That was
+already settled by the gate decision rather than by the permalink constraint: an
+auto-published event links its raw artifact, and a private archive makes that
+link unresolvable, which collapses the auto tier back into "trust me." The
+permalink shape only makes the same conclusion unavoidable.
 
 **Correction log and retraction path exist from the start.** `meta/corrections.jsonl`
 and `meta/retractions.jsonl` are created empty in A1, with a CI check that their
@@ -749,7 +851,11 @@ a test asserting it is classified unhealthy. The cohere XHTML a parser accepts.
 The 337-day-stale Qwen feed. The byte-identical Anthropic catch-all. The pytorch
 tags-as-releases feed. The 81-byte OpenAI redirect body. A Cloudflare
 interstitial against a `text`-declared source, asserting **no write occurs**. A
-catalog collapsed from 417 records to 3, asserting `max_record_drop_pct` fires.
+catalog collapsed from 417 records to 3, asserting the **magnitude guard** holds
+it for review rather than committing, and that the run still exits zero because
+a hold is not a source failure. A challenge page carrying a source's canary
+string, asserting the interstitial denylist catches it anyway. A body outside
+`size_band` in both directions.
 Two responses whose `age` headers imply reversed origin order, asserting the
 older is discarded.
 
@@ -791,7 +897,10 @@ family, against `ai-news-llmstxt-baseline-2026-08-26.tsv`. The OpenRouter
 sitemap is the endpoint the concern actually bit.
 
 **O2. kj-9 licence. Blocks committing that backfill tree at all** (section 10),
-not merely its use. Open the issue; fallback is documented.
+not merely its use. An issue is drafted for approval before posting: short and
+factual, saying what the repo is being used for and asking for a licence
+declaration, with no pressure and no deadline. Fallback on refusal or silence is
+documented: drop the tree, accept models.dev's 2025-06-04 start.
 
 **O3. `modelsdev-commits` window.** A 20-entry feed observed spanning **24m29s**
 means even a 15-minute tier can lose commits, which rules out the fast-tier
@@ -810,9 +919,10 @@ day's data.
 **O5. Gemini docs.** `ai.google.dev` has no working diff surface. Decide whether
 coverage is load-bearing and, if so, find a mechanism.
 
-**O6. Repository name, and public or private.** Now a dependency of section 11's
-permalinks rather than a free choice. `ainews` is a working directory name, not
-a brand.
+**O6. RESOLVED. Public, named for the artifact rather than the product:
+`llm-catalog-archive`.** The name must not be a brand, because it lives inside
+every permalink forever under R7, and the eventual site name should be free to
+differ without a rename propagating into published event links.
 
 **O7. Size budget.** Set a per-source annual pack ceiling and a repo ceiling, so
 O4's resolution is bounded by something. Reviewers disagreed on arena's cost
