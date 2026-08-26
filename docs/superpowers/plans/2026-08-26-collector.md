@@ -143,18 +143,27 @@ Pure modules never import `src/fetch.ts`, `src/git.ts`, or `node:fs`. A lint tes
 
 - [ ] **Step 1: Write the failing test**
 
+**Note, added after this task shipped.** The version below is the starting
+point, not the final shape. String assertions over `.gitattributes` are not
+sufficient: a stray `raw/** -diff` line leaves them all green while making
+`git log -p` print `Binary files ... differ`, which is the exact defect that
+had to be fixed here. The shipped test therefore also asserts git's
+*behaviour*, with `git check-attr` and a real committed change in a temp repo,
+and it copies the shipped `.gitattributes` into that repo rather than retyping
+the expected content, because a retyped copy keeps passing after someone
+reverts the real file. Read `test/scaffold.test.ts` for the authoritative
+version.
+
 ```ts
 // test/scaffold.test.ts
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 
 describe('scaffold', () => {
-  it('marks raw and backfill as binary so git never rewrites stored bytes', () => {
+  it('marks raw and backfill so git never rewrites stored bytes', () => {
     const attrs = fs.readFileSync('.gitattributes', 'utf8');
     expect(attrs).toContain('raw/** -text');
     expect(attrs).toContain('backfill/** -text');
-    // -diff would make git print "Binary files differ" instead of the change.
-    expect(attrs).not.toMatch(/^raw\/\*\* .*-diff/m);
   });
 
   it('ships both append-only ledgers, empty', () => {
@@ -1047,7 +1056,10 @@ describe('commitPaths', () => {
   // R1 is the load-bearing rule and this is the only test that can catch it
   // being violated by configuration rather than by code.
   it('stores bytes verbatim through a commit and checkout round trip', () => {
-    fs.writeFileSync(path.join(repo, '.gitattributes'), 'raw/** -text\n');
+    // Copy the SHIPPED .gitattributes rather than retyping it. A retyped copy
+    // keeps this test green forever after someone reverts the real file, which
+    // is precisely the vacuity Task 1's review caught.
+    fs.copyFileSync('.gitattributes', path.join(repo, '.gitattributes'));
     commitPaths(repo, ['.gitattributes'], 'attrs');
     fs.mkdirSync(path.join(repo, 'raw/y'), { recursive: true });
     const bytes = new Uint8Array([...new TextEncoder().encode('a\r\nb\r\nc'), 0xff]);
