@@ -17,17 +17,20 @@ function attributeLines(): string[] {
 
 // Isolate git from this machine's global and system config, so a personal
 // core.attributesFile or commit.gpgsign cannot change what these tests observe.
-// GIT_DIR, GIT_WORK_TREE and GIT_INDEX_FILE are cleared for a sharper reason:
-// git hooks run with them set, so `npm test` from a husky pre-commit would
-// otherwise point the temp-repo init/add/commit below at the real repository
-// and still report green.
 const gitEnv = {
   ...process.env,
   GIT_CONFIG_GLOBAL: '/dev/null',
   GIT_CONFIG_SYSTEM: '/dev/null',
+  // Not dead code, do not tidy away. These are unset rather than merely
+  // overridden, because a git hook exports them and an inherited value
+  // silently aims every temp-repo test below at the real repository. Measured:
+  // with GIT_DIR inherited, this suite reported 6 passed while committing into
+  // a different repo. Node drops env keys whose value is undefined.
   GIT_DIR: undefined,
   GIT_WORK_TREE: undefined,
   GIT_INDEX_FILE: undefined,
+  GIT_OBJECT_DIRECTORY: undefined,
+  GIT_ALTERNATE_OBJECT_DIRECTORIES: undefined,
   GIT_AUTHOR_NAME: 'test',
   GIT_AUTHOR_EMAIL: 'test@example.invalid',
   GIT_COMMITTER_NAME: 'test',
