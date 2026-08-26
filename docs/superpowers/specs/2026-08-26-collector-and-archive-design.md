@@ -1,7 +1,8 @@
 # Collector and Archive: design
 
 Date: 2026-08-26
-Status: approved in outline, pending review of this document
+Revision: 2, after adversarial review (5 blockers, 21 majors, 28 factual corrections)
+Status: pending review of this document
 Sub-project: A1 of A-F (see "Where this sits")
 
 ## 1. What this is
@@ -10,12 +11,13 @@ A deterministic collector that fetches a fixed list of endpoints on a schedule
 and commits their responses, verbatim, to a git repository. Git history is the
 archive. `git log -p <path>` is the diff query.
 
-It parses nothing. It has no opinion about what a model is, what a price
-change means, or what counts as news. Every piece of interpretation lives in
-the deriver (A2), which reads only from git history and can be re-run from
-scratch over the whole archive at any time.
+Nothing it parses is ever written. It fetches, checks health, decides whether
+anything changed, and writes bytes. It has no opinion about what a model is,
+what a price change means, or what counts as news. Every piece of
+interpretation lives in the deriver (A2), which reads only from git history and
+can be re-run from scratch over the whole archive at any time.
 
-That separation is the entire point. It means a parsing decision made today is
+That separation is the entire point. A parsing decision made today is
 reversible tomorrow, which matters because one day of live probing on
 2026-08-25 to 26 found five URL relocations, one repository transfer, one
 default-branch change and one vanished JSON endpoint. The world rots faster
@@ -25,8 +27,7 @@ than a schema can be got right.
 
 Not in this sub-project: entity extraction, thread modelling, story writing,
 ranking, dedup, rendering, the API, the CLI, the leaks desk, the accuracy
-ledger, any use of a language model at all. A1 produces bytes on disk and
-nothing else.
+ledger, any use of a language model at all.
 
 ### Where this sits
 
@@ -52,476 +53,771 @@ artifact-linked, never "nobody tracks this."
 
 ## 2. Rules that govern every write
 
-These came out of review and are load-bearing. Violating any of them silently
-breaks a guarantee made elsewhere.
+Violating any of these silently breaks a guarantee made elsewhere.
 
 **R1. Verbatim.** The collector writes response bytes exactly as received. No
-normalizing, no parsing, no schema, no field stripping, no re-ordering, no
-pretty-printing at write time. An earlier draft proposed stripping volatile
-fields; that was wrong. Stripping is lossy, and lossy at write time destroys
-the recoverability that justifies the whole design. The CDN hash discarded
-today is the fingerprint needed in March.
+normalizing, parsing, schema, field stripping, re-ordering or pretty-printing
+at write time. An earlier draft proposed stripping volatile fields; that was
+wrong. Stripping is lossy, and lossy at write time destroys the recoverability
+that justifies the whole design.
+
+*Bytes means the decoded entity body.* Transfer- and content-encoding are
+transport, not content: the collector sends `Accept-Encoding: gzip`, decodes,
+and stores the decoded body. `content-encoding` is recorded in `headers.json`
+so the wire form stays reconstructable. Without this clause an implementer
+following R1 literally stores gzip blobs, `git log -p` shows nothing readable,
+delta compression stops working, and R2's artifact link points at a binary.
+
+`.gitattributes` marks `raw/**` and `backfill/**` as `-text -diff=auto` so git
+never applies EOL or text normalization to a stored artifact.
 
 **R2. Verbatim is what makes the artifact link honest.** Auto-published events
-must link the raw artifact they came from. An artifact that has been reshaped
-by us is not evidence, it is our derivative. R1 is a precondition for the
-publishing gate, not an aesthetic preference.
+link the raw artifact they came from. An artifact reshaped by us is not
+evidence, it is our derivative. R1 is a precondition for the publishing gate.
 
-**R3. Normalization happens in the deriver, at diff time, never at write
-time.** `docs.x.ai/llms.txt` is the worked example: 1,465,407 bytes whose
-markdown table rows are randomly permuted per request, producing three
-different md5s across three fetches while `sort <file> | md5sum` was identical
-every time (`b92fafe614002915ea5a5b5e5be3060b`). The file is stored as
-received; the deriver sorts before comparing.
+**R3. Normalization happens in the deriver, at diff time, never at write time.**
 
-**R4. Parsing is allowed for the commit decision, forbidden for the commit
-content.** This is the narrow exception that keeps R1 workable. See section 6.
+**R4. Parsing is allowed for the health check and the commit decision, and
+forbidden for the commit content.** This is the narrow exception that keeps R1
+workable. The claim in section 1 is not "it parses nothing" but "nothing it
+parses is ever written," which is the load-bearing version.
 
 **R5. One stable path per source, overwritten in place, committed only on
-change.** Not timestamped filenames. This is the pattern `kj-9` and
-`models.dev` both use, measured at 615 commits over 691 days in a 2.8 MB
-clone. Timestamped filenames grow the working tree without buying anything,
-and they break `git log -p` on a single path.
+change.** Measured at 615 commits over 691 days in a 2.52 MiB pack. Timestamped
+filenames grow the working tree without buying anything and break `git log -p`
+on a single path. **Scope: R5 governs `raw/` and `backfill/`. Files under
+`meta/` are collector state, not captured artifacts, and follow section 8.**
 
-**R6. Backfill never shares a path with go-forward capture.** Section 7.
+**R6. Backfill never shares a path with go-forward capture.** Section 10.
+
+**R7. History is never rewritten.** No force-push, no rebase of pushed commits,
+no `git rm` intended as deletion, for the life of the repository. Section 11's
+permalinks are commit shas, and the audit-trail claim the whole design rests on
+requires them to be permanent. Enforced by branch protection.
 
 ## 3. Repository layout
 
 ```
 ainews/
+  .gitattributes             raw/** and backfill/** are -text -diff=auto
   .github/workflows/
-    collect-fast.yml         every 15 min
-    collect-daily.yml        daily, 00:20 UTC
+    collect-fast.yml         */15 * * * *
+    collect-daily.yml        20 0 * * *
   raw/                       go-forward captures, verbatim
-    openrouter-models/response.json
-    arena-leaderboard/response.html
-    anthropic-sitemap/response.xml
-    anthropic-deprecations/response.md
-    claude-llms-txt/response.txt
-    openrouter-llms-txt/response.txt
-    openrouter-sitemap/response.xml
-    openai-llms-txt/response.txt
-    together-llms-txt/response.txt
-    groq-llms-full-txt/response.txt
-    mistral-llms-txt/response.txt
-    perplexity-llms-txt/response.txt
-    xai-llms-txt/response.txt
-    modelsdev-commits/response.atom
-    claude-status/response.atom
-    openai-status/response.atom
-  backfill/                  third-party archives, NOT verbatim, see s7
-    kj-9-openrouter/
-      PROVENANCE.md
-      snapshots/YYYY-MM-DD.json
+    <source-id>/response.<ext>
+    <source-id>/headers.json
+  backfill/                  third-party archives, NOT verbatim captures
     models-dev/
       PROVENANCE.md
-      snapshots/...
+      models-dev.bundle
+    kj-9-openrouter/         GATED on O2, see section 10
+      PROVENANCE.md
+      models.json
   meta/
     sources.json             the source table, versioned
-    status.json              per-source liveness, see s8
+    status.json              per-source liveness
+    corrections.jsonl        append-only, empty at launch
+    retractions.jsonl        append-only, empty at launch
   docs/superpowers/specs/
 ```
 
-Each `raw/<source>/` directory also carries a `headers.json` recording the
-response headers of the most recent successful fetch (section 9).
+### 3.1 `meta/sources.json`
 
-## 4. Source inventory and tiers
+The single file that drives the collector. Unknown keys are a hard error. A
+schema test asserts every row in section 4's tables has exactly one entry here
+and vice versa.
 
-Every entry below was probed live on 2026-08-26 and, where load-bearing,
-independently re-probed by a second agent instructed to refute the first.
+```json
+{
+  "version": 1,
+  "user_agent": "ainews-collector/1.0 (+https://github.com/OWNER/REPO)",
+  "contact": "OWNER@example.com",
+  "sources": [
+    {
+      "id": "openrouter-models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "tier": "fast",
+      "path": "raw/openrouter-models/response.json",
+      "content_type": "json",
+      "expected_root": null,
+      "invariants": {
+        "min_bytes": 400000,
+        "required_key_path": "data",
+        "min_records": 300,
+        "max_record_drop_pct": 20
+      },
+      "freshness": { "kind": "none", "max_quiet_days": null },
+      "predicate": { "type": "bytes" },
+      "timeout_s": 60,
+      "retries": 2,
+      "max_redirects": 3,
+      "rate_limit": { "max_auto_events_per_day": 8 },
+      "notes": ""
+    }
+  ]
+}
+```
+
+`id` is the directory name under `raw/`. Every non-default `predicate`,
+`invariants` value and `freshness` setting carries its justification in `notes`,
+so the exception list is a reviewable artifact rather than scattered code.
+
+## 4. Source inventory, tiers and health
+
+Every entry was probed live on 2026-08-26 and, where load-bearing,
+independently re-probed by agents instructed to refute the first result.
 
 ### Fast tier: every 15 minutes
 
-| Source | Path | Evidence for the cadence |
+| Source | URL | Notes |
 |---|---|---|
-| OpenRouter catalog | `https://openrouter.ai/api/v1/models` | `cache-control: max-age=300`, `cf-cache-status: HIT`. Polling faster than 5 min returns the same cached bytes. 15 min is the smallest interval that is never wasteful. 417 models, 687,878 bytes. |
+| `openrouter-models` | `https://openrouter.ai/api/v1/models` | 417 models. `cache-control: public, max-age=300, stale-while-revalidate=3600, stale-if-error=3600`. Size drifts live (687,878 then 687,941 on re-probe), so no size equality is ever asserted. |
 
-Nothing else is in the fast tier. Every other source either lacks evidence for
-sub-daily change or has evidence against it.
+The 300s TTL sets the floor at 5 minutes. 15 is chosen above it to leave
+headroom for edge `age` skew (section 9) and to keep Actions-minute usage at
+roughly 96 runs a day rather than 288.
+
+Nothing else is in the fast tier **today**. `modelsdev-commits` is the one
+source with measured sub-daily change; O3 resolves it, provisionally via
+`git fetch` rather than a tier move.
 
 ### Daily tier: 00:20 UTC
 
-| Source | Path | Notes |
+| Source | URL | Notes |
 |---|---|---|
-| Arena leaderboard | `https://arena.ai/leaderboard` | See section 6. Cadence to be measured, not assumed. |
-| Anthropic sitemap | `https://www.anthropic.com/sitemap.xml` | 515 URLs, 515 with `lastmod`, 67,354 bytes. |
-| Anthropic deprecations | `https://platform.claude.com/docs/en/about-claude/model-deprecations.md` | 13,410 bytes, versus 1,006,482 for the HTML. The forecasting artifact. |
-| Anthropic docs index | `https://platform.claude.com/llms.txt` | md5 `c6f28f2def3baf0ced86de167ab73b0f`, reproduced cross-session. |
-| OpenRouter docs index | `https://openrouter.ai/docs/llms.txt` | md5 `a49696379da0cc2e249964675d2ae5f6`. |
-| OpenRouter sitemap | `https://openrouter.ai/sitemap.xml` | md5 `3eded80e36354bc149d152427764ca7e`, and its newest `lastmod` matched to the millisecond across fetches, so the file is genuinely static rather than regenerated per request. Needs retry: a `curl: (35)` reset was observed. |
-| OpenAI docs index | `https://developers.openai.com/api/docs/llms.txt` | 34,432 bytes, md5 `a7a8969e05ceb91b37187edcff88902a`. **Not** `platform.openai.com/llms.txt`, which 404s, and **not** `platform.openai.com/docs/llms.txt`, which is a 301 to an 81-byte stub. A differ pointed at the stub reports "no changes" forever. |
-| Together docs index | `https://docs.together.ai/llms.txt` | md5 `63892d959ca9ce0e3011d5a9a8fb2990`. |
-| Groq docs full | `https://console.groq.com/llms-full.txt` | 797 KB. Groq has zero `.md` twins, so this is the only path to content-level Groq diffs. |
-| Mistral docs index | `https://docs.mistral.ai/llms.txt` | 15 KB. |
-| Perplexity docs index | `https://docs.perplexity.ai/llms.txt` | 43 KB. |
-| xAI docs index | `https://docs.x.ai/llms.txt` | 1.46 MB, permuted rows, see R3. No `llms-full` exists. |
-| models.dev commits | `https://github.com/anomalyco/models.dev/commits.atom` | 17,855 bytes, no API rate limit. **20-entry window spans under 8 hours at burst rate**, so a daily poll loses commits. See open question O3. |
-| Anthropic status | `https://status.claude.com/history.atom` | The one real Anthropic feed. Mixes `published` and `updated`; 16 of 25 entries share a bulk backfill `updated` of 2026-08-14. Key on `published`. |
-| OpenAI status | `https://status.openai.com/history.atom` | |
+| `arena-leaderboard` | `https://arena.ai/leaderboard` | Section 7. Hourly during the O4 measurement window. |
+| `anthropic-sitemap` | `https://www.anthropic.com/sitemap.xml` | 515 URLs, 515 with `lastmod`, 67,354 bytes. Root URL excluded by name: its `lastmod` ticked 12:51:24.149Z to 13:04:36.700Z in 13 minutes. |
+| `anthropic-deprecations` | `https://platform.claude.com/docs/en/about-claude/model-deprecations.md` | 13,410 bytes against 1,006,482 for the HTML. The forecasting artifact. Non-numeric families exist (`claude-fable-5`, `claude-mythos-preview`), so no `claude-(opus\|sonnet\|haiku)-N` regex. 8+ further tables follow the master one. |
+| `claude-llms-txt` | `https://platform.claude.com/llms.txt` | 63,970 bytes. |
+| `openrouter-llms-txt` | `https://openrouter.ai/docs/llms.txt` | 66,545 bytes. |
+| `openrouter-sitemap` | `https://openrouter.ai/sitemap.xml` | 616,687 bytes, 5,051 `<url>`. **Not static:** `cache-control: public, max-age=0, must-revalidate`, `cf-cache-status: DYNAMIC`. Rebuilt several times a day, rewriting ~100 `<lastmod>` values per rebuild independent of content change. Predicate keys on the `<loc>` set only. Needs retry: a `curl: (35)` reset was observed. |
+| `openai-llms-txt` | `https://developers.openai.com/api/docs/llms.txt` | 34,432 bytes. `platform.openai.com/llms.txt` 404s. `platform.openai.com/docs/llms.txt` is a **301 to this same URL**; its 81-byte body is the redirect text, so a collector that does not follow redirects archives that instead of the file. |
+| `together-llms-txt` | `https://docs.together.ai/llms.txt` | 61,720 bytes. |
+| `perplexity-llms-txt` | `https://docs.perplexity.ai/llms.txt` | 43,329 bytes. |
+| `mistral-llms-txt` | `https://docs.mistral.ai/llms.txt` | 14,658 bytes. |
+| `groq-llms-full-txt` | `https://console.groq.com/llms-full.txt` | 797,252 bytes. Groq has zero `.md` twins, so this is the only path to Groq content diffs. |
+| `xai-llms-txt` | `https://docs.x.ai/llms.txt` | 1,465,407 bytes. Row-permuting, see section 7. No `llms-full` exists. |
+| `modelsdev-commits` | `https://github.com/anomalyco/models.dev/commits.atom` | 20 entries, 20,239 bytes, no API rate limit. Observed 20-entry window spanning **24m29s**, so a daily poll loses commits and even a fast tier could. See O3. |
+| `claude-status` | `https://status.claude.com/history.atom` | 25 entries, all with `<published>`, newest 2026-08-24T20:26:21Z. Key on `published`: 16 of 25 share a bulk backfill `updated` of 2026-08-14. |
+| `openai-status` | `https://status.openai.com/history.atom` | 90 entries, **zero `<published>` elements**, `<updated>` only. Its date handling differs from `claude-status` and must not share code paths blindly. |
 
-### Explicitly excluded, with reasons
+### Baselines
+
+Hashes are volatile facts, not spec invariants, so they live in a dated file
+(`ai-news-llmstxt-baseline-2026-08-26.tsv`) rather than in this table, recording
+both raw and sorted md5 per source. O1 re-checks against that file.
+
+### Explicitly excluded
 
 | Endpoint | Why |
 |---|---|
-| `platform.claude.com/llms-full.txt` | 39,763,086 bytes. 39.8 MB per day. |
-| `platform.claude.com/sitemap.xml` | 2,901 URLs, zero `lastmod`. Add/remove detection only. |
-| `ai.google.dev/*` | llms.txt loops through Google OAuth until curl bails at 50 redirects. Sitemap index returns 200 with a fresh lastmod while **all three child sitemaps return HTTP 500 with a zero-byte body**. Gemini docs coverage needs a different mechanism; flagged, not solved. |
-| `qwenlm.github.io/blog/index.xml` | 200, valid XML, 44 items, newest post 2025-09-23. 337 days stale while Qwen shipped three flagship models. The StrictlyVC trap. |
-| `cohere.com/blog/rss.xml` | 1 MB of XHTML that a Python XML parser **accepts** with `root=html`. Proves "does it parse as XML" is not a sufficient gate on its own. |
-| `alignment.anthropic.com/feed.xml`, `red.anthropic.com/rss.xml` | 200 + text/html catch-alls. `/zzz-not-a-real-path-9999` returns a byte-identical body. |
-| `buttondown.com/ainews/rss` | 2.6 MB of valid RSS, newest item 2025-04-25, channel title says "MOVED TO news.smol.ai". |
-| `theneurondaily.com/feed` | 200 at ~348 KB of React SPA HTML. |
-| Reddit, anything | Section 11. |
-| `pytorch/pytorch/releases.atom` | All 10 entries are `viable/strict/<runid>` CI tags. 200, valid Atom, fresh timestamps, completely wrong. GitHub's `releases.atom` is a tags feed. |
+| `platform.claude.com/llms-full.txt` | 39,763,086 bytes per day. |
+| `platform.claude.com/sitemap.xml` | 2,901 URLs, zero `lastmod`. |
+| `ai.google.dev/*` | Bare curl: 404 at 83,928 bytes. Browser UA: OAuth redirect loop. Sitemap index 200s with a fresh lastmod while all three child sitemaps return HTTP 500 with a zero-byte body. See O5. |
+| `qwenlm.github.io/blog/index.xml` | 200, valid XML, 44 items, newest post 2025-09-23. 337 days stale while Qwen shipped three flagship models. |
+| `cohere.com/blog/rss.xml` | 1 MB of XHTML a Python XML parser **accepts** with `root=html`. Proves "parses as XML" is insufficient alone. |
+| `alignment.anthropic.com/feed.xml`, `red.anthropic.com/rss.xml` | 200 + text/html catch-alls; `/zzz-not-a-real-path-9999` returns a byte-identical body. |
+| `buttondown.com/ainews/rss` | 2.6 MB of valid RSS, newest item 2025-04-25. |
+| `theneurondaily.com/feed` | Bare curl 403 at 6,673 bytes; browser UA 200 at 348,669 with a soft-404 redirect. Excluded on both readings. |
+| `pytorch/pytorch/releases.atom` | 21,228 bytes: 6 `viable/strict/<runid>` CI tags, 3 `trunk/<sha>`, 1 `v2.14.0-rc8`. GitHub's `releases.atom` is a tags feed. |
+| Reddit, anything | Section 12. |
 
-### Health-check rule
+### Health check
 
-A source is healthy only if **all** of: the status is 2xx, the body parses as
-its declared type, and, for feeds, the newest item is within 60 days. Any one
-failing marks it unhealthy. The cohere case above means the parse check must
-also assert the root element is the expected one, not merely that a parser
-accepted the bytes.
+A response is healthy only if **all** hold:
 
-## 5. Schedule and the tier justification
+1. Final status is 2xx.
+2. It parses as its declared `content_type`, **and** the root element or
+   required key path matches `expected_root` / `invariants.required_key_path`.
+   The cohere case is why the parse alone is not enough.
+3. Declared invariants hold: `min_bytes`, `min_records`, and no record-count
+   collapse beyond `max_record_drop_pct` against the currently stored bytes.
+   An 81-byte redirect body is caught by size and never by parsing. A catalog
+   that drops from 417 models to 3 is caught here and nowhere else.
+4. Redirects resolved within `max_redirects`. If the final effective URL differs
+   from the declared URL, the source is marked **`relocated`**, reported, and
+   not silently healthy. This is how the five relocations in section 1 get
+   caught next time.
+5. Freshness, per `freshness.kind`. For feeds, `max_quiet_days` is per-source,
+   set high for incident feeds and low for activity feeds. **A stale feed is
+   `stale`, not `failed`, and does not drive the exit code**, because a provider
+   with a genuinely good quarter publishes no incidents for 60+ days and a daily
+   failure email for that condition is how alerting channels get muted. For
+   non-feed sources, `status.json` carries `days_since_last_content_change` and
+   a per-source expected maximum, so a frozen `llms.txt` left serving after a
+   docs migration warns instead of passing forever.
+
+## 5. Schedule
 
 `collect-fast.yml` runs `*/15 * * * *`. `collect-daily.yml` runs `20 0 * * *`,
-deliberately eight minutes after `kj-9`'s `12 0 * * *` so that if that repo is
-ever used as a live corroborator its commit has landed first.
+an off-peak slot away from the top of the hour where scheduler contention is
+worst.
 
-GitHub's scheduled workflows are best-effort and can be delayed by minutes
-under load. Nothing in this design may assume a run happened at its nominal
-time; every timestamp comes from the response or the commit, never from cron.
+It has **no relationship to kj-9**. Across all 615 kj-9 commits, zero landed
+before 00:20 UTC: delay after its nominal `12 0 * * *` runs 81 to 494 minutes,
+median 126, and the hour histogram is 01h:160, 02h:293, 03h:98, 04h:51, 05h:10,
+08h:3. No daily slot can guarantee ordering against it. If kj-9 is ever a live
+corroborator, ordering is resolved by fact rather than clock: read its HEAD
+committer timestamp and defer if it is older than the artifact being
+corroborated.
 
-## 6. Change detection, and the one place parsing is allowed
+GitHub's scheduled workflows are best-effort. Nothing here may assume a run
+happened at its nominal time; every timestamp comes from the response or the
+commit. The cron nominal time is never written anywhere.
 
-R1 says the collector writes verbatim bytes. It does not say the collector must
-commit every fetch. The commit decision is allowed to look inside the response;
-what gets written is still the untouched bytes.
+Both workflows declare the **same** concurrency group, which is the only thing
+that serialises them against each other:
 
-This exists because of a measured problem. `arena.ai/leaderboard` returns
-5,235,084 bytes and carries a **per-request provisional `userId`** (a UUIDv7,
-first differing byte at offset 477189 between two fetches). Two fetches seven
-minutes apart differed by six bytes, while the 1,008 model records, all 810
-`rating` values, all 810 `votes` values and the entire `publicName` to
-`displayName` map were **identical**. Committing on byte difference would
-therefore commit a 5 MB blob every run forever, and every commit would record
-nothing but a fresh anonymous session identifier in a public repository.
+```yaml
+concurrency: { group: collector-archive, cancel-in-progress: false }
+```
 
-So each source declares a change predicate in `meta/sources.json`:
+## 6. The run
 
-- `bytes` (the default): commit when the response bytes differ. Used by every
-  source except arena.
-- `ignore-pattern`: commit when the bytes differ after masking a declared
-  regex. Arena uses this, masking the `userId` UUID.
+The order is fixed and cannot be implemented in any other sequence:
 
-The predicate never alters what is written to disk. It only decides whether to
-write. Every predicate other than `bytes` must be declared in
-`meta/sources.json` with the reason recorded, so the exception list is a
-reviewable artifact rather than scattered code.
+**fetch → health check → change predicate → write → commit → push → evaluate
+counters → exit code.**
 
-Arena also gets a recorded caveat: the committed HTML still contains one
-provisional session id on the runs where the data genuinely changed. It is our
-own id, anonymous and provisional, so the risk is untidiness rather than
-disclosure, but it is a known property of the archive and belongs in the
-repository README.
+**A response that fails the health check is never written and never commits.**
+It increments the source's consecutive-failure counter and updates
+`status.json` only. Last-good bytes are never clobbered by an error page. This
+matters most for the eight `.txt` sources, where "parses as its declared type"
+is vacuous: a 200 carrying a Cloudflare interstitial would otherwise be
+committed, and `git log -p raw/claude-llms-txt/response.txt` would show the
+entire 616-entry Anthropic doc index deleted in one commit, from which A2 would
+emit 616 page-removal events with honest artifact links to a challenge page.
 
-### Arena cadence: measured, not asserted
+**The status commit is never downstream of the failure evaluation.** The
+natural implementation evaluates first or aborts on an exception, which means
+the unconditional daily commit fails to happen precisely when sources are
+failing, re-arming the 60-day disable that section 8 exists to prevent.
 
-Evidence available today says the arena data is **not** continuously updated:
-ratings, votes and the codename map were static across seven minutes, and the
-companion dataset `lmarena-ai/leaderboard-dataset` reported `lastModified`
-2026-08-26T03:01:35Z. That is consistent with a daily batch around 03:00 UTC
-and is not proof of it. Two fetches cannot establish a cadence.
+**Identification.** Every request sends
+`User-Agent: ainews-collector/1.0 (+https://github.com/OWNER/REPO)` and a
+contact address, declared once in `sources.json` and identical for every
+source. **Spoofing a browser or feed-reader UA is forbidden** by the same rule
+that forbids circumventing bot detection: if a source only serves a fake UA, it
+is not a source. The UA is recorded alongside the response headers. This is not
+hypothetical tidiness: `ai.google.dev` and `theneurondaily.com` both return
+materially different responses to a browser UA, and browser-UA spoofing appears
+throughout the probe transcripts an implementer will read.
 
-Therefore: arena starts in the daily tier, and the true cadence is derived from
-the archive's own commit timestamps after two weeks of collection. If the
-interval turns out to be sub-daily the tier moves; if it is weekly the tier
-moves the other way. This is an action item, not a permanent decision.
+**Concurrency and politeness.** Sources are fetched with a concurrency limit of
+4, at most one in-flight request per hostname, minimum 1s between consecutive
+requests to the same host, in `sources.json` order. The daily tier has three
+`openrouter.ai` URLs and two `platform.claude.com` URLs, and 15 sources at 60s
+timeouts is the difference between roughly 15 minutes serial and about 1 minute
+parallel, which decides whether the 00:20 run is still in flight at 00:30.
 
-### A correction to carry forward
+**Redirects** are followed to `max_redirects` (default 3). The final effective
+URL is recorded in `headers.json`.
 
-Of the 60 rows where `publicName != displayName`, the majority are label
-variants, not codename reveals: `grok-4.6` to `grok-4.6-high`, `glm-5.3` to
-`glm-5.3 (max)`, `gpt-5.4-no-system-prompt` to `gpt-5.4`. Genuine reveals are
-roughly 10 to 18 of them (`kiteki` to `qwen3.5-max-preview`, `deep-octo` to
-`minimax-m2.7`, `significant-otter` to `gemma-4-26b-a4b`, `thunbergia-alpha` to
-`qwen3.8-max`, `august26-chatbot1` to a specific NVIDIA Nemotron build).
+**Retries.** Default `timeout_s` 60, `retries` 2, backoff 2s then 8s. Retry only
+on transport error (curl 28/35/52/56), HTTP 5xx, and 429. Never retry a 4xx
+other than 429, and never retry a 2xx. **When the response carries
+`content-length`, a body shorter than it is a failure, not a success**, and the
+stored file is not overwritten: a 25s timeout against a HuggingFace endpoint
+during probing truncated mid-body at 23,404 of 57,859 bytes and produced
+unparseable JSON rather than an error status. One source's exhausted retry
+chain counts as exactly one increment of its counter.
 
-Any deriver that reports the raw count of differing rows as "codenames
-revealed" will overstate by three to six times. The filter is a property of the
-publicName string (nonsense word, animal name, or `<month><year>-chatbotN`
-pattern), not of the inequality. Counts are 1,008 records, 839 distinct
-`publicName`, 844 distinct `displayName`, reproduced three times across two
-independent sessions.
+**Commits.** One commit per changed source per run, touching exactly that
+source's `response.*` and its `headers.json`. Message:
+`<source-id>: changed (<bytes> bytes, HTTP <status>)`. The daily status commit
+is separate: `status: daily heartbeat <YYYY-MM-DD>`. Push is
+`git pull --rebase origin <branch>` then push, up to 3 attempts, **never
+`--force`** (R7).
 
-## 7. Backfill
+## 7. Change predicates
 
-Backfill imports two third-party git archives so the product launches with
-history rather than accumulating it. Both were cloned and analysed on
-2026-08-26.
+R1 governs what is written. It does not govern whether to write. The commit
+decision may look inside the response; the bytes written are still untouched.
 
-### The separation rule, and why it is not optional
+Three predicate types:
 
-**Neither backfill source is a verbatim artifact.**
+- **`bytes`** (default): commit when the decoded body differs.
+- **`mask`**: commit when the body differs after masking a declared list of
+  regions. The list and its justification live in `sources.json`.
+- **`extracted`**: commit when a declared extraction differs. For sources whose
+  volatility is structural rather than a maskable substring.
 
-`kj-9/openrouter-models-json` stores the output of
-`curl … | jq '.data | sort_by(.id)'`. That strips the response envelope and
-re-sorts entries by id. The live API returns entries ordered by `created`
-descending, verified byte-identical across three fetches. So the backfill and
-the go-forward capture differ in both shape and ordering.
+### `arena-leaderboard`: `extracted`
 
-`anomalyco/models.dev` stores per-model TOML files, a different structure
-entirely.
+An earlier revision specified a mask on the `userId` UUID alone. **Two
+reviewers measured independently, hours apart, and both found three volatile
+regions:**
 
-If either were written into `raw/`, the deriver would hit a silent format and
-ordering change at the cutover date, and any event derived from that window
-would link "the raw artifact" and serve someone else's normalized derivative.
-That breaks R2 directly.
+1. `"userId":"<UUIDv7>"` beside `"userState":"provisional"`, whose embedded ms
+   timestamp decodes to the fetch instant.
+2. `posthogFlags`, 37 to 41 A/B assignments, of which 2 differed in both
+   sessions. Any can re-roll on any request because the visitor is anonymous.
+3. `window.__CF$cv$params={r:'<cf-ray>',t:'<base64 unix epoch>'}`, where `r`
+   equals the response's own `cf-ray` and `t` decodes to the request's own
+   clock. **This changes on every response by construction.**
 
-Hence R6: `backfill/kj-9-openrouter/` and `backfill/models-dev/` are separate
-trees. Each carries a `PROVENANCE.md` naming the upstream source, the exact
-transform applied upstream, the licence status, and the import date. Every
-derived event carries a provenance field distinguishing `observed-directly`
-from `observed-via-third-party-archive`.
+Masking only the first leaves the responses unequal, so the predicate fires
+every run and arena commits 5 MB forever, which is the exact outcome this
+mechanism exists to prevent. After masking all three the responses are
+byte-identical.
 
-This also makes the licence question survivable: if `kj-9` never adds a LICENSE
-and the decision is to drop it, that is one tree deleted and a deriver re-run,
-not an unpicking operation against a merged archive.
+A mask list keyed on flag names also rots as arena ships experiments, so the
+predicate is `extracted` over the record tuples
+`(publicName, displayName, rating, votes)`. **CI asserts two back-to-back
+fetches compare equal under the predicate**, so the next injected token fails
+loudly instead of silently reverting arena to a daily 5 MB commit.
 
-### `kj-9/openrouter-models-json`
+The underlying data stability is confirmed across both sessions: 1,008 records,
+839 distinct `publicName`, 844 distinct `displayName`, 811 `rating` and 811
+`votes` values, all identical between fetches. The response *size* is
+per-request volatile (5,235,684 to 5,235,774 observed), so no fixed size is
+asserted anywhere.
+
+### `xai-llms-txt`: `extracted` over sorted table blocks
+
+`bytes` is wrong here: the file's rows re-permute per request, so it would
+commit 1.46 MB of pure permutation daily forever. `mask` cannot express it,
+because reordering is not a maskable substring. R3 pushes the sort into the
+deriver, but the deriver only ever sees what was committed and the commit
+decision is upstream of it, so the predicate must be able to express
+sort-equality itself.
+
+The sorted md5 `b92fafe614002915ea5a5b5e5be3060b` was reproduced across three
+independent captures hours apart while every raw md5 differed. Reviewers
+disagree on magnitude: one measures ~12 changed lines and 270 differing bytes
+across 6 runs (adjacent row swaps in two tables), the other describes a
+shuffle. **The narrower measurement is adopted**, because it is the only one
+with a byte count attached and it argues for sorting *within table blocks*
+rather than the whole file, which preserves the deriver's ability to see a
+legitimate section reorder.
+
+### `openrouter-sitemap`: `extracted` over the `<loc>` set
+
+Its ~100 per-rebuild `<lastmod>` rewrites are build noise, not content change.
+Same treatment already given to `platform.claude.com/sitemap.xml`.
+
+### Arena codename filter, corrected
+
+An earlier revision said genuine reveals are "roughly 10 to 18" of the
+differing rows and a raw count "overstates by three to six times." **That was
+wrong and wrong in the dangerous direction.** Hand classification of all rows
+gives **39 genuine reveals of 61** (36 of 55 distinct pairs), cross-checked
+mechanically at 41 to 20. The raw count overstates by about **1.6x**. A deriver
+built to the old figure would suppress roughly 30 real reveals per cycle.
+
+**The filter enumerates the label-variant shape, not the reveal shape.** A row
+is a label variant iff `publicName` and `displayName` share an alphanumeric
+token: suffix additions (`-high`, `-low`, `-medium`, `-xhigh`,
+`-no-system-prompt`), a trailing `-YYYYMMDD`, or a ` (max)` / ` (preview)`
+parenthetical. Everything else is a reveal. The complete observed variant set is
+small and enumerable and belongs in a fixture.
+
+The positive filter proposed earlier (nonsense word, animal name,
+`<month><year>-chatbotN`) misses `anonymous-0410`, `k2`, `cold_brew`,
+`onyx-v1-4`, `lo-bah-png`, `nonnas-meatballs-open-weight` and `may-alpha`, all
+of which are real reveals.
+
+Wrap the extraction in a sanity assert (`>= 500 records?`): it is an
+undocumented framework payload and will change shape without notice.
+
+## 8. Liveness, status and alerting
+
+GitHub disables scheduled workflows after 60 days of repository inactivity.
+This interacts badly with commit-only-on-change: a broken collector stops
+committing, which is the inactivity that triggers the disable, which makes the
+break permanent. Absence of commits currently means both "nothing changed" and
+"I am dead," and those must be separable.
+
+`meta/status.json` carries, per source: last attempt, last success, last
+change, `days_since_last_content_change`, consecutive failure count, health
+state, most recent HTTP status, byte count, derived origin timestamp, and the
+auto-event counter (section 11).
+
+**Commit cadence.** Once per day by the daily job, unconditionally, **and on
+any run in which a field that drives a decision changes**: consecutive failure
+count, last success, last change, health state.
+
+The earlier revision committed only on daily plus failure transitions, which
+made the counter unable to advance. Trace: the 00:15 fast run fails, transition
+committed with count 1; 00:30 fails, reads 1, computes 2, this is neither a
+transition nor the daily job, so nothing commits and the 2 dies with the
+ephemeral runner; 00:45 reads 1 again. The counter pins at 1 for the whole
+outage and N=8 is reached after 8 days rather than two hours. Committing on
+counter change fixes it, and at 15-minute cadence the counters only move during
+an outage, so it costs commits only when something is already wrong.
+
+**Transitions have hysteresis.** A source becomes FAILING at consecutive-failure
+count 2 and OK on the first success. Commits fire on the OK→FAILING and
+FAILING→OK edges only, so a flaky source (and section 4 already expects a
+`curl: (35)` on the OpenRouter sitemap) does not generate in/out commit pairs
+indefinitely.
+
+**Each job evaluates its own thresholds and exits non-zero itself:**
+`collect-fast.yml` at N=8 for a fast-tier source (about two hours),
+`collect-daily.yml` at N=3 for a daily source. The earlier revision put the
+check only in the daily job, so a totally dead fast tier produced no email for
+up to 24 hours.
+
+**In-band alerting covers source failure. It cannot cover collector death.**
+An alarm wired to the exit code of a run fires only when the run happens, and
+every way the collector stops running produces silence: workflow disabled for
+another reason, cron not firing, the job failing before the check, the repo
+archived, Actions minutes exhausted, a YAML error, or action-runtime rot. So:
+
+**Out-of-band dead-man's switch.** Every successful daily run pings a free
+healthchecks.io-style check with a 26-hour grace period, so the *absence* of a
+ping alerts. Alternative if a third party is unwanted: a second workflow in a
+different repository that fails when `meta/status.json`, fetched from the raw
+contents URL, has a `last_attempt` older than 26 hours. The in-repo exit code
+covers source failure and the external check covers collector death; neither
+covers the other.
+
+**To probe before relying on the liveness argument:** that a commit pushed by
+the Actions bot with the default `GITHUB_TOKEN` counts as repository activity
+for the 60-day timer. The whole heartbeat argument rests on it and it is
+unverified. Cheap insurance either way: have the daily job also call the Actions
+API to re-enable the workflow.
+
+## 9. Headers and timestamps
+
+Every fetch records into `raw/<id>/headers.json`: `etag`, `last-modified`,
+`date`, `age`, `cache-control`, `cf-cache-status`, `content-encoding`,
+`content-length`, the final effective URL, and the UA sent.
+
+**A commit that changes `raw/<id>/response.*` must carry that source's
+`headers.json` in the same commit.** The headers committed alongside an
+artifact are the headers of that artifact's own fetch. The earlier revision put
+headers on the status schedule, which for the fast tier discarded ~95 of 96
+daily header states and guaranteed the committed headers described a different
+fetch than the body beside them: the etag might not be the etag of the
+committed body, breaking conditional requests, and a permalink would carry
+corroborating evidence that corroborates nothing. That is worse than having no
+headers, because it looks like evidence. Only in the no-change case does
+`headers.json` follow the status cadence, so a never-changing source still shows
+liveness.
+
+`headers.json` is the authority on the artifact's own fetch. `status.json`'s
+copy is last-attempt liveness telemetry and includes failed attempts. Where they
+disagree, `headers.json` wins for anything about a stored artifact.
+
+**Two timestamps, both named.** `observed_at` is the runner's wall clock at
+request completion, legitimate because it is measured rather than scheduled.
+`origin_date` is response `date` minus `age`, recorded only when both are
+present.
+
+**Cache-generation skew.** A `cf-cache-status: HIT` is served from whichever
+Cloudflare POP the runner reaches, and Actions runners are spread across regions
+with no stable POP. Two adjacent polls can land on edges holding different cache
+generations, so the archive records A, B, A, B for a value that changed once.
+The `bytes` predicate cannot tell that from a real change, and the deriver would
+emit a change event and a reversion event, both with honest artifact links.
+OpenRouter's full header is `public, max-age=300, stale-while-revalidate=3600,
+stale-if-error=3600`, so an edge may serve up to ~65 minutes past freshness,
+which no polling rate fixes.
+
+**Rule: reject and do not commit any response whose `origin_date` is older than
+the one behind the currently stored bytes.** Count it as a skip, not a failure.
+Any published timestamp derives from `origin_date`, never from commit time, and
+`stale-while-revalidate` means capture time is an upper bound on change time.
+
+This rule does not apply retroactively to backfill findings. kj-9 polls once a
+day against a 300s TTL, and the `deepseek/deepseek-chat` sequence across four
+months is not an edge-skew artifact.
+
+## 10. Backfill
+
+Backfill imports third-party git archives so the product launches with history
+rather than accumulating it.
+
+### Why separate trees, restated
+
+**Neither backfill source is a verbatim artifact.** kj-9 stores
+`curl … | jq '.data | sort_by(.id)'` output, which strips the response envelope
+and re-sorts by id, while the live API returns `created` descending.
+models.dev stores per-model TOML. Written into `raw/`, the deriver would hit a
+silent format and ordering change at the cutover date, and an event derived from
+that window would link "the raw artifact" and serve someone else's normalized
+derivative, breaking R2.
+
+Every derived event carries `provenance`: `observed-directly` or
+`observed-via-third-party-archive`.
+
+### `models-dev`: a bundle, not snapshots
+
+`backfill/models-dev/models-dev.bundle` is a `git bundle` of the upstream
+history: one file, ~18 MiB, committed once, never changing. The deriver clones
+from it.
+
+Materialised dated snapshots were considered and rejected. 8,416 commits over
+~448 days is roughly 19 a day, so a `YYYY-MM-DD` filename collides outright, and
+dated copies of the 4.1 MB `api.json` would be on the order of 1.8 GB of working
+tree against a 53 MB upstream checkout. The bundle is the complete upstream
+history, verbatim, in one artifact, and it satisfies R1 and R6 exactly.
+
+| Property | Value (2026-08-26T14:28Z) |
+|---|---|
+| Commits | 8,416, and moving: 8,372 at 00:00Z, 8,392 at 06:00Z, 8,402 at 12:00Z |
+| Range | 2025-06-04 to present |
+| Size | 18.35 MiB packed, 53 MB checked out (7,347 model TOMLs) |
+| Default branch | **`dev`, not `main`** |
+| Licence | **MIT** |
+| Coverage | 203 providers / 7,314 models live; the repo carries entries `api.json` does not emit |
+
+The brief named this repo `sst/models.dev`. It was transferred; the old path
+returns a 301 with a 212-byte stub in which every field a caller wants is null,
+and `raw.githubusercontent.com/anomalyco/models.dev/main/...` 404s because the
+default branch is `dev`.
+
+### `kj-9-openrouter`: one stable path, and gated
+
+Imported by **replaying the 615 upstream commits onto
+`backfill/kj-9-openrouter/models.json`**, preserving upstream author and commit
+dates. This applies R5 to backfill rather than exempting it: `git log -p` keeps
+working, per-day granularity survives, the checkout stays under 1 MB, and the
+native commit timestamps the precision claim derives from are preserved. The
+earlier revision's `snapshots/YYYY-MM-DD.json` would have been ~245 MB of
+working tree and would have silently collided on the days carrying two commits.
 
 | Property | Value |
 |---|---|
 | Commits | 615 |
 | Range | 2024-10-05 to 2026-08-26 |
 | Span | 691 days, 613 distinct days committed, 88.7% |
-| Largest gap | 5 days (2025-01-02 to 2025-01-08) |
-| Unparseable snapshots | 2 of 615 |
-| Clone size | 2.8 MB |
-| Cron | `12 0 * * *`, commits only on change |
+| Largest gap | **6d 00:01:20** between consecutive commits (2025-01-02 01:50:48Z to 2025-01-08 01:52:08Z), i.e. 5 calendar days with none |
+| Unparseable | 2 of 615 |
+| Size | 2.52 MiB packed, 3.6 MB checked out |
 | Licence | **None. No LICENSE file, no licence metadata.** |
 
-Replaying all 615 commits yields 970 distinct model ids ever seen against 417
-live today, 325 models with at least one price change, and 272 with a context
-window change. Sample findings that demonstrate the value:
-`z-ai/glm-5.2` has 51 distinct price states since 2026-06-17;
+Unparseable snapshots are imported verbatim like every other snapshot: they are
+history, not a health check. Their paths are listed under `## Known-bad
+snapshots` in `PROVENANCE.md` with the parse error. The deriver skips them and
+logs the skip; the importer never drops a file.
+
+**This tree is not committed until O2 resolves.** In a design whose central
+claim is a permanent public audit trail, `git rm` does not remove content: 615
+commits of an unlicensed third party's data would remain in every clone forever
+unless history is rewritten, which R7 forbids and which would invalidate every
+permalink. The earlier revision's "delete the tree and re-run the deriver"
+fallback does not exist. The clone is 2.52 MiB and re-cloneable, so keeping it
+local until the licence question is answered costs nothing. On refusal or no
+answer, drop it and accept models.dev's 2025-06-04 start as the floor.
+
+### What the replay yields
+
+970 distinct model ids ever seen against 417 live, and 272 context changes,
+both reproduced exactly on an independent replay. Price changes are
+**definition-dependent and the definition must be stated inline**: 325 when
+comparing `pricing.prompt` and `pricing.completion`, but **704** when diffing
+the whole `pricing` object, because OpenRouter progressively added sub-keys
+(`input_cache_read`, `input_cache_write`, `web_search`, `internal_reasoning`,
+`image`, `audio`, `request`).
+
+Worked examples: `z-ai/glm-5.2` has 51 distinct price states since 2026-06-17.
 `deepseek/deepseek-chat` context went 128000, 65536, 64000, 16000, 131072,
-16000 across four months; `google/gemini-2.0-flash-001` flapped between
-1000000 and 1048576 five times in April 2026.
-
-**Licence status is unresolved and must be resolved before launch.** Default is
-all rights reserved. The mitigating facts are that the payload is a mechanical
-transformation of a public unauthenticated API and the items are facts rather
-than authorship, and that what is actually being used is the observation
-timestamps rather than the file. Those are mitigations, not a licence. Action:
-open an issue on the repository asking for one, before launch rather than
-after. If declined or unanswered, drop the tree and accept models.dev's
-2025-06-04 start as the floor.
-
-### `anomalyco/models.dev`
-
-| Property | Value |
-|---|---|
-| Commits | 8,405 |
-| Range | 2025-06-04 to 2026-08-26 |
-| Clone size | 21 MB |
-| Default branch | **`dev`, not `main`** |
-| Licence | **MIT** |
-| Coverage | 202 providers, 7,303 models |
-
-The brief named this repo as `sst/models.dev`. It was transferred; the old path
-returns a 301 with a 198-byte stub in which every field a caller wants is null.
-`raw.githubusercontent.com/anomalyco/models.dev/main/...` 404s because the
-default branch is `dev`.
+16000. `google/gemini-2.0-flash-001` recorded **18 transitions between
+2026-04-17 and 2026-05-30** across 20 context states, 7 of them in April. It is
+a six-week condition, not a one-month blip.
 
 ### Precision, and the schema consequence
 
-`kj-9`'s cron is `12 0 * * *`, so a model that appeared at 20:04 UTC is first
-recorded at 00:12 the following day. First-appearance dates from backfill carry
-a **typical error of one day and a worst case of five**.
+kj-9's cron is `12 0 * * *` but **0 of 615 commits landed before 00:20 UTC**;
+the median commit lands about 2h18m after nominal. So a model appearing at 20:04
+UTC is first recorded a median of roughly 2h18m after 00:12 the following day,
+and the worst-case error is **6 days**, not 5.
 
-The field is therefore named `first_seen_in_catalog_at`, literally, with
-sibling `provenance` and `precision` fields. Not `launched_at`, not
-`released_at`, not `first_seen` unqualified. A field named `launched_at`
-anywhere in the schema will eventually be rendered as a launch date by
-something downstream, and a one-day-typical, five-day-worst caveat is exactly
-the kind of qualification that survives in a document and dies in a template.
-The name carries the caveat because the name is the only thing that always
-travels with the value.
+The field is `first_seen_in_catalog_at`, literally, with siblings:
 
-## 8. Liveness, status, and failure alerting
+| Field | Type | Meaning |
+|---|---|---|
+| `provenance` | enum | `observed-directly` / `observed-via-third-party-archive` |
+| `precision_seconds` | integer | worst-case error, machine-comparable |
+| `precision_note` | string | human explanation |
 
-GitHub disables scheduled workflows after 60 days of repository inactivity.
-This interacts badly with "commit only on change": a broken collector stops
-committing, which is exactly the inactivity that triggers the disable, which
-makes the break permanent and silent. Absence of commits currently means both
-"nothing changed" and "I am dead," and those must be separable.
+`precision_seconds` values: kj-9 backfill **518400** (6 days); models.dev
+backfill its own measured bound; fast tier 900 plus a cron-delay allowance;
+daily tier 86400 plus the same. **Any renderer may show a date only when
+`precision_seconds` is at or below the resolution it renders at.** That is what
+makes the field load-bearing rather than decorative, and it is why the caveat
+must be an integer rather than an adjective in prose.
 
-**`meta/status.json`** carries, per source: last attempt, last success, last
-change, consecutive failure count, most recent HTTP status, byte count, and the
-recorded response headers.
+Not `launched_at`, not `released_at`, not bare `first_seen`. A field named
+`launched_at` will eventually be rendered as a launch date by something
+downstream.
 
-**Commit cadence for status.json**, per review: not on every fast-tier run. At
-15 minutes that would be roughly 96 commits a day and 35,000 a year, against
-`kj-9`'s 615 in 691 days, and it would buy nothing because the 60-day clock
-needs daily granularity rather than quarter-hourly. So:
+## 11. The publishing gate, as it constrains A1
 
-- committed once per day, by the daily job, unconditionally;
-- committed immediately on any transition **into** failure for a source;
-- committed immediately on any transition **out of** failure.
-
-That guarantees at least one commit per day regardless of whether the world
-changed, so the 60-day clock never starts, while keeping the history legible
-and `git log -p raw/openrouter-models/response.json` fast.
-
-**Alerting** needs no third-party service. The daily job exits non-zero when
-any source has failed N consecutive runs (N=3 for daily sources, N=8 for the
-fast tier, roughly two hours). GitHub emails the repository owner on scheduled
-workflow failure by default. Alerting is therefore a property of the exit code,
-with no secret to rotate and nothing to pay for.
-
-## 9. Response headers
-
-Every fetch records `etag`, `last-modified`, `date`, `age`, `cache-control` and
-`cf-cache-status` into `raw/<source>/headers.json`. This is cheap, parses
-nothing, and does three jobs: it enables conditional requests later
-(`If-None-Match`, `If-Modified-Since`) without a redesign, it is the
-corroborating evidence for timestamp claims the publication will make, and it
-distinguishes a cached response from a fresh one when reconstructing what was
-actually observed and when.
-
-Headers are recorded on every successful fetch but committed on the same
-schedule as `status.json`, for the same reason.
-
-## 10. The publishing gate, as it constrains A1
-
-The gate itself is D, but two of its rules constrain the archive now.
+The gate itself is D. Two of its rules constrain the archive now.
 
 **The auto-publish line is who composed the sentence, not whether the fact is
 machine-checkable.** Templated output assembled from structured fields
 auto-publishes. Anything a language model wrote goes to review, however
-factual. This is a better line than machine-checkability because it survives
-the case that breaks it: a model writing a perfectly true sentence is still a
-model writing a sentence, and that is precisely what Nota News and Prism News
-died of.
+factual. This survives the case that breaks machine-checkability: a model
+writing a true sentence is still a model writing a sentence, which is what Nota
+News and Prism News died of.
 
-**Consequences A1 must satisfy:**
+**Permalinks.** An artifact permalink is `<repo-url>/blob/<commit-sha>/<path>`,
+where the sha is the commit that changed that artifact. Every event records that
+sha. R5's overwrite-in-place does not break this: the sha pins the content. R7
+is what makes it permanent, and the repository must therefore be public, or
+serve artifacts through its own resolver. O6 must be decided as a dependency of
+this, not independently.
 
-1. Every auto-published event links the raw artifact it came from. Requires R1
-   and R2, and requires stable per-commit permalinks into the archive.
-2. An append-only correction log and a retraction path exist from the start,
-   not added later.
-3. The auto tier is rate-limited so a provider reformatting its docs cannot
-   emit a flood of spurious changes. Batch anomalies hold for review.
+**Correction log and retraction path exist from the start.** `meta/corrections.jsonl`
+and `meta/retractions.jsonl` are created empty in A1, with a CI check that their
+diffs contain no deletions or modifications to existing lines. The
+**append-only property** is an A1 decision because in a git-is-the-archive
+design it is either an auditable JSONL from commit one or it is nothing. The
+**record schema** belongs to D. Retraction semantics are fixed now: a retracted
+event stays in the archive and stays resolvable at its permalink, marked
+retracted, never deleted, because deletion breaks the audit-trail claim the
+whole design rests on.
 
-**The anomaly threshold has a concrete rule from the probe data:** any `lastmod`
-value shared by N URLs at the same millisecond is a build artifact, not N
-stories. The Anthropic sitemap demonstrates it twice, with five top-level pages
-sharing one build timestamp and six economic-index posts sharing another. The
-site-root URL is worse still: its `lastmod` ticked from 12:51:24.149Z to
-13:04:36.700Z in thirteen minutes and will fire on every poll. It is excluded
-by name.
+**Auto-tier rate limit.** Per source: at most `max_auto_events_per_day` events
+(single digits for OpenRouter, whose observed baseline is ~1.2 new ids a day),
+plus a proportional rule for large text sources: hold when one diff changes more
+than X% of lines or more than Y lines. **Over-cap batches are held for review as
+one grouped item, never dropped and never published individually.** The counter
+lives in `meta/status.json` beside the failure counter.
 
-## 11. Legal constraints that bind the collector
+The proportional rule is not optional decoration. The shared-`lastmod` rule
+below is a *sitemap* rule and needs a `lastmod` field, so it cannot see the case
+the constraint actually named: a provider reformatting its docs. Groq's
+`llms-full.txt` is the only path to Groq content diffs and has zero `.md` twins,
+so one Groq docs-platform migration is a whole-file rewrite with nothing to
+threshold on.
+
+**Shared-`lastmod` anomaly rule, bounded.** A `lastmod` value shared by **3 or
+more** URLs at the same millisecond is one build artifact, and emits at most one
+held-for-review item for the group. Groups of 2 pass through as individual
+candidates, and an isolated single-page `lastmod` must still produce an event.
+N=1 would suppress every ordinary edit. The Anthropic sitemap supplies both
+positive fixtures (a five-page group, a six-post group) and the negative.
+
+## 12. Legal constraints that bind the collector
 
 Not legal advice. These are what the documents say, and where they were not
 readable this says so.
 
-**Store freely:** Epoch AI data (CC-BY 4.0, confirmed in the README shipped in
-every archive), `lmarena-ai/leaderboard-dataset` (`cc-by-4.0` in the HF
-`cardData`), models.dev (MIT).
+**Store freely:** Epoch AI (CC-BY 4.0, confirmed in the README shipped in every
+archive), `lmarena-ai/leaderboard-dataset` (`cc-by-4.0` in the HF `cardData`),
+models.dev (MIT).
 
-**Do not ingest at all: Reddit.** Four verified constraints: Developer Terms
-4.1 and Data API Terms 3.1 require a separate agreement for commercial use;
-Data API Terms 2.4 forbids using content to train a model; deletions must
-propagate "as soon as possible" and "immediately"; on termination you must
-delete derived data and models. Reddit may be read and linked by a human. It is
-not a collector source.
+**Do not ingest at all: Reddit.** Developer Terms 4.1 and Data API Terms 3.1
+require a separate agreement for commercial use; Data API Terms 2.4 forbids
+using content to train a model; deletions must propagate "as soon as possible"
+and "immediately"; on termination you must delete derived data and models.
+Reddit may be read and linked by a human. It is not a collector source.
 
 **Correction to the brief:** the widely-repeated "48-hour deletion window" does
 **not appear in any readable Reddit document**. The only occurrence of "48" in
-the Developer Terms is `48 C.F.R. 12.212`. Nor does the phrase "even if
-disassociated, de-identified or anonymized" appear anywhere. The real standards
-are looser in form and stricter in effect, because there is no fixed-hour safe
-harbour to design a nightly batch against. Neither phrase may appear in
-anything this project publishes. (The cited support page is Cloudflare-403 to
-both curl and WebFetch, so this is marked unverified-and-probably-wrong rather
-than definitively refuted.)
+the Developer Terms is `48 C.F.R. 12.212`. Nor does "even if disassociated,
+de-identified or anonymized" appear anywhere. The real standards are looser in
+form and stricter in effect, because there is no fixed-hour safe harbour to
+design a nightly batch against. Neither phrase may appear in anything this
+project publishes. The cited support page is Cloudflare-403 to both curl and
+WebFetch, so this is unverified-and-probably-wrong rather than definitively
+refuted.
 
-**Avoid entirely:** third-party scraper and SERP-proxy vendors. *Reddit, Inc.
-v. SerpApi LLC*, 1:25-cv-08736 (S.D.N.Y.), is a five-party case, not two, and
-the 7/31/2026 opinion predominantly denied the motions to dismiss, sustaining
-DMCA 1201(a)(1)(A) against **both** SerpApi and Perplexity, the buyer. Buying
-laundered data did not insulate the buyer at the pleading stage. Live and
+**Avoid entirely:** third-party scraper and SERP-proxy vendors. *Reddit, Inc. v.
+SerpApi LLC*, 1:25-cv-08736 (S.D.N.Y.) is a five-party case, and the 7/31/2026
+opinion predominantly denied the motions to dismiss, sustaining DMCA
+1201(a)(1)(A) against **both** SerpApi and Perplexity, the buyer. Live and
 unresolved: no final judgment, no appellate ruling.
 
-**Also avoid:** anything that circumvents an access control, rate limit or bot
-detection, on the same 1201 theory.
+**Also avoid:** anything circumventing an access control, rate limit or bot
+detection, on the same theory. This is why section 6 forbids UA spoofing.
 
 **Unverified, and must be checked before relying on them:** terms for
 OpenRouter's API, the HuggingFace API, HN Algolia, CourtListener, the Federal
-Register, and every publisher feed. None was probed. Absence of a probe is not
-absence of a restriction.
+Register, arena.ai's payload, and every publisher feed. None was probed.
+Absence of a probe is not absence of a restriction.
 
-**Politeness limits observed:** GitHub core API is 60/hour unauthenticated;
-GitHub *search* is a separate bucket at 10/minute unauthenticated and 30 with a
-token. Reddit's `.rss` returned a bodyless 429 on a single first request with
-`x-ratelimit-remaining: 0.0`, so a status-blind poller would read that as an
-empty feed.
+**Politeness limits observed:** GitHub core API 60/hour unauthenticated; GitHub
+*search* a separate bucket at 10/minute unauthenticated, 30 with a token.
+Reddit's `.rss` returned a bodyless 429 on a single first request with
+`x-ratelimit-remaining: 0.0`.
 
-## 12. Testing
+## 13. Testing
 
-The collector is mostly I/O, so the tests concentrate on the parts that are
-pure and on the failure modes that are silent.
+**Pure, tested directly:** the health predicate in all five conditions; each
+change predicate; the status-transition logic including hysteresis; the
+consecutive-failure counter; the arena label-variant filter; the shared-`lastmod`
+grouping at N=2 and N=3; the auto-event rate limiter.
 
-**Pure, tested directly:** the health-check predicate (status, body parse, root
-element, freshness), the change predicates (`bytes` and `ignore-pattern`), the
-status-transition logic that decides when to commit `status.json`, and the
-consecutive-failure counter that drives the exit code.
+**Fixture-driven, from bytes captured 2026-08-26:** each trap gets a fixture and
+a test asserting it is classified unhealthy. The cohere XHTML a parser accepts.
+The 337-day-stale Qwen feed. The byte-identical Anthropic catch-all. The pytorch
+tags-as-releases feed. The 81-byte OpenAI redirect body. A Cloudflare
+interstitial against a `text`-declared source, asserting **no write occurs**. A
+catalog collapsed from 417 records to 3, asserting `max_record_drop_pct` fires.
+Two responses whose `age` headers imply reversed origin order, asserting the
+older is discarded.
 
-**Fixture-driven, from bytes captured today:** each trap gets a fixture and a
-test asserting it is classified unhealthy. The cohere XHTML body that a parser
-accepts. The 337-day-stale Qwen feed. The byte-identical anthropic catch-all.
-The pytorch tags-masquerading-as-releases feed. The 81-byte OpenAI redirect
-stub. These are the cases where a naive check returns "healthy" forever, and
-each one is a real captured response rather than a synthetic.
+**R1 round-trip, because R1 is load-bearing and untested is untrue:** fetched
+bytes equal bytes read back after commit, for a fixture containing CRLF, a
+missing trailing newline, and invalid UTF-8. This is what `.gitattributes`
+protects and what would otherwise fail silently while looking correct.
+
+**Counter tests go through commit and checkout round-trips**, not in-memory: 8
+synthetic consecutive failures must produce a non-zero exit on the 8th. Plus
+daily-job driver tests for zero sources changed, one failing, and all failing,
+each asserting the status commit is produced.
+
+**Importer tests:** same-day duplicate upstream commits, the unparseable-snapshot
+path, and bundle round-trip.
+
+**CI invariants:** every commit touching `raw/<s>/response.*` also touches
+`raw/<s>/headers.json`; `corrections.jsonl` and `retractions.jsonl` diffs
+contain no deletions; every section 4 row has exactly one `sources.json` entry
+and vice versa; two back-to-back arena fetches compare equal under its
+predicate.
 
 **Mutation testing, per the standing rule:** every assertion here must be
-watched failing before it is trusted. Specifically, the absence-style
-assertions ("this trap is detected as unhealthy") are the vacuous ones: the
-fixture must be verified to actually contain the trap, and the check must be
-verified to pass on a healthy fixture, or the test proves nothing.
+watched failing before it is trusted. The absence-style assertions ("this trap
+is detected as unhealthy", "no write occurs") are the vacuous ones: the fixture
+must be verified to actually contain the trap, and the check verified to pass on
+a healthy fixture, or the test proves nothing.
 
 **Not tested by mocking the network.** The source table's correctness is a
-property of the world, not of the code, and it is checked by the daily health
-run rather than by a unit test that would pass forever against a stale mock.
+property of the world, checked by the daily health run rather than by a unit
+test that passes forever against a stale mock.
 
-## 13. Open questions to resolve before or during implementation
+## 14. Open questions
 
-**O1. Re-hash the nine llms.txt files against the recorded md5s.** The stability
-window measured was roughly six minutes. That rules out per-request nonces and
-randomized ordering, which is what would have killed the differ. It does **not**
-rule out a nightly rebuild that rewrites an unchanged file with a new build
-stamp. Re-hash tomorrow against the values in section 4 and confirm the ones
-with no docs changes still match. Do this before writing the differ, because a
-nightly stamp would make every daily diff noise.
+**O1. Re-hash against the dated baseline.** The stability window measured was
+~6 minutes, which rules out per-request nonces but not a nightly rebuild
+stamping unchanged files. Re-check every hashed endpoint, not only the llms.txt
+family, against `ai-news-llmstxt-baseline-2026-08-26.tsv`. The OpenRouter
+sitemap is the endpoint the concern actually bit.
 
-**O2. `kj-9` licence.** Open the issue. Decide the fallback explicitly.
+**O2. kj-9 licence. Blocks committing that backfill tree at all** (section 10),
+not merely its use. Open the issue; fallback is documented.
 
-**O3. models.dev `commits.atom` window.** The feed holds 20 entries and, at
-observed burst rate, 20 entries can span under 8 hours. A daily poll therefore
-loses commits permanently. Either move it to the fast tier, or poll the REST
-commits endpoint with pagination, or accept that models.dev's own git history is
-the durable record and treat the feed purely as a change trigger. Recommend the
-third: the repository is cloned for backfill anyway, so a `git fetch` is a
-complete and gap-free alternative to the feed.
+**O3. `modelsdev-commits` window.** A 20-entry feed observed spanning **24m29s**
+means even a 15-minute tier can lose commits, which rules out the fast-tier
+option. Recommend treating models.dev's own git history as the durable record
+via `git fetch` against the bundle's remote, using the feed only as a cheap
+change trigger.
 
-**O4. Arena cadence.** Measure from the archive after two weeks. Section 6.
+**O4. Arena cadence.** A daily poll cannot distinguish daily from sub-daily,
+which is the one direction that matters. **Poll hourly for the two-week
+measurement window**; the predicate keeps unchanged runs from committing, so the
+cost is fetches, not commits. Afterwards, move to a daily poll scheduled just
+after the observed batch hour rather than 00:20, since 00:20 lands ~2.7 hours
+*before* the suspected 03:00 batch and would systematically capture the previous
+day's data.
 
-**O5. Gemini docs.** `ai.google.dev` has no working diff surface at all. Decide
-whether Gemini docs coverage is load-bearing and, if so, find a mechanism.
-Flagged now rather than discovered later.
+**O5. Gemini docs.** `ai.google.dev` has no working diff surface. Decide whether
+coverage is load-bearing and, if so, find a mechanism.
 
-**O6. Repository name and public/private.** The name is deliberately undecided;
-`ainews` is a working directory name and not a brand. Public is assumed, per
-the git-as-public-audit-trail argument, but nothing here depends on it.
+**O6. Repository name, and public or private.** Now a dependency of section 11's
+permalinks rather than a free choice. `ainews` is a working directory name, not
+a brand.
+
+**O7. Size budget.** Set a per-source annual pack ceiling and a repo ceiling, so
+O4's resolution is bounded by something. Reviewers disagreed on arena's cost
+(~1.9 GB/year uncompressed sum versus 20 to 45 MB/year packed); the packed
+figure is the credible one, since git delta-compresses and the kj-9 comparison
+baseline is itself a packed number. Measure rather than argue.
+
+**O8. Verify the `GITHUB_TOKEN` activity assumption** in section 8.
