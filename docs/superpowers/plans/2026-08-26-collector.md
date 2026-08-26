@@ -35,6 +35,69 @@ Copied verbatim from the spec. Every task's requirements implicitly include thes
 
 ---
 
+## Task order, and why the collector ships at Task 5
+
+The archive's value compounds with elapsed time. A day not collected is history
+that cannot be recovered, and no later task recovers it. So the order is not
+"build the parts, then assemble." It is **get bytes onto disk on a schedule as
+early as correctness allows, then improve a collector that is already running.**
+
+`llm-catalog-archive` is committing real snapshots from a GitHub Actions
+schedule at the end of **Task 5**. Tasks 6 through 13 improve it in place.
+
+The asymmetry that makes this safe: a wrong snapshot committed by a degraded
+collector stays recoverable, because history keeps the good one beside it and
+R7 forbids rewriting. A missing day is simply gone. So only the irreversible
+things must be right before Task 5 ships, and Task 5 enumerates exactly which
+those are and why each one cannot wait.
+
+Three sources ship `status: "pending"` rather than active, because under a byte
+predicate each would commit a multi-megabyte blob on every run for reasons that
+are not content. They activate in Task 8, when they have a predicate that can
+see through their volatility.
+
+### How the run grows
+
+`src/run.ts` is written minimal in Task 5 and gains one decision per task. The
+complete final pipeline is given as real code in Task 11.
+
+| Task | Inserts into `runTier` | Where |
+|---|---|---|
+| 5 | fetch, byte comparison, verbatim write, sidecar, commit, push | the whole thing, minimal |
+| 6 | `checkHealth` | between fetch and the change decision; nothing is written unless it allows it |
+| 7 | `hasChanged` | replaces the inline byte comparison |
+| 8 | the three extractors, and the three sources flip to active | inside `hasChanged` |
+| 9 | `checkMagnitude` | between the change decision and the write |
+| 10 | `applyOutcome`, `shouldCommitStatus`, `exitCodeFor`, `isStaleGeneration` | status commit always before the exit-code evaluation |
+| 11 | nothing new; asserts the assembled order | the ordering tests |
+
+## Standing review contract
+
+**This applies to the review gate of every task, in addition to whatever that
+task's own steps say.**
+
+Every failure this project has produced so far is one family: *looks healthy
+while being wrong.* A text predicate that was vacuous. A counter that could not
+advance. Headers describing a different fetch than the body beside them. A feed
+answering 200 with an interstitial. Tests passing is therefore not sufficient
+evidence that a task is done, because the characteristic defect here is an
+assertion that is true for the wrong reason.
+
+The reviewer must confirm, for **every new predicate, guard, health check and
+gating condition** a task introduces:
+
+1. It was **broken on purpose**, the specific test was **watched to fail**, and
+   it was restored. The review must name the mutation and the test that went red.
+2. Where an assertion claims an **absence** ("this trap is rejected", "no write
+   occurs", "no commit is produced"), the fixture was verified to actually
+   contain the thing being rejected. An absence-assertion against a fixture that
+   has lost its trap passes whether or not the code works.
+3. The test failed for the **right reason**. A test that goes red with a
+   `TypeError` when a guard is removed is not evidence the guard works.
+
+A task whose review cannot name the mutation it watched fail is not done,
+however green the suite is.
+
 ## File Structure
 
 | File | Responsibility |
@@ -50,8 +113,8 @@ Copied verbatim from the spec. Every task's requirements implicitly include thes
 | `src/headers.ts` | Header capture shape, `origin_date` derivation, cache-skew rejection. Pure. |
 | `src/fetch.ts` | HTTP: UA, manual redirects, retries, timeouts, content-length guard. I/O. |
 | `src/git.ts` | Stage, commit, pull-rebase, push. I/O. |
-| `src/run.ts` | The orchestrated pipeline. Wires pure decisions to I/O. |
-| `src/cli.ts` | `collect --tier fast\|daily` entrypoint, exit codes. |
+| `src/run.ts` | The orchestrated pipeline. Created minimal in Task 5, grown by Tasks 6 to 10, locked in Task 11. |
+| `src/cli.ts` | `collect --tier fast\|daily` entrypoint, exit codes. Created in Task 5, extended in Task 12. |
 | `test/fixtures/` | Bytes captured 2026-08-26, one file per trap. |
 | `.github/workflows/collect-fast.yml`, `collect-daily.yml` | Schedules, concurrency group. |
 | `.github/workflows/append-only.yml` | CI check on `meta/*.jsonl`. |
@@ -205,6 +268,8 @@ git commit -m "chore: scaffold, and two ledgers that may only ever grow"
 
 ---
 
+---
+
 ### Task 2: `sources.json` schema and loader
 
 **Files:**
@@ -214,17 +279,18 @@ git commit -m "chore: scaffold, and two ledgers that may only ever grow"
 **Interfaces:**
 - Consumes: nothing
 - Produces:
-  - `type Source` with fields `id, url, tier, path, contentType, expectedRoot, invariants, freshness, predicate, timeoutS, retries, maxRedirects, rateLimit, magnitudeGuard, notes`
+  - `type Source` with fields `id, url, tier, status, path, contentType, expectedRoot, invariants, freshness, predicate, timeoutS, retries, maxRedirects, rateLimit, magnitudeGuard, notes`
   - `type SourcesFile = { version: number; userAgent: string; contact: string; sources: Source[] }`
   - `loadSources(json: unknown): SourcesFile` throws on unknown keys
   - `sourcesForTier(f: SourcesFile, tier: 'fast' | 'daily'): Source[]`
+  - `activeSourcesForTier(f: SourcesFile, tier: 'fast' | 'daily'): Source[]` (excludes `status: 'pending'`)
 
 - [ ] **Step 1: Write the failing test**
 
 ```ts
 // test/config.test.ts
 import { describe, it, expect } from 'vitest';
-import { loadSources, sourcesForTier } from '../src/config.js';
+import { loadSources, sourcesForTier, activeSourcesForTier } from '../src/config.js';
 import fs from 'node:fs';
 
 const minimal = {
@@ -235,6 +301,7 @@ const minimal = {
     id: 'openrouter-models',
     url: 'https://openrouter.ai/api/v1/models',
     tier: 'fast',
+    status: 'active',
     path: 'raw/openrouter-models/response.json',
     contentType: 'json',
     expectedRoot: null,
@@ -281,11 +348,14 @@ describe('loadSources', () => {
     const f = loadSources(minimal);
     expect(sourcesForTier(f, 'fast')).toHaveLength(1);
     expect(sourcesForTier(f, 'daily')).toHaveLength(0);
+    expect(activeSourcesForTier(f, 'fast')).toHaveLength(1);
   });
 
   it('the shipped meta/sources.json loads and has all 16 sources', () => {
     const f = loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8')));
     expect(f.sources).toHaveLength(16);
+    expect(f.sources.filter((s) => s.status === 'pending').map((s) => s.id).sort())
+      .toEqual(['arena-leaderboard', 'openrouter-sitemap', 'xai-llms-txt']);
     expect(sourcesForTier(f, 'fast').map((s) => s.id)).toEqual(['openrouter-models']);
   });
 });
@@ -324,6 +394,15 @@ const SourceSchema = z.strictObject({
   id: z.string().regex(/^[a-z0-9-]+$/),
   url: z.string().url(),
   tier: z.enum(['fast', 'daily']),
+  /**
+   * `pending` sources are validated and reported but never fetched.
+   *
+   * The three volatile sources start pending. Under a byte predicate each
+   * would commit a full blob on every run, and at 5.2 MB, 1.46 MB and 617 KB
+   * that is hundreds of megabytes of junk in a history R7 forbids rewriting.
+   * They flip to `active` in the task that gives them a real predicate.
+   */
+  status: z.enum(['active', 'pending']),
   path: z.string(),
   contentType: z.enum(['json', 'xml', 'text', 'html']),
   expectedRoot: z.string().nullable(),
@@ -377,11 +456,16 @@ export function loadSources(json: unknown): SourcesFile {
 export function sourcesForTier(f: SourcesFile, tier: 'fast' | 'daily'): Source[] {
   return f.sources.filter((s) => s.tier === tier);
 }
+
+/** What the collector should actually fetch right now. */
+export function activeSourcesForTier(f: SourcesFile, tier: 'fast' | 'daily'): Source[] {
+  return sourcesForTier(f, tier).filter((s) => s.status === 'active');
+}
 ```
 
 - [ ] **Step 4: Write `meta/sources.json` with all 16 sources**
 
-Transcribe every row from spec section 4. `openrouter-models` is `tier: "fast"`; the other 15 are `tier: "daily"`. Non-default predicates, taken from spec section 7:
+Transcribe every row from spec section 4. `openrouter-models` is `tier: "fast"`; the other 15 are `tier: "daily"`. **`arena-leaderboard`, `xai-llms-txt` and `openrouter-sitemap` are `status: "pending"`; the other 13 are `status: "active"`.** Non-default predicates, taken from spec section 7:
 
 | id | predicate | notes must say |
 |---|---|---|
@@ -407,7 +491,880 @@ git commit -m "feat: one strict table drives the collector, and a typo is an err
 
 ---
 
-### Task 3: Fixtures and the health predicate
+---
+
+### Task 3: Headers, origin timestamps, and cache-generation skew
+
+**Files:**
+- Create: `src/headers.ts`
+- Test: `test/headers.test.ts`
+
+**Interfaces:**
+- Consumes: nothing
+- Produces:
+  - `type HeaderRecord`
+  - `captureHeaders(res: { status: number; headers: Headers }, meta: { fetchedAt: string; finalUrl: string; userAgent: string }): HeaderRecord`
+  - `originDateMs(h: HeaderRecord): number | null`
+  - `isStaleGeneration(next: HeaderRecord, storedOriginIso: string | null): boolean`
+
+`headers.json` is a **sidecar**: written in the same commit as the body it describes, and only when that body is accepted. Never on an independent schedule. An earlier design put it on the status cadence, which for the fast tier discarded 95 of every 96 daily header states and guaranteed the committed etag was not the etag of the committed body.
+
+- [ ] **Step 1: Write the failing test**
+
+```ts
+// test/headers.test.ts
+import { describe, it, expect } from 'vitest';
+import { captureHeaders, originDateMs, isStaleGeneration, type HeaderRecord } from '../src/headers.js';
+
+const cap = (h: Record<string, string>, status = 200): HeaderRecord =>
+  captureHeaders({ status, headers: new Headers(h) },
+    { fetchedAt: '2026-08-26T14:00:00.000Z', finalUrl: 'https://x/y', userAgent: 'llm-catalog-archive/1.0' });
+
+const DATE_14 = 'Tue, 26 Aug 2026 14:00:00 GMT';
+
+describe('captureHeaders', () => {
+  it('records the declared header set and drops everything else', () => {
+    const h = cap({
+      etag: 'abc123',
+      'last-modified': 'Tue, 26 Aug 2026 13:00:00 GMT',
+      date: DATE_14,
+      age: '120',
+      'cache-control': 'public, max-age=300',
+      'cf-cache-status': 'HIT',
+      'content-encoding': 'gzip',
+      'content-length': '4242',
+      'set-cookie': 'sessiontoken=leakme',
+    });
+    expect(h.etag).toBe('abc123');
+    expect(h.age).toBe('120');
+    expect(h.contentEncoding).toBe('gzip');
+    expect(JSON.stringify(h)).not.toContain('leakme');
+  });
+
+  it('nulls absent headers rather than omitting the key', () => {
+    const h = cap({});
+    expect(h.etag).toBeNull();
+    expect('etag' in h).toBe(true);
+  });
+});
+
+describe('originDateMs', () => {
+  it('is date minus age', () => {
+    expect(originDateMs(cap({ date: DATE_14, age: '600' }))).toBe(Date.parse('2026-08-26T13:50:00Z'));
+  });
+
+  it('is null unless both headers are present', () => {
+    expect(originDateMs(cap({ date: DATE_14 }))).toBeNull();
+    expect(originDateMs(cap({ age: '600' }))).toBeNull();
+  });
+});
+
+describe('isStaleGeneration', () => {
+  it('rejects a response whose origin is older than what is already stored', () => {
+    expect(isStaleGeneration(cap({ date: DATE_14, age: '3600' }), '2026-08-26T13:30:00.000Z')).toBe(true);
+  });
+
+  it('accepts a newer origin', () => {
+    expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), '2026-08-26T13:30:00.000Z')).toBe(false);
+  });
+
+  it('accepts when either side is unknown, rather than blocking forever', () => {
+    expect(isStaleGeneration(cap({}), '2026-08-26T13:30:00.000Z')).toBe(false);
+    expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), null)).toBe(false);
+  });
+
+  it('accepts an equal origin, so a re-served identical generation is not a skip', () => {
+    expect(isStaleGeneration(cap({ date: DATE_14, age: '1800' }), '2026-08-26T13:30:00.000Z')).toBe(false);
+  });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `npx vitest run test/headers.test.ts`
+Expected: FAIL, cannot resolve `../src/headers.js`
+
+- [ ] **Step 3: Write `src/headers.ts`**
+
+```ts
+export type HeaderRecord = {
+  fetchedAt: string;
+  finalUrl: string;
+  userAgent: string;
+  status: number;
+  etag: string | null;
+  lastModified: string | null;
+  date: string | null;
+  age: string | null;
+  cacheControl: string | null;
+  cfCacheStatus: string | null;
+  contentEncoding: string | null;
+  contentLength: string | null;
+};
+
+/**
+ * A fixed allowlist, not a dump. Response headers can carry Set-Cookie and
+ * other per-request material, and this file is committed to a public archive.
+ */
+export function captureHeaders(
+  res: { status: number; headers: Headers },
+  meta: { fetchedAt: string; finalUrl: string; userAgent: string },
+): HeaderRecord {
+  const g = (k: string) => res.headers.get(k) ?? null;
+  return {
+    fetchedAt: meta.fetchedAt,
+    finalUrl: meta.finalUrl,
+    userAgent: meta.userAgent,
+    status: res.status,
+    etag: g('etag'),
+    lastModified: g('last-modified'),
+    date: g('date'),
+    age: g('age'),
+    cacheControl: g('cache-control'),
+    cfCacheStatus: g('cf-cache-status'),
+    contentEncoding: g('content-encoding'),
+    contentLength: g('content-length'),
+  };
+}
+
+/**
+ * When the response was generated at origin, as distinct from when we saw it.
+ * Every published timestamp derives from this and never from commit time:
+ * OpenRouter serves stale-while-revalidate=3600, so an edge may hand back a
+ * response up to about 65 minutes past freshness, which makes capture time an
+ * upper bound on change time rather than the change time.
+ */
+export function originDateMs(h: HeaderRecord): number | null {
+  if (h.date === null || h.age === null) return null;
+  const d = Date.parse(h.date);
+  const a = Number(h.age);
+  if (Number.isNaN(d) || !Number.isFinite(a)) return null;
+  return d - a * 1000;
+}
+
+/**
+ * True when this response is an older cache generation than what is stored.
+ *
+ * Runners are spread across regions with no stable Cloudflare POP, so two
+ * adjacent polls can land on edges holding different cache generations. Without
+ * this check the archive records A, B, A, B for a value that changed once, and
+ * the deriver emits a change event and a reversion event, both with honest
+ * artifact links.
+ */
+export function isStaleGeneration(next: HeaderRecord, storedOriginIso: string | null): boolean {
+  if (storedOriginIso === null) return false;
+  const nextOrigin = originDateMs(next);
+  if (nextOrigin === null) return false;
+  const stored = Date.parse(storedOriginIso);
+  if (Number.isNaN(stored)) return false;
+  return nextOrigin < stored;
+}
+```
+
+- [ ] **Step 4: Run tests**
+
+Run: `npx vitest run test/headers.test.ts`
+Expected: PASS, 8 tests
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/headers.ts test/headers.test.ts
+git commit -m "feat: when it was made, not when we happened to see it"
+```
+
+---
+
+---
+
+### Task 4: The fetch layer
+
+**Files:**
+- Create: `src/fetch.ts`
+- Test: `test/fetch.test.ts`
+
+**Interfaces:**
+- Consumes: `Source` from `src/config.ts`, `Observed` from `src/health.ts`, `HeaderRecord` and `captureHeaders` from `src/headers.ts`
+- Produces:
+  - `type FetchImpl = (url: string, init: RequestInit) => Promise<Response>`
+  - `type FetchOutcome = { ok: true; observed: Observed; headers: HeaderRecord; attempts: number } | { ok: false; error: string; attempts: number }`
+  - `fetchSource(source: Source, opts: FetchOpts): Promise<FetchOutcome>` where `FetchOpts = { userAgent: string; nowIso: () => string; fetchImpl?: FetchImpl; sleep?: (ms: number) => Promise<void> }`
+
+`fetchImpl` and `sleep` are injected so every behaviour below is tested without a network and without real delays. The default `fetchImpl` is the global `fetch`.
+
+Redirects are followed manually with `redirect: 'manual'`. The platform default would follow silently and hide the relocation the health check exists to surface.
+
+- [ ] **Step 1: Write the failing test**
+
+```ts
+// test/fetch.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { fetchSource, type FetchImpl } from '../src/fetch.js';
+import type { Source } from '../src/config.js';
+
+const src = (over: Partial<Source> = {}): Source =>
+  ({ id: 'x', url: 'https://a.example/f', timeoutS: 5, retries: 2, maxRedirects: 3, ...over } as Source);
+
+const opts = (fetchImpl: FetchImpl) => ({
+  userAgent: 'llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)',
+  nowIso: () => '2026-08-26T14:00:00.000Z',
+  fetchImpl,
+  sleep: async () => {},
+});
+
+const res = (body: string, init: ResponseInit = {}) => new Response(body, { status: 200, ...init });
+
+describe('fetchSource', () => {
+  it('sends the declared UA and asks for gzip', async () => {
+    const seen: RequestInit[] = [];
+    const impl: FetchImpl = async (_u, i) => { seen.push(i); return res('ok'); };
+    await fetchSource(src(), opts(impl));
+    const h = new Headers(seen[0]!.headers);
+    expect(h.get('user-agent')).toBe('llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)');
+    expect(h.get('accept-encoding')).toContain('gzip');
+    expect(seen[0]!.redirect).toBe('manual');
+  });
+
+  it('follows redirects manually and reports the final url and hop count', async () => {
+    const impl: FetchImpl = async (u) => {
+      if (u === 'https://a.example/f') return new Response(null, { status: 301, headers: { location: 'https://b.example/g' } });
+      return res('final');
+    };
+    const out = await fetchSource(src(), opts(impl));
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    expect(out.observed.finalUrl).toBe('https://b.example/g');
+    expect(out.observed.redirectCount).toBe(1);
+    expect(new TextDecoder().decode(out.observed.body)).toBe('final');
+  });
+
+  it('resolves a relative Location against the current url', async () => {
+    const impl: FetchImpl = async (u) => {
+      if (u === 'https://a.example/f') return new Response(null, { status: 302, headers: { location: '/moved' } });
+      return res('final');
+    };
+    const out = await fetchSource(src(), opts(impl));
+    expect(out.ok && out.observed.finalUrl).toBe('https://a.example/moved');
+  });
+
+  it('stops at the redirect cap rather than looping', async () => {
+    let n = 0;
+    const impl: FetchImpl = async () => { n++; return new Response(null, { status: 301, headers: { location: `https://a.example/${n}` } }); };
+    const out = await fetchSource(src({ maxRedirects: 3 }), opts(impl));
+    expect(out.ok).toBe(false);
+    expect(n).toBeLessThanOrEqual(5);
+  });
+
+  it('retries a 503 and succeeds', async () => {
+    let n = 0;
+    const impl: FetchImpl = async () => { n++; return n < 3 ? res('', { status: 503 }) : res('good'); };
+    const out = await fetchSource(src({ retries: 2 }), opts(impl));
+    expect(out.ok).toBe(true);
+    expect(out.attempts).toBe(3);
+  });
+
+  it('retries a 429', async () => {
+    let n = 0;
+    const impl: FetchImpl = async () => { n++; return n < 2 ? res('', { status: 429 }) : res('good'); };
+    expect((await fetchSource(src(), opts(impl))).ok).toBe(true);
+  });
+
+  it('does not retry a 404, because a missing page will still be missing', async () => {
+    let n = 0;
+    const impl: FetchImpl = async () => { n++; return res('nope', { status: 404 }); };
+    const out = await fetchSource(src(), opts(impl));
+    expect(out.ok).toBe(true);
+    expect(out.attempts).toBe(1);
+    expect(out.ok && out.observed.status).toBe(404);
+  });
+
+  it('retries a transport error and reports the failure when retries run out', async () => {
+    let n = 0;
+    const impl: FetchImpl = async () => { n++; throw new Error('ECONNRESET'); };
+    const out = await fetchSource(src({ retries: 2 }), opts(impl));
+    expect(out.ok).toBe(false);
+    expect(out.attempts).toBe(3);
+    expect(!out.ok && out.error).toMatch(/ECONNRESET/);
+  });
+
+  // A 25s timeout once truncated a body at 23,404 of 57,859 bytes and produced
+  // unparseable JSON rather than an error status. A truncated body that happens
+  // to still parse would otherwise be committed as a real change.
+  it('treats a body shorter than content-length as a failure, not a success', async () => {
+    const impl: FetchImpl = async () => res('short', { headers: { 'content-length': '57859' } });
+    const out = await fetchSource(src({ retries: 0 }), opts(impl));
+    expect(out.ok).toBe(false);
+    expect(!out.ok && out.error).toMatch(/truncated|content-length/i);
+  });
+
+  it('accepts a body when content-length is absent', async () => {
+    const impl: FetchImpl = async () => res('fine');
+    expect((await fetchSource(src(), opts(impl))).ok).toBe(true);
+  });
+
+  it('backs off 2s then 8s between attempts', async () => {
+    const waits: number[] = [];
+    const impl: FetchImpl = async () => res('', { status: 500 });
+    await fetchSource(src({ retries: 2 }), { ...opts(impl), sleep: async (ms) => { waits.push(ms); } });
+    expect(waits).toEqual([2000, 8000]);
+  });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `npx vitest run test/fetch.test.ts`
+Expected: FAIL, cannot resolve `../src/fetch.js`
+
+- [ ] **Step 3: Write `src/fetch.ts`**
+
+```ts
+import type { Source } from './config.js';
+import type { Observed } from './health.js';
+import { captureHeaders, type HeaderRecord } from './headers.js';
+
+export type FetchImpl = (url: string, init: RequestInit) => Promise<Response>;
+
+export type FetchOpts = {
+  userAgent: string;
+  nowIso: () => string;
+  fetchImpl?: FetchImpl;
+  sleep?: (ms: number) => Promise<void>;
+};
+
+export type FetchOutcome =
+  | { ok: true; observed: Observed; headers: HeaderRecord; attempts: number }
+  | { ok: false; error: string; attempts: number };
+
+const BACKOFF_MS = [2000, 8000];
+const REDIRECT_CODES = new Set([301, 302, 303, 307, 308]);
+
+/** Retry only what a retry can fix. A 404 will still be a 404. */
+function retryableStatus(status: number): boolean {
+  return status === 429 || (status >= 500 && status < 600);
+}
+
+export async function fetchSource(source: Source, opts: FetchOpts): Promise<FetchOutcome> {
+  const doFetch = opts.fetchImpl ?? ((u, i) => fetch(u, i));
+  const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+
+  let lastError = 'unknown';
+  const maxAttempts = source.retries + 1;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (attempt > 1) await sleep(BACKOFF_MS[Math.min(attempt - 2, BACKOFF_MS.length - 1)]!);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), source.timeoutS * 1000);
+
+    try {
+      let url = source.url;
+      let redirectCount = 0;
+      let response: Response | null = null;
+
+      // Manual redirects: the platform default follows silently and would hide
+      // the relocation that the health check exists to surface.
+      for (;;) {
+        const r: Response = await doFetch(url, {
+          redirect: 'manual',
+          signal: controller.signal,
+          headers: { 'user-agent': opts.userAgent, 'accept-encoding': 'gzip, deflate, br' },
+        });
+        if (REDIRECT_CODES.has(r.status)) {
+          const loc = r.headers.get('location');
+          if (loc === null) { response = r; break; }
+          if (redirectCount >= source.maxRedirects) {
+            clearTimeout(timer);
+            return { ok: false, error: `redirect cap ${source.maxRedirects} exceeded at ${url}`, attempts: attempt };
+          }
+          redirectCount++;
+          url = new URL(loc, url).toString();
+          continue;
+        }
+        response = r;
+        break;
+      }
+
+      const res = response!;
+      if (retryableStatus(res.status) && attempt < maxAttempts) {
+        lastError = `status ${res.status}`;
+        clearTimeout(timer);
+        continue;
+      }
+
+      const body = new Uint8Array(await res.arrayBuffer());
+      clearTimeout(timer);
+
+      const declared = res.headers.get('content-length');
+      if (declared !== null && res.headers.get('content-encoding') === null) {
+        const want = Number(declared);
+        if (Number.isFinite(want) && body.byteLength < want) {
+          lastError = `truncated body: got ${body.byteLength} of content-length ${want}`;
+          if (attempt < maxAttempts) continue;
+          return { ok: false, error: lastError, attempts: attempt };
+        }
+      }
+
+      const fetchedAt = opts.nowIso();
+      return {
+        ok: true,
+        attempts: attempt,
+        observed: { status: res.status, body, finalUrl: url, redirectCount, headers: Object.fromEntries(res.headers) },
+        headers: captureHeaders(res, { fetchedAt, finalUrl: url, userAgent: opts.userAgent }),
+      };
+    } catch (e) {
+      clearTimeout(timer);
+      lastError = String(e instanceof Error ? e.message : e);
+      if (attempt >= maxAttempts) return { ok: false, error: lastError, attempts: attempt };
+    }
+  }
+  return { ok: false, error: lastError, attempts: maxAttempts };
+}
+```
+
+Note on R1 and encoding: the runtime decompresses `gzip` transparently and `res.arrayBuffer()` yields the **decoded entity body**, which is what R1 requires. `content-encoding` is recorded by `captureHeaders` so the wire form stays reconstructable. The `content-length` guard is skipped when `content-encoding` is present, because that header then describes the compressed length and comparing it to the decoded length would fail on every compressed response.
+
+- [ ] **Step 4: Run tests**
+
+Run: `npx vitest run test/fetch.test.ts`
+Expected: PASS, 11 tests
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/fetch.ts test/fetch.test.ts
+git commit -m "feat: identify ourselves, follow moves on purpose, and refuse half a file"
+```
+
+---
+
+---
+
+### Task 5: A collector that actually collects
+
+**Files:**
+- Create: `src/git.ts`, `src/run.ts`, `src/cli.ts`
+- Create: `.github/workflows/collect-daily.yml`
+- Test: `test/git.test.ts`, `test/run.test.ts`
+
+**Interfaces:**
+- Consumes: `loadSources`, `activeSourcesForTier` from `src/config.ts`; `fetchSource` from `src/fetch.ts`; `captureHeaders` from `src/headers.ts`
+- Produces:
+  - `git(args: string[], cwd: string): { stdout: string; stderr: string; status: number }`
+  - `commitPaths(cwd: string, paths: string[], message: string): boolean`
+  - `pushWithRebase(cwd: string, branch: string, attempts?: number): void`
+  - `type RunDeps`, `type RunResult`, `runTier(sources, tier, prevStatus, deps): Promise<RunResult>` (minimal shape; Tasks 6 through 10 extend it in place, Task 11 locks the ordering)
+
+**This task is the point of the whole plan, and it is deliberately early.**
+
+The archive's value compounds with elapsed time, and a day not collected is history that cannot be recovered. Everything after this task improves a collector that is already running; nothing after this task recovers a day that was missed while it was not.
+
+**What is allowed to be missing here, and why.** A wrong snapshot committed by a degraded collector stays recoverable, because history keeps the good one beside it and R7 guarantees history is never rewritten. A missing day is simply gone. The asymmetry is the whole argument for shipping this before the health check, the magnitude guard, or the status store exist.
+
+**What is not allowed to be missing here, because it is irreversible:**
+
+| Must be right now | Why it cannot wait |
+|---|---|
+| `.gitattributes` marking `raw/**` as `-text -diff=auto` (Task 1) | Without it git may normalize line endings on write. The original bytes are then gone, not merely wrong, and R1 is silently violated in a way that looks correct in a working tree. |
+| The path layout `raw/<id>/response.*` | Changing it later splits the history of a source across two paths and breaks `git log -p` on either. |
+| The headers sidecar, committed with its body | Backfilling provenance onto commits that already exist is impossible under R7, so these commits would carry a permanent hole. |
+| A change predicate, even a byte-comparison one | Committing on every run at 15 minute cadence is 35,000 commits a year of noise, permanently, in a history that can never be rewritten. |
+| `status: "pending"` on the three volatile sources | `arena-leaderboard` (5.2 MB), `xai-llms-txt` (1.46 MB) and `openrouter-sitemap` (617 KB) each change on every request for reasons that are not content. Under a byte predicate they would commit a full blob daily until Task 8 lands, which at three weeks is a few hundred megabytes of junk that R7 makes permanent. They stay `pending` until their extractors exist. |
+
+**What is knowingly deferred, with the deadline it must be closed by.** There is no `meta/status.json` yet, so there is no daily heartbeat, so the 60 day inactivity disable is not yet defended against. Thirteen active sources produce commits on most days, so the clock will not run out, but **Task 10 must land within 60 days of this task** and the plan is sequenced so it lands within days.
+
+- [ ] **Step 1: Write the failing git test**
+
+```ts
+// test/git.test.ts
+import { describe, it, expect, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { git, commitPaths } from '../src/git.js';
+
+let repo: string;
+
+beforeEach(() => {
+  repo = fs.mkdtempSync(path.join(os.tmpdir(), 'lca-'));
+  git(['init', '-q', '-b', 'main'], repo);
+  git(['config', 'user.email', 'test@example.com'], repo);
+  git(['config', 'user.name', 'Test'], repo);
+});
+
+describe('commitPaths', () => {
+  it('commits a changed file and reports true', () => {
+    fs.mkdirSync(path.join(repo, 'raw/x'), { recursive: true });
+    fs.writeFileSync(path.join(repo, 'raw/x/response.json'), '{"a":1}');
+    expect(commitPaths(repo, ['raw/x/response.json'], 'x: changed')).toBe(true);
+    expect(git(['log', '--oneline'], repo).stdout).toContain('x: changed');
+  });
+
+  it('reports false and creates no commit when nothing changed', () => {
+    fs.mkdirSync(path.join(repo, 'raw/x'), { recursive: true });
+    fs.writeFileSync(path.join(repo, 'raw/x/response.json'), '{"a":1}');
+    commitPaths(repo, ['raw/x/response.json'], 'first');
+    const before = git(['rev-list', '--count', 'HEAD'], repo).stdout.trim();
+    expect(commitPaths(repo, ['raw/x/response.json'], 'second')).toBe(false);
+    expect(git(['rev-list', '--count', 'HEAD'], repo).stdout.trim()).toBe(before);
+  });
+
+  it('stages only the paths it is given, leaving another session work alone', () => {
+    fs.mkdirSync(path.join(repo, 'raw/x'), { recursive: true });
+    fs.writeFileSync(path.join(repo, 'raw/x/response.json'), '{"a":1}');
+    fs.writeFileSync(path.join(repo, 'UNRELATED.md'), 'someone else was here');
+    commitPaths(repo, ['raw/x/response.json'], 'x: changed');
+    expect(git(['status', '--porcelain'], repo).stdout).toContain('UNRELATED.md');
+  });
+
+  // R1 is the load-bearing rule and this is the only test that can catch it
+  // being violated by configuration rather than by code.
+  it('stores bytes verbatim through a commit and checkout round trip', () => {
+    fs.writeFileSync(path.join(repo, '.gitattributes'), 'raw/** -text -diff=auto\n');
+    commitPaths(repo, ['.gitattributes'], 'attrs');
+    fs.mkdirSync(path.join(repo, 'raw/y'), { recursive: true });
+    const bytes = new Uint8Array([...new TextEncoder().encode('a\r\nb\r\nc'), 0xff]);
+    const p = path.join(repo, 'raw/y/response.txt');
+    fs.writeFileSync(p, bytes);
+    commitPaths(repo, ['raw/y/response.txt'], 'y: changed');
+    git(['checkout', '--', 'raw/y/response.txt'], repo);
+    expect(new Uint8Array(fs.readFileSync(p))).toEqual(bytes);
+  });
+});
+```
+
+- [ ] **Step 2: Run it and watch it fail**
+
+Run: `npx vitest run test/git.test.ts`
+Expected: FAIL, cannot resolve `../src/git.js`
+
+- [ ] **Step 3: Write `src/git.ts`**
+
+```ts
+import { spawnSync } from 'node:child_process';
+
+export function git(args: string[], cwd: string): { stdout: string; stderr: string; status: number } {
+  const r = spawnSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', status: r.status ?? 1 };
+}
+
+/**
+ * Stage exactly these paths and commit. Returns false when there was nothing
+ * to commit, which is the ordinary no-change case and not an error.
+ *
+ * Paths are staged explicitly rather than with `git add -A`, because more than
+ * one process can be working in a tree and sweeping up someone else's files is
+ * how an unrelated change ships inside a collector commit.
+ */
+export function commitPaths(cwd: string, paths: string[], message: string): boolean {
+  if (paths.length === 0) return false;
+  const add = git(['add', '--', ...paths], cwd);
+  if (add.status !== 0) throw new Error(`git add failed: ${add.stderr}`);
+
+  const staged = git(['diff', '--cached', '--name-only', '--', ...paths], cwd);
+  if (staged.stdout.trim() === '') return false;
+
+  const c = git(['commit', '-q', '-m', message, '--', ...paths], cwd);
+  if (c.status !== 0) throw new Error(`git commit failed: ${c.stderr}`);
+  return true;
+}
+
+/**
+ * Pull with rebase, then push. Never force.
+ *
+ * A rejected non-fast-forward push must not be resolved by force-pushing:
+ * permalinks are commit shas and R7 makes them permanent.
+ */
+export function pushWithRebase(cwd: string, branch: string, attempts = 3): void {
+  let lastErr = '';
+  for (let i = 0; i < attempts; i++) {
+    const pull = git(['pull', '--rebase', 'origin', branch], cwd);
+    if (pull.status !== 0) { lastErr = pull.stderr; continue; }
+    const push = git(['push', 'origin', branch], cwd);
+    if (push.status === 0) return;
+    lastErr = push.stderr;
+  }
+  throw new Error(`push failed after ${attempts} attempts: ${lastErr}`);
+}
+```
+
+- [ ] **Step 4: Write the failing run test**
+
+```ts
+// test/run.test.ts
+import { describe, it, expect } from 'vitest';
+import { runTier, type RunDeps } from '../src/run.js';
+import type { Source } from '../src/config.js';
+
+const enc = (s: string) => new TextEncoder().encode(s);
+const HDR = { fetchedAt: '2026-08-26T14:00:00.000Z', finalUrl: 'https://a.example/f', userAgent: 'ua', status: 200,
+  etag: null, lastModified: null, date: null, age: null, cacheControl: null, cfCacheStatus: null,
+  contentEncoding: null, contentLength: null };
+
+const source = (over: Partial<Source> = {}): Source => ({
+  id: 'a', url: 'https://a.example/f', tier: 'daily', path: 'raw/a/response.txt', status: 'active',
+  contentType: 'text', expectedRoot: null,
+  invariants: { minBytes: 1, requiredKeyPath: null, minRecords: null, canary: 'CANARY', sizeBand: [0.1, 10] },
+  freshness: { kind: 'none', maxQuietDays: null },
+  predicate: { type: 'bytes' }, timeoutS: 5, retries: 0, maxRedirects: 3,
+  rateLimit: { maxAutoEventsPerDay: 8 }, magnitudeGuard: { maxShrinkPct: 25 }, notes: '',
+  ...over,
+} as Source);
+
+function deps(over: Partial<RunDeps> = {}, files: Record<string, Uint8Array> = {}) {
+  const trace: string[] = [];
+  const d: RunDeps = {
+    cwd: '/tmp/fake',
+    nowIso: () => '2026-08-26T14:00:00.000Z',
+    fetchOne: async () => { trace.push('fetch'); return { ok: true as const, attempts: 1,
+      observed: { status: 200, body: enc('CANARY\nline2'), finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+      headers: HDR }; },
+    readFile: (p) => files[p] ?? null,
+    writeFile: (p, b) => { trace.push(`write:${p}`); files[p] = b; },
+    commitPaths: (paths) => { trace.push(`commit:${paths.join(',')}`); return true; },
+    push: () => { trace.push('push'); },
+    log: () => {},
+    ...over,
+  };
+  return Object.assign(d, { files, trace });
+}
+
+describe('runTier, minimal', () => {
+  it('writes the body verbatim and commits it with its headers sidecar', async () => {
+    const d = deps();
+    await runTier([source()], 'daily', null, d);
+    expect(d.files['raw/a/response.txt']).toEqual(enc('CANARY\nline2'));
+    const c = d.trace.find((t) => t.startsWith('commit:'))!;
+    expect(c).toContain('raw/a/response.txt');
+    expect(c).toContain('raw/a/headers.json');
+  });
+
+  it('does not commit when the bytes are unchanged', async () => {
+    const d = deps({}, { 'raw/a/response.txt': enc('CANARY\nline2') });
+    await runTier([source()], 'daily', null, d);
+    expect(d.trace.some((t) => t.startsWith('write:raw/a/response.txt'))).toBe(false);
+  });
+
+  it('skips a source marked pending, so a volatile source cannot pollute history early', async () => {
+    const d = deps();
+    await runTier([source({ status: 'pending' })], 'daily', null, d);
+    expect(d.trace.some((t) => t === 'fetch')).toBe(false);
+  });
+
+  it('one failing source does not stop the others', async () => {
+    let n = 0;
+    const d = deps({ fetchOne: async () => {
+      n++;
+      if (n === 1) throw new Error('boom');
+      return { ok: true as const, attempts: 1,
+        observed: { status: 200, body: enc('CANARY\nb'), finalUrl: 'https://b.example/f', redirectCount: 0, headers: {} },
+        headers: HDR };
+    } });
+    await runTier([source({ id: 'a' }), source({ id: 'b', url: 'https://b.example/f', path: 'raw/b/response.txt' })], 'daily', null, d);
+    expect(d.files['raw/b/response.txt']).toEqual(enc('CANARY\nb'));
+  });
+
+  it('pushes once, after all commits', async () => {
+    const d = deps();
+    await runTier([source()], 'daily', null, d);
+    expect(d.trace.filter((t) => t === 'push')).toHaveLength(1);
+    expect(d.trace.lastIndexOf('push')).toBeGreaterThan(d.trace.findIndex((t) => t.startsWith('commit:')));
+  });
+});
+```
+
+- [ ] **Step 5: Run it and watch it fail**
+
+Run: `npx vitest run test/run.test.ts`
+Expected: FAIL, cannot resolve `../src/run.js`
+
+- [ ] **Step 6: Write the minimal `src/run.ts`**
+
+```ts
+import type { Source } from './config.js';
+import type { FetchOutcome } from './fetch.js';
+import type { StatusFile } from './status.js';
+
+export type RunDeps = {
+  cwd: string;
+  nowIso: () => string;
+  fetchOne: (s: Source) => Promise<FetchOutcome>;
+  readFile: (p: string) => Uint8Array | null;
+  writeFile: (p: string, b: Uint8Array) => void;
+  commitPaths: (paths: string[], message: string) => boolean;
+  push: () => void;
+  log: (line: string) => void;
+};
+
+export type RunResult = { exitCode: number; status: StatusFile | null; trace: string[] };
+
+const headersPathFor = (s: Source) => `raw/${s.id}/headers.json`;
+
+function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.byteLength !== b.byteLength) return false;
+  for (let i = 0; i < a.byteLength; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+/**
+ * MINIMAL SHAPE. Tasks 6 through 10 insert the health check, the full predicate
+ * dispatch, the magnitude guard and the status store into this pipeline, and
+ * Task 11 locks the resulting order with tests that assert it.
+ *
+ * It ships in this state on purpose: a day not collected cannot be recovered,
+ * while a wrong snapshot stays recoverable beside the right one in history.
+ */
+export async function runTier(
+  sources: Source[],
+  _tier: 'fast' | 'daily',
+  _prevStatus: StatusFile | null,
+  deps: RunDeps,
+): Promise<RunResult> {
+  const trace: string[] = [];
+
+  for (const s of sources) {
+    if (s.status !== 'active') { deps.log(`${s.id}: pending, skipped`); continue; }
+
+    try {
+      const got = await deps.fetchOne(s);
+      if (!got.ok) { deps.log(`${s.id}: fetch failed after ${got.attempts} attempts: ${got.error}`); continue; }
+
+      const stored = deps.readFile(s.path);
+      if (stored !== null && sameBytes(got.observed.body, stored)) continue;
+
+      // Verbatim. The bytes written are the bytes received, always.
+      deps.writeFile(s.path, got.observed.body);
+      deps.writeFile(headersPathFor(s), new TextEncoder().encode(JSON.stringify(got.headers, null, 2) + '\n'));
+      deps.commitPaths([s.path, headersPathFor(s)], `${s.id}: changed (${got.observed.body.byteLength} bytes, HTTP ${got.observed.status})`);
+      trace.push(`changed:${s.id}`);
+      deps.log(`${s.id}: changed, ${got.observed.body.byteLength} bytes`);
+    } catch (e) {
+      // One unreachable source must never stop the other twelve.
+      deps.log(`${s.id}: threw: ${String(e instanceof Error ? e.message : e)}`);
+    }
+  }
+
+  deps.push();
+  return { exitCode: 0, status: null, trace };
+}
+```
+
+- [ ] **Step 7: Write `src/cli.ts`**
+
+```ts
+import fs from 'node:fs';
+import path from 'node:path';
+import { loadSources, activeSourcesForTier } from './config.js';
+import { fetchSource } from './fetch.js';
+import { runTier } from './run.js';
+import { commitPaths, pushWithRebase } from './git.js';
+
+const cwd = process.cwd();
+const i = process.argv.indexOf('--tier');
+const tier = i === -1 ? undefined : process.argv[i + 1];
+if (tier !== 'fast' && tier !== 'daily') { console.error('usage: collect --tier fast|daily'); process.exit(2); }
+
+const readFile = (p: string): Uint8Array | null => {
+  const abs = path.join(cwd, p);
+  return fs.existsSync(abs) ? new Uint8Array(fs.readFileSync(abs)) : null;
+};
+const writeFile = (p: string, b: Uint8Array): void => {
+  const abs = path.join(cwd, p);
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  fs.writeFileSync(abs, b);
+};
+
+const file = loadSources(JSON.parse(fs.readFileSync(path.join(cwd, 'meta/sources.json'), 'utf8')));
+
+const result = await runTier(activeSourcesForTier(file, tier), tier, null, {
+  cwd,
+  nowIso: () => new Date().toISOString(),
+  fetchOne: (s) => fetchSource(s, { userAgent: file.userAgent, nowIso: () => new Date().toISOString() }),
+  readFile,
+  writeFile,
+  commitPaths: (paths, message) => commitPaths(cwd, paths, message),
+  push: () => { if (process.env.LCA_NO_PUSH !== '1') pushWithRebase(cwd, process.env.LCA_BRANCH ?? 'main'); },
+  log: (l) => console.log(l),
+});
+
+process.exit(result.exitCode);
+```
+
+Fetching is serial here. Task 12 adds the politeness pool. Thirteen sources at a 60 second timeout is under fifteen minutes in the worst case and typically well under one, which is comfortably inside a daily slot.
+
+- [ ] **Step 8: Run the whole suite**
+
+Run: `npm test && npm run typecheck`
+Expected: PASS
+
+- [ ] **Step 9: Dry run against the real world, without pushing**
+
+```bash
+LCA_NO_PUSH=1 npx tsx src/cli.ts --tier daily
+git status --porcelain
+git log --oneline -20
+ls -la raw/*/
+```
+
+Expected: thirteen `raw/<id>/response.*` files with their `headers.json` sidecars, one commit per source, and the three `pending` sources absent with a "pending, skipped" log line each. Read every log line before continuing. Then confirm the no-change path:
+
+```bash
+LCA_NO_PUSH=1 npx tsx src/cli.ts --tier daily
+git log --oneline -3
+```
+
+Expected: **no new commits.** If this produces commits, a source is changing on every request for a reason that is not content, and it must be marked `pending` before this ships rather than after, because those commits are permanent.
+
+- [ ] **Step 10: Create the repository and go live**
+
+```bash
+gh repo create llm-catalog-archive --public --source=. --remote=origin --push
+```
+
+`.github/workflows/collect-daily.yml`:
+```yaml
+name: collect-daily
+on:
+  schedule: [{ cron: '20 0 * * *' }]
+  workflow_dispatch:
+concurrency: { group: collector-archive, cancel-in-progress: false }
+permissions: { contents: write }
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - run: npm ci
+      - name: Identify the committer
+        run: |
+          git config user.name 'llm-catalog-archive[bot]'
+          git config user.email 'llm-catalog-archive@users.noreply.github.com'
+      - run: npx tsx src/cli.ts --tier daily
+        env: { LCA_BRANCH: main }
+```
+
+Then trigger it by hand and confirm it commits from CI, not just locally:
+
+```bash
+gh workflow run collect-daily.yml
+sleep 90 && gh run list --workflow=collect-daily.yml --limit 1
+git fetch origin && git log --oneline origin/main -5
+```
+
+**Do not proceed to Task 6 until a commit made by the workflow itself appears on `origin/main`.** Everything after this improves a running collector; this step is the difference between a running collector and a repository.
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add src/git.ts src/run.ts src/cli.ts test/git.test.ts test/run.test.ts .github/workflows/collect-daily.yml
+git commit -m "feat: start collecting, because a missed day cannot be recovered"
+```
+
+---
+
+### Task 6: Fixtures and the health predicate
 
 **Files:**
 - Create: `src/health.ts`, `test/fixtures/*` , `test/fixtures/README.md`
@@ -712,7 +1669,9 @@ git commit -m "feat: a 200 is not a yes, and a parser saying yes is not either"
 
 ---
 
-### Task 4: Change predicates, bytes and mask
+---
+
+### Task 7: Change predicates, bytes and mask
 
 **Files:**
 - Create: `src/predicates.ts`
@@ -802,7 +1761,7 @@ export function hasChanged(source: Source, next: Uint8Array, prev: Uint8Array | 
     return mask(next) !== mask(prev);
   }
 
-  // Task 5 replaces this branch. Throwing rather than falling back to `bytes`
+  // Task 8 replaces this branch. Throwing rather than falling back to `bytes`
   // is deliberate: a silent fallback is exactly how a 5MB source reverts to
   // committing every run without anyone noticing.
   throw new Error(`extracted predicate not yet implemented: ${p.extractor}`);
@@ -823,11 +1782,13 @@ git commit -m "feat: decide whether to write by looking, and write what arrived"
 
 ---
 
-### Task 5: The three extractors, and the codename filter
+---
+
+### Task 8: The three extractors, and the codename filter
 
 **Files:**
 - Create: `src/extractors/arena.ts`, `src/extractors/xai.ts`, `src/extractors/sitemapLoc.ts`
-- Modify: `src/predicates.ts` (replace the throwing branch)
+- Modify: `src/predicates.ts` (replace the throwing branch), `meta/sources.json` (flip the three volatile sources to `status: "active"`)
 - Test: `test/extractors.test.ts`
 
 **Interfaces:**
@@ -1118,7 +2079,25 @@ and replace the `throw` with:
 Run: `npx vitest run test/extractors.test.ts test/predicates.test.ts`
 Expected: PASS, all tests
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 9: Activate the three volatile sources**
+
+They have been `status: "pending"` since Task 2 precisely so they could not
+commit a full blob per run under a byte predicate. Flip all three to `"active"`
+in `meta/sources.json`, then prove the predicates hold before letting them near
+the archive:
+
+```bash
+LCA_NO_PUSH=1 npx tsx src/cli.ts --tier daily
+LCA_NO_PUSH=1 npx tsx src/cli.ts --tier daily
+git log --oneline -6
+```
+
+Expected: the first run commits three new sources, the second commits nothing
+at all. If the second run commits, an extractor is not covering every volatile
+region and that source goes straight back to `pending`. Under R7 those commits
+cannot be removed later.
+
+- [ ] **Step 10: Commit**
 
 ```bash
 git add src/extractors test/extractors.test.ts src/predicates.ts
@@ -1127,7 +2106,9 @@ git commit -m "feat: three sources that change every request without changing"
 
 ---
 
-### Task 6: The magnitude guard
+---
+
+### Task 9: The magnitude guard
 
 **Files:**
 - Create: `src/magnitude.ts`
@@ -1288,7 +2269,9 @@ git commit -m "feat: the next bad snapshot will not be a Cloudflare page"
 
 ---
 
-### Task 7: The status store
+---
+
+### Task 10: The status store
 
 **Files:**
 - Create: `src/status.ts`
@@ -1536,598 +2519,13 @@ git commit -m "feat: a counter that lives in a file only advances if the file is
 
 ---
 
-### Task 8: Headers, origin timestamps, and cache-generation skew
-
-**Files:**
-- Create: `src/headers.ts`
-- Test: `test/headers.test.ts`
-
-**Interfaces:**
-- Consumes: nothing
-- Produces:
-  - `type HeaderRecord`
-  - `captureHeaders(res: { status: number; headers: Headers }, meta: { fetchedAt: string; finalUrl: string; userAgent: string }): HeaderRecord`
-  - `originDateMs(h: HeaderRecord): number | null`
-  - `isStaleGeneration(next: HeaderRecord, storedOriginIso: string | null): boolean`
-
-`headers.json` is a **sidecar**: written in the same commit as the body it describes, and only when that body is accepted. Never on an independent schedule. An earlier design put it on the status cadence, which for the fast tier discarded 95 of every 96 daily header states and guaranteed the committed etag was not the etag of the committed body.
-
-- [ ] **Step 1: Write the failing test**
-
-```ts
-// test/headers.test.ts
-import { describe, it, expect } from 'vitest';
-import { captureHeaders, originDateMs, isStaleGeneration, type HeaderRecord } from '../src/headers.js';
-
-const cap = (h: Record<string, string>, status = 200): HeaderRecord =>
-  captureHeaders({ status, headers: new Headers(h) },
-    { fetchedAt: '2026-08-26T14:00:00.000Z', finalUrl: 'https://x/y', userAgent: 'llm-catalog-archive/1.0' });
-
-const DATE_14 = 'Tue, 26 Aug 2026 14:00:00 GMT';
-
-describe('captureHeaders', () => {
-  it('records the declared header set and drops everything else', () => {
-    const h = cap({
-      etag: 'abc123',
-      'last-modified': 'Tue, 26 Aug 2026 13:00:00 GMT',
-      date: DATE_14,
-      age: '120',
-      'cache-control': 'public, max-age=300',
-      'cf-cache-status': 'HIT',
-      'content-encoding': 'gzip',
-      'content-length': '4242',
-      'set-cookie': 'sessiontoken=leakme',
-    });
-    expect(h.etag).toBe('abc123');
-    expect(h.age).toBe('120');
-    expect(h.contentEncoding).toBe('gzip');
-    expect(JSON.stringify(h)).not.toContain('leakme');
-  });
-
-  it('nulls absent headers rather than omitting the key', () => {
-    const h = cap({});
-    expect(h.etag).toBeNull();
-    expect('etag' in h).toBe(true);
-  });
-});
-
-describe('originDateMs', () => {
-  it('is date minus age', () => {
-    expect(originDateMs(cap({ date: DATE_14, age: '600' }))).toBe(Date.parse('2026-08-26T13:50:00Z'));
-  });
-
-  it('is null unless both headers are present', () => {
-    expect(originDateMs(cap({ date: DATE_14 }))).toBeNull();
-    expect(originDateMs(cap({ age: '600' }))).toBeNull();
-  });
-});
-
-describe('isStaleGeneration', () => {
-  it('rejects a response whose origin is older than what is already stored', () => {
-    expect(isStaleGeneration(cap({ date: DATE_14, age: '3600' }), '2026-08-26T13:30:00.000Z')).toBe(true);
-  });
-
-  it('accepts a newer origin', () => {
-    expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), '2026-08-26T13:30:00.000Z')).toBe(false);
-  });
-
-  it('accepts when either side is unknown, rather than blocking forever', () => {
-    expect(isStaleGeneration(cap({}), '2026-08-26T13:30:00.000Z')).toBe(false);
-    expect(isStaleGeneration(cap({ date: DATE_14, age: '60' }), null)).toBe(false);
-  });
-
-  it('accepts an equal origin, so a re-served identical generation is not a skip', () => {
-    expect(isStaleGeneration(cap({ date: DATE_14, age: '1800' }), '2026-08-26T13:30:00.000Z')).toBe(false);
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `npx vitest run test/headers.test.ts`
-Expected: FAIL, cannot resolve `../src/headers.js`
-
-- [ ] **Step 3: Write `src/headers.ts`**
-
-```ts
-export type HeaderRecord = {
-  fetchedAt: string;
-  finalUrl: string;
-  userAgent: string;
-  status: number;
-  etag: string | null;
-  lastModified: string | null;
-  date: string | null;
-  age: string | null;
-  cacheControl: string | null;
-  cfCacheStatus: string | null;
-  contentEncoding: string | null;
-  contentLength: string | null;
-};
-
-/**
- * A fixed allowlist, not a dump. Response headers can carry Set-Cookie and
- * other per-request material, and this file is committed to a public archive.
- */
-export function captureHeaders(
-  res: { status: number; headers: Headers },
-  meta: { fetchedAt: string; finalUrl: string; userAgent: string },
-): HeaderRecord {
-  const g = (k: string) => res.headers.get(k) ?? null;
-  return {
-    fetchedAt: meta.fetchedAt,
-    finalUrl: meta.finalUrl,
-    userAgent: meta.userAgent,
-    status: res.status,
-    etag: g('etag'),
-    lastModified: g('last-modified'),
-    date: g('date'),
-    age: g('age'),
-    cacheControl: g('cache-control'),
-    cfCacheStatus: g('cf-cache-status'),
-    contentEncoding: g('content-encoding'),
-    contentLength: g('content-length'),
-  };
-}
-
-/**
- * When the response was generated at origin, as distinct from when we saw it.
- * Every published timestamp derives from this and never from commit time:
- * OpenRouter serves stale-while-revalidate=3600, so an edge may hand back a
- * response up to about 65 minutes past freshness, which makes capture time an
- * upper bound on change time rather than the change time.
- */
-export function originDateMs(h: HeaderRecord): number | null {
-  if (h.date === null || h.age === null) return null;
-  const d = Date.parse(h.date);
-  const a = Number(h.age);
-  if (Number.isNaN(d) || !Number.isFinite(a)) return null;
-  return d - a * 1000;
-}
-
-/**
- * True when this response is an older cache generation than what is stored.
- *
- * Runners are spread across regions with no stable Cloudflare POP, so two
- * adjacent polls can land on edges holding different cache generations. Without
- * this check the archive records A, B, A, B for a value that changed once, and
- * the deriver emits a change event and a reversion event, both with honest
- * artifact links.
- */
-export function isStaleGeneration(next: HeaderRecord, storedOriginIso: string | null): boolean {
-  if (storedOriginIso === null) return false;
-  const nextOrigin = originDateMs(next);
-  if (nextOrigin === null) return false;
-  const stored = Date.parse(storedOriginIso);
-  if (Number.isNaN(stored)) return false;
-  return nextOrigin < stored;
-}
-```
-
-- [ ] **Step 4: Run tests**
-
-Run: `npx vitest run test/headers.test.ts`
-Expected: PASS, 8 tests
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/headers.ts test/headers.test.ts
-git commit -m "feat: when it was made, not when we happened to see it"
-```
-
 ---
 
-### Task 9: The fetch layer
+### Task 11: The run, completed and order-locked
 
 **Files:**
-- Create: `src/fetch.ts`
-- Test: `test/fetch.test.ts`
-
-**Interfaces:**
-- Consumes: `Source` from `src/config.ts`, `Observed` from `src/health.ts`, `HeaderRecord` and `captureHeaders` from `src/headers.ts`
-- Produces:
-  - `type FetchImpl = (url: string, init: RequestInit) => Promise<Response>`
-  - `type FetchOutcome = { ok: true; observed: Observed; headers: HeaderRecord; attempts: number } | { ok: false; error: string; attempts: number }`
-  - `fetchSource(source: Source, opts: FetchOpts): Promise<FetchOutcome>` where `FetchOpts = { userAgent: string; nowIso: () => string; fetchImpl?: FetchImpl; sleep?: (ms: number) => Promise<void> }`
-
-`fetchImpl` and `sleep` are injected so every behaviour below is tested without a network and without real delays. The default `fetchImpl` is the global `fetch`.
-
-Redirects are followed manually with `redirect: 'manual'`. The platform default would follow silently and hide the relocation the health check exists to surface.
-
-- [ ] **Step 1: Write the failing test**
-
-```ts
-// test/fetch.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { fetchSource, type FetchImpl } from '../src/fetch.js';
-import type { Source } from '../src/config.js';
-
-const src = (over: Partial<Source> = {}): Source =>
-  ({ id: 'x', url: 'https://a.example/f', timeoutS: 5, retries: 2, maxRedirects: 3, ...over } as Source);
-
-const opts = (fetchImpl: FetchImpl) => ({
-  userAgent: 'llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)',
-  nowIso: () => '2026-08-26T14:00:00.000Z',
-  fetchImpl,
-  sleep: async () => {},
-});
-
-const res = (body: string, init: ResponseInit = {}) => new Response(body, { status: 200, ...init });
-
-describe('fetchSource', () => {
-  it('sends the declared UA and asks for gzip', async () => {
-    const seen: RequestInit[] = [];
-    const impl: FetchImpl = async (_u, i) => { seen.push(i); return res('ok'); };
-    await fetchSource(src(), opts(impl));
-    const h = new Headers(seen[0]!.headers);
-    expect(h.get('user-agent')).toBe('llm-catalog-archive/1.0 (+https://github.com/OWNER/REPO)');
-    expect(h.get('accept-encoding')).toContain('gzip');
-    expect(seen[0]!.redirect).toBe('manual');
-  });
-
-  it('follows redirects manually and reports the final url and hop count', async () => {
-    const impl: FetchImpl = async (u) => {
-      if (u === 'https://a.example/f') return new Response(null, { status: 301, headers: { location: 'https://b.example/g' } });
-      return res('final');
-    };
-    const out = await fetchSource(src(), opts(impl));
-    expect(out.ok).toBe(true);
-    if (!out.ok) return;
-    expect(out.observed.finalUrl).toBe('https://b.example/g');
-    expect(out.observed.redirectCount).toBe(1);
-    expect(new TextDecoder().decode(out.observed.body)).toBe('final');
-  });
-
-  it('resolves a relative Location against the current url', async () => {
-    const impl: FetchImpl = async (u) => {
-      if (u === 'https://a.example/f') return new Response(null, { status: 302, headers: { location: '/moved' } });
-      return res('final');
-    };
-    const out = await fetchSource(src(), opts(impl));
-    expect(out.ok && out.observed.finalUrl).toBe('https://a.example/moved');
-  });
-
-  it('stops at the redirect cap rather than looping', async () => {
-    let n = 0;
-    const impl: FetchImpl = async () => { n++; return new Response(null, { status: 301, headers: { location: `https://a.example/${n}` } }); };
-    const out = await fetchSource(src({ maxRedirects: 3 }), opts(impl));
-    expect(out.ok).toBe(false);
-    expect(n).toBeLessThanOrEqual(5);
-  });
-
-  it('retries a 503 and succeeds', async () => {
-    let n = 0;
-    const impl: FetchImpl = async () => { n++; return n < 3 ? res('', { status: 503 }) : res('good'); };
-    const out = await fetchSource(src({ retries: 2 }), opts(impl));
-    expect(out.ok).toBe(true);
-    expect(out.attempts).toBe(3);
-  });
-
-  it('retries a 429', async () => {
-    let n = 0;
-    const impl: FetchImpl = async () => { n++; return n < 2 ? res('', { status: 429 }) : res('good'); };
-    expect((await fetchSource(src(), opts(impl))).ok).toBe(true);
-  });
-
-  it('does not retry a 404, because a missing page will still be missing', async () => {
-    let n = 0;
-    const impl: FetchImpl = async () => { n++; return res('nope', { status: 404 }); };
-    const out = await fetchSource(src(), opts(impl));
-    expect(out.ok).toBe(true);
-    expect(out.attempts).toBe(1);
-    expect(out.ok && out.observed.status).toBe(404);
-  });
-
-  it('retries a transport error and reports the failure when retries run out', async () => {
-    let n = 0;
-    const impl: FetchImpl = async () => { n++; throw new Error('ECONNRESET'); };
-    const out = await fetchSource(src({ retries: 2 }), opts(impl));
-    expect(out.ok).toBe(false);
-    expect(out.attempts).toBe(3);
-    expect(!out.ok && out.error).toMatch(/ECONNRESET/);
-  });
-
-  // A 25s timeout once truncated a body at 23,404 of 57,859 bytes and produced
-  // unparseable JSON rather than an error status. A truncated body that happens
-  // to still parse would otherwise be committed as a real change.
-  it('treats a body shorter than content-length as a failure, not a success', async () => {
-    const impl: FetchImpl = async () => res('short', { headers: { 'content-length': '57859' } });
-    const out = await fetchSource(src({ retries: 0 }), opts(impl));
-    expect(out.ok).toBe(false);
-    expect(!out.ok && out.error).toMatch(/truncated|content-length/i);
-  });
-
-  it('accepts a body when content-length is absent', async () => {
-    const impl: FetchImpl = async () => res('fine');
-    expect((await fetchSource(src(), opts(impl))).ok).toBe(true);
-  });
-
-  it('backs off 2s then 8s between attempts', async () => {
-    const waits: number[] = [];
-    const impl: FetchImpl = async () => res('', { status: 500 });
-    await fetchSource(src({ retries: 2 }), { ...opts(impl), sleep: async (ms) => { waits.push(ms); } });
-    expect(waits).toEqual([2000, 8000]);
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `npx vitest run test/fetch.test.ts`
-Expected: FAIL, cannot resolve `../src/fetch.js`
-
-- [ ] **Step 3: Write `src/fetch.ts`**
-
-```ts
-import type { Source } from './config.js';
-import type { Observed } from './health.js';
-import { captureHeaders, type HeaderRecord } from './headers.js';
-
-export type FetchImpl = (url: string, init: RequestInit) => Promise<Response>;
-
-export type FetchOpts = {
-  userAgent: string;
-  nowIso: () => string;
-  fetchImpl?: FetchImpl;
-  sleep?: (ms: number) => Promise<void>;
-};
-
-export type FetchOutcome =
-  | { ok: true; observed: Observed; headers: HeaderRecord; attempts: number }
-  | { ok: false; error: string; attempts: number };
-
-const BACKOFF_MS = [2000, 8000];
-const REDIRECT_CODES = new Set([301, 302, 303, 307, 308]);
-
-/** Retry only what a retry can fix. A 404 will still be a 404. */
-function retryableStatus(status: number): boolean {
-  return status === 429 || (status >= 500 && status < 600);
-}
-
-export async function fetchSource(source: Source, opts: FetchOpts): Promise<FetchOutcome> {
-  const doFetch = opts.fetchImpl ?? ((u, i) => fetch(u, i));
-  const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
-
-  let lastError = 'unknown';
-  const maxAttempts = source.retries + 1;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    if (attempt > 1) await sleep(BACKOFF_MS[Math.min(attempt - 2, BACKOFF_MS.length - 1)]!);
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), source.timeoutS * 1000);
-
-    try {
-      let url = source.url;
-      let redirectCount = 0;
-      let response: Response | null = null;
-
-      // Manual redirects: the platform default follows silently and would hide
-      // the relocation that the health check exists to surface.
-      for (;;) {
-        const r: Response = await doFetch(url, {
-          redirect: 'manual',
-          signal: controller.signal,
-          headers: { 'user-agent': opts.userAgent, 'accept-encoding': 'gzip, deflate, br' },
-        });
-        if (REDIRECT_CODES.has(r.status)) {
-          const loc = r.headers.get('location');
-          if (loc === null) { response = r; break; }
-          if (redirectCount >= source.maxRedirects) {
-            clearTimeout(timer);
-            return { ok: false, error: `redirect cap ${source.maxRedirects} exceeded at ${url}`, attempts: attempt };
-          }
-          redirectCount++;
-          url = new URL(loc, url).toString();
-          continue;
-        }
-        response = r;
-        break;
-      }
-
-      const res = response!;
-      if (retryableStatus(res.status) && attempt < maxAttempts) {
-        lastError = `status ${res.status}`;
-        clearTimeout(timer);
-        continue;
-      }
-
-      const body = new Uint8Array(await res.arrayBuffer());
-      clearTimeout(timer);
-
-      const declared = res.headers.get('content-length');
-      if (declared !== null && res.headers.get('content-encoding') === null) {
-        const want = Number(declared);
-        if (Number.isFinite(want) && body.byteLength < want) {
-          lastError = `truncated body: got ${body.byteLength} of content-length ${want}`;
-          if (attempt < maxAttempts) continue;
-          return { ok: false, error: lastError, attempts: attempt };
-        }
-      }
-
-      const fetchedAt = opts.nowIso();
-      return {
-        ok: true,
-        attempts: attempt,
-        observed: { status: res.status, body, finalUrl: url, redirectCount, headers: Object.fromEntries(res.headers) },
-        headers: captureHeaders(res, { fetchedAt, finalUrl: url, userAgent: opts.userAgent }),
-      };
-    } catch (e) {
-      clearTimeout(timer);
-      lastError = String(e instanceof Error ? e.message : e);
-      if (attempt >= maxAttempts) return { ok: false, error: lastError, attempts: attempt };
-    }
-  }
-  return { ok: false, error: lastError, attempts: maxAttempts };
-}
-```
-
-Note on R1 and encoding: the runtime decompresses `gzip` transparently and `res.arrayBuffer()` yields the **decoded entity body**, which is what R1 requires. `content-encoding` is recorded by `captureHeaders` so the wire form stays reconstructable. The `content-length` guard is skipped when `content-encoding` is present, because that header then describes the compressed length and comparing it to the decoded length would fail on every compressed response.
-
-- [ ] **Step 4: Run tests**
-
-Run: `npx vitest run test/fetch.test.ts`
-Expected: PASS, 11 tests
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/fetch.ts test/fetch.test.ts
-git commit -m "feat: identify ourselves, follow moves on purpose, and refuse half a file"
-```
-
----
-
-### Task 10: The git layer
-
-**Files:**
-- Create: `src/git.ts`
-- Test: `test/git.test.ts`
-
-**Interfaces:**
-- Consumes: nothing
-- Produces:
-  - `git(args: string[], cwd: string): { stdout: string; status: number }`
-  - `commitPaths(cwd: string, paths: string[], message: string): boolean` (false when nothing was staged)
-  - `pushWithRebase(cwd: string, branch: string, attempts?: number): void`
-
-`pushWithRebase` never force-pushes. R7 makes history permanent because section 11 permalinks are commit shas, so a force-push would invalidate every published artifact link.
-
-- [ ] **Step 1: Write the failing test**
-
-```ts
-// test/git.test.ts
-import { describe, it, expect, beforeEach } from 'vitest';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
-import { git, commitPaths } from '../src/git.js';
-
-let repo: string;
-
-beforeEach(() => {
-  repo = fs.mkdtempSync(path.join(os.tmpdir(), 'lca-'));
-  git(['init', '-q', '-b', 'main'], repo);
-  git(['config', 'user.email', 'test@example.com'], repo);
-  git(['config', 'user.name', 'Test'], repo);
-});
-
-describe('commitPaths', () => {
-  it('commits a changed file and reports true', () => {
-    fs.mkdirSync(path.join(repo, 'raw/x'), { recursive: true });
-    fs.writeFileSync(path.join(repo, 'raw/x/response.json'), '{"a":1}');
-    expect(commitPaths(repo, ['raw/x/response.json'], 'x: changed')).toBe(true);
-    expect(git(['log', '--oneline'], repo).stdout).toContain('x: changed');
-  });
-
-  it('reports false and creates no commit when nothing changed', () => {
-    fs.mkdirSync(path.join(repo, 'raw/x'), { recursive: true });
-    fs.writeFileSync(path.join(repo, 'raw/x/response.json'), '{"a":1}');
-    commitPaths(repo, ['raw/x/response.json'], 'first');
-    const before = git(['rev-list', '--count', 'HEAD'], repo).stdout.trim();
-    expect(commitPaths(repo, ['raw/x/response.json'], 'second')).toBe(false);
-    expect(git(['rev-list', '--count', 'HEAD'], repo).stdout.trim()).toBe(before);
-  });
-
-  it('stages only the paths it is given, leaving another session work alone', () => {
-    fs.mkdirSync(path.join(repo, 'raw/x'), { recursive: true });
-    fs.writeFileSync(path.join(repo, 'raw/x/response.json'), '{"a":1}');
-    fs.writeFileSync(path.join(repo, 'UNRELATED.md'), 'someone else was here');
-    commitPaths(repo, ['raw/x/response.json'], 'x: changed');
-    expect(git(['status', '--porcelain'], repo).stdout).toContain('UNRELATED.md');
-  });
-
-  it('stores bytes verbatim through a commit and checkout round trip', () => {
-    fs.writeFileSync(path.join(repo, '.gitattributes'), 'raw/** -text -diff=auto\n');
-    commitPaths(repo, ['.gitattributes'], 'attrs');
-    fs.mkdirSync(path.join(repo, 'raw/y'), { recursive: true });
-    // CRLF, no trailing newline, and a byte that is not valid UTF-8.
-    const bytes = new Uint8Array([...new TextEncoder().encode('a\r\nb\r\nc'), 0xff]);
-    const p = path.join(repo, 'raw/y/response.txt');
-    fs.writeFileSync(p, bytes);
-    commitPaths(repo, ['raw/y/response.txt'], 'y: changed');
-    git(['checkout', '--', 'raw/y/response.txt'], repo);
-    expect(new Uint8Array(fs.readFileSync(p))).toEqual(bytes);
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `npx vitest run test/git.test.ts`
-Expected: FAIL, cannot resolve `../src/git.js`
-
-- [ ] **Step 3: Write `src/git.ts`**
-
-```ts
-import { spawnSync } from 'node:child_process';
-
-export function git(args: string[], cwd: string): { stdout: string; stderr: string; status: number } {
-  const r = spawnSync('git', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', status: r.status ?? 1 };
-}
-
-/**
- * Stage exactly these paths and commit. Returns false when there was nothing
- * to commit, which is the ordinary no-change case and not an error.
- *
- * Paths are staged explicitly rather than with `git add -A`, because more than
- * one process can be working in a tree and sweeping up someone else's files is
- * how an unrelated change ships inside a collector commit.
- */
-export function commitPaths(cwd: string, paths: string[], message: string): boolean {
-  if (paths.length === 0) return false;
-  const add = git(['add', '--', ...paths], cwd);
-  if (add.status !== 0) throw new Error(`git add failed: ${add.stderr}`);
-
-  const staged = git(['diff', '--cached', '--name-only', '--', ...paths], cwd);
-  if (staged.stdout.trim() === '') return false;
-
-  const c = git(['commit', '-q', '-m', message, '--', ...paths], cwd);
-  if (c.status !== 0) throw new Error(`git commit failed: ${c.stderr}`);
-  return true;
-}
-
-/**
- * Pull with rebase, then push. Never force.
- *
- * Both workflows share one concurrency group, so an overlap should not happen,
- * but a rejected non-fast-forward push must not be resolved by force-pushing:
- * permalinks are commit shas and R7 makes them permanent.
- */
-export function pushWithRebase(cwd: string, branch: string, attempts = 3): void {
-  let lastErr = '';
-  for (let i = 0; i < attempts; i++) {
-    const pull = git(['pull', '--rebase', 'origin', branch], cwd);
-    if (pull.status !== 0) { lastErr = pull.stderr; continue; }
-    const push = git(['push', 'origin', branch], cwd);
-    if (push.status === 0) return;
-    lastErr = push.stderr;
-  }
-  throw new Error(`push failed after ${attempts} attempts: ${lastErr}`);
-}
-```
-
-- [ ] **Step 4: Run tests**
-
-Run: `npx vitest run test/git.test.ts`
-Expected: PASS, 4 tests
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/git.ts test/git.test.ts
-git commit -m "feat: stage what is ours, and never rewrite what is published"
-```
-
----
-
-### Task 11: The run
-
-**Files:**
-- Create: `src/run.ts`
-- Test: `test/run.test.ts`
+- Modify: `src/run.ts` (created minimal in Task 5, extended by Tasks 6 to 10; this task assembles the final shape)
+- Modify: `test/run.test.ts` (Task 5's minimal tests stay; this task adds the ordering and gating tests)
 
 **Interfaces:**
 - Consumes: everything from Tasks 2 through 10
@@ -2135,6 +2533,8 @@ git commit -m "feat: stage what is ours, and never rewrite what is published"
   - `type RunDeps = { cwd: string; nowIso: () => string; fetchOne: (s: Source) => Promise<FetchOutcome>; readFile: (p: string) => Uint8Array | null; writeFile: (p: string, b: Uint8Array) => void; commitPaths: (paths: string[], message: string) => boolean; push: () => void; log: (line: string) => void }`
   - `type RunResult = { exitCode: number; status: StatusFile; trace: string[] }`
   - `runTier(sources: Source[], tier: 'fast' | 'daily', prevStatus: StatusFile | null, deps: RunDeps): Promise<RunResult>`
+
+Task 5 shipped a minimal `runTier`, and Tasks 6 through 10 inserted the health check, the predicate dispatch, the magnitude guard and the status store into it. This task assembles the final ordering and locks it with tests that assert it.
 
 **The order is the deliverable.** fetch, health check, change predicate, magnitude guard, write, commit, push, evaluate counters, exit code. Two orderings in particular are wrong in ways that look fine:
 
@@ -2286,7 +2686,9 @@ describe('runTier resilience', () => {
 Run: `npx vitest run test/run.test.ts`
 Expected: FAIL, cannot resolve `../src/run.js`
 
-- [ ] **Step 3: Write `src/run.ts`**
+- [ ] **Step 3: Assemble the final `src/run.ts`**
+
+This is the complete pipeline. It replaces the minimal version from Task 5 and the incremental edits from Tasks 6 to 10, and it is the authoritative listing.
 
 ```ts
 import type { Source } from './config.js';
@@ -2423,11 +2825,15 @@ git commit -m "feat: the order is the design, so the test asserts the order"
 
 ---
 
-### Task 12: CLI, politeness, workflows, and the dead-man's switch
+---
+
+### Task 12: Politeness, the fast tier, and the dead-man's switch
 
 **Files:**
-- Create: `src/pool.ts`, `src/cli.ts`
-- Create: `.github/workflows/collect-fast.yml`, `.github/workflows/collect-daily.yml`
+- Create: `src/pool.ts`
+- Modify: `src/cli.ts` (add the pool, the status file, and the heartbeat ping)
+- Create: `.github/workflows/collect-fast.yml`
+- Modify: `.github/workflows/collect-daily.yml` (add the heartbeat secret)
 - Test: `test/pool.test.ts`
 
 **Interfaces:**
@@ -2572,7 +2978,9 @@ export async function mapPolitely<T, R>(items: T[], fn: (t: T) => Promise<R>, o:
 }
 ```
 
-- [ ] **Step 4: Write `src/cli.ts`**
+- [ ] **Step 4: Extend `src/cli.ts`**
+
+Replace Task 5's serial fetch loop with the pool, read and pass `meta/status.json`, and add the heartbeat ping.
 
 ```ts
 import fs from 'node:fs';
@@ -2673,7 +3081,7 @@ jobs:
           LCA_HEARTBEAT_URL: ${{ secrets.LCA_HEARTBEAT_URL }}
 ```
 
-`.github/workflows/collect-daily.yml` is identical except `name: collect-daily`, `cron: '20 0 * * *'`, and `--tier daily`. **The `concurrency.group` string must be identical in both files**; that is the only thing that serialises them against each other, and the 00:20 daily run overlaps the 00:15 and 00:30 fast runs by construction.
+`.github/workflows/collect-daily.yml` already exists from Task 5; add `LCA_HEARTBEAT_URL` to its `env` block. **The `concurrency.group` string must be identical in both files**; that is the only thing that serialises them against each other, and the 00:20 daily run overlaps the 00:15 and 00:30 fast runs by construction.
 
 - [ ] **Step 6: Run tests and a dry run**
 
@@ -2694,6 +3102,8 @@ Expected: `raw/<id>/response.*` and `raw/<id>/headers.json` files created, one c
 git add src/pool.ts src/cli.ts test/pool.test.ts .github/workflows/collect-fast.yml .github/workflows/collect-daily.yml
 git commit -m "feat: fetch politely, and let the absence of a ping be the alarm"
 ```
+
+---
 
 ---
 
@@ -2795,7 +3205,7 @@ jobs:
           done
       - name: No em dashes anywhere
         run: |
-          if grep -rIl $'—' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=raw --exclude-dir=backfill . ; then
+          if grep -rIl $', ' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=raw --exclude-dir=backfill . ; then
             echo "::error::em dash found"; exit 1
           fi
 ```
@@ -2843,9 +3253,25 @@ git commit -m "test: watch every assertion fail before believing it"
 
 ---
 
+---
+
 ## Self-Review
 
-**Spec coverage.** Every numbered section of the spec maps to a task: section 2 rules to Tasks 1, 4, 10 and 13; section 3 and 3.1 to Tasks 1 and 2; section 4 to Tasks 2 and 3; section 5 to Task 12; section 6 to Tasks 9 and 11; section 6.1 to Task 6; section 7 to Tasks 4 and 5; section 8 to Tasks 7, 11 and 12; section 9 to Tasks 8 and 11; section 11 permalink and ledger constraints to Tasks 1 and 13; section 13 testing to every task and Task 13.
+**Spec coverage.** Every numbered section of the spec maps to a task:
+
+| Spec section | Tasks |
+|---|---|
+| 2, rules R1 to R7 | 1 (gitattributes, ledgers), 5 (verbatim write, explicit staging, no force push), 7 (the predicate never mutates), 13 (round-trip and purity tests) |
+| 3 and 3.1, layout and `sources.json` | 1, 2 |
+| 4, source inventory and health | 2, 6 |
+| 5, schedule and the shared concurrency group | 5 (daily), 12 (fast, pool) |
+| 6, the run order | 5 (minimal), 11 (locked) |
+| 6.1, the magnitude guard | 9 |
+| 7, change predicates and the codename filter | 7, 8 |
+| 8, liveness, status, alerting | 10 (store, counters, exit codes), 12 (dead-man's switch) |
+| 9, headers and origin timestamps | 3, 5 (sidecar), 10 (skew rule) |
+| 11, permalinks and the append-only ledgers | 1, 13 |
+| 13, testing | every task, and 13 |
 
 **Deliberately not covered here**, and each already tracked as a spec open question rather than silently dropped:
 
@@ -2856,8 +3282,22 @@ git commit -m "test: watch every assertion fail before believing it"
 | Section 11, correction and retraction record schemas | Sub-project D. Task 1 creates the empty append-only files and the CI check, which is the part that must exist from commit one. |
 | O1 re-hash, O3 models.dev window, O4 arena cadence, O5 Gemini, O7 size budget, O8 GITHUB_TOKEN activity | Operational follow-ups, not code. O4 in particular needs arena polled hourly for two weeks, which is a `cron` change plus a measurement, not a task. |
 
-**One gap I am flagging rather than papering over.** Task 12 fetches every source before `runTier` consumes the results, so the per-source pipeline inside `runTier` is sequential and its ordering guarantees hold, but the fetch phase as a whole now happens before the first health check. That is fine for correctness, because nothing is written until `runTier` runs, and it is worth knowing when reading the code: "fetch, then health check" is true per source, and the fetches are batched.
+**Two gaps I am flagging rather than papering over.**
+
+Task 12 fetches every source before `runTier` consumes the results, so the
+per-source pipeline inside `runTier` stays sequential and its ordering
+guarantees hold, but the fetch phase as a whole then precedes the first health
+check. Correctness is unaffected, since nothing is written until `runTier` runs.
+It is worth knowing when reading the code: "fetch, then health check" is true
+per source, and the fetches are batched.
+
+Between Task 5 and Task 10 there is no `meta/status.json`, therefore no daily
+heartbeat, therefore no defence against GitHub's 60 day inactivity disable.
+Thirteen active sources produce commits on most days so the clock will not run
+out, but it is a real temporary hole and Task 5 states the deadline explicitly:
+**Task 10 must land within 60 days of Task 5.** The sequencing puts it within
+days.
 
 **Placeholder scan.** No TBD, no "add error handling", no "similar to Task N", no "write tests for the above". Every code step carries real code. Two values are deliberately left for the implementer to fill from live data, both with the command that produces them and a test that fails until they are right: the eight canary strings in Task 3 Step 5, and the `OWNER/REPO` in the User-Agent.
 
-**Type consistency.** `Source`, `Observed`, `HealthState`, `HealthVerdict`, `HeaderRecord`, `Outcome`, `SourceStatus`, `StatusFile`, `FetchOutcome`, `GuardVerdict` and `RunDeps` are each defined in exactly one module and imported everywhere else. `checkHealth`, `hasChanged`, `checkMagnitude`, `applyOutcome`, `shouldCommitStatus`, `exitCodeFor`, `captureHeaders`, `originDateMs`, `isStaleGeneration`, `fetchSource`, `commitPaths`, `pushWithRebase`, `mapPolitely` and `runTier` keep the same names and signatures from the task that defines them through every later use.
+**Type consistency.** `Source` gains a `status` field in Task 2 that Tasks 5 and 8 both read, and it is the only field added to a type after its defining task. `Source`, `Observed`, `HealthState`, `HealthVerdict`, `HeaderRecord`, `Outcome`, `SourceStatus`, `StatusFile`, `FetchOutcome`, `GuardVerdict` and `RunDeps` are each defined in exactly one module and imported everywhere else. `checkHealth`, `hasChanged`, `checkMagnitude`, `applyOutcome`, `shouldCommitStatus`, `exitCodeFor`, `captureHeaders`, `originDateMs`, `isStaleGeneration`, `fetchSource`, `commitPaths`, `pushWithRebase`, `mapPolitely` and `runTier` keep the same names and signatures from the task that defines them through every later use.
