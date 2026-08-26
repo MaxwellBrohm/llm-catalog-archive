@@ -20,7 +20,14 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Identify the committer
         run: |
-          git config user.name 'llm-catalog-archive[bot]'
-          git config user.email 'llm-catalog-archive@users.noreply.github.com'
+          # The canonical Actions bot identity. NOT
+          # <name>@users.noreply.github.com: that pre-2017 form carries no
+          # numeric account id, so GitHub resolves it at DISPLAY time to
+          # whoever holds the username. Nobody holds llm-catalog-archive
+          # today, but if anyone registers it every commit this workflow
+          # ever made would render under their account and avatar, and R7
+          # forbids rewriting to fix it.
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
       - run: npx tsx src/cli.ts --tier daily
         env: { LCA_BRANCH: main }
