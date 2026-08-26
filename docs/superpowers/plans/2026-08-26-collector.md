@@ -492,7 +492,7 @@ Transcribe every row from spec section 4. `openrouter-models` is `tier: "fast"`;
 | `xai-llms-txt` | `{"type":"extracted","extractor":"xai"}` | rows re-permute per request; reordering is not a maskable substring, and the deriver cannot fix it because the commit decision is upstream of the deriver. |
 | `openrouter-sitemap` | `{"type":"extracted","extractor":"sitemapLoc"}` | rebuilt several times a day, rewriting about 100 lastmod values independent of content change. |
 
-Every other source is `{"type":"bytes"}`. Canaries for the eight text sources are chosen in Task 3, so leave a placeholder string now and the Task 3 test will force real values.
+Every other source is `{"type":"bytes"}`. Canaries for the **nine** text-typed sources (the eight `llms.txt` family files plus `anthropic-deprecations`, which is also `contentType: "text"`) are chosen in Task 6 against real captured fixtures. Ship the literal placeholder `__CANARY_PLACEHOLDER_TASK_6__` here; Task 13 has a test that fails if one survives.
 
 Freshness: `claude-status` and `openai-status` are `{"kind":"feed","maxQuietDays":120}` with a note that a quiet quarter is good news, not a failure. The sitemaps and text sources are `{"kind":"content","maxQuietDays":90}`. `openrouter-models` is `{"kind":"none","maxQuietDays":null}`.
 
@@ -1680,7 +1680,7 @@ export function newestFeedDate(text: string): number | null {
 
 - [ ] **Step 5: Fill in real canary values**
 
-For each of the eight text sources, pick a heading that has been stable for months and put it in `meta/sources.json`. Verify each is actually present:
+For each of the **nine** text-typed sources, pick a heading that has been stable for months and put it in `meta/sources.json`, replacing `__CANARY_PLACEHOLDER_TASK_6__`. Verify each is actually present:
 
 ```bash
 for f in test/fixtures/healthy-*.txt; do grep -c '^# ' "$f"; done

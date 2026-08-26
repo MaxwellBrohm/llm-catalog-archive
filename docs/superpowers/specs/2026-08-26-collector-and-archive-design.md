@@ -236,12 +236,16 @@ A response is healthy only if **all** hold:
    required key path matches `expected_root` / `invariants.required_key_path`.
    The cohere case is why the parse alone is not enough.
 
-   For the eight `.txt` sources, where "parses as its declared type" is
+   For the nine text-typed sources (the eight `llms.txt` family files plus
+   the Anthropic deprecations `.md`), where "parses as its declared type" is
    vacuous, three cheap checks stand in for it, all declared per source:
    - **`canary`**: a known stable substring that must be present, chosen from
      content that has been in that file for months (a top-level heading, a
      section title). Absent canary means unhealthy, full stop.
-   - **`interstitial_denylist`**: the body must not contain
+   - **`interstitial_denylist`**: a module constant in the health check, not a
+     per-source field, because it is the same list for every source and a
+     per-source copy is a per-source chance to omit one. The body must not
+     contain
      `__CF$cv$params`, `cf-mitigated`, `Just a moment`, `Enable JavaScript and
      cookies to continue`, or `Attention Required!`. A challenge page that
      happens to contain the canary is still caught here.
@@ -249,7 +253,7 @@ A response is healthy only if **all** hold:
      snapshot (default 0.5x to 2.0x). An 81-byte redirect body and a 350 KB
      SPA shell are both outside any sane band around a 64 KB text file.
 3. Declared invariants hold: `min_bytes`, `min_records`, `canary`,
-   `interstitial_denylist`, `size_band`. An 81-byte redirect body is caught by
+   `size_band`, and the shared interstitial denylist. An 81-byte redirect body is caught by
    size and never by parsing. Content collapse is **not** checked here: that is
    the magnitude guard's job (section 6.1), deliberately separate because health
    catches known-bad shapes and the guard catches unknown ones.
@@ -301,7 +305,7 @@ counters → exit code.**
 **A response that fails the health check is never written and never commits.**
 It increments the source's consecutive-failure counter and updates
 `status.json` only. Last-good bytes are never clobbered by an error page. This
-matters most for the eight `.txt` sources, where "parses as its declared type"
+matters most for the nine text-typed sources, where "parses as its declared type"
 is vacuous: a 200 carrying a Cloudflare interstitial would otherwise be
 committed, and `git log -p raw/claude-llms-txt/response.txt` would show the
 entire 616-entry Anthropic doc index deleted in one commit, from which A2 would
