@@ -516,8 +516,20 @@ describe('runTier consults the health gate before it writes', () => {
   // Stale is not failed, and the log has to say so, because this is the line an
   // operator reads before deciding whether anything is broken.
   it('reports a quiet feed as stale rather than as failed', async () => {
-    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
+    // A prior artifact, because `stale` now requires one: a source that has
+    // never archived anything is broken rather than quiet, and saying so
+    // loudly is the only thing that stops it going silent for ever.
+    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {
+      'raw/a/response.atom': feedDated('2025-12-01T00:00:00Z'),
+    });
     expect(d.logs).toContain('a: stale, not written: newest item 238 days old, limit 7');
+  });
+
+  it('fails a quiet feed that has never archived anything, rather than going quietly silent', async () => {
+    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
+    expect(d.logs).toContain(
+      'a: failed, not written: newest item 238 days old, limit 7, and no previous snapshot exists to be quiet against',
+    );
   });
 
   // The band is a ratio against the stored artifact. If runTier passed a
@@ -709,7 +721,7 @@ describe('runTier keeps the status file, which is the only place a counter survi
         observed: { status: 200, body: quiet, finalUrl: s.url, redirectCount: 0, headers: {} },
         headers: HDR,
       }),
-    });
+    }, { 'raw/a/response.atom': enc('<?xml version="1.0"?>\n<feed><entry><id>0</id><updated>2025-12-01T00:00:00Z</updated></entry></feed>\n') });
     const r = await runTier([s], 'daily', committed({ a: entry({ consecutiveFailures: 2 }) }), d);
     expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
   });
@@ -730,7 +742,7 @@ describe('runTier keeps the status file, which is the only place a counter survi
         observed: { status: 200, body: quiet, finalUrl: s.url, redirectCount: 0, headers: {} },
         headers: HDR,
       }),
-    });
+    }, { 'raw/a/response.atom': enc('<?xml version="1.0"?>\n<feed><entry><id>0</id><updated>2025-12-01T00:00:00Z</updated></entry></feed>\n') });
     const r = await runTier([s], 'daily', null, d);
     expect(r.status?.sources['a']?.health).toBe('stale');
   });

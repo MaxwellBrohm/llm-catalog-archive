@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { checkHealth, newestFeedDate, xmlRootElement } from '../src/health.js';
+import { checkHealth, countFeedItems, newestFeedDate, xmlRootElement } from '../src/health.js';
 import { loadSources } from '../src/config.js';
 import type { Observed } from '../src/types.js';
 import type { Source } from '../src/config.js';
@@ -472,28 +472,28 @@ describe('checkHealth, feed freshness', () => {
     });
 
   it('marks a 338-day-quiet feed stale', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).state).toBe('stale');
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).state).toBe('stale');
   });
 
   it('refuses the write on a stale feed', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).writeAllowed).toBe(false);
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).writeAllowed).toBe(false);
   });
 
   // The distinction the whole four-state design exists for.
   it('does NOT count a stale feed as a failure', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).countsAsFailure).toBe(
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).countsAsFailure).toBe(
       false,
     );
   });
 
   it('says how quiet the feed has been and against what limit', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).reason).toBe(
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).reason).toBe(
       'newest item 338 days old, limit 60',
     );
   });
 
   it('does not call the same feed stale under a limit that accommodates it', () => {
-    expect(checkHealth(feed(400), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).state).toBe('ok');
+    expect(checkHealth(feed(400), obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).state).toBe('ok');
   });
 
   it('does not call a feed updated hours ago stale', () => {
@@ -512,7 +512,7 @@ describe('checkHealth, feed freshness', () => {
       expectedRoot: 'rss',
       invariants: { ...src().invariants, canary: null, minBytes: 100 },
     });
-    expect(checkHealth(s, obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).state).toBe('ok');
+    expect(checkHealth(s, obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).state).toBe('ok');
   });
 
   /**
@@ -546,7 +546,7 @@ describe('checkHealth, feed freshness', () => {
       freshness: { kind: 'feed', maxQuietDays: 60 },
       invariants: { ...src().invariants, canary: null, minBytes: 10 },
     });
-    expect(checkHealth(s, obs(enc(selfStamping)), { bytes: null }, NOW).state).toBe('stale');
+    expect(checkHealth(s, obs(enc(selfStamping)), { bytes: 320 }, NOW).state).toBe('stale');
   });
 
   it('reads only the entry dates, not the feed-level stamp', () => {
@@ -571,7 +571,7 @@ describe('checkHealth, feed freshness', () => {
       invariants: { ...src().invariants, canary: null, minBytes: 10 },
     });
     const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
-    expect(checkHealth(s, obs(body), { bytes: null }, NOW).state).toBe('stale');
+    expect(checkHealth(s, obs(body), { bytes: 64 }, NOW).state).toBe('stale');
   });
 
   it('does not count an empty feed as a failure', () => {
@@ -582,7 +582,7 @@ describe('checkHealth, feed freshness', () => {
       invariants: { ...src().invariants, canary: null, minBytes: 10 },
     });
     const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
-    expect(checkHealth(s, obs(body), { bytes: null }, NOW).countsAsFailure).toBe(false);
+    expect(checkHealth(s, obs(body), { bytes: 64 }, NOW).countsAsFailure).toBe(false);
   });
 
   // The other side of the same branch: items ARE present and none of them is
@@ -595,7 +595,97 @@ describe('checkHealth, feed freshness', () => {
       invariants: { ...src().invariants, canary: null, minBytes: 10 },
     });
     const body = enc('<?xml version="1.0"?>\n<feed><entry><id>a</id><title>t</title></entry></feed>\n');
-    expect(checkHealth(s, obs(body), { bytes: null }, NOW).reason).toBe('feed carries no parseable item date');
+    expect(checkHealth(s, obs(body), { bytes: 74 }, NOW).reason).toBe('feed carries no parseable item date');
+  });
+
+  /**
+   * `stale` withholds the write, and withholding the write is what keeps
+   * `prev.bytes` null. On a source that has never archived anything that is a
+   * closed loop: stale, so no write, so still no previous size, so stale
+   * again, for ever, and SILENTLY, because stale does not count as a failure.
+   *
+   * `openai-status` goes active in Task 8 with `maxQuietDays: 120`, and it is
+   * exactly the source an unbounded quiet branch would have silenced on its
+   * very first fetch. A source that has never once produced a usable body is
+   * not quiet, it is broken.
+   */
+  it('refuses to call a quiet feed stale when nothing has ever been archived for it', () => {
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).state).toBe('failed');
+  });
+
+  it('counts that first-ever quiet fetch as a failure, so it cannot go silent for ever', () => {
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).countsAsFailure).toBe(true);
+  });
+
+  it('says a quiet verdict was refused for want of a previous snapshot', () => {
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).reason).toBe(
+      'newest item 338 days old, limit 60, and no previous snapshot exists to be quiet against',
+    );
+  });
+
+  it('refuses to call an empty feed stale when nothing has ever been archived for it', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: null }, NOW).state).toBe('failed');
+  });
+
+  /**
+   * `xmlRootElement` strips namespace prefixes and says so. The item scanner
+   * did not, so `<atom:entry>` counted as ZERO items and a namespaced Atom
+   * feed full of undated entries routed to the SILENT quiet branch instead of
+   * the loud malformed one. Same file, one function apart.
+   */
+  it('counts a namespaced atom entry as an item', () => {
+    expect(countFeedItems('<atom:feed><atom:entry><id>1</id></atom:entry></atom:feed>')).toBe(1);
+  });
+
+  it('counts a self-closing entry as an item', () => {
+    expect(countFeedItems('<feed><entry/></feed>')).toBe(1);
+  });
+
+  it('counts an entry carrying attributes as an item', () => {
+    expect(countFeedItems('<feed><entry xml:lang="en"><id>1</id></entry></feed>')).toBe(1);
+  });
+
+  it('does not count a paired element that merely starts with the word entry', () => {
+    expect(countFeedItems('<feed><entryPoint>x</entryPoint></feed>')).toBe(0);
+  });
+
+  it('does not count a self-closing element that merely starts with the word entry', () => {
+    expect(countFeedItems('<feed><entryPoint/></feed>')).toBe(0);
+  });
+
+  // A self-closing entry has no inner text at all, so the date reader gets
+  // `undefined` where it used to get a string. Without a guard it throws, and
+  // a throw inside checkHealth is caught by runTier and logged as `threw`,
+  // which reads like an unreachable host rather than a feed it could not parse.
+  it('does not trip over a self-closing entry while reading the dated ones', () => {
+    expect(newestFeedDate('<feed><entry/><entry><updated>2025-06-01T00:00:00Z</updated></entry></feed>')).toBe(
+      Date.parse('2025-06-01T00:00:00Z'),
+    );
+  });
+
+  it('reads the date out of a namespaced entry', () => {
+    expect(newestFeedDate('<atom:entry><updated>2025-06-01T00:00:00Z</updated></atom:entry>')).toBe(
+      Date.parse('2025-06-01T00:00:00Z'),
+    );
+  });
+
+  // The behaviour the counting bug actually broke: loud, not silent.
+  it('fails a namespaced feed whose entries carry no date, rather than calling it quiet', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<atom:feed><atom:entry><id>1</id></atom:entry></atom:feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: 80 }, NOW).reason).toBe('feed carries no parseable item date');
   });
 });
 

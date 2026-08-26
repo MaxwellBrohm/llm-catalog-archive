@@ -243,62 +243,79 @@ describe('pushWithRebase', () => {
 
   /**
    * R7, and the only test that catches the likely regression rather than the
-   * dramatic one. The divergent-remote test above only fails if the rebase is
-   * also removed, so `pull --rebase` followed by `push --force` slips past
-   * every behavioural test here: the rebase makes the push a fast-forward, and
-   * force then changes nothing observable. That is exactly the shape of the
-   * real mistake, where pushes keep getting rejected and someone adds a flag
-   * to make it stop.
+   * dramatic one. The divergent-remote tests above only fail if the rebase is
+   * also removed, so `pull --rebase` followed by a forced push slips past
+   * every behavioural test in this file: the rebase makes the push a
+   * fast-forward, and forcing then changes nothing observable. That is exactly
+   * the shape of the real mistake, where pushes keep getting rejected and
+   * someone adds a flag to make it stop.
    *
    * So this reads the SHIPPED source, in the same spirit as copying the real
-   * .gitattributes rather than retyping it. Quoted forms only, so the prose in
-   * that file saying "Never force" cannot satisfy or trip it, and backticks
-   * are in the delimiter class because a template literal is how the first
-   * draft was defeated.
+   * .gitattributes rather than retyping it.
    *
-   * Each alternative below was verified against a bare remote with a published
-   * commit and a diverged local clone. Every one of these DESTROYS the
-   * published commit, and the first four were missed by the previous pattern:
+   * TWO EARLIER VERSIONS OF THIS SCAN WERE BEATEN, and both failures were the
+   * same shape: an arm written as a whitelist of the one spelling that had
+   * just been found. Every form below was planted in the real `pushWithRebase`
+   * against a bare remote carrying a published commit, and every one DESTROYED
+   * that commit:
    *
-   *   ['push', '-qf', 'origin', branch]            bundled short flags
+   *   ['push', '-f' | '-qf' | '-fq', ...]          short flag, bundled or not
    *   ['push', 'origin', `+${branch}`]             short force refspec
    *   ['push', 'origin', '+' + 'refs/heads/' + b]  split force refspec
+   *   ['push', '--force' | '--mirror' | '--delete', ...]
    *   ['-c', 'remote.origin.push=+refs/heads/*', 'push', 'origin']
-   *   ['push', '--force', 'origin', branch]
+   *   ['-c', 'remote.origin.mirror=true', 'push', 'origin']
+   *   ['config', 'remote.origin.mirror', 'true'] then a plain push
+   *   spawnSync('git push --force ' + branch, { shell: true })
    *
-   * `+${branch}` is the one that matters most: it is the nearest neighbour of
-   * the template literal that defeated the first draft, and the fix then
-   * hardcoded `\+refs` where it should have hardcoded `\+`.
+   * The last three defeat any pattern anchored to a single quoted token: the
+   * config value sits in its own argument, and the shell form buries the flag
+   * mid-string. So this scan is deliberately NOT token-anchored and does NOT
+   * skip comments. It reads raw text, which means writing a literal `--force`
+   * in a comment under src/ turns this test red. That is the intended
+   * trade: a loud false positive beats a silent bypass, and prose can say
+   * "force" without the dashes.
    *
-   * TWO LIMITS, stated rather than implied, because a guard read as complete
-   * when it is not is worse than no guard at all:
+   * It reads EVERY file under src/, not just git.ts. `git()` is exported and
+   * `src/cli.ts` already imports from `./git.js`, so a forcing argv built in
+   * cli.ts would have passed a git.ts-only scan. "Sole spawner" is not "sole
+   * argv builder" while `git` is exported.
    *
-   * 1. Concatenation and any dynamically built argv defeat this and every
-   *    other textual scan. `'--for' + 'ce'` is not caught, and neither is
-   *    `args.push(flagFromSomewhere)`. Only `'+' + '...'` happens to be
-   *    caught, and only because the `+` sits alone inside its own quotes.
-   * 2. It reads `src/git.ts` and nothing else. That is currently sufficient
-   *    only because git.ts is the sole module importing node:child_process,
-   *    which the next test asserts rather than assumes.
+   * ONE LIMIT, stated rather than implied, because a guard read as complete
+   * when it is not is worse than no guard: a flag assembled at runtime from
+   * pieces that are individually harmless defeats this and every other
+   * textual scan. `'--for' + 'ce'` and `args.push(flagFromConfig)` are not
+   * caught and cannot be.
    *
-   * The real backstop for both is not in this file: .github/workflows/
+   * The backstop for that is not in this file: .github/workflows/
    * append-only.yml fails when github.event.before is unreachable, so an
    * actual force push to main is caught after the fact.
    */
-  it('never hands git a force flag, a force refspec, or a forcing config', () => {
-    expect(fs.readFileSync('src/git.ts', 'utf8')).not.toMatch(
-      /['"`](-[A-Za-z]*f[A-Za-z]*|--force[^'"`]*|\+[^'"`]*|[^'"`]*\.push=[^'"`]*)['"`]/,
-    );
+  const FORCING =
+    /--(?:force|mirror|delete)\b|\bremote\.[\w.-]+\.(?:push|mirror)\b|['"`]\+|['"`]-[A-Za-z]*f[A-Za-z]*['"`]|\+refs\//;
+
+  /** Every TypeScript file under src/, at any depth. `readdirSync` is not recursive. */
+  function sourceFiles(dir = 'src'): string[] {
+    return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      const p = path.join(dir, e.name);
+      return e.isDirectory() ? sourceFiles(p) : /\.(m|c)?ts$/.test(e.name) ? [p] : [];
+    });
+  }
+
+  it('hands git no force flag, force refspec, or forcing config anywhere under src', () => {
+    const offenders = sourceFiles().filter((f) => FORCING.test(fs.readFileSync(f, 'utf8')));
+    expect(offenders).toEqual([]);
   });
 
-  // Limit 2 above, made checkable. The moment a second module spawns a
-  // process, the scan's scope is a lie and this goes red.
-  it('keeps src/git.ts the only module that can spawn a process', () => {
-    const spawners = fs
-      .readdirSync('src')
-      .filter((f) => f.endsWith('.ts'))
-      .filter((f) => fs.readFileSync(path.join('src', f), 'utf8').includes('node:child_process'));
-    expect(spawners).toEqual(['git.ts']);
+  // Not scope for the scan above any more, which now reads every src file.
+  // This keeps the surface that can start a process in one reviewed module.
+  // Three narrownesses the previous version had, all demonstrated: a bare
+  // 'child_process' specifier without the node: prefix is valid Node and the
+  // likeliest accidental form, readdirSync is not recursive, and .mts is a
+  // TypeScript extension too.
+  it('keeps src/git.ts the only module that can start a process', () => {
+    const spawners = sourceFiles().filter((f) => /['"`](?:node:)?child_process['"`]/.test(fs.readFileSync(f, 'utf8')));
+    expect(spawners).toEqual(['src/git.ts']);
   });
 
   it('throws when the remote cannot be reached', () => {

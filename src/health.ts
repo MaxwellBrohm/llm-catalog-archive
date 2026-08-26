@@ -114,7 +114,22 @@ export function xmlRootElement(text: string): string | null {
   }
 }
 
-const FEED_ITEM = /<(entry|item)(?:\s[^>]*)?>([\s\S]*?)<\/\1\s*>/g;
+/**
+ * One `<entry>` or `<item>` element, with its inner text in group 2.
+ *
+ * Namespace prefixes are stripped the same way `xmlRootElement` strips them,
+ * and for the same reason: `<atom:entry>` is an entry. Without that, a
+ * namespaced Atom feed with a hundred entries counted as ZERO items, which
+ * routed it to the quiet branch instead of the loud one. Self-closing
+ * `<entry/>` counts too, for the same reason.
+ *
+ * What separates `<entry>` from `<entryPoint>` is the requirement that the
+ * name be followed by whitespace, `>` or `/>`, not a `\b` after the name. A
+ * `\b` was there and was dead: removing it changed no behaviour and killed no
+ * test, so it went rather than staying as decoration.
+ */
+const FEED_ITEM =
+  /<(?:[A-Za-z_][\w.-]*:)?(entry|item)(?:\s[^>]*?)?(?:\/>|>([\s\S]*?)<\/(?:[A-Za-z_][\w.-]*:)?\1\s*>)/g;
 
 /** How many `<entry>` or `<item>` elements the document carries. */
 export function countFeedItems(text: string): number {
@@ -124,22 +139,20 @@ export function countFeedItems(text: string): number {
 /**
  * The newest item date in a feed, or null when no item carries one.
  *
- * Scoped to `<entry>` and `<item>` elements, which is not a detail. A
- * document-wide scan also picks up the feed-level `<updated>`, and that stamp
- * advances on wall-clock time independently of the entries. The evidence is
- * this repository's own history: commits 3a80c22 and 690dd60 are 49 minutes
- * apart, and the whole delta between the two 33,787-byte claude-status
- * captures is one line, the feed-level `<updated>` moving 19:04:25Z to
- * 20:55:09Z, with every entry byte-identical.
+ * Scoped to `<entry>` and `<item>` elements, which is not a detail: the
+ * feed-level `<updated>` advances while no entry does. Measured in this
+ * repository's own history, commits 3a80c22 and 690dd60, 49 minutes apart:
+ * the entire delta between the two 33,787-byte claude-status captures is that
+ * one line moving 19:04:25Z to 20:55:09Z, with every entry byte-identical.
  *
- * Reading the feed level would therefore make the staleness check on every
- * Atom status feed permanently unable to fire: claude-status could go two
- * years without an incident and still look fresh every single day.
+ * A document-wide scan reads that line, so the staleness check on every Atom
+ * status feed could never fire: claude-status could go two years without an
+ * incident and still look fresh every single day.
  */
 export function newestFeedDate(text: string): number | null {
   let newest: number | null = null;
   for (const item of text.matchAll(FEED_ITEM)) {
-    for (const d of item[2]!.matchAll(/<(?:published|updated|pubDate|dc:date)>([^<]+)<\//g)) {
+    for (const d of (item[2] ?? '').matchAll(/<(?:published|updated|pubDate|dc:date)>([^<]+)<\//g)) {
       const t = Date.parse(d[1]!.trim());
       if (!Number.isNaN(t) && (newest === null || t > newest)) newest = t;
     }
@@ -160,6 +173,24 @@ export function checkHealth(
 
   const text = new TextDecoder('utf-8', { fatal: false }).decode(obs.body);
   const inv = source.invariants;
+
+  /**
+   * Quiet, not broken: `stale` withholds the write and does NOT count as a
+   * failure, which is the whole reason the state exists. A provider having a
+   * genuinely silent quarter must not send a daily failure email, because that
+   * is how an alerting channel gets muted.
+   *
+   * But withholding the write is also what keeps `prev.bytes` null, and on a
+   * source that has never archived anything that closes a loop: stale, so no
+   * write, so still no previous size, so stale again, for ever, and silently.
+   * `openai-status`, the source this branch was written for, is exactly the
+   * one it would have silenced. A source that has never once produced a
+   * usable body is not quiet, it is broken, and broken is loud.
+   */
+  const quiet = (reason: string): HealthVerdict =>
+    prev.bytes === null
+      ? fail(`${reason}, and no previous snapshot exists to be quiet against`)
+      : { state: 'stale', writeAllowed: false, countsAsFailure: false, reason };
 
   // First among the content checks on purpose. A challenge page can sit inside
   // the size band and carry the canary, and when it does not, "size ratio 58"
@@ -218,29 +249,13 @@ export function checkHealth(
       // feed with no items at all is a provider that has published nothing,
       // which is the quiet case this whole four-state design exists to spare
       // from a failure email. A feed WITH items but no parseable date on any
-      // of them is malformed. `openai-status` goes active in Task 8 and can
-      // legitimately be empty.
-      if (countFeedItems(text) === 0) {
-        return {
-          state: 'stale',
-          writeAllowed: false,
-          countsAsFailure: false,
-          reason: 'feed carries no items at all',
-        };
-      }
+      // of them is malformed.
+      if (countFeedItems(text) === 0) return quiet('feed carries no items at all');
       return fail('feed carries no parseable item date');
     }
     const days = (nowMs - newest) / 86_400_000;
     if (days > source.freshness.maxQuietDays) {
-      // Stale, not failed, and the difference is the whole point. A quiet
-      // quarter on an incident feed is good news, and a daily failure email
-      // about good news is how an alerting channel gets muted.
-      return {
-        state: 'stale',
-        writeAllowed: false,
-        countsAsFailure: false,
-        reason: `newest item ${Math.round(days)} days old, limit ${source.freshness.maxQuietDays}`,
-      };
+      return quiet(`newest item ${Math.round(days)} days old, limit ${source.freshness.maxQuietDays}`);
     }
   }
 
