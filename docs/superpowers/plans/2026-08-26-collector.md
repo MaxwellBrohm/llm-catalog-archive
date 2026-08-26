@@ -31,6 +31,14 @@ Copied verbatim from the spec. Every task's requirements implicitly include thes
 - **Concurrency 4, at most one in-flight request per hostname, minimum 1s between consecutive requests to the same host**, in `sources.json` order.
 - **Never `git push --force`.** Push is `git pull --rebase` then push, up to 3 attempts.
 - **No em dashes** in any file, comment, commit message, or generated string.
+- **One independent claim per `it()` block.** The first `expect` to throw ends the block, so a
+  later assertion in the same block never runs, and a report that says it "stayed green" is
+  reporting a test that did not execute. This has cost a fix round in three consecutive tasks.
+  Where this document shows several assertions stacked in one block, split them; the values are
+  the requirement, the grouping is not.
+- **Assert correctness, not presence.** `toBeTruthy()` where the hazard is a wrong-but-plausible
+  value proves nothing. Where you compare against an expectation, hardcode the expectation: a map
+  re-derived from the thing it checks is circular.
 - Every non-default `predicate`, `invariants` value and `freshness` setting carries its justification in the source's `notes` field.
 
 ---
@@ -1355,11 +1363,28 @@ git log --oneline -3
 
 Expected: **no new commits.** If this produces commits, a source is changing on every request for a reason that is not content, and it must be marked `pending` before this ships rather than after, because those commits are permanent.
 
-- [ ] **Step 10: Create the repository and go live**
+- [ ] **Step 10: Set the real identification values**
+
+`meta/sources.json` ships `userAgent` and `contact` as `OWNER/REPO` placeholders. This is the
+first task that sends a request to a third party, so they must be real before Step 11:
+
+```json
+"userAgent": "llm-catalog-archive/1.0 (+https://github.com/MaxwellBrohm/llm-catalog-archive)",
+"contact": "https://github.com/MaxwellBrohm/llm-catalog-archive/issues"
+```
+
+`contact` is the repository's issues URL rather than an email address, deliberately. A `From:`
+header goes to sixteen third parties and lands in their logs; an issues URL is a real contact
+channel that exposes nothing personal. A provider that wants to complain can open an issue.
+
+- [ ] **Step 11: Create the repository and go live**
 
 ```bash
 gh repo create llm-catalog-archive --public --source=. --remote=origin --push
 ```
+
+**This step creates a public repository and is not delegated.** It is an outward-facing publish,
+so the implementer stops after Step 9's dry run and the controller performs Steps 10 and 11.
 
 `.github/workflows/collect-daily.yml`:
 ```yaml
