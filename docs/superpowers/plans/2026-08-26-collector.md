@@ -1011,6 +1011,7 @@ git commit -m "feat: identify ourselves, follow moves on purpose, and refuse hal
   - `git(args: string[], cwd: string): { stdout: string; stderr: string; status: number }`
   - `commitPaths(cwd: string, paths: string[], message: string): boolean`
   - `pushWithRebase(cwd: string, branch: string, attempts?: number): void`
+  - `buildSidecar(h: HeaderRecord): Record<string, unknown>` added to `src/headers.ts`, called from BOTH `runTier`s
   - `type RunDeps`, `type RunResult = { exitCode: number; status: null; trace: string[] }`, `runTier(sources, tier, prevStatus, deps): Promise<RunResult>` (minimal; Task 11 assembles the final pipeline and widens `status`)
 
 **This task is the point of the whole plan, and it is deliberately early.**
@@ -1239,7 +1240,43 @@ describe('runTier, minimal', () => {
 Run: `npx vitest run test/run.test.ts`
 Expected: FAIL, cannot resolve `../src/run.js`
 
-- [ ] **Step 6: Write the minimal `src/run.ts`**
+- [ ] **Step 6: Add `buildSidecar` to `src/headers.ts`**
+
+Spec section 9 names the two timestamps `observed_at` and `origin_date`.
+`HeaderRecord` carries neither: it has `fetchedAt` and the raw `date`/`age`
+inputs. So the sidecar is not the record, and something has to map it.
+
+It is **one exported function called from both `runTier`s**, not an inline
+object literal in each. An earlier revision of this plan wrote the mapping
+inline in Task 11's `runTier` and left Task 5's writing the bare record, with an
+orphan import that made the diff read as though Task 5 handled it. Task 5 is the
+task that goes live, and R7 forbids rewriting history, so every commit from
+Task 5 until Task 11 would have carried a sidecar permanently missing the field.
+One function with two call sites is what makes that divergence impossible rather
+than merely unlikely.
+
+```ts
+/** The committed sidecar shape. Spec section 9 names both timestamps. */
+export function buildSidecar(h: HeaderRecord): Record<string, unknown> {
+  const originMs = originDateMs(h);
+  return {
+    ...h,
+    observed_at: h.fetchedAt,
+    origin_date: originMs === null ? null : new Date(originMs).toISOString(),
+  };
+}
+```
+
+Test it directly, each claim in its own `it()`: it carries `observed_at` equal
+to `fetchedAt`; it carries `origin_date` derived from `date` minus `age`; it
+carries `origin_date: null` when either input is absent; and it preserves every
+key of the original record. Then assert the invariant that actually protects the
+archive: **the object `runTier` writes to `raw/<id>/headers.json` contains both
+`observed_at` and `origin_date`.** Assert it against what the write receives, in
+both `runTier` call sites, not against `buildSidecar` in isolation. A test of the
+function alone would have passed throughout the defect described above.
+
+- [ ] **Step 7: Write the minimal `src/run.ts`**
 
 ```ts
 // No status import: `src/status.ts` does not exist until Task 10, and this
@@ -1311,42 +1348,6 @@ export async function runTier(
   return { exitCode: 0, status: null, trace };
 }
 ```
-
-- [ ] **Step 7: Add `buildSidecar` to `src/headers.ts`**
-
-Spec section 9 names the two timestamps `observed_at` and `origin_date`.
-`HeaderRecord` carries neither: it has `fetchedAt` and the raw `date`/`age`
-inputs. So the sidecar is not the record, and something has to map it.
-
-It is **one exported function called from both `runTier`s**, not an inline
-object literal in each. An earlier revision of this plan wrote the mapping
-inline in Task 11's `runTier` and left Task 5's writing the bare record, with an
-orphan import that made the diff read as though Task 5 handled it. Task 5 is the
-task that goes live, and R7 forbids rewriting history, so every commit from
-Task 5 until Task 11 would have carried a sidecar permanently missing the field.
-One function with two call sites is what makes that divergence impossible rather
-than merely unlikely.
-
-```ts
-/** The committed sidecar shape. Spec section 9 names both timestamps. */
-export function buildSidecar(h: HeaderRecord): Record<string, unknown> {
-  const originMs = originDateMs(h);
-  return {
-    ...h,
-    observed_at: h.fetchedAt,
-    origin_date: originMs === null ? null : new Date(originMs).toISOString(),
-  };
-}
-```
-
-Test it directly, each claim in its own `it()`: it carries `observed_at` equal
-to `fetchedAt`; it carries `origin_date` derived from `date` minus `age`; it
-carries `origin_date: null` when either input is absent; and it preserves every
-key of the original record. Then assert the invariant that actually protects the
-archive: **the object `runTier` writes to `raw/<id>/headers.json` contains both
-`observed_at` and `origin_date`.** Assert it against what the write receives, in
-both `runTier` call sites, not against `buildSidecar` in isolation. A test of the
-function alone would have passed throughout the defect described above.
 
 - [ ] **Step 8: Write `src/cli.ts`**
 
@@ -3421,4 +3422,4 @@ days.
 
 **Placeholder scan.** No TBD, no "add error handling", no "similar to Task N", no "write tests for the above". Every code step carries real code. Two values are deliberately left for the implementer to fill from live data, both with the command that produces them and a test that fails until they are right: the nine canary strings in Task 6 Step 5, and the `OWNER/REPO` in the User-Agent.
 
-**Type consistency.** `Source` gains a `status` field in Task 2 that Tasks 5 and 8 both read, and it is the only field added to a type after its defining task. `Source`, `Observed`, `HealthState`, `HealthVerdict`, `HeaderRecord`, `Outcome`, `SourceStatus`, `StatusFile`, `FetchOutcome`, `GuardVerdict` and `RunDeps` are each defined in exactly one module and imported everywhere else. `checkHealth`, `hasChanged`, `checkMagnitude`, `applyOutcome`, `shouldCommitStatus`, `exitCodeFor`, `captureHeaders`, `originDateMs`, `isStaleGeneration`, `fetchSource`, `commitPaths`, `pushWithRebase`, `mapPolitely` and `runTier` keep the same names and signatures from the task that defines them through every later use.
+**Type consistency.** `Source` gains a `status` field in Task 2 that Tasks 5 and 8 both read, and it is the only field added to a type after its defining task. `Source`, `Observed`, `HealthState`, `HealthVerdict`, `HeaderRecord`, `Outcome`, `SourceStatus`, `StatusFile`, `FetchOutcome`, `GuardVerdict` and `RunDeps` are each defined in exactly one module and imported everywhere else. `checkHealth`, `hasChanged`, `checkMagnitude`, `applyOutcome`, `shouldCommitStatus`, `exitCodeFor`, `captureHeaders`, `buildSidecar`, `originDateMs`, `isStaleGeneration`, `fetchSource`, `commitPaths`, `pushWithRebase`, `mapPolitely` and `runTier` keep the same names and signatures from the task that defines them through every later use.
