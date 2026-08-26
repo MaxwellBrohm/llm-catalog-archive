@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-26T22:50:28.200Z",
+  "updatedAt": "2026-08-26T22:50:39.164Z",
   "sources": {
     "anthropic-deprecations": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -15,20 +15,20 @@
       "held": null
     },
     "claude-llms-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 72234,
-      "originDate": null,
+      "originDate": "2026-08-26T22:39:22.000Z",
       "held": null
     },
     "openrouter-llms-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -39,8 +39,8 @@
       "held": null
     },
     "openai-llms-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -51,44 +51,44 @@
       "held": null
     },
     "together-llms-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 61720,
-      "originDate": "2026-08-26T21:03:01.000Z",
+      "originDate": "2026-08-26T21:03:02.000Z",
       "held": null
     },
     "perplexity-llms-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 43305,
-      "originDate": "2026-08-26T21:55:15.000Z",
+      "originDate": "2026-08-26T21:55:16.000Z",
       "held": null
     },
     "mistral-llms-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 14658,
-      "originDate": "2026-08-26T05:28:01.000Z",
+      "originDate": "2026-08-26T05:28:00.000Z",
       "held": null
     },
     "groq-llms-full-txt": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -99,8 +99,8 @@
       "held": null
     },
     "modelsdev-commits": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -111,15 +111,15 @@
       "held": null
     },
     "claude-status": {
-      "lastAttemptAt": "2026-08-26T22:50:28.200Z",
-      "lastSuccessAt": "2026-08-26T22:50:28.200Z",
+      "lastAttemptAt": "2026-08-26T22:50:39.164Z",
+      "lastSuccessAt": "2026-08-26T22:50:39.164Z",
       "lastChangeAt": "2026-08-26T22:50:28.200Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 33787,
-      "originDate": "2026-08-26T22:50:17.000Z",
+      "originDate": "2026-08-26T22:50:07.000Z",
       "held": null
     }
   }
