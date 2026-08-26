@@ -15,6 +15,22 @@ const dec = (b: Uint8Array | undefined) => new TextDecoder().decode(b);
 const BODY = new Uint8Array([...enc(' CANARY\r\nline2\n'), 0x00, 0xff]);
 const BODY_BYTES = 17;
 
+/**
+ * One fixture is not enough, because a normaliser can gate on contentType and
+ * then no `text` body ever reaches it. These two close that family.
+ *
+ * The JSON body is deliberately VALID and minified with a trailing newline, so
+ * that a JSON round trip guarded by try/catch actually runs instead of falling
+ * back to the original bytes: `1.50` becomes `1.5`, `\u0041` becomes `A`, and
+ * the trailing newline is dropped. Pretty-printing it changes every line. This
+ * is the realistic violation, and it would land on openrouter-models, 685 KB of
+ * minified JSON and the most-diffed body in the archive.
+ */
+const JSON_BODY = enc('{"b":1,"a":[2,3],"n":1.50,"u":"\\u0041"}\n');
+
+/** A BOM and CRLF, which is what a BOM strip or an EOL rewrite would eat. */
+const XML_BODY = new Uint8Array([0xef, 0xbb, 0xbf, ...enc('<urlset>\r\n<url/>\r\n</urlset>\r\n')]);
+
 const HDR: HeaderRecord = {
   fetchedAt: '2026-08-26T14:00:00.000Z',
   finalUrl: 'https://a.example/f',
@@ -99,11 +115,38 @@ function sidecarWritten(files: Record<string, Uint8Array>): Record<string, unkno
   return JSON.parse(dec(files['raw/a/headers.json'])) as Record<string, unknown>;
 }
 
+/** One source, one body, run to completion. */
+async function runOne(s: Source, body: Uint8Array) {
+  const d = deps({
+    fetchOne: async () => ({
+      ok: true as const,
+      attempts: 1,
+      observed: { status: 200, body, finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+      headers: HDR,
+    }),
+  });
+  await runTier([s], 'daily', null, d);
+  return d;
+}
+
 describe('runTier, minimal', () => {
   it('writes the body verbatim', async () => {
     const d = deps();
     await runTier([source()], 'daily', null, d);
     expect(d.files['raw/a/response.txt']).toEqual(BODY);
+  });
+
+  // Byte equality, on a body whose contentType is not `text`. Every other
+  // source() in this file is `text`, so without these two a normaliser that
+  // gates on contentType is invisible to the whole suite.
+  it('writes a json body verbatim, neither pretty-printed nor re-serialised', async () => {
+    const d = await runOne(source({ contentType: 'json', path: 'raw/a/response.json' }), JSON_BODY);
+    expect(d.files['raw/a/response.json']).toEqual(JSON_BODY);
+  });
+
+  it('writes an xml body verbatim, keeping its BOM and its CRLFs', async () => {
+    const d = await runOne(source({ contentType: 'xml', path: 'raw/a/response.xml' }), XML_BODY);
+    expect(d.files['raw/a/response.xml']).toEqual(XML_BODY);
   });
 
   it('commits the body path', async () => {
@@ -124,10 +167,14 @@ describe('runTier, minimal', () => {
     expect(d.messages[0]).toBe(`a: changed (${BODY_BYTES} bytes, HTTP 200)`);
   });
 
-  it('does not write when the stored bytes are identical', async () => {
+  // The whole trace, not the absence of a write. `some(...) === false` is also
+  // satisfied by a runTier that returns immediately without fetching anything,
+  // and a no-op passed it. This says the fetch happened, nothing was written,
+  // nothing was committed, and the push still ran.
+  it('fetches and then writes nothing when the stored bytes are identical', async () => {
     const d = deps({}, { 'raw/a/response.txt': BODY });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('write:'))).toBe(false);
+    expect(d.trace).toEqual(['fetch', 'push']);
   });
 
   it('does not commit when the stored bytes are identical', async () => {

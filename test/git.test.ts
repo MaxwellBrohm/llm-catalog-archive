@@ -46,6 +46,18 @@ function writeRaw(dir: string, rel: string, contents: string): void {
   fs.writeFileSync(abs, contents);
 }
 
+/**
+ * Every test in this file shells out to real git, several of them four or five
+ * times, so they are subprocess-latency bound rather than CPU bound. One run of
+ * the full suite failed once at 15.5s total against a normal 5s, while three
+ * other vitest processes were running, and did not reproduce in 19 further runs
+ * including 5 concurrent ones. The identity of that failure was not captured,
+ * so this is a mitigation and not a diagnosis: vitest's default 5s per test is
+ * thin for real process I/O on a loaded machine, and a generous ceiling costs
+ * nothing on a passing run.
+ */
+const SUBPROCESS_TIMEOUT_MS = 30_000;
+
 describe('git', () => {
   it('returns the stdout of a command that succeeds', () => {
     expect(git(['symbolic-ref', '--short', 'HEAD'], repo).stdout.trim()).toBe('main');
@@ -62,7 +74,7 @@ describe('git', () => {
   it('returns the stderr of a command that fails', () => {
     expect(git(['rev-parse', 'refs/heads/nope'], repo).stderr).toContain('unknown revision');
   });
-});
+}, SUBPROCESS_TIMEOUT_MS);
 
 describe('commitPaths', () => {
   it('reports true when a file changed', () => {
@@ -167,7 +179,7 @@ describe('commitPaths', () => {
     git(['checkout', '--', 'raw/y/response.txt'], repo);
     expect(new Uint8Array(fs.readFileSync(p))).toEqual(bytes);
   });
-});
+}, SUBPROCESS_TIMEOUT_MS);
 
 describe('pushWithRebase', () => {
   function withRemote(): { local: string; bare: string } {
@@ -229,6 +241,27 @@ describe('pushWithRebase', () => {
     expect(git(['log', '--oneline', 'main'], bare).stdout).toContain('mine');
   });
 
+  /**
+   * R7, and the only test that catches the likely regression rather than the
+   * dramatic one. The divergent-remote test above only fails if the rebase is
+   * also removed, so `pull --rebase` followed by `push --force` slips past all
+   * 230 tests: the rebase makes the push a fast-forward, and force changes
+   * nothing observable. That is exactly the shape of the real mistake, where
+   * pushes keep getting rejected and someone adds a flag to make it stop.
+   *
+   * So this reads the SHIPPED source, in the same spirit as copying the real
+   * .gitattributes rather than retyping it. Quoted forms only, so the prose in
+   * that file saying "Never force" cannot satisfy or trip it, and backticks are
+   * in the delimiter class because the form that got past the first draft of
+   * this test was a template literal: `+refs/heads/${branch}`, a forced update
+   * spelled as a refspec rather than as a flag.
+   */
+  it('never hands git a force flag', () => {
+    expect(fs.readFileSync('src/git.ts', 'utf8')).not.toMatch(
+      /['"`](-f|--force[^'"`]*|\+refs[^'"`]*)['"`]/,
+    );
+  });
+
   it('throws when the remote cannot be reached', () => {
     const local = mkrepo();
     fs.writeFileSync(path.join(local, 'first.txt'), 'one');
@@ -236,4 +269,4 @@ describe('pushWithRebase', () => {
     git(['remote', 'add', 'origin', path.join(os.tmpdir(), 'lca-no-such-remote')], local);
     expect(() => pushWithRebase(local, 'main', 2)).toThrow(/push failed after 2 attempts/);
   });
-});
+}, SUBPROCESS_TIMEOUT_MS);

@@ -111,3 +111,20 @@ describe('stored bytes stay diffable', () => {
     expect(log).toContain('-{"models":[{"id":"x","price":2}]}');
   });
 });
+
+// W1. The workflow runs unattended on a public repo with contents:write, so
+// both of these are one silent edit away from mattering.
+describe('the collect-daily workflow', () => {
+  const workflow = (): string => fs.readFileSync('.github/workflows/collect-daily.yml', 'utf8');
+
+  it('bounds the job, so a hung fetch cannot hold the write token open', () => {
+    expect(workflow()).toContain('timeout-minutes: 15');
+  });
+
+  // Negative lookahead rather than a substring match on the good form: a
+  // second, bare `npm ci` added later would satisfy toContain while running
+  // dependency lifecycle scripts with the push credential in .git/config.
+  it('never installs in a way that runs dependency lifecycle scripts', () => {
+    expect(workflow()).not.toMatch(/npm ci(?! --ignore-scripts)/);
+  });
+});
