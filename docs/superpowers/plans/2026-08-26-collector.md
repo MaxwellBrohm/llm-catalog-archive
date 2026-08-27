@@ -3350,7 +3350,15 @@ jobs:
 Run: `npx vitest run test/invariants.test.ts`
 Expected: PASS, 5 tests
 
-- [ ] **Step 4: Configure and run mutation testing**
+- [ ] **Step 4: Mutation testing is NOT introduced here**
+
+Stryker was configured and running from Task 6 onwards, after a review found that the
+hand-planting harness used until then could not tell a mutation that failed to apply from one
+that survived, nor a compile error from a kill. Two-outcome reporting was the root cause: it
+forces three distinct states into one bucket. This step is retained only to re-run the full
+sweep over the finished tree and to confirm the config still covers every module.
+
+- [ ] **Step 4b: Re-run the full sweep**
 
 `stryker.config.json`:
 ```json
