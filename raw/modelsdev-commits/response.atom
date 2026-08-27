@@ -4,7 +4,43 @@
   <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commits/dev"/>
   <link type="application/atom+xml" rel="self" href="https://github.com/anomalyco/models.dev/commits/dev.atom"/>
   <title>Recent Commits to models.dev:dev</title>
-  <updated>2026-08-26T22:16:53Z</updated>
+  <updated>2026-08-26T23:26:15Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/7ce5ab1fb6438543caf0707e20dccb609a8baceb</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/7ce5ab1fb6438543caf0707e20dccb609a8baceb"/>
+    <title>
+        chore(sync): update OpenRouter model catalog (#5596)
+    </title>
+    <updated>2026-08-26T23:26:15Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#5596)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/3f87a632abb314bef2e0d48a339e389c5542bc3d</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/3f87a632abb314bef2e0d48a339e389c5542bc3d"/>
+    <title>
+        chore(sync): update Merge Gateway model catalog (#5595)
+    </title>
+    <updated>2026-08-26T23:26:11Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Merge Gateway model catalog (#5595)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
   <entry>
     <id>tag:github.com,2008:Grit::Commit/bfc2f0e440c0bfa651144aa5192613d0cd6d9ded</id>
     <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/bfc2f0e440c0bfa651144aa5192613d0cd6d9ded"/>
@@ -356,42 +392,6 @@ Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.gi
       &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#5578)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/e54fb3b6c572db7873694a031431fae3e84d00bd</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/e54fb3b6c572db7873694a031431fae3e84d00bd"/>
-    <title>
-        fix(tinfoil): sync reasoning capability and correct effort levels (#5…
-    </title>
-    <updated>2026-08-26T19:38:11Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(tinfoil): sync reasoning capability and correct effort levels (#5573)
-
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/2c382ac47fbfce81ea636eab82c81d6e3373893a</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/2c382ac47fbfce81ea636eab82c81d6e3373893a"/>
-    <title>
-        fix(empiriolabs): omit redundant reasoning toggles (#5576)
-    </title>
-    <updated>2026-08-26T19:37:53Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(empiriolabs): omit redundant reasoning toggles (#5576)
-
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
 </feed>
