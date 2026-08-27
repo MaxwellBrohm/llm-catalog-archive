@@ -259,9 +259,12 @@ describe('pushWithRebase', () => {
    * against a bare remote carrying a published commit, and every one DESTROYED
    * that commit:
    *
-   *   ['push', '-f' | '-qf' | '-fq', ...]          short flag, bundled or not
+   *   ['push', '-f' | '-qf' | '-fq', ...]          short force flag, bundled
+   *   ['push', '-d' | '-qd', ...]                  short DELETE flag, bundled
    *   ['push', 'origin', `+${branch}`]             short force refspec
    *   ['push', 'origin', '+' + 'refs/heads/' + b]  split force refspec
+   *   ['push', 'origin', `:${branch}`]             deletion refspec
+   *   ['push', 'origin', ':refs/heads/' + branch]  split deletion refspec
    *   ['push', '--force' | '--mirror' | '--delete', ...]
    *   ['-c', 'remote.origin.push=+refs/heads/*', 'push', 'origin']
    *   ['-c', 'remote.origin.mirror=true', 'push', 'origin']
@@ -276,10 +279,10 @@ describe('pushWithRebase', () => {
    * trade: a loud false positive beats a silent bypass, and prose can say
    * "force" without the dashes.
    *
-   * It reads EVERY file under src/, not just git.ts. `git()` is exported and
-   * `src/cli.ts` already imports from `./git.js`, so a forcing argv built in
-   * cli.ts would have passed a git.ts-only scan. "Sole spawner" is not "sole
-   * argv builder" while `git` is exported.
+   * It reads EVERY file that can hand git an argument, not just git.ts.
+   * `git()` is exported and `src/cli.ts` already imports from `./git.js`, so a
+   * forcing argv built in cli.ts would have passed a git.ts-only scan. "Sole
+   * spawner" is not "sole argv builder" while `git` is exported.
    *
    * ONE LIMIT, stated rather than implied, because a guard read as complete
    * when it is not is worse than no guard: a flag assembled at runtime from
@@ -291,19 +294,52 @@ describe('pushWithRebase', () => {
    * append-only.yml fails when github.event.before is unreachable, so an
    * actual force push to main is caught after the fact.
    */
+  /**
+   * DELETION IS DESTRUCTION TOO, and the previous revision of this arm was the
+   * whitelist its own commit message claimed to have removed: `--delete` was
+   * caught while `-d`, `-qd`, `:branch` and `:refs/heads/branch` were not.
+   * Each was verified to really delete a branch on a bare remote, and planting
+   * `git(['push','-d','origin',branch], cwd)` left this test green while three
+   * behavioural tests went red. What saves `main` in production today is
+   * GitHub refusing to delete a default branch, which is remote configuration
+   * and not code.
+   *
+   * The colon arm is narrower than "a quoted string starting with a colon",
+   * which was the obvious spelling and is unusable: in JSON and YAML every
+   * `"key":` is a closing quote followed by a colon, so the obvious form makes
+   * package.json and both workflows solid false positives. Requiring the colon
+   * to be followed by `refs/`, a `${` interpolation, or a ref name that runs to
+   * the closing quote catches all four deletion refspecs and matches nothing in
+   * any of the twelve files scanned.
+   */
   const FORCING =
-    /--(?:force|mirror|delete)\b|\bremote\.[\w.-]+\.(?:push|mirror)\b|['"`]\+|['"`]-[A-Za-z]*f[A-Za-z]*['"`]|\+refs\//;
+    /--(?:force|mirror|delete)\b|\bremote\.[\w.-]+\.(?:push|mirror)\b|['"`]\+|['"`]:(?:refs\/|\$\{|[A-Za-z_][\w./-]*['"`])|['"`]-[A-Za-z]*[fd][A-Za-z]*['"`]|\+refs\//;
 
-  /** Every TypeScript file under src/, at any depth. `readdirSync` is not recursive. */
-  function sourceFiles(dir = 'src'): string[] {
+  /**
+   * Everything that can hand git an argument.
+   *
+   * `readdirSync` is not recursive, so this recurses. The extension test is
+   * `[jt]sx?` with the module prefixes, because a `.js`, `.mjs`, `.cjs` or
+   * `.tsx` file under src/ was invisible to the previous `.ts`-only version.
+   * The workflows and package.json are in scope because a `run:` step or a
+   * lifecycle script is a place a forced push fits perfectly well and neither
+   * was being read at all.
+   */
+  function walk(dir: string, keep: RegExp): string[] {
     return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
       const p = path.join(dir, e.name);
-      return e.isDirectory() ? sourceFiles(p) : /\.(m|c)?ts$/.test(e.name) ? [p] : [];
+      return e.isDirectory() ? walk(p, keep) : keep.test(e.name) ? [p] : [];
     });
   }
+  const sourceFiles = (): string[] => walk('src', /\.(m|c)?[jt]sx?$/);
+  const argvFiles = (): string[] => [
+    ...sourceFiles(),
+    ...walk('.github/workflows', /\.ya?ml$/),
+    'package.json',
+  ];
 
-  it('hands git no force flag, force refspec, or forcing config anywhere under src', () => {
-    const offenders = sourceFiles().filter((f) => FORCING.test(fs.readFileSync(f, 'utf8')));
+  it('hands git no force flag, no deletion, no force refspec and no forcing config', () => {
+    const offenders = argvFiles().filter((f) => FORCING.test(fs.readFileSync(f, 'utf8')));
     expect(offenders).toEqual([]);
   });
 

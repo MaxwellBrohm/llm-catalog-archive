@@ -201,22 +201,28 @@ describe('runTier, minimal', () => {
   it('commits when one byte differs at the same length', async () => {
     const d = deps({}, { 'raw/a/response.txt': new Uint8Array([...BODY.slice(0, BODY_BYTES - 1), 0xfe]) });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('commit:'))).toBe(true);
+    expect(d.trace).toContain('commit:raw/a/response.txt,raw/a/headers.json');
   });
 
   it('commits when the stored body is a prefix of the new one', async () => {
     const d = deps({}, { 'raw/a/response.txt': BODY.slice(0, BODY_BYTES - 1) });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('commit:'))).toBe(true);
+    expect(d.trace).toContain('commit:raw/a/response.txt,raw/a/headers.json');
   });
 
   // The other direction, which is the one a length-blind comparison gets wrong:
   // a body that shrank is equal to its own prefix of the stored bytes, so
   // without the length check a truncation would be recorded as no change.
+  //
+  // All three of these named the BODY commit only after Stryker showed that
+  // `some(t => t.startsWith('commit:'))` had gone vacuous: Task 10 added an
+  // unconditional daily status commit to the same trace, and that one entry
+  // satisfies the assertion whatever the change predicate decides. Replacing
+  // sameBytes with `return true` left every one of them green.
   it('commits when the new body is a prefix of the stored one', async () => {
     const d = deps({}, { 'raw/a/response.txt': new Uint8Array([...BODY, 0x01]) });
     await runTier([source()], 'daily', null, d);
-    expect(d.trace.some((t) => t.startsWith('commit:'))).toBe(true);
+    expect(d.trace).toContain('commit:raw/a/response.txt,raw/a/headers.json');
   });
 
   // The three volatile sources ship pending. activeSourcesForTier already
@@ -509,7 +515,9 @@ describe('runTier consults the health gate before it writes', () => {
   });
 
   it('does not write a stale feed', async () => {
-    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
+    const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {
+      'raw/a/response.atom': feedDated('2025-12-01T00:00:00Z'),
+    });
     expect(d.trace).toEqual(['fetch', 'write:meta/status.json', 'commit:meta/status.json', 'push']);
   });
 
@@ -525,11 +533,60 @@ describe('runTier consults the health gate before it writes', () => {
     expect(d.logs).toContain('a: stale, not written: newest item 238 days old, limit 7');
   });
 
-  it('fails a quiet feed that has never archived anything, rather than going quietly silent', async () => {
+  /**
+   * The first fetch of a quiet source SEEDS. Withholding it is what keeps
+   * `prev.bytes` null, and both spellings of withholding close the same loop:
+   * stale for ever and silent, or failed for ever and loud, with the artifact
+   * never arriving either way.
+   */
+  it('archives the first ever fetch of a quiet feed, so the next run has a baseline', async () => {
     const d = await runWith(feedSource(), feedDated('2026-01-01T00:00:00Z'), {});
-    expect(d.logs).toContain(
-      'a: failed, not written: newest item 238 days old, limit 7, and no previous snapshot exists to be quiet against',
-    );
+    expect(d.files['raw/a/response.atom']).toEqual(feedDated('2026-01-01T00:00:00Z'));
+  });
+
+  it('does not count that first ever quiet fetch as a failure', async () => {
+    const body = feedDated('2026-01-01T00:00:00Z');
+    const d = deps({
+      fetchOne: async (s: Source) => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body, finalUrl: s.url, redirectCount: 0, headers: {} },
+        headers: HDR,
+      }),
+    });
+    const r = await runTier([feedSource()], 'daily', null, d);
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
+  });
+
+  /**
+   * The two-run claim, which is the only form the quiet contract has: the same
+   * source fetched twice against the same filesystem. The first run writes,
+   * because there is nothing to be quiet against; the second is stale, because
+   * now there is. Neither the silent version of this branch nor the loud one
+   * can pass this, and no single-response test can state it at all.
+   */
+  const twice = async () => {
+    const body = feedDated('2026-01-01T00:00:00Z');
+    const files: Record<string, Uint8Array> = {};
+    const fetchOne = async (s: Source) => ({
+      ok: true as const,
+      attempts: 1,
+      observed: { status: 200, body, finalUrl: s.url, redirectCount: 0, headers: {} },
+      headers: HDR,
+    });
+    const first = await runTier([feedSource()], 'daily', null, deps({ fetchOne }, files));
+    const second = await runTier([feedSource()], 'daily', null, deps({ fetchOne }, files));
+    return { first, second, files, body };
+  };
+
+  it('archives on the first run and calls the same feed stale on the second', async () => {
+    const { second } = await twice();
+    expect(second.trace).toEqual(['stale:a']);
+  });
+
+  it('leaves the seeded artifact in place when the second run calls it stale', async () => {
+    const { files, body } = await twice();
+    expect(files['raw/a/response.atom']).toEqual(body);
   });
 
   // The band is a ratio against the stored artifact. If runTier passed a
@@ -551,15 +608,28 @@ describe('runTier consults the health gate before it writes', () => {
   // The freshness window is measured against the run clock, not against the
   // wall clock. These two differ only in what nowIso returns.
   it('writes a feed that is fresh at the run clock', async () => {
-    const d = await runWith(feedSource(), feedDated('2026-08-20T00:00:00Z'), {});
-    expect(d.files['raw/a/response.atom']).toEqual(feedDated('2026-08-20T00:00:00Z'));
+    const d = await runWith(feedSource(), feedDated('2126-01-06T00:00:00Z'), {}, {
+      nowIso: () => '2126-01-08T00:00:00.000Z',
+    });
+    expect(d.files['raw/a/response.atom']).toEqual(feedDated('2126-01-06T00:00:00Z'));
   });
 
+  /**
+   * A century out on purpose. The first version of this pair used dates a few
+   * days either side of the real calendar, so substituting `Date.now()` for the
+   * run clock gave the SAME verdict on some days and a different one on others.
+   * Measured: that mutant SURVIVED at 00:32 UTC on 2026-08-27, where 7.02 days
+   * had elapsed against a limit of 7, and would have died twelve hours earlier.
+   * A test that agrees with the wall clock by coincidence proves nothing on the
+   * day it agrees.
+   */
   it('refuses the same feed once the run clock has passed the quiet limit', async () => {
-    const d = await runWith(feedSource(), feedDated('2026-08-20T00:00:00Z'), {}, {
-      nowIso: () => '2026-09-30T00:00:00.000Z',
+    const d = await runWith(feedSource(), feedDated('2126-01-01T00:00:00Z'), {
+      'raw/a/response.atom': feedDated('2125-12-01T00:00:00Z'),
+    }, {
+      nowIso: () => '2126-09-30T00:00:00.000Z',
     });
-    expect(d.files['raw/a/response.atom']).toBeUndefined();
+    expect(d.files['raw/a/response.atom']).toEqual(feedDated('2125-12-01T00:00:00Z'));
   });
 
   /**
@@ -603,6 +673,15 @@ describe('runTier consults the health gate before it writes', () => {
     expect(d.files['raw/a/response.txt']).toEqual(BODY);
   });
 
+  // `state === 'relocated'` and not merely "the write was allowed". Logging the
+  // relocation line for every healthy source would make the one line that says
+  // a url has moved indistinguishable from noise.
+  it('says nothing about relocation for a source that did not move', async () => {
+    const d = deps();
+    await runTier([source()], 'daily', null, d);
+    expect(d.logs.filter((l) => l.includes('relocated'))).toEqual([]);
+  });
+
   it('says where a relocated source has moved to', async () => {
     const d = deps({
       fetchOne: async () => ({
@@ -614,6 +693,25 @@ describe('runTier consults the health gate before it writes', () => {
     });
     await runTier([source()], 'daily', null, d);
     expect(d.logs).toContain('a: relocated, final url is https://moved.example/f, declared https://a.example/f');
+  });
+
+  // A refused response changed nothing, so it must not stamp lastChangeAt. That
+  // timestamp is what a reader uses to tell "this provider has been quiet" from
+  // "we have not been able to read this provider".
+  it('does not record a change for a source the health gate refused', async () => {
+    const d = deps(
+      {
+        fetchOne: async () => ({
+          ok: true as const,
+          attempts: 1,
+          observed: { status: 200, body: CHALLENGE, finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+          headers: HDR,
+        }),
+      },
+      { 'raw/a/response.txt': LAST_GOOD },
+    );
+    const r = await runTier([source()], 'daily', null, d);
+    expect(r.status?.sources['a']?.lastChangeAt).toBeNull();
   });
 
   it('refuses a non-2xx body that the fetch layer handed up as a success', async () => {

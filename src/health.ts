@@ -180,17 +180,32 @@ export function checkHealth(
    * genuinely silent quarter must not send a daily failure email, because that
    * is how an alerting channel gets muted.
    *
-   * But withholding the write is also what keeps `prev.bytes` null, and on a
-   * source that has never archived anything that closes a loop: stale, so no
-   * write, so still no previous size, so stale again, for ever, and silently.
-   * `openai-status`, the source this branch was written for, is exactly the
-   * one it would have silenced. A source that has never once produced a
-   * usable body is not quiet, it is broken, and broken is loud.
+   * Returns null when there is no previous snapshot to be quiet against, which
+   * means SEED: fall through and write.
+   *
+   * Withholding the write is what keeps `prev.bytes` null, so on a source that
+   * has never archived anything, any verdict that withholds closes a loop.
+   * Both spellings of that loop have now been built and measured here:
+   *
+   *   stale  -> no write -> still no baseline -> stale  -> silent for ever
+   *   failed -> no write -> still no baseline -> failed -> exit 1 for ever
+   *
+   * The second is not a fix for the first; it is the same loop shouting. Six
+   * simulated days of the failed version: exit 1 on day 3, exit 1 on day 6,
+   * artifact absent throughout, no self-recovery.
+   *
+   * Seeding opens it. Every structural invariant has already passed by the
+   * time this is reached, so the bytes are known good, and the write is what
+   * creates the baseline the NEXT run measures quiet against. That is why the
+   * quiet-source contract can only be stated over two runs: first fetch
+   * archives, second fetch is stale.
+   *
+   * `openai-status` carries `maxQuietDays: 120` on a provider-incident feed
+   * where four silent months is the normal good state, and Task 8 activates it
+   * into exactly that.
    */
-  const quiet = (reason: string): HealthVerdict =>
-    prev.bytes === null
-      ? fail(`${reason}, and no previous snapshot exists to be quiet against`)
-      : { state: 'stale', writeAllowed: false, countsAsFailure: false, reason };
+  const quiet = (reason: string): HealthVerdict | null =>
+    prev.bytes === null ? null : { state: 'stale', writeAllowed: false, countsAsFailure: false, reason };
 
   // First among the content checks on purpose. A challenge page can sit inside
   // the size band and carry the canary, and when it does not, "size ratio 58"
@@ -247,15 +262,18 @@ export function checkHealth(
     if (newest === null) {
       // Two different things reach here and only one of them is a defect. A
       // feed with no items at all is a provider that has published nothing,
-      // which is the quiet case this whole four-state design exists to spare
-      // from a failure email. A feed WITH items but no parseable date on any
-      // of them is malformed.
-      if (countFeedItems(text) === 0) return quiet('feed carries no items at all');
-      return fail('feed carries no parseable item date');
-    }
-    const days = (nowMs - newest) / 86_400_000;
-    if (days > source.freshness.maxQuietDays) {
-      return quiet(`newest item ${Math.round(days)} days old, limit ${source.freshness.maxQuietDays}`);
+      // which is the quiet case. A feed WITH items but no parseable date on
+      // any of them is malformed, and malformed is malformed with or without a
+      // baseline, so it fails either way.
+      if (countFeedItems(text) !== 0) return fail('feed carries no parseable item date');
+      const empty = quiet('feed carries no items at all');
+      if (empty !== null) return empty;
+    } else {
+      const days = (nowMs - newest) / 86_400_000;
+      if (days > source.freshness.maxQuietDays) {
+        const old = quiet(`newest item ${Math.round(days)} days old, limit ${source.freshness.maxQuietDays}`);
+        if (old !== null) return old;
+      }
     }
   }
 

@@ -132,6 +132,20 @@ describe('checkHealth, the status line', () => {
     ).toBe('failed');
   });
 
+  // Both edges of the 2xx window, because each is held by its own comparison
+  // and a suite that only tests 503 and 299 leaves either one deletable.
+  it('fails a 1xx, which is an interim response and not a body', () => {
+    expect(
+      checkHealth(src(), obs(fxBytes('healthy-claude-llms.txt'), { status: 199 }), { bytes: 63000 }, NOW).state,
+    ).toBe('failed');
+  });
+
+  it('fails a 300, the first status outside the window', () => {
+    expect(
+      checkHealth(src(), obs(fxBytes('healthy-claude-llms.txt'), { status: 300 }), { bytes: 63000 }, NOW).state,
+    ).toBe('failed');
+  });
+
   it('accepts a 204-adjacent 2xx boundary at 299', () => {
     expect(
       checkHealth(src(), obs(fxBytes('healthy-claude-llms.txt'), { status: 299 }), { bytes: 63000 }, NOW).state,
@@ -364,6 +378,17 @@ describe('checkHealth, the xml root element', () => {
     expect(xmlRootElement('<?xml version="1.0"?><atom:feed xmlns:atom="urn:x"/>')).toBe('feed');
   });
 
+  // A comment is skipped to its terminator, not to the first `>` inside it.
+  it('skips a comment that itself contains a greater-than sign', () => {
+    expect(xmlRootElement('<?xml version="1.0"?><!-- a > b --><feed/>')).toBe('feed');
+  });
+
+  // `<` followed by something that cannot start a name. Without the null check
+  // the group access throws instead of reporting no root.
+  it('returns null when the first element name cannot start an xml name', () => {
+    expect(xmlRootElement('<1abc/>')).toBeNull();
+  });
+
   it('returns null when the body opens with no element at all', () => {
     expect(xmlRootElement('Moved Permanently. Redirecting to https://example.com/')).toBeNull();
   });
@@ -428,6 +453,29 @@ describe('checkHealth, the json invariants', () => {
     expect(checkHealth(jsonSrc(), obs(enc(JSON.stringify({ data: { n: 1 } }))), { bytes: null }, NOW).reason).toBe(
       'records below floor (not an array < 300)',
     );
+  });
+
+  // `JSON.parse('null')` succeeds and yields null, so the key lookup has to be
+  // optional. Without that it throws, and a throw is reported by runTier as
+  // `threw`, which reads like an unreachable host rather than an empty body.
+  it('reports a json body of literal null as a missing key rather than throwing', () => {
+    expect(checkHealth(jsonSrc({ minBytes: 1 }), obs(enc('null')), { bytes: null }, NOW).reason).toBe(
+      'required key path absent: data',
+    );
+  });
+
+  // A floor of exactly N accepts N. The comparison is `<`, and `<=` is the
+  // spelling that rejects a catalog for being precisely the size it must be.
+  it('accepts a catalog holding exactly its record floor', () => {
+    const s = jsonSrc({ minRecords: 3 });
+    expect(checkHealth(s, obs(enc(JSON.stringify({ data: [1, 2, 3] }))), { bytes: null }, NOW).state).toBe('ok');
+  });
+
+  // No floor configured means no floor applied, even to a value that is not an
+  // array at all. The schema permits this combination and nothing uses it yet.
+  it('does not police the shape of the required key when no floor is configured', () => {
+    const s = jsonSrc({ minRecords: null });
+    expect(checkHealth(s, obs(enc(JSON.stringify({ data: { n: 1 } }))), { bytes: null }, NOW).state).toBe('ok');
   });
 
   it('fails a body that is not json at all', () => {
@@ -515,6 +563,70 @@ describe('checkHealth, feed freshness', () => {
     expect(checkHealth(s, obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).state).toBe('ok');
   });
 
+  // Both halves of the gate, each held separately. A source declaring
+  // `content` freshness with a real maxQuietDays is the shape three shipped
+  // sources actually have, and feed staleness must not be applied to it.
+  it('does not apply feed freshness to a source that declares content freshness', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'rss',
+      freshness: { kind: 'content', maxQuietDays: 30 },
+      invariants: { ...src().invariants, canary: null, minBytes: 100 },
+    });
+    expect(checkHealth(s, obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).state).toBe('ok');
+  });
+
+  it('does not apply feed freshness to a feed that declares no quiet limit', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'rss',
+      freshness: { kind: 'feed', maxQuietDays: null },
+      invariants: { ...src().invariants, canary: null, minBytes: 100 },
+    });
+    expect(checkHealth(s, obs(fxBytes('trap-qwen-stale.xml')), { bytes: 39000 }, NOW).state).toBe('ok');
+  });
+
+  // A limit of 60 days means 60 days is still inside it. `>=` is the spelling
+  // that calls a source stale on the last day it was allowed to be quiet.
+  it('does not call a feed stale on the exact day of its quiet limit', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    // Exactly 60 days before NOW.
+    const body = enc('<?xml version="1.0"?>\n<feed><entry><updated>2026-06-28T00:00:00Z</updated></entry></feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: 100 }, NOW).state).toBe('ok');
+  });
+
+  it('says an empty feed is empty', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: 64 }, NOW).reason).toBe('feed carries no items at all');
+  });
+
+  // NEWEST, not first. Feeds are not reliably ordered, and a scan that keeps
+  // the first date it parses reads a stale feed as fresh whenever the newest
+  // entry is not at the top.
+  it('takes the newest item date even when it is not the first one in the document', () => {
+    expect(
+      newestFeedDate(
+        '<feed><entry><updated>2025-01-01T00:00:00Z</updated></entry>' +
+          '<entry><updated>2026-01-01T00:00:00Z</updated></entry></feed>',
+      ),
+    ).toBe(Date.parse('2026-01-01T00:00:00Z'));
+  });
+
+  it('does not count an entry whose closing tag is a different element', () => {
+    expect(countFeedItems('<feed><entry>x</entryX></feed>')).toBe(0);
+  });
+
   /**
    * An Atom feed's own `<updated>` advances on wall-clock time independently
    * of its entries. Not "on every request": three fetches minutes apart
@@ -599,31 +711,58 @@ describe('checkHealth, feed freshness', () => {
   });
 
   /**
-   * `stale` withholds the write, and withholding the write is what keeps
-   * `prev.bytes` null. On a source that has never archived anything that is a
-   * closed loop: stale, so no write, so still no previous size, so stale
-   * again, for ever, and SILENTLY, because stale does not count as a failure.
+   * Withholding the write is what keeps `prev.bytes` null, so on a source that
+   * has never archived anything, ANY verdict that withholds closes a loop.
+   * Both spellings were built here and both were wrong:
    *
-   * `openai-status` goes active in Task 8 with `maxQuietDays: 120`, and it is
-   * exactly the source an unbounded quiet branch would have silenced on its
-   * very first fetch. A source that has never once produced a usable body is
-   * not quiet, it is broken.
+   *   stale  -> no write -> no baseline -> stale  -> silent for ever
+   *   failed -> no write -> no baseline -> failed -> exit 1 for ever
+   *
+   * The second was my fix for the first, and it was the same loop shouting.
+   * Six simulated days: exit 1 on day 3, exit 1 on day 6, artifact absent
+   * throughout, no self-recovery. `openai-status` carries `maxQuietDays: 120`
+   * on a provider-incident feed where four silent months is the normal good
+   * state, and Task 8 activates it into exactly that.
+   *
+   * A first fetch therefore SEEDS. Every structural invariant has passed by
+   * the time the quiet branch is reached, so the bytes are known good, and it
+   * is this write that creates the baseline the next run measures against.
    */
-  it('refuses to call a quiet feed stale when nothing has ever been archived for it', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).state).toBe('failed');
+  it('writes the first ever fetch of a quiet feed rather than withholding it', () => {
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).state).toBe('ok');
   });
 
-  it('counts that first-ever quiet fetch as a failure, so it cannot go silent for ever', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).countsAsFailure).toBe(true);
+  it('allows the write that creates the baseline', () => {
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).writeAllowed).toBe(true);
   });
 
-  it('says a quiet verdict was refused for want of a previous snapshot', () => {
-    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).reason).toBe(
-      'newest item 338 days old, limit 60, and no previous snapshot exists to be quiet against',
+  it('does not count a first-ever quiet fetch as a failure either', () => {
+    expect(checkHealth(feed(60), obs(fxBytes('trap-qwen-stale.xml')), { bytes: null }, NOW).countsAsFailure).toBe(
+      false,
     );
   });
 
-  it('refuses to call an empty feed stale when nothing has ever been archived for it', () => {
+  /**
+   * The claim neither the silent version nor the loud version can pass, and
+   * the only form in which the quiet contract can be stated at all: it is a
+   * property of a SEQUENCE, not of a response. The second fetch measures its
+   * quiet against the baseline the first one wrote.
+   */
+  it('calls the same quiet feed stale on the second fetch, once a baseline exists', () => {
+    const body = fxBytes('trap-qwen-stale.xml');
+    const first = checkHealth(feed(60), obs(body), { bytes: null }, NOW);
+    const archived = first.writeAllowed ? body.byteLength : null;
+    expect(checkHealth(feed(60), obs(body), { bytes: archived }, NOW).state).toBe('stale');
+  });
+
+  // The seed falls through to the ordinary tail rather than returning early,
+  // so a first-ever fetch that ALSO moved is still reported as relocated.
+  it('still reports a relocation on the first ever fetch of a quiet feed', () => {
+    const moved = obs(fxBytes('trap-qwen-stale.xml'), { finalUrl: 'https://elsewhere.example/f', redirectCount: 1 });
+    expect(checkHealth(feed(60), moved, { bytes: null }, NOW).state).toBe('relocated');
+  });
+
+  it('writes the first ever fetch of an empty feed rather than withholding it', () => {
     const s = src({
       contentType: 'xml',
       expectedRoot: 'feed',
@@ -631,7 +770,32 @@ describe('checkHealth, feed freshness', () => {
       invariants: { ...src().invariants, canary: null, minBytes: 10 },
     });
     const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
-    expect(checkHealth(s, obs(body), { bytes: null }, NOW).state).toBe('failed');
+    expect(checkHealth(s, obs(body), { bytes: null }, NOW).state).toBe('ok');
+  });
+
+  it('calls that same empty feed stale on the second fetch', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<feed><title>No incidents yet</title></feed>\n');
+    const first = checkHealth(s, obs(body), { bytes: null }, NOW);
+    const archived = first.writeAllowed ? body.byteLength : null;
+    expect(checkHealth(s, obs(body), { bytes: archived }, NOW).state).toBe('stale');
+  });
+
+  // Malformed is malformed with or without a baseline: this one does NOT seed.
+  it('still fails an undated feed on its first ever fetch', () => {
+    const s = src({
+      contentType: 'xml',
+      expectedRoot: 'feed',
+      freshness: { kind: 'feed', maxQuietDays: 60 },
+      invariants: { ...src().invariants, canary: null, minBytes: 10 },
+    });
+    const body = enc('<?xml version="1.0"?>\n<feed><entry><id>a</id><title>t</title></entry></feed>\n');
+    expect(checkHealth(s, obs(body), { bytes: null }, NOW).reason).toBe('feed carries no parseable item date');
   });
 
   /**
