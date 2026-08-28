@@ -277,6 +277,7 @@
 - [Clear a model's pending jobs](https://docs.together.ai/reference/queue-clear.md): Cancel all pending jobs for the given model. Running jobs are left untouched. Returns the number of jobs that were canceled.
 - [Get queue metrics](https://docs.together.ai/reference/queue-metrics.md): Get the current queue statistics for a model, including pending and running job counts.
 - [Get API key identity](https://docs.together.ai/reference/whoami.md): Returns identity information about the authenticated API key. Useful for confirming which project and organization a key is scoped to, and for obtaining the project slug used to compose the `model` value (`<project_slug>/<endpoint_slug>`) in dedicated endpoint inference calls. Requires a Bearer API…
+- [Get billing usage](https://docs.together.ai/reference/billing-usage.md): Returns an organization's billing usage for a month as cost-annotated line items grouped into time windows. Finalized windows are returned through the end of yesterday at daily granularity, or the last completed hour at hourly granularity (UTC).
 - [List endpoints](https://docs.together.ai/reference/dmi/endpoints-list.md): Lists the dedicated inference endpoints owned by the specified project.
 - [Create an endpoint](https://docs.together.ai/reference/dmi/endpoints-create.md): Creates a stable, inference-addressable endpoint. Add one or more deployments and configure its traffic split before sending inference requests to the endpoint name.
 - [Get an endpoint](https://docs.together.ai/reference/dmi/endpoints-get.md): Retrieves an endpoint and lightweight summaries of the deployments attached to it.
@@ -351,6 +352,7 @@
 - [Files](https://docs.together.ai/reference/cli/files.md): Upload and manage datasets for use in fine-tuning, evals, and batch inference.
 - [Fine-tuning](https://docs.together.ai/reference/cli/finetune.md): Create, monitor, and manage fine-tuning jobs from your terminal.
 - [Evals](https://docs.together.ai/reference/cli/evals.md): Create and manage model-evaluation jobs from your terminal, including classify, score, and compare evals.
+- [Batches](https://docs.together.ai/reference/cli/batches.md): Submit, monitor, download, and cancel batch inference jobs from your terminal.
 - [Whoami](https://docs.together.ai/reference/cli/whoami.md): Show the project and organization for the API key used by the Together CLI.
 - [Models](https://docs.together.ai/reference/cli/models-beta.md): Register, upload, and inspect models and adapters for dedicated model inference from your terminal.
 - [Endpoints](https://docs.together.ai/reference/cli/endpoints-beta.md): Deploy and manage dedicated inference endpoints from your terminal.
