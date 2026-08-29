@@ -46,7 +46,6 @@
 - [Apply Patch](https://openrouter.ai/docs/guides/features/server-tools/apply-patch.md): Let models propose file changes via V4A diffs
 - [Shell](https://openrouter.ai/docs/guides/features/server-tools/shell.md): Give any model a sandboxed hosted shell on the Responses and Messages APIs
 - [Bash](https://openrouter.ai/docs/guides/features/server-tools/bash.md): Give any model a sandboxed shell to run commands server-side
-- [Containers](https://openrouter.ai/docs/guides/features/server-tools/containers.md): How sandbox containers work for the shell and bash server tools
 - [Search Models](https://openrouter.ai/docs/guides/features/server-tools/search-models.md): Let any model search the OpenRouter model catalog
 - [Tool Search](https://openrouter.ai/docs/guides/features/server-tools/tool-search.md): Let the model discover tools on demand instead of loading every definition up front
 - [Fusion](https://openrouter.ai/docs/guides/features/server-tools/fusion.md): Multi-model deliberation as a server tool
@@ -62,6 +61,7 @@
 - [Single Sign-On (SSO)](https://openrouter.ai/docs/guides/features/sso.md): Let your team sign in to OpenRouter through your identity provider
 - [SCIM Group Mappings](https://openrouter.ai/docs/guides/features/scim-mappings.md): Automatically provision workspace access from your identity provider groups
 - [Files API](https://openrouter.ai/docs/guides/features/files-api.md): Upload files to your workspace and use them in requests
+- [Containers](https://openrouter.ai/docs/guides/features/containers.md): How sandbox containers work for the shell and bash server tools
 - [Presets](https://openrouter.ai/docs/guides/features/presets.md): Manage your LLM configurations
 - [Custom Classifiers](https://openrouter.ai/docs/guides/features/classifiers.md): Automatically categorize LLM generations in your workspace
 - [Response Caching](https://openrouter.ai/docs/guides/features/response-caching.md): Cache responses for identical API requests to save time and money
@@ -205,7 +205,7 @@
 - [Get a model by its slug](https://openrouter.ai/docs/api/api-reference/models/get-a-model-by-its-slug.md): Returns full details for a single model identified by its author and slug (e.g. openai/gpt-4). Supports variant suffixes (e.g. openai/gpt-4:free) and resolves known slug aliases.
 - [List all models and their properties](https://openrouter.ai/docs/api/api-reference/models/list-all-models-and-their-properties.md)
 - [Get total count of available models](https://openrouter.ai/docs/api/api-reference/models/get-total-count-of-available-models.md)
-- [List models filtered by user provider preferences, privacy settings, and guardrails](https://openrouter.ai/docs/api/api-reference/models/list-models-filtered-by-user-provider-preferences-privacy-settings-and-guardrails.md): List models filtered by user provider preferences, [privacy settings](https://openrouter.ai/docs/guides/privacy/provider-logging), and [guardrails](https://openrouter.ai/docs/guides/features/guardrails). If requesting through a regional hostname, the results will be filtered to models that satisfy i…
+- [List models filtered by user provider preferences, privacy settings, and guardrails](https://openrouter.ai/docs/api/api-reference/models/list-models-filtered-by-user-provider-preferences-privacy-settings-and-guardrails.md): List models filtered by user provider preferences, [privacy settings](https://openrouter.ai/docs/guides/privacy/provider-logging), and [guardrails](https://openrouter.ai/docs/guides/features/guardrails). Returns text-output models by default; pass `output_modalities` (e.g. `image,audio,embeddings` o…
 - [List observability destinations](https://openrouter.ai/docs/api/api-reference/observability/list-observability-destinations.md): List the observability destinations configured for the authenticated entity's default workspace. Use the `workspace_id` query parameter to scope the result to a different workspace. Only destinations with stable release status are surfaced — destinations of other types are excluded. [Management key]…
 - [Create an observability destination](https://openrouter.ai/docs/api/api-reference/observability/create-an-observability-destination.md): Create a new observability destination. A maximum of 5 destinations per type is allowed. Defaults to the authenticated entity's default workspace; use the `workspace_id` body field to scope to a different workspace. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Get an observability destination](https://openrouter.ai/docs/api/api-reference/observability/get-an-observability-destination.md): Fetch a single observability destination by its UUID. [Management key](/docs/guides/overview/auth/management-api-keys) required.
