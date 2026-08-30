@@ -1,5 +1,6 @@
 /**
- * Every page, as a pure function of ChangeRecords. No git, no fs, no clock.
+ * Every page, as a pure function of ChangeRecords and of the events derived
+ * from them. No git, no fs, no clock.
  *
  * THE COPY RULE THIS FILE IMPLEMENTS. The subject of every sentence is the
  * artifact, never the company and never the reason. "OpenAI's documentation
@@ -12,6 +13,8 @@
  * If a sentence appears here that a diff cannot justify, it is a bug.
  */
 
+import { canRenderAt, claimSentence, DAY_SECONDS, type DerivedEvent } from '../derive/events.js';
+import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
   artifactPermalink,
   changePagePath,
@@ -59,6 +62,7 @@ function layout(opts: { title: string; depth: number; body: string }): string {
 <a class="brand" href="${up}index.html">llm-catalog-archive</a>
 <nav>
 <a href="${up}index.html">Changes</a>
+<a href="${up}threads/index.html">Threads</a>
 <a href="${up}feed.xml">Feed</a>
 <a href="${REPO_URL}">Repository</a>
 </nav>
@@ -336,4 +340,158 @@ ${items}
 </channel>
 </rss>
 `;
+}
+
+// ---------------------------------------------------------------------------
+// Threads
+// ---------------------------------------------------------------------------
+
+export function threadPagePath(slug: string): string {
+  return `threads/${slug}.html`;
+}
+
+export const THREADS_INDEX_PATH = 'threads/index.html';
+
+/**
+ * The extra facts one event type carries, as rows a reader can check against
+ * the linked artifact.
+ *
+ * context_changed ALWAYS prints top_provider.context_length on both sides.
+ * OpenRouter's `context_length` is the maximum across the providers currently
+ * routing a model, and 39 of 416 models in the capture stored today carry a
+ * top_provider value that disagrees with it, so the pair is what lets a reader
+ * see routing churn without the page asserting a cause. It is not an optional
+ * detail row: without it the sentence invites exactly the inference spec
+ * section 10.1 forbids.
+ *
+ * model_added prints its first-seen date only when the precision allows it.
+ * Spec section 10.1: a renderer may show a date only when precision_seconds is
+ * at or below the resolution it renders at. A daily-tier capture carries a
+ * worst-case error above one day, so a day is not a resolution it may render.
+ */
+function eventFactsHtml(event: DerivedEvent): string {
+  const rows: [string, string][] = [];
+  if (event.type === 'context_changed') {
+    rows.push(['top_provider.context_length before', event.topProviderFrom === null ? 'absent' : String(event.topProviderFrom)]);
+    rows.push(['top_provider.context_length after', event.topProviderTo === null ? 'absent' : String(event.topProviderTo)]);
+  }
+  if (event.type === 'model_added') {
+    rows.push(['catalog created', event.created === null ? 'absent' : String(event.created)]);
+    rows.push(['first-seen worst-case error', `${formatInt(event.precisionSeconds)} seconds`]);
+    const stamp = event.stamp;
+    rows.push([
+      'first seen in the catalog',
+      canRenderAt(event.precisionSeconds, DAY_SECONDS) && stamp !== null
+        ? utcDay(stamp.iso)
+        : 'not shown: the worst-case error is wider than a day',
+    ]);
+  }
+  if (event.type === 'model_removed') {
+    rows.push(['last seen present', event.lastSeen === null ? 'not recorded' : formatUtc(event.lastSeen.iso)]);
+  }
+  if (event.type === 'retirement_floor') {
+    rows.push(['parsed floor date', event.floorDate ?? 'the cell holds no date']);
+  }
+  if (rows.length === 0) return '';
+  const body = rows
+    .map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`)
+    .join('\n');
+  return `<div class="table-scroll"><table class="kv">\n${body}\n</table></div>`;
+}
+
+/**
+ * One event on a thread.
+ *
+ * The artifact link uses THIS EVENT'S commit sha, never HEAD and never a branch
+ * name. R5 overwrites one path in place, so a HEAD link would show whatever the
+ * artifact later became rather than the bytes the claim was read out of, and
+ * the evidence the auto-publish tier rests on would rot with every capture.
+ */
+function eventHtml(event: DerivedEvent, depth: number): string {
+  const { up } = links(depth);
+  const permalink = artifactPermalink(event.sha, event.path);
+  const facts = eventFactsHtml(event);
+  return `<li class="event">
+<p class="claim">${escapeHtml(claimSentence(event))}</p>
+<p class="event-meta"><span class="badge badge-type">${escapeHtml(event.type)}</span> ${stampHtml(event.stamp)} &middot; <a href="${up}${sourcePagePath(event.sourceId)}">${escapeHtml(event.sourceId)}</a> &middot; <a href="${up}${changePagePath(event.sha)}">${escapeHtml(event.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
+${facts}
+</li>`;
+}
+
+const KIND_LABEL: Record<string, string> = {
+  lab: 'Lab',
+  model: 'Model',
+  'api-surface': 'API surface',
+};
+
+/** One permalinked page per entity, listing that entity's events newest first. */
+export function renderThreadPage(thread: Thread): string {
+  const kind = KIND_LABEL[thread.entity.kind] ?? thread.entity.kind;
+  const body = `<p class="eyebrow">${escapeHtml(kind)} thread</p>
+<h1 class="sha-title">${escapeHtml(thread.entity.label)}</h1>
+<p class="sha-full">${escapeHtml(thread.entity.id)}</p>
+<dl class="facts">
+<div class="fact"><dt>Events</dt><dd class="big">${formatInt(thread.events.length)}</dd></div>
+<div class="fact"><dt>First event in the archive</dt><dd>${stampHtml(thread.firstSeen)}</dd></div>
+<div class="fact"><dt>Last activity</dt><dd>${stampHtml(thread.lastActivity)}</dd></div>
+</dl>
+<ol class="events">
+${thread.events.map((e) => eventHtml(e, 1)).join('\n')}
+</ol>`;
+  return layout({ title: `${thread.entity.label} - llm-catalog-archive`, depth: 1, body });
+}
+
+function threadRowHtml(thread: Thread): string {
+  return `<tr>
+<td class="mono"><a href="${escapeHtml(thread.slug)}.html">${escapeHtml(thread.entity.label)}</a></td>
+<td class="mono">${escapeHtml(thread.entity.kind)}</td>
+<td class="mono">${formatInt(thread.events.length)}</td>
+<td class="mono">${stampHtml(thread.lastActivity)}</td>
+</tr>`;
+}
+
+/**
+ * The threads index.
+ *
+ * Held events are listed here rather than hidden. An event whose entity could
+ * not be extracted mechanically is real and its artifact link resolves; what it
+ * lacks is a thread to sit on, and product spec section 4 says such an event is
+ * held rather than guessed at. A held count of zero is a claim about the
+ * extractor, so it is printed either way.
+ */
+export function renderThreadsIndex(set: ThreadSet): string {
+  const kinds: Thread['entity']['kind'][] = ['model', 'lab', 'api-surface'];
+  const sections = kinds
+    .map((kind) => {
+      const rows = set.threads.filter((t) => t.entity.kind === kind);
+      if (rows.length === 0) return '';
+      return `<section class="day">
+<h2>${escapeHtml(KIND_LABEL[kind] ?? kind)}</h2>
+<div class="table-scroll"><table class="changes">
+<thead><tr><th>Thread</th><th>Kind</th><th>Events</th><th>Last activity</th></tr></thead>
+<tbody>
+${rows.map(threadRowHtml).join('\n')}
+</tbody>
+</table></div>
+</section>`;
+    })
+    .filter((s) => s !== '')
+    .join('\n');
+
+  const totalEvents = set.threads.reduce((n, t) => n + t.events.length, 0);
+  const held =
+    set.held.length === 0
+      ? '<p class="note">No event was held. Every derived event attached to at least one entity.</p>'
+      : `<ol class="events">\n${set.held.map((e) => eventHtml(e, 1)).join('\n')}\n</ol>`;
+
+  const body = `<p class="eyebrow">Threads</p>
+<h1>Entity threads</h1>
+<p class="lede">${plural(set.threads.length, 'thread')} carrying ${plural(totalEvents, 'event attachment')}, most recently active first. An event attaches to every entity it names, so one price change appears on the model's thread and on its lab's.</p>
+${sections}
+<section class="day">
+<h2>Held</h2>
+<p class="note">${plural(set.held.length, 'event')} could not be attached to an entity mechanically, and nothing here guesses. Product spec section 4.</p>
+${held}
+</section>`;
+  return layout({ title: 'Threads - llm-catalog-archive', depth: 1, body });
 }

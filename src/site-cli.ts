@@ -10,9 +10,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildSite, writeSite } from './site/build.js';
-import { readChangeRecords } from './site/history.js';
+import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
 import { parseRetractions } from './site/retractions.js';
+import { loadSources } from './config.js';
+import { eventsFromChange, type Tier } from './derive/events.js';
+import { buildThreads } from './derive/threads.js';
 
 const cwd = process.cwd();
 const outDir = path.join(cwd, 'docs/site');
@@ -33,7 +36,30 @@ if (!fs.existsSync(ledger)) throw new Error('meta/retractions.jsonl is missing; 
 const retractions = parseRetractions(fs.readFileSync(ledger, 'utf8'));
 
 const records = readChangeRecords(cwd, retractions);
-const files = buildSite(records, siteUrl);
+
+// The tier decides an event's first-seen precision, and the precision decides
+// whether a date may render at all (spec section 10.1). It is read from the
+// same meta/sources.json the collector runs from, so a source moved between
+// tiers moves its events' precision with it.
+//
+// Absent, or absent from the file, defaults to `daily`, and that is NOT the
+// same shrug the ledger above refuses. Daily precision is wider than a day, so
+// the default renders fewer dates rather than more: it can cost a reader a
+// date they were entitled to, and it cannot produce a date the archive has not
+// earned. A missing ledger is the opposite, publishing a retracted change
+// unmarked, which is why that one stops the build and this one does not.
+const sourcesPath = path.join(cwd, 'meta/sources.json');
+const tiers = new Map<string, Tier>(
+  fs.existsSync(sourcesPath)
+    ? loadSources(JSON.parse(fs.readFileSync(sourcesPath, 'utf8'))).sources.map((s) => [s.id, s.tier])
+    : [],
+);
+const tierOf = (sourceId: string): Tier => tiers.get(sourceId) ?? 'daily';
+
+const events = readContentChanges(cwd, tierOf).flatMap(eventsFromChange);
+const threads = buildThreads(events);
+
+const files = buildSite(records, siteUrl, threads);
 writeSite(outDir, files);
 
 // A second .nojekyll, at docs/ rather than at docs/site/.
@@ -47,3 +73,6 @@ fs.writeFileSync(path.join(cwd, 'docs/.nojekyll'), '');
 
 const retracted = records.filter((r) => r.retraction !== null).length;
 console.log(`site: ${records.length} changes, ${files.length} files, ${retractions.length} retraction(s) in the ledger, ${retracted} matched`);
+console.log(
+  `derive: ${events.length} events, ${threads.threads.length} threads, ${threads.held.length} held`,
+);

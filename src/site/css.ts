@@ -250,6 +250,33 @@ table.changes tr:hover td { background: var(--panel-0); }
 .day:first-of-type { margin-top: 0; }
 .day h2 { font-family: var(--mono); font-size: 13px; color: var(--text-faint); letter-spacing: 0.08em; margin: 0 0 8px; }
 
+ol.events { list-style: none; margin: 0; padding: 0; }
+li.event {
+  background: var(--panel-0);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--orange);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  margin: 0 0 16px;
+}
+li.event .claim {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+li.event .event-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+li.event table.kv { margin-top: 16px; }
+.badge-type { background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line); }
+
 .grid-sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .source-card {
   background: var(--panel-0);

@@ -42,6 +42,7 @@ describe('buildSite: the file set', () => {
       'sources/claude-status.html',
       'sources/openai-llms-txt.html',
       'style.css',
+      'threads/index.html',
     ]);
   });
 
@@ -85,8 +86,17 @@ describe('buildSite: the file set', () => {
     expect(buildSite(twice).filter((f) => f.path.startsWith('sources/'))).toHaveLength(1);
   });
 
-  it('emits only the four fixed files for an archive with no changes yet', () => {
-    expect(buildSite([]).map((f) => f.path)).toEqual(['.nojekyll', 'style.css', 'index.html', 'feed.xml']);
+  // The threads index is fixed too, and it is emitted for an empty archive on
+  // purpose: a page saying nothing has been derived yet is a claim about the
+  // deriver, and the alternative is a navigation link that 404s on a quiet day.
+  it('emits only the five fixed files for an archive with no changes yet', () => {
+    expect(buildSite([]).map((f) => f.path)).toEqual([
+      '.nojekyll',
+      'style.css',
+      'index.html',
+      'feed.xml',
+      'threads/index.html',
+    ]);
   });
 });
 

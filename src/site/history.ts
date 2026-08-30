@@ -1,9 +1,10 @@
 /**
  * The only module in the site generator that reads git.
  *
- * Everything downstream of readChangeRecords is a pure function of the records
- * it returns, which is what lets the page guards be tested from literals
- * instead of from a fixture repository.
+ * Everything downstream of readChangeRecords and readContentChanges is a pure
+ * function of what they return, which is what lets the page guards and the
+ * whole of src/derive/ be tested from literals instead of from a fixture
+ * repository.
  *
  * Two things are read AT THE COMMIT rather than at HEAD, and both are the whole
  * point of the design:
@@ -21,12 +22,14 @@ import { git } from '../git.js';
 import { parseUnifiedDiff } from './diff.js';
 import {
   sourceIdFromPath,
+  stampFor,
   type ArtifactChange,
   type ChangeRecord,
   type Retraction,
   type SidecarView,
 } from './record.js';
 import { retractionFor } from './retractions.js';
+import type { ContentChange, Tier } from '../derive/events.js';
 
 /**
  * The field separator inside one `git log` line. A unit separator rather than a
@@ -193,4 +196,64 @@ export function readChangeRecords(cwd: string, retractions: Retraction[] = []): 
     });
   }
   return records;
+}
+
+/**
+ * The same commits readChangeRecords walks, carrying the FULL stored bytes on
+ * both sides instead of a rendered diff.
+ *
+ * This exists because the rendered diff cannot feed the deriver, and the reason
+ * is specific rather than stylistic: openrouter-models is 685 KB of JSON on ONE
+ * line, so parseUnifiedDiff sees exactly one removed line and one added line
+ * and MAX_LINE_CHARS cuts both at 300 characters. Every price and context
+ * transition in the archive lives past character 300. The deriver therefore
+ * reads blobs, and it reads them AT THE COMMIT and AT ITS PARENT, which is
+ * where R5's overwrite-in-place would otherwise destroy the before side.
+ *
+ * `tierOf` is passed in rather than read from meta/sources.json here, because
+ * this module reads git and nothing else, and the tier decides an event's
+ * first-seen precision.
+ */
+export function readContentChanges(cwd: string, tierOf: (sourceId: string) => Tier): ContentChange[] {
+  const log = git(['log', '--no-merges', `--format=%H${UNIT}%s`, '--', 'raw/'], cwd);
+  if (log.status !== 0) throw new Error(`git log failed: ${log.stderr}`);
+
+  const out: ContentChange[] = [];
+  for (const ref of parseLog(log.stdout)) {
+    const names = git(['show', '--format=', '--name-status', '--no-renames', ref.sha, '--', 'raw/'], cwd);
+    if (names.status !== 0) throw new Error(`git show --name-status failed for ${ref.sha}: ${names.stderr}`);
+
+    for (const entry of parseNameStatus(names.stdout)) {
+      if (!isArtifactPath(entry.path)) continue;
+      if (entry.status !== 'A' && entry.status !== 'M') continue;
+      const sourceId = sourceIdFromPath(entry.path);
+      if (sourceId === null) continue;
+
+      const after = blobAt(cwd, ref.sha, entry.path);
+      // Unreadable at its own commit means the archive does not hold what the
+      // name-status line says it holds, and a deriver cannot make an honest
+      // claim about bytes it could not read.
+      if (after === null) continue;
+
+      // The PARENT commit, not the previous commit that touched this path.
+      // They are the same content by R5 and the parent is what `git show`
+      // diffed against, so anything else would compare a diff to bytes that
+      // were never on the other side of it. Absent at the root commit, which
+      // is exactly the baseline case eventsFromChange emits nothing for.
+      const before = entry.status === 'A' ? null : blobAt(cwd, `${ref.sha}^`, entry.path);
+
+      out.push({
+        sourceId,
+        path: entry.path,
+        sha: ref.sha,
+        tier: tierOf(sourceId),
+        kind: entry.status === 'A' ? 'added' : 'modified',
+        before,
+        after,
+        stamp: stampFor(sidecarAt(cwd, ref.sha, sourceId)),
+        previousStamp: stampFor(sidecarAt(cwd, `${ref.sha}^`, sourceId)),
+      });
+    }
+  }
+  return out;
 }

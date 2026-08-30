@@ -6,8 +6,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { STYLESHEET } from './css.js';
-import { renderChangePage, renderFeed, renderIndexPage, renderSourcePage } from './render.js';
+import {
+  renderChangePage,
+  renderFeed,
+  renderIndexPage,
+  renderSourcePage,
+  renderThreadPage,
+  renderThreadsIndex,
+  threadPagePath,
+  THREADS_INDEX_PATH,
+} from './render.js';
 import { changePagePath, SITE_URL, sortByStampDesc, sourcePagePath, type ChangeRecord } from './record.js';
+import type { ThreadSet } from '../derive/threads.js';
 
 export type SiteFile = { path: string; contents: string };
 
@@ -24,7 +34,11 @@ export type SiteFile = { path: string; contents: string };
  * writes a second copy at docs/, which is where Pages actually looks when the
  * branch source is /docs.
  */
-export function buildSite(input: ChangeRecord[], siteUrl: string = SITE_URL): SiteFile[] {
+export function buildSite(
+  input: ChangeRecord[],
+  siteUrl: string = SITE_URL,
+  threads: ThreadSet = { threads: [], held: [] },
+): SiteFile[] {
   const records = sortByStampDesc(input);
 
   const files: SiteFile[] = [
@@ -41,6 +55,14 @@ export function buildSite(input: ChangeRecord[], siteUrl: string = SITE_URL): Si
   const sourceIds = [...new Set(records.flatMap((r) => r.artifacts.map((a) => a.sourceId)))].sort();
   for (const id of sourceIds) {
     files.push({ path: sourcePagePath(id), contents: renderSourcePage(id, records) });
+  }
+
+  // The threads layer, over the same commits. The per-commit pages above are
+  // not replaced by it: they are the evidence every claim on a thread links
+  // back to, and a thread with no resolvable evidence under it is an opinion.
+  files.push({ path: THREADS_INDEX_PATH, contents: renderThreadsIndex(threads) });
+  for (const thread of threads.threads) {
+    files.push({ path: threadPagePath(thread.slug), contents: renderThreadPage(thread) });
   }
 
   return files;
