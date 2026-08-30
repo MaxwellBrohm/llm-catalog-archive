@@ -935,11 +935,12 @@ stamping unchanged files. Re-check every hashed endpoint, not only the llms.txt
 family, against `ai-news-llmstxt-baseline-2026-08-26.tsv`. The OpenRouter
 sitemap is the endpoint the concern actually bit.
 
-**O2. kj-9 licence. Blocks committing that backfill tree at all** (section 10),
-not merely its use. An issue is drafted for approval before posting: short and
-factual, saying what the repo is being used for and asking for a licence
-declaration, with no pressure and no deadline. Fallback on refusal or silence is
-documented: drop the tree, accept models.dev's 2025-06-04 start.
+**O2. RESOLVED 2026-08-30: the maintainer declined.** Their reasoning is sound and
+accepted: the snapshots are OpenRouter's data, so they cannot grant rights to upstream
+material they do not own. The documented fallback applies exactly. `backfill/kj-9-openrouter`
+is dropped and was never committed, which is why a refusal costs nothing; that gating was the
+whole point. models.dev's 2025-06-04 is the backfill floor, and the 2024-10 to 2025-06 window
+is unavailable unless OpenRouter is asked directly.
 
 **O3. `modelsdev-commits` window.** A 20-entry feed observed spanning **24m29s**
 means even a 15-minute tier can lose commits, which rules out the fast-tier
