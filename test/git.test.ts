@@ -311,9 +311,28 @@ describe('pushWithRebase', () => {
    * to be followed by `refs/`, a `${` interpolation, or a ref name that runs to
    * the closing quote catches all four deletion refspecs and matches nothing in
    * any of the twelve files scanned.
+   *
+   * THE PLUS ARM GOT THE SAME TREATMENT, and for the same reason. It used to be
+   * a bare quote followed by a plus, which was fine while nothing in src/
+   * quoted a plus sign. src/site/ renders diffs, where `'+'` is the add gutter
+   * and `'+++ '` is a line git prints, so the bare form now matches seven times
+   * across three files that never touch git.
+   *
+   * Narrowing it costs nothing measurable. A force refspec is `+refs/...`,
+   * `+${branch}`, `+main` or `+main:main`, and all four are still caught, along
+   * with `+HEAD:refs/heads/main`, both force flags, the deletion refspec, the
+   * forcing config, and a plant in src/site/ rather than here: ten forms were
+   * put through tools/mutate.py against THIS test after the change and all ten
+   * came back KILLED. The run is quoted in the task report. What the arm no
+   * longer claims to catch is a plus followed by a quote, a space or another
+   * plus, none of which is a refspec.
+   *
+   * The `:` alternative at the end is not decoration. Without it `+main:main`
+   * escapes, because `[\w./-]` does not include a colon and the colon arm needs
+   * a quote immediately before its colon.
    */
   const FORCING =
-    /--(?:force|mirror|delete)\b|\bremote\.[\w.-]+\.(?:push|mirror)\b|['"`]\+|['"`]:(?:refs\/|\$\{|[A-Za-z_][\w./-]*['"`])|['"`]-[A-Za-z]*[fd][A-Za-z]*['"`]|\+refs\//;
+    /--(?:force|mirror|delete)\b|\bremote\.[\w.-]+\.(?:push|mirror)\b|['"`]\+(?:refs\/|\$\{|[A-Za-z_][\w./-]*(?:['"`]|:))|['"`]:(?:refs\/|\$\{|[A-Za-z_][\w./-]*['"`])|['"`]-[A-Za-z]*[fd][A-Za-z]*['"`]|\+refs\//;
 
   /**
    * Everything that can hand git an argument.

@@ -31,3 +31,31 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
       - run: npx tsx src/cli.ts --tier daily
         env: { LCA_BRANCH: main }
+      # After collection, not before: the read surface is generated FROM the
+      # commits the step above just made, so running it first would publish
+      # yesterday's history under today's run.
+      #
+      # `if: success() || failure()` rather than plain `success()`. The collect
+      # step exits non-zero once a source has failed its threshold, and that is
+      # exactly a run where the other twelve sources may still have committed
+      # real changes. Cancellation is deliberately excluded.
+      - name: Regenerate the read surface
+        if: success() || failure()
+        run: npx tsx src/site-cli.ts
+      - name: Commit the read surface when it changed
+        if: success() || failure()
+        run: |
+          set -euo pipefail
+          # Staged explicitly. Another step in this job may have left something
+          # else in the tree, and `git add -A` is how an unrelated change ships
+          # inside a generated-site commit.
+          git add -- docs/site
+          if git diff --cached --quiet -- docs/site; then
+            echo "::notice::docs/site is unchanged; nothing to commit"
+            exit 0
+          fi
+          git commit -q -m 'site: regenerated from git history' -- docs/site
+          # Rebase then push, never a forced push: R7 makes every permalink on
+          # the pages this step just generated permanent.
+          git pull --rebase origin main
+          git push origin main
