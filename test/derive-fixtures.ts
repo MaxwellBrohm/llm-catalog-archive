@@ -17,6 +17,9 @@ export const SHA = 'a69a068319de9dc9a7ab1049b411a562a026e7d5';
 export const ORIGIN: Stamp = { iso: '2026-08-28T08:08:22.000Z', kind: 'origin' };
 export const EARLIER: Stamp = { iso: '2026-08-27T08:08:22.000Z', kind: 'origin' };
 
+/** The runner's clock beside ORIGIN. Later than the origin, as it must be. */
+export const OBSERVED_AT = '2026-08-28T11:23:40.960Z';
+
 export type ModelSpec = {
   id: string;
   created?: number;
@@ -61,6 +64,7 @@ export function change(over: Partial<ContentChange> = {}): ContentChange {
     after: catalog([{ id: 'anthropic/claude-opus-5' }]),
     stamp: ORIGIN,
     previousStamp: EARLIER,
+    observedAt: OBSERVED_AT,
     ...over,
   };
 }

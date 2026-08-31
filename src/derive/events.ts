@@ -61,6 +61,17 @@ export type ContentChange = {
   stamp: Stamp | null;
   /** The sidecar stamp committed beside `before`. Null on a baseline. */
   previousStamp: Stamp | null;
+  /**
+   * The sidecar's `observed_at` beside `after`: the runner's wall clock at
+   * request completion.
+   *
+   * Separate from `stamp` because the two answer different questions. `stamp`
+   * prefers `origin_date`, which is when the PROVIDER generated the bytes, and
+   * that is the right thing to print. Cadence is about when WE looked, and
+   * `stale-while-revalidate` lets an edge serve bytes up to ~65 minutes past
+   * freshness, so an origin-to-origin interval is not an observation interval.
+   */
+  observedAt: string | null;
 };
 
 export type EventType =
@@ -137,31 +148,80 @@ export type DerivedEvent = Common &
 export const DAY_SECONDS = 86400;
 
 /**
- * How late a scheduled run may start before its capture is later than its cron.
+ * THE CONFIGURED POLL INTERVAL. A FLOOR ON THE ERROR, NOT AN ANSWER.
  *
- * UNMEASURED for this repository's own runner, and deliberately generous. The
- * only measurement in hand is the third-party archive's: kj-9's cron is `12 0
- * * * *` and 0 of 615 commits landed before 00:20 UTC, with a median delay of
- * about 2h18m. One hour is a bound this collector has not been observed to
- * exceed, and it must be replaced with a measurement once there is one. It is
- * an integer rather than an adjective in prose precisely so that replacing it
- * changes what renders.
+ * There used to be a `CRON_ALLOWANCE_SECONDS = 3600` here, guessing how late a
+ * scheduled run may start, and it was wrong by a factor of nearly eight.
+ * Measured from the live repository's own workflow history, `collect-fast.yml`
+ * asks for a run every 15 minutes and its actual gaps between scheduled runs
+ * were
+ * **116 minutes minimum, 363 median, 468 maximum** across the first five. GitHub
+ * deprioritises `schedule` events heavily, and a quarter-hourly cron is among
+ * the most throttled of all. So the old formula published 4,500 seconds against a measured
+ * worst case of 28,080, in the direction that overstates confidence, which is
+ * exactly the claim this project refuses to make about anybody else's data.
+ *
+ * A bigger constant would only be a re-guess. The archive already knows how
+ * often each source was actually captured, so precisionSecondsFrom derives the
+ * number from that evidence and this stays as the floor beneath it: no source
+ * is credited with resolution finer than its own configured interval, however
+ * lucky a run of captures looks.
  */
-export const CRON_ALLOWANCE_SECONDS = 3600;
-
 const TIER_INTERVAL_SECONDS: Record<Tier, number> = { fast: 900, daily: 86400 };
 
+export function precisionFloorFor(tier: Tier): number {
+  return TIER_INTERVAL_SECONDS[tier];
+}
+
 /**
- * Worst-case error on "first seen in the catalogue at", for a tier.
+ * The largest interval between consecutive observations, in seconds, or null
+ * when there are fewer than two usable ones.
  *
- * fast: 900 + 3600 = 4500, which is under a day, so a fast-tier first-seen may
- * render at day resolution. daily: 86400 + 3600 = 90000, which is over a day,
- * so a daily-tier first-seen may NOT. That is the whole
- * reason openrouter-models is a fast-tier source, and the reason the fast
- * workflow had to exist before this module was worth writing.
+ * Null rather than zero, and the caller turns it into an unbounded error. One
+ * observation bounds nothing: a model could have entered the catalogue at any
+ * point before it.
+ *
+ * Unparseable instants are dropped rather than treated as zero. Dropping one
+ * MERGES the two gaps either side of it into a larger one, so the error can
+ * only widen, which is the direction a missing measurement is allowed to move
+ * a claim.
  */
-export function precisionSecondsFor(tier: Tier): number {
-  return TIER_INTERVAL_SECONDS[tier] + CRON_ALLOWANCE_SECONDS;
+export function maxGapSeconds(instants: string[]): number | null {
+  const ms = instants.map((i) => Date.parse(i)).filter((n) => !Number.isNaN(n)).sort((a, b) => a - b);
+  if (ms.length < 2) return null;
+  let widest = 0;
+  for (let i = 1; i < ms.length; i++) {
+    const gap = (ms[i] ?? 0) - (ms[i - 1] ?? 0);
+    if (gap > widest) widest = gap;
+  }
+  return Math.round(widest / 1000);
+}
+
+/**
+ * Worst-case error on "first seen in the catalogue at", MEASURED.
+ *
+ * The largest observed gap between consecutive accepted captures of a source,
+ * floored at that source's configured tier interval. Self-correcting: if the
+ * platform throttles harder next month the claim widens on its own, with no
+ * constant to edit and nobody to remember to edit it.
+ *
+ * Infinity when the archive holds fewer than two captures of the source. That
+ * is not a formality. `canRenderAt` then refuses every resolution, so a source
+ * seen once never renders a first-seen date, which is the honest reading of one
+ * observation.
+ *
+ * WHAT THIS OVER-STATES, AND WHY THAT IS THE RIGHT DIRECTION. An accepted
+ * capture is a commit; a poll that fetched and found no change commits nothing.
+ * From `raw/` alone a run that happened and saw no change is indistinguishable
+ * from a run that never happened, so a stable source that was polled every 15
+ * minutes for three days reports three days rather than 15 minutes. That is the
+ * conservative reading of the ambiguity and it is taken deliberately: the
+ * flattering reading would credit an observation nobody can produce evidence of.
+ */
+export function precisionSecondsFrom(tier: Tier, instants: string[]): number {
+  const widest = maxGapSeconds(instants);
+  if (widest === null) return Infinity;
+  return Math.max(widest, precisionFloorFor(tier));
 }
 
 /**
@@ -254,7 +314,12 @@ export function parseCatalog(text: string): Map<string, CatalogEntry> {
   return out;
 }
 
-function catalogEvents(change: ContentChange, before: string, after: string): DerivedEvent[] {
+function catalogEvents(
+  change: ContentChange,
+  before: string,
+  after: string,
+  precisionSeconds: number,
+): DerivedEvent[] {
   const prev = parseCatalog(before);
   const next = parseCatalog(after);
   const out: DerivedEvent[] = [];
@@ -279,7 +344,7 @@ function catalogEvents(change: ContentChange, before: string, after: string): De
         type: 'model_added',
         modelId: id,
         created: now.created,
-        precisionSeconds: precisionSecondsFor(change.tier),
+        precisionSeconds,
       });
       // A model present for the first time has no previous values to compare
       // against, so nothing below it can fire for this id. Every remaining
@@ -574,18 +639,73 @@ function isDocIndexSource(sourceId: string): boolean {
  * feeds are real changes and the change pages still show them, but nothing here
  * knows how to turn a status feed entry into a typed claim, and inventing one
  * is what this module exists not to do.
+ *
+ * `precisionSeconds` DEFAULTS TO UNBOUNDED on purpose. One change carries no
+ * cadence evidence, and the default a caller gets by forgetting has to be the
+ * one that cannot overstate confidence: unbounded renders no date at all.
+ * deriveEvents below is the entry point that measures the real number.
  */
-export function eventsFromChange(change: ContentChange): DerivedEvent[] {
+export function eventsFromChange(
+  change: ContentChange,
+  precisionSeconds: number = Infinity,
+): DerivedEvent[] {
   if (change.kind === 'added') return [];
   const before = change.before;
   // Belt and braces against a caller that says 'modified' with no before: the
   // alternative is every entry in the after being reported as newly added.
   if (before === null) return [];
 
-  if (change.sourceId === CATALOG_SOURCE_ID) return catalogEvents(change, before, change.after);
+  if (change.sourceId === CATALOG_SOURCE_ID) return catalogEvents(change, before, change.after, precisionSeconds);
   if (change.sourceId === DEPRECATIONS_SOURCE_ID) return retirementEvents(change, before, change.after);
   if (isDocIndexSource(change.sourceId)) return docEvents(change, before, change.after);
   return [];
+}
+
+/**
+ * When each source was actually observed, in the order the archive holds them.
+ *
+ * Every accepted capture of a source is one commit that changed its path, and
+ * readContentChanges yields exactly one ContentChange per such commit, so the
+ * changes' own observation instants ARE the source's capture history. Baselines
+ * included: a baseline emits no events but it is still an observation, and
+ * leaving it out would widen every gap that starts at it.
+ *
+ * `observedAt` first, falling back to the rendered stamp. See ContentChange.
+ */
+export function observationsBySource(changes: ContentChange[]): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const change of changes) {
+    const instant = change.observedAt ?? change.stamp?.iso ?? null;
+    if (instant === null) continue;
+    const seen = out.get(change.sourceId);
+    if (seen === undefined) out.set(change.sourceId, [instant]);
+    else seen.push(instant);
+  }
+  return out;
+}
+
+/** The measured worst-case first-seen error per source. */
+export function precisionBySource(changes: ContentChange[]): Map<string, number> {
+  const tiers = new Map<string, Tier>(changes.map((c) => [c.sourceId, c.tier]));
+  const out = new Map<string, number>();
+  for (const [sourceId, instants] of observationsBySource(changes)) {
+    out.set(sourceId, precisionSecondsFrom(tiers.get(sourceId) ?? 'daily', instants));
+  }
+  return out;
+}
+
+/**
+ * Every event the archive supports, with each one carrying its source's
+ * MEASURED precision. The entry point the generator calls.
+ *
+ * Precision is computed across the whole set before any event is built, because
+ * it is a property of the source's capture history and not of the one commit an
+ * event came from. A source absent from the map has no usable observation at
+ * all, and gets unbounded.
+ */
+export function deriveEvents(changes: ContentChange[]): DerivedEvent[] {
+  const precision = precisionBySource(changes);
+  return changes.flatMap((c) => eventsFromChange(c, precision.get(c.sourceId) ?? Infinity));
 }
 
 // ---------------------------------------------------------------------------

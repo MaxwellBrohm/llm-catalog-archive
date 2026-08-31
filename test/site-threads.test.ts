@@ -6,15 +6,33 @@
 import { describe, it, expect } from 'vitest';
 import { renderThreadPage, renderThreadsIndex, threadPagePath, THREADS_INDEX_PATH } from '../src/site/render.js';
 import { buildThreads } from '../src/derive/threads.js';
-import { eventsFromChange } from '../src/derive/events.js';
+import { deriveEvents, eventsFromChange } from '../src/derive/events.js';
 import { buildSite } from '../src/site/build.js';
 import { catalog, change, SHA } from './derive-fixtures.js';
 import { record } from './site-fixtures.js';
 
+/**
+ * Two captures of one fast-tier source 7h48m apart, which is the worst gap
+ * measured on the live runner. deriveEvents rather than eventsFromChange,
+ * because precision is a property of a source's capture history and a single
+ * change carries none.
+ */
 const addedSet = buildThreads(
-  eventsFromChange(
-    change({ tier: 'fast', before: catalog([]), after: catalog([{ id: 'anthropic/claude-opus-5' }]) }),
-  ),
+  deriveEvents([
+    change({
+      tier: 'fast',
+      kind: 'added',
+      before: null,
+      observedAt: '2026-08-28T00:20:00.000Z',
+      after: catalog([]),
+    }),
+    change({
+      tier: 'fast',
+      observedAt: '2026-08-28T08:08:00.000Z',
+      before: catalog([]),
+      after: catalog([{ id: 'anthropic/claude-opus-5' }]),
+    }),
+  ]),
 );
 
 const contextSet = buildThreads(
@@ -107,30 +125,78 @@ describe('renderThreadPage', () => {
     expect(renderThreadPage(observed)).toContain('<span class="badge badge-observed">observed</span>');
   });
 
-  it('shows the first-seen day for a fast tier addition, whose error is under a day', () => {
+  it('shows the first-seen day when the measured error is under a day', () => {
     expect(renderThreadPage(modelThread)).toContain(
       '<th>first seen in the catalog</th><td>2026-08-28</td>',
     );
   });
 
-  // The precision field is load-bearing rather than decorative: a daily tier
-  // capture carries a worst-case error above one day, so a day is not a
-  // resolution the renderer may print.
-  it('refuses the first-seen day for a daily tier addition, whose error is over a day', () => {
-    const daily = buildThreads(
-      eventsFromChange(
-        change({ tier: 'daily', before: catalog([]), after: catalog([{ id: 'anthropic/claude-opus-5' }]) }),
-      ),
+  // The precision field is load-bearing rather than decorative. Four days
+  // between two accepted captures is four days of first-seen error, whatever
+  // the cron asked for.
+  it('refuses the first-seen day when the measured error is over a day', () => {
+    const wide = buildThreads(
+      deriveEvents([
+        change({
+          tier: 'fast',
+          kind: 'added',
+          before: null,
+          observedAt: '2026-08-24T08:08:00.000Z',
+          after: catalog([]),
+        }),
+        change({
+          tier: 'fast',
+          observedAt: '2026-08-28T08:08:00.000Z',
+          before: catalog([]),
+          after: catalog([{ id: 'anthropic/claude-opus-5' }]),
+        }),
+      ]),
     ).threads[0];
-    if (daily === undefined) throw new Error('fixture built no thread');
-    expect(renderThreadPage(daily)).toContain(
+    if (wide === undefined) throw new Error('fixture built no thread');
+    expect(renderThreadPage(wide)).toContain(
       '<th>first seen in the catalog</th><td>not shown: the worst-case error is wider than a day</td>',
     );
   });
 
-  it('prints the worst-case error as the integer it is', () => {
+  it('prints the measured worst-case error, not the configured poll interval', () => {
     expect(renderThreadPage(modelThread)).toContain(
-      '<th>first-seen worst-case error</th><td>4,500 seconds</td>',
+      "<th>first-seen worst-case error</th><td>28,080 seconds, measured from this source&#39;s capture history</td>",
+    );
+  });
+
+  // Infinity through formatInt renders "Inf,ini,ty". The unbounded case is a
+  // real value of this field, so it is spelled out and says why.
+  it('spells out an unbounded error rather than formatting infinity as an integer', () => {
+    const once = buildThreads(
+      deriveEvents([
+        change({
+          tier: 'fast',
+          observedAt: '2026-08-28T08:08:00.000Z',
+          before: catalog([]),
+          after: catalog([{ id: 'anthropic/claude-opus-5' }]),
+        }),
+      ]),
+    ).threads[0];
+    if (once === undefined) throw new Error('fixture built no thread');
+    expect(renderThreadPage(once)).toContain(
+      '<th>first-seen worst-case error</th><td>unbounded: the archive holds one capture of this source</td>',
+    );
+  });
+
+  it('refuses the first-seen day when the error is unbounded', () => {
+    const once = buildThreads(
+      deriveEvents([
+        change({
+          tier: 'fast',
+          observedAt: '2026-08-28T08:08:00.000Z',
+          before: catalog([]),
+          after: catalog([{ id: 'anthropic/claude-opus-5' }]),
+        }),
+      ]),
+    ).threads[0];
+    if (once === undefined) throw new Error('fixture built no thread');
+    expect(renderThreadPage(once)).toContain(
+      '<th>first seen in the catalog</th><td>not shown: the worst-case error is wider than a day</td>',
     );
   });
 

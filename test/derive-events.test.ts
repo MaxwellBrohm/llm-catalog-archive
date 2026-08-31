@@ -7,7 +7,12 @@ import {
   parseDeprecationTable,
   parseDocIndex,
   parseFloorDate,
-  precisionSecondsFor,
+  deriveEvents,
+  maxGapSeconds,
+  observationsBySource,
+  precisionBySource,
+  precisionFloorFor,
+  precisionSecondsFrom,
   type DerivedEvent,
 } from '../src/derive/events.js';
 import { catalog, change, deprecationsDoc, docChange, EARLIER, SHA } from './derive-fixtures.js';
@@ -121,18 +126,21 @@ describe('model_added', () => {
     expect(only(events, 'model_added').created).toBe(1787752741);
   });
 
-  it('carries the fast tier first-seen worst-case error', () => {
+  it('carries the worst-case first-seen error handed to it', () => {
+    const events = eventsFromChange(
+      change({ tier: 'fast', before: catalog([]), after: catalog([{ id: 'z-ai/glm-5.3' }]) }),
+      28080,
+    );
+    expect(only(events, 'model_added').precisionSeconds).toBe(28080);
+  });
+
+  // The default a caller gets by forgetting has to be the one that cannot
+  // overstate confidence. One change carries no cadence evidence at all.
+  it('carries an unbounded error when no measurement was handed to it', () => {
     const events = eventsFromChange(
       change({ tier: 'fast', before: catalog([]), after: catalog([{ id: 'z-ai/glm-5.3' }]) }),
     );
-    expect(only(events, 'model_added').precisionSeconds).toBe(4500);
-  });
-
-  it('carries the daily tier first-seen worst-case error', () => {
-    const events = eventsFromChange(
-      change({ tier: 'daily', before: catalog([]), after: catalog([{ id: 'z-ai/glm-5.3' }]) }),
-    );
-    expect(only(events, 'model_added').precisionSeconds).toBe(90000);
+    expect(only(events, 'model_added').precisionSeconds).toBe(Infinity);
   });
 
   // A model seen for the first time has no previous values, so a differ that
@@ -512,28 +520,249 @@ describe('retirement_floor', () => {
   });
 });
 
-describe('precision', () => {
-  it('gives the fast tier its poll interval plus the cron allowance', () => {
-    expect(precisionSecondsFor('fast')).toBe(4500);
+describe('the tier floor', () => {
+  // A FLOOR, not an answer. The number that used to live here was the interval
+  // plus a guessed 3,600 second cron allowance, and the measured worst case for
+  // the fast tier is 28,080 seconds.
+  it('is the fast tier poll interval, with nothing added to it', () => {
+    expect(precisionFloorFor('fast')).toBe(900);
   });
 
-  it('gives the daily tier its poll interval plus the cron allowance', () => {
-    expect(precisionSecondsFor('daily')).toBe(90000);
+  it('is the daily tier poll interval, with nothing added to it', () => {
+    expect(precisionFloorFor('daily')).toBe(86400);
+  });
+});
+
+describe('maxGapSeconds', () => {
+  it('is the widest interval between consecutive observations', () => {
+    expect(
+      maxGapSeconds([
+        '2026-08-26T00:00:00.000Z',
+        '2026-08-26T00:15:00.000Z',
+        '2026-08-26T08:00:00.000Z',
+      ]),
+    ).toBe(27900);
   });
 
+  it('sorts before measuring, so input order cannot shrink a gap', () => {
+    expect(
+      maxGapSeconds([
+        '2026-08-26T08:00:00.000Z',
+        '2026-08-26T00:00:00.000Z',
+        '2026-08-26T00:15:00.000Z',
+      ]),
+    ).toBe(27900);
+  });
+
+  // The widest gap, not the most recent one. A run of captures that settles
+  // down after a long outage still carries the outage as its worst case.
+  it('is the widest gap even when a later gap is narrower', () => {
+    expect(
+      maxGapSeconds([
+        '2026-08-26T00:00:00.000Z',
+        '2026-08-26T08:00:00.000Z',
+        '2026-08-26T08:15:00.000Z',
+      ]),
+    ).toBe(28800);
+  });
+
+  it('is null for a single observation, which bounds nothing', () => {
+    expect(maxGapSeconds(['2026-08-26T00:00:00.000Z'])).toBeNull();
+  });
+
+  it('is null for no observations at all', () => {
+    expect(maxGapSeconds([])).toBeNull();
+  });
+
+  // Dropping an unreadable instant merges the two gaps either side of it, so
+  // the error can only widen. Treating it as zero would narrow the claim on the
+  // strength of a value nobody could read.
+  it('merges the gaps either side of an unreadable instant rather than zeroing it', () => {
+    expect(
+      maxGapSeconds(['2026-08-26T00:00:00.000Z', 'not a date', '2026-08-26T08:00:00.000Z']),
+    ).toBe(28800);
+  });
+});
+
+describe('precisionSecondsFrom', () => {
+  // The point of the whole change. The configured fast interval is 900 seconds
+  // and the measured worst case is 28,080, and the published number has to be
+  // the measurement.
+  it('reports the measured gap, not the configured interval, when the gap is wider', () => {
+    expect(
+      precisionSecondsFrom('fast', ['2026-08-26T00:00:00.000Z', '2026-08-26T07:48:00.000Z']),
+    ).toBe(28080);
+  });
+
+  it('reports the measured gap for a daily source whose captures fell four days apart', () => {
+    expect(
+      precisionSecondsFrom('daily', ['2026-08-26T00:00:00.000Z', '2026-08-30T00:00:00.000Z']),
+    ).toBe(345600);
+  });
+
+  // Nothing is credited with resolution finer than its own configured interval,
+  // however lucky a run of captures looks.
+  it('floors a run of captures tighter than the configured interval at the interval', () => {
+    expect(
+      precisionSecondsFrom('fast', ['2026-08-26T00:00:00.000Z', '2026-08-26T00:01:00.000Z']),
+    ).toBe(900);
+  });
+
+  it('is unbounded for a source seen exactly once', () => {
+    expect(precisionSecondsFrom('fast', ['2026-08-26T00:00:00.000Z'])).toBe(Infinity);
+  });
+
+  it('is unbounded for a source with no usable observation', () => {
+    expect(precisionSecondsFrom('fast', [])).toBe(Infinity);
+  });
+});
+
+describe('canRenderAt', () => {
   // Spec section 10.1: a renderer may show a date only when precision_seconds
   // is at or below the resolution it renders at. This is what makes the field
   // load-bearing rather than decorative.
-  it('allows a day resolution for a fast tier first-seen', () => {
-    expect(canRenderAt(precisionSecondsFor('fast'), DAY_SECONDS)).toBe(true);
+  it('allows a day resolution for an error measured under a day', () => {
+    expect(canRenderAt(28080, DAY_SECONDS)).toBe(true);
   });
 
-  it('forbids a day resolution for a daily tier first-seen', () => {
-    expect(canRenderAt(precisionSecondsFor('daily'), DAY_SECONDS)).toBe(false);
+  it('forbids a day resolution for an error measured over a day', () => {
+    expect(canRenderAt(345600, DAY_SECONDS)).toBe(false);
+  });
+
+  it('forbids every resolution for an unbounded error', () => {
+    expect(canRenderAt(Infinity, DAY_SECONDS)).toBe(false);
   });
 
   it('allows a resolution exactly equal to the precision', () => {
     expect(canRenderAt(86400, 86400)).toBe(true);
+  });
+});
+
+describe('observationsBySource', () => {
+  it('collects every capture of a source, baselines included', () => {
+    const changes = [
+      change({ kind: 'added', before: null, observedAt: '2026-08-26T00:00:00.000Z' }),
+      change({ observedAt: '2026-08-30T00:00:00.000Z' }),
+    ];
+    expect(observationsBySource(changes).get('openrouter-models')).toEqual([
+      '2026-08-26T00:00:00.000Z',
+      '2026-08-30T00:00:00.000Z',
+    ]);
+  });
+
+  it('keeps two sources apart', () => {
+    const changes = [
+      change({ observedAt: '2026-08-26T00:00:00.000Z' }),
+      change({ sourceId: 'openai-llms-txt', observedAt: '2026-08-30T00:00:00.000Z' }),
+    ];
+    expect([...observationsBySource(changes).keys()]).toEqual([
+      'openrouter-models',
+      'openai-llms-txt',
+    ]);
+  });
+
+  // observed_at is the runner's clock. origin_date is when the provider made
+  // the bytes, and stale-while-revalidate lets those two drift apart by an hour.
+  it('prefers observed_at over the rendered stamp', () => {
+    const changes = [change({ observedAt: '2026-08-30T00:00:00.000Z' })];
+    expect(observationsBySource(changes).get('openrouter-models')).toEqual([
+      '2026-08-30T00:00:00.000Z',
+    ]);
+  });
+
+  it('falls back to the rendered stamp when no observed_at was stored', () => {
+    const changes = [change({ observedAt: null })];
+    expect(observationsBySource(changes).get('openrouter-models')).toEqual([
+      '2026-08-28T08:08:22.000Z',
+    ]);
+  });
+
+  it('skips a capture with no usable instant at all', () => {
+    const changes = [change({ observedAt: null, stamp: null })];
+    expect(observationsBySource(changes).size).toBe(0);
+  });
+});
+
+describe('deriveEvents', () => {
+  // The end-to-end claim: an event's published precision is measured from its
+  // own source's capture history, and a configured interval narrower than the
+  // real gap must not survive the trip.
+  it('gives an event the measured gap of its source rather than the tier interval', () => {
+    const changes = [
+      change({ kind: 'added', before: null, observedAt: '2026-08-26T00:00:00.000Z' }),
+      change({
+        observedAt: '2026-08-30T00:00:00.000Z',
+        before: catalog([]),
+        after: catalog([{ id: 'z-ai/glm-5.3' }]),
+      }),
+    ];
+    const added = deriveEvents(changes).find((e) => e.type === 'model_added');
+    expect(added?.type === 'model_added' ? added.precisionSeconds : null).toBe(345600);
+  });
+
+  it('gives an event an unbounded precision when its source was seen once', () => {
+    const changes = [
+      change({
+        observedAt: '2026-08-30T00:00:00.000Z',
+        stamp: null,
+        before: catalog([]),
+        after: catalog([{ id: 'z-ai/glm-5.3' }]),
+      }),
+    ];
+    const added = deriveEvents(changes).find((e) => e.type === 'model_added');
+    expect(added?.type === 'model_added' ? added.precisionSeconds : null).toBe(Infinity);
+  });
+
+  it('measures each source separately', () => {
+    const changes = [
+      change({ kind: 'added', before: null, observedAt: '2026-08-29T00:00:00.000Z' }),
+      change({
+        observedAt: '2026-08-30T00:00:00.000Z',
+        before: catalog([]),
+        after: catalog([{ id: 'z-ai/glm-5.3' }]),
+      }),
+      change({ sourceId: 'openai-llms-txt', kind: 'added', before: null, observedAt: '2026-08-26T00:00:00.000Z' }),
+      change({ sourceId: 'openai-llms-txt', observedAt: '2026-08-30T00:00:00.000Z' }),
+    ];
+    expect(precisionBySource(changes).get('openai-llms-txt')).toBe(345600);
+  });
+
+  // The catalogue source's own gap is one day here and another source in the
+  // same set has four. An event may only ever carry its OWN source's number.
+  it('gives an event its own source gap when another source in the set is wider', () => {
+    const changes = [
+      change({ kind: 'added', before: null, observedAt: '2026-08-29T00:00:00.000Z' }),
+      change({
+        observedAt: '2026-08-30T00:00:00.000Z',
+        before: catalog([]),
+        after: catalog([{ id: 'z-ai/glm-5.3' }]),
+      }),
+      change({ sourceId: 'openai-llms-txt', kind: 'added', before: null, observedAt: '2026-08-26T00:00:00.000Z' }),
+      change({ sourceId: 'openai-llms-txt', observedAt: '2026-08-30T00:00:00.000Z' }),
+    ];
+    const added = deriveEvents(changes).find((e) => e.type === 'model_added');
+    expect(added?.type === 'model_added' ? added.precisionSeconds : null).toBe(86400);
+  });
+
+  // Not in the map at all, which is different from being in it with one entry.
+  // The fallback for a source with no readable observation must be unbounded,
+  // not the configured interval.
+  it('gives an event an unbounded precision when its source has no readable observation', () => {
+    const changes = [
+      change({
+        observedAt: null,
+        stamp: null,
+        before: catalog([]),
+        after: catalog([{ id: 'z-ai/glm-5.3' }]),
+      }),
+    ];
+    const added = deriveEvents(changes).find((e) => e.type === 'model_added');
+    expect(added?.type === 'model_added' ? added.precisionSeconds : null).toBe(Infinity);
+  });
+
+  it('derives the same events it did before precision was measured', () => {
+    const changes = [change({ before: catalog([]), after: catalog([{ id: 'z-ai/glm-5.3' }]) })];
+    expect(deriveEvents(changes).map((e) => e.type)).toEqual(['model_added']);
   });
 });
 

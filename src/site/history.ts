@@ -242,6 +242,7 @@ export function readContentChanges(cwd: string, tierOf: (sourceId: string) => Ti
       // is exactly the baseline case eventsFromChange emits nothing for.
       const before = entry.status === 'A' ? null : blobAt(cwd, `${ref.sha}^`, entry.path);
 
+      const sidecar = sidecarAt(cwd, ref.sha, sourceId);
       out.push({
         sourceId,
         path: entry.path,
@@ -250,8 +251,12 @@ export function readContentChanges(cwd: string, tierOf: (sourceId: string) => Ti
         kind: entry.status === 'A' ? 'added' : 'modified',
         before,
         after,
-        stamp: stampFor(sidecarAt(cwd, ref.sha, sourceId)),
+        stamp: stampFor(sidecar),
         previousStamp: stampFor(sidecarAt(cwd, `${ref.sha}^`, sourceId)),
+        // Read straight off the sidecar rather than through stampFor, which
+        // prefers origin_date. Cadence is when the runner looked, not when the
+        // provider generated the bytes.
+        observedAt: sidecar?.observedAt ?? null,
       });
     }
   }

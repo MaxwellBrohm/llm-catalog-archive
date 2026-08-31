@@ -377,7 +377,16 @@ function eventFactsHtml(event: DerivedEvent): string {
   }
   if (event.type === 'model_added') {
     rows.push(['catalog created', event.created === null ? 'absent' : String(event.created)]);
-    rows.push(['first-seen worst-case error', `${formatInt(event.precisionSeconds)} seconds`]);
+    // Infinity is a real value of this field: a source the archive has captured
+    // once bounds nothing. formatInt would render it "Inf,ini,ty", so the
+    // unbounded case is spelled out instead, and it says WHY rather than
+    // printing a number a reader would try to compare.
+    rows.push([
+      'first-seen worst-case error',
+      Number.isFinite(event.precisionSeconds)
+        ? `${formatInt(event.precisionSeconds)} seconds, measured from this source's capture history`
+        : 'unbounded: the archive holds one capture of this source',
+    ]);
     const stamp = event.stamp;
     rows.push([
       'first seen in the catalog',

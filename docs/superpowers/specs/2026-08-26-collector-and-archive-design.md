@@ -182,6 +182,28 @@ The 300s TTL sets the floor at 5 minutes. 15 is chosen above it to leave
 headroom for edge `age` skew (section 9) and to keep Actions-minute usage at
 roughly 96 runs a day rather than 288.
 
+**What we ask for and what the platform delivers are different numbers, and the
+spec carries both.** The reasoning above is about intent and it is still
+correct. It is demonstrably wrong about outcome. Measured from
+`collect-fast.yml`'s own workflow history over its first five scheduled runs:
+
+| | gap between consecutive scheduled runs |
+|---|---|
+| minimum | 116 minutes |
+| median | 363 minutes |
+| maximum | 468 minutes |
+
+GitHub deprioritises `schedule` events, and a quarter-hourly cron is among the
+most heavily throttled. So the configured cadence is 15 minutes and the observed
+cadence is roughly six hours, with a worst case of 7h48m.
+
+**The cron stays at 15 minutes.** Relaxing it to hourly would not produce more
+runs; it would only make the configuration agree with the throttling, which
+teaches the wrong lesson and gives up the runs we do get. What changes is the
+claim: nothing published may quote the configured interval as though it were the
+observed one. Section 10.1's `precision_seconds` is derived from the archive's
+own capture history for exactly this reason.
+
 Nothing else is in the fast tier **today**. `modelsdev-commits` is the one
 source with measured sub-daily change; O3 resolves it, provisionally via
 `git fetch` rather than a tier move.
@@ -772,12 +794,49 @@ The field is `first_seen_in_catalog_at`, literally, with siblings:
 | `precision_seconds` | integer | worst-case error, machine-comparable |
 | `precision_note` | string | human explanation |
 
-`precision_seconds` values: kj-9 backfill **518400** (6 days); models.dev
-backfill its own measured bound; fast tier 900 plus a cron-delay allowance;
-daily tier 86400 plus the same. **Any renderer may show a date only when
-`precision_seconds` is at or below the resolution it renders at.** That is what
-makes the field load-bearing rather than decorative, and it is why the caveat
-must be an integer rather than an adjective in prose.
+**`precision_seconds` is MEASURED FROM THE ARCHIVE, never configured.** For a
+go-forward source it is the largest observed gap between consecutive accepted
+captures of that source, floored at that source's configured tier interval, and
+**unbounded when the archive holds fewer than two captures of it**. kj-9
+backfill keeps its own measured bound of **518400** (6 days); models.dev
+backfill likewise.
+
+An earlier revision of this section said "fast tier 900 plus a cron-delay
+allowance; daily tier 86400 plus the same." That was a guess, and the
+implementation of it published 4,500 seconds for the fast tier against a
+measured worst case of **28,080**. Being wrong by a factor of six in the
+direction that overstates confidence is the exact failure this document forbids
+elsewhere about other people's data, and a bigger constant would only have been
+a re-guess. A number derived from the archive is self-correcting: if the
+platform throttles harder next month the published claim widens on its own, with
+nothing to edit.
+
+**Known over-statement, taken deliberately.** An accepted capture is a commit,
+and a poll that fetched and found no change commits nothing, so from `raw/`
+alone a run that happened and saw no change cannot be told apart from a run that
+never happened. A stable source polled every 15 minutes for three days therefore
+reports three days. That is the conservative reading of an ambiguity we cannot
+resolve from the archive, and it is preferred to the flattering one, which would
+credit an observation no artifact can evidence.
+
+**Any renderer may show a date only when `precision_seconds` is at or below the
+resolution it renders at.** That is what makes the field load-bearing rather
+than decorative, and it is why the caveat must be an integer rather than an
+adjective in prose. Under the measured values no source in the archive today
+renders a first-seen date at day resolution.
+
+Measured values, 2026-08-31:
+
+| Source | `precision_seconds` |
+|---|---|
+| `openrouter-models` | 348766 |
+| `openai-llms-txt` | 140286 |
+| `openrouter-llms-txt` | 140286 |
+| `together-llms-txt` | 140284 |
+| `perplexity-llms-txt` | 134430 |
+| `claude-status` | 92089 |
+| `modelsdev-commits` | 92089 |
+| `anthropic-deprecations`, `claude-llms-txt`, `groq-llms-full-txt`, `mistral-llms-txt` | unbounded (one capture) |
 
 Not `launched_at`, not `released_at`, not bare `first_seen`. A field named
 `launched_at` will eventually be rendered as a launch date by something

@@ -14,7 +14,7 @@ import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
 import { parseRetractions } from './site/retractions.js';
 import { loadSources } from './config.js';
-import { eventsFromChange, type Tier } from './derive/events.js';
+import { deriveEvents, precisionBySource, type Tier } from './derive/events.js';
 import { buildThreads } from './derive/threads.js';
 
 const cwd = process.cwd();
@@ -56,7 +56,8 @@ const tiers = new Map<string, Tier>(
 );
 const tierOf = (sourceId: string): Tier => tiers.get(sourceId) ?? 'daily';
 
-const events = readContentChanges(cwd, tierOf).flatMap(eventsFromChange);
+const contentChanges = readContentChanges(cwd, tierOf);
+const events = deriveEvents(contentChanges);
 const threads = buildThreads(events);
 
 const files = buildSite(records, siteUrl, threads);
@@ -76,3 +77,9 @@ console.log(`site: ${records.length} changes, ${files.length} files, ${retractio
 console.log(
   `derive: ${events.length} events, ${threads.threads.length} threads, ${threads.held.length} held`,
 );
+// The measured first-seen error per source, printed because it is a published
+// claim and a number nobody looks at is a number nobody notices going wrong.
+for (const [sourceId, seconds] of [...precisionBySource(contentChanges)].sort()) {
+  const shown = Number.isFinite(seconds) ? `${seconds}s` : 'unbounded (one capture)';
+  console.log(`precision: ${sourceId} ${shown}`);
+}
