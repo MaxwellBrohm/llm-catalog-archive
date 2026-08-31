@@ -926,12 +926,13 @@ describe('the configured canaries', () => {
     expect(textSources.filter((s) => (s.invariants.canary ?? '').length < 10).map((s) => s.id)).toEqual([]);
   });
 
-  // Named rather than silently skipped. `xai-llms-txt` ships `pending`, so the
-  // collector has never fetched it and there is nothing under raw/ to check its
-  // canary against. A filter that quietly dropped it would be a coverage gap
-  // that looks like coverage.
-  it('has exactly one text source with no archived capture to check against', () => {
-    expect(textSources.filter((s) => !fs.existsSync(s.path)).map((s) => s.id)).toEqual(['xai-llms-txt']);
+  // The `archived` filter below is a filter, and a filter that quietly dropped
+  // a source would be a coverage gap that looks like coverage. So the set it
+  // drops is named. It is empty now: `xai-llms-txt` was the one entry here
+  // while it shipped `pending`, and activating it gave the collector something
+  // to archive on its first run.
+  it('has an archived capture for every text source, so the canary loop skips none', () => {
+    expect(textSources.filter((s) => !fs.existsSync(s.path)).map((s) => s.id)).toEqual([]);
   });
 
   const archived = textSources.filter((s) => fs.existsSync(s.path));

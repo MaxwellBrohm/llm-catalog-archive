@@ -32,6 +32,7 @@ exists.
 | `volatile-anthropic-sitemap-a.xml` | 68,273 | www.anthropic.com/sitemap.xml | **the pair**: two live edge generations minutes apart, byte-unequal, with an identical `<loc>` set and 25 of 522 `lastmod` values oscillating between two stamps | `cmp` fails; the `<loc>` sets are equal |
 | `volatile-anthropic-sitemap-b.xml` | 68,273 | www.anthropic.com/sitemap.xml | the other half of that pair | as above |
 | `healthy-openai-status.atom` | 84,279 | status.openai.com/history.atom | 84 Atom entries, a feed-level `<updated>` that re-stamps per generation, and a component list repeated in `summary` and `content` | 84 `<entry>`, 592 `<li>` |
+| `volatile-claude-status.atom` | 33,371 | status.claude.com/history.atom | 25 entries, and exactly one `<updated>` outside them: the feed-level line the `mask` predicate exists to remove | 26 `<updated>`, 25 of them inside an `<entry>` |
 
 `volatile-anthropic-sitemap-a.xml` and `-b.xml` are captured four minutes apart
 on 2026-08-31 and are the only fixture PAIR here whose property is a
@@ -54,3 +55,9 @@ consequence: the live arena.ai leaderboard carries the same marker, so
 `checkHealth` rejects 5.2 MB of real content, and dropping the marker from the
 denylist would leave this fixture undetected. See `arena-leaderboard`'s notes
 in `meta/sources.json`.
+
+`volatile-claude-status.atom` is a FROZEN copy of `raw/claude-status/`. The
+mask tests must not read the live archive path: the collector rewrites it on
+any run that sees a change, and a test anchored on a timestamp in it goes red
+for a reason that has nothing to do with the code. That happened once, between
+one collector run and the next, and is why this copy exists.

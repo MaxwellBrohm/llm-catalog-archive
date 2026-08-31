@@ -123,6 +123,46 @@ describe('extractArena', () => {
     });
   });
 
+  /**
+   * The same records with NO backslash escaping.
+   *
+   * Every quote in the live payload is escaped today because the records sit
+   * inside a JS string literal, but the nesting depth already varies by flight
+   * chunk and a future one may not escape at all. Each `\\?"` in the extractor
+   * is what makes both readable, and a test that only ever feeds the escaped
+   * form cannot tell `\\?"` from `\\"`.
+   */
+  const plainRecord = (key: string, display: string, rating: string, votes: number): string =>
+    `{"rank":1,"modelKey":"${key}","modelDisplayName":"${display}","rating":${rating},"votes":${votes}}`;
+
+  const plainFiller = (n: number): string[] =>
+    Array.from({ length: n }, (_, i) => plainRecord(`m-${i}-text`, `m-${i}`, `${1000 + i}.5`, 100 + i));
+
+  it('reads a record whose quotes are not escaped at all', () => {
+    const got = extractArena(`<html>${plainFiller(ARENA_MIN_RECORDS).join(',')}</html>`);
+    expect(got.ok && got.key.split('\n')).toContain('m-0-text\tm-0\t1000.5\t100');
+  });
+
+  it('reads an integer rating', () => {
+    const got = extractArena(
+      `<html>${[plainRecord('k', 'd', '1507', 7), ...plainFiller(ARENA_MIN_RECORDS)].join(',')}</html>`,
+    );
+    expect(got.ok && got.key.split('\n')).toContain('k\td\t1507\t7');
+  });
+
+  it('reads a negative rating', () => {
+    const got = extractArena(
+      `<html>${[plainRecord('k', 'd', '-3.5', 7), ...plainFiller(ARENA_MIN_RECORDS)].join(',')}</html>`,
+    );
+    expect(got.ok && got.key.split('\n')).toContain('k\td\t-3.5\t7');
+  });
+
+  it('projects a record with no display name as an empty display field', () => {
+    const noDisplay = `{"modelKey":"solo","rating":1,"votes":2}`;
+    const got = extractArena(`<html>${[noDisplay, ...plainFiller(ARENA_MIN_RECORDS)].join(',')}</html>`);
+    expect(got.ok && got.key.split('\n')).toContain('solo\t\t1\t2');
+  });
+
   it('reads the model picker spelling of the same two fields', () => {
     const picker =
       `{\\"publicName\\":\\"claude-opus-4-6-thinking\\",\\"displayName\\":\\"claude-opus-4-6-high\\"}`;
@@ -175,6 +215,76 @@ describe('extractXai', () => {
     expect(extractXai(['| b | 2 |', '| a | 1 |'].join('\n'))).toBe(['| a | 1 |', '| b | 2 |'].join('\n'));
   });
 
+  /**
+   * The block that tells a recognised delimiter row from an unrecognised one.
+   *
+   * `| Z |` sorts AFTER `| --- |` and BEFORE `| a |`, so leaving the header
+   * fixed and sorting it produce different documents. Every way of failing to
+   * recognise `| --- | --- |` collapses to the sorted form, and every way of
+   * recognising something that is not a delimiter shows up in the tests below
+   * it.
+   */
+  const headerBlock = ['| Z | Cost |', '| --- | --- |', '| a | 1 |'];
+
+  it('keeps a header row above its delimiter rather than sorting it under one', () => {
+    expect(extractXai(headerBlock.join('\n'))).toBe('| Z | Cost |\n| --- | --- |\n| a | 1 |');
+  });
+
+  it('keeps a header above its delimiter in a block that is only those two rows', () => {
+    expect(extractXai('| Z | Cost |\n| --- | --- |')).toBe('| Z | Cost |\n| --- | --- |');
+  });
+
+  it('recognises an indented delimiter row', () => {
+    expect(extractXai('  | Z | Cost |\n  | --- | --- |\n  | a | 1 |')).toBe(
+      '  | Z | Cost |\n  | --- | --- |\n  | a | 1 |',
+    );
+  });
+
+  it('recognises a delimiter row with trailing whitespace', () => {
+    expect(extractXai('| Z | Cost |\n| --- | --- | \n| a | 1 |')).toBe('| Z | Cost |\n| --- | --- | \n| a | 1 |');
+  });
+
+  // A row of empty cells is data, not a delimiter. Reading it as one silently
+  // stops the row below it being sorted.
+  it('does not read a row of empty cells as a delimiter', () => {
+    expect(extractXai('| z | 1 |\n| | |\n| a | 2 |')).toBe('| a | 2 |\n| z | 1 |\n| | |');
+  });
+
+  // A dash in a model name is not a delimiter either, which is what separates
+  // "contains a dash" from "is made of dashes".
+  it('does not read a data row containing a dash as a delimiter', () => {
+    expect(extractXai('| z | 1 |\n| grok-imagine | 2 |\n| a | 3 |')).toBe(
+      '| a | 3 |\n| grok-imagine | 2 |\n| z | 1 |',
+    );
+  });
+
+  // Trailing content after the pipes disqualifies it, so the `$` anchor is
+  // load bearing rather than decorative.
+  it('does not read a delimiter-shaped prefix followed by text as a delimiter', () => {
+    expect(extractXai('| z | 1 |\n| --- | oops\n| a | 2 |')).toBe('| --- | oops\n| a | 2 |\n| z | 1 |');
+  });
+
+  // The `^` anchor: this row contains `| --- |` but does not START with it.
+  it('does not read a delimiter shape found mid-row as a delimiter', () => {
+    expect(extractXai('| z | 1 |\n| Model | --- |\n| a | 2 |')).toBe('| Model | --- |\n| a | 2 |\n| z | 1 |');
+  });
+
+  it('emits each row of a delimited block exactly once', () => {
+    expect(extractXai(headerBlock.join('\n')).split('\n')).toHaveLength(3);
+  });
+
+  // Without the `^` this sentence is a table row and gets sorted into the
+  // block beside it.
+  it('does not read a sentence containing a pipe as a table row', () => {
+    expect(extractXai('| z | 1 |\nuse a | b to split\n| a | 2 |')).toBe('| z | 1 |\nuse a | b to split\n| a | 2 |');
+  });
+
+  // Without the leading `\s*` an indented table stops being a table, and its
+  // rows quietly return to committing their own permutation.
+  it('sorts the rows of an indented block', () => {
+    expect(extractXai('  | z | 1 |\n  | a | 2 |')).toBe('  | a | 2 |\n  | z | 1 |');
+  });
+
   it('leaves a line that is not a table row untouched and in place', () => {
     expect(extractXai(['# Heading', 'body text', ''].join('\n'))).toBe(['# Heading', 'body text', ''].join('\n'));
   });
@@ -203,6 +313,24 @@ describe('extractSitemapLoc', () => {
   it('projects a reordered url list to the same key', () => {
     const a = extractSitemapLoc(sitemap([{ loc: 'https://b' }, { loc: 'https://a' }]));
     expect(a).toBe('https://a\nhttps://b');
+  });
+
+  // Whitespace around a URL is formatting, and a sitemap that reindents would
+  // otherwise read as every URL having changed at once.
+  it('trims the whitespace a pretty-printed sitemap puts around a loc', () => {
+    expect(extractSitemapLoc('<urlset><url><loc>\n  https://x/a\n</loc></url></urlset>')).toBe('https://x/a');
+  });
+
+  // `<loc/>` is a URL element with no URL in it. Projecting it as an empty
+  // string would put a row keyed on nothing into the set.
+  it('drops a self closing loc, which names no url', () => {
+    expect(extractSitemapLoc('<urlset><url><loc/></url><url><loc>https://x/a</loc></url></urlset>')).toBe(
+      'https://x/a',
+    );
+  });
+
+  it('reads a namespaced loc element', () => {
+    expect(extractSitemapLoc('<urlset><url><sitemap:loc>https://x/a</sitemap:loc></url></urlset>')).toBe('https://x/a');
   });
 });
 
@@ -258,6 +386,35 @@ describe('extractSitemapDated', () => {
     const two = '<urlset><url><loc>https://x/a</loc><lastmod>2026-02-02</lastmod></url></urlset>';
     expect(extractSitemapDated(one)).not.toBe(extractSitemapDated(two));
     expect(extractSitemapLoc(one)).toBe(extractSitemapLoc(two));
+  });
+
+  it('sorts its rows, so a reordered sitemap projects to the same key', () => {
+    const one = '<urlset><url><loc>https://x/b</loc></url><url><loc>https://x/a</loc></url></urlset>';
+    expect(extractSitemapDated(one)).toBe('https://x/a\t\nhttps://x/b\t');
+  });
+
+  // A `<url>` with no `<loc>` has no identity, so it is dropped rather than
+  // projected as a row keyed on nothing.
+  it('drops a url element that carries no loc', () => {
+    const one = '<urlset><url><lastmod>2026-01-01</lastmod></url><url><loc>https://x/a</loc></url></urlset>';
+    expect(extractSitemapDated(one)).toBe('https://x/a\t');
+  });
+
+  // Reached through `first`, which must report a self-closing element as
+  // absent rather than dereferencing a capture group that did not participate.
+  it('drops a url whose loc is self closing', () => {
+    const one = '<urlset><url><loc/><lastmod>T</lastmod></url><url><loc>https://x/a</loc></url></urlset>';
+    expect(extractSitemapDated(one)).toBe('https://x/a\t');
+  });
+
+  it('treats a self closing lastmod as no lastmod at all', () => {
+    expect(extractSitemapDated('<urlset><url><loc>https://x/a</loc><lastmod/></url></urlset>')).toBe('https://x/a\t');
+  });
+
+  it('trims the whitespace around a loc and a lastmod', () => {
+    expect(extractSitemapDated('<urlset><url><loc> https://x/a </loc><lastmod> T </lastmod></url></urlset>')).toBe(
+      'https://x/a\tT',
+    );
   });
 
   it('keeps a url that carries no lastmod at all', () => {
@@ -320,6 +477,49 @@ describe('extractAtomStatus', () => {
     expect(a).not.toBe(b);
   });
 
+  it('sorts its rows, so a reordered feed projects to the same key', () => {
+    const one = `<feed>${entry('b', 'u', [])}${entry('a', 'u', [])}</feed>`;
+    expect(extractAtomStatus(one)).toBe('a\tu\t\nb\tu\t');
+  });
+
+  // The live feed indents its `<li>` items, so an untrimmed component list
+  // would change whenever the generator reflowed its own HTML.
+  it('trims the whitespace around a component name', () => {
+    expect(extractAtomStatus(`<feed><entry><id>i</id><updated>u</updated><li>  API  </li></entry></feed>`)).toBe(
+      'i\tu\tAPI',
+    );
+  });
+
+  it('reads a component list item that carries an attribute', () => {
+    expect(
+      extractAtomStatus(`<feed><entry><id>i</id><updated>u</updated><li class="c">API</li></entry></feed>`),
+    ).toBe('i\tu\tAPI');
+  });
+
+  it('projects an entry missing its id as an empty id rather than dropping it', () => {
+    expect(extractAtomStatus('<feed><entry><updated>u</updated></entry></feed>')).toBe('\tu\t');
+  });
+
+  it('projects an entry missing its updated as an empty updated', () => {
+    expect(extractAtomStatus('<feed><entry><id>i</id></entry></feed>')).toBe('i\t\t');
+  });
+
+  // A self-closing entry carries nothing, but its presence and absence are
+  // still a change, and `src/health.ts` counts it as an item too.
+  it('projects a self closing entry rather than skipping it', () => {
+    expect(extractAtomStatus('<feed><entry/></feed>')).toBe('\t\t');
+  });
+
+  it('reports a self closing entry appearing beside a real one', () => {
+    const one = `<feed>${entry('i', 'u', [])}</feed>`;
+    const two = `<feed>${entry('i', 'u', [])}<entry/></feed>`;
+    expect(extractAtomStatus(one)).not.toBe(extractAtomStatus(two));
+  });
+
+  it('reads a namespaced entry element', () => {
+    expect(extractAtomStatus('<atom:feed><atom:entry><id>i</id></atom:entry></atom:feed>')).toBe('i\t\t');
+  });
+
   it('reports a new entry', () => {
     const a = extractAtomStatus(`<feed>${entry('i', 'u', ['API'])}</feed>`);
     const b = extractAtomStatus(`<feed>${entry('i', 'u', ['API'])}${entry('j', 'u', ['API'])}</feed>`);
@@ -329,7 +529,15 @@ describe('extractAtomStatus', () => {
 
 describe('applyMask', () => {
   const feedUpdated = '(?<!<entry[\\s>][\\s\\S]*)<updated>[^<]*</updated>';
-  const atom = fs.readFileSync('raw/claude-status/response.atom', 'utf8');
+  /**
+   * A frozen capture, NOT `raw/claude-status/response.atom`.
+   *
+   * The collector rewrites that path on any run that sees a change, so a test
+   * reading it asserts against a moving target and goes red for a reason that
+   * has nothing to do with the code. It did, once, between one run and the
+   * next.
+   */
+  const atom = fixture('volatile-claude-status.atom');
 
   it('masks the feed level updated of the archived claude-status body', () => {
     expect(applyMask(atom, [feedUpdated]).match(/\u0000masked\u0000/g)).toHaveLength(1);
@@ -340,13 +548,16 @@ describe('applyMask', () => {
   });
 
   it('projects two generations of claude-status differing only in that line to the same key', () => {
-    const moved = atom.replace('<updated>2026-08-31T05:29:12Z</updated>', '<updated>2026-08-31T09:00:00Z</updated>');
+    const moved = atom.replace('<updated>2026-08-31T21:49:50Z</updated>', '<updated>2026-08-31T23:59:59Z</updated>');
     expect(moved).not.toBe(atom);
     expect(applyMask(moved, [feedUpdated])).toBe(applyMask(atom, [feedUpdated]));
   });
 
   it('still reports an entry timestamp moving', () => {
-    const moved = atom.replace('<updated>2026-08-28T20:21:18Z</updated>', '<updated>2026-08-29T00:00:00Z</updated>');
+    const moved = atom.replace('<updated>2026-08-31T20:36:00Z</updated>', '<updated>2026-09-01T00:00:00Z</updated>');
+    // Without this the assertion below passes on a stale anchor that replaced
+    // nothing, which is the vacuous form of exactly this test.
+    expect(moved).not.toBe(atom);
     expect(applyMask(moved, [feedUpdated])).not.toBe(applyMask(atom, [feedUpdated]));
   });
 
@@ -377,6 +588,24 @@ describe('project', () => {
     const got = project(s, bytes('<feed/>'));
     expect(got.ok).toBe(false);
     expect(!got.ok && got.reason).toContain('mask pattern failed');
+  });
+
+  // A lenient decoder, deliberately. A single bad byte anywhere in a 5 MB body
+  // would otherwise throw out of the predicate and be reported as a source
+  // failure, which is not what one invalid byte means.
+  it('decodes an invalid utf-8 byte to the replacement character rather than throwing', () => {
+    const got = project(sourceFor('openrouter-models'), new Uint8Array([0x61, 0xff, 0x62]));
+    expect(got).toEqual({ ok: true, key: 'a�b' });
+  });
+
+  it('decodes an invalid utf-8 byte the same way on the extracted path', () => {
+    const got = project(sourceFor('openrouter-sitemap'), new Uint8Array([...bytes('<urlset><url><loc>a'), 0xff, ...bytes('</loc></url></urlset>')]));
+    expect(got).toEqual({ ok: true, key: 'a�' });
+  });
+
+  it('succeeds on a mask source whose patterns compile', () => {
+    const got = project(sourceFor('claude-status'), bytes('<feed><updated>X</updated></feed>'));
+    expect(got).toEqual({ ok: true, key: '<feed>\u0000masked\u0000</feed>' });
   });
 
   it('routes anthropic-sitemap to sitemapDated', () => {
@@ -427,6 +656,18 @@ describe('changedUnderPredicate', () => {
   it('hands up a failed projection of the new body rather than calling it unchanged', () => {
     const arena = sourceFor('arena-leaderboard');
     const got = changedUnderPredicate(arena, bytes('<html>reshaped</html>'), bytes('<html>old</html>'));
+    expect(got).toEqual({ ok: false, reason: `arena projection found 0 records, floor is ${ARENA_MIN_RECORDS}` });
+  });
+
+  // Which side failed matters: reporting the stored body's reason for a new
+  // body that broke would send an operator to the wrong artifact.
+  it("reports the new body's reason when only the new body fails to project", () => {
+    const arena = sourceFor('arena-leaderboard');
+    const good =
+      '<html>' +
+      Array.from({ length: ARENA_MIN_RECORDS }, (_, i) => `"modelKey":"m${i}","votes":${i}`).join(',') +
+      '</html>';
+    const got = changedUnderPredicate(arena, bytes('<html>reshaped</html>'), bytes(good));
     expect(got).toEqual({ ok: false, reason: `arena projection found 0 records, floor is ${ARENA_MIN_RECORDS}` });
   });
 

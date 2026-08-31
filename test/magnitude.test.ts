@@ -70,6 +70,42 @@ describe('countUnits', () => {
     expect(countUnits(xml, bytes('<urlset></urlset>'))).toBeNull();
   });
 
+  // A JSON body of bare `null` parses, so the try/catch never sees it, and the
+  // optional chaining is the only thing between it and a TypeError.
+  it('reports null for a json body that is the literal null', () => {
+    expect(countUnits(json, bytes('null'))).toBeNull();
+  });
+
+  it('reports null for a json body that is a bare string', () => {
+    expect(
+      countUnits({ ...json, invariants: { ...json.invariants, requiredKeyPath: null } }, bytes('"a string"')),
+    ).toBeNull();
+  });
+
+  it('reports null for a json body that is a bare null and has no required key path', () => {
+    expect(countUnits({ ...json, invariants: { ...json.invariants, requiredKeyPath: null } }, bytes('null'))).toBeNull();
+  });
+
+  it('reports null for a json body that is a number', () => {
+    expect(countUnits({ ...json, invariants: { ...json.invariants, requiredKeyPath: null } }, bytes('7'))).toBeNull();
+  });
+
+  // Every real Atom entry in the archive is a bare `<entry>`, so an attribute
+  // is exactly the case a regex written against the archive gets wrong.
+  it('counts an entry element that carries an attribute', () => {
+    expect(countUnits(sourceFor('openai-status'), bytes('<feed><entry xml:base="x"></entry></feed>'))).toBe(1);
+  });
+
+  it('counts a self closing entry element that carries an attribute', () => {
+    expect(countUnits(sourceFor('openai-status'), bytes('<feed><entry foo="bar"/></feed>'))).toBe(1);
+  });
+
+  // `<entryPoint>` is not an entry. Without the terminator alternation the
+  // count picks up every element whose name merely starts with one of the three.
+  it('does not count an element whose name merely starts with a record name', () => {
+    expect(countUnits(sourceFor('openai-status'), bytes('<feed><entryPoint/><urlset/></feed>'))).toBeNull();
+  });
+
   it('counts a text source at its lines', () => {
     expect(countUnits(text, lines(120))).toBe(120);
   });
@@ -135,8 +171,15 @@ describe('shrinkVerdict', () => {
     expect(shrinkVerdict(json, bytes('not json at all'), records(500))).toEqual({ held: false });
   });
 
+  // A zero baseline reaches the growth check rather than a clause of its own,
+  // and the growth check is the only thing standing between it and a 0/0
+  // division that reports a NaN% removal as a hold.
   it('does not hold when the baseline counted zero', () => {
     expect(shrinkVerdict(json, records(0), records(0))).toEqual({ held: false });
+  });
+
+  it('does not hold a zero baseline even at a zero limit', () => {
+    expect(shrinkVerdict(withLimit('openrouter-models', 0), records(0), records(0))).toEqual({ held: false });
   });
 });
 

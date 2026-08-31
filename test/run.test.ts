@@ -1172,6 +1172,49 @@ describe('the change predicate, as runTier dispatches it', () => {
     expect(d.files['raw/a/response.html']).toEqual(stored);
   });
 
+  it('traces a failed projection under its own name', async () => {
+    const { r } = await runAgainst(arenaSource, enc('<html>reshaped</html>'), enc('<html>old</html>'));
+    expect(r.trace).toContain('predicate-failed:a');
+  });
+
+  it('does not stamp a change clock on a run whose projection failed', async () => {
+    const { r } = await runAgainst(arenaSource, enc('<html>reshaped</html>'), enc('<html>old</html>'));
+    expect(r.status?.sources['a']?.lastChangeAt).toBeNull();
+  });
+
+  it('records the byte count of an unchanged body, which is the last accepted size', async () => {
+    const sitemapSource = source({
+      contentType: 'xml',
+      expectedRoot: 'urlset',
+      path: 'raw/a/response.xml',
+      invariants: NO_CANARY,
+      predicate: { type: 'extracted', extractor: 'sitemapLoc' },
+    });
+    const next = enc('<urlset><url><loc>https://x/1</loc><lastmod>2026-02-02</lastmod></url></urlset>');
+    const { r } = await runAgainst(
+      sitemapSource,
+      next,
+      enc('<urlset><url><loc>https://x/1</loc><lastmod>2026-01-01</lastmod></url></urlset>'),
+    );
+    expect(r.status?.sources['a']?.bytes).toBe(next.byteLength);
+  });
+
+  it('reports an unchanged run as healthy rather than as an empty outcome', async () => {
+    const sitemapSource = source({
+      contentType: 'xml',
+      expectedRoot: 'urlset',
+      path: 'raw/a/response.xml',
+      invariants: NO_CANARY,
+      predicate: { type: 'extracted', extractor: 'sitemapLoc' },
+    });
+    const { r } = await runAgainst(
+      sitemapSource,
+      enc('<urlset><url><loc>https://x/1</loc><lastmod>2026-02-02</lastmod></url></urlset>'),
+      enc('<urlset><url><loc>https://x/1</loc><lastmod>2026-01-01</lastmod></url></urlset>'),
+    );
+    expect(r.status?.sources['a']?.health).toBe('ok');
+  });
+
   it('reports a failed projection as failed health, naming the reason', async () => {
     const { r, d } = await runAgainst(arenaSource, enc('<html>reshaped</html>'), enc('<html>old</html>'));
     expect(r.status?.sources['a']?.health).toBe('failed');
@@ -1211,6 +1254,46 @@ describe('the magnitude guard, as runTier applies it', () => {
       at: '2026-08-26T14:00:00.000Z',
       reason: 'magnitude guard: 101 to 11 units is a 89.1% removal, over the 25% limit',
     });
+  });
+
+  it('traces a hold under its own name', async () => {
+    const { r } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(r.trace).toContain('held:a');
+  });
+
+  it('logs a hold with the reason that caused it', async () => {
+    const { d } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(d.logs).toContain(
+      'a: held for review, not written: magnitude guard: 101 to 11 units is a 89.1% removal, over the 25% limit',
+    );
+  });
+
+  // A held snapshot was not accepted, so the clock that says how long a source
+  // has been quiet must not move for it.
+  it('does not stamp a change clock on a held run', async () => {
+    const { r } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(r.status?.sources['a']?.lastChangeAt).toBeNull();
+  });
+
+  /**
+   * The guard is asked only about snapshots the predicate already called a
+   * change.
+   *
+   * The mask swallows everything from the first `drop` to the end of the file,
+   * so these two bodies project identically while their line counts fall from
+   * 101 to 6. Running the guard on an unchanged snapshot would hold that, and
+   * a hold on a source that did not change is a review request for nothing.
+   */
+  it('does not hold a snapshot the predicate already called unchanged', async () => {
+    const masked = source({
+      predicate: { type: 'mask', patterns: ['drop[\\s\\S]*'] },
+      invariants: { minBytes: 1, requiredKeyPath: null, minRecords: null, canary: 'CANARY', sizeBand: [0.01, 10] },
+    });
+    const body = (n: number): Uint8Array =>
+      enc(`CANARY\n${Array.from({ length: n }, (_, i) => `drop ${i}`).join('\n')}`);
+    const { r } = await runAgainst(masked, body(5), body(100));
+    expect(r.status?.sources['a']?.held).toBeNull();
+    expect(r.trace).not.toContain('held:a');
   });
 
   it('exits zero on a hold', async () => {

@@ -48,8 +48,18 @@ export const SHARED_LASTMOD_FLOOR = 3;
 /** Namespace prefixes are stripped everywhere: `<sitemap:loc>` is a loc. */
 const NS = '(?:[A-Za-z_][\\w.-]*:)?';
 
+/**
+ * One element of this name, with its inner text in group 1.
+ *
+ * A self-closing `<entry/>` matches too, and then group 1 is undefined rather
+ * than empty. That distinction is the point: `<loc/>` is a URL element with no
+ * URL in it and is dropped, while a self-closing `<entry/>` is still an entry
+ * and is still counted. `src/health.ts` counts self-closing feed items for the
+ * same reason, and a predicate that disagreed with the health check about what
+ * an entry is would be a quiet way for the two to drift.
+ */
 const tagRe = (name: string, flags: string): RegExp =>
-  new RegExp(`<${NS}${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${NS}${name}\\s*>`, flags);
+  new RegExp(`<${NS}${name}(?:\\s[^>]*?)?(?:/>|>([\\s\\S]*?)</${NS}${name}\\s*>)`, flags);
 
 const LOC_G = tagRe('loc', 'g');
 const URL_G = tagRe('url', 'g');
@@ -62,7 +72,7 @@ const LI_G = /<li\b[^>]*>([\s\S]*?)<\/li\s*>/g;
 
 const first = (re: RegExp, text: string): string | null => {
   const m = re.exec(text);
-  return m === null ? null : m[1]!.trim();
+  return m === null || m[1] === undefined ? null : m[1].trim();
 };
 
 /**
@@ -97,7 +107,7 @@ export function extractArena(text: string): Projection {
   for (const chunk of chunks.slice(1)) {
     const key = /^([^"\\]*)/.exec(chunk)![1]!;
     const display = /\\?"(?:modelDisplayName|displayName)\\?":\\?"([^"\\]*)/.exec(chunk)?.[1] ?? '';
-    const rating = /\\?"rating\\?":(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/.exec(chunk)?.[1] ?? '';
+    const rating = /\\?"rating\\?":(-?\d+(?:\.\d+)?)/.exec(chunk)?.[1] ?? '';
     const votes = /\\?"votes\\?":(\d+)/.exec(chunk)?.[1] ?? '';
     rows.push(`${key}\t${display}\t${rating}\t${votes}`);
   }
@@ -108,6 +118,15 @@ export function extractArena(text: string): Projection {
   return { ok: true, key: rows.sort().join('\n') };
 }
 
+/**
+ * A markdown table row: a line whose first non-space character is a pipe.
+ *
+ * Anchored, and the anchor is load bearing in both directions. Without `^` a
+ * sentence containing a pipe joins the table block beside it and gets sorted
+ * into it. Without allowing leading space an indented table stops being a
+ * table at all and its rows never get sorted, which silently returns that
+ * table to committing its own permutation.
+ */
 const isTableRow = (line: string): boolean => /^\s*\|/.test(line);
 
 /**
@@ -162,7 +181,10 @@ export function extractXai(text: string): string {
  * no content behind them. The URL set is what this source is for.
  */
 export function extractSitemapLoc(text: string): string {
-  return [...text.matchAll(LOC_G)].map((m) => m[1]!.trim()).sort().join('\n');
+  return [...text.matchAll(LOC_G)]
+    .flatMap((m) => (m[1] === undefined ? [] : [m[1].trim()]))
+    .sort()
+    .join('\n');
 }
 
 /**

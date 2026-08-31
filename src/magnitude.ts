@@ -79,14 +79,20 @@ export type ShrinkVerdict = { held: false } | { held: true; reason: string };
  *
  * Never holds when there is no baseline, when the baseline itself has no
  * count, or when the baseline counted zero. All three are the seed case in
- * different clothes, and a percentage of nothing is not a number.
+ * different clothes, and a percentage of nothing is not a number. The third is
+ * handled by the growth check rather than by a clause of its own, because a
+ * count is never negative.
  */
 export function shrinkVerdict(source: Source, next: Uint8Array, prev: Uint8Array | null): ShrinkVerdict {
   if (prev === null) return { held: false };
 
   const before = countUnits(source, prev);
   const after = countUnits(source, next);
-  if (before === null || after === null || before === 0) return { held: false };
+  if (before === null || after === null) return { held: false };
+  // Also the whole of the zero-baseline case: `after` is never negative, so a
+  // baseline of zero returns here rather than reaching a 0/0 division. An
+  // explicit `before === 0` clause above was measured DEAD, and dead code that
+  // looks like a guard is worse than none: it is the line a reader trusts.
   if (after >= before) return { held: false };
 
   const shrinkPct = ((before - after) / before) * 100;
