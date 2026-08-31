@@ -74,7 +74,22 @@ export async function fetchSource(source: Source, opts: FetchOpts): Promise<Fetc
       // Manual redirects: the platform default follows silently and would hide
       // the relocation that the health check exists to surface. One day of
       // probing found five relocations, so this is what catches the sixth.
-      for (;;) {
+      // An absolute ceiling, independent of maxRedirects. The cap below is the
+      // policy; this is the guarantee. A loop whose only exit is a policy check
+      // becomes infinite the moment that check is wrong, and an infinite async
+      // loop cannot be cancelled by a test timeout: vitest fails the test and
+      // the worker spins on. Not hypothetical. Four orphaned workers burned
+      // 100% CPU each for five days after a mutation deleted redirectCount++.
+      const HOP_CEILING = 32;
+      for (let hop = 0; ; hop++) {
+        if (hop > HOP_CEILING) {
+          clearTimeout(timer);
+          return {
+            ok: false,
+            error: `redirect loop did not terminate within ${HOP_CEILING} hops at ${url}`,
+            attempts: attempt,
+          };
+        }
         const r: Response = await doFetch(url, {
           redirect: 'manual',
           signal: controller.signal,

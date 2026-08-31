@@ -43,14 +43,26 @@ where specs.json is {"files": [test files to run], "mutants": [
    "typecheck": true}                               # optional, default true
 ]}
 """
-import subprocess, json, os, sys, shutil, tempfile
+import subprocess, json, os, sys, shutil, tempfile, signal
 
 ROOT = "/Users/brohm/Documents/Projects/ainews"
 os.chdir(ROOT)
 
 def vitest(files, jsonout):
-    subprocess.run(["npx", "vitest", "run", "--reporter=json", f"--outputFile={jsonout}", *files],
-                   capture_output=True, text=True, timeout=600)
+    # start_new_session puts the child in its own process group so a timeout
+    # can kill the WHOLE tree. subprocess.run(timeout=) kills only the direct
+    # child, which is npx; the vitest worker survives, reparents to PID 1, and
+    # keeps running. Four such orphans spun at 100% CPU for five days before
+    # anyone noticed, because the harness reported the timeout and moved on.
+    proc = subprocess.Popen(
+        ["npx", "vitest", "run", "--reporter=json", f"--outputFile={jsonout}", *files],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+    try:
+        proc.communicate(timeout=600)
+    except subprocess.TimeoutExpired:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        proc.communicate()
+        raise
     try:
         return json.load(open(jsonout))
     except Exception:
