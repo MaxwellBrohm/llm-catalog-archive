@@ -277,6 +277,19 @@ li.event .event-meta {
 li.event table.kv { margin-top: 16px; }
 .badge-type { background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line); }
 
+/*
+ * The leaks desk. The sourcing tier and the ledger outcome are the two labels a
+ * reader has to be able to tell apart at a glance, so they are the only badges
+ * that get their own colour: everything else on the desk is a neutral chip. The
+ * tier is about the artifact rather than about confidence, so the artifact tier
+ * is the one that gets the live colour and the two weaker tiers stay muted.
+ */
+.badge-tier { background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line); }
+.badge-confirmed-artifact { border-color: var(--orange); color: var(--orange); }
+.badge-outcome-confirmed { border: 1px solid var(--orange); color: var(--orange); background: transparent; }
+.badge-outcome-refuted { border: 1px dashed var(--line); color: var(--text-faint); background: transparent; }
+.badge-outcome-open { background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line); }
+
 .grid-sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .source-card {
   background: var(--panel-0);

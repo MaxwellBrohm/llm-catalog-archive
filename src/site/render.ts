@@ -14,6 +14,14 @@
  */
 
 import { canRenderAt, claimSentence, DAY_SECONDS, type DerivedEvent } from '../derive/events.js';
+import {
+  confirmationQuery,
+  leakSentence,
+  modelSupportName,
+  PULL_SOURCE_IDS,
+  type LeakItem,
+} from '../derive/leaks.js';
+import { scoreLedger, type LedgerClaim } from './ledger.js';
 import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
   artifactPermalink,
@@ -63,6 +71,7 @@ function layout(opts: { title: string; depth: number; body: string }): string {
 <nav>
 <a href="${up}index.html">Changes</a>
 <a href="${up}threads/index.html">Threads</a>
+<a href="${up}leaks/index.html">Leaks</a>
 <a href="${up}feed.xml">Feed</a>
 <a href="${REPO_URL}">Repository</a>
 </nav>
@@ -530,4 +539,193 @@ ${sections}
 ${held}
 </section>`;
   return layout({ title: 'Threads - llm-catalog-archive', depth: 1, body });
+}
+
+// ---------------------------------------------------------------------------
+// The leaks desk
+// ---------------------------------------------------------------------------
+
+export const LEAKS_INDEX_PATH = 'leaks/index.html';
+export const LEDGER_PATH = 'leaks/ledger.html';
+
+/**
+ * THE DEFAMATION LINE IS A COPY RULE AND NOT A DISCLAIMER, so it is enforced in
+ * the sentence generator and re-stated here rather than parked in a footer.
+ *
+ * Nothing below composes a sentence of its own. Every claim on the leaks pages
+ * comes from leakSentence in src/derive/leaks.ts, whose subject is always an
+ * artifact, and everything this file adds around it is a label, a number read
+ * off the item, or a link. A footer saying "these are rumors" would not make a
+ * sentence with a company as its subject safe, and a page with no such sentence
+ * on it does not need one.
+ */
+const LEAKS_STANDING_NOTE =
+  'Every line on this page describes an artifact stored in this repository and linked at the commit that stored it. ' +
+  'None of them says what a model is, who made it, what it will be called at launch, or when it ships, because a stored ' +
+  'payload is evidence for none of that. Nothing here rehosts weights or source.';
+
+const TIER_NOTE: Record<string, string> = {
+  'confirmed-artifact': 'a publicly observable artifact exists and is linked',
+  credible: 'a named source with a track record in this ledger',
+  unconfirmed: 'reported, no artifact',
+};
+
+/**
+ * The fact rows under a leak claim.
+ *
+ * Every value cell is marked `quoted`, and the class is load bearing rather
+ * than cosmetic: these cells hold third-party bytes read out of a stored
+ * artifact, and the copy-rule scan in test/site-leaks.test.ts excludes them for
+ * exactly that reason. A pull request titled "OpenAI deprecated the Assistants
+ * API" is what the payload says, and quoting it is describing an artifact. The
+ * scan has to be able to tell a quoted value from a sentence this file wrote,
+ * and an unmarked cell is indistinguishable from the ledger's own claim column.
+ */
+function leakFactsHtml(item: LeakItem): string {
+  if (item.facts.length === 0) return '';
+  const rows = item.facts
+    .map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td class="quoted">${escapeHtml(v)}</td></tr>`)
+    .join('\n');
+  return `<div class="table-scroll"><table class="kv">\n${rows}\n</table></div>`;
+}
+
+/**
+ * The confirmation step for an upstream pull request, printed as a query a
+ * reader runs and never as a result.
+ *
+ * `huggingface.co/api/models?search=<name>` returning `[]` is evidence about a
+ * weights repository; the pull request is evidence about a runtime. Printing
+ * "no weights exist for X" would merge the two into a claim about what a lab
+ * has published, which one private repository falsifies.
+ */
+function confirmationHtml(item: LeakItem): string {
+  if (!PULL_SOURCE_IDS.some((id) => id === item.sourceId)) return '';
+  const title = item.facts.find(([k]) => k === 'title')?.[1] ?? '';
+  const name = modelSupportName(title);
+  if (name === null) return '';
+  const url = confirmationQuery(name);
+  return `<p class="note">Check for a published weights repository under this name: <a href="${escapeHtml(url)}"><code>${escapeHtml(url)}</code></a>. An empty array is a statement about that search, not about what exists.</p>`;
+}
+
+function leakHtml(item: LeakItem, depth: number): string {
+  const { up } = links(depth);
+  const permalink = artifactPermalink(item.sha, item.path);
+  return `<li class="event">
+<p class="claim">${escapeHtml(leakSentence(item))}</p>
+<p class="event-meta"><span class="badge badge-type">${escapeHtml(item.type)}</span> <span class="badge badge-tier">${escapeHtml(item.tier)}</span> ${stampHtml(item.stamp)} &middot; <a href="${up}${sourcePagePath(item.sourceId)}">${escapeHtml(item.sourceId)}</a> &middot; <a href="${up}${changePagePath(item.sha)}">${escapeHtml(item.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
+${leakFactsHtml(item)}
+${confirmationHtml(item)}
+</li>`;
+}
+
+const SIGNAL_LABEL: Record<string, string> = {
+  codename_entered: 'Arena codename map: a name entered the payload',
+  codename_unmasked: 'Arena codename map: a name was unmasked',
+  upstream_pr_opened: 'Upstream runtime: a model-support pull request appeared',
+  upstream_pr_merged: 'Upstream runtime: a model-support pull request merged',
+  stealth_listing: 'OpenRouter: an id under the stealth/ namespace',
+  expiration_scheduled: 'OpenRouter: an expiration_date was recorded',
+};
+
+/**
+ * The desk. One section per signal, each in the fixed order below.
+ *
+ * A signal with no items still gets its heading and a count of zero. A section
+ * that vanishes when it is empty makes "no reveals this week" and "the
+ * extractor broke three weeks ago" render identically, and the second is the
+ * failure this whole project is organised around not making invisible.
+ */
+export function renderLeaksPage(items: LeakItem[], claims: LedgerClaim[] = []): string {
+  const order: LeakItem['type'][] = [
+    'codename_unmasked',
+    'codename_entered',
+    'upstream_pr_merged',
+    'upstream_pr_opened',
+    'stealth_listing',
+    'expiration_scheduled',
+  ];
+
+  const sections = order
+    .map((type) => {
+      const rows = items.filter((i) => i.type === type);
+      const body =
+        rows.length === 0
+          ? '<p class="note">No item of this kind is derivable from the archive as it stands.</p>'
+          : `<ol class="events">\n${rows.map((i) => leakHtml(i, 1)).join('\n')}\n</ol>`;
+      return `<section class="day">
+<h2>${escapeHtml(SIGNAL_LABEL[type] ?? type)}</h2>
+<p class="note">${plural(rows.length, 'item')}.</p>
+${body}
+</section>`;
+    })
+    .join('\n');
+
+  const score = scoreLedger(claims);
+  const body = `<p class="eyebrow">Leaks</p>
+<h1>The leaks desk</h1>
+<p class="lede">${plural(items.length, 'item')} derived from stored artifacts. ${escapeHtml(LEAKS_STANDING_NOTE)}</p>
+<div class="panel">
+<h2>Sourcing tiers</h2>
+<div class="table-scroll"><table class="kv">
+${Object.entries(TIER_NOTE)
+    .map(([tier, note]) => `<tr><th>${escapeHtml(tier)}</th><td>${escapeHtml(note)}</td></tr>`)
+    .join('\n')}
+</table></div>
+<p class="note">The tier is about the artifact, not about confidence. Every item on this page is <code>confirmed-artifact</code>, because a derivation reads stored bytes and cannot vouch for a source it has never had.</p>
+<p><a href="ledger.html">The accuracy ledger</a>: ${plural(score.total, 'recorded claim')}, ${formatInt(score.confirmed)} confirmed, ${formatInt(score.refuted)} refuted, ${formatInt(score.open)} open.</p>
+</div>
+${sections}`;
+  return layout({ title: 'Leaks - llm-catalog-archive', depth: 1, body });
+}
+
+const OUTCOME_LABEL: Record<string, string> = {
+  confirmed: 'confirmed',
+  refuted: 'refuted',
+  open: 'open',
+};
+
+/**
+ * The public accuracy ledger.
+ *
+ * Every rumor and whether it panned out, in the order it was recorded, which is
+ * file order because the ledger is append-only. The accuracy rate is printed as
+ * "not yet scored" rather than as a number while nothing has resolved: an empty
+ * ledger has no accuracy, and both 0% and 100% would be a score nobody earned.
+ */
+export function renderLedgerPage(claims: LedgerClaim[]): string {
+  const score = scoreLedger(claims);
+  const rows =
+    claims.length === 0
+      ? '<p class="note">The ledger is empty. Nothing has been claimed here, so nothing has been scored.</p>'
+      : `<div class="table-scroll"><table class="changes">
+<thead><tr><th>Recorded</th><th>Claim</th><th>Tier</th><th>Outcome</th><th>Resolved</th><th>Artifact</th></tr></thead>
+<tbody>
+${claims
+          .map(
+            (c) => `<tr>
+<td class="mono">${escapeHtml(c.recorded)}</td>
+<td>${escapeHtml(c.claim)}${c.resolutionNote === null ? '' : `<br><span class="note">${escapeHtml(c.resolutionNote)}</span>`}</td>
+<td class="mono">${escapeHtml(c.tier)}</td>
+<td class="mono"><span class="badge badge-outcome-${escapeHtml(c.outcome)}">${escapeHtml(OUTCOME_LABEL[c.outcome] ?? c.outcome)}</span></td>
+<td class="mono">${escapeHtml(c.resolved ?? 'not yet')}</td>
+<td class="mono">${c.artifact === null ? 'none' : `<a href="${escapeHtml(c.artifact)}">artifact</a>`}</td>
+</tr>`,
+          )
+          .join('\n')}
+</tbody>
+</table></div>`;
+
+  const body = `<p class="eyebrow">Leaks</p>
+<h1>Accuracy ledger</h1>
+<p class="lede">Every claim this desk has made and what became of it. Append-only: a claim line is written once and a resolution line is appended later naming it, so the outcome cannot be edited into the record after the fact. Enforced by <code>.github/workflows/append-only.yml</code>.</p>
+<dl class="facts">
+<div class="fact"><dt>Recorded claims</dt><dd class="big">${formatInt(score.total)}</dd></div>
+<div class="fact"><dt>Confirmed</dt><dd class="big">${formatInt(score.confirmed)}</dd></div>
+<div class="fact"><dt>Refuted</dt><dd class="big">${formatInt(score.refuted)}</dd></div>
+<div class="fact"><dt>Open</dt><dd class="big">${formatInt(score.open)}</dd></div>
+<div class="fact"><dt>Accuracy over resolved claims</dt><dd>${score.accuracyPct === null ? 'not yet scored: no claim has resolved' : `${score.accuracyPct}%`}</dd></div>
+</dl>
+${rows}
+<p class="note"><a href="index.html">Back to the leaks desk</a>.</p>`;
+  return layout({ title: 'Accuracy ledger - llm-catalog-archive', depth: 1, body });
 }

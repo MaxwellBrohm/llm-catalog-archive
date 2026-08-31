@@ -16,6 +16,8 @@ import { buildSite, writeSite } from './site/build.js';
 import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
 import { parseRetractions } from './site/retractions.js';
+import { parseLedger } from './site/ledger.js';
+import { deriveLeaks } from './derive/leaks.js';
 import { loadSources } from './config.js';
 import { deriveEvents, precisionBySource, type Tier } from './derive/events.js';
 import { buildThreads } from './derive/threads.js';
@@ -67,7 +69,18 @@ const contentChanges = readContentChanges(cwd, tierOf);
 const events = deriveEvents(contentChanges);
 const threads = buildThreads(events);
 
-const files = buildSite(records, siteUrl, threads);
+// The accuracy ledger. Absent is not tolerated for the same reason the
+// retraction ledger is not: it is created empty and append-only from the day
+// the desk ships, and a desk that publishes a scorecard it could not read would
+// be publishing an accuracy of "no claims" over claims it simply failed to
+// open.
+const ledgerPath = path.join(cwd, 'meta/leaks-ledger.jsonl');
+if (!fs.existsSync(ledgerPath)) throw new Error('meta/leaks-ledger.jsonl is missing; refusing to build a leaks desk with no accuracy ledger behind it');
+const claims = parseLedger(fs.readFileSync(ledgerPath, 'utf8'));
+
+const leaks = deriveLeaks(contentChanges);
+
+const files = buildSite(records, siteUrl, threads, leaks, claims);
 writeSite(outDir, files);
 
 // There is deliberately no second .nojekyll written outside outDir. Pages looks
@@ -78,6 +91,13 @@ const retracted = records.filter((r) => r.retraction !== null).length;
 console.log(`site: ${records.length} changes, ${files.length} files, ${retractions.length} retraction(s) in the ledger, ${retracted} matched`);
 console.log(
   `derive: ${events.length} events, ${threads.threads.length} threads, ${threads.held.length} held`,
+);
+// Per type, because one total hides the case that matters: a signal that has
+// silently stopped producing while the others carry the number.
+const byType = new Map<string, number>();
+for (const l of leaks) byType.set(l.type, (byType.get(l.type) ?? 0) + 1);
+console.log(
+  `leaks: ${leaks.length} items (${[...byType].sort().map(([t, n]) => `${t} ${n}`).join(', ') || 'none'}), ${claims.length} ledger claim(s)`,
 );
 // The measured first-seen error per source, printed because it is a published
 // claim and a number nobody looks at is a number nobody notices going wrong.

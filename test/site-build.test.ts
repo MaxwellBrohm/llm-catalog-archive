@@ -39,9 +39,13 @@ describe('buildSite: the file set', () => {
       'changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html',
       'feed.xml',
       'index.html',
+      'leaks/index.html',
+      'leaks/ledger.html',
       'site/changes/0e91a0fbf78e6302670dc61a8c28502e418d01a1.html',
       'site/changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html',
       'site/index.html',
+      'site/leaks/index.html',
+      'site/leaks/ledger.html',
       'site/sources/claude-status.html',
       'site/sources/openai-llms-txt.html',
       'site/threads/index.html',
@@ -95,15 +99,19 @@ describe('buildSite: the file set', () => {
   // The threads index is fixed too, and it is emitted for an empty archive on
   // purpose: a page saying nothing has been derived yet is a claim about the
   // deriver, and the alternative is a navigation link that 404s on a quiet day.
-  it('emits only the five fixed files, plus their stubs, for an archive with no changes yet', () => {
+  it('emits only the seven fixed files, plus their stubs, for an archive with no changes yet', () => {
     expect(buildSite([]).map((f) => f.path)).toEqual([
       '.nojekyll',
       'style.css',
       'index.html',
       'feed.xml',
       'threads/index.html',
+      'leaks/index.html',
+      'leaks/ledger.html',
       'site/index.html',
       'site/threads/index.html',
+      'site/leaks/index.html',
+      'site/leaks/ledger.html',
     ]);
   });
 });

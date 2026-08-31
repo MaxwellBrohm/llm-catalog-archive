@@ -14,7 +14,7 @@ jobs:
           # cannot see this. Deleting a zero-line file produces no '-' content
           # lines at all, so while the ledgers are still empty, git rm would
           # otherwise sail through every check underneath.
-          for f in meta/corrections.jsonl meta/retractions.jsonl; do
+          for f in meta/corrections.jsonl meta/retractions.jsonl meta/leaks-ledger.jsonl; do
             if [ ! -f "$f" ]; then
               echo "::error::$f is missing; the append-only ledgers may not be deleted or renamed"
               exit 1
@@ -46,7 +46,7 @@ jobs:
           # 1 when it matches nothing, so piping a failed diff into it reports
           # "no lines removed" exactly as confidently as a clean diff does.
           diff_out="$(mktemp)"
-          for f in meta/corrections.jsonl meta/retractions.jsonl; do
+          for f in meta/corrections.jsonl meta/retractions.jsonl meta/leaks-ledger.jsonl; do
             if ! git diff "$base" HEAD -- "$f" > "$diff_out"; then
               echo "::error::git diff $base HEAD -- $f failed; the append-only check could not be performed"
               exit 1

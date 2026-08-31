@@ -586,6 +586,80 @@
         "maxShrinkPct": 25
       },
       "notes": "Predicate is extracted over atomStatus, not bytes. Measured 2026-08-26: six fetches gave two distinct md5s at an identical 92,282 bytes. Two things move per cache generation and neither is an incident. The feed-level updated re-stamps, and the affected-component list inside every entry is permuted, 493 differing runs across 15,600 bytes, while entry id order and set stay stable. atomStatus projects each entry's id, its updated, and its component list SORTED. Sorting kills the permutation while leaving a component APPEARING or VANISHING visible, which is the quiet withdrawal a status feed exists to leak; dropping the component list would be cheaper and would throw that away. The feed-level updated sits outside every entry and so is never read. This feed carries zero published elements, only updated, which is why freshness reads the entry-scoped date rather than the document-wide one. Activated 2026-08-31 after a double dry run in which the second consecutive run committed nothing."
+    },
+    {
+      "id": "transformers-pulls",
+      "url": "https://api.github.com/search/issues?q=repo:huggingface/transformers+is:pr+model+support+in:title&sort=created&order=desc&per_page=100",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/transformers-pulls/response.json",
+      "contentType": "json",
+      "expectedRoot": null,
+      "invariants": {
+        "minBytes": 200000,
+        "requiredKeyPath": "items",
+        "minRecords": 40,
+        "canary": null,
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "content",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "githubPulls"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "Leaks-desk signal 2: an open-weights model cannot launch until its runtime support is upstreamed, so the pull request naming an architecture exists in public before any weights do. Probed live 2026-08-31: HTTP 200, 483,237 bytes, total_count 203, per_page=100 reaching back to 2024-09-20. The GitHub SEARCH API is a separate rate-limit bucket from the core REST API at 10 requests per minute unauthenticated, which one daily call does not come close to; the core bucket's 60 per hour is the tighter one and this endpoint does not use it. per_page is 100 rather than a smaller window because the merge transition is the whole point of the signal and a pull request that falls out of the created-desc window before it merges can never produce that event; 100 items is roughly six weeks on the busier of the two repositories. The query filters on title only, and deliberately loosely, because R3 puts normalization in the deriver: the archive holds the superset and src/derive/leaks.ts applies the `Add <Capitalized> model support` filter over it, so tightening the filter later is a code change rather than a hole in the history. The predicate is githubPulls and not bytes. What is measured and what is reasoned is kept apart here: two fetches 40 minutes apart on 2026-08-31 were BYTE IDENTICAL, so per-request volatility of the arena or openai-status kind is NOT claimed for this source. What moves is activity: every item carries an `updated_at` that advances on any comment or label, a `comments` count, a `reactions` block, a relevance `score`, and a feed-level `total_count` that moves as unrelated pull requests match the query. On a repository with 1,043 matching pull requests and daily traffic, a comment on any of the hundred in the window is a full-body commit under bytes and is not a model-support signal. Measured against the stored artifact: applying only those five field families plus a reversal of item order changes 483,237 bytes to 483,559 and the predicate reports unchanged, while flipping one merged_at from null to a date reports changed. githubPulls projects (number, title, state, merged_at) and nothing else. merged_at is projected because state cannot stand in for it: a closed pull request is abandoned or merged, and the search payload distinguishes the two, so keying on state alone would file an abandoned attempt and a landed runtime commit as one event. minBytes 200000 is under half the smallest observation because `body` is user-authored and its length dominates the payload size. minRecords 40 against 100 requested leaves headroom for a search API that returns short."
+    },
+    {
+      "id": "vllm-pulls",
+      "url": "https://api.github.com/search/issues?q=repo:vllm-project/vllm+is:pr+model+support+in:title&sort=created&order=desc&per_page=100",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/vllm-pulls/response.json",
+      "contentType": "json",
+      "expectedRoot": null,
+      "invariants": {
+        "minBytes": 250000,
+        "requiredKeyPath": "items",
+        "minRecords": 40,
+        "canary": null,
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "content",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "githubPulls"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The second half of leaks-desk signal 2, and it is a separate source rather than a second query because the two repositories upstream on different clocks: vLLM has 1,043 all-time matches against transformers' 203, and its 100-item window reaches back six weeks where the transformers window reaches back two years. Probed live 2026-08-31: HTTP 200, 657,623 bytes, total_count 1043, newest item the same day. Predicate githubPulls, not bytes, for exactly the reasons written on transformers-pulls, and with the same care about what is measured: two fetches 40 minutes apart were byte identical, so the justification is activity-driven churn rather than per-request volatility. Measured against the stored artifact: comment-driven `updated_at`, `comments`, `reactions`, `score`, `total_count` and a reversed item order together move 657,623 bytes to 657,933 and the predicate reports unchanged, while one merged_at going non-null reports changed. The projection is (number, title, state, merged_at). Confirming a catch is a second, uncollected step by design: the deriver publishes the pull request as a confirmed artifact and never as a launch, because huggingface.co/api/models returning [] for the architecture name is evidence about a weights repository and not about the pull request, and merging the two into one sentence is the claim the copy rule forbids. minBytes 250000 is under half the observation for the same reason as transformers-pulls: `body` dominates. minRecords 40 against 100 requested."
     }
   ]
 }

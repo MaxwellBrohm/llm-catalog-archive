@@ -7,6 +7,7 @@ import {
   changedUnderPredicate,
   extractArena,
   extractAtomStatus,
+  extractGithubPulls,
   extractSitemapDated,
   extractSitemapLoc,
   extractXai,
@@ -575,6 +576,90 @@ describe('applyMask', () => {
   });
 });
 
+describe('extractGithubPulls', () => {
+  const doc = (items: unknown[]): string => JSON.stringify({ total_count: items.length, items });
+  const pull = (over: Record<string, unknown> = {}) => ({
+    number: 48387,
+    title: 'Add Ovis2.5 model support',
+    state: 'open',
+    score: 1,
+    updated_at: '2026-08-30T00:00:00Z',
+    reactions: { '+1': 3 },
+    pull_request: { merged_at: null },
+    ...over,
+  });
+
+  it('projects the number, title, state and merged_at of one item', () => {
+    expect(extractGithubPulls(doc([pull()]))).toEqual({ ok: true, key: '48387\tAdd Ovis2.5 model support\topen\t' });
+  });
+
+  it('projects merged_at when the payload carries one', () => {
+    const got = extractGithubPulls(doc([pull({ state: 'closed', pull_request: { merged_at: '2026-07-16T18:43:59Z' } })]));
+    expect(got).toEqual({ ok: true, key: '48387\tAdd Ovis2.5 model support\tclosed\t2026-07-16T18:43:59Z' });
+  });
+
+  // The four things that move with no pull request changing. Under a bytes
+  // predicate each of them commits about 650 KB a day of nothing.
+  it('projects a re-scored item to the same key', () => {
+    expect(extractGithubPulls(doc([pull({ score: 0.2 })]))).toEqual(extractGithubPulls(doc([pull()])));
+  });
+
+  it('projects an item whose updated_at advanced to the same key', () => {
+    expect(extractGithubPulls(doc([pull({ updated_at: '2026-08-31T09:00:00Z' })]))).toEqual(extractGithubPulls(doc([pull()])));
+  });
+
+  it('projects an item whose reactions changed to the same key', () => {
+    expect(extractGithubPulls(doc([pull({ reactions: { '+1': 40 } })]))).toEqual(extractGithubPulls(doc([pull()])));
+  });
+
+  it('projects a payload whose total_count moved to the same key', () => {
+    const a = JSON.stringify({ total_count: 203, items: [pull()] });
+    const b = JSON.stringify({ total_count: 999, items: [pull()] });
+    expect(extractGithubPulls(a)).toEqual(extractGithubPulls(b));
+  });
+
+  // Sorted, so the search API returning the same window in a different order
+  // is not a change. Rank is not content here: the query fixes the order.
+  it('projects two orderings of the same window to the same key', () => {
+    const a = doc([pull({ number: 1 }), pull({ number: 2 })]);
+    const b = doc([pull({ number: 2 }), pull({ number: 1 })]);
+    expect(extractGithubPulls(a)).toEqual(extractGithubPulls(b));
+  });
+
+  it('projects a merged pull request differently from a closed one', () => {
+    const merged = doc([pull({ state: 'closed', pull_request: { merged_at: '2026-07-16T18:43:59Z' } })]);
+    const abandoned = doc([pull({ state: 'closed' })]);
+    expect(extractGithubPulls(merged)).not.toEqual(extractGithubPulls(abandoned));
+  });
+
+  it('projects a retitled pull request differently', () => {
+    expect(extractGithubPulls(doc([pull({ title: 'Add Ovis3 model support' })]))).not.toEqual(
+      extractGithubPulls(doc([pull()])),
+    );
+  });
+
+  // "Unchanged" is the answer that lets a broken extractor sit silently on a
+  // live source for months, so a shape it cannot read is a failure.
+  it('reports a body with no items array as a failure', () => {
+    expect(extractGithubPulls('{"message":"API rate limit exceeded"}')).toEqual({
+      ok: false,
+      reason: 'github pulls projection: body has no `items` array',
+    });
+  });
+
+  it('reports a body that is not JSON as a failure', () => {
+    expect(extractGithubPulls('<html>429</html>')).toEqual({
+      ok: false,
+      reason: 'github pulls projection: body is not valid JSON',
+    });
+  });
+
+  it('reads a missing pull_request block as an absent merged_at', () => {
+    const got = extractGithubPulls('{"items":[{"number":7,"title":"t","state":"open"}]}');
+    expect(got).toEqual({ ok: true, key: '7\tt\topen\t' });
+  });
+});
+
 describe('project', () => {
   it('hands a bytes source its whole decoded body', () => {
     expect(project(sourceFor('openrouter-models'), bytes('{"data":[]}'))).toEqual({
@@ -611,6 +696,16 @@ describe('project', () => {
   it('routes anthropic-sitemap to sitemapDated', () => {
     const body = bytes('<urlset><url><loc>https://x/a</loc><lastmod>T</lastmod></url></urlset>');
     expect(project(sourceFor('anthropic-sitemap'), body)).toEqual({ ok: true, key: 'https://x/a\tT' });
+  });
+
+  it('routes transformers-pulls to githubPulls', () => {
+    const body = bytes('{"items":[{"number":1,"title":"t","state":"open","score":9}]}');
+    expect(project(sourceFor('transformers-pulls'), body)).toEqual({ ok: true, key: '1\tt\topen\t' });
+  });
+
+  it('routes vllm-pulls to githubPulls', () => {
+    const body = bytes('{"items":[{"number":2,"title":"u","state":"closed","score":9}]}');
+    expect(project(sourceFor('vllm-pulls'), body)).toEqual({ ok: true, key: '2\tu\tclosed\t' });
   });
 
   it('routes openai-status to atomStatus', () => {

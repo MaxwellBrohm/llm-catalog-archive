@@ -26,15 +26,20 @@ const Predicate = z.discriminatedUnion('type', [
   z.strictObject({
     type: z.literal('extracted'),
     /**
-     * Five, not the three this enum shipped with. `sitemapDated` and
+     * Six, not the three this enum shipped with. `sitemapDated` and
      * `atomStatus` were added by the launch-day double dry run, which found
      * `anthropic-sitemap` re-stamping 24 of its `lastmod` values per request
      * and `openai-status` permuting the component list inside every entry.
      * Neither was visible to the source-health sweep, because that compared
      * fetches taken minutes apart in one session and both depend on which
      * edge cache answers.
+     *
+     * `githubPulls` is the leaks desk's, and it is here for the same reason
+     * the other five are: GitHub's search payload re-scores every item per
+     * query and advances `updated_at` on any comment, so a byte predicate on
+     * two 650 KB payloads commits half a megabyte a day of nothing.
      */
-    extractor: z.enum(['arena', 'xai', 'sitemapLoc', 'sitemapDated', 'atomStatus']),
+    extractor: z.enum(['arena', 'xai', 'sitemapLoc', 'sitemapDated', 'atomStatus', 'githubPulls']),
   }),
 ]);
 

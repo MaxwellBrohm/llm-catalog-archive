@@ -1,0 +1,77 @@
+# publicName<TAB>displayName<TAB>classification
+#
+# Every distinct pair in the live https://arena.ai/leaderboard flight payload
+# where publicName differs from displayName, captured 2026-08-31: 57 of them,
+# out of 1029 publicName records and 873 distinct (publicName, displayName)
+# pairs.
+#
+# The third column is a HAND classification, checked row by row, not the
+# output of the classifier under test. Two rows were argued over and are
+# recorded here so the argument is visible:
+#
+#   glm-5.1 -> glm-5.2 (max)   variant. The version differs, which reads like
+#                              a reveal, but both names are the same public
+#                              product line and the rule is a shared token.
+#   hunyuan-hy3-preview        reveal. The only token the two names share is
+#     -> hy4-preview           `preview`, which is a release channel and not an
+#                              identity, so the stop list drops it.
+#
+# 39 reveals, 18 variants. A raw count of differing rows overstates the reveal
+# count by 57/39, about 1.5x.
+anonymous-0410	openhard-1.0-search-non-reasoning-0410	reveal
+anonymous-0825	glm-5.3-flash	reveal
+august26-chatbot1	nvidia-nemotron-3.5-lightning-30b-a3b-nvfp4	reveal
+auto-bear-v2	qwen-image-2.0-pro-2026-06-22	reveal
+avalon	reve-2.0 (image-edit)	reveal
+babylon	reve-2.0 (text-to-image)	reveal
+carillon	reve-2.1	reveal
+claude-sonnet-5	claude-sonnet-5-high	variant
+cold_brew	muse-video	reveal
+deep-octo	minimax-m2.7	reveal
+deepseek-v4-flash	deepseek-v4-flash-20260731	variant
+deepseek-v4-flash-low	deepseek-v4-flash-low-20260731	variant
+deepseek-v4-flash-thinking	deepseek-v4-flash-high-20260731	variant
+farris	qwen3.8-flash-next	reveal
+ferric_wash	muse-image	reveal
+glm-5.1	glm-5.2 (max)	variant
+glm-5.3	glm-5.3 (max)	variant
+gpt-5.4-high-no-system-prompt	gpt-5.4-high	variant
+gpt-5.4-no-system-prompt	gpt-5.4	variant
+grok-4.3	grok-4.5	variant
+grok-4.6	grok-4.6-high	variant
+grok-4.6	grok-4.6-low	variant
+grok-4.6	grok-4.6-medium	variant
+grok-4.6	grok-4.6-xhigh	variant
+groudon	seed-2.1-pro-preview	reveal
+hailuo-3	minimax-h3	reveal
+horseshoe	grok-imagine-image-2.0 (low)	reveal
+hunyuan-hy3-preview	hy4-preview	reveal
+inkling-small-rc-3	inkling-small	variant
+iron-bloom	muse-image	reveal
+k2	dreamina-seedance-2.0-720p	reveal
+kimi-k2.5	kimi-k2.5-thinking	variant
+kinsley	qwen3.8-max	reveal
+kiteki	qwen3.5-max-preview	reveal
+kizen-alpha	qwen3.6-max-preview	reveal
+korin	qwen3.7-max-20260517	reveal
+laguna-m.1-v2	laguna-m.1	variant
+lhotse	dreamina-seedance-2.5-720p	reveal
+lo-bah-png	mai-image-2.6-preview (t2i)	reveal
+luffa-v8	mai-image-2.6-preview (image-edit)	reveal
+march26-chatbot1-public	nvidia-nemotron-3-super-120b-a12b	reveal
+may-alpha	qwen3.7-plus-preview	reveal
+may26-chatbot4-public	nvidia-nemotron-3-ultra-550b-a55b-nvfp4	reveal
+melyora	qwen3.7-max-preview	reveal
+muse-spark	muse-spark-1.1	variant
+nonnas-meatballs-open-weight	ideogram-4.0-quality	reveal
+onyx-v1-4	muse-glimmer	reveal
+paisley	qwen3.8-max	reveal
+porcelain	grok-imagine-image-2.0 (low)	reveal
+pteronura	gemma-4-31b	reveal
+significant-otter	gemma-4-26b-a4b	reveal
+snowflake	vidu-q3-pro	reveal
+sungod	hunyuan-image-3.0-instruct	reveal
+thunbergia-alpha	qwen3.8-max	reveal
+trinity-large	trinity-large-preview	variant
+zen-bear-v14r	qwen-image-3.0-pro	reveal
+zen-bear-v4	qwen-image-2.0-pro-2026-06-22	reveal

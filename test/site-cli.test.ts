@@ -50,6 +50,7 @@ function fixtureRepo(): { dir: string; second: string } {
   fs.mkdirSync(path.join(dir, 'raw/openai-llms-txt'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'meta'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'meta/retractions.jsonl'), '');
+  fs.writeFileSync(path.join(dir, 'meta/leaks-ledger.jsonl'), '');
 
   // The real repository keeps its specs under docs/, and the generator used to
   // write a .nojekyll in there. A fixture with no docs/ cannot tell a generator
@@ -81,7 +82,7 @@ function fixtureRepo(): { dir: string; second: string } {
 
   fs.writeFileSync(path.join(dir, 'raw/openai-llms-txt/response.txt'), 'one\ntwo\n');
   fs.writeFileSync(path.join(dir, 'raw/openai-llms-txt/headers.json'), sidecar('2026-08-26T20:25:00.000Z'));
-  run(dir, ['add', '--', 'raw/openai-llms-txt', 'meta/retractions.jsonl', 'docs/spec.md']);
+  run(dir, ['add', '--', 'raw/openai-llms-txt', 'meta/retractions.jsonl', 'meta/leaks-ledger.jsonl', 'docs/spec.md']);
   run(dir, ['commit', '-q', '-m', 'openai-llms-txt: changed (8 bytes, HTTP 200)']);
 
   fs.writeFileSync(path.join(dir, 'raw/openai-llms-txt/response.txt'), 'one\nTWO\n');
@@ -214,6 +215,55 @@ describe('site-cli and the retraction ledger', () => {
   it('refuses to build on a malformed ledger line', () => {
     const { dir } = fixtureRepo();
     fs.writeFileSync(path.join(dir, 'meta/retractions.jsonl'), 'not json\n');
+    expect(build(dir).status).not.toBe(0);
+  });
+}, TIMEOUT_MS);
+
+/**
+ * The accuracy ledger gets the same refusal as the retraction ledger, for the
+ * same reason one level over: a desk that published a scorecard it could not
+ * read would be reporting an accuracy of "no claims" over claims it simply
+ * failed to open, and that is the single number the ledger exists to make
+ * honest.
+ */
+describe('site-cli and the accuracy ledger', () => {
+  it('writes the leaks desk', () => {
+    const { dir } = fixtureRepo();
+    build(dir);
+    expect(fs.existsSync(path.join(dir, 'build/site/leaks/index.html'))).toBe(true);
+  });
+
+  it('writes the accuracy ledger page', () => {
+    const { dir } = fixtureRepo();
+    build(dir);
+    expect(fs.existsSync(path.join(dir, 'build/site/leaks/ledger.html'))).toBe(true);
+  });
+
+  it('reports the leak item count it derived', () => {
+    const { dir } = fixtureRepo();
+    expect(build(dir).stdout).toMatch(/leaks: \d+ items/);
+  });
+
+  it('reports how many ledger claims it read', () => {
+    const { dir } = fixtureRepo();
+    expect(build(dir).stdout).toContain('0 ledger claim(s)');
+  });
+
+  it('refuses to build when the accuracy ledger is missing', () => {
+    const { dir } = fixtureRepo();
+    fs.rmSync(path.join(dir, 'meta/leaks-ledger.jsonl'));
+    expect(build(dir).status).not.toBe(0);
+  });
+
+  it('says why it refused', () => {
+    const { dir } = fixtureRepo();
+    fs.rmSync(path.join(dir, 'meta/leaks-ledger.jsonl'));
+    expect(build(dir).stderr).toContain('meta/leaks-ledger.jsonl is missing');
+  });
+
+  it('refuses to build on a malformed accuracy-ledger line', () => {
+    const { dir } = fixtureRepo();
+    fs.writeFileSync(path.join(dir, 'meta/leaks-ledger.jsonl'), 'not json\n');
     expect(build(dir).status).not.toBe(0);
   });
 }, TIMEOUT_MS);

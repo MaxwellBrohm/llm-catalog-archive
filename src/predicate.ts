@@ -100,17 +100,51 @@ const first = (re: RegExp, text: string): string | null => {
  * Sorted, because record ORDER is exactly the kind of thing an anonymous
  * request can permute, and nothing is lost: rank is recoverable from rating.
  */
-export function extractArena(text: string): Projection {
-  const chunks = text.split(/\\?"(?:modelKey|publicName)\\?":\\?"/);
-  const rows: string[] = [];
+export type ArenaRow = { name: string; display: string; rating: string; votes: string };
 
-  for (const chunk of chunks.slice(1)) {
-    const key = /^([^"\\]*)/.exec(chunk)![1]!;
-    const display = /\\?"(?:modelDisplayName|displayName)\\?":\\?"([^"\\]*)/.exec(chunk)?.[1] ?? '';
-    const rating = /\\?"rating\\?":(-?\d+(?:\.\d+)?)/.exec(chunk)?.[1] ?? '';
-    const votes = /\\?"votes\\?":(\d+)/.exec(chunk)?.[1] ?? '';
-    rows.push(`${key}\t${display}\t${rating}\t${votes}`);
+/**
+ * The record tuples in an arena payload, in payload order.
+ *
+ * Split out of extractArena so the predicate and the leaks desk read the SAME
+ * parser. Two parsers over one undocumented framework payload is two things to
+ * notice breaking, and the one that breaks silently is the one nobody is
+ * watching: the predicate would report "no change" for ever while the desk
+ * reported no reveals, and both would look like a quiet week.
+ *
+ * BOTH SPELLINGS ARE ACCEPTED because the payload carries both: leaderboard
+ * entries key on `modelKey`/`modelDisplayName`, the model picker on
+ * `publicName`/`displayName`. `keyed` records which one delimited the record,
+ * because the codename map is a claim about the PICKER's pair specifically and
+ * a leaderboard row is not the same artifact.
+ *
+ * EVERY QUOTE IS WRITTEN `\\?"` RATHER THAN UNESCAPING THE DOCUMENT FIRST. The
+ * payload is JSON escaped inside JS string literals at a nesting depth that
+ * varies by which flight chunk a record lands in, and the bare form matches
+ * zero times: an implementer who writes `"publicName":"` sees an empty
+ * leaderboard rather than a bug.
+ */
+export function arenaRows(text: string, keyed: 'any' | 'publicName' = 'any'): ArenaRow[] {
+  const splitter =
+    keyed === 'publicName' ? /\\?"publicName\\?":\\?"/ : /\\?"(?:modelKey|publicName)\\?":\\?"/;
+  const displayRe =
+    keyed === 'publicName'
+      ? /\\?"displayName\\?":\\?"([^"\\]*)/
+      : /\\?"(?:modelDisplayName|displayName)\\?":\\?"([^"\\]*)/;
+
+  const rows: ArenaRow[] = [];
+  for (const chunk of text.split(splitter).slice(1)) {
+    rows.push({
+      name: /^([^"\\]*)/.exec(chunk)![1]!,
+      display: displayRe.exec(chunk)?.[1] ?? '',
+      rating: /\\?"rating\\?":(-?\d+(?:\.\d+)?)/.exec(chunk)?.[1] ?? '',
+      votes: /\\?"votes\\?":(\d+)/.exec(chunk)?.[1] ?? '',
+    });
   }
+  return rows;
+}
+
+export function extractArena(text: string): Projection {
+  const rows = arenaRows(text).map((r) => `${r.name}\t${r.display}\t${r.rating}\t${r.votes}`);
 
   if (rows.length < ARENA_MIN_RECORDS) {
     return { ok: false, reason: `arena projection found ${rows.length} records, floor is ${ARENA_MIN_RECORDS}` };
@@ -250,6 +284,55 @@ export function extractAtomStatus(text: string): string {
 }
 
 /**
+ * `transformers-pulls` and `vllm-pulls`: the pull-request tuples, sorted.
+ *
+ * `bytes` is wrong here and would be wrong quietly. GitHub's search payload
+ * carries four things that move with no pull request changing: every item's
+ * `score` is a relevance float recomputed per query, `updated_at` advances on a
+ * comment or a label, `reactions` counts every thumbs-up, and `total_count`
+ * moves as unrelated pull requests match the query. A daily `bytes` predicate
+ * would commit roughly 650 KB of that per repository per day into a history R7
+ * forbids rewriting, and none of it is the signal.
+ *
+ * WHAT IS PROJECTED IS EXACTLY WHAT THE LEAKS DESK READS: the number, the
+ * title, the state, and `merged_at`. So a commit happens when and only when a
+ * pull request enters the window, changes title, closes, or merges, which are
+ * the four transitions the desk can make a claim about.
+ *
+ * `merged_at` is projected because `state` cannot stand in for it. A closed
+ * pull request is abandoned or merged and the search payload distinguishes
+ * them; keying on `state` alone would make an abandoned attempt and a landed
+ * runtime commit the same event.
+ *
+ * A body that is not `{ items: [...] }` projects to the empty string and IS
+ * reported as a change against a stored projection, which is the loud failure:
+ * the health check already requires `items` for these sources, so bytes that
+ * reach here without it were committed in violation of an invariant.
+ */
+export function extractGithubPulls(text: string): Projection {
+  let json: unknown;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    return { ok: false, reason: 'github pulls projection: body is not valid JSON' };
+  }
+  const items = (json as { items?: unknown } | null)?.items;
+  if (!Array.isArray(items)) {
+    return { ok: false, reason: 'github pulls projection: body has no `items` array' };
+  }
+
+  const rows = items.map((raw) => {
+    const it = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
+    const pr = (typeof it['pull_request'] === 'object' && it['pull_request'] !== null
+      ? it['pull_request']
+      : {}) as Record<string, unknown>;
+    const merged = typeof pr['merged_at'] === 'string' ? pr['merged_at'] : '';
+    return `${String(it['number'] ?? '')}\t${String(it['title'] ?? '')}\t${String(it['state'] ?? '')}\t${merged}`;
+  });
+  return { ok: true, key: rows.sort().join('\n') };
+}
+
+/**
  * Replace every match of every declared pattern with one fixed marker.
  *
  * A marker rather than the empty string, so two masked regions that happen to
@@ -273,6 +356,7 @@ const EXTRACTORS = {
   sitemapLoc: (t: string): Projection => ({ ok: true, key: extractSitemapLoc(t) }),
   sitemapDated: (t: string): Projection => ({ ok: true, key: extractSitemapDated(t) }),
   atomStatus: (t: string): Projection => ({ ok: true, key: extractAtomStatus(t) }),
+  githubPulls: extractGithubPulls,
 } as const;
 
 /** What this source's predicate compares. */

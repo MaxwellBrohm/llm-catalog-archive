@@ -196,7 +196,7 @@ describe('loadSources', () => {
   it('rejects an http url, not only a non http scheme', () => {
     // Removing the protocol option entirely dies to javascript:alert(1), but
     // relaxing /^https$/ to /^https?$/ is the likelier edit and nothing else
-    // in the suite would notice it: all 16 shipped sources are https.
+    // in the suite would notice it: all 18 shipped sources are https.
     const bad = minimal();
     only(bad).url = 'http://openrouter.ai/api/v1/models';
     expect(() => loadSources(bad)).toThrow(/url/i);
@@ -273,8 +273,8 @@ describe('the shipped meta/sources.json', () => {
   const shipped = (): SourcesFile =>
     (cached ??= loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8'))));
 
-  it('loads and has all 16 sources', () => {
-    expect(shipped().sources).toHaveLength(16);
+  it('loads and has all 18 sources', () => {
+    expect(shipped().sources).toHaveLength(18);
   });
 
   // Five sources were volatile and all five now have a predicate. Four of them
@@ -337,7 +337,7 @@ describe('the shipped meta/sources.json', () => {
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(15);
+    expect(fetched).toHaveLength(17);
     expect(fetched).not.toContain('arena-leaderboard');
   });
 
@@ -360,7 +360,7 @@ describe('the shipped meta/sources.json', () => {
       const m = /^\|\s*`([a-z0-9-]+)`\s*\|\s*`([^`]+)`\s*\|/.exec(line);
       if (m) fromSpec.set(m[1]!, m[2]!);
     }
-    expect(fromSpec.size).toBe(16);
+    expect(fromSpec.size).toBe(18);
 
     const fromTable = new Map(shipped().sources.map((s) => [s.id, s.url]));
     expect(Object.fromEntries(fromTable)).toEqual(Object.fromEntries(fromSpec));
@@ -374,6 +374,8 @@ describe('the shipped meta/sources.json', () => {
       'claude-status',
       'openai-status',
       'openrouter-sitemap',
+      'transformers-pulls',
+      'vllm-pulls',
       'xai-llms-txt',
     ]);
     for (const s of exceptional) {
@@ -387,7 +389,7 @@ describe('the shipped meta/sources.json', () => {
       // `arena` is a substring of the id and of arena.ai, and `xai` of its own
       // id, so naming the extractor is cheap to satisfy by accident. So is the
       // bare word `bytes`: it is the unit word in every size measurement, and
-      // 15 of the 16 shipped notes contain it. The note has to reject the
+      // 15 of the 18 shipped notes contain it. The note has to reject the
       // default in so many words, which no size measurement does by accident.
       expect(s.notes, `${s.id} notes`).toMatch(/not bytes|bytes predicate|bytes is wrong/);
     }
@@ -432,6 +434,8 @@ describe('the shipped meta/sources.json', () => {
       'groq-llms-full-txt': 797252,
       'xai-llms-txt': 1465407,
       'modelsdev-commits': 20239,
+      'transformers-pulls': 483237,
+      'vllm-pulls': 657623,
     };
     for (const s of shipped().sources) {
       const size = recorded[s.id];
@@ -464,6 +468,8 @@ describe('the shipped meta/sources.json', () => {
       'modelsdev-commits': 'feed/7',
       'claude-status': 'feed/120',
       'openai-status': 'feed/120',
+      'transformers-pulls': 'content/30',
+      'vllm-pulls': 'content/30',
     });
   });
 
@@ -499,6 +505,10 @@ describe('the shipped meta/sources.json', () => {
         .sources.filter((s) => s.invariants.requiredKeyPath !== null)
         .map((s) => [s.id, s.invariants.requiredKeyPath]),
     );
-    expect(declared).toEqual({ 'openrouter-models': 'data' });
+    expect(declared).toEqual({
+      'openrouter-models': 'data',
+      'transformers-pulls': 'items',
+      'vllm-pulls': 'items',
+    });
   });
 });

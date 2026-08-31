@@ -63,6 +63,20 @@ describe('scaffold', () => {
   it('ships the retractions ledger, empty', () => {
     expect(fs.readFileSync('meta/retractions.jsonl', 'utf8')).toBe('');
   });
+
+  it('ships the leaks accuracy ledger, empty', () => {
+    expect(fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8')).toBe('');
+  });
+
+  // Empty is only half of it. An append-only ledger that no workflow guards is
+  // a mutable file with a promise written on it, and the promise is the whole
+  // product claim: a scorecard anyone can edit after the fact is not evidence
+  // of having been right.
+  it('guards the leaks ledger in the append-only workflow', () => {
+    const workflow = fs.readFileSync('.github/workflows/append-only.yml', 'utf8');
+    const guarded = workflow.split('\n').filter((l) => l.includes('meta/leaks-ledger.jsonl'));
+    expect(guarded).toHaveLength(2);
+  });
 });
 
 describe('stored bytes stay diffable', () => {

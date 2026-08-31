@@ -10,11 +10,15 @@ import {
   renderChangePage,
   renderFeed,
   renderIndexPage,
+  renderLeaksPage,
+  renderLedgerPage,
   renderRedirect,
   renderSourcePage,
   renderThreadPage,
   renderThreadsIndex,
   threadPagePath,
+  LEAKS_INDEX_PATH,
+  LEDGER_PATH,
   THREADS_INDEX_PATH,
 } from './render.js';
 import {
@@ -27,6 +31,8 @@ import {
   type ChangeRecord,
 } from './record.js';
 import type { ThreadSet } from '../derive/threads.js';
+import type { LeakItem } from '../derive/leaks.js';
+import type { LedgerClaim } from './ledger.js';
 
 export type SiteFile = { path: string; contents: string };
 
@@ -46,6 +52,8 @@ export function buildSite(
   input: ChangeRecord[],
   siteUrl: string = SITE_URL,
   threads: ThreadSet = { threads: [], held: [] },
+  leaks: LeakItem[] = [],
+  ledger: LedgerClaim[] = [],
 ): SiteFile[] {
   const records = sortByStampDesc(input);
 
@@ -72,6 +80,13 @@ export function buildSite(
   for (const thread of threads.threads) {
     files.push({ path: threadPagePath(thread.slug), contents: renderThreadPage(thread) });
   }
+
+  // The leaks desk and its ledger. Emitted unconditionally, empty or not: a
+  // page that disappears when it has nothing on it makes "no reveals this week"
+  // and "the extractor broke" render identically, and the second is the failure
+  // this project exists not to hide.
+  files.push({ path: LEAKS_INDEX_PATH, contents: renderLeaksPage(leaks, ledger) });
+  files.push({ path: LEDGER_PATH, contents: renderLedgerPage(ledger) });
 
   // The old address of every page, forwarding to the new one.
   //
