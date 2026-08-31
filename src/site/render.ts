@@ -80,6 +80,33 @@ Generated from git history over <code>raw/</code>. Timestamps are the sidecar's
 `;
 }
 
+/**
+ * A stub that forwards one old URL to its new address.
+ *
+ * Deliberately NOT built on `layout`: it links no stylesheet and shows no
+ * navigation, because the only correct outcome of loading it is leaving it. A
+ * `<link rel="canonical">` accompanies the refresh so a crawler that does not
+ * follow a meta refresh still learns which URL is the real one. GitHub Pages
+ * serves static files and cannot issue a 301, so a meta refresh is the whole of
+ * what is available.
+ */
+export function renderRedirect(target: string): string {
+  const href = escapeHtml(target);
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moved</title>
+<link rel="canonical" href="${href}">
+<meta http-equiv="refresh" content="0; url=${href}">
+</head>
+<body>
+<p>This page moved to <a href="${href}">${href}</a>.</p>
+</body>
+</html>
+`;
+}
+
 function stampHtml(stamp: Stamp | null): string {
   if (stamp === null) return '<span class="badge badge-observed">no sidecar</span>';
   return `<time datetime="${escapeHtml(stamp.iso)}">${escapeHtml(formatUtc(stamp.iso))}</time> <span class="badge badge-${stamp.kind}">${stamp.kind}</span>`;

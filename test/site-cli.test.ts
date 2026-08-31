@@ -51,6 +51,13 @@ function fixtureRepo(): { dir: string; second: string } {
   fs.mkdirSync(path.join(dir, 'meta'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'meta/retractions.jsonl'), '');
 
+  // The real repository keeps its specs under docs/, and the generator used to
+  // write a .nojekyll in there. A fixture with no docs/ cannot tell a generator
+  // that has stopped writing outside its output directory from one whose write
+  // simply crashes on a missing directory, so the fixture has one.
+  fs.mkdirSync(path.join(dir, 'docs'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'docs/spec.md'), '# spec\n');
+
   const sidecar = (origin: string) =>
     JSON.stringify(
       {
@@ -74,7 +81,7 @@ function fixtureRepo(): { dir: string; second: string } {
 
   fs.writeFileSync(path.join(dir, 'raw/openai-llms-txt/response.txt'), 'one\ntwo\n');
   fs.writeFileSync(path.join(dir, 'raw/openai-llms-txt/headers.json'), sidecar('2026-08-26T20:25:00.000Z'));
-  run(dir, ['add', '--', 'raw/openai-llms-txt', 'meta/retractions.jsonl']);
+  run(dir, ['add', '--', 'raw/openai-llms-txt', 'meta/retractions.jsonl', 'docs/spec.md']);
   run(dir, ['commit', '-q', '-m', 'openai-llms-txt: changed (8 bytes, HTTP 200)']);
 
   fs.writeFileSync(path.join(dir, 'raw/openai-llms-txt/response.txt'), 'one\nTWO\n');
@@ -101,24 +108,28 @@ describe('site-cli against a real repository', () => {
     expect(build(fixtureRepo().dir).status).toBe(0);
   });
 
-  it('writes the index page into docs/site', () => {
+  it('writes the index page into build/site', () => {
     const { dir } = fixtureRepo();
     build(dir);
-    expect(fs.existsSync(path.join(dir, 'docs/site/index.html'))).toBe(true);
+    expect(fs.existsSync(path.join(dir, 'build/site/index.html'))).toBe(true);
   });
 
   it('writes .nojekyll beside it', () => {
     const { dir } = fixtureRepo();
     build(dir);
-    expect(fs.existsSync(path.join(dir, 'docs/site/.nojekyll'))).toBe(true);
+    expect(fs.existsSync(path.join(dir, 'build/site/.nojekyll'))).toBe(true);
   });
 
-  // GitHub Pages looks for .nojekyll in the root of what it publishes, and its
-  // branch source can publish the repository root or /docs and nothing else.
-  it('writes a second .nojekyll at docs/, which is where Pages looks', () => {
+  // The build directory IS the deployed root now, so .nojekyll belongs in it
+  // and nowhere else. The generator used to write a second copy at docs/, back
+  // when Pages published the /docs directory of the branch; that write is gone,
+  // and this asserts it stayed gone, because a generator that writes outside
+  // its gitignored output directory is how build output gets committed again.
+  it('writes nothing outside its output directory', () => {
     const { dir } = fixtureRepo();
+    const before = treePaths(dir);
     build(dir);
-    expect(fs.existsSync(path.join(dir, 'docs/.nojekyll'))).toBe(true);
+    expect(treePaths(dir)).toEqual(before);
   });
 
   it('honours LCA_SITE_URL in the feed', () => {
@@ -129,7 +140,7 @@ describe('site-cli against a real repository', () => {
       env: { ...env, LCA_SITE_URL: 'https://example.test/archive' },
     });
     expect(r.status).toBe(0);
-    expect(fs.readFileSync(path.join(dir, 'docs/site/feed.xml'), 'utf8')).toContain(
+    expect(fs.readFileSync(path.join(dir, 'build/site/feed.xml'), 'utf8')).toContain(
       '<link>https://example.test/archive/index.html</link>',
     );
   });
@@ -141,7 +152,7 @@ describe('site-cli against a real repository', () => {
     // built the site from no records at all made this test red with a
     // filesystem error, which the gated planter correctly refuses to call a
     // kill because it is not an assertion about the page count.
-    const changes = path.join(dir, 'docs/site/changes');
+    const changes = path.join(dir, 'build/site/changes');
     const names = fs.existsSync(changes) ? fs.readdirSync(changes) : [];
     expect(names).toHaveLength(2);
   });
@@ -153,15 +164,15 @@ describe('site-cli against a real repository', () => {
   it('links the raw artifact at the commit sha on the change page', () => {
     const { dir, second } = fixtureRepo();
     build(dir);
-    const page = fs.readFileSync(path.join(dir, `docs/site/changes/${second}.html`), 'utf8');
+    const page = fs.readFileSync(path.join(dir, `build/site/changes/${second}.html`), 'utf8');
     expect(page).toContain(`/blob/${second}/raw/openai-llms-txt/response.txt`);
   });
 
   it('shows the origin_date stored at that commit, not the one at HEAD', () => {
     const { dir } = fixtureRepo();
     build(dir);
-    const dirents = fs.readdirSync(path.join(dir, 'docs/site/changes'));
-    const pages = dirents.map((f) => fs.readFileSync(path.join(dir, 'docs/site/changes', f), 'utf8'));
+    const dirents = fs.readdirSync(path.join(dir, 'build/site/changes'));
+    const pages = dirents.map((f) => fs.readFileSync(path.join(dir, 'build/site/changes', f), 'utf8'));
     expect(pages.some((p) => p.includes('26 August 2026 20:25 UTC'))).toBe(true);
   });
 }, TIMEOUT_MS);
@@ -171,7 +182,7 @@ describe('site-cli and the retraction ledger', () => {
     const { dir, second } = fixtureRepo();
     fs.writeFileSync(path.join(dir, 'meta/retractions.jsonl'), `{"sha":"${second}","reason":"fixture"}\n`);
     build(dir);
-    const page = fs.readFileSync(path.join(dir, `docs/site/changes/${second}.html`), 'utf8');
+    const page = fs.readFileSync(path.join(dir, `build/site/changes/${second}.html`), 'utf8');
     expect(page).toContain('<span class="badge badge-retracted">retracted</span>');
   });
 
@@ -179,7 +190,7 @@ describe('site-cli and the retraction ledger', () => {
     const { dir, second } = fixtureRepo();
     fs.writeFileSync(path.join(dir, 'meta/retractions.jsonl'), `{"sha":"${second}"}\n`);
     build(dir);
-    expect(fs.existsSync(path.join(dir, `docs/site/changes/${second}.html`))).toBe(true);
+    expect(fs.existsSync(path.join(dir, `build/site/changes/${second}.html`))).toBe(true);
   });
 
   it('reports how many ledger lines matched a commit', () => {
@@ -206,3 +217,80 @@ describe('site-cli and the retraction ledger', () => {
     expect(build(dir).status).not.toBe(0);
   });
 }, TIMEOUT_MS);
+
+/**
+ * Every file under `dir`, keyed by its path relative to `dir`, read as bytes.
+ * Latin-1 so a byte comparison stays a byte comparison.
+ */
+function readTree(dir: string, prefix = ''): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+    const abs = path.join(dir, entry.name);
+    const rel = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) for (const [k, v] of readTree(abs, rel)) out.set(k, v);
+    else out.set(rel, fs.readFileSync(abs, 'latin1'));
+  }
+  return out;
+}
+
+/**
+ * The newest `origin_date` fixtureRepo commits. The site is built only from
+ * committed sidecars, so no page it renders may carry a date after this one:
+ * anything later can only have come from the wall clock.
+ */
+const NEWEST_FIXTURE_DAY = '2026-08-28';
+
+describe('site-cli determinism', () => {
+  // Two full runs, seconds apart because each one spawns tsx and shells out to
+  // git per commit. A generator that stamped `new Date()` anywhere would
+  // differ between them.
+  it('produces byte-identical output on a second run over the same history', () => {
+    const { dir } = fixtureRepo();
+    build(dir);
+    const first = readTree(path.join(dir, 'build/site'));
+    build(dir);
+    expect([...readTree(path.join(dir, 'build/site'))]).toEqual([...first]);
+  });
+
+  // A clock at day resolution survives the comparison above whenever both runs
+  // land on the same day, which is always. This is the check that catches it:
+  // today is later than every date the fixture commits, so a rendered "now" of
+  // any resolution shows up here as a date the archive never observed.
+  it('renders no date later than the newest one committed to the fixture', () => {
+    const { dir } = fixtureRepo();
+    build(dir);
+    const dates: string[] = [];
+    for (const [rel, body] of readTree(path.join(dir, 'build/site'))) {
+      if (!rel.endsWith('.html') && !rel.endsWith('.xml')) continue;
+      for (const m of body.matchAll(/\d{4}-\d{2}-\d{2}/g)) dates.push(m[0]);
+    }
+    expect(dates.filter((d) => d > NEWEST_FIXTURE_DAY)).toEqual([]);
+  });
+}, TIMEOUT_MS);
+
+describe('site-cli and the pages that moved', () => {
+  it('answers a change page at its old /site/ address', () => {
+    const { dir, second } = fixtureRepo();
+    build(dir);
+    expect(fs.existsSync(path.join(dir, `build/site/site/changes/${second}.html`))).toBe(true);
+  });
+
+  it('sends that old address to the same page at its new one', () => {
+    const { dir, second } = fixtureRepo();
+    build(dir);
+    const stub = fs.readFileSync(path.join(dir, `build/site/site/changes/${second}.html`), 'utf8');
+    expect(stub).toContain(`<meta http-equiv="refresh" content="0; url=../../changes/${second}.html">`);
+  });
+}, TIMEOUT_MS);
+
+/** Every path under `dir`, ignoring git's own directory and the build output. */
+function treePaths(dir: string, prefix = ''): string[] {
+  const out: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const rel = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+    if (rel === '.git' || rel === 'build') continue;
+    out.push(rel);
+    if (entry.isDirectory()) out.push(...treePaths(path.join(dir, entry.name), rel));
+  }
+  return out.sort();
+}

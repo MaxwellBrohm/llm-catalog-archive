@@ -10,13 +10,22 @@ import {
   renderChangePage,
   renderFeed,
   renderIndexPage,
+  renderRedirect,
   renderSourcePage,
   renderThreadPage,
   renderThreadsIndex,
   threadPagePath,
   THREADS_INDEX_PATH,
 } from './render.js';
-import { changePagePath, SITE_URL, sortByStampDesc, sourcePagePath, type ChangeRecord } from './record.js';
+import {
+  changePagePath,
+  legacyPagePath,
+  legacyRedirectTarget,
+  SITE_URL,
+  sortByStampDesc,
+  sourcePagePath,
+  type ChangeRecord,
+} from './record.js';
 import type { ThreadSet } from '../derive/threads.js';
 
 export type SiteFile = { path: string; contents: string };
@@ -30,9 +39,8 @@ export type SiteFile = { path: string; contents: string };
  * `.nojekyll` is emitted because GitHub Pages otherwise runs Jekyll over what
  * it publishes, and Jekyll drops files and directories whose names begin with
  * an underscore. Nothing here is named that way today, which is exactly why the
- * file has to be committed now rather than after something is. src/site-cli.ts
- * writes a second copy at docs/, which is where Pages actually looks when the
- * branch source is /docs.
+ * file has to be emitted now rather than after something is. The output
+ * directory IS the deployed root, so this one copy is the copy Pages looks at.
  */
 export function buildSite(
   input: ChangeRecord[],
@@ -63,6 +71,19 @@ export function buildSite(
   files.push({ path: THREADS_INDEX_PATH, contents: renderThreadsIndex(threads) });
   for (const thread of threads.threads) {
     files.push({ path: threadPagePath(thread.slug), contents: renderThreadPage(thread) });
+  }
+
+  // The old address of every page, forwarding to the new one.
+  //
+  // The site moved up one directory when Pages stopped publishing it out of
+  // docs/ on a branch, and spec section 10 makes a change page's URL a
+  // permalink. A single stub at site/index.html would answer the front door and
+  // leave every permalink under it dead, so the mirror is per page. Only HTML
+  // is mirrored: a meta refresh inside feed.xml would be malformed RSS rather
+  // than a redirect, and a stub served as style.css is not a stylesheet.
+  for (const f of [...files]) {
+    if (!f.path.endsWith('.html')) continue;
+    files.push({ path: legacyPagePath(f.path), contents: renderRedirect(legacyRedirectTarget(f.path)) });
   }
 
   return files;

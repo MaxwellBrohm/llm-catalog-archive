@@ -5,7 +5,7 @@
  * spec's section 4 states it as a schema decision: a story is a persistent
  * entity that accretes events over time, not a dated post, so a codename leak
  * in August, the launch in October and the price change in December are one
- * thread. The change pages under docs/site/changes/ stay exactly where they
+ * thread. The change pages under changes/ stay exactly where they
  * are; they are the evidence layer this sits on top of.
  *
  * QUIET DAYS ARE THE POINT. A day with no new events still has live threads

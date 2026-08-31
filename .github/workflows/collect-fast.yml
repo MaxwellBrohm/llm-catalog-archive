@@ -38,32 +38,10 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
       - run: npx tsx src/cli.ts --tier fast
         env: { LCA_BRANCH: main }
-      # After collection, not before: the read surface is generated FROM the
-      # commits the step above just made, so running it first would publish
-      # yesterday's history under today's run.
+      # The read surface is NOT regenerated or committed here any more.
       #
-      # `if: success() || failure()` rather than plain `success()`. The collect
-      # step exits non-zero once a source has failed its threshold, and a
-      # non-zero exit does not mean nothing was committed: a run that failed
-      # its last attempt may already have committed an accepted capture, and
-      # the site has to show it. Cancellation is deliberately excluded.
-      - name: Regenerate the read surface
-        if: success() || failure()
-        run: npx tsx src/site-cli.ts
-      - name: Commit the read surface when it changed
-        if: success() || failure()
-        run: |
-          set -euo pipefail
-          # Staged explicitly. Another step in this job may have left something
-          # else in the tree, and `git add -A` is how an unrelated change ships
-          # inside a generated-site commit.
-          git add -- docs/site
-          if git diff --cached --quiet -- docs/site; then
-            echo "::notice::docs/site is unchanged; nothing to commit"
-            exit 0
-          fi
-          git commit -q -m 'site: regenerated from git history' -- docs/site
-          # Rebase then push, never a forced push: R7 makes every permalink on
-          # the pages this step just generated permanent.
-          git pull --rebase origin main
-          git push origin main
+      # It is a pure function of the history this job just appended to, so
+      # committing it stored the same facts twice and dropped generated pages
+      # into a history R7 forbids rewriting. Worse, every regenerated file was a
+      # conflict waiting for the next push. .github/workflows/pages.yml rebuilds
+      # and deploys it, triggered by this workflow's completion.

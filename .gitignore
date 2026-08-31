@@ -1,2 +1,12 @@
 node_modules/
 .stryker-tmp/
+
+# The generated site. It is a pure function of the history under raw/, so
+# committing it stored the same facts twice and made every push collide on the
+# regenerated pages. .github/workflows/pages.yml builds it at deploy time and
+# uploads it as the Pages artifact instead.
+build/
+
+# The old output directory, kept here so a stale checkout or an older generator
+# cannot quietly start committing build output back into the archive.
+docs/site/

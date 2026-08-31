@@ -1,10 +1,13 @@
 /**
- * `npm run build:site`. Regenerates docs/site/ from git history over raw/.
+ * `npm run build:site`. Regenerates build/site/ from git history over raw/.
  *
- * Read-only against git. It never commits: the workflow decides whether the
- * regenerated output is worth a commit, because a generator that commits its
- * own output is a generator that can push a broken page into a history R7
- * forbids rewriting.
+ * Read-only against git, and it never commits, because the output is never
+ * committed at all. The site is a pure function of the history under raw/, so
+ * storing it in that history added a second copy of the same facts and made
+ * every push collide on 156 regenerated files. .github/workflows/pages.yml
+ * runs this at deploy time and uploads build/site/ as the Pages artifact.
+ *
+ * build/ is gitignored. Nothing in this file writes outside it.
  */
 
 import fs from 'node:fs';
@@ -18,7 +21,11 @@ import { deriveEvents, precisionBySource, type Tier } from './derive/events.js';
 import { buildThreads } from './derive/threads.js';
 
 const cwd = process.cwd();
-const outDir = path.join(cwd, 'docs/site');
+/**
+ * Gitignored on purpose: see the header. Overridable so a caller can build a
+ * copy somewhere else without disturbing the one the deploy uploads.
+ */
+const outDir = path.resolve(cwd, process.env['LCA_SITE_OUT'] ?? 'build/site');
 
 /**
  * The absolute base the feed's links are built from. Overridable because it is
@@ -63,14 +70,9 @@ const threads = buildThreads(events);
 const files = buildSite(records, siteUrl, threads);
 writeSite(outDir, files);
 
-// A second .nojekyll, at docs/ rather than at docs/site/.
-//
-// GitHub Pages looks for it in the ROOT of whatever it publishes, and the
-// branch source can publish the repository root or /docs and nothing else. With
-// /docs as the source, the copy inside docs/site/ is just a file Jekyll would
-// happily process past. docs/ also holds the specs, so leaving Jekyll on would
-// have it render Markdown that is meant to be read as source.
-fs.writeFileSync(path.join(cwd, 'docs/.nojekyll'), '');
+// There is deliberately no second .nojekyll written outside outDir. Pages looks
+// for it in the ROOT of what it publishes, and what it publishes is now the
+// uploaded artifact whose root IS outDir, where buildSite already emits one.
 
 const retracted = records.filter((r) => r.retraction !== null).length;
 console.log(`site: ${records.length} changes, ${files.length} files, ${retractions.length} retraction(s) in the ledger, ${retracted} matched`);

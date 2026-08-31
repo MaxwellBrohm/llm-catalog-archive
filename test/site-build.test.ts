@@ -32,13 +32,19 @@ const at = (files: { path: string; contents: string }[], p: string): string => {
 };
 
 describe('buildSite: the file set', () => {
-  it('emits exactly the pages, feed, stylesheet and .nojekyll', () => {
+  it('emits exactly the pages, feed, stylesheet, .nojekyll and one stub per page', () => {
     expect(buildSite(unsorted).map((f) => f.path).sort()).toEqual([
       '.nojekyll',
       'changes/0e91a0fbf78e6302670dc61a8c28502e418d01a1.html',
       'changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html',
       'feed.xml',
       'index.html',
+      'site/changes/0e91a0fbf78e6302670dc61a8c28502e418d01a1.html',
+      'site/changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html',
+      'site/index.html',
+      'site/sources/claude-status.html',
+      'site/sources/openai-llms-txt.html',
+      'site/threads/index.html',
       'sources/claude-status.html',
       'sources/openai-llms-txt.html',
       'style.css',
@@ -89,23 +95,25 @@ describe('buildSite: the file set', () => {
   // The threads index is fixed too, and it is emitted for an empty archive on
   // purpose: a page saying nothing has been derived yet is a claim about the
   // deriver, and the alternative is a navigation link that 404s on a quiet day.
-  it('emits only the five fixed files for an archive with no changes yet', () => {
+  it('emits only the five fixed files, plus their stubs, for an archive with no changes yet', () => {
     expect(buildSite([]).map((f) => f.path)).toEqual([
       '.nojekyll',
       'style.css',
       'index.html',
       'feed.xml',
       'threads/index.html',
+      'site/index.html',
+      'site/threads/index.html',
     ]);
   });
 });
 
 describe('buildSite: the feed base URL', () => {
-  // The /site segment is load-bearing: GitHub Pages' branch source publishes
-  // the repository root or /docs, so docs/site/ is reached one level down.
-  it('defaults to the Pages path docs/site is actually served at', () => {
+  // No /site segment. The build directory is uploaded as the Pages artifact
+  // root, so the site is served at the root of the repository's Pages domain.
+  it('defaults to the Pages root the artifact is deployed at', () => {
     expect(at(buildSite([newer]), 'feed.xml')).toContain(
-      '<link>https://maxwellbrohm.github.io/llm-catalog-archive/site/index.html</link>',
+      '<link>https://maxwellbrohm.github.io/llm-catalog-archive/index.html</link>',
     );
   });
 
@@ -119,6 +127,52 @@ describe('buildSite: the feed base URL', () => {
     expect(at(buildSite([newer], 'https://example.test/archive'), 'feed.xml')).toContain(
       '<guid isPermaLink="true">https://example.test/archive/changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html#openai-llms-txt</guid>',
     );
+  });
+});
+
+/**
+ * The site moved up one directory when Pages stopped publishing it from the
+ * branch's /docs folder, and spec section 10 makes a change page's URL a
+ * permalink. These assert the old URLs still resolve, and resolve to the right
+ * page rather than merely to something.
+ */
+describe('buildSite: the pages that moved', () => {
+  const files = buildSite(unsorted);
+
+  it('points the old front door at the new root', () => {
+    expect(at(files, 'site/index.html')).toContain('<meta http-equiv="refresh" content="0; url=../index.html">');
+  });
+
+  it('points an old change URL at the same change at its new address', () => {
+    expect(at(files, 'site/changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html')).toContain(
+      '<meta http-equiv="refresh" content="0; url=../../changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html">',
+    );
+  });
+
+  it('names the new address as canonical for crawlers that ignore a refresh', () => {
+    expect(at(files, 'site/sources/claude-status.html')).toContain(
+      '<link rel="canonical" href="../../sources/claude-status.html">',
+    );
+  });
+
+  it('forwards rather than duplicating the page it forwards to', () => {
+    expect(at(files, 'site/changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html')).not.toContain('<table');
+  });
+
+  // A meta refresh inside feed.xml is malformed RSS, not a redirect, and a stub
+  // served as style.css is not a stylesheet. Only HTML is mirrored.
+  it('mirrors no stub for the feed', () => {
+    expect(files.some((f) => f.path === 'site/feed.xml')).toBe(false);
+  });
+
+  it('mirrors no stub for the stylesheet', () => {
+    expect(files.some((f) => f.path === 'site/style.css')).toBe(false);
+  });
+
+  it('mirrors every HTML page it emits and no more', () => {
+    const pages = files.filter((f) => f.path.endsWith('.html') && !f.path.startsWith('site/'));
+    const stubs = files.filter((f) => f.path.startsWith('site/'));
+    expect(stubs.map((f) => f.path).sort()).toEqual(pages.map((f) => `site/${f.path}`).sort());
   });
 });
 

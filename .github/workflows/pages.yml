@@ -1,0 +1,61 @@
+name: pages
+# Build the read surface and deploy it. Nothing generated here is committed.
+#
+# The site is a pure function of the history under raw/, so the only thing a
+# deploy needs is a checkout. It used to be regenerated and committed inside the
+# collector jobs, which put build output into a history R7 forbids rewriting and
+# made every other push to main conflict on the regenerated pages.
+on:
+  push:
+    branches: [main]
+  # The collectors push captures with the default GITHUB_TOKEN, and a push made
+  # with that token does NOT start a `push`-triggered workflow. Without this
+  # trigger a new capture would sit unpublished until a human pushed something.
+  workflow_run:
+    workflows: [collect-fast, collect-daily]
+    types: [completed]
+  workflow_dispatch:
+
+# `contents: read` and nothing more: this job publishes, it never writes to the
+# archive. pages/id-token are what deploy-pages needs to mint its OIDC token.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# NOT the collector's `collector-archive` group. That group is serialised with
+# cancel-in-progress false and holds for up to fifteen minutes per collector
+# run, so a deploy queued into it would starve behind the next capture. Deploys
+# are idempotent and only the newest one matters, so this group cancels.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # fetch-depth: 0 is load-bearing. src/site/history.ts builds every page
+      # from `git log` over raw/, so a shallow checkout would publish a site
+      # containing only the tip commit's change.
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      # --ignore-scripts, as in the collectors: nothing here needs install
+      # lifecycle scripts, and this job runs with a Pages deployment token.
+      - run: npm ci --ignore-scripts
+      - name: Build the read surface
+        run: npx tsx src/site-cli.ts
+      - uses: actions/configure-pages@v5
+      # build/site IS the artifact root, so the site is served at the Pages root
+      # rather than one level down at /site/. buildSite emits a stub at the old
+      # /site/ address of every page, forwarding to the new one.
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: build/site }
+      - id: deployment
+        uses: actions/deploy-pages@v4

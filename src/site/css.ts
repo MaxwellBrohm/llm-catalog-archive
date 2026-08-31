@@ -1,5 +1,5 @@
 /**
- * The whole stylesheet, as one string, written once to docs/site/style.css.
+ * The whole stylesheet, as one string, written once to style.css at the site root.
  *
  * MaxOS design language: near-black grounds, orange as the only live colour,
  * warm white text, everything on an 8px grid, one radius scale. Roughly 90%

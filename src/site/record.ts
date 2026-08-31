@@ -20,13 +20,13 @@ export const REPO_URL = 'https://github.com/MaxwellBrohm/llm-catalog-archive';
  * Where the generated pages are served from. Used only by the feed, which needs
  * absolute URLs; every link inside a page is relative and does not care.
  *
- * The `/site` segment is not a typo. GitHub Pages' branch source can publish
- * the repository root or `/docs`, and nothing else, so `docs/site/` is reached
- * at `<pages-root>/site/`. Override with LCA_SITE_URL if the repository is
- * later switched to the Actions Pages deployment, which can publish
- * `docs/site/` as the root.
+ * There is no `/site` segment any more. The generated site is deployed by
+ * Actions with the build directory as the artifact ROOT, so a page that used to
+ * be reached at `<pages-root>/site/x.html` is now reached at
+ * `<pages-root>/x.html`. Override with LCA_SITE_URL when building for anywhere
+ * else.
  */
-export const SITE_URL = 'https://maxwellbrohm.github.io/llm-catalog-archive/site';
+export const SITE_URL = 'https://maxwellbrohm.github.io/llm-catalog-archive';
 
 export type DiffLineKind = 'add' | 'remove' | 'context' | 'hunk';
 
@@ -232,7 +232,7 @@ const MONTHS = [
 /**
  * A fixed UTC rendering. Not toLocaleString: that reads the runner's ICU data
  * and locale, so the same archive would render differently on two machines and
- * the committed docs/site/ would churn for no reason.
+ * the generated site would not be byte-reproducible across machines.
  */
 export function formatUtc(iso: string): string {
   const ms = Date.parse(iso);
@@ -275,4 +275,32 @@ export function changePagePath(sha: string): string {
 
 export function sourcePagePath(sourceId: string): string {
   return `sources/${sourceId}.html`;
+}
+
+/**
+ * The directory the site used to be served from, back when GitHub Pages
+ * published it from the `main` branch at `/docs` and `docs/site/` therefore
+ * landed one level below the Pages root.
+ *
+ * Spec section 10 treats a change page's URL as a permalink, so moving the site
+ * to the Pages root does not free those URLs: it obliges the new site to answer
+ * at them. Every page keeps a stub here that forwards to its new address.
+ */
+export const LEGACY_PREFIX = 'site';
+
+/** Where the stub for a page now at `p` has to be written. */
+export function legacyPagePath(p: string): string {
+  return `${LEGACY_PREFIX}/${p}`;
+}
+
+/**
+ * What that stub points at, relative to itself.
+ *
+ * One `../` escapes the legacy prefix and one more is needed per directory the
+ * page itself sits in, so `site/index.html` reaches `../index.html` and
+ * `site/changes/<sha>.html` reaches `../../changes/<sha>.html`.
+ */
+export function legacyRedirectTarget(p: string): string {
+  const depth = p.split('/').length;
+  return `${'../'.repeat(depth)}${p}`;
 }

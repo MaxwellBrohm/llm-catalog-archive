@@ -248,7 +248,7 @@ export function entitiesForDocUrl(url: string, provider: string): Entity[] {
  *
  * Lowercased, every run of characters outside `[a-z0-9]` folded to one dash,
  * and the ends trimmed, so the result is safe as a file name on every platform
- * that has to hold docs/site/. Folding is lossy, which is why threads.ts
+ * that has to hold the generated site. Folding is lossy, which is why threads.ts
  * refuses to build a site when two distinct entities fold to one slug rather
  * than quietly serving one entity's page under the other's name.
  */
