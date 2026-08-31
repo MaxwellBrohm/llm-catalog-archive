@@ -1074,3 +1074,185 @@ describe('the change clock runTier records', () => {
     expect(r.status?.sources['a']?.lastChangeAt).toBeNull();
   });
 });
+
+
+/**
+ * The two gates that sit between the health verdict and the write.
+ *
+ * They fail in opposite directions, which is why they are tested side by side.
+ * A predicate that cannot project is a FAILURE, because "unchanged" is the
+ * answer that lets a broken extractor sit silently on a live source for
+ * months. A magnitude hold is not a failure: the response was healthy and may
+ * well be right, it is simply too large a removal to land unreviewed in a
+ * history R7 forbids rewriting.
+ */
+
+/** One source, one stored body, one fetched body, run to completion. */
+async function runAgainst(s: Source, fetched: Uint8Array, stored: Uint8Array | null, prev: StatusFile | null = null) {
+  const files: Record<string, Uint8Array> = stored === null ? {} : { [s.path]: stored };
+  const d = deps(
+    {
+      fetchOne: async () => ({
+        ok: true as const,
+        attempts: 1,
+        observed: { status: 200, body: fetched, finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+        headers: HDR,
+      }),
+    },
+    files,
+  );
+  const r = await runTier([s], 'daily', prev, d);
+  return { d, r, committed: `commit:${s.path},raw/a/headers.json` };
+}
+
+describe('the change predicate, as runTier dispatches it', () => {
+  const sitemap = (locs: string[], lastmod: string): Uint8Array =>
+    enc(`<urlset>${locs.map((l) => `<url><loc>${l}</loc><lastmod>${lastmod}</lastmod></url>`).join('')}</urlset>`);
+
+  const locSource = source({
+    contentType: 'xml',
+    expectedRoot: 'urlset',
+    path: 'raw/a/response.xml',
+    invariants: NO_CANARY,
+    predicate: { type: 'extracted', extractor: 'sitemapLoc' },
+  });
+
+  const four = ['https://x/1', 'https://x/2', 'https://x/3', 'https://x/4'];
+
+  it('does not commit a body whose only change is invisible to the predicate', async () => {
+    const { d, committed } = await runAgainst(locSource, sitemap(four, '2026-02-02'), sitemap(four, '2026-01-01'));
+    expect(d.trace).not.toContain(committed);
+  });
+
+  // The other half of the same claim: the archived bytes are left alone, so a
+  // no-change verdict cannot quietly rewrite the artifact with fresh noise.
+  it('leaves the archived bytes untouched when the predicate reports no change', async () => {
+    const stored = sitemap(four, '2026-01-01');
+    const { d } = await runAgainst(locSource, sitemap(four, '2026-02-02'), stored);
+    expect(d.files['raw/a/response.xml']).toEqual(stored);
+  });
+
+  it('records a predicate-invisible run as unchanged rather than as a failure', async () => {
+    const { r } = await runAgainst(locSource, sitemap(four, '2026-02-02'), sitemap(four, '2026-01-01'));
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
+  });
+
+  it('commits a body the predicate does see as a change', async () => {
+    const { d, committed } = await runAgainst(
+      locSource,
+      sitemap([...four, 'https://x/5'], '2026-01-01'),
+      sitemap(four, '2026-01-01'),
+    );
+    expect(d.trace).toContain(committed);
+  });
+
+  // A bytes source must not acquire an extractor's blindness by accident.
+  it('still commits a byte-level change on a bytes source', async () => {
+    const changed = new Uint8Array([...enc(' CANARY\r\nline2 edited\n'), 0x00, 0xff]);
+    const { d, committed } = await runAgainst(source(), changed, BODY);
+    expect(d.trace).toContain(committed);
+  });
+
+  const arenaSource = source({
+    contentType: 'html',
+    expectedRoot: null,
+    path: 'raw/a/response.html',
+    invariants: NO_CANARY,
+    predicate: { type: 'extracted', extractor: 'arena' },
+  });
+
+  it('counts a failed projection as a failure', async () => {
+    const { r } = await runAgainst(arenaSource, enc('<html>reshaped</html>'), enc('<html>old</html>'));
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(1);
+  });
+
+  it('does not write a body whose projection failed', async () => {
+    const stored = enc('<html>old</html>');
+    const { d } = await runAgainst(arenaSource, enc('<html>reshaped</html>'), stored);
+    expect(d.files['raw/a/response.html']).toEqual(stored);
+  });
+
+  it('reports a failed projection as failed health, naming the reason', async () => {
+    const { r, d } = await runAgainst(arenaSource, enc('<html>reshaped</html>'), enc('<html>old</html>'));
+    expect(r.status?.sources['a']?.health).toBe('failed');
+    expect(d.logs).toContain('a: predicate failed, not written: arena projection found 0 records, floor is 500');
+  });
+});
+
+describe('the magnitude guard, as runTier applies it', () => {
+  /** n content lines behind the canary, so the count is n + 1. */
+  const lines = (n: number): Uint8Array => enc(`CANARY\n${Array.from({ length: n }, (_, i) => `l${i}`).join('\n')}`);
+
+  /**
+   * A band wide enough that health cannot pre-empt the guard.
+   *
+   * The default 0.1x floor rejects a 90% line loss on size before the guard is
+   * ever reached, and a test that passed through health's verdict would prove
+   * nothing about the guard. Widening it here is what makes these assertions
+   * about the guard rather than about the band.
+   */
+  const guarded = (over: Partial<Source> = {}): Source =>
+    source({ invariants: { minBytes: 1, requiredKeyPath: null, minRecords: null, canary: 'CANARY', sizeBand: [0.01, 10] }, ...over });
+
+  it('does not commit a snapshot that removes more than the configured share', async () => {
+    const { d, committed } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(d.trace).not.toContain(committed);
+  });
+
+  it('leaves the last accepted bytes in place when it holds', async () => {
+    const stored = lines(100);
+    const { d } = await runAgainst(guarded(), lines(10), stored);
+    expect(d.files['raw/a/response.txt']).toEqual(stored);
+  });
+
+  it('records the hold in status, with the counts that caused it', async () => {
+    const { r } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(r.status?.sources['a']?.held).toEqual({
+      at: '2026-08-26T14:00:00.000Z',
+      reason: 'magnitude guard: 101 to 11 units is a 89.1% removal, over the 25% limit',
+    });
+  });
+
+  it('exits zero on a hold', async () => {
+    const { r } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(r.exitCode).toBe(0);
+  });
+
+  it('does not advance the failure counter on a hold', async () => {
+    const { r } = await runAgainst(guarded(), lines(10), lines(100));
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
+  });
+
+  it('commits a shrink inside the configured share', async () => {
+    const { d, committed } = await runAgainst(guarded(), lines(90), lines(100));
+    expect(d.trace).toContain(committed);
+  });
+
+  // Growth is not guarded, deliberately: a source doubling is a story.
+  it('commits a snapshot that grew fivefold', async () => {
+    const { d, committed } = await runAgainst(guarded(), lines(500), lines(100));
+    expect(d.trace).toContain(committed);
+  });
+
+  it('reads the limit from the source rather than a constant', async () => {
+    const { d, committed } = await runAgainst(
+      guarded({ magnitudeGuard: { maxShrinkPct: 90 } }),
+      lines(10),
+      lines(100),
+    );
+    expect(d.trace).toContain(committed);
+  });
+
+  it('clears a stale hold once a later snapshot is accepted', async () => {
+    const held = await runAgainst(guarded(), lines(10), lines(100));
+    expect(held.r.status?.sources['a']?.held).not.toBeNull();
+    const { r } = await runAgainst(guarded(), lines(99), lines(100), held.r.status);
+    expect(r.status?.sources['a']?.held).toBeNull();
+  });
+
+  it('does not hold the seed fetch of a source with nothing archived yet', async () => {
+    const { r, d, committed } = await runAgainst(guarded(), lines(3), null);
+    expect(r.status?.sources['a']?.held).toBeNull();
+    expect(d.trace).toContain(committed);
+  });
+});

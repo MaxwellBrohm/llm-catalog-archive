@@ -277,18 +277,55 @@ describe('the shipped meta/sources.json', () => {
     expect(shipped().sources).toHaveLength(16);
   });
 
-  // Five, not the three this list started as. The go-live dry run fetched every
-  // active source twice and two more came back different: anthropic-sitemap
-  // re-stamps 24 of its 516 lastmod values per request, and openai-status
-  // re-stamps its feed level updated AND permutes 690 component names. Both
-  // would have committed on every run forever under a bytes predicate.
-  it('marks exactly the five per-request volatile sources pending', () => {
+  // Five sources were volatile and all five now have a predicate. Four of them
+  // are active. `arena-leaderboard` alone is still pending, and its extractor
+  // is not the reason: it is blocked at the health check, because the live page
+  // carries the same `__CF$cv$params` beacon that is the only denylist marker
+  // `trap-interstitial.html` carries.
+  it('leaves arena-leaderboard as the one pending source', () => {
     expect(
       shipped().sources
         .filter((s) => s.status === 'pending')
         .map((s) => s.id)
         .sort(),
-    ).toEqual(['anthropic-sitemap', 'arena-leaderboard', 'openai-status', 'openrouter-sitemap', 'xai-llms-txt']);
+    ).toEqual(['arena-leaderboard']);
+  });
+
+  // The half of the pending story that a status field cannot say. Removing the
+  // predicate would leave the source pending and this assertion would still
+  // pass, so the extractor is named here too.
+  it('gives arena-leaderboard its extractor despite leaving it pending', () => {
+    const arena = shipped().sources.find((s) => s.id === 'arena-leaderboard')!;
+    expect(arena.predicate).toEqual({ type: 'extracted', extractor: 'arena' });
+  });
+
+  // The two the launch-day double dry run found. Neither was in the original
+  // three, and both would have committed on every run forever under `bytes`.
+  it('gives the four activated volatile sources the predicate each needs', () => {
+    const p = Object.fromEntries(shipped().sources.map((s) => [s.id, s.predicate]));
+    expect(p['anthropic-sitemap']).toEqual({ type: 'extracted', extractor: 'sitemapDated' });
+    expect(p['openai-status']).toEqual({ type: 'extracted', extractor: 'atomStatus' });
+    expect(p['openrouter-sitemap']).toEqual({ type: 'extracted', extractor: 'sitemapLoc' });
+    expect(p['xai-llms-txt']).toEqual({ type: 'extracted', extractor: 'xai' });
+  });
+
+  // `sitemapLoc` would work on the Anthropic sitemap and would be wrong: it
+  // reduces that source to add/remove detection and throws away the per-URL
+  // lastmod that makes an edit detectable. The two sitemaps sharing one
+  // extractor is the realistic mistake, so it gets its own assertion.
+  it('does not give the two sitemaps the same extractor', () => {
+    const p = Object.fromEntries(shipped().sources.map((s) => [s.id, s.predicate]));
+    expect(p['anthropic-sitemap']).not.toEqual(p['openrouter-sitemap']);
+  });
+
+  // The feed-level `<updated>` line that has already produced seven commits of
+  // one timestamp moving.
+  it('masks claude-status rather than committing its feed-level updated', () => {
+    const cs = shipped().sources.find((s) => s.id === 'claude-status')!;
+    expect(cs.predicate).toEqual({
+      type: 'mask',
+      patterns: ['(?<!<entry[\\s>][\\s\\S]*)<updated>[^<]*</updated>'],
+    });
   });
 
   it('puts only openrouter-models in the fast tier', () => {
@@ -300,16 +337,8 @@ describe('the shipped meta/sources.json', () => {
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(11);
-    for (const id of [
-      'anthropic-sitemap',
-      'arena-leaderboard',
-      'openai-status',
-      'openrouter-sitemap',
-      'xai-llms-txt',
-    ]) {
-      expect(fetched).not.toContain(id);
-    }
+    expect(fetched).toHaveLength(15);
+    expect(fetched).not.toContain('arena-leaderboard');
   });
 
   it('matches spec section 4 on every id and url', () => {
@@ -340,7 +369,10 @@ describe('the shipped meta/sources.json', () => {
   it('justifies every non default predicate in notes', () => {
     const exceptional = shipped().sources.filter((s) => s.predicate.type !== 'bytes');
     expect(exceptional.map((s) => s.id).sort()).toEqual([
+      'anthropic-sitemap',
       'arena-leaderboard',
+      'claude-status',
+      'openai-status',
       'openrouter-sitemap',
       'xai-llms-txt',
     ]);

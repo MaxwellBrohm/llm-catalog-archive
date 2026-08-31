@@ -26,6 +26,31 @@ exists.
 | `trap-qwen-stale.xml` | 39,167 | qwenlm.github.io/blog/index.xml | 200, valid XML, parses, and years stale | newest item date is far in the past |
 | `trap-anthropic-catchall.html` | 64,176 | alignment.anthropic.com/feed.xml | a feed path that returns the blog homepage | byte-identical to `trap-anthropic-404path.html` |
 | `trap-anthropic-404path.html` | 64,176 | alignment.anthropic.com/zzz-not-a-real-path-9999 | the pair above, for the identity check | `cmp` against the catch-all |
-| `trap-interstitial.html` | 348,670 | theneurondaily.com/feed | a bot-challenge page served at 200 | contains a denylist marker |
+| `trap-interstitial.html` | 348,670 | theneurondaily.com/feed | a 200 that is not the feed: it is the site homepage, and it carries `__CF$cv$params` and NONE of the other four denylist markers | `<title>The Neuron</title>`; exactly one denylist marker |
 | `trap-openai-redirect-stub.txt` | 81 | platform.openai.com/docs/llms.txt | an 81-byte redirect body that only a size floor catches | 81 bytes |
 | `trap-pytorch-tags.atom` | 28,345 | github.com/pytorch/pytorch/releases.atom | valid Atom, fresh timestamps, and zero actual releases | entries are CI tags |
+| `volatile-anthropic-sitemap-a.xml` | 68,273 | www.anthropic.com/sitemap.xml | **the pair**: two live edge generations minutes apart, byte-unequal, with an identical `<loc>` set and 25 of 522 `lastmod` values oscillating between two stamps | `cmp` fails; the `<loc>` sets are equal |
+| `volatile-anthropic-sitemap-b.xml` | 68,273 | www.anthropic.com/sitemap.xml | the other half of that pair | as above |
+| `healthy-openai-status.atom` | 84,279 | status.openai.com/history.atom | 84 Atom entries, a feed-level `<updated>` that re-stamps per generation, and a component list repeated in `summary` and `content` | 84 `<entry>`, 592 `<li>` |
+
+`volatile-anthropic-sitemap-a.xml` and `-b.xml` are captured four minutes apart
+on 2026-08-31 and are the only fixture PAIR here whose property is a
+difference. They exist because `sitemapDated` cannot be tested honestly against
+one file: the rule it implements is "drop any `lastmod` shared by three or more
+URLs at the same millisecond", and only a real pair shows that the 25 values
+which oscillate are exactly the ones that share a stamp. If `cmp` ever reports
+them identical they have been recaptured from one generation and prove nothing.
+
+The four shared groups in that capture are 25, 22, 13 and 11 URLs, so 71 of the
+522 rows lose their stamp under the rule and 451 keep it. Those counts are
+asserted in `test/predicate.test.ts` and will move if the fixture is recaptured.
+
+`trap-interstitial.html` is misnamed and the name is kept so the tests that
+reference it stay findable. It is not a Cloudflare challenge page. It is the
+newsletter's own homepage returned for a feed path, and the only denylist
+marker it carries is `__CF$cv$params`, which Cloudflare injects into ordinary
+proxied 200s rather than into challenges. That is a measured fact with a
+consequence: the live arena.ai leaderboard carries the same marker, so
+`checkHealth` rejects 5.2 MB of real content, and dropping the marker from the
+denylist would leave this fixture undetected. See `arena-leaderboard`'s notes
+in `meta/sources.json`.

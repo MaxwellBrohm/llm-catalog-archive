@@ -2,6 +2,8 @@ import type { Source } from './config.js';
 import type { FetchOutcome } from './fetch.js';
 import { checkHealth } from './health.js';
 import { buildSidecar, originDateMs } from './headers.js';
+import { changedUnderPredicate } from './predicate.js';
+import { shrinkVerdict } from './magnitude.js';
 import {
   applyOutcome,
   exitCodeFor,
@@ -49,12 +51,6 @@ const unreachable = (): Outcome => ({
   held: null,
 });
 
-function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.byteLength !== b.byteLength) return false;
-  for (let i = 0; i < a.byteLength; i++) if (a[i] !== b[i]) return false;
-  return true;
-}
-
 /**
  * The pipeline, in the one order it can have:
  *
@@ -75,8 +71,14 @@ function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
  * which everything is failing. Evaluating counters first, or aborting on the
  * first exception, re-arms that clock at the worst possible moment.
  *
- * Tasks 7 through 9 insert the full predicate dispatch and the magnitude guard;
- * Task 11 locks the resulting order with tests.
+ * The change predicate and the magnitude guard both sit between the health
+ * verdict and the write, in that order, and both withhold the write without
+ * clobbering what is already archived. They fail in opposite directions on
+ * purpose. A predicate that cannot project is a FAILURE, because "unchanged"
+ * is the answer that lets a broken extractor sit silently on a live source for
+ * months. A magnitude hold is NOT a failure: the response was healthy and may
+ * well be correct, it is simply too large a removal to land unreviewed in a
+ * history R7 forbids rewriting, so the run records it and exits zero.
  */
 export async function runTier(
   sources: Source[],
@@ -92,10 +94,10 @@ export async function runTier(
   const nextSources: Record<string, SourceStatus> = { ...(prevStatus?.sources ?? {}) };
 
   for (const s of sources) {
-    // The caller already filters on status, and this repeats it on purpose. The
-    // three volatile sources change on every request for reasons that are not
-    // content, so a byte predicate would commit megabytes daily into a history
-    // R7 forbids rewriting. Two locks, because only one of them is permanent.
+    // The caller already filters on status, and this repeats it on purpose. A
+    // pending source is one that would commit megabytes of non-content on
+    // every run into a history R7 forbids rewriting. Two locks, because only
+    // one of them is permanent.
     if (s.status !== 'active') {
       deps.log(`${s.id}: pending, skipped`);
       continue;
@@ -147,7 +149,44 @@ export async function runTier(
           const originMs = originDateMs(got.headers);
           const originIso = originMs === null ? null : new Date(originMs).toISOString();
 
-          if (stored !== null && sameBytes(got.observed.body, stored)) {
+          const verdict = changedUnderPredicate(s, got.observed.body, stored);
+          const hold = verdict.ok && verdict.changed
+            ? shrinkVerdict(s, got.observed.body, stored)
+            : ({ held: false } as const);
+
+          if (!verdict.ok) {
+            // Loud, and specifically not "unchanged". A projection that cannot
+            // be computed is an extractor that has stopped describing its
+            // source, and the quiet spelling of that is a live source that
+            // reports no change for ever while it ships.
+            deps.log(`${s.id}: predicate failed, not written: ${verdict.reason}`);
+            trace.push(`predicate-failed:${s.id}`);
+            outcome = {
+              health: 'failed',
+              countsAsFailure: true,
+              httpStatus: got.observed.status,
+              bytes: null,
+              changed: false,
+              originDate: originIso,
+              held: null,
+            };
+          } else if (hold.held) {
+            // Healthy, changed, and withheld. Not a failure and not a change:
+            // nothing is written, so the archived bytes stay the last accepted
+            // ones and the next run measures against those rather than against
+            // a collapse nobody looked at.
+            deps.log(`${s.id}: held for review, not written: ${hold.reason}`);
+            trace.push(`held:${s.id}`);
+            outcome = {
+              health: health.state,
+              countsAsFailure: false,
+              httpStatus: got.observed.status,
+              bytes: null,
+              changed: false,
+              originDate: originIso,
+              held: { at: now, reason: hold.reason },
+            };
+          } else if (!verdict.changed) {
             outcome = {
               health: health.state,
               countsAsFailure: false,

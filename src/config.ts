@@ -23,7 +23,19 @@ const Freshness = z.strictObject({
 const Predicate = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('bytes') }),
   z.strictObject({ type: z.literal('mask'), patterns: z.array(z.string()).min(1) }),
-  z.strictObject({ type: z.literal('extracted'), extractor: z.enum(['arena', 'xai', 'sitemapLoc']) }),
+  z.strictObject({
+    type: z.literal('extracted'),
+    /**
+     * Five, not the three this enum shipped with. `sitemapDated` and
+     * `atomStatus` were added by the launch-day double dry run, which found
+     * `anthropic-sitemap` re-stamping 24 of its `lastmod` values per request
+     * and `openai-status` permuting the component list inside every entry.
+     * Neither was visible to the source-health sweep, because that compared
+     * fetches taken minutes apart in one session and both depend on which
+     * edge cache answers.
+     */
+    extractor: z.enum(['arena', 'xai', 'sitemapLoc', 'sitemapDated', 'atomStatus']),
+  }),
 ]);
 
 const SourceSchema = z.strictObject({
@@ -36,10 +48,17 @@ const SourceSchema = z.strictObject({
   /**
    * `pending` sources are validated and reported but never fetched.
    *
-   * The three volatile sources start pending. Under a byte predicate each
+   * The five volatile sources started pending. Under a byte predicate each
    * would commit a full blob on every run, and at 5.2 MB, 1.46 MB and 617 KB
    * that is hundreds of megabytes of junk in a history R7 forbids rewriting.
-   * They flip to `active` in the task that gives them a real predicate.
+   * Four flipped to `active` once they had a real predicate and a double dry
+   * run in which the second consecutive run committed nothing.
+   *
+   * `arena-leaderboard` is still pending, and its extractor is not the reason.
+   * It is blocked at the health check: the live page carries Cloudflare's
+   * `__CF$cv$params` beacon, which is on the shared interstitial denylist, and
+   * `test/fixtures/trap-interstitial.html` carries that marker and no other,
+   * so the denylist cannot simply drop it. See that source's notes.
    */
   status: z.enum(['active', 'pending']),
   path: z.string(),
