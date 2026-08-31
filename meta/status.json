@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T15:27:09.967Z",
+  "updatedAt": "2026-08-31T20:57:57.374Z",
   "sources": {
     "anthropic-deprecations": {
       "lastAttemptAt": "2026-08-31T05:35:05.601Z",
@@ -123,15 +123,15 @@
       "held": null
     },
     "openrouter-models": {
-      "lastAttemptAt": "2026-08-31T15:27:09.967Z",
-      "lastSuccessAt": "2026-08-31T15:27:09.967Z",
-      "lastChangeAt": "2026-08-31T15:27:09.967Z",
+      "lastAttemptAt": "2026-08-31T20:57:57.374Z",
+      "lastSuccessAt": "2026-08-31T20:57:57.374Z",
+      "lastChangeAt": "2026-08-31T20:57:57.374Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
-      "bytes": 654239,
-      "originDate": "2026-08-31T15:24:07.000Z",
+      "bytes": 705307,
+      "originDate": "2026-08-31T20:53:14.000Z",
       "held": null
     }
   }
