@@ -26,6 +26,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 export const DEFAULT_API = 'https://maxwellbrohm.github.io/llm-catalog-archive/api/v1';
@@ -581,7 +582,30 @@ export async function run(argv: string[], out: (s: string) => void = console.log
   }
 }
 
-const entry = process.argv[1];
-if (entry !== undefined && import.meta.url === pathToFileURL(entry).href) {
+/**
+ * Whether this module was executed rather than imported.
+ *
+ * THE REALPATH IS THE WHOLE POINT. npm installs a bin as a SYMLINK in
+ * node_modules/.bin, and that is the path npx executes, so `process.argv[1]` is
+ * the symlink while `import.meta.url` is the file it points at. Comparing them
+ * directly makes this guard false under every npx invocation, and the CLI then
+ * exits 0 having printed nothing: no error, no output, no clue. That is what it
+ * did after the type-stripping fix, which is worth stating plainly, because the
+ * obvious fix for "npx cannot run this" was necessary and not sufficient.
+ *
+ * Locally `node bin/llmcat.mjs` passes argv[1] as the real path already, so
+ * this failure cannot be reproduced without installing the package.
+ */
+export function isMain(argv1: string | undefined, moduleUrl: string): boolean {
+  if (argv1 === undefined) return false;
+  if (moduleUrl === pathToFileURL(argv1).href) return true;
+  try {
+    return moduleUrl === pathToFileURL(realpathSync(argv1)).href;
+  } catch {
+    return false;
+  }
+}
+
+if (isMain(process.argv[1], import.meta.url)) {
   process.exitCode = await run(process.argv.slice(2));
 }

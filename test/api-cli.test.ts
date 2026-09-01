@@ -2,10 +2,12 @@ import { describe, it, expect, afterAll } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   DEFAULT_API,
   daysUntil,
   coveredProviders,
+  isMain,
   looksLikeCatalogId,
   parseArgs,
   parseWindowDays,
@@ -921,5 +923,39 @@ describe('exampleModelId', () => {
 
   it('returns null when the archive holds no model thread', () => {
     expect(exampleModelId([])).toBeNull();
+  });
+});
+
+/**
+ * npm installs a bin as a symlink in node_modules/.bin, and that symlink is
+ * what npx executes. Comparing process.argv[1] to import.meta.url directly
+ * therefore fails under every npx invocation, and the CLI exits 0 having
+ * printed nothing. Fixing the TypeScript-under-node_modules failure did not fix
+ * this one: the command still ran and still produced no output.
+ */
+describe('isMain, the entry guard', () => {
+  const url = pathToFileURL(path.join(process.cwd(), 'bin/llmcat.mjs')).href;
+
+  it('is true when argv[1] is the module itself', () => {
+    expect(isMain(path.join(process.cwd(), 'bin/llmcat.mjs'), url)).toBe(true);
+  });
+
+  it('is true when argv[1] is a symlink pointing at the module, which is how npx runs it', () => {
+    const link = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'llmcat-link-')), 'llmcat');
+    temps.push(path.dirname(link));
+    fs.symlinkSync(path.join(process.cwd(), 'bin/llmcat.mjs'), link);
+    expect(isMain(link, url)).toBe(true);
+  });
+
+  it('is false when argv[1] is some other file, so importing the module runs nothing', () => {
+    expect(isMain(path.join(process.cwd(), 'package.json'), url)).toBe(false);
+  });
+
+  it('is false rather than throwing when argv[1] does not exist', () => {
+    expect(isMain(path.join(process.cwd(), 'no-such-file-here'), url)).toBe(false);
+  });
+
+  it('is false when nothing was passed', () => {
+    expect(isMain(undefined, url)).toBe(false);
   });
 });
