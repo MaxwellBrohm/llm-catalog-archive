@@ -14,15 +14,19 @@ This is the first thing to run. It needs no key, no signup and no install.
 npx -y github:MaxwellBrohm/llm-catalog-archive leaks --tier confirmed-artifact
 ```
 
-Output, run against the published API:
+Output, run against the published API on 1 September 2026. The archive is live,
+so your run will differ; what should not differ is that every row is a real
+record with an artifact permalink behind it:
 
 ```
 WHEN                                    TIER                TYPE                  SUBJECT
+2026-09-01T05:22:37.000Z (origin_date)  confirmed-artifact  expiration_scheduled  nex-agi/nex-n2-mini
+2026-09-01T05:22:37.000Z (origin_date)  confirmed-artifact  expiration_scheduled  nex-agi/nex-n2-pro
 2026-08-31T19:06:32.000Z (origin_date)  confirmed-artifact  codename_entered      teffa-alpha
 2026-08-31T19:06:32.000Z (origin_date)  confirmed-artifact  codename_entered      yangcheng
 2026-08-30T21:14:08.000Z (origin_date)  confirmed-artifact  expiration_scheduled  moonshotai/kimi-k2.5
 
-3 item(s). The tier is about the artifact, not about confidence.
+5 item(s). The tier is about the artifact, not about confidence.
 0 refusal(s): changes the desk read and declined to derive from.
 ```
 
@@ -110,7 +114,7 @@ share of a source's units is held rather than written.
 
 ```bash
 npm ci
-npm test          # 2,283 tests
+npm test          # 2,324 tests
 npm run typecheck
 npm run build:site
 ```
