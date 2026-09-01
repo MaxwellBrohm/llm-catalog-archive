@@ -480,8 +480,28 @@ describe('renderAboutPage states what the archive stores', () => {
     expect(renderAboutPage()).toContain('cannot be satisfied');
   });
 
-  it('says the description and author fields are stored but never rendered', () => {
-    expect(renderAboutPage()).toContain('never used and never rendered');
+  it('says the pull-request description and author fields are never rendered', () => {
+    expect(renderAboutPage()).toContain('stored but never rendered');
+  });
+
+  /**
+   * The disclosure used to name transformers-pulls and vllm-pulls, whose author
+   * fields never reach a page, and NOT modelsdev-commits, whose author emails
+   * did. Naming the wrong source is the exact failure a disclosure prevents, so
+   * the page must name this one.
+   */
+  it('names modelsdev-commits, the source whose personal data actually reached a page', () => {
+    expect(renderAboutPage()).toContain('modelsdev-commits');
+  });
+
+  it('says every address in a displayed diff is masked, with no exception', () => {
+    const html = renderAboutPage();
+    expect(html).toContain('masked');
+    expect(html).toContain('no exception for role or noreply addresses');
+  });
+
+  it('says masking is a property of the publication and not of the archive', () => {
+    expect(renderAboutPage()).toContain('The stored bytes still contain the addresses');
   });
 
   it('says no language model writes anything in the generator', () => {

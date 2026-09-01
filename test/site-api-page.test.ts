@@ -60,8 +60,23 @@ describe('the API documentation page', () => {
     expect(page).toContain('Free commodity');
   });
 
-  it('says the incumbents are shut rather than expensive, which is the actual claim', () => {
-    expect(page).toContain('They are not expensive, they are shut');
+  /**
+   * This replaced a sentence claiming one incumbent had "no API at all".
+   * pricepertoken.com serves a keyless /_payload.json, so that was false. The
+   * page now names each incumbent's actual shape and says it was corrected.
+   */
+  it('states the tier-B claim as shape, not as absence of an API', () => {
+    expect(page).toContain('The claim here is shape');
+    expect(page).not.toContain('no API at all,');
+  });
+
+  it('names what each incumbent actually serves, checkably', () => {
+    expect(page).toContain('/_payload.json');
+    expect(page).toContain('redirects');
+  });
+
+  it('admits the earlier sentence was wrong rather than quietly editing it', () => {
+    expect(page).toContain('which was wrong');
   });
 
   it('states that null precision is not zero error', () => {

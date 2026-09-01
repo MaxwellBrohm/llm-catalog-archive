@@ -36,6 +36,7 @@ import {
   type LeakRefusal,
 } from '../derive/leaks.js';
 import { scoreLedger, type LedgerClaim } from './ledger.js';
+import { countEmails, redactLine } from './redact.js';
 import { wallHtml } from './wall.js';
 import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
@@ -211,10 +212,13 @@ const GUTTER = { add: '+', remove: '-', context: ' ', hunk: '@' } as const;
 
 function diffHtml(a: ArtifactChange): string {
   if (a.diff.length === 0) return '<p class="note">This commit recorded no textual diff for this artifact.</p>';
+  let redactedCount = 0;
   const body = a.diff
     .map((l) => {
       const cut = l.truncated ? '<span class="cut">&#8230;</span>' : '';
-      return `<div class="dl dl-${l.kind}"><span class="g">${GUTTER[l.kind]}</span><code>${escapeHtml(l.text)}${cut}</code></div>`;
+      redactedCount += countEmails(l.text);
+      const text = redactLine(l.text);
+      return `<div class="dl dl-${l.kind}"><span class="g">${GUTTER[l.kind]}</span><code>${escapeHtml(text)}${cut}</code></div>`;
     })
     .join('\n');
   // Both notes are statements about this page's own rendering, with numbers
@@ -228,6 +232,11 @@ function diffHtml(a: ArtifactChange): string {
   const cutLines = a.diff.filter((l) => l.truncated).length;
   if (cutLines > 0) {
     notes.push(`${plural(cutLines, 'line')} shown here cut at ${formatInt(MAX_LINE_CHARS)} characters.`);
+  }
+  if (redactedCount > 0) {
+    notes.push(
+      `${plural(redactedCount, 'email address')} masked in this display. See the About page on personal data.`,
+    );
   }
   if (notes.length > 0) notes.push('The raw artifact at this commit is linked above.');
   const note = notes.length === 0 ? '' : `<p class="note">${escapeHtml(notes.join(' '))}</p>`;
@@ -1267,7 +1276,7 @@ ${escapeHtml(npx)} retiring --within 90d --models claude-opus-4-8,claude-sonnet-
 <h2>What is unique, what is merely accessible, and what is a commodity</h2>
 <ul class="tierlist">
 <li><span class="tiername">Unique</span><span class="tierwhat">The arena codename map, the upstream pull-request leak feed, the documentation differ across nine providers, and the join of all of them to catalog and lifecycle state in one surface. Published by nobody else, in this form, that we could find.</span></li>
-<li><span class="tiername">Better because it is reachable</span><span class="tierwhat">Price history, lifecycle events and catalog history. These exist elsewhere and the incumbents are good. They are not expensive, they are shut: one has price history and no API at all, one puts its API behind a 401, and one is current state only with its history existing solely as a diff over thousands of sync commits. The claim here is access, not accuracy and not price.</span></li>
+<li><span class="tiername">Better because it is reachable</span><span class="tierwhat">Price history, lifecycle events and catalog history. These exist elsewhere and the incumbents are good. The claim here is shape, not accuracy and not price, and it is narrower than it used to be: an earlier version of this sentence said one of them had &quot;no API at all&quot;, which was wrong. pricepertoken.com serves a keyless <code>/_payload.json</code> carrying its pricing data and model changelog, so price history there is reachable, just undocumented and shaped for its own front end. llmstatus.ai redirects <code>/rss.xml</code> to a sign-in page. models.dev publishes current state, with its history existing solely as a diff over thousands of sync commits. What is different here is that every value is addressed by commit and linked to the bytes it came from.</span></li>
 <li><span class="tiername">Free commodity</span><span class="tierwhat">The current model list, current prices, current context windows and current deprecation status. Several people serve this and it costs nothing to serve. It is the front door, not the product.</span></li>
 </ul>
 </div>
@@ -1305,8 +1314,10 @@ export function renderAboutPage(): string {
 
 <div class="panel prose">
 <h2>Personal data, stated rather than implied</h2>
-<p>Most sources here are vendor documentation indexes, sitemaps, status feeds and machine-readable catalogues. Two are not. The <code>transformers-pulls</code> and <code>vllm-pulls</code> sources are GitHub pull-request searches, and a GitHub search payload carries each pull request's full description text and its author's login, numeric id, avatar URL and profile URL.</p>
-<p>That means this repository mirrors user-generated content written by named private individuals, and recommits it on every capture into a history that is never rewritten. An erasure request against it cannot be satisfied without violating the archive's own central rule, which is a real cost and not a technicality. The derivation that reads these two sources projects only the pull request's number, title, state and merge timestamp; the description and the author fields are stored but never used and never rendered. Stating that here is the honest half of a tradeoff whose other half has not been paid.</p>
+<p>Most sources here are vendor documentation indexes, sitemaps, status feeds and machine-readable catalogues. Three are not, and they are not equally risky, so this section names which is which rather than grouping them.</p>
+<p>The one that actually reached these pages is <code>modelsdev-commits</code>, an Atom feed of commits to models.dev. An Atom commit entry carries an <code>&lt;email&gt;</code> for every author and for every <code>Co-authored-by:</code> trailer, and the change pages render a diff of the stored bytes. Nine distinct addresses were published that way, four of them personal. They are no longer rendered: every address in a displayed diff is masked, with no exception for role or noreply addresses, because a rule that spared those would have to judge which addresses are personal and would publish a private one every time it judged wrong. The count of masked addresses is printed under each diff that has any.</p>
+<p>The other two are <code>transformers-pulls</code> and <code>vllm-pulls</code>, GitHub pull-request searches whose payloads carry each pull request's full description text and its author's login, numeric id, avatar URL and profile URL. Those fields are stored but never rendered: the derivation projects only the pull request's number, title, state and merge timestamp. That was already true when this section named these two sources and did not name the one whose data was on the page, which is the failure mode a disclosure like this is supposed to prevent.</p>
+<p>Masking is a property of the publication, not of the archive. The stored bytes still contain the addresses, and every diff sits beside a permalink to the exact artifact at the exact commit, so nothing here is unverifiable. That is also the unpaid half of the tradeoff: this repository mirrors content written by named private individuals and recommits it into a history that is never rewritten, so an erasure request against it cannot be satisfied without violating the archive's own central rule. That is a real cost and not a technicality.</p>
 </div>
 
 <div class="panel prose">
