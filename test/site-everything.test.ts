@@ -22,7 +22,7 @@ import {
   typePagePath,
   TYPE_LABEL,
 } from '../src/site/render.js';
-import { buildSite } from '../src/site/build.js';
+import { buildSite, textContents } from '../src/site/build.js';
 import { buildThreads } from '../src/derive/threads.js';
 import { ALL_TYPES, buildFeed } from '../src/derive/feed.js';
 import type { DerivedEvent } from '../src/derive/events.js';
@@ -353,7 +353,7 @@ describe('buildSite emits the publication', () => {
   const at = (p: string): string => {
     const hit = files.find((f) => f.path === p);
     if (hit === undefined) throw new Error(`no file at ${p}`);
-    return hit.contents;
+    return textContents(hit);
   };
 
   it('makes the front page the everything stream rather than the changelog', () => {

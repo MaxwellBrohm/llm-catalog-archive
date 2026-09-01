@@ -2,7 +2,7 @@ import { describe, it, expect, afterAll } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildSite, writeSite } from '../src/site/build.js';
+import { buildSite, writeSite, textContents, type SiteFile } from '../src/site/build.js';
 import { artifact, record, sidecar, OTHER_SHA, SHA } from './site-fixtures.js';
 
 const temps: string[] = [];
@@ -25,10 +25,10 @@ const newer = record();
 /** Deliberately oldest-first, so the sort inside buildSite is what orders it. */
 const unsorted = [older, newer];
 
-const at = (files: { path: string; contents: string }[], p: string): string => {
+const at = (files: SiteFile[], p: string): string => {
   const hit = files.find((f) => f.path === p);
   if (hit === undefined) throw new Error(`no file at ${p}`);
-  return hit.contents;
+  return textContents(hit);
 };
 
 describe('buildSite: the file set', () => {

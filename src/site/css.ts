@@ -11,7 +11,67 @@
  * No client JavaScript anywhere. The only interactive element is <details>,
  * which the browser implements.
  */
-export const STYLESHEET = `@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+/**
+ * SELF-HOSTED, NOT @import'ed FROM GOOGLE. The stylesheet used to open with an
+ * @import of fonts.googleapis.com, which made every page load a third-party
+ * request, handed every reader's IP to Google with no disclosure, and put a
+ * dependency this project does not control in front of a site whose whole claim
+ * is that what it serves is what it stored. three.js was vendored for exactly
+ * that reason and the typefaces were not.
+ *
+ * These are variable fonts, so one file per family covers the whole weight
+ * range and `font-weight` is declared as a range rather than a value.
+ * `font-display: swap` keeps text readable while they load, and `unicode-range`
+ * lets a browser skip the latin-ext file for pages that never need it.
+ */
+export const STYLESHEET = `@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('fonts/space-grotesk-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('fonts/jetbrains-mono-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
   --void: #050505;
@@ -534,7 +594,13 @@ footer.site-foot a { color: var(--text-dim); }
 .wall.is-mounted .wall-stage {
   display: block;
   width: 100%;
-  height: clamp(420px, 62vh, 640px);
+  /*
+   * A starting value only. src/site/wall-js.ts overwrites this from the space
+   * actually left below the stage's own top, because a clamp whose floor is
+   * 420px resolves to 420px at the gate's minimum height and pushes the bottom
+   * row of tabs past the fold, where a locked camera cannot reach it.
+   */
+  height: clamp(300px, 62vh, 640px);
 }
 .wall-stage canvas { display: block; width: 100%; height: 100%; }
 

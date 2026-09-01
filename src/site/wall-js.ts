@@ -80,9 +80,17 @@ if (wrap && stage && list && Array.isArray(tabs) && tabs.length > 0 && wide() &&
  * The size gate. A phone gets the list, full stop: 12 slabs at phone width are
  * 90 pixels across, which is a picture of an index rather than an index, and
  * most links to this site are opened on one.
+ *
+ * THE HEIGHT IS 600 AND NOT 560 BECAUSE 560 WAS A PROMISE THE WALL COULD NOT
+ * KEEP. About 253px of header and hero sit above the stage, and the wall needs
+ * 300px of its own to seat four rows without cropping, so 560 left it 113px
+ * short and the bottom row fell past the fold with a locked camera and no way
+ * to reach it. A gate should describe what actually happens at that size, so it
+ * now names the height at which a COMPLETE wall fits. Below it the list stands,
+ * which was always the better of the two outcomes.
  */
 function wide() {
-  return window.matchMedia('(min-width: 880px) and (min-height: 560px)').matches;
+  return window.matchMedia('(min-width: 880px) and (min-height: 600px)').matches;
 }
 
 /* A probe, not an assumption. The context is released immediately. */
@@ -470,7 +478,42 @@ function mount(THREE) {
    * the arc would push them off both edges.
    */
   const Z_NEAR = RADIUS * (1 - Math.cos(((COLS - 1) / 2) * (PITCH_X / RADIUS)));
+  /*
+   * THE STAGE SIZES ITSELF TO THE SPACE THAT IS ACTUALLY LEFT.
+   *
+   * The stylesheet asked for clamp(420px, 62vh, 640px), and at the gate's own
+   * minimum of 880x560 that clamp resolves to its 420px FLOOR: 62vh is 347px,
+   * so the floor wins exactly when space is tightest. With 253px of header and
+   * hero above it the stage then ended 113px below the fold, and the bottom row
+   * of tabs was unreachable, because the camera is locked and there is no
+   * orbit, dolly or scroll to recover it. The comment above claiming all twelve
+   * are in frame was false at the one size the gate guarantees.
+   *
+   * CSS cannot fix this, because the height that matters is the viewport minus
+   * this element's own top, and only layout knows that. So it is measured here,
+   * where the camera is already refitted on every resize.
+   */
+  const STAGE_MAX = 640;
+  const STAGE_MIN = 300;
+  const STAGE_GUTTER = 16;
+
+  function sizeStage() {
+    const top = stage.getBoundingClientRect().top;
+    const available = window.innerHeight - top - STAGE_GUTTER;
+    if (available < STAGE_MIN) return 0;
+    const height = Math.min(STAGE_MAX, available);
+    stage.style.height = height + 'px';
+    return height;
+  }
+
   function fit() {
+    /*
+     * Zero means the space left is too small for a wall that would be complete.
+     * Returning false here unmounts, which is the correct outcome: the list
+     * below is the whole content, uncapped, and a truncated wall is strictly
+     * worse than the list it was drawn over.
+     */
+    if (sizeStage() === 0) return false;
     const w = stage.clientWidth;
     const h = stage.clientHeight;
     if (w === 0 || h === 0) return false;

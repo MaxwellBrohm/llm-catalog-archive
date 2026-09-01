@@ -24,6 +24,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { buildSite, type SiteFile } from '../src/site/build.js';
 import { WALL_JS } from '../src/site/wall-js.js';
+import { STYLESHEET } from '../src/site/css.js';
 import {
   jsonIsland,
   wallHtml,
@@ -90,7 +91,7 @@ function site(): { feed: FeedItem[]; threads: ThreadSet; files: SiteFile[]; inde
   );
   const threads = buildThreads(feed);
   const files = buildSite([], undefined, threads, [], [], feed, []);
-  return { feed, threads, files, index: files.find((f) => f.path === 'index.html')?.contents ?? '' };
+  return { feed, threads, files, index: (files.find((f) => f.path === 'index.html')?.contents as string | undefined) ?? '' };
 }
 
 /**
@@ -491,7 +492,7 @@ describe('vendoring three', () => {
   // read off the bytes instead. Also the only assertion here that would notice
   // the file being handed on as a Buffer rather than as text.
   it('copies a module whose every import is the core it copies beside it', () => {
-    const mod = vendorFiles().find((f) => f.path === THREE_MODULE_PATH)?.contents ?? '';
+    const mod = (vendorFiles().find((f) => f.path === THREE_MODULE_PATH)?.contents as string | undefined) ?? '';
     const specifiers = new Set([...mod.matchAll(/from\s*['"]([^'"]+)['"]/g)].map((m) => m[1]));
     expect([...specifiers]).toEqual([`./${path.basename(THREE_CORE_PATH)}`]);
   });
@@ -532,5 +533,44 @@ describe('vendoring three', () => {
     } finally {
       fs.rmSync(empty, { recursive: true, force: true });
     }
+  });
+});
+
+/**
+ * THE GATE HAS TO DESCRIBE WHAT ACTUALLY HAPPENS AT THAT SIZE.
+ *
+ * It used to read `(min-width: 880px) and (min-height: 560px)`, and the camera
+ * comment above the fit claimed all twelve tabs were in frame at any window the
+ * wall mounts at. Measured in a browser at exactly 880x560: about 253px of
+ * header and hero sit above the stage, the stylesheet's clamp(420px, 62vh,
+ * 640px) resolved to its 420px FLOOR because 62vh is only 347px there, and the
+ * stage ended 113px below the fold. The camera is locked with no orbit, dolly
+ * or scroll, so the bottom row of four tabs was simply unreachable.
+ */
+describe('the wall only claims sizes where a complete wall fits', () => {
+  it('gates on a height that leaves room for the stage, not on the old 560', () => {
+    expect(WALL_JS).toContain('(min-width: 880px) and (min-height: 600px)');
+    expect(WALL_JS).not.toContain('min-height: 560px');
+  });
+
+  it('sizes the stage from the space left below its own top, which CSS cannot know', () => {
+    expect(WALL_JS).toContain('getBoundingClientRect().top');
+    expect(WALL_JS).toContain('window.innerHeight - top');
+  });
+
+  it('unmounts rather than cropping when that space is too small', () => {
+    // fit() returns false on a zero size, and its caller unmounts, so the list
+    // stands. A truncated wall is strictly worse than the list it is drawn over.
+    expect(WALL_JS).toContain('if (sizeStage() === 0) return false;');
+  });
+
+  it('caps the stage so a tall window does not stretch it without limit', () => {
+    expect(WALL_JS).toContain('Math.min(STAGE_MAX, available)');
+  });
+});
+
+describe('the stylesheet no longer sets a floor the viewport cannot honour', () => {
+  it('does not clamp the mounted stage to a 420px minimum', () => {
+    expect(STYLESHEET).not.toContain('clamp(420px, 62vh, 640px)');
   });
 });

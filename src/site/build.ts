@@ -50,7 +50,12 @@ import type { ThreadSet } from '../derive/threads.js';
 import type { LeakItem, LeakRefusal } from '../derive/leaks.js';
 import type { LedgerClaim } from './ledger.js';
 
-export type SiteFile = { path: string; contents: string };
+/**
+ * `contents` is bytes OR text. It was text only until the fonts were vendored:
+ * a woff2 read as a utf8 string and written back is corrupt, so the type has to
+ * admit binary rather than the writer guessing an encoding.
+ */
+export type SiteFile = { path: string; contents: string | Uint8Array };
 
 /**
  * Ordering happens HERE, once, so every page and the feed agree. The renderers
@@ -157,6 +162,18 @@ export function buildSite(
   }
 
   return files;
+}
+
+/**
+ * A file's contents as text, refusing rather than coercing when it is binary.
+ * Every JSON and HTML product of the generator is text; the vendored typefaces
+ * are not, and a test that silently stringified one would assert on mojibake.
+ */
+export function textContents(file: SiteFile): string {
+  if (typeof file.contents !== 'string') {
+    throw new Error(`${file.path} holds bytes, not text`);
+  }
+  return file.contents;
 }
 
 export function writeSite(outDir: string, files: SiteFile[]): void {

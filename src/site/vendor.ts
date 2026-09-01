@@ -97,3 +97,67 @@ export function vendorFiles(dir: string = threeBuildDir()): SiteFile[] {
     return { path: to, contents: fs.readFileSync(abs, 'utf8') };
   });
 }
+
+// ---------------------------------------------------------------------------
+// the typefaces
+// ---------------------------------------------------------------------------
+
+/**
+ * The three families the design language names, vendored for the same reason
+ * three.js is: the site is static files that should keep working when nothing
+ * else does, and every byte it serves should be a byte it stored.
+ *
+ * WHAT THIS REPLACED. style.css opened with an @import of fonts.googleapis.com.
+ * That is a third-party request on every page load of a project whose whole
+ * claim is self-containment, it hands every reader's IP address to Google
+ * without saying so, and it is a single point of failure the archive does not
+ * control. three.js was vendored to avoid exactly this and the fonts were not.
+ *
+ * From node_modules rather than committed, on the same reasoning as three: R7
+ * makes a committed build asset permanent, and 220 KiB of font binaries would
+ * sit in the pack for the life of the project beside the artifacts that are the
+ * point of it. @fontsource ships the same files Google serves, under the same
+ * open licences.
+ *
+ * latin and latin-ext only. A reader whose glyph is in neither gets the
+ * fallback stack, which is the correct outcome and not a missing character.
+ */
+export const FONT_DIR = 'fonts';
+
+const FONT_FILES: ReadonlyArray<readonly [string, string]> = [
+  ['@fontsource-variable/space-grotesk', 'space-grotesk-latin-wght-normal.woff2'],
+  ['@fontsource-variable/space-grotesk', 'space-grotesk-latin-ext-wght-normal.woff2'],
+  ['@fontsource-variable/inter', 'inter-latin-wght-normal.woff2'],
+  ['@fontsource-variable/inter', 'inter-latin-ext-wght-normal.woff2'],
+  ['@fontsource-variable/jetbrains-mono', 'jetbrains-mono-latin-wght-normal.woff2'],
+  ['@fontsource-variable/jetbrains-mono', 'jetbrains-mono-latin-ext-wght-normal.woff2'],
+];
+
+/**
+ * A font package's `files` directory, resolved from THIS file for the same
+ * reason threeBuildDir is. The packages publish `./files/*` in their exports
+ * map but not the package root as a resolvable module path in every resolver,
+ * so the package.json is asked for and its directory used.
+ */
+export function fontFilesDir(pkg: string, resolve: (id: string) => string = defaultResolve): string {
+  try {
+    return path.join(path.dirname(resolve(`${pkg}/package.json`)), 'files');
+  } catch {
+    throw new Error(
+      `the \`${pkg}\` package is not installed; refusing to build a site whose stylesheet asks for a typeface that is not there (npm ci installs it)`,
+    );
+  }
+}
+
+/** The vendored woff2 files, as bytes. */
+export function fontVendorFiles(resolve: (id: string) => string = defaultResolve): SiteFile[] {
+  return FONT_FILES.map(([pkg, file]) => {
+    const abs = path.join(fontFilesDir(pkg, resolve), file);
+    if (!fs.existsSync(abs)) {
+      throw new Error(
+        `${file} is missing from ${pkg}; refusing to build a site whose stylesheet asks for a typeface that is not there (npm ci installs it)`,
+      );
+    }
+    return { path: `${FONT_DIR}/${file}`, contents: fs.readFileSync(abs) };
+  });
+}
