@@ -703,7 +703,34 @@ export function eventsFromChange(
   change: ContentChange,
   precisionSeconds: number = Infinity,
 ): DerivedEvent[] {
-  if (change.kind === 'added') return [];
+  /*
+   * THE ONE EXCEPTION TO RULE 2, AND WHY IT IS NOT A HOLE IN IT.
+   *
+   * Rule 2 exists because a baseline supports no CHANGE claim: "these 416
+   * models entered the catalogue today" is a statement about when they entered,
+   * and a first capture knows nothing about that. Every event type this file
+   * emits from a diff inherits its date from OUR observation, so every one of
+   * them is barred from a baseline.
+   *
+   * A retirement floor is not that kind of claim. Its sentence is "the
+   * <source> table RECORDS the tentative retirement date for X as Y", and both
+   * X and Y are values read out of the vendor's own published table. The date
+   * in it is the vendor's date, not our observation time, so the claim is
+   * exactly as well supported by the first capture as by the hundredth. Nothing
+   * about when the row appeared in the table is asserted, because the archive
+   * does not know that and the sentence does not say it.
+   *
+   * What this bought: 16 dated floors with recommended replacements, which is
+   * the most useful thing the archive holds, existed ONLY inside the CLI and
+   * the API. `grep -rl "retirement floor" build/site` matched one file, the API
+   * documentation. The publication's own micro-category for them read 0 items,
+   * because the single deprecations capture is a baseline and a baseline
+   * emitted nothing at all.
+   */
+  if (change.kind === 'added') {
+    if (change.sourceId === DEPRECATIONS_SOURCE_ID) return retirementEvents(change, '', change.after);
+    return [];
+  }
   const before = change.before;
   // Belt and braces against a caller that says 'modified' with no before: the
   // alternative is every entry in the after being reported as newly added.

@@ -178,6 +178,24 @@ function countsHtml(a: ArtifactChange): string {
   return `<span class="count-add">+${formatInt(a.linesAdded)}</span> <span class="count-remove">-${formatInt(a.linesRemoved)}</span>`;
 }
 
+/**
+ * The same counts as text, for a title attribute.
+ *
+ * Written as a concatenation rather than as a template literal that opens with
+ * a plus sign followed by an interpolation. That byte sequence is exactly the
+ * shape of a forced refspec, so the guard in test/git.test.ts flags it, and
+ * that guard scans every file that can hand git an argument, comments included,
+ * which is correct: a scanner that skipped comments could be walked straight
+ * past. The guard is deliberately broader than git's own syntax and has already
+ * been worked around four times, so when it fires on a false positive the right
+ * move is to write the string differently rather than to teach it an exception
+ * that will be beaten through later. This comment is phrased to describe the
+ * sequence rather than to contain it, for the same reason.
+ */
+function plainCounts(a: ArtifactChange): string {
+  return '+' + formatInt(a.linesAdded) + ' -' + formatInt(a.linesRemoved);
+}
+
 const SIDECAR_ROWS: ReadonlyArray<readonly [string, keyof SidecarView]> = [
   ['observed_at', 'observedAt'],
   ['origin_date', 'originDate'],
@@ -289,31 +307,79 @@ ${record.artifacts.map((a) => artifactSection(record, a)).join('\n')}`;
   return layout({ title: `${short} - llm-catalog-archive`, depth: 1, body, active: 'changelog' });
 }
 
+/**
+ * How big a change was, in the units the artifact actually has.
+ *
+ * WHY THE LINE COUNTS WERE NOT ENOUGH. The changelog is titled "The narrated
+ * diff" and its magnitude column read `+1 -1` on every row that mattered,
+ * because `openrouter-models/response.json` is 700KB of minified JSON on ONE
+ * LINE. The commit that dropped 29 catalogue ids and the commit that moved a
+ * single price rendered identically, so the column could not distinguish the
+ * largest event in the archive from the smallest. A line count is a fact about
+ * the file's formatting, not about the change.
+ *
+ * This counts the DERIVED events at that commit for that source instead, which
+ * is the same number the thread pages and the API serve. It is not a summary
+ * and it is not a judgement: every count here is the length of a list the
+ * deriver already produced, and a commit whose events are zero gets null so the
+ * caller can fall back to lines rather than print a confident "0 changes".
+ */
+const MAGNITUDE_LABEL: Partial<Record<FeedType, string>> = {
+  model_added: 'entered',
+  model_removed: 'left',
+  price_changed: 'repriced',
+  context_changed: 'context moved',
+  doc_added: 'docs listed',
+  doc_removed: 'docs delisted',
+  codename_entered: 'codenames',
+  codename_unmasked: 'codenames revealed',
+};
+
+export function changeMagnitude(sha: string, sourceId: string, feed: readonly FeedItem[]): string | null {
+  const counts = new Map<FeedType, number>();
+  for (const item of feed) {
+    if (item.sha !== sha || item.sourceId !== sourceId) continue;
+    counts.set(item.type, (counts.get(item.type) ?? 0) + 1);
+  }
+  if (counts.size === 0) return null;
+  return [...counts]
+    .sort((a, b) => (b[1] !== a[1] ? b[1] - a[1] : a[0] < b[0] ? -1 : 1))
+    .map(([type, n]) => `${formatInt(n)} ${MAGNITUDE_LABEL[type] ?? type}`)
+    .join(', ');
+}
+
 type Row = { record: ChangeRecord; artifact: ArtifactChange };
 
 function rowsOf(records: ChangeRecord[]): Row[] {
   return records.flatMap((record) => record.artifacts.map((artifact) => ({ record, artifact })));
 }
 
-function rowHtml(row: Row, depth: number): string {
+function rowHtml(row: Row, depth: number, feed: readonly FeedItem[] = []): string {
   const { up } = links(depth);
   const { record, artifact } = row;
   const stamp = stampFor(artifact.sidecar);
   const retracted = isArtifactRetracted(record, artifact.path);
+  // Derived magnitude when the archive has one, line counts otherwise, and the
+  // line counts stay reachable either way as the cell's title.
+  const derived = changeMagnitude(record.sha, artifact.sourceId, feed);
+  const size =
+    derived === null
+      ? countsHtml(artifact)
+      : `<span title="the unified diff is ${escapeHtml(plainCounts(artifact))}, which counts lines rather than records">${escapeHtml(derived)}</span>`;
   return `<tr>
 <td class="mono"><a href="${up}${sourcePagePath(artifact.sourceId)}">${escapeHtml(artifact.sourceId)}</a></td>
 <td class="mono">${escapeHtml(artifact.path)}${retracted ? ' <span class="badge badge-retracted">retracted</span>' : ''}</td>
-<td class="mono">${countsHtml(artifact)}</td>
+<td class="mono">${size}</td>
 <td class="mono">${stampHtml(stamp)}</td>
 <td class="mono"><a href="${up}${changePagePath(record.sha)}">${escapeHtml(record.sha.slice(0, 7))}</a></td>
 </tr>`;
 }
 
-function changesTable(rows: Row[], depth: number): string {
+function changesTable(rows: Row[], depth: number, feed: readonly FeedItem[] = []): string {
   return `<div class="table-scroll"><table class="changes">
-<thead><tr><th>Source</th><th>Artifact</th><th>Lines</th><th>Timestamp</th><th>Change</th></tr></thead>
+<thead><tr><th>Source</th><th>Artifact</th><th>Magnitude</th><th>Timestamp</th><th>Change</th></tr></thead>
 <tbody>
-${rows.map((r) => rowHtml(r, depth)).join('\n')}
+${rows.map((r) => rowHtml(r, depth, feed)).join('\n')}
 </tbody>
 </table></div>`;
 }
@@ -352,7 +418,7 @@ function byDay(records: ChangeRecord[]): { day: string; records: ChangeRecord[] 
  * 10 makes a change page's URL a permalink, and moving the index is not licence
  * to move what the index points at.
  */
-export function renderChangelogPage(records: ChangeRecord[]): string {
+export function renderChangelogPage(records: ChangeRecord[], feed: readonly FeedItem[] = []): string {
   const { up } = links(1);
   const sourceIds = [...new Set(rowsOf(records).map((r) => r.artifact.sourceId))].sort();
   const perSource = new Map<string, number>();
@@ -371,7 +437,7 @@ export function renderChangelogPage(records: ChangeRecord[]): string {
     .map(
       (g) => `<section class="day">
 <h2>${escapeHtml(g.day)}</h2>
-${changesTable(rowsOf(g.records), 1)}
+${changesTable(rowsOf(g.records), 1, feed)}
 </section>`,
     )
     .join('\n');
@@ -940,7 +1006,7 @@ export const TYPE_LABEL: Record<FeedType, string> = {
   context_changed: 'A context_length changed',
   expiration_set: 'An expiration_date was recorded',
   alias_retargeted: 'A canonical_slug was retargeted',
-  retirement_floor: 'A retirement date was tabled',
+  retirement_floor: 'A retirement date the table records',
   doc_added: 'A documentation index gained an entry',
   doc_removed: 'A documentation index lost an entry',
   codename_entered: 'A name entered the arena payload',

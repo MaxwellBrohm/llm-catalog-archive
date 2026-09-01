@@ -104,7 +104,7 @@ export function buildSite(
     // example on it is written against the real base URL: an example a reader
     // has to edit before it runs is an example nobody has run.
     { path: API_PATH, contents: renderApiPage(siteUrl, undefined, undefined, apiExampleId) },
-    { path: CHANGELOG_INDEX_PATH, contents: renderChangelogPage(records) },
+    { path: CHANGELOG_INDEX_PATH, contents: renderChangelogPage(records, feed) },
     // feed.xml is UNCHANGED and still one item per artifact change. Repointing
     // it at the new stream would silently replace every existing subscriber's
     // feed with a different publication, so the new stream got a new address.

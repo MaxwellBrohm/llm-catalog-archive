@@ -16,6 +16,7 @@ import {
   renderAboutPage,
   renderEverythingFeed,
   feedItemAnchor,
+  changeMagnitude,
   renderEverythingPage,
   renderLabPage,
   renderTypePage,
@@ -960,5 +961,65 @@ describe('every everything-feed link resolves to its own item on a built page', 
       const segment = html.slice(at, at + 1500);
       expect(segment.includes(e.title), `${frag} does not carry its own sentence`).toBe(true);
     }
+  });
+});
+
+/**
+ * The changelog is titled "The narrated diff" and its magnitude column read
+ * `+1 -1` on every row that mattered, because openrouter-models/response.json
+ * is 700KB of minified JSON on one line. The commit that added 30 catalogue ids
+ * and the commit that moved a single price were indistinguishable. A line count
+ * describes the file's formatting, not the change.
+ */
+describe('changeMagnitude', () => {
+  const item = (sha: string, sourceId: string, type: string) =>
+    ({ sha, sourceId, type }) as never;
+
+  it('counts derived events instead of lines', () => {
+    expect(
+      changeMagnitude('abc', 'openrouter-models', [
+        item('abc', 'openrouter-models', 'model_added'),
+        item('abc', 'openrouter-models', 'model_added'),
+        item('abc', 'openrouter-models', 'price_changed'),
+      ]),
+    ).toBe('2 entered, 1 repriced');
+  });
+
+  it('orders by count so the biggest thing in the commit is read first', () => {
+    expect(
+      changeMagnitude('abc', 's', [
+        item('abc', 's', 'price_changed'),
+        item('abc', 's', 'model_added'),
+        item('abc', 's', 'model_added'),
+        item('abc', 's', 'model_added'),
+      ]),
+    ).toBe('3 entered, 1 repriced');
+  });
+
+  it('ignores events from another commit', () => {
+    expect(
+      changeMagnitude('abc', 's', [item('def', 's', 'model_added')]),
+    ).toBeNull();
+  });
+
+  it('ignores events from another source at the same commit', () => {
+    expect(
+      changeMagnitude('abc', 's', [item('abc', 'other', 'model_added')]),
+    ).toBeNull();
+  });
+
+  /**
+   * A baseline capture emits no events by design, so there is nothing to count.
+   * Returning null lets the caller fall back to line counts rather than print a
+   * confident "0 changes" about a commit that stored 416 models.
+   */
+  it('returns null rather than zero when the commit derived nothing', () => {
+    expect(changeMagnitude('abc', 's', [])).toBeNull();
+  });
+
+  it('falls back to the raw type name for a type with no label', () => {
+    expect(changeMagnitude('abc', 's', [item('abc', 's', 'upstream_pr_merged')])).toBe(
+      '1 upstream_pr_merged',
+    );
   });
 });
