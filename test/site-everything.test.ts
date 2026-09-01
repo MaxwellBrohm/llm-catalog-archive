@@ -1023,3 +1023,15 @@ describe('changeMagnitude', () => {
     );
   });
 });
+
+describe('the About page states the costs it has actually paid', () => {
+  it('names the credential incident rather than leaving it to be discovered', () => {
+    const html = renderAboutPage();
+    expect(html).toContain('credential gate');
+    expect(html).toContain('history is not rewritten here');
+  });
+
+  it('says the working tree and every built page are clean', () => {
+    expect(renderAboutPage()).toContain('are clean');
+  });
+});
