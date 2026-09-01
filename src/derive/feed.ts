@@ -74,6 +74,8 @@ export const ALL_TYPES: FeedType[] = [
   'doc_added',
   'doc_moved',
   'doc_removed',
+  'post_listed',
+  'incident_opened',
   'codename_entered',
   'codename_unmasked',
   'upstream_pr_opened',

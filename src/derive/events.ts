@@ -35,6 +35,13 @@ import {
   type Entity,
 } from './entities.js';
 import { numberOrAbsent, quotedOrAbsent, quoteValue } from './quoting.js';
+import {
+  ANNOUNCEMENT_PATHS,
+  announcementUrls,
+  incidentEntries,
+  isAnnouncementSource,
+  isIncidentSource,
+} from './announcements.js';
 import type { Stamp } from '../site/record.js';
 
 /** The collection tiers, as `meta/sources.json` spells them. */
@@ -85,6 +92,8 @@ export type EventType =
   | 'doc_added'
   | 'doc_moved'
   | 'doc_removed'
+  | 'post_listed'
+  | 'incident_opened'
   | 'retirement_floor';
 
 type Common = {
@@ -136,6 +145,8 @@ export type DerivedEvent = Common &
     | { type: 'doc_added'; provider: string; title: string; url: string }
     | { type: 'doc_moved'; provider: string; title: string; url: string; fromUrl: string }
     | { type: 'doc_removed'; provider: string; title: string; url: string }
+    | { type: 'post_listed'; provider: string; url: string }
+    | { type: 'incident_opened'; provider: string; title: string; url: string; published: string | null }
     | {
         type: 'retirement_floor';
         provider: string;
@@ -572,6 +583,79 @@ function docEvents(change: ContentChange, before: string, after: string): Derive
   return out;
 }
 
+/**
+ * New announcement URLs in a sitemap.
+ *
+ * THE LOC SET ONLY, NEVER lastmod. anthropic-sitemap's per-URL lastmod
+ * oscillates between edge caches, measured at 24 of 516 values differing across
+ * two fetches four seconds apart, so keying on it here would publish a story
+ * every time a CDN node disagreed with itself. The predicate that decides
+ * whether to COMMIT still reads lastmod, because an edit to an existing page is
+ * worth storing; it is just not worth a headline.
+ */
+function announcementEvents(change: ContentChange, before: string, after: string): DerivedEvent[] {
+  const provider = providerFromSourceId(change.sourceId);
+  if (provider === null) return [];
+  const prefixes = ANNOUNCEMENT_PATHS[change.sourceId];
+  if (prefixes === undefined) return [];
+
+  const prev = announcementUrls(before, prefixes);
+  const next = announcementUrls(after, prefixes);
+  const out: DerivedEvent[] = [];
+  for (const url of next) {
+    if (prev.has(url)) continue;
+    const entities = entitiesForDocUrl(url, provider);
+    out.push({
+      id: `${change.sha}:post_listed:${url}`,
+      type: 'post_listed',
+      sha: change.sha,
+      sourceId: change.sourceId,
+      path: change.path,
+      stamp: change.stamp,
+      entities,
+      held: entities.length === 0,
+      provider,
+      url,
+    });
+  }
+  return out;
+}
+
+/**
+ * New incidents in a status feed.
+ *
+ * KEYED ON THE ENTRY ID, not on the title or the content. A provider EDITS an
+ * incident as it develops, appending "Monitoring" and then "Resolved" to the
+ * same entry, so keying on anything else would report one outage three times.
+ * The archive still stores every edit; this reports the incident once, when it
+ * first appears.
+ */
+function incidentEvents(change: ContentChange, before: string, after: string): DerivedEvent[] {
+  const provider = providerFromSourceId(change.sourceId);
+  if (provider === null) return [];
+
+  const prev = new Set(incidentEntries(before).map((e) => e.id));
+  const out: DerivedEvent[] = [];
+  for (const entry of incidentEntries(after)) {
+    if (prev.has(entry.id) || entry.title === '') continue;
+    out.push({
+      id: `${change.sha}:incident_opened:${entry.id}`,
+      type: 'incident_opened',
+      sha: change.sha,
+      sourceId: change.sourceId,
+      path: change.path,
+      stamp: change.stamp,
+      entities: [],
+      held: true,
+      provider,
+      title: entry.title,
+      url: entry.url,
+      published: entry.published,
+    });
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------
 // deprecations .md
 // ---------------------------------------------------------------------------
@@ -797,6 +881,8 @@ export function eventsFromChange(
   if (change.sourceId === CATALOG_SOURCE_ID) return catalogEvents(change, before, change.after, precisionSeconds);
   if (change.sourceId === DEPRECATIONS_SOURCE_ID) return retirementEvents(change, before, change.after);
   if (isDocIndexSource(change.sourceId)) return docEvents(change, before, change.after);
+  if (isAnnouncementSource(change.sourceId)) return announcementEvents(change, before, change.after);
+  if (isIncidentSource(change.sourceId)) return incidentEvents(change, before, change.after);
   return [];
 }
 
@@ -877,6 +963,15 @@ export function claimSentence(event: DerivedEvent): string {
       return `OpenRouter's catalog canonical_slug for ${quoteValue(event.alias)} changed from ${quoteValue(event.from)} to ${quoteValue(event.to)}.`;
     case 'doc_moved':
       return `The documentation index entry titled ${quoteValue(event.title)} moved from ${quoteValue(event.fromUrl)} to ${quoteValue(event.url)}.`;
+    /*
+     * A SITEMAP CARRIES NO TITLE, so this quotes the URL and nothing else.
+     * Reading a headline out of a slug would be an inference, and the URL is
+     * the fact. For these paths it is a legible one.
+     */
+    case 'post_listed':
+      return `The ${event.sourceId} index listed a URL it had not listed before: ${quoteValue(event.url)}.`;
+    case 'incident_opened':
+      return `The ${event.sourceId} feed listed an incident titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'doc_added':
       return `The ${event.sourceId} index added an entry titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'doc_removed':

@@ -136,7 +136,16 @@ export function labEntity(lab: Lab): Entity {
  * against, not to widen the guard, so the separator lives in the loop below and
  * this list holds none of it.
  */
-const SOURCE_SUFFIXES = ['llms-full-txt', 'llms-txt', 'deprecations', 'sitemap'];
+/**
+ * The source-id suffixes that carry a provider segment in front of them.
+ *
+ * `status` joined this list when the status feeds started producing incident
+ * events. Before that they were stored and never derived from, so nothing ever
+ * asked who `claude-status` belonged to, and the deriver silently returned an
+ * empty array for every incident: a whole event type that could not fire,
+ * caught by a test rather than by reading the code.
+ */
+const SOURCE_SUFFIXES = ['llms-full-txt', 'llms-txt', 'deprecations', 'sitemap', 'status'];
 
 export function providerFromSourceId(sourceId: string): string | null {
   for (const suffix of SOURCE_SUFFIXES) {

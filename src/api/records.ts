@@ -239,6 +239,8 @@ export function subjectOf(item: FeedItem): string {
     case 'doc_added':
     case 'doc_moved':
     case 'doc_removed':
+    case 'post_listed':
+    case 'incident_opened':
       return event.url;
     case 'retirement_floor':
       return event.model;
@@ -286,6 +288,10 @@ export function eventFields(
     // sees where the entry is now, and one that reads both sees the move.
     case 'doc_moved':
       return { provider: event.provider, title: event.title, url: event.url, from_url: event.fromUrl };
+    case 'post_listed':
+      return { provider: event.provider, url: event.url };
+    case 'incident_opened':
+      return { provider: event.provider, title: event.title, url: event.url, published: event.published };
     case 'retirement_floor':
       return {
         provider: event.provider,
