@@ -90,6 +90,7 @@ describe('buildSite: the file set', () => {
       'type/stealth-listing.html',
       'type/upstream-pr-merged.html',
       'type/upstream-pr-opened.html',
+      'wall.js',
     ]);
   });
 
@@ -154,6 +155,7 @@ describe('buildSite: the file set', () => {
     expect(buildSite([]).map((f) => f.path)).toEqual([
       '.nojekyll',
       'style.css',
+      'wall.js',
       'index.html',
       'everything.xml',
       'about.html',

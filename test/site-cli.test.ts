@@ -121,6 +121,27 @@ describe('site-cli against a real repository', () => {
     expect(fs.existsSync(path.join(dir, 'build/site/.nojekyll'))).toBe(true);
   });
 
+  /**
+   * three.js belongs to the GENERATOR, not to the archive it is pointed at, and
+   * this fixture is the case that tells the two apart: it is a real repository
+   * with real commits and no node_modules at all. A vendor step that composed
+   * its path out of process.cwd() found nothing here and threw, which took the
+   * whole build with it and left build/site/ unwritten. Every other assertion
+   * in this file went red at once, which is a loud failure and still not a
+   * named one, so these two name it.
+   */
+  it('vendors the three module beside the page that imports it', () => {
+    const { dir } = fixtureRepo();
+    build(dir);
+    expect(fs.existsSync(path.join(dir, 'build/site/vendor/three.module.min.js'))).toBe(true);
+  });
+
+  it('vendors the core chunk that module imports in turn', () => {
+    const { dir } = fixtureRepo();
+    build(dir);
+    expect(fs.existsSync(path.join(dir, 'build/site/vendor/three.core.min.js'))).toBe(true);
+  });
+
   // The build directory IS the deployed root now, so .nojekyll belongs in it
   // and nowhere else. The generator used to write a second copy at docs/, back
   // when Pages published the /docs directory of the branch; that write is gone,

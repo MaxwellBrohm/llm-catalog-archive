@@ -6,6 +6,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { STYLESHEET } from './css.js';
+import { WALL_JS } from './wall-js.js';
+import { WALL_JS_PATH } from './wall.js';
 import {
   labPagePath,
   renderAboutPage,
@@ -75,6 +77,11 @@ export function buildSite(
   const files: SiteFile[] = [
     { path: '.nojekyll', contents: '' },
     { path: 'style.css', contents: STYLESHEET },
+    // The front door's browser module. Emitted unconditionally, next to the
+    // stylesheet, because it is an asset of the same kind: index.html asks for
+    // it by a fixed name, and a name that resolves on some builds and 404s on
+    // others is the failure mode this file exists to not have.
+    { path: WALL_JS_PATH, contents: WALL_JS },
     // The front page is EVERYTHING, and the changelog moved one directory down
     // rather than staying here. index.html is a front door and not a permalink;
     // every permalinked page in the publication, which is every change page,

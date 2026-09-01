@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildSite, writeSite } from './site/build.js';
+import { vendorFiles } from './site/vendor.js';
 import { buildApi } from './api/build.js';
 import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
@@ -98,7 +99,14 @@ const files = buildSite(records, siteUrl, threads, leaks, claims, feed, refusals
 // are copied and the records carry the same artifact permalinks, so the API and
 // the site cannot disagree about what the archive holds.
 const apiFiles = buildApi({ feed, threads, refusals, ledger: claims, changes: contentChanges, siteUrl });
-writeSite(outDir, [...files, ...apiFiles]);
+
+// three.js, read off disk rather than generated. See src/site/vendor.ts for why
+// it is copied instead of linked, why a missing copy stops the build, and why
+// it takes no cwd: three belongs to this generator, not to the archive the
+// generator is pointed at, and those are only the same directory on the deploy.
+const vendor = vendorFiles();
+
+writeSite(outDir, [...files, ...apiFiles, ...vendor]);
 
 // There is deliberately no second .nojekyll written outside outDir. Pages looks
 // for it in the ROOT of what it publishes, and what it publishes is now the
@@ -110,6 +118,7 @@ console.log(
   `derive: ${events.length} events, ${threads.threads.length} threads, ${threads.held.length} held`,
 );
 console.log(`api: ${apiFiles.length} files under api/v1/`);
+console.log(`vendor: ${vendor.length} file(s), ${vendor.reduce((n, f) => n + f.contents.length, 0)} bytes`);
 // Per type, because one total hides the case that matters: a signal that has
 // silently stopped producing while the others carry the number.
 const byType = new Map<string, number>();

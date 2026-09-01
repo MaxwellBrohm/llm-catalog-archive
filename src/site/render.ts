@@ -36,6 +36,7 @@ import {
   type LeakRefusal,
 } from '../derive/leaks.js';
 import { scoreLedger, type LedgerClaim } from './ledger.js';
+import { wallHtml } from './wall.js';
 import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
   artifactPermalink,
@@ -52,6 +53,8 @@ import {
   SITE_URL,
   sourcePagePath,
   stampFor,
+  threadPagePath,
+  THREADS_INDEX_PATH,
   utcDay,
   MAX_DIFF_LINES,
   MAX_LINE_CHARS,
@@ -60,6 +63,12 @@ import {
   type SidecarView,
   type Stamp,
 } from './record.js';
+
+// Re-exported rather than moved outright: the address itself belongs beside
+// the other page addresses in record.ts, but build.ts and the thread tests have
+// always imported it from here, and a permalink's module of origin is not worth
+// churning callers over.
+export { threadPagePath, THREADS_INDEX_PATH };
 
 /** Relative prefixes, so a page at any depth links the same targets. */
 function links(depth: number): { up: string } {
@@ -440,11 +449,6 @@ ${items}
 // Threads
 // ---------------------------------------------------------------------------
 
-export function threadPagePath(slug: string): string {
-  return `threads/${slug}.html`;
-}
-
-export const THREADS_INDEX_PATH = 'threads/index.html';
 
 /**
  * The extra facts one event type carries, as rows a reader can check against
@@ -1077,9 +1081,17 @@ ${g.items.map((i) => feedItemHtml(i, 0)).join('\n')}
   // read. The one exception is the lab filter, which is a single compact row
   // directly under the lede: filtering an AI news stream by lab is the thing
   // the research found nobody offers, so it is not allowed to be below a fold.
+  // THE FRONT DOOR SITS ON TOP OF THE INDEX AND REPLACES NO PART OF IT. What it
+  // emits into the DOM is a list of links; wall.js draws that list as a wall of
+  // slabs only once a WebGL frame is actually on screen, and puts the list back
+  // if the context is ever lost. Everything below this line renders identically
+  // whether or not a single line of JavaScript ever runs, which is the whole
+  // reason the 3D is allowed to exist: the archive is worth something because
+  // it is linkable and indexable, and a crawler sees nothing inside a canvas.
   const body = `<p class="eyebrow">The archive</p>
 <h1>Everything</h1>
 <p class="lede">${plural(feed.length, 'item')} derived by replay from git history over <code>raw/</code>, newest first. Every sentence names the artifact it was read out of and links those bytes at the commit that stored them.</p>
+${wallHtml(threads, threads.threads.length)}
 <div class="filterbar">
 <span class="filterbar-label">By lab</span>
 ${labChips(feed, 0, null)}

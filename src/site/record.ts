@@ -289,6 +289,18 @@ export function sourcePagePath(sourceId: string): string {
 }
 
 /**
+ * A thread's permalink. It lives here rather than in render.ts because two
+ * renderers now build it: the pages, and the 3D front door's tab data. One
+ * address, constructed once. render.ts re-exports it so its existing callers
+ * are unaffected.
+ */
+export function threadPagePath(slug: string): string {
+  return `threads/${slug}.html`;
+}
+
+export const THREADS_INDEX_PATH = 'threads/index.html';
+
+/**
  * The directory the site used to be served from, back when GitHub Pages
  * published it from the `main` branch at `/docs` and `docs/site/` therefore
  * landed one level below the Pages root.

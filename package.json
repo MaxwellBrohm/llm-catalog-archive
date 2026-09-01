@@ -17,7 +17,8 @@
     "typescript": "^7.0.2",
     "vitest": "^4.0.0",
     "@stryker-mutator/core": "^9.6.1",
-    "@stryker-mutator/vitest-runner": "^9.6.1"
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "three": "^0.181.2"
   },
   "bin": { "llmcat": "bin/llmcat.ts" },
   "files": ["bin", "src", "meta"]

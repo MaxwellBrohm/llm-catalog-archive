@@ -74,6 +74,16 @@ function leak(over: Partial<LeakItem> = {}): LeakItem {
 const FEED = buildFeed([event()], [leak()]);
 const THREADS = buildThreads(FEED);
 
+/**
+ * A page as a reader with scripting off receives it: every script ELEMENT gone,
+ * contents and all. Deleting only the tags would leave the front door's JSON
+ * island sitting in the text, which is exactly the content that is not supposed
+ * to count towards the page being readable.
+ */
+function withoutScripts(html: string): string {
+  return html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '');
+}
+
 // ---------------------------------------------------------------------------
 // the front page
 // ---------------------------------------------------------------------------
@@ -152,8 +162,30 @@ describe('renderEverythingPage', () => {
     );
   });
 
-  it('needs no client JavaScript to read', () => {
-    expect(renderEverythingPage(FEED, THREADS)).not.toContain('<script');
+  /**
+   * This used to read `not.toContain('<script')`, and the front door made that
+   * form of the check wrong without making the property it stood for wrong.
+   * The property is "nothing a reader needs is inside a script element", and
+   * the index now carries two: the JSON island the 3D layer reads, and the
+   * module tag that loads it. Neither holds a sentence or a link that is not
+   * already in the DOM beside it.
+   *
+   * So it is asserted by deleting every script element, contents and all, and
+   * reading what is left. That is the stronger of the two statements: a page
+   * could always have passed the old one while burying its content somewhere
+   * else, and this one fails the moment a sentence moves into the canvas.
+   * test/site-wall.test.ts carries the link and word floors over the same
+   * deletion; these two are the claims this page's own fixture can make.
+   */
+  it('still names the archived claim when every script element is deleted', () => {
+    expect(withoutScripts(renderEverythingPage(FEED, THREADS))).toContain(
+      'A model named &quot;cold_brew&quot; appears in arena.ai&#39;s leaderboard payload.',
+    );
+  });
+
+  it('still links every thread when every script element is deleted', () => {
+    const bare = withoutScripts(renderEverythingPage(FEED, THREADS));
+    expect(THREADS.threads.filter((t) => !bare.includes(`href="threads/${t.slug}.html"`))).toEqual([]);
   });
 
   it('escapes a hostile catalog id rather than rendering it as markup', () => {

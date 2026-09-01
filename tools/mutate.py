@@ -93,7 +93,13 @@ def plant(spec):
         n = src.count(old)
         if n == 0:  return None, created, saved, f"anchor absent in {f}"
         if n > 1:   return None, created, saved, f"anchor appears {n} times in {f}, not unique"
-        saved[f] = src
+        # setdefault, NOT assignment. A mutant with two edits to the SAME file
+        # would otherwise snapshot the post-edit-1 text as "pristine" and
+        # restore that on the way out, leaving edit 1 applied in the working
+        # tree. Measured: that poisoned a run and scored four unrelated mutants
+        # INVALID off the corrupted tree, and the "baseline after: GREEN" gate
+        # missed it because the baseline runs vitest, which strips types.
+        saved.setdefault(f, src)
         open(f, "w", encoding="utf-8").write(src.replace(old, new, 1))
     for f, content in spec.get("creates", []):
         os.makedirs(os.path.dirname(f), exist_ok=True)

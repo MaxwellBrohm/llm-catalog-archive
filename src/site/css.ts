@@ -494,6 +494,106 @@ footer.site-foot a { color: var(--text-dim); }
 .tierlist .tiername { font-family: var(--display); font-weight: 700; color: var(--text); display: block; }
 .tierlist .tierwhat { color: var(--text-dim); font-size: 14px; }
 
+/*
+ * THE FRONT DOOR.
+ *
+ * Two states of one block, and the order they are written in is the order they
+ * take effect. Un-mounted is the real one: the stage has no box at all and the
+ * tab list is a plain grid of links, which is what a reader without scripting,
+ * without WebGL, or on a phone gets, and it is a complete index on its own.
+ * The is-mounted class is added by wall.js only after a frame has been drawn.
+ *
+ * The list is never removed from the DOM in either state. Under is-mounted it
+ * is transparent and lifted over the canvas, where a screen reader still reads
+ * it and :focus-within brings it back into view the moment a keyboard reaches
+ * it, because the canvas takes no focus and offers none.
+ */
+.wall { margin: 0 0 32px; }
+.wall-frame { position: relative; }
+.wall-stage {
+  display: none;
+  position: relative;
+  height: clamp(400px, 58vh, 600px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--void);
+}
+/*
+ * Mounted, the stage steps outside the 1080px measure the prose is set in.
+ * That is not decoration: the tabs have to be wide enough to read a
+ * 30-character catalogue id off, and at the text measure four columns come out
+ * near 200px each. It stops 16px short of each viewport edge rather than using
+ * 100vw, because 100vw includes the scrollbar and the page is not allowed to
+ * scroll sideways.
+ */
+.wall.is-mounted .wall-frame {
+  width: min(100vw - 32px, 1400px);
+  margin-left: calc(50% - min(50vw - 16px, 700px));
+}
+.wall.is-mounted .wall-stage {
+  display: block;
+  width: 100%;
+  height: clamp(420px, 62vh, 640px);
+}
+.wall-stage canvas { display: block; width: 100%; height: 100%; }
+
+.wall-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 8px;
+}
+.wall-list a {
+  display: block;
+  padding: 12px 14px;
+  background: var(--panel-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+.wall-list a:hover { border-color: var(--orange); text-decoration: none; }
+.wall-kind {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.wall-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  margin: 4px 0;
+}
+.wall-meta { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+.wall-note { margin: 12px 0 0; }
+
+/*
+ * The breakout lives on the FRAME, not on the stage, so this list inherits the
+ * same box and covers the canvas completely when a keyboard reaches it. Put on
+ * the stage instead, the revealed list would be a 1080px panel floating inside
+ * a 1400px wall with slabs showing past both of its edges.
+ */
+.wall.is-mounted .wall-list {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  align-content: start;
+  background: var(--void);
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+}
+.wall.is-mounted .wall-list:focus-within { opacity: 1; pointer-events: auto; }
+
 @media (max-width: 900px) {
   .split { grid-template-columns: 1fr; gap: 24px; }
   .split-side { margin-top: 16px; }
@@ -515,6 +615,25 @@ footer.site-foot a { color: var(--text-dim); }
   main { padding: 24px 0 48px; }
   .lede { margin-bottom: 24px; }
   .filterbar { padding: 12px 0 16px; margin-bottom: 24px; }
+  /*
+   * The front door's tab list on a phone, where the 3D never mounts. It becomes
+   * a chip row rather than a card grid, because the deliberate ordering on this
+   * page is news above navigation and twelve cards would be a full screen of
+   * links before the first item.
+   *
+   * The count and the stamp come off the chip, and they are the only thing on
+   * this page that a narrow viewport removes. They are not lost: the identical
+   * numbers, with the identical origin/observed label, are in the Live threads
+   * rail further down THIS page and on each thread page the chips link to. A
+   * chip still names its entity and its kind, which is what makes it a link
+   * worth following.
+   */
+  .wall-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wall-list a { padding: 5px 8px; }
+  .wall-list .wall-meta { display: none; }
+  .wall-list .wall-kind, .wall-list .wall-label { display: inline; }
+  .wall-list .wall-label { margin: 0 0 0 5px; font-size: 11px; }
+  .wall-list .wall-kind { font-size: 9px; }
   li.event { padding: 16px; }
   h1.sha-title { font-size: 20px; }
   .wrap { padding: 0 16px; }
