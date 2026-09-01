@@ -604,6 +604,20 @@ footer.site-foot a { color: var(--text-dim); }
 }
 .wall-stage canvas { display: block; width: 100%; height: 100%; }
 
+.headlines { border-color: var(--line); }
+.headline-list { list-style: none; margin: 0; padding: 0; }
+.headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.headline:first-child { border-top: 0; }
+.headline-claim { flex: 1 1 24ch; color: var(--text); }
+.headline-when { color: var(--text-dim); font-size: 12px; white-space: nowrap; }
+
 .wall-list {
   list-style: none;
   margin: 0;

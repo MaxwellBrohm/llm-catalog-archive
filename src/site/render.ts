@@ -1297,6 +1297,60 @@ function typeRail(feed: FeedItem[], depth: number): string {
  * Grouped by commit AND source, because one commit can change several sources
  * and those are unrelated stories that happen to share a sha.
  */
+/**
+ * THE ITEMS A PERSON WOULD CALL NEWS.
+ *
+ * The stream is chronological and complete, which is right, but on a catalogue
+ * archive volume decides what a reader sees: measured on the live front page,
+ * 170 of 444 items were price changes and NINE were announcements, incidents or
+ * leaks. Two per cent. A visitor met four price rows and left without learning
+ * that a provider had an outage or that a model shipped.
+ *
+ * So the front page leads with a headline strip and keeps the full stream under
+ * it. Nothing is reordered and nothing is hidden: the same items appear again
+ * below in their chronological place, and this is a second view of the top of
+ * the archive rather than an editorial cut.
+ *
+ * WHAT COUNTS. Somebody else's published announcement, a provider's own
+ * incident, a leak signal, and a model arriving or leaving a catalogue. What
+ * does NOT count is the routine telemetry of a catalogue: a price moving, a
+ * context length moving, a documentation page being relisted. Those matter to
+ * developers, which is why they are still on the page, but 170 of them are an
+ * activity log and not a front page.
+ */
+export const HEADLINE_TYPES: ReadonlySet<FeedType> = new Set<FeedType>([
+  'post_published',
+  'post_listed',
+  'incident_opened',
+  'codename_entered',
+  'codename_unmasked',
+  'stealth_listing',
+  'upstream_pr_opened',
+  'upstream_pr_merged',
+  'model_added',
+  'model_removed',
+  'retirement_floor',
+]);
+
+export const HEADLINE_LIMIT = 8;
+
+/** The newest headline-shaped items, one per subject so a bulk capture cannot fill it. */
+export function headlines(feed: readonly FeedItem[], limit: number = HEADLINE_LIMIT): FeedItem[] {
+  const out: FeedItem[] = [];
+  const seenType = new Map<FeedType, number>();
+  for (const item of feed) {
+    if (!HEADLINE_TYPES.has(item.type)) continue;
+    // At most three of any one kind, so a capture that added 30 models cannot
+    // make the headline strip a list of 30 models.
+    const n = seenType.get(item.type) ?? 0;
+    if (n >= 3) continue;
+    seenType.set(item.type, n + 1);
+    out.push(item);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 export const PER_COMMIT_LIMIT = 4;
 
 export function capPerCommit(
@@ -1314,6 +1368,29 @@ export function capPerCommit(
     else heldBack.set(key, (heldBack.get(key) ?? 0) + 1);
   }
   return { shown, heldBack };
+}
+
+/**
+ * The headline strip. Empty string when the archive holds no headline-shaped
+ * item, rather than an empty box claiming there is no news: an empty archive
+ * and a quiet week must not render the same.
+ */
+function headlineStripHtml(feed: readonly FeedItem[]): string {
+  const items = headlines(feed);
+  if (items.length === 0) return '';
+  const rows = items
+    .map(
+      (i) =>
+        `<li class="headline"><a class="badge badge-type" href="${typePagePath(i.type)}">${escapeHtml(i.type)}</a> <span class="headline-claim">${escapeHtml(i.sentence)}</span> <span class="headline-when">${stampHtml(i.stamp)}</span></li>`,
+    )
+    .join('\n');
+  return `<div class="panel headlines">
+<h2>What happened</h2>
+<p class="note">Announcements, incidents, leaks, and models arriving or leaving a catalogue. The full stream below is chronological and includes these again, plus the routine catalogue activity they would otherwise be buried under.</p>
+<ol class="headline-list">
+${rows}
+</ol>
+</div>`;
 }
 
 export function renderEverythingPage(
@@ -1385,6 +1462,7 @@ ${g.items
 <h1>Everything</h1>
 <p class="lede">${plural(feed.length, 'item')} derived by replay from git history over <code>raw/</code>, newest first. Every sentence names the artifact it was read out of and links those bytes at the commit that stored them.</p>
 ${wallHtml(threads, threads.threads.length)}
+${headlineStripHtml(feed)}
 <div class="filterbar">
 <span class="filterbar-label">By lab</span>
 ${labChips(feed, 0, null)}

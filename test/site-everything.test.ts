@@ -19,6 +19,7 @@ import {
   changeMagnitude,
   capPerCommit,
   PER_COMMIT_LIMIT,
+  headlines,
   renderEverythingPage,
   renderLabPage,
   renderTypePage,
@@ -27,7 +28,7 @@ import {
 } from '../src/site/render.js';
 import { buildSite, textContents } from '../src/site/build.js';
 import { buildThreads } from '../src/derive/threads.js';
-import { ALL_TYPES, buildFeed } from '../src/derive/feed.js';
+import { ALL_TYPES, buildFeed, type FeedItem } from '../src/derive/feed.js';
 import type { DerivedEvent } from '../src/derive/events.js';
 import type { LeakItem } from '../src/derive/leaks.js';
 import type { Entity } from '../src/derive/entities.js';
@@ -1113,6 +1114,10 @@ describe('the front page after capping', () => {
     ...Array.from({ length: 12 }, (_, i) => ({
       ...(FEED[0] as FeedItem),
       id: `${SHA}:price_changed:m${i}`,
+      // Explicitly a non-headline type: the headline strip repeats
+      // headline-shaped items above the stream, which would double the count
+      // this test measures and make it about the strip rather than the cap.
+      type: 'price_changed',
       sentence: `price row ${i}`,
       sha: SHA,
       sourceId: 'openrouter-models',
@@ -1136,5 +1141,94 @@ describe('the front page after capping', () => {
 
   it('says where the rest are, because nothing is actually dropped', () => {
     expect(html).toContain('uncapped');
+  });
+});
+
+/**
+ * VOLUME DECIDED WHAT A READER SAW.
+ *
+ * The stream is chronological and complete, which is right, but on a catalogue
+ * archive that means the loudest source wins. Measured on the live front page:
+ * 170 of 444 items were price changes and NINE were announcements, incidents or
+ * leaks. Two per cent. A visitor met four price rows and left without learning
+ * that a provider had an outage or that a model shipped.
+ */
+describe('headlines', () => {
+  const it_ = (type: string, id: string) => ({ type, id, sentence: id, stamp: null }) as never;
+
+  it('picks announcements, incidents, leaks and catalogue arrivals', () => {
+    const picked = headlines(
+      [it_('price_changed', 'p'), it_('incident_opened', 'i'), it_('post_published', 'a'), it_('model_added', 'm')],
+      10,
+    );
+    expect(picked.map((i) => i.id)).toEqual(['i', 'a', 'm']);
+  });
+
+  /** Routine catalogue telemetry stays in the stream and out of the strip. */
+  it('excludes price and context movement, which are an activity log', () => {
+    const picked = headlines([it_('price_changed', 'p'), it_('context_changed', 'c'), it_('doc_moved', 'd')], 10);
+    expect(picked).toEqual([]);
+  });
+
+  it('keeps chronological order among what it picks', () => {
+    const picked = headlines([it_('model_added', '1'), it_('incident_opened', '2'), it_('model_added', '3')], 10);
+    expect(picked.map((i) => i.id)).toEqual(['1', '2', '3']);
+  });
+
+  /**
+   * A capture that added 30 models must not make the strip a list of 30 models,
+   * which would reproduce the flooding one level up.
+   */
+  it('shows at most three of any one kind', () => {
+    const many = Array.from({ length: 30 }, (_, i) => it_('model_added', `m${i}`));
+    expect(headlines(many, 10)).toHaveLength(3);
+  });
+
+  it('lets other kinds through once one kind is saturated', () => {
+    const feed = [
+      ...Array.from({ length: 30 }, (_, i) => it_('model_added', `m${i}`)),
+      it_('incident_opened', 'outage'),
+    ];
+    expect(headlines(feed, 10).map((i) => i.id)).toContain('outage');
+  });
+
+  it('stops at the limit', () => {
+    const feed = [
+      ...Array.from({ length: 3 }, (_, i) => it_('model_added', `a${i}`)),
+      ...Array.from({ length: 3 }, (_, i) => it_('incident_opened', `b${i}`)),
+      ...Array.from({ length: 3 }, (_, i) => it_('post_published', `c${i}`)),
+    ];
+    expect(headlines(feed, 4)).toHaveLength(4);
+  });
+
+  it('returns nothing when the archive holds no headline-shaped item', () => {
+    expect(headlines([it_('price_changed', 'p')], 8)).toEqual([]);
+  });
+});
+
+describe('the front page headline strip', () => {
+  it('renders above the chronological stream when there is news', () => {
+    const feed: FeedItem[] = [
+      { ...(FEED[0] as FeedItem), id: 'x:incident_opened:1', type: 'incident_opened', sentence: 'an outage happened' },
+      { ...(FEED[0] as FeedItem), id: 'x:price_changed:1', type: 'price_changed', sentence: 'a price moved' },
+    ];
+    const html = renderEverythingPage(feed, THREADS);
+    expect(html).toContain('What happened');
+    expect(html.indexOf('What happened')).toBeLessThan(html.indexOf('a price moved'));
+  });
+
+  /** An empty archive and a quiet week must not render the same. */
+  it('renders no strip at all when nothing is headline-shaped', () => {
+    const feed: FeedItem[] = [
+      { ...(FEED[0] as FeedItem), id: 'x:price_changed:1', type: 'price_changed', sentence: 'a price moved' },
+    ];
+    expect(renderEverythingPage(feed, THREADS)).not.toContain('What happened');
+  });
+
+  it('says the stream below repeats them, so the strip is not read as a cut', () => {
+    const feed: FeedItem[] = [
+      { ...(FEED[0] as FeedItem), id: 'x:incident_opened:1', type: 'incident_opened', sentence: 'an outage' },
+    ];
+    expect(renderEverythingPage(feed, THREADS)).toContain('includes these again');
   });
 });
