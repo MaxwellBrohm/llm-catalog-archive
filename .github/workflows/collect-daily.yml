@@ -31,6 +31,14 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
       - run: npx tsx src/cli.ts --tier daily
         env: { LCA_BRANCH: main }
+      # AFTER the fetch, so it scores against the capture this run just stored
+      # rather than yesterday's. The accuracy ledger's only writer: it appends a
+      # claim for every expiration_date the catalogue announces and a resolution
+      # once a capture taken AFTER that date exists to check it against. Append
+      # only, and it exits 0 with nothing to say on a quiet day.
+      - name: Score the catalogue's own predictions
+        run: npx tsx src/ledger-cli.ts
+        env: { LCA_BRANCH: main }
       # The read surface is NOT regenerated or committed here any more.
       #
       # It is a pure function of the history this job just appended to, so
