@@ -108,16 +108,16 @@ const ALL: DerivedEvent[] = [
 
 describe('the sentence each event renders as', () => {
   it('renders a model that entered the catalogue', () => {
-    expect(claimSentence(modelAdded)).toBe("z-ai/glm-5.3 entered OpenRouter's catalog.");
+    expect(claimSentence(modelAdded)).toBe("The catalog id \"z-ai/glm-5.3\" entered OpenRouter's catalog.");
   });
 
   it('renders a model that left the catalogue', () => {
-    expect(claimSentence(modelRemoved)).toBe("z-ai/glm-5.3 left OpenRouter's catalog.");
+    expect(claimSentence(modelRemoved)).toBe("The catalog id \"z-ai/glm-5.3\" left OpenRouter's catalog.");
   });
 
   it('renders a price change as a change to what the catalogue lists', () => {
     expect(claimSentence(priceChanged)).toBe(
-      "OpenRouter's listed prompt price for z-ai/glm-5.2 changed from 0.000001 to 0.000003.",
+      'OpenRouter\'s listed "prompt" price for "z-ai/glm-5.2" changed from "0.000001" to "0.000003".',
     );
   });
 
@@ -126,38 +126,38 @@ describe('the sentence each event renders as', () => {
   // top_provider.context_length on both sides.
   it('renders a context change naming the catalogue field and both top_provider values', () => {
     expect(claimSentence(contextChanged)).toBe(
-      "OpenRouter's catalog context_length for deepseek/deepseek-chat changed from 128000 to 65536. " +
+      'OpenRouter\'s catalog context_length for "deepseek/deepseek-chat" changed from 128000 to 65536. ' +
         'The top_provider.context_length recorded beside it was 128000 and is 128000.',
     );
   });
 
   it('renders an expiration date the catalogue recorded', () => {
     expect(claimSentence(expirationSet)).toBe(
-      "OpenRouter's catalog recorded an expiration_date of 2026-09-30 for openai/gpt-preview.",
+      'OpenRouter\'s catalog recorded an expiration_date of "2026-09-30" for "openai/gpt-preview".',
     );
   });
 
   it('renders an alias retarget as a canonical_slug move under an unchanged id', () => {
     expect(claimSentence(aliasRetargeted)).toBe(
-      "OpenRouter's catalog canonical_slug for z-ai/glm-5.3 changed from z-ai/glm-5.3-20260816 to z-ai/glm-5.3-20260901.",
+      'OpenRouter\'s catalog canonical_slug for "z-ai/glm-5.3" changed from "z-ai/glm-5.3-20260816" to "z-ai/glm-5.3-20260901".',
     );
   });
 
   it('renders an added documentation entry naming the index as the subject', () => {
     expect(claimSentence(docAdded)).toBe(
-      'The openai-llms-txt index added an entry titled "Responses" at https://developers.openai.com/api/docs/responses.md.',
+      'The openai-llms-txt index added an entry titled "Responses" at "https://developers.openai.com/api/docs/responses.md".',
     );
   });
 
   it('renders a removed documentation entry naming the index as the subject', () => {
     expect(claimSentence(docRemoved)).toBe(
-      'The openai-llms-txt index removed an entry titled "Assistants API deep dive" at https://developers.openai.com/api/docs/assistants/deep-dive.md.',
+      'The openai-llms-txt index removed an entry titled "Assistants API deep dive" at "https://developers.openai.com/api/docs/assistants/deep-dive.md".',
     );
   });
 
   it('renders a retirement floor as what the table records, quoting the cell', () => {
     expect(claimSentence(retirementFloor)).toBe(
-      'The anthropic-deprecations table records the tentative retirement date for claude-opus-5 as "Not sooner than June 9, 2027".',
+      'The anthropic-deprecations table records the tentative retirement date for "claude-opus-5" as "Not sooner than June 9, 2027".',
     );
   });
 
@@ -172,7 +172,7 @@ describe('the sentence each event renders as', () => {
       'price_changed',
     );
     expect(claimSentence(gone)).toBe(
-      "OpenRouter's listed web_search price for z-ai/glm-5.2 changed from 0.004 to absent.",
+      'OpenRouter\'s listed "web_search" price for "z-ai/glm-5.2" changed from "0.004" to absent.',
     );
   });
 });

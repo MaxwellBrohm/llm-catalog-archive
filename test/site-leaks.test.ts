@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { renderLeaksPage, renderLedgerPage, LEAKS_INDEX_PATH, LEDGER_PATH } from '../src/site/render.js';
 import { buildSite } from '../src/site/build.js';
 import { parseLedger } from '../src/site/ledger.js';
-import { leakSentence, type LeakItem } from '../src/derive/leaks.js';
+import { leakSentence, type LeakItem, type LeakRefusal } from '../src/derive/leaks.js';
 import { escapeHtml, type Stamp } from '../src/site/record.js';
 
 const SHA = 'a69a068319de9dc9a7ab1049b411a562a026e7d5';
@@ -185,12 +185,19 @@ export function companySubjectViolations(text: string): string[] {
  * So table cells, code spans, and double-quoted runs inside a sentence are
  * dropped before the scan, and everything the generator wrote itself is kept.
  */
-function composedProse(html: string): string {
+export function composedProse(html: string): string {
   return html
     .replace(/<td class="(?:mono|quoted)">[\s\S]*?<\/td>/g, ' ')
     .replace(/<code\b[\s\S]*?<\/code>/g, ' ')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&quot;[^&]*?&quot;/g, ' ')
+    // A NEGATIVE LOOKAHEAD RATHER THAN [^&], because a quoted archive value can
+    // contain an entity of its own. `[^&]*?` stops at the first ampersand, so a
+    // title carrying an apostrophe or an ampersand ends the run early, the
+    // strip fails, and the rest of the value is scanned as though this file had
+    // written it. Harmless against six hand-written fixtures and a source of
+    // false alarms the moment the scan is pointed at real stored payloads,
+    // which is exactly what the scans further down do.
+    .replace(/&quot;(?:(?!&quot;)[\s\S])*?&quot;/g, ' ')
     .replace(/"[^"]*"/g, ' ');
 }
 
@@ -321,7 +328,9 @@ describe('renderLeaksPage', () => {
   });
 
   it('labels every item with its sourcing tier', () => {
-    expect(renderLeaksPage(ALL_KINDS).match(/badge-tier">confirmed-artifact/g)).toHaveLength(ALL_KINDS.length);
+    expect(
+      renderLeaksPage(ALL_KINDS).match(/badge-tier badge-confirmed-artifact">confirmed-artifact</g),
+    ).toHaveLength(ALL_KINDS.length);
   });
 
   // A section that vanished when it was empty would make "no reveals this
@@ -355,6 +364,74 @@ describe('renderLeaksPage', () => {
   });
 });
 
+/**
+ * THE REFUSALS SECTION, which is the only thing on the desk that can tell a
+ * quiet week apart from a broken parser.
+ *
+ * Both produce a count of zero. The desk was shipped with no way to render the
+ * difference, and the guard that produces a refusal was added because the
+ * codename map had no floor of its own: a picker reshape that collapsed it and
+ * then recovered would have emitted roughly a thousand "a name entered the
+ * payload" items, each with an honest permalink attached.
+ */
+describe('renderLeaksPage renders what the desk refused', () => {
+  const refusal: LeakRefusal = {
+    sourceId: 'arena-leaderboard',
+    sha: SHA,
+    path: 'raw/arena-leaderboard/response.html',
+    stamp: ORIGIN,
+    reason: 'the codename map holds 1 publicName record before this change and 1029 after, and the floor is 400.',
+  };
+
+  it('prints the reason it refused, in the words the derivation measured', () => {
+    expect(renderLeaksPage([], [], [refusal])).toContain(
+      'the codename map holds 1 publicName record before this change and 1029 after, and the floor is 400.',
+    );
+  });
+
+  it('names the source it refused to derive from', () => {
+    expect(renderLeaksPage([], [], [refusal])).toContain(
+      'The desk derived nothing across one recorded change of arena-leaderboard',
+    );
+  });
+
+  it('marks a refusal as a refusal rather than as a claim', () => {
+    expect(renderLeaksPage([], [], [refusal])).toContain('<span class="badge badge-refusal">refused</span>');
+  });
+
+  it('links the refusal to the raw artifact at the commit it refused', () => {
+    expect(renderLeaksPage([], [], [refusal])).toContain(
+      `https://github.com/MaxwellBrohm/llm-catalog-archive/blob/${SHA}/raw/arena-leaderboard/response.html`,
+    );
+  });
+
+  it('links the refusal to the change page for that commit', () => {
+    expect(renderLeaksPage([], [], [refusal])).toContain(`href="../changes/${SHA}.html"`);
+  });
+
+  it('counts the refusals in words', () => {
+    expect(renderLeaksPage([], [], [refusal, { ...refusal, sha: '0'.repeat(40) }])).toContain('2 changes the desk declined');
+  });
+
+  // A page that printed nothing here would leave a reader unable to tell a
+  // clean run from a run with no refusal reporting at all.
+  it('says no change was refused when none was', () => {
+    expect(renderLeaksPage([], [], [])).toContain('No change was refused');
+  });
+
+  it('prints no refusal card when none was refused', () => {
+    expect(renderLeaksPage([], [], [])).not.toContain('badge-refusal');
+  });
+
+  it('keeps the refusals heading on a desk with nothing refused', () => {
+    expect(renderLeaksPage([], [], [])).toContain('<h2>Refused</h2>');
+  });
+
+  it('escapes a hostile reason rather than rendering it as markup', () => {
+    expect(renderLeaksPage([], [], [{ ...refusal, reason: '<script>x</script>' }])).not.toContain('<script>x</script>');
+  });
+});
+
 describe('renderLedgerPage', () => {
   it('refuses to print an accuracy rate for an empty ledger', () => {
     expect(renderLedgerPage([])).toContain('not yet scored: no claim has resolved');
@@ -372,6 +449,34 @@ describe('renderLedgerPage', () => {
 
   it('says the ledger is empty rather than printing an empty table', () => {
     expect(renderLedgerPage([])).toContain('The ledger is empty');
+  });
+
+  /*
+   * The lede used to read "Every claim this desk has made and what became of
+   * it" over a scorecard of zero, while the desk itself published items. There
+   * is no code path from a derived item into meta/leaks-ledger.jsonl, and there
+   * should not be: a derived item is a description of stored bytes and predicts
+   * nothing, so it is not a thing that can be right or wrong. The copy has to
+   * say which of the two it is counting.
+   */
+  it('scopes its claim to what is entered in this ledger', () => {
+    expect(renderLedgerPage([])).toContain('Every claim ENTERED IN THIS LEDGER');
+  });
+
+  it('says a derived item on the desk reaches this file through no code path', () => {
+    expect(renderLedgerPage([])).toContain('reaches this file through no code path at all');
+  });
+
+  it('prints the desk item count it was given, so the gap is visible rather than hidden', () => {
+    expect(renderLedgerPage([], 7)).toContain('the desk currently holds 7 items');
+  });
+
+  it('prints a desk of one in the singular', () => {
+    expect(renderLedgerPage([], 1)).toContain('the desk currently holds 1 item');
+  });
+
+  it('says an empty ledger beside a stocked desk is the expected state', () => {
+    expect(renderLedgerPage([], 1)).toContain('is the expected state, not a missing number');
   });
 });
 

@@ -64,6 +64,24 @@ const TIERS: SourcingTier[] = ['confirmed-artifact', 'credible', 'unconfirmed'];
 const OUTCOMES: Outcome[] = ['confirmed', 'refuted'];
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
+/**
+ * True when a value is an absolute http(s) URL.
+ *
+ * Absolute, because the ledger's artifact column is rendered as an anchor on a
+ * page whose depth varies, and a relative link would resolve differently
+ * depending on which page printed it. http(s) only, because the column's whole
+ * promise is that a reader can go and look.
+ */
+export function isArtifactLink(value: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return false;
+  }
+  return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+}
+
 function fail(line: number, message: string): never {
   throw new Error(`meta/leaks-ledger.jsonl line ${line}: ${message}`);
 }
@@ -122,11 +140,26 @@ export function parseLedger(text: string): LedgerClaim[] {
       const recorded = requiredString(row, 'recorded', line);
       if (!DAY.test(recorded)) fail(line, 'recorded must be a YYYY-MM-DD day');
       const artifact = optionalString(row, 'artifact', line);
-      // The tier is a statement about the artifact, so a tier claiming one and
-      // a row carrying none is the ledger contradicting itself in the field
-      // whose whole purpose is to be checkable.
+      // THE TIER AND THE ARTIFACT HAVE TO AGREE IN BOTH DIRECTIONS. Checking
+      // one way was the original defect: `confirmed-artifact` with no artifact
+      // was refused, while `unconfirmed` WITH one was accepted, and the design
+      // spec's tier table defines `unconfirmed` as "reported, no artifact". A
+      // row carrying an artifact under that tier is understating its own
+      // evidence in the column the ledger exists to make checkable.
       if (tier === 'confirmed-artifact' && artifact === null) {
         fail(line, 'tier confirmed-artifact requires an artifact link');
+      }
+      if (tier === 'unconfirmed' && artifact !== null) {
+        fail(line, 'tier unconfirmed records no artifact; use credible or confirmed-artifact');
+      }
+      // AND THE LINK HAS TO BE A LINK. `tier: confirmed-artifact` with an
+      // artifact of `not a url at all` used to be accepted verbatim and
+      // rendered as a live anchor, so the one tier that promises a publicly
+      // observable artifact could publish a promise that resolves to nothing.
+      // The shape is all that is checked here: whether the URL is reachable is
+      // a network question and this module is pure.
+      if (artifact !== null && !isArtifactLink(artifact)) {
+        fail(line, 'artifact must be an absolute http or https URL');
       }
       const claim: LedgerClaim = {
         id,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { renderChangePage, renderFeed, renderIndexPage, renderSourcePage } from '../src/site/render.js';
+import { renderChangePage, renderChangelogPage, renderFeed, renderSourcePage } from '../src/site/render.js';
 import { MAX_DIFF_LINES, MAX_LINE_CHARS } from '../src/site/record.js';
 import { artifact, record, sidecar, OTHER_SHA, SHA } from './site-fixtures.js';
 
@@ -359,114 +359,120 @@ describe('renderChangePage: the diff gutters', () => {
   });
 });
 
-describe('renderIndexPage', () => {
+/**
+ * The changelog, which used to be the front page and is now a section at
+ * changelog/index.html. It moved one directory down, so every link out of it
+ * carries `../`; the change and source pages it points at did NOT move,
+ * because those are permalinks.
+ */
+describe('renderChangelogPage', () => {
   const two = [
     record(),
     record({ sha: OTHER_SHA, artifacts: [artifact({ sidecar: sidecar({ originDate: '2026-08-26T20:25:00.000Z' }) })] }),
   ];
 
   it('links each change page by its full sha', () => {
-    expect(renderIndexPage(two)).toContain('href="changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html"');
+    expect(renderChangelogPage(two)).toContain('href="../changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html"');
   });
 
   it('files each change under the UTC day of the timestamp it shows', () => {
-    expect(renderIndexPage(two)).toContain('<h2>2026-08-28</h2>');
+    expect(renderChangelogPage(two)).toContain('<h2>2026-08-28</h2>');
   });
 
   it('gives a second day its own heading', () => {
-    expect(renderIndexPage(two)).toContain('<h2>2026-08-26</h2>');
+    expect(renderChangelogPage(two)).toContain('<h2>2026-08-26</h2>');
   });
 
   it('counts the changes', () => {
-    expect(renderIndexPage(two)).toContain('2 changes across 1 source');
+    expect(renderChangelogPage(two)).toContain('2 changes across 1 source');
   });
 
   it('counts the sources', () => {
     const mixed = [record(), record({ sha: OTHER_SHA, artifacts: [artifact({ sourceId: 'claude-status', path: 'raw/claude-status/response.atom' })] })];
-    expect(renderIndexPage(mixed)).toContain('2 changes across 2 sources');
+    expect(renderChangelogPage(mixed)).toContain('2 changes across 2 sources');
   });
 
   it('links each source page from the source card', () => {
-    expect(renderIndexPage(two)).toContain('<a href="sources/openai-llms-txt.html">openai-llms-txt</a>');
+    expect(renderChangelogPage(two)).toContain('<a href="../sources/openai-llms-txt.html">openai-llms-txt</a>');
   });
 
   it('marks a retracted row', () => {
     const r = [record({ retraction: { sha: SHA, path: null, reason: null } })];
-    expect(renderIndexPage(r)).toContain('<span class="badge badge-retracted">retracted</span>');
+    expect(renderChangelogPage(r)).toContain('<span class="badge badge-retracted">retracted</span>');
   });
 
   it('files a change with no sidecar under its own heading rather than a wrong day', () => {
-    expect(renderIndexPage([record({ artifacts: [artifact({ sidecar: null })] })])).toContain(
+    expect(renderChangelogPage([record({ artifacts: [artifact({ sidecar: null })] })])).toContain(
       '<h2>no timestamp recorded</h2>',
     );
   });
 
   it('escapes a hostile artifact path in a row', () => {
     const r = [record({ artifacts: [artifact({ path: 'raw/x/"><b>.txt' })] })];
-    expect(renderIndexPage(r)).toContain('raw/x/&quot;&gt;&lt;b&gt;.txt');
+    expect(renderChangelogPage(r)).toContain('raw/x/&quot;&gt;&lt;b&gt;.txt');
   });
 
   it('needs no client JavaScript to read', () => {
-    expect(renderIndexPage(two)).not.toContain('<script');
+    expect(renderChangelogPage(two)).not.toContain('<script');
   });
 
   // The path cell and nothing else, so an unretracted row carries no leftover
   // marker where the retracted badge would go.
   it('closes the artifact cell straight after the path when the row is not retracted', () => {
-    expect(renderIndexPage(two)).toContain('<td class="mono">raw/openai-llms-txt/response.txt</td>');
+    expect(renderChangelogPage(two)).toContain('<td class="mono">raw/openai-llms-txt/response.txt</td>');
   });
 
   it('prints the line counts in the row', () => {
-    expect(renderIndexPage(two)).toContain(
+    expect(renderChangelogPage(two)).toContain(
       '<td class="mono"><span class="count-add">+1</span> <span class="count-remove">-6</span></td>',
     );
   });
 
   it('abbreviates the sha in the change column', () => {
-    expect(renderIndexPage(two)).toContain(
-      '<td class="mono"><a href="changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html">a0a9e12</a></td>',
+    expect(renderChangelogPage(two)).toContain(
+      '<td class="mono"><a href="../changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html">a0a9e12</a></td>',
     );
   });
 
   it('counts the changes on each source card', () => {
     const mixed = [record(), record({ sha: OTHER_SHA }), record({ sha: '0'.repeat(40), artifacts: [artifact({ sourceId: 'claude-status', path: 'raw/claude-status/response.atom' })] })];
-    expect(renderIndexPage(mixed)).toContain('<a href="sources/openai-llms-txt.html">openai-llms-txt</a>\n<p>2 changes</p>');
+    expect(renderChangelogPage(mixed)).toContain('<a href="../sources/openai-llms-txt.html">openai-llms-txt</a>\n<p>2 changes</p>');
   });
 
   it('says one change in the singular on a card with one', () => {
     const mixed = [record(), record({ sha: OTHER_SHA, artifacts: [artifact({ sourceId: 'claude-status', path: 'raw/claude-status/response.atom' })] })];
-    expect(renderIndexPage(mixed)).toContain('<a href="sources/claude-status.html">claude-status</a>\n<p>1 change</p>');
+    expect(renderChangelogPage(mixed)).toContain('<a href="../sources/claude-status.html">claude-status</a>\n<p>1 change</p>');
   });
 
   it('lists the source cards alphabetically', () => {
     const mixed = [record(), record({ sha: OTHER_SHA, artifacts: [artifact({ sourceId: 'claude-status', path: 'raw/claude-status/response.atom' })] })];
-    const html = renderIndexPage(mixed);
+    const html = renderChangelogPage(mixed);
     expect(html.indexOf('sources/claude-status.html')).toBeLessThan(html.indexOf('sources/openai-llms-txt.html'));
   });
 
-  it('titles the index page after the archive', () => {
-    expect(renderIndexPage(two)).toContain('<title>llm-catalog-archive</title>');
+  it('titles the changelog page after its own section', () => {
+    expect(renderChangelogPage(two)).toContain('<title>Changelog - llm-catalog-archive</title>');
   });
 
   it('puts two changes on one day under one heading', () => {
     const sameDay = [record(), record({ sha: OTHER_SHA })];
-    expect(renderIndexPage(sameDay).split('<h2>2026-08-28</h2>')).toHaveLength(2);
+    expect(renderChangelogPage(sameDay).split('<h2>2026-08-28</h2>')).toHaveLength(2);
   });
 
   // Both rows, not just one heading. A bucket that replaces its contents rather
   // than appending renders one heading and loses a change.
   it('keeps both changes of a shared day in the table', () => {
     const sameDay = [record(), record({ sha: OTHER_SHA })];
-    const html = renderIndexPage(sameDay);
+    const html = renderChangelogPage(sameDay);
     expect([
-      html.includes('changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html'),
+      html.includes('../changes/a0a9e12e5287b8ce564e6de63a280498413484cf.html'),
       html.includes('changes/0e91a0fbf78e6302670dc61a8c28502e418d01a1.html'),
     ]).toEqual([true, true]);
   });
 
   it('renders one row per change on a shared day', () => {
     const sameDay = [record(), record({ sha: OTHER_SHA })];
-    expect(renderIndexPage(sameDay).split('<tr>\n<td class="mono">')).toHaveLength(3);
+    expect(renderChangelogPage(sameDay).split('<tr>\n<td class="mono">')).toHaveLength(3);
   });
 });
 

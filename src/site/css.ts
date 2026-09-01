@@ -71,9 +71,37 @@ a:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; border-
   color: var(--text);
 }
 .brand:hover { color: var(--orange-hot); text-decoration: none; }
-.site-head nav { display: flex; gap: 16px; font-size: 13px; }
-.site-head nav a { color: var(--text-dim); }
-.site-head nav a:hover { color: var(--orange-hot); }
+.site-head .wrap { padding-bottom: 0; }
+.site-head nav { display: flex; flex-wrap: wrap; gap: 24px; font-size: 13px; margin-right: auto; }
+.site-head nav a {
+  color: var(--text-dim);
+  padding: 8px 0 16px;
+  border-bottom: 2px solid transparent;
+}
+.site-head nav a:hover { color: var(--orange-hot); text-decoration: none; }
+/*
+ * The current section is marked with the one live colour rather than with a
+ * background, because a filled tab reads as a control and the nav is a table of
+ * contents. aria-current carries the same fact for a reader who cannot see it.
+ */
+.site-head nav a.on { color: var(--text); border-bottom-color: var(--orange); }
+.site-head .util { display: flex; gap: 16px; font-size: 12px; padding-bottom: 16px; }
+.site-head .util a { color: var(--text-faint); }
+.site-head .util a:hover { color: var(--orange-hot); }
+
+/* Visible only once it has focus, which is the whole job. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--orange);
+  color: var(--void);
+  padding: 8px 16px;
+  border-radius: 0 0 var(--radius) 0;
+  font-size: 13px;
+  z-index: 10;
+}
+.skip:focus { left: 0; }
 
 main { padding: 40px 0 80px; }
 
@@ -290,6 +318,138 @@ li.event table.kv { margin-top: 16px; }
 .badge-outcome-refuted { border: 1px dashed var(--line); color: var(--text-faint); background: transparent; }
 .badge-outcome-open { background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line); }
 
+/*
+ * A chip is a filter, and the publication has exactly two axes to filter on:
+ * the micro-category an item was derived as, and the lab its catalogue id maps
+ * to. Matte slab, faint orange edge on the live one, and a monospace label
+ * because everything to the left of the number is a machine-readable key rather
+ * than a word this project chose.
+ */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  background: var(--panel-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.2;
+}
+.chip:hover { border-color: var(--orange); color: var(--text); text-decoration: none; }
+.chip .chip-kind { color: var(--text-dim); }
+.chip code { font-family: inherit; font-size: inherit; }
+h1.sha-title code, .sha-full code, table.changes td code { font-family: inherit; font-size: inherit; color: inherit; }
+.chip:hover .chip-kind { color: var(--orange-hot); }
+.chip-on {
+  border-color: var(--orange);
+  background: var(--orange-wash);
+  box-shadow: inset 2px 0 0 var(--orange);
+}
+.chip-on .chip-kind { color: var(--orange-hot); }
+/* An empty category keeps its page and its chip, and recedes rather than goes. */
+.chip-empty { color: var(--text-faint); background: transparent; }
+.chip-empty .chip-kind { color: var(--text-faint); }
+.chip-held {
+  color: var(--text-faint);
+  background: transparent;
+  border-style: dashed;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+li.event .chips { margin: 8px 0 0; }
+
+/* The live-thread rail. Quiet days are the reason it is unconditional. */
+ul.rail { list-style: none; margin: 0 0 16px; padding: 0; }
+ul.rail li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+ul.rail li:last-child { border-bottom: 0; }
+ul.rail a { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.rail-meta { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+
+/*
+ * A refusal is not a claim, so it does not get the orange edge every claim card
+ * carries. Dashed, muted, and unmistakably a statement about our own parser.
+ */
+li.event.refusal { border-left: 2px dashed var(--text-faint); }
+li.event.refusal .claim { font-family: var(--ui); font-size: 14px; color: var(--text-dim); }
+.badge-refusal { background: transparent; color: var(--text-faint); border: 1px dashed var(--text-faint); }
+
+a.badge-type { color: var(--text-dim); }
+a.badge-type:hover { border-color: var(--orange); color: var(--orange-hot); text-decoration: none; }
+
+/*
+ * The front page: a reading column and a rail, at 900px and up.
+ *
+ * The stream is FIRST in the DOM and the rail second, so a phone gets the news
+ * before the navigation with no order override. an align-items of start keeps the
+ * rail from stretching to the height of a 150-item stream.
+ */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; align-items: start; }
+.split-main { min-width: 0; }
+.split-side { min-width: 0; }
+.split-side .panel { padding: 16px; }
+.split-side .panel h2 { font-size: 15px; margin-bottom: 8px; }
+.split-side .note { margin-bottom: 16px; }
+.split-main .day:first-of-type { margin-top: 0; }
+
+.filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 16px 0 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 32px;
+}
+.filterbar-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.filterbar .chips { margin: 0; }
+
+ul.rail-types { list-style: none; margin: 0; padding: 0; }
+ul.rail-types li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+ul.rail-types li:last-child { border-bottom: 0; }
+ul.rail-types a { overflow-wrap: anywhere; }
+ul.rail-types .rail-n { margin-left: auto; color: var(--text-dim); }
+/* A category the archive holds nothing of recedes; it never disappears. */
+ul.rail-types li.off a { color: var(--text-faint); }
+ul.rail-types li.off .rail-n { color: var(--text-faint); }
+
+/*
+ * Reading text, as opposed to the annotation the rest of the site is made of.
+ *
+ * Everything else here is a label, a count or a claim, and 12px monospace-ish
+ * annotation is the right register for those. The About page is the one place
+ * with paragraphs a reader is meant to read end to end, and a 1080px-wide
+ * 12px paragraph is not a reading surface at any hour.
+ */
+.prose p { font-size: 15px; line-height: 1.7; color: var(--text-dim); max-width: 68ch; margin: 0 0 16px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose code { color: var(--text); }
+
 .grid-sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .source-card {
   background: var(--panel-0);
@@ -310,8 +470,28 @@ footer.site-foot a { color: var(--text-dim); }
 
 .table-scroll { overflow-x: auto; }
 
+@media (max-width: 900px) {
+  .split { grid-template-columns: 1fr; gap: 24px; }
+  .split-side { margin-top: 16px; }
+}
+
 @media (max-width: 640px) {
   h1 { font-size: 24px; }
+  /*
+   * The masthead on a phone. Wrapping is allowed and the vertical padding on
+   * each link is cut, because the desktop padding is what draws the active
+   * underline clear of the text and on two wrapped rows it becomes 90px of
+   * header above the first word of news.
+   */
+  .site-head .wrap { gap: 4px 16px; align-items: center; padding-top: 12px; }
+  .site-head nav { gap: 4px 16px; font-size: 13px; width: 100%; }
+  .site-head nav a { padding: 4px 0 6px; }
+  .site-head .util { padding-bottom: 12px; gap: 16px; }
+  .brand { font-size: 15px; }
+  main { padding: 24px 0 48px; }
+  .lede { margin-bottom: 24px; }
+  .filterbar { padding: 12px 0 16px; margin-bottom: 24px; }
+  li.event { padding: 16px; }
   h1.sha-title { font-size: 20px; }
   .wrap { padding: 0 16px; }
   .panel { padding: 16px; }

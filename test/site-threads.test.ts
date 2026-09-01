@@ -6,7 +6,8 @@
 import { describe, it, expect } from 'vitest';
 import { renderThreadPage, renderThreadsIndex, threadPagePath, THREADS_INDEX_PATH } from '../src/site/render.js';
 import { buildThreads } from '../src/derive/threads.js';
-import { deriveEvents, eventsFromChange } from '../src/derive/events.js';
+import { buildFeed } from '../src/derive/feed.js';
+import { deriveEvents, eventsFromChange, type DerivedEvent } from '../src/derive/events.js';
 import { buildSite } from '../src/site/build.js';
 import { catalog, change, SHA } from './derive-fixtures.js';
 import { record } from './site-fixtures.js';
@@ -17,7 +18,16 @@ import { record } from './site-fixtures.js';
  * because precision is a property of a source's capture history and a single
  * change carries none.
  */
-const addedSet = buildThreads(
+/**
+ * Threads sit over the FEED rather than over events alone (product spec 4: one
+ * thread carries a leak, a launch and a price change), so every fixture here
+ * goes through the same buildFeed the generator uses. No leak items, because
+ * these cases are about the thread page rather than about the desk.
+ */
+const threadsOf = (events: DerivedEvent[]): ReturnType<typeof buildThreads> =>
+  buildThreads(buildFeed(events, []));
+
+const addedSet = threadsOf(
   deriveEvents([
     change({
       tier: 'fast',
@@ -35,7 +45,7 @@ const addedSet = buildThreads(
   ]),
 );
 
-const contextSet = buildThreads(
+const contextSet = threadsOf(
   eventsFromChange(
     change({
       before: catalog([
@@ -55,13 +65,17 @@ if (modelThread === undefined || contextThread === undefined) throw new Error('f
 describe('renderThreadPage', () => {
   it('prints the claim sentence for the event on the thread', () => {
     expect(renderThreadPage(modelThread)).toContain(
-      "anthropic/claude-opus-5 entered OpenRouter&#39;s catalog.",
+      'The catalog id &quot;anthropic/claude-opus-5&quot; entered OpenRouter&#39;s catalog.',
     );
   });
 
-  it('titles the page with the entity label', () => {
+  // QUOTED, because an entity label is a catalogue id somebody else chose, and
+  // a browser tab and a search-result heading are the two places a bare one
+  // reads most like a headline this project wrote. A catalogue id of
+  // `stealth/x-1. Anthropic is preparing its next flagship` is legal.
+  it('titles the page with the entity label, quoted as the archive value it is', () => {
     expect(renderThreadPage(modelThread)).toContain(
-      '<title>anthropic/claude-opus-5 - llm-catalog-archive</title>',
+      '<title>&quot;anthropic/claude-opus-5&quot; - llm-catalog-archive</title>',
     );
   });
 
@@ -111,7 +125,7 @@ describe('renderThreadPage', () => {
   // origin, and the page shows observed_at LABELLED as observed rather than
   // silently substituting it under the origin label.
   it('labels an observed timestamp as observed', () => {
-    const observed = buildThreads(
+    const observed = threadsOf(
       eventsFromChange(
         change({
           tier: 'fast',
@@ -135,7 +149,7 @@ describe('renderThreadPage', () => {
   // between two accepted captures is four days of first-seen error, whatever
   // the cron asked for.
   it('refuses the first-seen day when the measured error is over a day', () => {
-    const wide = buildThreads(
+    const wide = threadsOf(
       deriveEvents([
         change({
           tier: 'fast',
@@ -167,7 +181,7 @@ describe('renderThreadPage', () => {
   // Infinity through formatInt renders "Inf,ini,ty". The unbounded case is a
   // real value of this field, so it is spelled out and says why.
   it('spells out an unbounded error rather than formatting infinity as an integer', () => {
-    const once = buildThreads(
+    const once = threadsOf(
       deriveEvents([
         change({
           tier: 'fast',
@@ -184,7 +198,7 @@ describe('renderThreadPage', () => {
   });
 
   it('refuses the first-seen day when the error is unbounded', () => {
-    const once = buildThreads(
+    const once = threadsOf(
       deriveEvents([
         change({
           tier: 'fast',
@@ -201,7 +215,7 @@ describe('renderThreadPage', () => {
   });
 
   it('escapes a title carried in from provider bytes', () => {
-    const set = buildThreads(
+    const set = threadsOf(
       eventsFromChange(
         change({
           sourceId: 'openai-llms-txt',
@@ -226,7 +240,7 @@ describe('renderThreadsIndex', () => {
   // under the attachment label would print the wrong number here. With one
   // event on two threads the two numbers agree and the label is untested.
   it('counts the threads it holds and the attachments they carry', () => {
-    const twoModels = buildThreads(
+    const twoModels = threadsOf(
       eventsFromChange(
         change({
           before: catalog([]),
@@ -242,7 +256,7 @@ describe('renderThreadsIndex', () => {
   });
 
   it('lists a held event rather than hiding it', () => {
-    const held = buildThreads(
+    const held = threadsOf(
       eventsFromChange(
         change({
           sourceId: 'openai-llms-txt',
@@ -253,12 +267,12 @@ describe('renderThreadsIndex', () => {
       ),
     );
     expect(renderThreadsIndex(held)).toContain(
-      'The openai-llms-txt index added an entry titled &quot;Home&quot; at https://developers.openai.com/index.md.',
+      'The openai-llms-txt index added an entry titled &quot;Home&quot; at &quot;https://developers.openai.com/index.md&quot;.',
     );
   });
 
   it('reports the held count', () => {
-    const held = buildThreads(
+    const held = threadsOf(
       eventsFromChange(
         change({
           sourceId: 'openai-llms-txt',

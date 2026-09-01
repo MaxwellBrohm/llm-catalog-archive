@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import {
+  ARENA_CODENAME_FLOOR,
   arenaCodenameMap,
   CHANNEL_TOKENS,
   confirmationQuery,
+  deriveLeakRefusals,
   deriveLeaks,
   EXPIRATION_SENTINEL_YEAR,
   isCodenameReveal,
@@ -12,6 +14,7 @@ import {
   isLabelVariant,
   isStealthListing,
   leakSentence,
+  leakResult,
   leaksFromChange,
   modelSupportName,
   parseCatalogLeaks,
@@ -39,7 +42,36 @@ function arenaRecord(publicName: string, displayName: string): string {
 const arenaDoc = (pairs: [string, string][]): string =>
   `{\\"models\\":[{${pairs.map(([a, b]) => arenaRecord(a, b)).join('},{')}}]}`;
 
+/**
+ * Enough pairs on BOTH sides of a change to clear ARENA_CODENAME_FLOOR.
+ *
+ * The desk refuses to derive anything across a change where either capture's
+ * codename map is below the floor, because a payload reshape that collapses the
+ * map and then recovers makes every name in it look newly entered: roughly a
+ * thousand false claims at live scale, each with an honest permalink attached.
+ * A two-record fixture is below that floor, so without this filler every case
+ * below would be asserting against the refusal rather than against the signal.
+ *
+ * Each filler name IS its own displayName and the same pairs appear on both
+ * sides, so the filler enters nothing and unmasks nothing. Every item a test
+ * below sees comes from the pairs that test passed in.
+ */
+const ARENA_FILLER: [string, string][] = Array.from({ length: ARENA_CODENAME_FLOOR }, (_, i) => {
+  const name = `filler-${String(i).padStart(4, '0')}`;
+  return [name, name];
+});
+
 function arenaChange(before: [string, string][], after: [string, string][]) {
+  return change({
+    sourceId: 'arena-leaderboard',
+    path: 'raw/arena-leaderboard/response.html',
+    before: arenaDoc([...ARENA_FILLER, ...before]),
+    after: arenaDoc([...ARENA_FILLER, ...after]),
+  });
+}
+
+/** The same shape with NO filler, so the floor itself can be asserted on. */
+function unpaddedArenaChange(before: [string, string][], after: [string, string][]) {
   return change({
     sourceId: 'arena-leaderboard',
     path: 'raw/arena-leaderboard/response.html',
@@ -669,6 +701,98 @@ describe('leaksFromChange', () => {
   });
 });
 
+/**
+ * THE COLLAPSE GUARD, which is the difference between a quiet week and a
+ * thousand false claims.
+ *
+ * The predicate's own floor does not protect this. It counts the UNION of
+ * `modelKey` and `publicName` records, 1,846 live, while the codename map reads
+ * `publicName` alone, 1,029 live. A payload of 600 modelKey records and one
+ * publicName record passes the predicate and leaves the map holding one name,
+ * so a picker reshape that moves publicName into a lazily loaded chunk is
+ * invisible upstream. When the shape recovers, every name in the map has no
+ * previous value and reads as newly entered.
+ */
+describe('the arena codename floor', () => {
+  const pair = (n: number): [string, string] => [`filler-${String(n).padStart(4, '0')}`, `filler-${String(n).padStart(4, '0')}`];
+  const atFloor = Array.from({ length: ARENA_CODENAME_FLOOR }, (_, i) => pair(i));
+  const belowFloor = atFloor.slice(0, ARENA_CODENAME_FLOOR - 1);
+
+  it('derives nothing across a change whose before capture is below the floor', () => {
+    const collapsed = unpaddedArenaChange(belowFloor, [...atFloor, ['cold_brew', 'muse-video']]);
+    expect(leaksFromChange(collapsed)).toEqual([]);
+  });
+
+  it('derives nothing across a change whose after capture is below the floor', () => {
+    const collapsing = unpaddedArenaChange([...atFloor, ['cold_brew', 'cold_brew']], belowFloor);
+    expect(leaksFromChange(collapsing)).toEqual([]);
+  });
+
+  it('derives normally at exactly the floor', () => {
+    const ok = unpaddedArenaChange(atFloor, [...atFloor, ['cold_brew', 'cold_brew']]);
+    expect(leaksFromChange(ok).map((i) => i.type)).toEqual(['codename_entered']);
+  });
+
+  // A refusal and a quiet week both produce zero items, so the refusal is the
+  // only thing that tells them apart and it has to be emitted, not just implied
+  // by the absence of items.
+  it('records one refusal for the change it declined to derive from', () => {
+    const collapsed = unpaddedArenaChange(belowFloor, atFloor);
+    expect(leakResult(collapsed).refusals).toHaveLength(1);
+  });
+
+  it('names both measured sizes and the floor in the refusal', () => {
+    const collapsed = unpaddedArenaChange(belowFloor, atFloor);
+    expect(leakResult(collapsed).refusals[0]?.reason).toBe(
+      `the codename map holds ${ARENA_CODENAME_FLOOR - 1} publicName records before this change and ${ARENA_CODENAME_FLOOR} after, ` +
+        `and the floor is ${ARENA_CODENAME_FLOOR}. Nothing is derived across a change where either side is below it.`,
+    );
+  });
+
+  it('points the refusal at the artifact and commit it refused', () => {
+    const collapsed = unpaddedArenaChange(belowFloor, atFloor);
+    expect(leakResult(collapsed).refusals[0]?.path).toBe('raw/arena-leaderboard/response.html');
+  });
+
+  it('records no refusal for a change it derived from', () => {
+    const ok = unpaddedArenaChange(atFloor, [...atFloor, ['cold_brew', 'cold_brew']]);
+    expect(leakResult(ok).refusals).toEqual([]);
+  });
+
+  // The flood this exists to stop, measured rather than described: without the
+  // guard a recovery emits one codename_entered per name in the map.
+  it('would otherwise emit one item per name in the recovered map', () => {
+    const recovered = unpaddedArenaChange(atFloor, atFloor.map(([n]) => [n, n] as [string, string]).concat([['cold_brew', 'cold_brew']]));
+    expect(leaksFromChange(recovered)).toHaveLength(1);
+  });
+
+  it('refuses a baseline capture without reporting it as a floor refusal', () => {
+    const baseline = change({
+      sourceId: 'arena-leaderboard',
+      path: 'raw/arena-leaderboard/response.html',
+      kind: 'added',
+      before: null,
+      after: arenaDoc(atFloor),
+    });
+    expect(leakResult(baseline).refusals).toEqual([]);
+  });
+});
+
+describe('deriveLeakRefusals', () => {
+  const pair = (n: number): [string, string] => [`f-${n}`, `f-${n}`];
+  const atFloor = Array.from({ length: ARENA_CODENAME_FLOOR }, (_, i) => pair(i));
+  const belowFloor = atFloor.slice(0, 10);
+
+  it('collects a refusal from every change that produced one', () => {
+    const changes = [unpaddedArenaChange(belowFloor, atFloor), unpaddedArenaChange(atFloor, belowFloor)];
+    expect(deriveLeakRefusals(changes)).toHaveLength(2);
+  });
+
+  it('collects nothing from changes that all derived cleanly', () => {
+    expect(deriveLeakRefusals([unpaddedArenaChange(atFloor, atFloor)])).toEqual([]);
+  });
+});
+
 describe('deriveLeaks', () => {
   it('orders items newest stamp first', () => {
     const older = { ...arenaChange([], [['a', 'a']]), sha: '1'.repeat(40), stamp: { iso: '2026-08-01T00:00:00Z', kind: 'origin' as const } };
@@ -723,7 +847,7 @@ describe('leakSentence', () => {
       facts: [['title', 'Add Ovis2.5 model support']],
     });
     expect(leakSentence(item)).toBe(
-      'A pull request numbered huggingface/transformers#48387 is titled "Add Ovis2.5 model support" in the collected search payload.',
+      'A pull request numbered "huggingface/transformers#48387" is titled "Add Ovis2.5 model support" in the collected search payload.',
     );
   });
 
@@ -734,13 +858,13 @@ describe('leakSentence', () => {
       facts: [['merged_at', '2026-07-16T18:43:59Z']],
     });
     expect(leakSentence(item)).toBe(
-      'The pull request numbered huggingface/transformers#47181 records a merged_at of 2026-07-16T18:43:59Z in the collected search payload.',
+      'The pull request numbered "huggingface/transformers#47181" records a merged_at of "2026-07-16T18:43:59Z" in the collected search payload.',
     );
   });
 
   it('describes a stealth listing as the catalog listing an id', () => {
     expect(leakSentence(itemOf({ type: 'stealth_listing', subject: 'stealth/sonnet-x' }))).toBe(
-      "OpenRouter's catalog lists an id under the stealth/ namespace: stealth/sonnet-x.",
+      'OpenRouter\'s catalog lists an id under the stealth/ namespace: "stealth/sonnet-x".',
     );
   });
 
@@ -751,7 +875,7 @@ describe('leakSentence', () => {
       facts: [['expiration_date', '2026-09-30']],
     });
     expect(leakSentence(item)).toBe(
-      "OpenRouter's catalog recorded an expiration_date of 2026-09-30 for dots-studio/dots-3-note-preview:free.",
+      'OpenRouter\'s catalog recorded an expiration_date of "2026-09-30" for "dots-studio/dots-3-note-preview:free".',
     );
   });
 

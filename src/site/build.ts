@@ -7,16 +7,26 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { STYLESHEET } from './css.js';
 import {
+  labPagePath,
+  renderAboutPage,
   renderChangePage,
+  renderChangelogPage,
+  renderEverythingFeed,
+  renderEverythingPage,
   renderFeed,
-  renderIndexPage,
+  renderLabPage,
   renderLeaksPage,
   renderLedgerPage,
   renderRedirect,
   renderSourcePage,
   renderThreadPage,
   renderThreadsIndex,
+  renderTypePage,
   threadPagePath,
+  typePagePath,
+  ABOUT_PATH,
+  CHANGELOG_INDEX_PATH,
+  EVERYTHING_FEED_PATH,
   LEAKS_INDEX_PATH,
   LEDGER_PATH,
   THREADS_INDEX_PATH,
@@ -30,8 +40,9 @@ import {
   sourcePagePath,
   type ChangeRecord,
 } from './record.js';
+import { ALL_TYPES, labsInFeed, type FeedItem } from '../derive/feed.js';
 import type { ThreadSet } from '../derive/threads.js';
-import type { LeakItem } from '../derive/leaks.js';
+import type { LeakItem, LeakRefusal } from '../derive/leaks.js';
 import type { LedgerClaim } from './ledger.js';
 
 export type SiteFile = { path: string; contents: string };
@@ -54,15 +65,40 @@ export function buildSite(
   threads: ThreadSet = { threads: [], held: [] },
   leaks: LeakItem[] = [],
   ledger: LedgerClaim[] = [],
+  feed: FeedItem[] = [],
+  refusals: LeakRefusal[] = [],
 ): SiteFile[] {
   const records = sortByStampDesc(input);
 
   const files: SiteFile[] = [
     { path: '.nojekyll', contents: '' },
     { path: 'style.css', contents: STYLESHEET },
-    { path: 'index.html', contents: renderIndexPage(records) },
+    // The front page is EVERYTHING, and the changelog moved one directory down
+    // rather than staying here. index.html is a front door and not a permalink;
+    // every permalinked page in the publication, which is every change page,
+    // source page and thread page, is at the address it always was.
+    { path: 'index.html', contents: renderEverythingPage(feed, threads) },
+    { path: EVERYTHING_FEED_PATH, contents: renderEverythingFeed(feed, siteUrl) },
+    { path: ABOUT_PATH, contents: renderAboutPage() },
+    { path: CHANGELOG_INDEX_PATH, contents: renderChangelogPage(records) },
+    // feed.xml is UNCHANGED and still one item per artifact change. Repointing
+    // it at the new stream would silently replace every existing subscriber's
+    // feed with a different publication, so the new stream got a new address.
     { path: 'feed.xml', contents: renderFeed(records, siteUrl) },
   ];
+
+  // Every micro-category gets a page whether or not it holds anything, for the
+  // same reason the desk keeps an empty signal heading: a category that
+  // disappeared when it was empty would make a quiet week and a broken
+  // extractor render identically. A lab page is emitted only where the archive
+  // actually carries that lab, because an empty lab page is a claim to be
+  // watching a lab we have nothing on.
+  for (const type of ALL_TYPES) {
+    files.push({ path: typePagePath(type), contents: renderTypePage(type, feed) });
+  }
+  for (const lab of labsInFeed(feed)) {
+    files.push({ path: labPagePath(lab), contents: renderLabPage(lab, feed) });
+  }
 
   for (const record of records) {
     files.push({ path: changePagePath(record.sha), contents: renderChangePage(record) });
@@ -85,8 +121,8 @@ export function buildSite(
   // page that disappears when it has nothing on it makes "no reveals this week"
   // and "the extractor broke" render identically, and the second is the failure
   // this project exists not to hide.
-  files.push({ path: LEAKS_INDEX_PATH, contents: renderLeaksPage(leaks, ledger) });
-  files.push({ path: LEDGER_PATH, contents: renderLedgerPage(ledger) });
+  files.push({ path: LEAKS_INDEX_PATH, contents: renderLeaksPage(leaks, ledger, refusals) });
+  files.push({ path: LEDGER_PATH, contents: renderLedgerPage(ledger, leaks.length) });
 
   // The old address of every page, forwarding to the new one.
   //

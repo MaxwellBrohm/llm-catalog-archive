@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { parseLedger, scoreLedger } from '../src/site/ledger.js';
+import { isArtifactLink, parseLedger, scoreLedger } from '../src/site/ledger.js';
 
 const CLAIM = {
   kind: 'claim',
@@ -148,6 +148,75 @@ describe('parseLedger, the refusals', () => {
     expect(() => parseLedger(line({ ...CLAIM, artifact: null }))).toThrow(
       /tier confirmed-artifact requires an artifact link/,
     );
+  });
+
+  /*
+   * The check used to run one way only: `confirmed-artifact` with no artifact
+   * was refused, while `unconfirmed` WITH one was accepted and a
+   * `confirmed-artifact` whose artifact read "not a url at all" was accepted
+   * verbatim and rendered as a live anchor. Both directions are the same
+   * promise, which is that the tier and the evidence column agree.
+   */
+  it('throws on an unconfirmed claim that carries an artifact anyway', () => {
+    expect(() =>
+      parseLedger(line({ ...CLAIM, tier: 'unconfirmed', artifact: 'https://example.test/x' })),
+    ).toThrow(/tier unconfirmed records no artifact/);
+  });
+
+  it('accepts an unconfirmed claim with no artifact', () => {
+    expect(parseLedger(line({ ...CLAIM, tier: 'unconfirmed', artifact: null }))[0]!.artifact).toBe(null);
+  });
+
+  it('throws on an artifact that is not a URL at all', () => {
+    expect(() => parseLedger(line({ ...CLAIM, artifact: 'not a url at all' }))).toThrow(
+      /artifact must be an absolute http or https URL/,
+    );
+  });
+
+  it('throws on a relative artifact path', () => {
+    expect(() => parseLedger(line({ ...CLAIM, artifact: '/raw/arena-leaderboard/response.html' }))).toThrow(
+      /artifact must be an absolute http or https URL/,
+    );
+  });
+
+  it('throws on an artifact with a non-http scheme', () => {
+    expect(() => parseLedger(line({ ...CLAIM, artifact: 'javascript:alert(1)' }))).toThrow(
+      /artifact must be an absolute http or https URL/,
+    );
+  });
+
+  it('accepts a credible claim carrying an http artifact', () => {
+    expect(parseLedger(line({ ...CLAIM, tier: 'credible', artifact: 'http://example.test/x' }))[0]!.tier).toBe(
+      'credible',
+    );
+  });
+});
+
+describe('isArtifactLink', () => {
+  it('accepts an https URL', () => {
+    expect(isArtifactLink('https://github.com/MaxwellBrohm/llm-catalog-archive/blob/abc/raw/x.json')).toBe(true);
+  });
+
+  it('accepts an http URL', () => {
+    expect(isArtifactLink('http://example.test/x')).toBe(true);
+  });
+
+  it('rejects a bare sentence', () => {
+    expect(isArtifactLink('not a url at all')).toBe(false);
+  });
+
+  it('rejects a site-relative path', () => {
+    expect(isArtifactLink('/raw/arena-leaderboard/response.html')).toBe(false);
+  });
+
+  // A URL by every parser's reckoning, and not a link a reader can go and look
+  // at, which is the whole promise of the column.
+  it('rejects a data URL', () => {
+    expect(isArtifactLink('data:text/html,<b>x</b>')).toBe(false);
+  });
+
+  it('rejects a javascript URL', () => {
+    expect(isArtifactLink('javascript:alert(1)')).toBe(false);
   });
 
   // Skipping it would silently drop a score, which inflates the accuracy rate

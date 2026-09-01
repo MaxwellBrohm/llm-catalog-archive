@@ -13,13 +13,27 @@
  * If a sentence appears here that a diff cannot justify, it is a bug.
  */
 
-import { canRenderAt, claimSentence, DAY_SECONDS, type DerivedEvent } from '../derive/events.js';
+import { canRenderAt, DAY_SECONDS, type DerivedEvent } from '../derive/events.js';
+import { entitySlug } from '../derive/entities.js';
+import { quoteValue } from '../derive/quoting.js';
+import type { Lab } from '../derive/entities.js';
+import {
+  ALL_TYPES,
+  countsByType,
+  feedItemFromLeak,
+  itemsOfLab,
+  itemsOfType,
+  labsInFeed,
+  labsOf,
+  type FeedItem,
+  type FeedType,
+} from '../derive/feed.js';
 import {
   confirmationQuery,
-  leakSentence,
   modelSupportName,
   PULL_SOURCE_IDS,
   type LeakItem,
+  type LeakRefusal,
 } from '../derive/leaks.js';
 import { scoreLedger, type LedgerClaim } from './ledger.js';
 import type { Thread, ThreadSet } from '../derive/threads.js';
@@ -54,8 +68,30 @@ function plural(n: number, word: string): string {
   return `${formatInt(n)} ${word}${n === 1 ? '' : 's'}`;
 }
 
-function layout(opts: { title: string; depth: number; body: string }): string {
+/**
+ * Which section of the publication a page belongs to.
+ *
+ * The sections are the product design's section 5, and they are one
+ * publication rather than four products: Everything is the front page and the
+ * default view, the desk and the changelog are two ways of reading the same
+ * derivations, and Threads is the entity archive both of them link into.
+ */
+export type Section = 'everything' | 'leaks' | 'changelog' | 'threads' | 'about';
+
+const NAV: { key: Section; href: string; label: string }[] = [
+  { key: 'everything', href: 'index.html', label: 'Everything' },
+  { key: 'leaks', href: 'leaks/index.html', label: 'Rumors and leaks' },
+  { key: 'changelog', href: 'changelog/index.html', label: 'Changelog' },
+  { key: 'threads', href: 'threads/index.html', label: 'Threads' },
+  { key: 'about', href: 'about.html', label: 'About' },
+];
+
+function layout(opts: { title: string; depth: number; body: string; active?: Section }): string {
   const { up } = links(opts.depth);
+  const nav = NAV.map(
+    (n) =>
+      `<a${n.key === opts.active ? ' class="on" aria-current="page"' : ''} href="${up}${n.href}">${escapeHtml(n.label)}</a>`,
+  ).join('\n');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -63,26 +99,30 @@ function layout(opts: { title: string; depth: number; body: string }): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(opts.title)}</title>
 <link rel="stylesheet" href="${up}style.css">
-<link rel="alternate" type="application/rss+xml" title="llm-catalog-archive" href="${up}feed.xml">
+<link rel="alternate" type="application/rss+xml" title="llm-catalog-archive: everything" href="${up}${EVERYTHING_FEED_PATH}">
+<link rel="alternate" type="application/rss+xml" title="llm-catalog-archive: changelog" href="${up}feed.xml">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="site-head"><div class="wrap">
 <a class="brand" href="${up}index.html">llm-catalog-archive</a>
 <nav>
-<a href="${up}index.html">Changes</a>
-<a href="${up}threads/index.html">Threads</a>
-<a href="${up}leaks/index.html">Leaks</a>
-<a href="${up}feed.xml">Feed</a>
-<a href="${REPO_URL}">Repository</a>
+${nav}
 </nav>
+<div class="util">
+<a href="${up}${EVERYTHING_FEED_PATH}">RSS</a>
+<a href="${REPO_URL}">Repository</a>
+</div>
 </div></header>
-<main><div class="wrap">
+<main id="main"><div class="wrap">
 ${opts.body}
 </div></main>
 <footer class="site-foot"><div class="wrap">
-Generated from git history over <code>raw/</code>. Timestamps are the sidecar's
-<code>origin_date</code> where the provider sent an <code>Age</code> header, and
-<code>observed_at</code>, labelled as such, where it did not.
+<p>Generated at deploy time from git history over <code>raw/</code>. Nothing on this site is written by a
+language model, here or anywhere in the generator. Every sentence is a template filled from a diff or a
+sidecar, and every value read out of a stored payload is quoted.</p>
+<p>Timestamps are the sidecar's <code>origin_date</code> where the provider sent an <code>Age</code> header, and
+<code>observed_at</code>, labelled as such, where it did not. <a href="${up}about.html">What this archive stores</a>.</p>
 </div></footer>
 </body>
 </html>
@@ -225,7 +265,7 @@ export function renderChangePage(record: ChangeRecord): string {
 <p class="subject">${escapeHtml(record.subject)}</p>
 ${retractionHtml(record)}
 ${record.artifacts.map((a) => artifactSection(record, a)).join('\n')}`;
-  return layout({ title: `${short} - llm-catalog-archive`, depth: 1, body });
+  return layout({ title: `${short} - llm-catalog-archive`, depth: 1, body, active: 'changelog' });
 }
 
 type Row = { record: ChangeRecord; artifact: ArtifactChange };
@@ -277,7 +317,22 @@ function byDay(records: ChangeRecord[]): { day: string; records: ChangeRecord[] 
   return [...buckets].map(([day, rs]) => ({ day, records: rs }));
 }
 
-export function renderIndexPage(records: ChangeRecord[]): string {
+/**
+ * The changelog: one row per commit that changed a stored artifact.
+ *
+ * This is the surface the project started as, and it is now a SECTION rather
+ * than the front page. It is the evidence layer under everything else: the
+ * narrated diff, at commit granularity, with no derivation applied. A reader
+ * who distrusts a sentence on the front page arrives here, and from here at the
+ * commit, and from there at the bytes.
+ *
+ * It lives one directory down, so every link out of it carries the `../` that
+ * `links(1)` supplies. The change pages it links to did NOT move: spec section
+ * 10 makes a change page's URL a permalink, and moving the index is not licence
+ * to move what the index points at.
+ */
+export function renderChangelogPage(records: ChangeRecord[]): string {
+  const { up } = links(1);
   const sourceIds = [...new Set(rowsOf(records).map((r) => r.artifact.sourceId))].sort();
   const perSource = new Map<string, number>();
   for (const row of rowsOf(records)) perSource.set(row.artifact.sourceId, (perSource.get(row.artifact.sourceId) ?? 0) + 1);
@@ -285,7 +340,7 @@ export function renderIndexPage(records: ChangeRecord[]): string {
   const cards = sourceIds
     .map(
       (id) => `<div class="source-card">
-<a href="${sourcePagePath(id)}">${escapeHtml(id)}</a>
+<a href="${up}${sourcePagePath(id)}">${escapeHtml(id)}</a>
 <p>${plural(perSource.get(id) ?? 0, 'change')}</p>
 </div>`,
     )
@@ -295,14 +350,14 @@ export function renderIndexPage(records: ChangeRecord[]): string {
     .map(
       (g) => `<section class="day">
 <h2>${escapeHtml(g.day)}</h2>
-${changesTable(rowsOf(g.records), 0)}
+${changesTable(rowsOf(g.records), 1)}
 </section>`,
     )
     .join('\n');
 
-  const body = `<p class="eyebrow">Archive</p>
-<h1>Change log</h1>
-<p class="lede">One entry per commit that changed a stored artifact under <code>raw/</code>. ${plural(records.length, 'change')} across ${plural(sourceIds.length, 'source')}, newest first.</p>
+  const body = `<p class="eyebrow">Changelog</p>
+<h1>The narrated diff</h1>
+<p class="lede">One entry per commit that changed a stored artifact under <code>raw/</code>. ${plural(records.length, 'change')} across ${plural(sourceIds.length, 'source')}, newest first by the timestamp each row shows rather than by commit order. This is the evidence layer: <a href="${up}index.html">Everything</a> is the same archive with the derivations applied.</p>
 <div class="panel">
 <h2>Sources</h2>
 <div class="grid-sources">
@@ -310,7 +365,7 @@ ${cards}
 </div>
 </div>
 ${days}`;
-  return layout({ title: 'llm-catalog-archive', depth: 0, body });
+  return layout({ title: 'Changelog - llm-catalog-archive', depth: 1, body, active: 'changelog' });
 }
 
 export function renderSourcePage(sourceId: string, records: ChangeRecord[]): string {
@@ -329,7 +384,7 @@ export function renderSourcePage(sourceId: string, records: ChangeRecord[]): str
 <div class="fact"><dt>Final URL at the latest change</dt><dd>${finalUrl === null ? 'not recorded' : `<a href="${escapeHtml(finalUrl)}">${escapeHtml(finalUrl)}</a>`}</dd></div>
 </dl>
 ${changesTable(rows, 1)}`;
-  return layout({ title: `${sourceId} - llm-catalog-archive`, depth: 1, body });
+  return layout({ title: `${sourceId} - llm-catalog-archive`, depth: 1, body, active: 'changelog' });
 }
 
 const FEED_LIMIT = 50;
@@ -445,22 +500,91 @@ function eventFactsHtml(event: DerivedEvent): string {
 }
 
 /**
- * One event on a thread.
+ * Where a micro-category page lives, and where a lab page lives.
  *
- * The artifact link uses THIS EVENT'S commit sha, never HEAD and never a branch
- * name. R5 overwrites one path in place, so a HEAD link would show whatever the
- * artifact later became rather than the bytes the claim was read out of, and
- * the evidence the auto-publish tier rests on would rot with every capture.
+ * A type is already `[a-z_]+` from the two derivations' own discriminants, so
+ * the only fold is the underscore, and a lab is a member of the closed LABS
+ * list. Neither can collide the way an entity slug can, which is why these need
+ * no equivalent of threads.ts's collision refusal.
  */
-function eventHtml(event: DerivedEvent, depth: number): string {
+export function typePagePath(type: FeedType): string {
+  return `type/${type.replace(/_/g, '-')}.html`;
+}
+
+export function labPagePath(lab: Lab): string {
+  return `lab/${lab}.html`;
+}
+
+export const EVERYTHING_FEED_PATH = 'everything.xml';
+export const ABOUT_PATH = 'about.html';
+export const CHANGELOG_INDEX_PATH = 'changelog/index.html';
+
+/**
+ * The entities an item files under, as links into the entity archive.
+ *
+ * An item with no entity prints that it was HELD rather than printing nothing.
+ * Zero chips and "we could not attach this mechanically" look identical on a
+ * page and are completely different facts, and the product spec's section 4
+ * makes the second one a first-class outcome rather than an error.
+ */
+function entityChips(item: FeedItem, depth: number): string {
   const { up } = links(depth);
-  const permalink = artifactPermalink(event.sha, event.path);
-  const facts = eventFactsHtml(event);
+  if (item.entities.length === 0) {
+    return '<p class="chips"><span class="chip chip-held">held: no entity was mechanically extractable</span></p>';
+  }
+  // THE LABEL IS IN A <code> BECAUSE IT IS A THIRD-PARTY STRING. An entity
+  // label is a catalogue id or a documentation host and path, chosen by
+  // somebody else, and the copy-rule scan strips code spans for exactly that
+  // reason. Rendered bare it is prose this file composed: an entity built from
+  // the catalog id `stealth/x-1. Anthropic is preparing its next flagship`
+  // put that sentence on the front page through the chip row, which is how
+  // test/copy-rule-live.ts caught it.
+  const chips = item.entities
+    .map(
+      (e) =>
+        `<a class="chip" href="${up}${threadPagePath(entitySlug(e))}"><span class="chip-kind">${escapeHtml(e.kind)}</span><code>${escapeHtml(e.label)}</code></a>`,
+    )
+    .join('\n');
+  return `<p class="chips">${chips}</p>`;
+}
+
+/**
+ * ONE CARD FOR BOTH DERIVATIONS, used by every surface in the publication.
+ *
+ * There used to be two near-identical renderers, one for an event and one for a
+ * leak item, and they had already drifted: only one of them linked the item's
+ * micro-category and neither linked its entities. A reader should not be able
+ * to tell which code path drew a row, because the guarantees are the same
+ * either way: the sentence came from a deriving module, the artifact link is at
+ * the item's OWN commit rather than HEAD, and every value under it is a cell a
+ * reader can check against those bytes.
+ *
+ * The sourcing tier is printed only where there is one. An event carries no
+ * tier, and stamping every event `confirmed-artifact` to make the two look
+ * alike would be inventing a grade the derivation never assigned.
+ */
+export function feedItemHtml(item: FeedItem, depth: number): string {
+  const { up } = links(depth);
+  const permalink = artifactPermalink(item.sha, item.path);
+  const facts = item.event !== null ? eventFactsHtml(item.event) : item.leak !== null ? leakFactsHtml(item.leak) : '';
+  const confirm = item.leak === null ? '' : confirmationHtml(item.leak);
+  const tier =
+    item.tier === null
+      ? ''
+      : ` <span class="badge badge-tier badge-${escapeHtml(item.tier)}">${escapeHtml(item.tier)}</span>`;
   return `<li class="event">
-<p class="claim">${escapeHtml(claimSentence(event))}</p>
-<p class="event-meta"><span class="badge badge-type">${escapeHtml(event.type)}</span> ${stampHtml(event.stamp)} &middot; <a href="${up}${sourcePagePath(event.sourceId)}">${escapeHtml(event.sourceId)}</a> &middot; <a href="${up}${changePagePath(event.sha)}">${escapeHtml(event.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
+<p class="claim">${escapeHtml(item.sentence)}</p>
+<p class="event-meta"><a class="badge badge-type" href="${up}${typePagePath(item.type)}">${escapeHtml(item.type)}</a>${tier} ${stampHtml(item.stamp)} &middot; <a href="${up}${sourcePagePath(item.sourceId)}">${escapeHtml(item.sourceId)}</a> &middot; <a href="${up}${changePagePath(item.sha)}">${escapeHtml(item.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
+${entityChips(item, depth)}
 ${facts}
+${confirm}
 </li>`;
+}
+
+/** A list of cards, or a sentence saying there are none. Never nothing. */
+function itemListHtml(items: FeedItem[], depth: number, empty: string): string {
+  if (items.length === 0) return `<p class="note">${escapeHtml(empty)}</p>`;
+  return `<ol class="events">\n${items.map((i) => feedItemHtml(i, depth)).join('\n')}\n</ol>`;
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -473,22 +597,31 @@ const KIND_LABEL: Record<string, string> = {
 export function renderThreadPage(thread: Thread): string {
   const kind = KIND_LABEL[thread.entity.kind] ?? thread.entity.kind;
   const body = `<p class="eyebrow">${escapeHtml(kind)} thread</p>
-<h1 class="sha-title">${escapeHtml(thread.entity.label)}</h1>
-<p class="sha-full">${escapeHtml(thread.entity.id)}</p>
+<h1 class="sha-title"><code>${escapeHtml(thread.entity.label)}</code></h1>
+<p class="sha-full"><code>${escapeHtml(thread.entity.id)}</code></p>
 <dl class="facts">
 <div class="fact"><dt>Events</dt><dd class="big">${formatInt(thread.events.length)}</dd></div>
 <div class="fact"><dt>First event in the archive</dt><dd>${stampHtml(thread.firstSeen)}</dd></div>
 <div class="fact"><dt>Last activity</dt><dd>${stampHtml(thread.lastActivity)}</dd></div>
 </dl>
 <ol class="events">
-${thread.events.map((e) => eventHtml(e, 1)).join('\n')}
+${thread.events.map((e) => feedItemHtml(e, 1)).join('\n')}
 </ol>`;
-  return layout({ title: `${thread.entity.label} - llm-catalog-archive`, depth: 1, body });
+  // THE <title> IS QUOTED for the same reason every other rendered appearance
+  // of a third-party value is. An entity label is a catalogue id somebody else
+  // chose, and a browser tab and a search result are the two places a bare one
+  // reads most like a headline this project wrote.
+  return layout({
+    title: `${quoteValue(thread.entity.label)} - llm-catalog-archive`,
+    depth: 1,
+    body,
+    active: 'threads',
+  });
 }
 
 function threadRowHtml(thread: Thread): string {
   return `<tr>
-<td class="mono"><a href="${escapeHtml(thread.slug)}.html">${escapeHtml(thread.entity.label)}</a></td>
+<td class="mono"><a href="${escapeHtml(thread.slug)}.html"><code>${escapeHtml(thread.entity.label)}</code></a></td>
 <td class="mono">${escapeHtml(thread.entity.kind)}</td>
 <td class="mono">${formatInt(thread.events.length)}</td>
 <td class="mono">${stampHtml(thread.lastActivity)}</td>
@@ -527,7 +660,7 @@ ${rows.map(threadRowHtml).join('\n')}
   const held =
     set.held.length === 0
       ? '<p class="note">No event was held. Every derived event attached to at least one entity.</p>'
-      : `<ol class="events">\n${set.held.map((e) => eventHtml(e, 1)).join('\n')}\n</ol>`;
+      : `<ol class="events">\n${set.held.map((e) => feedItemHtml(e, 1)).join('\n')}\n</ol>`;
 
   const body = `<p class="eyebrow">Threads</p>
 <h1>Entity threads</h1>
@@ -538,7 +671,7 @@ ${sections}
 <p class="note">${plural(set.held.length, 'event')} could not be attached to an entity mechanically, and nothing here guesses. Product spec section 4.</p>
 ${held}
 </section>`;
-  return layout({ title: 'Threads - llm-catalog-archive', depth: 1, body });
+  return layout({ title: 'Threads - llm-catalog-archive', depth: 1, body, active: 'threads' });
 }
 
 // ---------------------------------------------------------------------------
@@ -607,17 +740,6 @@ function confirmationHtml(item: LeakItem): string {
   return `<p class="note">Check for a published weights repository under this name: <a href="${escapeHtml(url)}"><code>${escapeHtml(url)}</code></a>. An empty array is a statement about that search, not about what exists.</p>`;
 }
 
-function leakHtml(item: LeakItem, depth: number): string {
-  const { up } = links(depth);
-  const permalink = artifactPermalink(item.sha, item.path);
-  return `<li class="event">
-<p class="claim">${escapeHtml(leakSentence(item))}</p>
-<p class="event-meta"><span class="badge badge-type">${escapeHtml(item.type)}</span> <span class="badge badge-tier">${escapeHtml(item.tier)}</span> ${stampHtml(item.stamp)} &middot; <a href="${up}${sourcePagePath(item.sourceId)}">${escapeHtml(item.sourceId)}</a> &middot; <a href="${up}${changePagePath(item.sha)}">${escapeHtml(item.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
-${leakFactsHtml(item)}
-${confirmationHtml(item)}
-</li>`;
-}
-
 const SIGNAL_LABEL: Record<string, string> = {
   codename_entered: 'Arena codename map: a name entered the payload',
   codename_unmasked: 'Arena codename map: a name was unmasked',
@@ -635,7 +757,11 @@ const SIGNAL_LABEL: Record<string, string> = {
  * extractor broke three weeks ago" render identically, and the second is the
  * failure this whole project is organised around not making invisible.
  */
-export function renderLeaksPage(items: LeakItem[], claims: LedgerClaim[] = []): string {
+export function renderLeaksPage(
+  items: LeakItem[],
+  claims: LedgerClaim[] = [],
+  refusals: LeakRefusal[] = [],
+): string {
   const order: LeakItem['type'][] = [
     'codename_unmasked',
     'codename_entered',
@@ -651,7 +777,7 @@ export function renderLeaksPage(items: LeakItem[], claims: LedgerClaim[] = []): 
       const body =
         rows.length === 0
           ? '<p class="note">No item of this kind is derivable from the archive as it stands.</p>'
-          : `<ol class="events">\n${rows.map((i) => leakHtml(i, 1)).join('\n')}\n</ol>`;
+          : `<ol class="events">\n${rows.map((i) => feedItemHtml(feedItemFromLeak(i), 1)).join('\n')}\n</ol>`;
       return `<section class="day">
 <h2>${escapeHtml(SIGNAL_LABEL[type] ?? type)}</h2>
 <p class="note">${plural(rows.length, 'item')}.</p>
@@ -661,6 +787,26 @@ ${body}
     .join('\n');
 
   const score = scoreLedger(claims);
+
+  // REFUSALS ARE PRINTED, and this is the section a reader has to be able to
+  // see before trusting a count of zero. A derivation that declined to run
+  // across a change produces the same "no items" a quiet week produces, and one
+  // of those two is a broken parser. The refusal says which change, which
+  // artifact, and what was measured against what floor.
+  const refusalSection =
+    refusals.length === 0
+      ? `<p class="note">No change was refused. Every stored change of a desk source was read, and the counts above are counts of what was there rather than of what could be parsed.</p>`
+      : `<ol class="events">
+${refusals
+          .map(
+            (r) => `<li class="event refusal">
+<p class="claim">The desk derived nothing across one recorded change of ${escapeHtml(r.sourceId)}, because ${escapeHtml(r.reason)}</p>
+<p class="event-meta"><span class="badge badge-refusal">refused</span> ${stampHtml(r.stamp)} &middot; <a href="../${sourcePagePath(r.sourceId)}">${escapeHtml(r.sourceId)}</a> &middot; <a href="../${changePagePath(r.sha)}">${escapeHtml(r.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(artifactPermalink(r.sha, r.path))}">raw artifact at this commit</a></p>
+</li>`,
+          )
+          .join('\n')}
+</ol>`;
+
   const body = `<p class="eyebrow">Leaks</p>
 <h1>The leaks desk</h1>
 <p class="lede">${plural(items.length, 'item')} derived from stored artifacts. ${escapeHtml(LEAKS_STANDING_NOTE)}</p>
@@ -672,10 +818,15 @@ ${Object.entries(TIER_NOTE)
     .join('\n')}
 </table></div>
 <p class="note">The tier is about the artifact, not about confidence. Every item on this page is <code>confirmed-artifact</code>, because a derivation reads stored bytes and cannot vouch for a source it has never had.</p>
-<p><a href="ledger.html">The accuracy ledger</a>: ${plural(score.total, 'recorded claim')}, ${formatInt(score.confirmed)} confirmed, ${formatInt(score.refuted)} refuted, ${formatInt(score.open)} open.</p>
+<p><a href="ledger.html">The accuracy ledger</a>: ${plural(score.total, 'recorded claim')}, ${formatInt(score.confirmed)} confirmed, ${formatInt(score.refuted)} refuted, ${formatInt(score.open)} open. A ledger claim is a PREDICTION entered by hand. Nothing on this page is one: the items below describe stored artifacts, so none of them is scored there.</p>
 </div>
-${sections}`;
-  return layout({ title: 'Leaks - llm-catalog-archive', depth: 1, body });
+${sections}
+<section class="day">
+<h2>Refused</h2>
+<p class="note">${plural(refusals.length, 'change')} the desk declined to derive from. A refusal and a quiet week both produce zero items, and only one of them is a broken parser.</p>
+${refusalSection}
+</section>`;
+  return layout({ title: 'Rumors and leaks - llm-catalog-archive', depth: 1, body, active: 'leaks' });
 }
 
 const OUTCOME_LABEL: Record<string, string> = {
@@ -692,7 +843,7 @@ const OUTCOME_LABEL: Record<string, string> = {
  * "not yet scored" rather than as a number while nothing has resolved: an empty
  * ledger has no accuracy, and both 0% and 100% would be a score nobody earned.
  */
-export function renderLedgerPage(claims: LedgerClaim[]): string {
+export function renderLedgerPage(claims: LedgerClaim[], deskItems: number = 0): string {
   const score = scoreLedger(claims);
   const rows =
     claims.length === 0
@@ -717,7 +868,8 @@ ${claims
 
   const body = `<p class="eyebrow">Leaks</p>
 <h1>Accuracy ledger</h1>
-<p class="lede">Every claim this desk has made and what became of it. Append-only: a claim line is written once and a resolution line is appended later naming it, so the outcome cannot be edited into the record after the fact. Enforced by <code>.github/workflows/append-only.yml</code>.</p>
+<p class="lede">Every claim ENTERED IN THIS LEDGER and what became of it. Append-only: a claim line is written once and a resolution line is appended later naming it, so the outcome cannot be edited into the record after the fact. Enforced by <code>.github/workflows/append-only.yml</code>.</p>
+<p class="lede">It is not a scorecard for the whole desk, and saying so is the difference between a ledger and a boast. A claim here is a PREDICTION, entered by hand, that can turn out to be right or wrong. A derived item on <a href="index.html">the desk</a> describes a stored artifact, predicts nothing, and reaches this file through no code path at all; the desk currently holds ${plural(deskItems, 'item')}. So a desk with items on it and an empty ledger is the expected state, not a missing number.</p>
 <dl class="facts">
 <div class="fact"><dt>Recorded claims</dt><dd class="big">${formatInt(score.total)}</dd></div>
 <div class="fact"><dt>Confirmed</dt><dd class="big">${formatInt(score.confirmed)}</dd></div>
@@ -727,5 +879,376 @@ ${claims
 </dl>
 ${rows}
 <p class="note"><a href="index.html">Back to the leaks desk</a>.</p>`;
-  return layout({ title: 'Accuracy ledger - llm-catalog-archive', depth: 1, body });
+  return layout({ title: 'Accuracy ledger - llm-catalog-archive', depth: 1, body, active: 'leaks' });
+}
+
+// ---------------------------------------------------------------------------
+// Everything, and the micro-categories
+// ---------------------------------------------------------------------------
+
+/**
+ * What a micro-category is called in a heading.
+ *
+ * THE SUBJECT OF EVERY ONE OF THESE IS AN ARTIFACT, on purpose, because a
+ * category heading is a sentence a reader reads before any evidence at all.
+ * "A context_length changed" is the diff; "context windows are being cut" is
+ * the story, and the story is exactly what the archive cannot support. Every
+ * type in ALL_TYPES has an entry, which test/site-everything.test.ts asserts,
+ * so a type added to a derivation cannot ship with a page titled by its
+ * discriminant.
+ */
+export const TYPE_LABEL: Record<FeedType, string> = {
+  model_added: 'A model id entered the catalog',
+  model_removed: 'A model id left the catalog',
+  price_changed: 'A listed price changed',
+  context_changed: 'A context_length changed',
+  expiration_set: 'An expiration_date was recorded',
+  alias_retargeted: 'A canonical_slug was retargeted',
+  retirement_floor: 'A retirement date was tabled',
+  doc_added: 'A documentation index gained an entry',
+  doc_removed: 'A documentation index lost an entry',
+  codename_entered: 'A name entered the arena payload',
+  codename_unmasked: 'A name in the arena payload was unmasked',
+  upstream_pr_opened: 'A model-support pull request appeared',
+  upstream_pr_merged: 'A model-support pull request merged',
+  stealth_listing: 'An id under the stealth/ namespace',
+  expiration_scheduled: 'An expiration_date was scheduled',
+};
+
+/**
+ * How many items the front page carries before it stops.
+ *
+ * A cap rather than everything, because the archive grows every day and a front
+ * page that renders its whole history is a page that gets slower for ever on
+ * the device most shared links open on. A cap is only honest if it says so and
+ * if nothing is reachable ONLY through the page that was capped, which is why
+ * every item also sits on its micro-category page, its lab page and its entity
+ * thread, none of which are capped.
+ */
+export const EVERYTHING_LIMIT = 150;
+
+/** How many threads the front page's live rail carries. */
+const RAIL_LIMIT = 8;
+
+const NO_DAY_HEADING = 'no timestamp recorded';
+
+/** Feed items bucketed by the UTC day of the stamp shown, in feed order. */
+function feedByDay(items: FeedItem[]): { day: string; items: FeedItem[] }[] {
+  const buckets = new Map<string, FeedItem[]>();
+  for (const item of items) {
+    const day = item.stamp === null ? NO_DAY_HEADING : utcDay(item.stamp.iso);
+    const bucket = buckets.get(day);
+    if (bucket === undefined) buckets.set(day, [item]);
+    else bucket.push(item);
+  }
+  return [...buckets].map(([day, is]) => ({ day, items: is }));
+}
+
+function typeChips(feed: FeedItem[], depth: number, current: FeedType | null): string {
+  const { up } = links(depth);
+  const counts = countsByType(feed);
+  return ALL_TYPES.map((type) => {
+    const n = counts.get(type) ?? 0;
+    const on = type === current ? ' chip-on' : '';
+    const empty = n === 0 ? ' chip-empty' : '';
+    return `<a class="chip${on}${empty}" href="${up}${typePagePath(type)}"><span class="chip-kind">${escapeHtml(type)}</span>${formatInt(n)}</a>`;
+  }).join('\n');
+}
+
+function labChips(feed: FeedItem[], depth: number, current: Lab | null): string {
+  const { up } = links(depth);
+  const labs = labsInFeed(feed);
+  if (labs.length === 0) {
+    return '<p class="note">No item in the archive carries a vendor prefix this repository maps to a lab, so there is nothing to filter by. The table is in src/derive/entities.ts and it is closed on purpose.</p>';
+  }
+  const chips = labs
+    .map((lab) => {
+      const n = itemsOfLab(feed, lab).length;
+      const on = lab === current ? ' chip-on' : '';
+      return `<a class="chip${on}" href="${up}${labPagePath(lab)}"><span class="chip-kind">${escapeHtml(lab)}</span>${formatInt(n)}</a>`;
+    })
+    .join('\n');
+  return `<p class="chips">${chips}</p>`;
+}
+
+/**
+ * The live-thread rail, and the reason the publication has threads at all.
+ *
+ * QUIET DAYS ARE THE POINT, from the product spec's section 4: a day with no
+ * new item still has live threads worth reading. The rail is on the front page
+ * unconditionally rather than appearing when the feed is thin, because a rail
+ * that shows up only on a quiet day is a rail that announces the quiet day.
+ *
+ * It reads "most recently active" off buildThreads' own ordering rather than
+ * off a clock. This module has no clock, and "recent" measured against a build
+ * time would make the same archive render differently on two runs.
+ */
+function threadRail(threads: ThreadSet, depth: number): string {
+  const { up } = links(depth);
+  const rows = threads.threads.slice(0, RAIL_LIMIT);
+  if (rows.length === 0) {
+    return `<div class="panel">
+<h2>Live threads</h2>
+<p class="note">No thread exists yet: no derived item has attached to an entity. <a href="${up}${THREADS_INDEX_PATH}">The threads index</a> says the same thing in more detail.</p>
+</div>`;
+  }
+  const list = rows
+    .map(
+      (t) => `<li><a href="${up}${threadPagePath(t.slug)}">${escapeHtml(t.entity.label)}</a>
+<span class="rail-meta">${escapeHtml(t.entity.kind)} &middot; ${plural(t.events.length, 'item')} &middot; last activity ${stampHtml(t.lastActivity)}</span></li>`,
+    )
+    .join('\n');
+  return `<div class="panel">
+<h2>Live threads</h2>
+<p class="note">A thread is an entity and everything the archive has ever recorded about it, newest first. A day with no new item still has these, which is the whole reason the publication is organised this way rather than as a stream. ${plural(threads.threads.length, 'thread')} in all.</p>
+<ul class="rail">
+${list}
+</ul>
+<p class="note"><a href="${up}${THREADS_INDEX_PATH}">Every thread</a>.</p>
+</div>`;
+}
+
+/**
+ * The front page: everything the archive supports, newest first.
+ *
+ * This is the "general AI news for developers" surface and the default view,
+ * and it is one stream over BOTH derivations rather than a link to two. What it
+ * adds over the sections it draws from is exactly nothing: the sentences are
+ * the ones the deriving modules wrote, in one order, with the micro-category
+ * and the entities each item already carried turned into links.
+ */
+/**
+ * The micro-categories as a rail list rather than a chip row.
+ *
+ * A key and a count, right-aligned, monospace, so the column reads as a table
+ * of what the archive holds. Chips are the right shape on a filter page, where
+ * they are the subject; in a 320px rail beside a stream of stories they wrap
+ * into a block that competes with the stories, which is the failure the front
+ * page had before this: two panels of navigation above the first sentence of
+ * news.
+ */
+function typeRail(feed: FeedItem[], depth: number): string {
+  const { up } = links(depth);
+  const counts = countsByType(feed);
+  const rows = ALL_TYPES.map((type) => {
+    const n = counts.get(type) ?? 0;
+    return `<li${n === 0 ? ' class="off"' : ''}><a href="${up}${typePagePath(type)}">${escapeHtml(type)}</a><span class="rail-n">${formatInt(n)}</span></li>`;
+  }).join('\n');
+  return `<ul class="rail-types">\n${rows}\n</ul>`;
+}
+
+export function renderEverythingPage(
+  feed: FeedItem[],
+  threads: ThreadSet = { threads: [], held: [] },
+  limit: number = EVERYTHING_LIMIT,
+): string {
+  const shown = feed.slice(0, limit);
+  const days = feedByDay(shown)
+    .map(
+      (g) => `<section class="day">
+<h2>${escapeHtml(g.day)}</h2>
+<ol class="events">
+${g.items.map((i) => feedItemHtml(i, 0)).join('\n')}
+</ol>
+</section>`,
+    )
+    .join('\n');
+
+  const capped =
+    feed.length > shown.length
+      ? `<p class="note">Showing the ${plural(shown.length, 'most recent item')} of ${formatInt(feed.length)}. Nothing is dropped: every item is also on its micro-category page, on its lab page where it has one, and on the entity thread it attaches to, and none of those are capped.</p>`
+      : '';
+
+  const stream =
+    shown.length === 0
+      ? `<div class="panel">
+<h2>Nothing is derivable yet</h2>
+<p class="note">No stored change in the archive supports a typed claim. That is a statement about the derivations in <code>src/derive/</code>, not about the industry: the <a href="${CHANGELOG_INDEX_PATH}">changelog</a> lists every commit that changed a stored artifact, including the ones nothing here knows how to read.</p>
+</div>`
+      : days;
+
+  // THE STREAM COMES FIRST IN THE DOM, which is what puts the news above the
+  // navigation on a phone. On a wide screen the rail sits beside it rather than
+  // above it, so the same markup reads as a publication at both sizes without
+  // an order override that would put filters in front of a reader who came to
+  // read. The one exception is the lab filter, which is a single compact row
+  // directly under the lede: filtering an AI news stream by lab is the thing
+  // the research found nobody offers, so it is not allowed to be below a fold.
+  const body = `<p class="eyebrow">The archive</p>
+<h1>Everything</h1>
+<p class="lede">${plural(feed.length, 'item')} derived by replay from git history over <code>raw/</code>, newest first. Every sentence names the artifact it was read out of and links those bytes at the commit that stored them.</p>
+<div class="filterbar">
+<span class="filterbar-label">By lab</span>
+${labChips(feed, 0, null)}
+</div>
+<div class="split">
+<div class="split-main">
+${capped}
+${stream}
+</div>
+<aside class="split-side">
+<div class="panel">
+<h2>Micro-categories</h2>
+<p class="note">Every item carries the type its derivation gave it. A type with no items keeps its page: "nothing happened" and "the extractor broke" must not render identically.</p>
+${typeRail(feed, 0)}
+</div>
+${threadRail(threads, 0)}
+<div class="panel">
+<h2>The other two ways in</h2>
+<p class="note"><a href="${CHANGELOG_INDEX_PATH}">The changelog</a> is the same archive with no derivation applied: one row per commit that changed a stored artifact.</p>
+<p class="note"><a href="${LEAKS_INDEX_PATH}">The leaks desk</a> is the subset graded by sourcing tier, with the accuracy ledger behind it.</p>
+</div>
+</aside>
+</div>`;
+  return layout({ title: 'llm-catalog-archive', depth: 0, body, active: 'everything' });
+}
+
+/** One micro-category, with every item in it. Never capped. */
+export function renderTypePage(type: FeedType, feed: FeedItem[]): string {
+  const items = itemsOfType(feed, type);
+  const label = TYPE_LABEL[type];
+  const body = `<p class="eyebrow">Micro-category</p>
+<h1>${escapeHtml(label)}</h1>
+<p class="sha-full">${escapeHtml(type)}</p>
+<p class="lede">${plural(items.length, 'item')} in the archive, newest first. Every item of this kind, uncapped, which is what makes the front page safe to cap.</p>
+<div class="panel">
+<h2>Every micro-category</h2>
+<p class="chips">
+${typeChips(feed, 1, type)}
+</p>
+</div>
+${itemListHtml(items, 1, 'No item of this kind is derivable from the archive as it stands. The page exists anyway: a category that vanished when it was empty would make a quiet week and a broken extractor look the same.')}`;
+  return layout({ title: `${label} - llm-catalog-archive`, depth: 1, body, active: 'everything' });
+}
+
+/**
+ * One lab, with every item that attaches to it.
+ *
+ * SEPARATE FROM THE LAB'S THREAD, and the difference is worth a sentence. The
+ * thread is the entity archive's page for `lab/anthropic` and it carries every
+ * item that names that lab, in the entity model's own terms. This page is the
+ * front page filtered, and it exists because the research found the filter is
+ * the unserved thing: every competitor is a stream and none of them lets a
+ * reader ask for one lab. The two lists are the same items by construction,
+ * because both read the same entities off the same feed.
+ */
+export function renderLabPage(lab: Lab, feed: FeedItem[]): string {
+  const items = itemsOfLab(feed, lab);
+  const slug = entitySlug({ kind: 'lab', id: `lab/${lab}`, label: lab });
+  const body = `<p class="eyebrow">Lab</p>
+<h1>${escapeHtml(lab)}</h1>
+<p class="sha-full">lab/${escapeHtml(lab)}</p>
+<p class="lede">${plural(items.length, 'item')} whose catalogue id or source carries a vendor prefix this repository maps to ${escapeHtml(lab)}, newest first. The mapping is a written table, never inferred: an unlisted vendor yields no lab at all rather than a guessed one.</p>
+<div class="panel">
+<h2>By lab</h2>
+${labChips(feed, 1, lab)}
+<p class="note">The same items in the entity model's own terms: <a href="../${threadPagePath(slug)}">the ${escapeHtml(lab)} thread</a>.</p>
+</div>
+${itemListHtml(items, 1, 'No item in the archive attaches to this lab.')}`;
+  return layout({ title: `${lab} - llm-catalog-archive`, depth: 1, body, active: 'everything' });
+}
+
+// ---------------------------------------------------------------------------
+// About: what is collected, and what that costs
+// ---------------------------------------------------------------------------
+
+/**
+ * The page that states what this archive stores, including the part that is
+ * uncomfortable.
+ *
+ * IT NAMES THE ERASURE PROBLEM RATHER THAN LEAVING IT IMPLIED. Two of the
+ * sources are GitHub pull-request searches, and a search payload carries the
+ * pull request's body text and its author's login, id, avatar URL and profile
+ * URL. Those are named private individuals, they are recommitted on every
+ * capture, and R7 forbids rewriting the history that holds them, so an erasure
+ * request cannot be satisfied by construction. Every other source is vendor
+ * documentation or a machine-readable catalogue and raises nothing like it.
+ * A reader is entitled to know that before deciding what this project is.
+ */
+export function renderAboutPage(): string {
+  const body = `<p class="eyebrow">About</p>
+<h1>What this archive stores</h1>
+<p class="lede">A collector fetches a fixed list of public endpoints on a schedule and commits every response verbatim, with the response headers beside it. The git history IS the archive and it is never rewritten. Everything published here is derived from that history by replay, so any page can be regenerated from scratch and checked against the bytes it came from.</p>
+
+<div class="panel prose">
+<h2>How a sentence gets onto this site</h2>
+<p>A stored artifact changes. A pure function over the two versions emits a typed claim with a fixed template. The template is filled from the diff and from the sidecar committed beside the bytes. There is no language model anywhere in the generator, no summarisation step, and no editorial pass.</p>
+<p>Every value read out of a stored payload is printed inside quotes, and a value carrying a quote of its own has it neutralised before it is printed. That is not typography. A value interpolated bare into a sentence is prose this project publishes under its own byline, and a catalogue id or a pull-request title is chosen by somebody else.</p>
+</div>
+
+<div class="panel prose">
+<h2>What a sentence here never says</h2>
+<p>The subject of every rendered sentence is an artifact, never a company and never a reason. "OpenRouter's catalog context_length for X changed from A to B" is an observation. "X's usable context was cut" is an inference, and one live case shows why it is the wrong one: a catalogue context_length rose from 1048576 to 1310720 while the top_provider.context_length recorded beside it fell from 1048576 to 262144. The headline number went up by a quarter while what the routed provider serves fell by three quarters.</p>
+</div>
+
+<div class="panel prose">
+<h2>Personal data, stated rather than implied</h2>
+<p>Most sources here are vendor documentation indexes, sitemaps, status feeds and machine-readable catalogues. Two are not. The <code>transformers-pulls</code> and <code>vllm-pulls</code> sources are GitHub pull-request searches, and a GitHub search payload carries each pull request's full description text and its author's login, numeric id, avatar URL and profile URL.</p>
+<p>That means this repository mirrors user-generated content written by named private individuals, and recommits it on every capture into a history that is never rewritten. An erasure request against it cannot be satisfied without violating the archive's own central rule, which is a real cost and not a technicality. The derivation that reads these two sources projects only the pull request's number, title, state and merge timestamp; the description and the author fields are stored but never used and never rendered. Stating that here is the honest half of a tradeoff whose other half has not been paid.</p>
+</div>
+
+<div class="panel prose">
+<h2>Timestamps</h2>
+<p>A published timestamp is the sidecar's <code>origin_date</code>, which is the response date minus its Age header, so it is when the provider generated the bytes. Where the provider sent no Age, the page shows <code>observed_at</code>, which is when this collector saw them, LABELLED as observed. One captured response carried an origin fourteen hours before the fetch, so the two are not interchangeable and neither is silently substituted for the other.</p>
+<p>A first-seen date is shown only where the measured worst-case error for that source is narrower than the resolution being printed. A source captured once a day cannot support a claim about which day something appeared, so that page prints the reason instead of the date.</p>
+</div>
+
+<div class="panel prose">
+<h2>Nothing is deleted</h2>
+<p>A change that turns out to be wrong is retracted, not removed: the page and its artifact link stay resolvable and are marked. The retraction ledger and the leaks desk's accuracy ledger are both append-only and both enforced by a workflow that fails any diff removing or modifying a line.</p>
+</div>`;
+  return layout({ title: 'About - llm-catalog-archive', depth: 0, body, active: 'about' });
+}
+
+// ---------------------------------------------------------------------------
+// The everything feed
+// ---------------------------------------------------------------------------
+
+const EVERYTHING_FEED_LIMIT = 50;
+
+/**
+ * RSS 2.0 over the whole publication.
+ *
+ * SEPARATE FROM feed.xml, which stays exactly what it was. feed.xml is one item
+ * per artifact change and its guids are live in whatever readers already
+ * subscribe to it; repointing it at a different stream would silently replace
+ * every subscriber's feed with a different publication.
+ *
+ * The link on an item is the CHANGE PAGE anchored at the source, which is the
+ * evidence the claim was read out of, and the guid is the item's derivation id
+ * marked `isPermaLink="false"` because it is an identity and not an address.
+ * Two items derived from one commit therefore share a link and differ in guid,
+ * which is the correct shape: they are two claims about one piece of evidence.
+ */
+export function renderEverythingFeed(feed: FeedItem[], siteUrl: string = SITE_URL): string {
+  const items = feed
+    .slice(0, EVERYTHING_FEED_LIMIT)
+    .map((item) => {
+      const url = `${siteUrl}/${changePagePath(item.sha)}#${item.sourceId}`;
+      const when = item.stamp === null ? 'no timestamp recorded' : `${formatUtc(item.stamp.iso)} (${item.stamp.kind})`;
+      const tier = item.tier === null ? '' : ` Sourcing tier ${item.tier}.`;
+      const description = `${item.sentence} Type ${item.type}. Timestamp ${when}.${tier} Raw artifact at this commit: ${artifactPermalink(item.sha, item.path)}`;
+      const pubDate = item.stamp === null ? '' : `\n<pubDate>${escapeHtml(rfc822(item.stamp.iso))}</pubDate>`;
+      return `<item>
+<title>${escapeHtml(item.sentence)}</title>
+<link>${escapeHtml(url)}</link>
+<guid isPermaLink="false">${escapeHtml(item.id)}</guid>
+<category>${escapeHtml(item.type)}</category>${pubDate}
+<description>${escapeHtml(description)}</description>
+</item>`;
+    })
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>llm-catalog-archive: everything</title>
+<link>${escapeHtml(siteUrl)}/index.html</link>
+<atom:link href="${escapeHtml(siteUrl)}/${EVERYTHING_FEED_PATH}" rel="self" type="application/rss+xml"/>
+<description>Every typed claim the archive supports, derived by replay from git history over raw/.</description>
+<language>en</language>
+${items}
+</channel>
+</rss>
+`;
 }

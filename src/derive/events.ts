@@ -34,6 +34,7 @@ import {
   providerFromSourceId,
   type Entity,
 } from './entities.js';
+import { numberOrAbsent, quotedOrAbsent, quoteValue } from './quoting.js';
 import type { Stamp } from '../site/record.js';
 
 /** The collection tiers, as `meta/sources.json` spells them. */
@@ -712,47 +713,35 @@ export function deriveEvents(changes: ContentChange[]): DerivedEvent[] {
 // the claim forms
 // ---------------------------------------------------------------------------
 
-/** A value that is absent rather than empty, printed so a reader can tell. */
-function orAbsent(v: string | number | null): string {
-  return v === null ? 'absent' : String(v);
-}
-
 /**
- * The sentence an event renders as. Spec section 10.1's mechanical form.
- *
- * THE SUBJECT IS ALWAYS AN ARTIFACT. A company name appears only as a
- * possessive modifier in front of the artifact ("OpenRouter's catalog"), inside
- * a source id, or inside a value quoted from the archive. It is never followed
- * by a verb, because that is the sentence that claims a company did something,
- * and a routing change or a docs-platform migration falsifies every one of
- * them.
- *
- * Numbers are printed as the archive stores them, without thousands
- * separators, so a reader comparing the sentence against the linked artifact is
- * comparing the same characters.
+ * The claim forms interpolate NOTHING third-party without quoting it. See
+ * src/derive/quoting.ts for why that is the copy rule rather than typography:
+ * a catalogue id, a documentation title and a deprecation-table cell are all
+ * bytes someone else chose, and an unquoted one is prose this project publishes
+ * under its own byline.
  */
 export function claimSentence(event: DerivedEvent): string {
   switch (event.type) {
     case 'model_added':
-      return `${event.modelId} entered OpenRouter's catalog.`;
+      return `The catalog id ${quoteValue(event.modelId)} entered OpenRouter's catalog.`;
     case 'model_removed':
-      return `${event.modelId} left OpenRouter's catalog.`;
+      return `The catalog id ${quoteValue(event.modelId)} left OpenRouter's catalog.`;
     case 'price_changed':
-      return `OpenRouter's listed ${event.field} price for ${event.modelId} changed from ${orAbsent(event.from)} to ${orAbsent(event.to)}.`;
+      return `OpenRouter's listed ${quoteValue(event.field)} price for ${quoteValue(event.modelId)} changed from ${quotedOrAbsent(event.from)} to ${quotedOrAbsent(event.to)}.`;
     case 'context_changed':
       return (
-        `OpenRouter's catalog context_length for ${event.modelId} changed from ${orAbsent(event.from)} to ${orAbsent(event.to)}. ` +
-        `The top_provider.context_length recorded beside it was ${orAbsent(event.topProviderFrom)} and is ${orAbsent(event.topProviderTo)}.`
+        `OpenRouter's catalog context_length for ${quoteValue(event.modelId)} changed from ${numberOrAbsent(event.from)} to ${numberOrAbsent(event.to)}. ` +
+        `The top_provider.context_length recorded beside it was ${numberOrAbsent(event.topProviderFrom)} and is ${numberOrAbsent(event.topProviderTo)}.`
       );
     case 'expiration_set':
-      return `OpenRouter's catalog recorded an expiration_date of ${event.date} for ${event.modelId}.`;
+      return `OpenRouter's catalog recorded an expiration_date of ${quoteValue(event.date)} for ${quoteValue(event.modelId)}.`;
     case 'alias_retargeted':
-      return `OpenRouter's catalog canonical_slug for ${event.alias} changed from ${event.from} to ${event.to}.`;
+      return `OpenRouter's catalog canonical_slug for ${quoteValue(event.alias)} changed from ${quoteValue(event.from)} to ${quoteValue(event.to)}.`;
     case 'doc_added':
-      return `The ${event.sourceId} index added an entry titled "${event.title}" at ${event.url}.`;
+      return `The ${event.sourceId} index added an entry titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'doc_removed':
-      return `The ${event.sourceId} index removed an entry titled "${event.title}" at ${event.url}.`;
+      return `The ${event.sourceId} index removed an entry titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'retirement_floor':
-      return `The ${event.sourceId} table records the tentative retirement date for ${event.model} as "${event.floorText}".`;
+      return `The ${event.sourceId} table records the tentative retirement date for ${quoteValue(event.model)} as ${quoteValue(event.floorText)}.`;
   }
 }

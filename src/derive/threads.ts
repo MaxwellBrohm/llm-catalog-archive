@@ -12,7 +12,17 @@
  * worth reading, which is the whole reason the publication is organised this
  * way rather than as a reverse-chronological feed of diffs.
  *
- * One event lands in as many threads as it has entities, which is deliberate:
+ * IT IS OVER THE WHOLE FEED, not over events alone, and that is the schema
+ * decision the product spec's section 4 states in one sentence: "a codename
+ * leak in August, the launch in October and the price change in December are
+ * one thread". A threads layer built over events only would have filed the
+ * launch and the price change together and left the leak on a separate page,
+ * which is the dated-post model the spec rejects wearing a thread's clothes.
+ * Leak items attach through src/derive/feed.ts's entitiesForLeak, which holds
+ * rather than guesses: a codename attaches to nothing, because deciding whose
+ * codename it is IS the leaks desk's whole failure mode.
+ *
+ * One item lands in as many threads as it has entities, which is deliberate:
  * a price change on `anthropic/claude-opus-5` is an event in that model's
  * thread AND in Anthropic's, and duplicating a link is cheaper than making a
  * reader guess which of the two we filed it under. An event with no entities
@@ -20,7 +30,7 @@
  */
 
 import { entitySlug, type Entity } from './entities.js';
-import type { DerivedEvent } from './events.js';
+import type { FeedItem } from './feed.js';
 import type { Stamp } from '../site/record.js';
 
 export type Thread = {
@@ -28,7 +38,7 @@ export type Thread = {
   /** The permalink segment. Unique across a build, enforced below. */
   slug: string;
   /** Newest first, by the timestamp the page shows. */
-  events: DerivedEvent[];
+  events: FeedItem[];
   /** The oldest event on the thread. When the archive first saw this entity. */
   firstSeen: Stamp | null;
   /** The newest event on the thread. */
@@ -39,7 +49,7 @@ export type ThreadSet = {
   /** Most recently active first. */
   threads: Thread[];
   /** Events that attached to nothing, newest first. Never silently dropped. */
-  held: DerivedEvent[];
+  held: FeedItem[];
 };
 
 /**
@@ -50,13 +60,13 @@ export type ThreadSet = {
  * -Infinity, which is NaN, out of a subtraction. Same shape as
  * sortByStampDesc in src/site/record.ts, and for the same reason.
  */
-function key(event: DerivedEvent): number {
+function key(event: FeedItem): number {
   if (event.stamp === null) return -Infinity;
   const ms = Date.parse(event.stamp.iso);
   return Number.isNaN(ms) ? -Infinity : ms;
 }
 
-function newestFirst(events: DerivedEvent[]): DerivedEvent[] {
+function newestFirst(events: FeedItem[]): FeedItem[] {
   return [...events].sort((a, b) => {
     const ka = key(a);
     const kb = key(b);
@@ -72,7 +82,7 @@ function newestFirst(events: DerivedEvent[]): DerivedEvent[] {
  * thread whose events all lack a sidecar reports null for both, which the
  * renderer prints rather than hiding.
  */
-function span(sorted: DerivedEvent[]): { firstSeen: Stamp | null; lastActivity: Stamp | null } {
+function span(sorted: FeedItem[]): { firstSeen: Stamp | null; lastActivity: Stamp | null } {
   const stamped = sorted.filter((e) => e.stamp !== null);
   const newest = stamped[0];
   const oldest = stamped[stamped.length - 1];
@@ -92,9 +102,9 @@ function span(sorted: DerivedEvent[]): { firstSeen: Stamp | null; lastActivity: 
  * build that stops is recoverable; a page that lies is not. This is the same
  * refusal src/site/retractions.ts makes about a malformed ledger line.
  */
-export function buildThreads(events: DerivedEvent[]): ThreadSet {
-  const byId = new Map<string, { entity: Entity; events: DerivedEvent[] }>();
-  const held: DerivedEvent[] = [];
+export function buildThreads(events: FeedItem[]): ThreadSet {
+  const byId = new Map<string, { entity: Entity; events: FeedItem[] }>();
+  const held: FeedItem[] = [];
 
   for (const event of events) {
     if (event.entities.length === 0) {

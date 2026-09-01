@@ -17,10 +17,11 @@ import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
 import { parseRetractions } from './site/retractions.js';
 import { parseLedger } from './site/ledger.js';
-import { deriveLeaks } from './derive/leaks.js';
+import { deriveLeakRefusals, deriveLeaks } from './derive/leaks.js';
 import { loadSources } from './config.js';
 import { deriveEvents, precisionBySource, type Tier } from './derive/events.js';
 import { buildThreads } from './derive/threads.js';
+import { buildFeed } from './derive/feed.js';
 
 const cwd = process.cwd();
 /**
@@ -67,7 +68,6 @@ const tierOf = (sourceId: string): Tier => tiers.get(sourceId) ?? 'daily';
 
 const contentChanges = readContentChanges(cwd, tierOf);
 const events = deriveEvents(contentChanges);
-const threads = buildThreads(events);
 
 // The accuracy ledger. Absent is not tolerated for the same reason the
 // retraction ledger is not: it is created empty and append-only from the day
@@ -79,8 +79,17 @@ if (!fs.existsSync(ledgerPath)) throw new Error('meta/leaks-ledger.jsonl is miss
 const claims = parseLedger(fs.readFileSync(ledgerPath, 'utf8'));
 
 const leaks = deriveLeaks(contentChanges);
+const refusals = deriveLeakRefusals(contentChanges);
 
-const files = buildSite(records, siteUrl, threads, leaks, claims);
+// ONE STREAM OVER BOTH DERIVATIONS, and the threads are built over it rather
+// than over the events alone. Product spec section 4: a codename leak in
+// August, the launch in October and the price change in December are one
+// thread, so a threads layer that only ever saw events would file two of those
+// three together and leave the third on a page of its own.
+const feed = buildFeed(events, leaks);
+const threads = buildThreads(feed);
+
+const files = buildSite(records, siteUrl, threads, leaks, claims, feed, refusals);
 writeSite(outDir, files);
 
 // There is deliberately no second .nojekyll written outside outDir. Pages looks
@@ -97,8 +106,12 @@ console.log(
 const byType = new Map<string, number>();
 for (const l of leaks) byType.set(l.type, (byType.get(l.type) ?? 0) + 1);
 console.log(
-  `leaks: ${leaks.length} items (${[...byType].sort().map(([t, n]) => `${t} ${n}`).join(', ') || 'none'}), ${claims.length} ledger claim(s)`,
+  `leaks: ${leaks.length} items (${[...byType].sort().map(([t, n]) => `${t} ${n}`).join(', ') || 'none'}), ${claims.length} ledger claim(s), ${refusals.length} refusal(s)`,
 );
+// A refusal is a statement about this repository's own parser, so it is printed
+// in full rather than counted. A count of refusals nobody reads is the silent
+// failure the refusal exists to make loud.
+for (const r of refusals) console.log(`refused: ${r.sourceId} at ${r.sha.slice(0, 7)}: ${r.reason}`);
 // The measured first-seen error per source, printed because it is a published
 // claim and a number nobody looks at is a number nobody notices going wrong.
 for (const [sourceId, seconds] of [...precisionBySource(contentChanges)].sort()) {

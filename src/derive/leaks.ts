@@ -30,6 +30,7 @@
  */
 
 import { arenaRows } from '../predicate.js';
+import { quoteValue } from './quoting.js';
 import type { ContentChange } from './events.js';
 import type { Stamp } from '../site/record.js';
 
@@ -65,6 +66,28 @@ export type LeakItem = {
   /** Rows a reader can check against the linked artifact. Never a conclusion. */
   facts: [string, string][];
 };
+
+/**
+ * A change the desk looked at and refused to derive from.
+ *
+ * NOT the same thing as a change that supported no item, and the difference is
+ * the whole reason this type exists. "The arena payload changed and nothing in
+ * it was a reveal" and "the arena payload stopped parsing three weeks ago" both
+ * produce zero items, and the second is the failure this project is organised
+ * around not making invisible. A refusal is rendered on the desk beside the
+ * signals, so a reader can see the difference the count alone hides.
+ */
+export type LeakRefusal = {
+  sourceId: string;
+  sha: string;
+  path: string;
+  stamp: Stamp | null;
+  /** What was measured and what the floor was. Never a guess at a cause. */
+  reason: string;
+};
+
+/** Items and refusals from one change. Both, always, so neither can be lost. */
+export type LeakResult = { items: LeakItem[]; refusals: LeakRefusal[] };
 
 // ---------------------------------------------------------------------------
 // signal 1: the arena codename map
@@ -174,6 +197,29 @@ export function isCodenameReveal(publicName: string, displayName: string): boole
  * appears twice reports the pair the payload ends with rather than a pair that
  * depends on which regex matched first.
  */
+/**
+ * Below this many `publicName` records the picker payload is not the picker.
+ *
+ * SEPARATE FROM `ARENA_MIN_RECORDS`, deliberately, because the two count
+ * different populations. The predicate's floor is over the UNION of `modelKey`
+ * and `publicName` records, 1,846 of them in the live capture. The codename map
+ * reads `publicName` alone, 1,029 live, so the predicate's floor is satisfied
+ * by a payload in which the picker has collapsed to a single record: a measured
+ * synthetic of 600 `modelKey` rows plus one `publicName` row passes the
+ * predicate and leaves this map holding one name.
+ *
+ * That gap is not theoretical about its consequences. When the shape recovers,
+ * every name in the map has `was === undefined`, and the desk emits one
+ * "a name entered the payload" item per name: roughly a thousand false claims
+ * at live scale, each with an honest artifact permalink attached. It is exactly
+ * the flood `leaksFromChange` already refuses on a baseline capture, arriving
+ * through a door that guard does not cover.
+ *
+ * 400 is well under the 1,029 observed live and far above the 1 a collapse
+ * produces.
+ */
+export const ARENA_CODENAME_FLOOR = 400;
+
 export function arenaCodenameMap(text: string): Map<string, string> {
   const out = new Map<string, string>();
   for (const row of arenaRows(text, 'publicName')) {
@@ -182,9 +228,33 @@ export function arenaCodenameMap(text: string): Map<string, string> {
   return out;
 }
 
-function arenaLeaks(change: ContentChange, before: string, after: string): LeakItem[] {
+function arenaLeaks(change: ContentChange, before: string, after: string): LeakResult {
   const prev = arenaCodenameMap(before);
   const next = arenaCodenameMap(after);
+
+  // THE COLLAPSE GUARD. Either side under the floor and nothing is derived from
+  // this change at all, because both signals are unreadable across it: a
+  // collapsed `before` makes every name in the `after` look new, and a
+  // collapsed `after` makes an unmask undetectable for every name missing from
+  // it. Refusing is not the same as finding nothing, so the refusal is
+  // returned and the desk prints it.
+  if (prev.size < ARENA_CODENAME_FLOOR || next.size < ARENA_CODENAME_FLOOR) {
+    return {
+      items: [],
+      refusals: [
+        {
+          sourceId: change.sourceId,
+          sha: change.sha,
+          path: change.path,
+          stamp: change.stamp,
+          reason:
+            `the codename map holds ${prev.size} publicName records before this change and ${next.size} after, ` +
+            `and the floor is ${ARENA_CODENAME_FLOOR}. Nothing is derived across a change where either side is below it.`,
+        },
+      ],
+    };
+  }
+
   const out: LeakItem[] = [];
 
   for (const [name, display] of next) {
@@ -244,7 +314,7 @@ function arenaLeaks(change: ContentChange, before: string, after: string): LeakI
       });
     }
   }
-  return out;
+  return { items: out, refusals: [] };
 }
 
 // ---------------------------------------------------------------------------
@@ -613,16 +683,22 @@ function catalogLeaks(change: ContentChange, before: string, after: string): Lea
  * the day the archive first fetched the page would be 1,029 false claims with
  * honest artifact links attached.
  */
-export function leaksFromChange(change: ContentChange): LeakItem[] {
-  if (change.kind === 'added') return [];
+export function leakResult(change: ContentChange): LeakResult {
+  const none: LeakResult = { items: [], refusals: [] };
+  if (change.kind === 'added') return none;
   const before = change.before;
-  if (before === null) return [];
+  if (before === null) return none;
 
   if (change.sourceId === ARENA_SOURCE_ID) return arenaLeaks(change, before, change.after);
-  if (change.sourceId === CATALOG_SOURCE_ID) return catalogLeaks(change, before, change.after);
+  if (change.sourceId === CATALOG_SOURCE_ID) return { items: catalogLeaks(change, before, change.after), refusals: [] };
   const repo = PULL_REPOS[change.sourceId];
-  if (repo !== undefined) return pullLeaks(change, repo, before, change.after);
-  return [];
+  if (repo !== undefined) return { items: pullLeaks(change, repo, before, change.after), refusals: [] };
+  return none;
+}
+
+/** The items one change supports. The refusals are in `leakResult`. */
+export function leaksFromChange(change: ContentChange): LeakItem[] {
+  return leakResult(change).items;
 }
 
 /** Every leak item the archive supports, newest first by the stamp shown. */
@@ -642,11 +718,44 @@ export function deriveLeaks(changes: ContentChange[]): LeakItem[] {
   });
 }
 
+/**
+ * Every change the desk refused to derive from, newest first.
+ *
+ * Emitted separately from the items rather than folded into them, because a
+ * refusal is not a claim about a model and must never be countable as one. It
+ * is a claim about this repository's own parser, which is the other thing a
+ * reader of a desk with nothing on it needs to be able to tell apart.
+ */
+export function deriveLeakRefusals(changes: ContentChange[]): LeakRefusal[] {
+  const key = (r: LeakRefusal): number => {
+    if (r.stamp === null) return -Infinity;
+    const ms = Date.parse(r.stamp.iso);
+    return Number.isNaN(ms) ? -Infinity : ms;
+  };
+  return changes.flatMap((c) => leakResult(c).refusals).sort((a, b) => {
+    const ka = key(a);
+    const kb = key(b);
+    if (ka !== kb) return kb - ka;
+    return a.sha < b.sha ? -1 : a.sha > b.sha ? 1 : 0;
+  });
+}
+
 // ---------------------------------------------------------------------------
 // the claim forms
 // ---------------------------------------------------------------------------
 
-const quote = (s: string): string => `"${s}"`;
+/**
+ * A third-party value inside a claim sentence.
+ *
+ * ONE ALIAS, ONE PLACE. Every value below that came out of a stored payload
+ * goes through it, and src/derive/quoting.ts explains why both the wrapping and
+ * the neutralising of an inner quote are the copy rule rather than typography.
+ * The short version is that both halves were exploitable against the shipped
+ * code: an unquoted catalog id rendered a vendor's own second sentence, and a
+ * pull-request title carrying a double quote closed the run and rendered an
+ * attacker's.
+ */
+const quote = quoteValue;
 
 /**
  * The sentence a leak item renders as.
@@ -674,13 +783,13 @@ export function leakSentence(item: LeakItem): string {
     case 'codename_unmasked':
       return `The displayName recorded beside the publicName ${quote(item.subject)} in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.`;
     case 'upstream_pr_opened':
-      return `A pull request numbered ${item.subject} is titled ${quote(factOf(item, 'title'))} in the collected search payload.`;
+      return `A pull request numbered ${quote(item.subject)} is titled ${quote(factOf(item, 'title'))} in the collected search payload.`;
     case 'upstream_pr_merged':
-      return `The pull request numbered ${item.subject} records a merged_at of ${factOf(item, 'merged_at')} in the collected search payload.`;
+      return `The pull request numbered ${quote(item.subject)} records a merged_at of ${quote(factOf(item, 'merged_at'))} in the collected search payload.`;
     case 'stealth_listing':
-      return `OpenRouter's catalog lists an id under the ${STEALTH_PREFIX} namespace: ${item.subject}.`;
+      return `OpenRouter's catalog lists an id under the ${STEALTH_PREFIX} namespace: ${quote(item.subject)}.`;
     case 'expiration_scheduled':
-      return `OpenRouter's catalog recorded an expiration_date of ${factOf(item, 'expiration_date')} for ${item.subject}.`;
+      return `OpenRouter's catalog recorded an expiration_date of ${quote(factOf(item, 'expiration_date'))} for ${quote(item.subject)}.`;
   }
 }
 
