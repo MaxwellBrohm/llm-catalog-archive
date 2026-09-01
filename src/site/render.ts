@@ -38,6 +38,7 @@ import {
 import { scoreLedger, type LedgerClaim } from './ledger.js';
 import { countEmails, redactLine } from './redact.js';
 import { wallHtml } from './wall.js';
+import { FILTER_JS_PATH } from './filter-js.js';
 import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
   artifactPermalink,
@@ -142,6 +143,12 @@ function layout(opts: {
    * only somebody reading the directory listing would find.
    */
   feeds?: { href: string; title: string }[];
+  /**
+   * Load the client-side filter on this page. Off by default: a page with one
+   * short table gains nothing from a filter box, and the script itself refuses
+   * to build one for a table under two rows.
+   */
+  filterable?: boolean;
 }): string {
   const { up } = links(opts.depth);
   /*
@@ -194,7 +201,7 @@ ${nav}
 <main id="main"><div class="wrap">
 ${opts.body}
 </div></main>
-<footer class="site-foot"><div class="wrap">
+${opts.filterable === true ? `<script src="${up}${FILTER_JS_PATH}" defer></script>\n` : ''}<footer class="site-foot"><div class="wrap">
 <p>Generated at deploy time from git history over <code>raw/</code>. Nothing on this site is written by a
 language model, here or anywhere in the generator. Every sentence is a template filled from a diff or a
 sidecar, and every value read out of a stored payload is quoted.</p>
@@ -441,7 +448,7 @@ function rowHtml(row: Row, depth: number, feed: readonly FeedItem[] = []): strin
 }
 
 function changesTable(rows: Row[], depth: number, feed: readonly FeedItem[] = []): string {
-  return `<div class="table-scroll"><table class="changes">
+  return `<div class="table-scroll"><table class="changes" data-filter="changes">
 <thead><tr><th>Source</th><th>Artifact</th><th>Magnitude</th><th>Timestamp</th><th>Change</th></tr></thead>
 <tbody>
 ${rows.map((r) => rowHtml(r, depth, feed)).join('\n')}
@@ -517,7 +524,14 @@ ${cards}
 </div>
 </div>
 ${days}`;
-  return layout({ title: 'Changelog - llm-catalog-archive', depth: 1, body, active: 'changelog' });
+  return layout({
+    title: 'Changelog - llm-catalog-archive',
+    depth: 1,
+    body,
+    active: 'changelog',
+    canonical: CHANGELOG_INDEX_PATH,
+    filterable: true,
+  });
 }
 
 /**
@@ -852,7 +866,7 @@ export function renderThreadsIndex(set: ThreadSet): string {
       if (rows.length === 0) return '';
       return `<section class="day">
 <h2>${escapeHtml(KIND_LABEL[kind] ?? kind)}</h2>
-<div class="table-scroll"><table class="changes">
+<div class="table-scroll"><table class="changes" data-filter="threads">
 <thead><tr><th>Thread</th><th>Kind</th><th>Events</th><th>Last activity</th></tr></thead>
 <tbody>
 ${rows.map(threadRowHtml).join('\n')}
@@ -878,7 +892,14 @@ ${sections}
 <p class="note">${plural(set.held.length, 'event')} could not be attached to an entity mechanically, and nothing here guesses. Product spec section 4.</p>
 ${held}
 </section>`;
-  return layout({ title: 'Threads - llm-catalog-archive', depth: 1, body, active: 'threads' });
+  return layout({
+    title: 'Threads - llm-catalog-archive',
+    depth: 1,
+    body,
+    active: 'threads',
+    canonical: 'threads/index.html',
+    filterable: true,
+  });
 }
 
 // ---------------------------------------------------------------------------

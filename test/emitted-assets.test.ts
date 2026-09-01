@@ -6,6 +6,25 @@ import path from 'node:path';
 import postcss from 'postcss';
 import { WALL_JS } from '../src/site/wall-js.js';
 import { STYLESHEET } from '../src/site/css.js';
+import { FILTER_JS, FILTER_JS_PATH } from '../src/site/filter-js.js';
+import { buildSite, textContents, type SiteFile } from '../src/site/build.js';
+import { artifact, record } from './site-fixtures.js';
+import { buildThreads } from '../src/derive/threads.js';
+import { buildFeed } from '../src/derive/feed.js';
+import { deriveEvents } from '../src/derive/events.js';
+import { catalog, change } from './derive-fixtures.js';
+
+const THREADS_FIXTURE = buildThreads(
+  buildFeed(
+    deriveEvents([
+      change({
+        before: catalog([{ id: 'vendor/a' }]),
+        after: catalog([{ id: 'vendor/a' }, { id: 'vendor/b' }, { id: 'other/c' }]),
+      }),
+    ]),
+    [],
+  ),
+);
 
 /**
  * THE TWO PROGRAMS THIS GENERATOR EMITS THAT NOTHING EVER PARSED.
@@ -106,5 +125,96 @@ describe('the emitted stylesheet is a stylesheet a browser can parse', () => {
   it('declares the design language colours it is supposed to', () => {
     expect(STYLESHEET).toContain('#050505');
     expect(STYLESHEET).toContain('#ff6a00');
+  });
+});
+
+/**
+ * THE FILTER IS DRAWN OVER A LIST THAT IS COMPLETE WITHOUT IT.
+ *
+ * The brief asked for a publication that is browsable AND queryable, and 494
+ * pages carried no search box, no filter and no form of any kind. Queryability
+ * existed only through the CLI and the JSON API, which is a different audience
+ * from a person reading a page.
+ *
+ * The same rule as the 3D wall governs it: HTML first, the enhancement drawn
+ * over it, never the reverse. The input is created BY THE SCRIPT, so a reader
+ * with JavaScript off never sees a control that does nothing.
+ */
+describe('the emitted filter is a program a browser can parse', () => {
+  it('is not empty', () => {
+    expect(FILTER_JS.length).toBeGreaterThan(500);
+  });
+
+  it('parses', () => {
+    expect(() => nodeCheck(FILTER_JS, 'js')).not.toThrow();
+  });
+
+  it('fetches nothing from anywhere', () => {
+    expect(FILTER_JS).not.toContain('://');
+    expect(FILTER_JS).not.toMatch(/\bfetch\s*\(/);
+    expect(FILTER_JS).not.toContain('XMLHttpRequest');
+  });
+
+  it('creates its own input rather than expecting one in the markup', () => {
+    expect(FILTER_JS).toContain("createElement('input')");
+  });
+
+  it('does nothing at all when no table asks for it', () => {
+    expect(FILTER_JS).toContain("querySelectorAll('table[data-filter]')");
+    expect(FILTER_JS).toContain('if (tables.length === 0) return;');
+  });
+
+  it('announces the count to a screen reader', () => {
+    expect(FILTER_JS).toContain("setAttribute('aria-live', 'polite')");
+    expect(FILTER_JS).toContain("setAttribute('aria-label'");
+  });
+});
+
+describe('the pages that offer a filter', () => {
+  const files = buildSite([record({ artifacts: [artifact()] })], undefined, THREADS_FIXTURE);
+  const get = (p: string) => textContents(files.find((f) => f.path === p) as SiteFile);
+
+  it('emits the script beside the stylesheet, under a fixed name', () => {
+    expect(files.some((f) => f.path === FILTER_JS_PATH)).toBe(true);
+  });
+
+  it.each(['threads/index.html', 'changelog/index.html'])('%s marks its table and loads the script', (page) => {
+    const html = get(page);
+    expect(html).toContain('data-filter=');
+    expect(html).toContain(FILTER_JS_PATH);
+  });
+
+  /**
+   * THE NO-JS CONTRACT. The rows are in the HTML and the control is not, so
+   * turning JavaScript off costs a reader the filter and nothing else.
+   */
+  it.each(['threads/index.html', 'changelog/index.html'])('%s ships no filter control in its markup', (page) => {
+    expect(get(page)).not.toContain('class="filter-input"');
+  });
+
+  it('leaves the rows in the served HTML, so the list stands without the script', () => {
+    const html = get('threads/index.html');
+    const withoutScripts = html.replace(/<script[\s\S]*?<\/script>/g, '');
+    expect((withoutScripts.match(/<tr>/g) ?? []).length).toBeGreaterThan(1);
+  });
+
+  it('does not load the script on a page with nothing long to filter', () => {
+    expect(get('about.html')).not.toContain(FILTER_JS_PATH);
+  });
+
+  /**
+   * BOTH HALVES. Asserting only that the stylesheet has a .filter-input rule
+   * let a mutation that stopped the script SETTING that class survive: the rule
+   * existed, nothing wore it, and the control rendered as a bare browser input
+   * in the middle of a MaxOS page.
+   */
+  it('styles the control it creates, so it is not an unstyled box', () => {
+    expect(FILTER_JS).toContain("input.className = 'filter-input'");
+    expect(STYLESHEET).toContain('.filter-input');
+  });
+
+  it('styles the count it announces', () => {
+    expect(FILTER_JS).toContain("count.className = 'filter-count'");
+    expect(STYLESHEET).toContain('.filter-count');
   });
 });

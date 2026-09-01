@@ -705,4 +705,34 @@ footer.site-foot a { color: var(--text-dim); }
   .wrap { padding: 0 16px; }
   .panel { padding: 16px; }
 }
+
+/* The client-side filter, drawn over a list that is complete without it. */
+.filter {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.filter-input {
+  flex: 1 1 auto;
+  max-width: 420px;
+  padding: 8px 12px;
+  font: inherit;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--panel-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.filter-input:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 1px;
+}
+.filter-input::placeholder { color: var(--muted); }
+.filter-count {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 `;

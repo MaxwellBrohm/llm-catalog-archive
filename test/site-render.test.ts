@@ -412,8 +412,27 @@ describe('renderChangelogPage', () => {
     expect(renderChangelogPage(r)).toContain('raw/x/&quot;&gt;&lt;b&gt;.txt');
   });
 
-  it('needs no client JavaScript to read', () => {
-    expect(renderChangelogPage(two)).not.toContain('<script');
+  /**
+   * The changelog now loads the client-side filter, so it is no longer
+   * script-free. The claim that matters was never "no script tag", it was that
+   * the page is COMPLETE without one, so this asserts that instead: strip every
+   * script and the rows, the sources and the sentences are all still there.
+   * The filter's input is created by the script and is deliberately absent from
+   * the markup, so a reader with JavaScript off sees no control that does
+   * nothing.
+   */
+  it('is complete with every script stripped, which is the claim that matters', () => {
+    const html = renderChangelogPage(two);
+    const withoutScripts = html.replace(/<script[\s\S]*?<\/script>/g, '');
+    // Some artifact path from the fixture, whatever it is, must survive.
+    expect(withoutScripts).toMatch(/raw\/[a-z0-9-]+\/response\./);
+    expect((withoutScripts.match(/<tr>/g) ?? []).length).toBeGreaterThan(1);
+    expect(withoutScripts).not.toContain('class="filter-input"');
+  });
+
+  it('loads only its own filter, and nothing from another origin', () => {
+    const scripts = [...renderChangelogPage(two).matchAll(/<script[^>]*src="([^"]*)"/g)].map((m) => m[1]);
+    expect(scripts).toEqual(['../filter.js']);
   });
 
   // The path cell and nothing else, so an unretracted row carries no leftover
