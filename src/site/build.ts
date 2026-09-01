@@ -80,6 +80,12 @@ export function buildSite(
   ledger: LedgerClaim[] = [],
   feed: FeedItem[] = [],
   refusals: LeakRefusal[] = [],
+  /**
+   * What meta/sources.json declares, so a configured source with no captures
+   * still gets a page. Empty means "render from records alone", which is what
+   * every unit test wants.
+   */
+  configured: { id: string; url: string; status: string; notes: string }[] = [],
 ): SiteFile[] {
   const records = sortByStampDesc(input);
   // The documentation's worked examples are written against a model that
@@ -147,9 +153,19 @@ export function buildSite(
     files.push({ path: changePagePath(record.sha), contents: renderChangePage(record) });
   }
 
-  const sourceIds = [...new Set(records.flatMap((r) => r.artifacts.map((a) => a.sourceId)))].sort();
+  /*
+   * FROM THE CONFIG UNION THE RECORDS, NOT FROM THE RECORDS ALONE.
+   *
+   * Built from records only, a source that has never stored a byte has no page,
+   * so xai-llms-txt was configured, active, held by the credential gate on
+   * every run for days, and invisible everywhere on the site. A collection this
+   * project chose to make and cannot complete is worth a page saying so.
+   */
+  const captured = new Set(records.flatMap((r) => r.artifacts.map((a) => a.sourceId)));
+  const sourceIds = [...new Set([...captured, ...configured.map((c) => c.id)])].sort();
   for (const id of sourceIds) {
-    files.push({ path: sourcePagePath(id), contents: renderSourcePage(id, records) });
+    const meta = configured.find((c) => c.id === id) ?? null;
+    files.push({ path: sourcePagePath(id), contents: renderSourcePage(id, records, meta) });
   }
 
   // The threads layer, over the same commits. The per-commit pages above are

@@ -152,3 +152,50 @@ describe('a reader can subscribe to one micro-category', () => {
     expect(textContents(leaks)).toContain('<title>llm-catalog-archive: rumors and leaks</title>');
   });
 });
+
+/**
+ * A CONFIGURED SOURCE THAT HAS NEVER STORED A BYTE HAD NO PAGE AT ALL.
+ *
+ * The page list was built from the directories present under raw/, so
+ * xai-llms-txt, which has been configured and active for days and held out of
+ * the archive by the credential gate on every single run, was invisible
+ * everywhere on the site. A collection this project chose to make and cannot
+ * complete is exactly what the About page's own standard says to state rather
+ * than imply.
+ */
+describe('a source with no captures', () => {
+  const configured = [
+    { id: 'never-captured', url: 'https://vendor.example/llms.txt', status: 'active', notes: 'held' },
+  ];
+  const withConfig = buildSite([record({ artifacts: [artifact()] })], undefined, undefined, [], [], [], [], configured);
+  const page = withConfig.find((f) => f.path === 'sources/never-captured.html');
+
+  it('still gets a page', () => {
+    expect(page).toBeDefined();
+  });
+
+  it('says the archive holds nothing for it, rather than showing a bare zero', () => {
+    expect(textContents(page as SiteFile)).toContain('holds no capture of it at all');
+  });
+
+  it('says it is not missing by accident', () => {
+    expect(textContents(page as SiteFile)).toContain('Nothing here is missing by accident');
+  });
+
+  it('names the configured URL and status, so the page is checkable', () => {
+    const html = textContents(page as SiteFile);
+    expect(html).toContain('https://vendor.example/llms.txt');
+    expect(html).toContain('Status in meta/sources.json');
+  });
+
+  it('leaves a source that HAS captures without the empty note', () => {
+    const captured = withConfig.find((f) => f.path.startsWith('sources/') && f.path !== 'sources/never-captured.html');
+    expect(captured).toBeDefined();
+    expect(textContents(captured as SiteFile)).not.toContain('holds no capture of it at all');
+  });
+
+  it('is listed in the sitemap like any other page', () => {
+    const sitemap = withConfig.find((f) => f.path === 'sitemap.xml') as SiteFile;
+    expect(textContents(sitemap)).toContain('sources/never-captured.html');
+  });
+});

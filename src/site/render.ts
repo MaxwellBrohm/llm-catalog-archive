@@ -520,17 +520,49 @@ ${days}`;
   return layout({ title: 'Changelog - llm-catalog-archive', depth: 1, body, active: 'changelog' });
 }
 
-export function renderSourcePage(sourceId: string, records: ChangeRecord[]): string {
+/**
+ * What the archive knows about one configured source, INCLUDING one that has
+ * never stored a byte.
+ *
+ * A source with no captures used to have no page at all, because the page list
+ * was built from the directories present under raw/. xai-llms-txt has been
+ * configured and active for days, held out of the archive on every run by the
+ * credential gate, and was invisible everywhere on the site: not in the source
+ * list, not on the changelog, nowhere. A collection this project chose to make
+ * and cannot complete is exactly the kind of thing the About page's own
+ * standard says to state rather than imply.
+ *
+ * `configured` carries what meta/sources.json says about it. Absent means the
+ * page is rendered from records alone, which is every other caller.
+ */
+export function renderSourcePage(
+  sourceId: string,
+  records: ChangeRecord[],
+  configured?: { url: string; status: string; notes: string } | null,
+): string {
   const rows = rowsOf(records).filter((r) => r.artifact.sourceId === sourceId);
   const latest = rows[0];
   const latestStamp = latest === undefined ? null : stampFor(latest.artifact.sidecar);
   const finalUrl = latest?.artifact.sidecar?.finalUrl ?? null;
   const paths = [...new Set(rows.map((r) => r.artifact.path))].sort();
 
+  /*
+   * Said plainly, at the top, because a zero on its own reads as "nothing has
+   * happened here" when the truth is "we have never been able to store this".
+   * Naming the source is not a disclosure risk: what the credential gate exists
+   * to withhold is the vendor's key bytes, not the fact that a source is held,
+   * and the About page already discloses the incident in general terms.
+   */
+  const empty =
+    rows.length > 0 || configured === undefined || configured === null
+      ? ''
+      : `<p class="note">This source is configured and <strong>${escapeHtml(configured.status)}</strong>, and the archive holds no capture of it at all. Every run so far has either failed its health check or been held out of the archive before the write. Nothing here is missing by accident.</p>`;
+
   const body = `<p class="eyebrow">Source</p>
 <h1 class="sha-title">${escapeHtml(sourceId)}</h1>
-<dl class="facts">
+${empty}<dl class="facts">
 <div class="fact"><dt>Recorded changes</dt><dd class="big">${formatInt(rows.length)}</dd></div>
+${configured === undefined || configured === null ? '' : `<div class="fact"><dt>Configured URL</dt><dd><a href="${escapeHtml(configured.url)}">${escapeHtml(configured.url)}</a></dd></div>\n<div class="fact"><dt>Status in meta/sources.json</dt><dd>${escapeHtml(configured.status)}</dd></div>\n`}
 <div class="fact"><dt>Latest recorded change</dt><dd>${stampHtml(latestStamp)}</dd></div>
 <div class="fact"><dt>Stored path</dt><dd>${paths.map((p) => escapeHtml(p)).join('<br>')}</dd></div>
 <div class="fact"><dt>Final URL at the latest change</dt><dd>${finalUrl === null ? 'not recorded' : `<a href="${escapeHtml(finalUrl)}">${escapeHtml(finalUrl)}</a>`}</dd></div>

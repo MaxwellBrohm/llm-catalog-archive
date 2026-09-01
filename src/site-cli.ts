@@ -91,7 +91,18 @@ const refusals = deriveLeakRefusals(contentChanges);
 const feed = buildFeed(events, leaks);
 const threads = buildThreads(feed);
 
-const files = buildSite(records, siteUrl, threads, leaks, claims, feed, refusals);
+// The configured sources, so a source that has never stored a byte still gets a
+// page saying so rather than vanishing from the site entirely.
+const configuredSources = fs.existsSync(sourcesPath)
+  ? loadSources(JSON.parse(fs.readFileSync(sourcesPath, 'utf8'))).sources.map((s) => ({
+      id: s.id,
+      url: s.url,
+      status: s.status,
+      notes: s.notes,
+    }))
+  : [];
+
+const files = buildSite(records, siteUrl, threads, leaks, claims, feed, refusals, configuredSources);
 
 // The static JSON API, generated at deploy time alongside the site and served
 // off the same Pages deployment. It is a second projection of the SAME derived
