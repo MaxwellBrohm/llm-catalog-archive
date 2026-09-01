@@ -660,6 +660,80 @@
         "maxShrinkPct": 25
       },
       "notes": "The second half of leaks-desk signal 2, and it is a separate source rather than a second query because the two repositories upstream on different clocks: vLLM has 1,043 all-time matches against transformers' 203, and its 100-item window reaches back six weeks where the transformers window reaches back two years. Probed live 2026-08-31: HTTP 200, 657,623 bytes, total_count 1043, newest item the same day. Predicate githubPulls, not bytes, for exactly the reasons written on transformers-pulls, and with the same care about what is measured: two fetches 40 minutes apart were byte identical, so the justification is activity-driven churn rather than per-request volatility. Measured against the stored artifact: comment-driven `updated_at`, `comments`, `reactions`, `score`, `total_count` and a reversed item order together move 657,623 bytes to 657,933 and the predicate reports unchanged, while one merged_at going non-null reports changed. The projection is (number, title, state, merged_at). Confirming a catch is a second, uncollected step by design: the deriver publishes the pull request as a confirmed artifact and never as a launch, because huggingface.co/api/models returning [] for the architecture name is evidence about a weights repository and not about the pull request, and merging the two into one sentence is the claim the copy rule forbids. minBytes 250000 is under half the observation for the same reason as transformers-pulls: `body` dominates. minRecords 40 against 100 requested."
+    },
+    {
+      "id": "deepmind-sitemap",
+      "url": "https://deepmind.google/sitemap.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/deepmind-sitemap/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "urlset",
+      "invariants": {
+        "minBytes": 42558,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "deepmind.google",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "content",
+        "maxQuietDays": 90
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "sitemapLoc"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "An announcement index, not a documentation one: 347 URLs under /blog/ and 269 under /research/, which is where Google DeepMind publishes. Predicate is sitemapLoc rather than sitemapDated because the derivation here reads the loc set only, and this sitemap carries no per-URL lastmod to key an edit on. Activated after the double-fetch gate: two fetches 20 seconds apart returned byte-identical bodies and an IDENTICAL sitemapLoc projection, so a second consecutive run commits nothing. The bytes predicate is wrong here for the reason openrouter-sitemap documents: a sitemap of this shape is regenerated on the provider's schedule and rewrites per-URL stamps and ordering independently of any content change, so bytes would commit that churn every run into a history that is never rewritten. Only a 20 second byte-stability window was measured, which is evidence about edge caches and not about rebuilds, so the conservative projection is the one the derivation actually reads: the loc set."
+    },
+    {
+      "id": "openai-sitemap",
+      "url": "https://openai.com/sitemap.xml/research/",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/openai-sitemap/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "urlset",
+      "invariants": {
+        "minBytes": 204063,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "openai.com/index/",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "content",
+        "maxQuietDays": 90
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "sitemapLoc"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The RESEARCH SUB-SITEMAP, not the root. openai.com/sitemap.xml is a sitemap INDEX whose children are urlsets, and this is the child that carries the announcement posts: 46 URLs, all under /index/, which is where OpenAI publishes. Predicate is sitemapLoc for the same reason as deepmind-sitemap. Activated after the double-fetch gate: two fetches 20 seconds apart returned byte-identical bodies and an IDENTICAL sitemapLoc projection, so a second consecutive run commits nothing. The bytes predicate is wrong here for the reason openrouter-sitemap documents: a sitemap of this shape is regenerated on the provider's schedule and rewrites per-URL stamps and ordering independently of any content change, so bytes would commit that churn every run into a history that is never rewritten. Only a 20 second byte-stability window was measured, which is evidence about edge caches and not about rebuilds, so the conservative projection is the one the derivation actually reads: the loc set."
     }
   ]
 }

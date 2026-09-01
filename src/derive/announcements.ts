@@ -29,6 +29,14 @@ import { extractSitemapLoc } from '../predicate.js';
 /** Which stored sources are announcement indexes, and what counts as a post. */
 export const ANNOUNCEMENT_PATHS: Readonly<Record<string, readonly string[]>> = {
   'anthropic-sitemap': ['/news/', '/research/', '/engineering/'],
+  // Google DeepMind: 347 URLs under /blog/ and 269 under /research/.
+  'deepmind-sitemap': ['/blog/', '/research/'],
+  // OpenAI publishes posts under /index/. The stored artifact is the research
+  // SUB-sitemap, because openai.com/sitemap.xml is an index of urlsets.
+  'openai-sitemap': ['/index/'],
+  // Already collected for its own sake, and carrying 120 /blog/ URLs that were
+  // being stored and ignored. Adding a prefix here costs no new fetch.
+  'openrouter-sitemap': ['/blog/'],
 };
 
 /** Which stored sources are incident feeds. */

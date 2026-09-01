@@ -274,12 +274,16 @@ describe('the shipped meta/sources.json', () => {
     (cached ??= loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8'))));
 
   it('loads and has all 18 sources', () => {
-    expect(shipped().sources).toHaveLength(18);
+    expect(shipped().sources).toHaveLength(20);
   });
 
   /**
-   * Nothing is pending any more, and the last two went active for reasons that
-   * had nothing to do with their predicates.
+   * Nothing is pending any more. The last two to go active this way were
+   * deepmind-sitemap and openai-sitemap, which passed the double-fetch gate:
+   * two fetches 20 seconds apart returned byte-identical bodies and an
+   * identical sitemapLoc projection, so a second consecutive run commits
+   * nothing. Before them, two went active for reasons that had nothing to do
+   * with their predicates.
    *
    * `arena-leaderboard` was blocked at the health check by `__CF$cv$params`,
    * which turned out to mark "behind Cloudflare" rather than "is a challenge";
@@ -333,12 +337,12 @@ describe('the shipped meta/sources.json', () => {
     expect(sourcesForTier(shipped(), 'fast').map((s) => s.id)).toEqual(['openrouter-models']);
   });
 
-  it('hands the collector every one of the eighteen sources', () => {
+  it('hands the collector every one of the twenty sources', () => {
     const fetched = [
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(18);
+    expect(fetched).toHaveLength(20);
   });
 
   // The filter still filters. With nothing pending in the shipped file the
@@ -372,7 +376,7 @@ describe('the shipped meta/sources.json', () => {
       const m = /^\|\s*`([a-z0-9-]+)`\s*\|\s*`([^`]+)`\s*\|/.exec(line);
       if (m) fromSpec.set(m[1]!, m[2]!);
     }
-    expect(fromSpec.size).toBe(18);
+    expect(fromSpec.size).toBe(20);
 
     const fromTable = new Map(shipped().sources.map((s) => [s.id, s.url]));
     expect(Object.fromEntries(fromTable)).toEqual(Object.fromEntries(fromSpec));
@@ -384,6 +388,8 @@ describe('the shipped meta/sources.json', () => {
       'anthropic-sitemap',
       'arena-leaderboard',
       'claude-status',
+      'deepmind-sitemap',
+      'openai-sitemap',
       'openai-status',
       'openrouter-sitemap',
       'transformers-pulls',
@@ -498,6 +504,10 @@ describe('the shipped meta/sources.json', () => {
       'openai-status': 'feed/120',
       'transformers-pulls': 'content/30',
       'vllm-pulls': 'content/30',
+      // The two announcement indexes. content/90 like every other sitemap: a
+      // provider going three months without publishing is quiet, not broken.
+      'deepmind-sitemap': 'content/90',
+      'openai-sitemap': 'content/90',
     });
   });
 
@@ -521,6 +531,12 @@ describe('the shipped meta/sources.json', () => {
       'modelsdev-commits': 'feed',
       'claude-status': 'feed',
       'openai-status': 'feed',
+      // Both are real urlsets, NOT sitemap indexes. openai.com/sitemap.xml is
+      // an index whose children are urlsets, which is why the stored artifact
+      // is the research child and not the root: pinning the root element is
+      // what would catch a later edit pointing this back at the index.
+      'deepmind-sitemap': 'urlset',
+      'openai-sitemap': 'urlset',
     });
   });
 
