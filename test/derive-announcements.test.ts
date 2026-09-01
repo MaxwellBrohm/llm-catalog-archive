@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { eventsFromChange, claimSentence, type DerivedEvent } from '../src/derive/events.js';
-import { announcementUrls, incidentEntries, ANNOUNCEMENT_PATHS } from '../src/derive/announcements.js';
+import { announcementUrls, incidentEntries, postEntries, ANNOUNCEMENT_PATHS } from '../src/derive/announcements.js';
 import { change } from './derive-fixtures.js';
 
 /**
@@ -203,5 +203,114 @@ describe('a title wrapped in CDATA', () => {
   it('does not strip a stray bracket that is not a CDATA wrapper', () => {
     const e = incidentEntries('<entry><id>x</id><title>Issue [P1] resolved</title></entry>');
     expect(e[0]?.title).toBe('Issue [P1] resolved');
+  });
+});
+
+const rss = (items: { title: string; link: string; date?: string }[]) =>
+  `<?xml version="1.0"?><rss version="2.0"><channel><lastBuildDate>Tue, 01 Sep 2026 15:58:32 GMT</lastBuildDate>${items
+    .map(
+      (i) =>
+        `<item><title><![CDATA[${i.title}]]></title><link>${i.link}</link>` +
+        `<pubDate>${i.date ?? 'Mon, 31 Aug 2026 07:00:00 GMT'}</pubDate></item>`,
+    )
+    .join('')}</channel></rss>`;
+
+const feedChange = (before: string, after: string) =>
+  change({ sourceId: 'openai-news-feed', path: 'raw/openai-news-feed/response.xml', before, after });
+
+const POST = {
+  title: 'OpenAI supports California’s bill to advance youth AI safety',
+  link: 'https://openai.com/index/supporting-california-bill-advance-ai-youth-safety',
+};
+
+/**
+ * A sitemap reports "a URL appeared", which is news only to a reader who
+ * already knows what the slug means. A feed carries the provider's own
+ * headline, and that is the difference between a change archive and a news
+ * site. Both types exist because they support different claims.
+ */
+describe('a post published in an announcement feed', () => {
+  const events = eventsFromChange(feedChange(rss([]), rss([POST])));
+
+  it('is one event carrying the headline the provider wrote', () => {
+    expect(events).toHaveLength(1);
+    const e = events[0] as Extract<DerivedEvent, { type: 'post_published' }>;
+    expect(e.type).toBe('post_published');
+    expect(e.title).toBe(POST.title);
+    expect(e.url).toBe(POST.link);
+  });
+
+  it('quotes the headline rather than composing prose around it', () => {
+    expect(claimSentence(events[0] as DerivedEvent)).toBe(
+      `The openai-news-feed feed published a post titled "${POST.title}" at "${POST.link}".`,
+    );
+  });
+
+  it('names the feed as the subject, never the company', () => {
+    expect(claimSentence(events[0] as DerivedEvent).startsWith('The openai-news-feed feed')).toBe(true);
+  });
+
+  it('emits nothing when only the channel build stamp moved', () => {
+    const a = rss([POST]);
+    const b = a.replace('Tue, 01 Sep 2026 15:58:32 GMT', 'Wed, 02 Sep 2026 09:00:00 GMT');
+    expect(eventsFromChange(feedChange(a, b))).toEqual([]);
+  });
+
+  /**
+   * Identity is the LINK, not a guid and not the title. A provider correcting a
+   * typo in a headline is stored but is not a second story, and a CMS migration
+   * that rewrites guids must not republish the whole back catalogue.
+   */
+  it('emits nothing when only the title was corrected', () => {
+    const before = rss([POST]);
+    const after = rss([{ ...POST, title: 'OpenAI supports California’s bill on youth AI safety' }]);
+    expect(eventsFromChange(feedChange(before, after))).toEqual([]);
+  });
+
+  it('reports a genuinely new post beside an existing one', () => {
+    const second = { title: 'A second post', link: 'https://openai.com/index/second' };
+    const e = eventsFromChange(feedChange(rss([POST]), rss([POST, second])));
+    expect(e).toHaveLength(1);
+    expect((e[0] as Extract<DerivedEvent, { type: 'post_published' }>).title).toBe('A second post');
+  });
+
+  it('emits nothing on a baseline, because 1,159 stored posts are not 1,159 stories today', () => {
+    const baseline = change({
+      sourceId: 'openai-news-feed',
+      path: 'raw/openai-news-feed/response.xml',
+      kind: 'added',
+      before: null,
+      after: rss([POST]),
+    });
+    expect(eventsFromChange(baseline)).toEqual([]);
+  });
+
+  it('skips an item with no link, which cannot be identified or linked', () => {
+    const noLink = '<?xml version="1.0"?><rss><channel><item><title>x</title></item></channel></rss>';
+    expect(eventsFromChange(feedChange('<rss></rss>', noLink))).toEqual([]);
+  });
+});
+
+describe('the feed parser, against the real stored bytes', () => {
+  it.each(['openai-news-feed', 'deepmind-blog-feed', 'huggingface-blog-feed'])(
+    'reads %s into posts that all have a title and a link',
+    (id) => {
+      const fs = require('node:fs') as typeof import('node:fs');
+      const p = `raw/${id}/response.xml`;
+      if (!fs.existsSync(p)) return;
+      const posts = postEntries(fs.readFileSync(p, 'utf8'));
+      expect(posts.length).toBeGreaterThan(50);
+      for (const post of posts) {
+        expect(post.title, id).not.toBe('');
+        expect(post.url, id).toMatch(/^https?:\/\//);
+      }
+    },
+  );
+
+  it('unwraps the CDATA that every one of these feeds wraps its titles in', () => {
+    const fs = require('node:fs') as typeof import('node:fs');
+    if (!fs.existsSync('raw/openai-news-feed/response.xml')) return;
+    const posts = postEntries(fs.readFileSync('raw/openai-news-feed/response.xml', 'utf8'));
+    for (const post of posts) expect(post.title).not.toContain('CDATA');
   });
 });

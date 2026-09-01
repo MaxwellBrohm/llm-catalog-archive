@@ -140,12 +140,24 @@ export function labEntity(lab: Lab): Entity {
  * The source-id suffixes that carry a provider segment in front of them.
  *
  * `status` joined this list when the status feeds started producing incident
- * events. Before that they were stored and never derived from, so nothing ever
- * asked who `claude-status` belonged to, and the deriver silently returned an
- * empty array for every incident: a whole event type that could not fire,
- * caught by a test rather than by reading the code.
+ * events, and `news-feed` and `blog-feed` joined it the same day for the
+ * announcement feeds. BOTH TIMES the symptom was identical and silent: a source
+ * with an unrecognised suffix yields no provider, the deriver returns an empty
+ * array on every call, and a whole event type simply cannot fire. Nothing
+ * throws and nothing logs. Both were caught by a test rather than by reading
+ * the code, which is why this list is worth a comment rather than a glance:
+ * ADDING A SOURCE WHOSE ID ENDS IN SOMETHING NEW MEANS ADDING IT HERE, and the
+ * failure to do so looks exactly like a quiet week.
  */
-const SOURCE_SUFFIXES = ['llms-full-txt', 'llms-txt', 'deprecations', 'sitemap', 'status'];
+const SOURCE_SUFFIXES = [
+  'llms-full-txt',
+  'llms-txt',
+  'deprecations',
+  'sitemap',
+  'status',
+  'news-feed',
+  'blog-feed',
+];
 
 export function providerFromSourceId(sourceId: string): string | null {
   for (const suffix of SOURCE_SUFFIXES) {

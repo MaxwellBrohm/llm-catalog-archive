@@ -3,6 +3,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { checkHealth } from '../src/health.js';
 import { loadSources } from '../src/config.js';
+import { providerFromSourceId } from '../src/derive/entities.js';
+import {
+  isAnnouncementFeed,
+  isAnnouncementSource,
+  isIncidentSource,
+} from '../src/derive/announcements.js';
 import type { Source } from '../src/config.js';
 import type { Observed } from '../src/types.js';
 
@@ -135,5 +141,81 @@ describe('canary coverage', () => {
       if (!text.includes(s.invariants.canary)) missing.push(s.id);
     }
     expect(missing).toEqual([]);
+  });
+});
+
+/**
+ * EVERY SOURCE ID MUST YIELD A PROVIDER.
+ *
+ * providerFromSourceId matches a fixed list of id suffixes, and a source whose
+ * suffix is not on that list yields null. Every deriver starts by asking for
+ * the provider and returning an empty array when it is null, so an unrecognised
+ * suffix does not throw and does not log: it silently disables the entire event
+ * type for that source, and the symptom is indistinguishable from a quiet week.
+ *
+ * That happened TWICE in one day. `claude-status` and `openai-status` produced
+ * zero incidents because `status` was not a suffix, and I reasoned that zero
+ * was correct because the feed held 25 entries with nothing new. Then the three
+ * announcement feeds produced zero posts because `news-feed` and `blog-feed`
+ * were not suffixes either. Both were caught by a test asserting an event
+ * SHOULD appear, which only exists where someone thought to write one.
+ *
+ * This asserts it for every source at once, so the next new suffix fails here.
+ */
+describe('every configured source resolves to a provider', () => {
+  it('has sources to check', () => {
+    expect(active.length).toBeGreaterThan(15);
+  });
+
+  /**
+   * Five sources legitimately resolve to no provider, because their derivers
+   * never ask for one: the catalogue is dispatched by id, the arena payload and
+   * the two pull searches belong to the leaks module, and the models.dev commit
+   * feed has no provider to attribute anything to. Pinning the list is the
+   * point. A source that joins it by accident, because someone invented a new
+   * id suffix, is the exact failure this describe block exists to catch, and it
+   * shows up here as an unexpected NAME rather than as a quiet week.
+   */
+  const NO_PROVIDER_BY_DESIGN = [
+    'arena-leaderboard',
+    'modelsdev-commits',
+    'openrouter-models',
+    'transformers-pulls',
+    'vllm-pulls',
+  ];
+
+  it('resolves a provider for every source except the five that need none', () => {
+    const orphans = active.filter((s) => providerFromSourceId(s.id) === null).map((s) => s.id).sort();
+    expect(
+      orphans,
+      'an id ending in a suffix providerFromSourceId does not know makes every provider-based deriver yield nothing, silently',
+    ).toEqual(NO_PROVIDER_BY_DESIGN);
+  });
+
+  it('yields a provider that is a prefix of the id, not something invented', () => {
+    for (const s of active) {
+      const provider = providerFromSourceId(s.id);
+      if (provider === null) continue;
+      expect(s.id.startsWith(provider), `${s.id} -> ${provider}`).toBe(true);
+    }
+  });
+
+  /**
+   * The half that actually protects the derivers. Every source a
+   * provider-based deriver dispatches on MUST resolve, or that deriver returns
+   * an empty array on every call for it.
+   */
+  it('resolves a provider for every source a provider-based deriver reads', () => {
+    const derived = active.filter(
+      (s) =>
+        isAnnouncementSource(s.id) ||
+        isIncidentSource(s.id) ||
+        isAnnouncementFeed(s.id) ||
+        s.id.endsWith('-llms-txt') ||
+        s.id.endsWith('-llms-full-txt') ||
+        s.id.endsWith('-deprecations'),
+    );
+    expect(derived.length).toBeGreaterThan(8);
+    for (const s of derived) expect(providerFromSourceId(s.id), s.id).not.toBeNull();
   });
 });
