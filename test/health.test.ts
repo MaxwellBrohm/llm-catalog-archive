@@ -931,8 +931,18 @@ describe('the configured canaries', () => {
   // drops is named. It is empty now: `xai-llms-txt` was the one entry here
   // while it shipped `pending`, and activating it gave the collector something
   // to archive on its first run.
-  it('has an archived capture for every text source, so the canary loop skips none', () => {
-    expect(textSources.filter((s) => !fs.existsSync(s.path)).map((s) => s.id)).toEqual([]);
+  // An ACTIVE text source must have a capture, or its canary is never checked
+  // against real bytes. A PENDING one has none by definition, so the gap is
+  // asserted by name rather than skipped silently: if a source goes dark, this
+  // test says which, and if one is reactivated without a capture it fails.
+  it('has an archived capture for every ACTIVE text source, so the canary loop skips none', () => {
+    const missing = textSources.filter((s) => s.status === 'active' && !fs.existsSync(s.path));
+    expect(missing.map((s) => s.id)).toEqual([]);
+  });
+
+  it('names every text source that is dark, rather than skipping it quietly', () => {
+    const dark = textSources.filter((s) => !fs.existsSync(s.path)).map((s) => s.id).sort();
+    expect(dark).toEqual(['xai-llms-txt']);
   });
 
   const archived = textSources.filter((s) => fs.existsSync(s.path));

@@ -282,13 +282,13 @@ describe('the shipped meta/sources.json', () => {
   // is not the reason: it is blocked at the health check, because the live page
   // carries the same `__CF$cv$params` beacon that is the only denylist marker
   // `trap-interstitial.html` carries.
-  it('leaves arena-leaderboard as the one pending source', () => {
+  it('leaves arena-leaderboard and xai-llms-txt pending', () => {
     expect(
       shipped().sources
         .filter((s) => s.status === 'pending')
         .map((s) => s.id)
         .sort(),
-    ).toEqual(['arena-leaderboard']);
+    ).toEqual(['arena-leaderboard', 'xai-llms-txt']);
   });
 
   // The half of the pending story that a status field cannot say. Removing the
@@ -337,7 +337,7 @@ describe('the shipped meta/sources.json', () => {
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(17);
+    expect(fetched).toHaveLength(16);
     expect(fetched).not.toContain('arena-leaderboard');
   });
 

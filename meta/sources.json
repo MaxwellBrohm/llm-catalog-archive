@@ -442,7 +442,7 @@
       "id": "xai-llms-txt",
       "url": "https://docs.x.ai/llms.txt",
       "tier": "daily",
-      "status": "active",
+      "status": "pending",
       "path": "raw/xai-llms-txt/response.txt",
       "contentType": "text",
       "expectedRoot": null,
@@ -473,7 +473,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "Predicate is extracted over sorted table blocks. bytes is wrong here because the file's rows re-permute per request, so it would commit 1.46 MB of pure permutation daily forever, and mask cannot express it because a reordering is not a maskable substring. Sorting in the deriver cannot fix it either: the deriver only ever sees what was committed, and the commit decision is upstream of it, so the predicate itself has to express sort equality. The sorted md5 b92fafe614002915ea5a5b5e5be3060b reproduced across three independent captures hours apart while every raw md5 differed. Of the two conflicting measurements the narrower is adopted: 12 changed lines and 270 differing bytes across 6 runs, adjacent row swaps inside two pricing tables, which is what argues for sorting WITHIN table blocks rather than over the whole file. Sorting the whole file would make a legitimate section reorder invisible. Re-measured 2026-08-31: two fetches differed in exactly 6 lines, all of them row swaps inside three tables, and the xai projection was equal. Header and delimiter rows keep their positions, so a renamed column is still a change. Activated 2026-08-31 after a double dry run in which the second consecutive run committed nothing."
+      "notes": "PENDING for a reason that is not volatility. On 2026-08-31 this file contained an 84-character xai- credential, three times, as \"apiKey\": \"xai-...\", in xAI's own published llms.txt. GitHub push protection classified it as a live xAI API Key and refused the push, which is the only reason it never reached the archive. Verbatim storage of third-party bytes means a provider publishing their own secret would have us republish it in a history that is never rewritten. Do not reactivate until a write-time credential gate exists, and never resolve this by using the push-protection bypass link. On the predicate itself: bytes is wrong here because the file's markdown table rows re-permute per request, so the extracted predicate sorts within table blocks only, never the whole file, which would hide a legitimate section reorder."
     },
     {
       "id": "modelsdev-commits",
