@@ -498,7 +498,21 @@ async function cmdRetiring(args: Args, base: string, out: (s: string) => void): 
   const rows = retiringRows(retirements, await wantedModels(args), within, today);
 
   if (args.flags.has('json')) {
-    out(JSON.stringify({ today, within_days: within, covered_providers: coveredProviders(retirements), rows }, null, 2));
+    out(
+      JSON.stringify(
+        {
+          today,
+          within_days: within,
+          covered_providers: coveredProviders(retirements),
+          // Provenance was omitted here entirely, so the machine-readable form
+          // was strictly less checkable than the table beside it.
+          source: (doc as Record<string, unknown>)['source'] ?? null,
+          rows,
+        },
+        null,
+        2,
+      ),
+    );
     if (rows.some((r) => r.status === 'unknown' || r.status === 'undated')) return 2;
     return rows.some((r) => r.status === 'inside') ? 1 : 0;
   }
@@ -540,7 +554,13 @@ async function cmdRetiring(args: Args, base: string, out: (s: string) => void): 
   const source = (doc as Record<string, unknown>)['source'] as Record<string, unknown> | null;
   if (source !== null) {
     out('');
+    // The stamp, not just the artifact. `models` and `leaks` both print when
+    // their state was captured and this did not, which matters more here than
+    // anywhere else: a retirement horizon is a claim about dates, and a reader
+    // deciding whether to trust it needs to know how old the table behind it
+    // is. The record already carried the value.
     out(`Read from ${String(source['artifact'] ?? '')}`);
+    out(`Table as stored at ${stampOf(source)}.`);
   }
   // THE EXIT CODE IS THE WHOLE PRODUCT FOR A CI CALLER, which reads it and
   // nothing else. 2 dominates 1: if even one requested name could not be

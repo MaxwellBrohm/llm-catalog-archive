@@ -413,18 +413,34 @@ describe('the shipped meta/sources.json', () => {
     }
   });
 
-  it('gives every text source a canary and every other source none', () => {
+  /**
+   * This used to require a canary on every text source and NONE on any other,
+   * on the reasoning that a canary stands in exactly where "parses as its
+   * declared type" would be vacuous. That reasoning was half right and the
+   * "and nowhere else" half was wrong, which cost real safety: a sweep of every
+   * stored capture against every other source's gates accepted 5 of 306 foreign
+   * bodies, all between structurally identical siblings, and four of the five
+   * were json or xml sources this rule forbade from carrying a canary.
+   *
+   * A canary answers "are these the bytes of THIS source", which is a question
+   * about identity and not about content type. Parsing tells you a json body is
+   * json; it cannot tell you it is the vllm search rather than the transformers
+   * one. So the rule is now the weaker and truer one: no placeholders anywhere.
+   *
+   * A canary that is present but WRONG is invisible from here. It is caught in
+   * test/cross-origin.test.ts, which runs every configured canary against the
+   * bytes actually archived under raw/<id>/ and against every sibling's.
+   */
+  it('leaves no canary placeholder in the shipped config', () => {
     for (const s of shipped().sources) {
-      // Task 6 replaced the placeholders this used to pin. Non-emptiness is
-      // already enforced by loadSources, which shipped() goes through, so what
-      // is left here is the structural claim: a canary stands in exactly where
-      // "parses as its declared type" would be vacuous, and nowhere else.
-      //
-      // A canary that is present but WRONG is not visible from here at all. It
-      // is caught in test/health.test.ts, which runs each configured canary
-      // against the bytes actually archived under raw/<id>/.
-      if (s.contentType === 'text') expect(s.invariants.canary, s.id).not.toBe('__CANARY_PLACEHOLDER_TASK_6__');
-      else expect(s.invariants.canary, s.id).toBeNull();
+      expect(s.invariants.canary, s.id).not.toBe('__CANARY_PLACEHOLDER_TASK_6__');
+      if (s.invariants.canary !== null) expect(s.invariants.canary.length, s.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('still gives every text source a canary, which is where parsing is vacuous', () => {
+    for (const s of shipped().sources) {
+      if (s.contentType === 'text') expect(s.invariants.canary, s.id).not.toBeNull();
     }
   });
 

@@ -487,7 +487,7 @@
         "minBytes": 10119,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": null,
+        "canary": "anomalyco/models.dev",
         "sizeBand": [
           0.4,
           3.0
@@ -523,7 +523,7 @@
         "minBytes": 1024,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": null,
+        "canary": "status.claude.com",
         "sizeBand": [
           0.4,
           3.0
@@ -562,7 +562,7 @@
         "minBytes": 1024,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": null,
+        "canary": "status.openai.com",
         "sizeBand": [
           0.4,
           3.0
@@ -599,7 +599,7 @@
         "minBytes": 200000,
         "requiredKeyPath": "items",
         "minRecords": 40,
-        "canary": null,
+        "canary": "repos/huggingface/transformers",
         "sizeBand": [
           0.5,
           2.0
@@ -636,7 +636,7 @@
         "minBytes": 250000,
         "requiredKeyPath": "items",
         "minRecords": 40,
-        "canary": null,
+        "canary": "repos/vllm-project/vllm",
         "sizeBand": [
           0.5,
           2.0

@@ -1515,6 +1515,23 @@ describe('the credential gate, as runTier applies it', () => {
 });
 
 /**
+ * A successful fetch of `body`, in the shape src/fetch.ts returns.
+ *
+ * WORTH ITS OWN COMMENT: the budget tests below first used a bare `ok(...)`
+ * that was never defined anywhere. They PASSED, because runTier catches
+ * whatever a fetch throws and records the source as unreachable, so a
+ * ReferenceError inside fetchOne is indistinguishable from a dead socket. The
+ * assertions about which sources were STARTED still held, which is exactly how
+ * a vacuous test survives review.
+ */
+const okFetch = (body: Uint8Array) => ({
+  ok: true as const,
+  attempts: 1,
+  observed: { status: 200, body, finalUrl: 'https://a.example/f', redirectCount: 0, headers: {} },
+  headers: HDR,
+});
+
+/**
  * THE JOB CAP IS A GUILLOTINE, NOT A BUDGET.
  *
  * The status file is written after the loop, deliberately, because the run that
@@ -1539,7 +1556,7 @@ describe('the fetch budget', () => {
         fetchOne: async (s) => {
           fetched.push(s.id);
           clock += 400;
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
       }),
       elapsedMs: () => clock,
@@ -1558,7 +1575,7 @@ describe('the fetch budget', () => {
       ...deps({
         fetchOne: async () => {
           clock += 400;
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
         commitPaths: (paths: string[]) => {
           committed.push(paths);
@@ -1577,13 +1594,19 @@ describe('the fetch budget', () => {
       ...deps({
         fetchOne: async () => {
           clock += 400;
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
       }),
       elapsedMs: () => clock,
       budgetMs: 1000,
     });
     expect(Object.keys(r.status?.sources ?? {}).sort()).toEqual(['s0', 's1', 's2']);
+    // Healthy, not merely present. Before okFetch existed these were recorded
+    // as unreachable and the assertion above still passed.
+    for (const id of ['s0', 's1', 's2']) {
+      expect(r.status?.sources[id]?.health, id).toBe('ok');
+      expect(r.status?.sources[id]?.consecutiveFailures, id).toBe(0);
+    }
   });
 
   /**
@@ -1598,7 +1621,7 @@ describe('the fetch budget', () => {
         fetchOne: async () => {
           clock += 5000;
           finished += 1;
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
       }),
       elapsedMs: () => clock,
@@ -1625,7 +1648,7 @@ describe('the fetch budget', () => {
       ...deps({
         fetchOne: async () => {
           clock += 400;
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
         log: (l: string) => lines.push(l),
       }),
@@ -1642,7 +1665,7 @@ describe('the fetch budget', () => {
       ...deps({
         fetchOne: async (s) => {
           fetched.push(s.id);
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
       }),
     });
@@ -1656,7 +1679,7 @@ describe('the fetch budget', () => {
       ...deps({
         fetchOne: async (s) => {
           fetched.push(s.id);
-          return ok(enc('x'.repeat(2000)));
+          return okFetch(enc('CANARY ' + 'x'.repeat(2000)));
         },
       }),
       budgetMs: 1,
