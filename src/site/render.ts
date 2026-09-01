@@ -99,8 +99,63 @@ const NAV: { key: Section; href: string; label: string }[] = [
   { key: 'about', href: 'about.html', label: 'About' },
 ];
 
-function layout(opts: { title: string; depth: number; body: string; active?: Section }): string {
+/**
+ * A one-line summary of a page, for the description meta and the share card.
+ *
+ * TAKEN FROM THE PAGE'S OWN LEDE, never composed. The lede is already a
+ * template filled from the derivation, so using it here adds no sentence this
+ * project did not already publish under its own byline, and the copy rule that
+ * governs it governs this. HTML is stripped rather than escaped-through,
+ * because a meta content attribute cannot carry markup.
+ *
+ * Truncated on a word boundary at 300 characters. A description longer than
+ * that is cut by every consumer anyway, and cutting it here means the cut
+ * happens somewhere chosen rather than mid-entity.
+ */
+export function pageDescription(body: string, fallback: string): string {
+  const lede = /<p class="lede">([\s\S]*?)<\/p>/.exec(body)?.[1];
+  const text = (lede ?? fallback)
+    .replace(/<[^>]+>/g, '')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (text.length <= 300) return text;
+  const cut = text.slice(0, 300);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 200 ? cut.slice(0, lastSpace) : cut).trimEnd()}...`;
+}
+
+function layout(opts: {
+  title: string;
+  depth: number;
+  body: string;
+  active?: Section;
+  /** The page's own address, so a share card can name it. Root-relative. */
+  canonical?: string;
+  /**
+   * Feeds this page in particular offers, beyond the two every page carries.
+   * A category page that publishes a feed and does not advertise it is a feed
+   * only somebody reading the directory listing would find.
+   */
+  feeds?: { href: string; title: string }[];
+}): string {
   const { up } = links(opts.depth);
+  /*
+   * SHARE AND INDEX METADATA. 494 pages carried none: no description, no
+   * og:title, no twitter card. Nothing unfurled as nothing, because consumers
+   * fall back to <title>, but every single link in every chat and every feed
+   * reader showed the same six words, so a thread page about one model and the
+   * leaks desk were indistinguishable before you clicked.
+   *
+   * No og:image. There is no image to point at, and a card promising one that
+   * 404s is worse than a card without one.
+   */
+  const description = pageDescription(opts.body, 'A byte-level archive of what model providers publish, with every claim linked to the bytes it came from.');
+  const canonical = opts.canonical === undefined ? null : `${SITE_URL}/${opts.canonical}`;
   const nav = NAV.map(
     (n) =>
       `<a${n.key === opts.active ? ' class="on" aria-current="page"' : ''} href="${up}${n.href}">${escapeHtml(n.label)}</a>`,
@@ -111,9 +166,18 @@ function layout(opts: { title: string; depth: number; body: string; active?: Sec
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(opts.title)}</title>
+<meta name="description" content="${escapeHtml(description)}">
+${canonical === null ? '' : `<link rel="canonical" href="${escapeHtml(canonical)}">\n`}<meta property="og:type" content="website">
+<meta property="og:site_name" content="llm-catalog-archive">
+<meta property="og:title" content="${escapeHtml(opts.title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+${canonical === null ? '' : `<meta property="og:url" content="${escapeHtml(canonical)}">\n`}<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${escapeHtml(opts.title)}">
+<meta name="twitter:description" content="${escapeHtml(description)}">
 <link rel="stylesheet" href="${up}style.css">
 <link rel="alternate" type="application/rss+xml" title="llm-catalog-archive: everything" href="${up}${EVERYTHING_FEED_PATH}">
 <link rel="alternate" type="application/rss+xml" title="llm-catalog-archive: changelog" href="${up}feed.xml">
+${(opts.feeds ?? []).map((f) => `<link rel="alternate" type="application/rss+xml" title="${escapeHtml(f.title)}" href="${up}${escapeHtml(f.href)}">`).join('\n')}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -599,6 +663,14 @@ export function labPagePath(lab: Lab): string {
 }
 
 export const EVERYTHING_FEED_PATH = 'everything.xml';
+
+/** The feed for one micro-category, beside its page. */
+export function typeFeedPath(type: FeedType): string {
+  return `type/${type.replace(/_/g, '-')}.xml`;
+}
+
+/** The desk's own feed, so rumors and leaks can be followed on their own. */
+export const LEAKS_FEED_PATH = 'leaks/index.xml';
 export const ABOUT_PATH = 'about.html';
 export const CHANGELOG_INDEX_PATH = 'changelog/index.html';
 
@@ -929,7 +1001,14 @@ ${sections}
 <p class="note">${plural(refusals.length, 'change')} the desk declined to derive from. A refusal and a quiet week both produce zero items, and only one of them is a broken parser.</p>
 ${refusalSection}
 </section>`;
-  return layout({ title: 'Rumors and leaks - llm-catalog-archive', depth: 1, body, active: 'leaks' });
+  return layout({
+    title: 'Rumors and leaks - llm-catalog-archive',
+    depth: 1,
+    body,
+    active: 'leaks',
+    canonical: LEAKS_INDEX_PATH,
+    feeds: [{ href: LEAKS_FEED_PATH, title: 'llm-catalog-archive: rumors and leaks' }],
+  });
 }
 
 const OUTCOME_LABEL: Record<string, string> = {
@@ -1230,7 +1309,14 @@ ${typeChips(feed, 1, type)}
 </p>
 </div>
 ${itemListHtml(items, 1, 'No item of this kind is derivable from the archive as it stands. The page exists anyway: a category that vanished when it was empty would make a quiet week and a broken extractor look the same.')}`;
-  return layout({ title: `${label} - llm-catalog-archive`, depth: 1, body, active: 'everything' });
+  return layout({
+    title: `${label} - llm-catalog-archive`,
+    depth: 1,
+    body,
+    active: 'everything',
+    canonical: typePagePath(type),
+    feeds: [{ href: typeFeedPath(type), title: `llm-catalog-archive: ${type}` }],
+  });
 }
 
 /**
@@ -1496,7 +1582,27 @@ const EVERYTHING_FEED_LIMIT = 50;
  * Two items derived from one commit therefore share a link and differ in guid,
  * which is the correct shape: they are two claims about one piece of evidence.
  */
-export function renderEverythingFeed(feed: FeedItem[], siteUrl: string = SITE_URL): string {
+/**
+ * A filtered feed: the same items, the same claims, a narrower stream.
+ *
+ * WHY THERE ARE MORE THAN TWO FEEDS NOW. The publication carried 16
+ * micro-categories and a leaks desk, and exactly two feeds, so the only way to
+ * follow rumors and leaks was to subscribe to everything and filter by hand in
+ * a reader. everything.xml already emitted `<category>` per item, so the
+ * grouping was done and only the addresses were missing.
+ *
+ * It adds no claim. Every sentence is the one the deriving module already
+ * wrote, and nothing here recomposes, merges or summarises.
+ */
+export function renderEverythingFeed(
+  feed: FeedItem[],
+  siteUrl: string = SITE_URL,
+  channel: { title: string; path: string; description: string } = {
+    title: 'llm-catalog-archive: everything',
+    path: EVERYTHING_FEED_PATH,
+    description: 'Every typed claim the archive supports, derived by replay from git history over raw/.',
+  },
+): string {
   const items = feed
     .slice(0, EVERYTHING_FEED_LIMIT)
     .map((item) => {
@@ -1522,10 +1628,10 @@ export function renderEverythingFeed(feed: FeedItem[], siteUrl: string = SITE_UR
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-<title>llm-catalog-archive: everything</title>
+<title>${escapeHtml(channel.title)}</title>
 <link>${escapeHtml(siteUrl)}/index.html</link>
-<atom:link href="${escapeHtml(siteUrl)}/${EVERYTHING_FEED_PATH}" rel="self" type="application/rss+xml"/>
-<description>Every typed claim the archive supports, derived by replay from git history over raw/.</description>
+<atom:link href="${escapeHtml(siteUrl)}/${channel.path}" rel="self" type="application/rss+xml"/>
+<description>${escapeHtml(channel.description)}</description>
 <language>en</language>
 ${items}
 </channel>

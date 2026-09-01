@@ -25,6 +25,13 @@ const newer = record();
 /** Deliberately oldest-first, so the sort inside buildSite is what orders it. */
 const unsorted = [older, newer];
 
+/**
+ * The expected list, sorted, so the literal below can be written in whatever
+ * order reads best. Both sides of the comparison are sorted, so this is still
+ * an exact set assertion and not a subset one.
+ */
+const sorted = (paths: string[]): string[] => [...paths].sort();
+
 const at = (files: SiteFile[], p: string): string => {
   const hit = files.find((f) => f.path === p);
   if (hit === undefined) throw new Error(`no file at ${p}`);
@@ -33,7 +40,7 @@ const at = (files: SiteFile[], p: string): string => {
 
 describe('buildSite: the file set', () => {
   it('emits exactly the pages, feeds, stylesheet, .nojekyll and one stub per page', () => {
-    expect(buildSite(unsorted).map((f) => f.path).sort()).toEqual([
+    expect(buildSite(unsorted).map((f) => f.path).sort()).toEqual(sorted([
       '.nojekyll',
       'about.html',
       'api.html',
@@ -44,6 +51,7 @@ describe('buildSite: the file set', () => {
       'feed.xml',
       'index.html',
       'leaks/index.html',
+      'leaks/index.xml',
       'leaks/ledger.html',
       'site/about.html',
       'site/api.html',
@@ -74,26 +82,44 @@ describe('buildSite: the file set', () => {
       'site/type/upstream-pr-opened.html',
       'sources/claude-status.html',
       'sources/openai-llms-txt.html',
+      'robots.txt',
+      'sitemap.xml',
       'style.css',
       'threads/index.html',
       'type/alias-retargeted.html',
+      'type/alias-retargeted.xml',
       'type/codename-entered.html',
+      'type/codename-entered.xml',
       'type/codename-unmasked.html',
+      'type/codename-unmasked.xml',
       'type/context-changed.html',
+      'type/context-changed.xml',
       'type/doc-added.html',
+      'type/doc-added.xml',
       'type/doc-moved.html',
+      'type/doc-moved.xml',
       'type/doc-removed.html',
+      'type/doc-removed.xml',
       'type/expiration-scheduled.html',
+      'type/expiration-scheduled.xml',
       'type/expiration-set.html',
+      'type/expiration-set.xml',
       'type/model-added.html',
+      'type/model-added.xml',
       'type/model-removed.html',
+      'type/model-removed.xml',
       'type/price-changed.html',
+      'type/price-changed.xml',
       'type/retirement-floor.html',
+      'type/retirement-floor.xml',
       'type/stealth-listing.html',
+      'type/stealth-listing.xml',
       'type/upstream-pr-merged.html',
+      'type/upstream-pr-merged.xml',
       'type/upstream-pr-opened.html',
+      'type/upstream-pr-opened.xml',
       'wall.js',
-    ]);
+    ]));
   });
 
   it('emits .nojekyll, which stops GitHub Pages running Jekyll over the directory', () => {
@@ -165,23 +191,40 @@ describe('buildSite: the file set', () => {
       'changelog/index.html',
       'feed.xml',
       'type/model-added.html',
+      'type/model-added.xml',
       'type/model-removed.html',
+      'type/model-removed.xml',
       'type/price-changed.html',
+      'type/price-changed.xml',
       'type/context-changed.html',
+      'type/context-changed.xml',
       'type/expiration-set.html',
+      'type/expiration-set.xml',
       'type/alias-retargeted.html',
+      'type/alias-retargeted.xml',
       'type/retirement-floor.html',
+      'type/retirement-floor.xml',
       'type/doc-added.html',
+      'type/doc-added.xml',
       'type/doc-moved.html',
+      'type/doc-moved.xml',
       'type/doc-removed.html',
+      'type/doc-removed.xml',
       'type/codename-entered.html',
+      'type/codename-entered.xml',
       'type/codename-unmasked.html',
+      'type/codename-unmasked.xml',
       'type/upstream-pr-opened.html',
+      'type/upstream-pr-opened.xml',
       'type/upstream-pr-merged.html',
+      'type/upstream-pr-merged.xml',
       'type/stealth-listing.html',
+      'type/stealth-listing.xml',
       'type/expiration-scheduled.html',
+      'type/expiration-scheduled.xml',
       'threads/index.html',
       'leaks/index.html',
+      'leaks/index.xml',
       'leaks/ledger.html',
       'site/index.html',
       'site/about.html',
@@ -206,6 +249,10 @@ describe('buildSite: the file set', () => {
       'site/threads/index.html',
       'site/leaks/index.html',
       'site/leaks/ledger.html',
+      // Last, because the sitemap is built from the page list the build just
+      // emitted rather than from a list maintained beside it.
+      'robots.txt',
+      'sitemap.xml',
     ]);
   });
 });

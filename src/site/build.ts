@@ -20,6 +20,9 @@ import {
   renderFeed,
   renderLabPage,
   renderLeaksPage,
+  TYPE_LABEL,
+  LEAKS_FEED_PATH,
+  typeFeedPath,
   renderLedgerPage,
   renderRedirect,
   renderSourcePage,
@@ -119,6 +122,22 @@ export function buildSite(
   // watching a lab we have nothing on.
   for (const type of ALL_TYPES) {
     files.push({ path: typePagePath(type), contents: renderTypePage(type, feed) });
+    // One feed per micro-category, beside its page. Emitted even when empty,
+    // for the same reason the page is: a feed that appeared only once a
+    // category had items would make a quiet week and a broken extractor look
+    // identical to anyone subscribed.
+    files.push({
+      path: typeFeedPath(type),
+      contents: renderEverythingFeed(
+        feed.filter((i) => i.type === type),
+        siteUrl,
+        {
+          title: `llm-catalog-archive: ${type}`,
+          path: typeFeedPath(type),
+          description: `${TYPE_LABEL[type]}. Every item of this kind, newest first.`,
+        },
+      ),
+    });
   }
   for (const lab of labsInFeed(feed)) {
     files.push({ path: labPagePath(lab), contents: renderLabPage(lab, feed) });
@@ -146,6 +165,21 @@ export function buildSite(
   // and "the extractor broke" render identically, and the second is the failure
   // this project exists not to hide.
   files.push({ path: LEAKS_INDEX_PATH, contents: renderLeaksPage(leaks, ledger, refusals) });
+  // The desk's own feed. Following rumors and leaks used to mean subscribing to
+  // everything and filtering by hand in a reader.
+  files.push({
+    path: LEAKS_FEED_PATH,
+    contents: renderEverythingFeed(
+      feed.filter((i) => i.kind === 'leak'),
+      siteUrl,
+      {
+        title: 'llm-catalog-archive: rumors and leaks',
+        path: LEAKS_FEED_PATH,
+        description:
+          'The leaks desk. Every line describes a stored artifact and is linked at the commit that stored it. The sourcing tier is about the artifact, not about confidence.',
+      },
+    ),
+  });
   files.push({ path: LEDGER_PATH, contents: renderLedgerPage(ledger, leaks.length) });
 
   // The old address of every page, forwarding to the new one.
@@ -161,6 +195,10 @@ export function buildSite(
     files.push({ path: legacyPagePath(f.path), contents: renderRedirect(legacyRedirectTarget(f.path)) });
   }
 
+  // Last, so the sitemap lists every page the build actually emitted rather
+  // than a list maintained beside it that can fall behind.
+  files.push(...indexFiles(files, siteUrl));
+
   return files;
 }
 
@@ -174,6 +212,59 @@ export function textContents(file: SiteFile): string {
     throw new Error(`${file.path} holds bytes, not text`);
   }
   return file.contents;
+}
+
+/**
+ * robots.txt and sitemap.xml, built from the page list this generator already
+ * walked rather than from a crawl.
+ *
+ * The robots half is close to inert on its own: an absent robots.txt already
+ * permits everything, so this exists to POINT AT THE SITEMAP, which is the part
+ * that carries information. The archive is densely interlinked, so a crawler
+ * finds most of it anyway; what a sitemap adds is the pages that are reachable
+ * only through a capped list, which is every thread past the twelfth.
+ *
+ * Redirect stubs are excluded. They carry a meta refresh to their real address,
+ * and listing both spellings of one page is how a sitemap teaches a crawler
+ * that a site has twice as many pages as it does.
+ */
+export function indexFiles(pages: readonly SiteFile[], siteUrl: string): SiteFile[] {
+  const urls = pages
+    .filter((f) => f.path.endsWith('.html') && !f.path.startsWith('site/'))
+    .map((f) => f.path)
+    .sort();
+
+  const sitemap = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls.map((p) => `<url><loc>${escapeXml(`${siteUrl}/${p}`)}</loc></url>`),
+    '</urlset>',
+    '',
+  ].join('\n');
+
+  const robots = [
+    '# The whole archive is public and every page is meant to be read.',
+    'User-agent: *',
+    'Allow: /',
+    '',
+    `Sitemap: ${siteUrl}/sitemap.xml`,
+    '',
+  ].join('\n');
+
+  return [
+    { path: 'robots.txt', contents: robots },
+    { path: 'sitemap.xml', contents: sitemap },
+  ];
+}
+
+/** The five XML metacharacters. A path can carry an ampersand. */
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 export function writeSite(outDir: string, files: SiteFile[]): void {
