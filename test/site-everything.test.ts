@@ -17,6 +17,8 @@ import {
   renderEverythingFeed,
   feedItemAnchor,
   changeMagnitude,
+  capPerCommit,
+  PER_COMMIT_LIMIT,
   renderEverythingPage,
   renderLabPage,
   renderTypePage,
@@ -241,8 +243,14 @@ describe('the front page cap', () => {
     expect(renderEverythingPage(many, THREADS, 2).match(/class="claim"/g)).toHaveLength(2);
   });
 
+  /**
+   * The wording lost "most recent" when the page gained a per-capture cap: the
+   * items shown are no longer simply the newest N, because surplus from one
+   * busy commit is set aside so a single capture cannot fill the page. Claiming
+   * "the 2 most recent" would then be false.
+   */
   it('says how many it is showing and how many there are', () => {
-    expect(renderEverythingPage(many, THREADS, 2)).toContain('Showing the 2 most recent items of 5');
+    expect(renderEverythingPage(many, THREADS, 2)).toContain('Showing 2 items of 5');
   });
 
   it('says nothing is dropped and names where the rest is', () => {
@@ -1033,5 +1041,100 @@ describe('the About page states the costs it has actually paid', () => {
 
   it('says the working tree and every built page are clean', () => {
     expect(renderAboutPage()).toContain('are clean');
+  });
+});
+
+/**
+ * ONE CAPTURE MUST NOT OWN THE FRONT PAGE.
+ *
+ * The stream is chronological, which is right for news, but a single capture of
+ * a catalogue carries dozens of changes at one instant, and chronological order
+ * puts all of them at the top. Measured on the live front page before this
+ * existed: 150 items of which ONE commit contributed 40, opening with six
+ * near-identical price rows for two deepseek models. After: 4 from the busiest
+ * commit, 26 distinct commits represented, and a model launch in the first five.
+ */
+describe('capPerCommit', () => {
+  const item = (sha: string, sourceId: string, id: string) => ({ sha, sourceId, id }) as never;
+
+  it('keeps everything when no commit exceeds the cap', () => {
+    const items = [item('a', 's', '1'), item('b', 's', '2')];
+    expect(capPerCommit(items, 4).shown).toHaveLength(2);
+  });
+
+  it('keeps only the cap from one busy commit', () => {
+    const items = Array.from({ length: 40 }, (_, i) => item('a', 's', String(i)));
+    const { shown, heldBack } = capPerCommit(items, 4);
+    expect(shown).toHaveLength(4);
+    expect([...heldBack.values()][0]).toBe(36);
+  });
+
+  it('preserves chronological order among what it keeps', () => {
+    const items = [item('a', 's', '1'), item('b', 's', '2'), item('a', 's', '3')];
+    expect(capPerCommit(items, 4).shown.map((i) => i.id)).toEqual(['1', '2', '3']);
+  });
+
+  it('keeps the FIRST items of a commit, which are the ones chronology put on top', () => {
+    const items = Array.from({ length: 6 }, (_, i) => item('a', 's', String(i)));
+    expect(capPerCommit(items, 2).shown.map((i) => i.id)).toEqual(['0', '1']);
+  });
+
+  /**
+   * One commit can change several sources, and those are unrelated stories that
+   * merely share a sha. Capping by sha alone would let a busy catalogue capture
+   * silence a documentation change committed in the same run.
+   */
+  it('counts each source within a commit separately', () => {
+    const items = [
+      ...Array.from({ length: 5 }, (_, i) => item('a', 'catalog', `c${i}`)),
+      ...Array.from({ length: 2 }, (_, i) => item('a', 'docs', `d${i}`)),
+    ];
+    const { shown } = capPerCommit(items, 3);
+    expect(shown.filter((i) => i.sourceId === 'catalog')).toHaveLength(3);
+    expect(shown.filter((i) => i.sourceId === 'docs')).toHaveLength(2);
+  });
+
+  it('gives a busy commit room again on a later commit', () => {
+    const items = [
+      ...Array.from({ length: 5 }, (_, i) => item('a', 's', `a${i}`)),
+      ...Array.from({ length: 5 }, (_, i) => item('b', 's', `b${i}`)),
+    ];
+    expect(capPerCommit(items, 2).shown).toHaveLength(4);
+  });
+
+  it('reports nothing held back when nothing was', () => {
+    expect(capPerCommit([item('a', 's', '1')], 4).heldBack.size).toBe(0);
+  });
+});
+
+describe('the front page after capping', () => {
+  /** 12 price changes from one capture, then one launch from the next. */
+  const many: FeedItem[] = [
+    ...Array.from({ length: 12 }, (_, i) => ({
+      ...(FEED[0] as FeedItem),
+      id: `${SHA}:price_changed:m${i}`,
+      sentence: `price row ${i}`,
+      sha: SHA,
+      sourceId: 'openrouter-models',
+    })),
+    { ...(FEED[0] as FeedItem), id: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:model_added:x`, sentence: 'a launch', sha: 'b'.repeat(40), sourceId: 'openrouter-models' },
+  ];
+
+  const html = renderEverythingPage(many, THREADS);
+
+  it('shows at most the per-capture cap from the busy commit', () => {
+    expect((html.match(/price row \d+/g) ?? []).length).toBeLessThanOrEqual(PER_COMMIT_LIMIT);
+  });
+
+  it('still shows the item from the other commit, which flooding would have buried', () => {
+    expect(html).toContain('a launch');
+  });
+
+  it('says how many it held back rather than dropping them silently', () => {
+    expect(html).toContain('further item');
+  });
+
+  it('says where the rest are, because nothing is actually dropped', () => {
+    expect(html).toContain('uncapped');
   });
 });

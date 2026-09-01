@@ -1279,18 +1279,74 @@ function typeRail(feed: FeedItem[], depth: number): string {
   return `<ul class="rail-types">\n${rows}\n</ul>`;
 }
 
+/**
+ * ONE CAPTURE MUST NOT OWN THE FRONT PAGE.
+ *
+ * The stream is chronological, which is right for news, but a single capture of
+ * a catalogue can carry dozens of changes at one instant, and chronological
+ * order then puts all of them at the top. Measured on the live front page
+ * before this existed: 150 items, of which ONE commit contributed 40, and the
+ * page opened with six near-identical price rows for two deepseek models. A
+ * reader landing on "Everything" saw a spreadsheet, not what happened.
+ *
+ * So the cap is per commit as well as overall. Chronology is untouched: items
+ * keep their order, and only the surplus from one commit is set aside, with a
+ * line saying how many and where the rest are. The type pages stay uncapped,
+ * which is what the front page's own copy has always said makes capping safe.
+ *
+ * Grouped by commit AND source, because one commit can change several sources
+ * and those are unrelated stories that happen to share a sha.
+ */
+export const PER_COMMIT_LIMIT = 4;
+
+export function capPerCommit(
+  items: readonly FeedItem[],
+  perCommit: number = PER_COMMIT_LIMIT,
+): { shown: FeedItem[]; heldBack: Map<string, number> } {
+  const seen = new Map<string, number>();
+  const shown: FeedItem[] = [];
+  const heldBack = new Map<string, number>();
+  for (const item of items) {
+    const key = `${item.sha}\u0000${item.sourceId}`;
+    const n = seen.get(key) ?? 0;
+    seen.set(key, n + 1);
+    if (n < perCommit) shown.push(item);
+    else heldBack.set(key, (heldBack.get(key) ?? 0) + 1);
+  }
+  return { shown, heldBack };
+}
+
 export function renderEverythingPage(
   feed: FeedItem[],
   threads: ThreadSet = { threads: [], held: [] },
   limit: number = EVERYTHING_LIMIT,
 ): string {
-  const shown = feed.slice(0, limit);
+  // Per commit FIRST, then overall, so the overall cap spends its budget on
+  // distinct stories rather than on one capture's forty price rows.
+  const { shown: spread, heldBack } = capPerCommit(feed);
+  const shown = spread.slice(0, limit);
+  const heldBackTotal = [...heldBack.values()].reduce((n, v) => n + v, 0);
+
+  /** The last item shown from a commit carries the note about its siblings. */
+  const lastOfCommit = new Map<string, string>();
+  for (const item of shown) lastOfCommit.set(`${item.sha}\u0000${item.sourceId}`, item.id);
+
   const days = feedByDay(shown)
     .map(
       (g) => `<section class="day">
 <h2>${escapeHtml(g.day)}</h2>
 <ol class="events">
-${g.items.map((i) => feedItemHtml(i, 0)).join('\n')}
+${g.items
+  .map((i) => {
+    const key = `${i.sha}\u0000${i.sourceId}`;
+    const more = heldBack.get(key) ?? 0;
+    const note =
+      more > 0 && lastOfCommit.get(key) === i.id
+        ? `\n<li class="event note-more"><p class="note">${plural(more, 'further item')} from this same capture of <a href="${sourcePagePath(i.sourceId)}">${escapeHtml(i.sourceId)}</a>, on <a href="${changePagePath(i.sha)}">${escapeHtml(i.sha.slice(0, 7))}</a>. The front page shows at most ${PER_COMMIT_LIMIT} per capture so one busy commit cannot fill it; the micro-category pages are uncapped.</p></li>`
+        : '';
+    return feedItemHtml(i, 0) + note;
+  })
+  .join('\n')}
 </ol>
 </section>`,
     )
@@ -1298,7 +1354,9 @@ ${g.items.map((i) => feedItemHtml(i, 0)).join('\n')}
 
   const capped =
     feed.length > shown.length
-      ? `<p class="note">Showing the ${plural(shown.length, 'most recent item')} of ${formatInt(feed.length)}. Nothing is dropped: every item is also on its micro-category page, on its lab page where it has one, and on the entity thread it attaches to, and none of those are capped.</p>`
+      ? `<p class="note">Showing ${plural(shown.length, 'item')} of ${formatInt(feed.length)}${
+          heldBackTotal > 0 ? `, with ${formatInt(heldBackTotal)} more held back so that no single capture fills the page` : ''
+        }. Nothing is dropped: every item is also on its micro-category page, on its lab page where it has one, and on the entity thread it attaches to, and none of those are capped.</p>`
       : '';
 
   const stream =
