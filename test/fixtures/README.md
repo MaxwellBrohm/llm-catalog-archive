@@ -26,7 +26,9 @@ exists.
 | `trap-qwen-stale.xml` | 39,167 | qwenlm.github.io/blog/index.xml | 200, valid XML, parses, and years stale | newest item date is far in the past |
 | `trap-anthropic-catchall.html` | 64,176 | alignment.anthropic.com/feed.xml | a feed path that returns the blog homepage | byte-identical to `trap-anthropic-404path.html` |
 | `trap-anthropic-404path.html` | 64,176 | alignment.anthropic.com/zzz-not-a-real-path-9999 | the pair above, for the identity check | `cmp` against the catch-all |
-| `trap-interstitial.html` | 348,670 | theneurondaily.com/feed | a 200 that is not the feed: it is the site homepage, and it carries `__CF$cv$params` and NONE of the other four denylist markers | `<title>The Neuron</title>`; exactly one denylist marker |
+| `trap-interstitial.html` | 348,670 | theneurondaily.com/feed | a 200 that is not the feed: it is the site homepage. It carries the Cloudflare **beacon** `__CF$cv$params` and ZERO challenge markers, which is the measurement that got `__CF$cv$params` taken off the denylist | `<title>The Neuron</title>`; zero denylist markers; carries `/cdn-cgi/challenge-platform/scripts/` and not `/h/` |
+| `trap-cf-challenge-udemy.html` | 5,575 | www.udemy.com/ | a REAL Cloudflare managed challenge, captured at HTTP 403 on 2026-08-31. Carries `cf_chl_opt`, `/cdn-cgi/challenge-platform/h/`, `Just a moment` and `Enable JavaScript and cookies to continue`, and carries NO `__CF$cv$params` | `<title>Just a moment...</title>`; four denylist markers |
+| `trap-cf-challenge-indeed.html` | 27,518 | www.indeed.com/ | the other real challenge, and it earns its place by having NO `Just a moment` title. A denylist of human-readable strings alone would pass it | `<title>Security Check - Indeed.com</title>`; three denylist markers, no `Just a moment` |
 | `trap-openai-redirect-stub.txt` | 81 | platform.openai.com/docs/llms.txt | an 81-byte redirect body that only a size floor catches | 81 bytes |
 | `arena-flight-slice.txt` | 42,000 | arena.ai/leaderboard | a real slice of the Next.js flight payload, in the **backslash-escaped** form the live page serves: `\\"publicName\\":\\"` matches and the bare `"publicName":"` matches ZERO times | 34 records, 29 distinct names, `cold_brew` maps to `muse-video` |
 | `arena-pairs-2026-08-31.tsv` | n/a | arena.ai/leaderboard | the COMPLETE set of 57 distinct pairs where `publicName` differs from `displayName`, each hand classified. 39 reveals, 18 variants, so a raw count overstates reveals by about 1.5x | 57 data lines, 39 ending `reveal` |
@@ -51,13 +53,37 @@ asserted in `test/predicate.test.ts` and will move if the fixture is recaptured.
 
 `trap-interstitial.html` is misnamed and the name is kept so the tests that
 reference it stay findable. It is not a Cloudflare challenge page. It is the
-newsletter's own homepage returned for a feed path, and the only denylist
-marker it carries is `__CF$cv$params`, which Cloudflare injects into ordinary
-proxied 200s rather than into challenges. That is a measured fact with a
-consequence: the live arena.ai leaderboard carries the same marker, so
-`checkHealth` rejects 5.2 MB of real content, and dropping the marker from the
-denylist would leave this fixture undetected. See `arena-leaderboard`'s notes
-in `meta/sources.json`.
+newsletter's own homepage returned for a feed path, and the only Cloudflare
+string it carries is `__CF$cv$params`, the challenge-platform BEACON, which
+loads on ordinary proxied 200s wherever JS Detections or Bot Fight Mode is on.
+
+That fact used to be recorded here as an unresolvable tradeoff, and it was
+resolved on 2026-08-31 by measuring the other side. Three live captures:
+
+| capture | HTTP | `__CF$cv$params` | `cf_chl_opt` | `/cdn-cgi/challenge-platform/h/` |
+|---|---:|---:|---:|---:|
+| `trap-cf-challenge-udemy.html` (real challenge) | 403 | 0 | 7 | 1 |
+| `trap-cf-challenge-indeed.html` (real challenge) | 403 | 0 | 7 | 1 |
+| `arena.ai/.../orchestrate/chl_page/v1` (real challenge, not kept) | **200** | 0 | 6 | 1 |
+| `arena.ai/leaderboard` (ordinary page) | 200 | 1 | 0 | 0 |
+| `crunchbase.com` (ordinary page) | 200 | 1 | 0 | 0 |
+| `trap-interstitial.html` (ordinary page) | 200 | 1 | 0 | 0 |
+
+The marker had the sign backwards: a real challenge does not carry it and
+every ordinary Cloudflare-fronted page does. It is off the denylist, and
+`arena-leaderboard` is archiving. The arena `chl_page` row is why the challenge
+fixtures are presented at 200 in `test/health.test.ts` even though both were
+captured at 403: a challenge really can arrive inside the 2xx window, where the
+status line cannot catch it and only the denylist can.
+
+`test/health.test.ts` sweeps every denylist marker against every stored capture
+and against the ordinary pages above, and asserts both challenge fixtures are
+still caught. A marker added without clearing both halves turns that file red.
+
+Neither challenge fixture carries a credential. The `cH`, `md`, `mdrd` and
+`__cf_chl_tk` blobs in them are single-use, IP-bound, minutes-long challenge
+nonces that authorise nothing, and `test/secrets.test.ts` sweeps the credential
+gate over the archive rather than trusting that sentence.
 
 `volatile-claude-status.atom` is a FROZEN copy of `raw/claude-status/`. The
 mask tests must not read the live archive path: the collector rewrites it on

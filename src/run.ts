@@ -4,6 +4,7 @@ import { checkHealth } from './health.js';
 import { buildSidecar, originDateMs } from './headers.js';
 import { changedUnderPredicate } from './predicate.js';
 import { shrinkVerdict } from './magnitude.js';
+import { secretVerdict } from './secrets.js';
 import {
   applyOutcome,
   exitCodeFor,
@@ -71,14 +72,21 @@ const unreachable = (): Outcome => ({
  * which everything is failing. Evaluating counters first, or aborting on the
  * first exception, re-arms that clock at the worst possible moment.
  *
- * The change predicate and the magnitude guard both sit between the health
- * verdict and the write, in that order, and both withhold the write without
- * clobbering what is already archived. They fail in opposite directions on
- * purpose. A predicate that cannot project is a FAILURE, because "unchanged"
- * is the answer that lets a broken extractor sit silently on a live source for
- * months. A magnitude hold is NOT a failure: the response was healthy and may
- * well be correct, it is simply too large a removal to land unreviewed in a
- * history R7 forbids rewriting, so the run records it and exits zero.
+ * The change predicate, the credential gate and the magnitude guard all sit
+ * between the health verdict and the write, in that order, and all three
+ * withhold the write without clobbering what is already archived. They fail in
+ * opposite directions on purpose. A predicate that cannot project is a
+ * FAILURE, because "unchanged" is the answer that lets a broken extractor sit
+ * silently on a live source for months. The other two are NOT failures: the
+ * response was healthy and may well be correct, it is simply not something to
+ * land unreviewed in a history R7 forbids rewriting, so the run records the
+ * hold and exits zero.
+ *
+ * The credential gate is a hold rather than a failure for a reason worth
+ * saying out loud. When a provider publishes their own API key in their own
+ * docs, the source is working perfectly and the collector is working
+ * perfectly. Nothing here can be fixed by retrying, and mailing an operator a
+ * failure every day about it is how an alerting channel gets muted.
  */
 export async function runTier(
   sources: Source[],
@@ -150,9 +158,17 @@ export async function runTier(
           const originIso = originMs === null ? null : new Date(originMs).toISOString();
 
           const verdict = changedUnderPredicate(s, got.observed.body, stored);
-          const hold = verdict.ok && verdict.changed
-            ? shrinkVerdict(s, got.observed.body, stored)
+          // The credential gate runs first, and its answer wins. Both gates
+          // withhold the write, so on a body that is both collapsed and
+          // carrying a key the operator gets told the actionable one.
+          const secret = verdict.ok && verdict.changed
+            ? secretVerdict(got.observed.body)
             : ({ held: false } as const);
+          const hold = secret.held
+            ? secret
+            : verdict.ok && verdict.changed
+              ? shrinkVerdict(s, got.observed.body, stored)
+              : ({ held: false } as const);
 
           if (!verdict.ok) {
             // Loud, and specifically not "unchanged". A projection that cannot

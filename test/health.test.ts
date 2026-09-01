@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { checkHealth, countFeedItems, newestFeedDate, xmlRootElement } from '../src/health.js';
+import path from 'node:path';
+import { checkHealth, countFeedItems, INTERSTITIAL_MARKERS, newestFeedDate, xmlRootElement } from '../src/health.js';
 import { loadSources } from '../src/config.js';
+import { parseStatusFile } from '../src/status.js';
 import type { Observed } from '../src/types.js';
 import type { Source } from '../src/config.js';
 
@@ -61,8 +63,42 @@ const withSuffix = (s: string) => enc(fxText('healthy-claude-llms.txt') + s);
  * have passed while proving nothing.
  */
 describe('the fixtures still carry their traps', () => {
-  it('the interstitial fixture still contains a cloudflare challenge marker', () => {
+  /**
+   * `trap-interstitial.html` is NOT a challenge page and never was. It is the
+   * neuron newsletter's own homepage returned for a feed path, and the only
+   * thing Cloudflare put in it is the challenge-platform BEACON, which loads
+   * on ordinary proxied 200s wherever JS Detections is switched on. Mistaking
+   * that beacon for a challenge is what kept `arena-leaderboard` dark.
+   */
+  it('the neuron homepage still carries the cloudflare beacon', () => {
     expect(fxText('trap-interstitial.html').includes('__CF$cv$params')).toBe(true);
+  });
+
+  it('the neuron homepage carries the beacon script path and not the challenge path', () => {
+    expect(fxText('trap-interstitial.html').includes('/cdn-cgi/challenge-platform/scripts/')).toBe(true);
+  });
+
+  // The measurement that reverses the old marker's sign. A REAL managed
+  // challenge does not carry the beacon at all.
+  it('the real challenge capture carries no beacon', () => {
+    expect(fxText('trap-cf-challenge-udemy.html').includes('__CF$cv$params')).toBe(false);
+  });
+
+  it('the real challenge capture is still the challenge page and not a passed-through site', () => {
+    expect(fxText('trap-cf-challenge-udemy.html').includes('<title>Just a moment...</title>')).toBe(true);
+  });
+
+  /**
+   * The second challenge capture earns its place by NOT having the title. If
+   * the denylist were only the human-readable strings, this real challenge
+   * would sail through, which is why the structural markers are on the list.
+   */
+  it('the second challenge capture carries no Just a moment title', () => {
+    expect(fxText('trap-cf-challenge-indeed.html').includes('Just a moment')).toBe(false);
+  });
+
+  it('the second challenge capture is still a challenge page', () => {
+    expect(fxText('trap-cf-challenge-indeed.html').includes('<title>Security Check - Indeed.com</title>')).toBe(true);
   });
 
   it('the cohere trap is still the full body and not a redirect stub', () => {
@@ -158,46 +194,72 @@ describe('checkHealth, the status line', () => {
  * 200. Every source below is configured so that the interstitial check is the
  * ONLY check that can reject the body, which is what makes these claims about
  * the denylist rather than about size or canaries.
+ *
+ * The captures are real. `trap-cf-challenge-udemy.html` is a Cloudflare
+ * managed challenge captured on 2026-08-31; it arrived at 403, and it is
+ * presented at 200 here because the status line already rejects a 403 and the
+ * denylist exists for the case where a challenge arrives INSIDE the 2xx
+ * window. That case is not hypothetical: on the same day
+ * `arena.ai/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1` returned
+ * HTTP 200 carrying `cf_chl_opt` six times.
  */
 describe('checkHealth, the interstitial denylist', () => {
-  // contentType html so no root or json check applies; the canary is a word
-  // the page really contains; minBytes and the first-fetch band cannot fire.
-  const neuron = () =>
-    src({ contentType: 'html', invariants: { ...src().invariants, minBytes: 100, canary: 'Neuron' } });
+  // contentType html so no root or json check applies; no canary to fail on;
+  // minBytes and the first-fetch band cannot fire.
+  const challenged = () =>
+    src({ contentType: 'html', invariants: { ...src().invariants, minBytes: 100, canary: null } });
 
-  it('refuses to write a challenge page whose every other check passes', () => {
-    expect(checkHealth(neuron(), obs(fxBytes('trap-interstitial.html')), { bytes: null }, NOW).writeAllowed).toBe(false);
+  it('refuses to write a real challenge page whose every other check passes', () => {
+    const v = checkHealth(challenged(), obs(fxBytes('trap-cf-challenge-udemy.html')), { bytes: null }, NOW);
+    expect(v.writeAllowed).toBe(false);
   });
 
   it('names the marker it found', () => {
-    expect(checkHealth(neuron(), obs(fxBytes('trap-interstitial.html')), { bytes: null }, NOW).reason).toBe(
-      'interstitial marker present: __CF$cv$params',
-    );
+    const v = checkHealth(challenged(), obs(fxBytes('trap-cf-challenge-udemy.html')), { bytes: null }, NOW);
+    expect(v.reason).toBe('interstitial marker present: cf_chl_opt');
   });
 
   it('counts a challenge page as a failure', () => {
-    expect(checkHealth(neuron(), obs(fxBytes('trap-interstitial.html')), { bytes: null }, NOW).countsAsFailure).toBe(
-      true,
-    );
+    const v = checkHealth(challenged(), obs(fxBytes('trap-cf-challenge-udemy.html')), { bytes: null }, NOW);
+    expect(v.countsAsFailure).toBe(true);
   });
 
-  // The challenge page carries the canary the neuron feed would have used, so
-  // the canary check alone would have let it through. This is why the denylist
-  // is checked independently instead of being folded into the canary.
-  it('rejects it even though the body does carry the configured canary', () => {
-    expect(fxText('trap-interstitial.html').includes('Neuron')).toBe(true);
+  // The other real challenge, the one with no recognisable title. Catching it
+  // is the whole argument for keeping the two structural markers.
+  it('refuses to write a real challenge that carries no human-readable challenge text', () => {
+    const v = checkHealth(challenged(), obs(fxBytes('trap-cf-challenge-indeed.html')), { bytes: null }, NOW);
+    expect(v.reason).toBe('interstitial marker present: cf_chl_opt');
   });
 
-  // The base for the five per-marker tests. Without this the marker tests would
-  // not prove the marker is what did it.
+  // The base for the per-marker tests. Without this the marker tests would not
+  // prove the marker is what did it.
   it('accepts the carrier body when nothing is appended to it', () => {
     expect(checkHealth(src(), obs(withSuffix('')), { bytes: null }, NOW).state).toBe('ok');
   });
 
-  it('rejects a body carrying __CF$cv$params', () => {
-    expect(checkHealth(src(), obs(withSuffix('\n__CF$cv$params\n')), { bytes: null }, NOW).reason).toBe(
-      'interstitial marker present: __CF$cv$params',
+  it('rejects a body carrying cf_chl_opt', () => {
+    expect(checkHealth(src(), obs(withSuffix("\nwindow._cf_chl_opt={cType:'managed'};\n")), { bytes: null }, NOW).reason).toBe(
+      'interstitial marker present: cf_chl_opt',
     );
+  });
+
+  it('rejects a body carrying the challenge orchestration path', () => {
+    expect(
+      checkHealth(src(), obs(withSuffix('\n/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1\n')), { bytes: null }, NOW)
+        .reason,
+    ).toBe('interstitial marker present: /cdn-cgi/challenge-platform/h/');
+  });
+
+  /**
+   * The path marker is a PREFIX of the challenge path and not of the beacon
+   * path, and that is the entire distinction. Without the trailing `/h/` this
+   * marker readmits every Cloudflare-fronted source, which is the bug being
+   * fixed here wearing a new spelling.
+   */
+  it('accepts a body carrying the beacon script path, which ordinary pages load', () => {
+    expect(
+      checkHealth(src(), obs(withSuffix('\n/cdn-cgi/challenge-platform/scripts/jsd/main.js\n')), { bytes: null }, NOW).state,
+    ).toBe('ok');
   });
 
   it('rejects a body carrying cf-mitigated', () => {
@@ -224,13 +286,57 @@ describe('checkHealth, the interstitial denylist', () => {
     );
   });
 
-  // The band would also have rejected this body, at a ratio of 58. The marker
-  // must win, because "size ratio 58.112 outside band" is a true statement that
-  // sends an operator to the wrong problem.
+  /**
+   * THE FALSE POSITIVE THAT COST arena-leaderboard ITS ARCHIVE.
+   *
+   * `__CF$cv$params` was on this list and marked "site is behind Cloudflare",
+   * not "this response is a challenge". A body carrying it and nothing else
+   * must now be written.
+   */
+  it('accepts a body carrying the cloudflare beacon, which is not a challenge', () => {
+    expect(
+      checkHealth(src(), obs(withSuffix("\nwindow.__CF$cv$params={r:'a3160939ebd5ae70',t:'MTc4Nzc4MDg1Nw=='};\n")), {
+        bytes: null,
+      }, NOW).state,
+    ).toBe('ok');
+  });
+
+  // The band would also have rejected this body, at a ratio of 5.5. The marker
+  // must win, because a size ratio is a true statement that sends an operator
+  // to the wrong problem.
   it('reports the marker rather than the size when both would reject', () => {
-    expect(checkHealth(neuron(), obs(fxBytes('trap-interstitial.html')), { bytes: 6000 }, NOW).reason).toBe(
-      'interstitial marker present: __CF$cv$params',
-    );
+    const v = checkHealth(challenged(), obs(fxBytes('trap-cf-challenge-udemy.html')), { bytes: 1000 }, NOW);
+    expect(v.reason).toBe('interstitial marker present: cf_chl_opt');
+  });
+});
+
+/**
+ * The neuron homepage is still rejected, by the check that actually describes
+ * what is wrong with it.
+ *
+ * It is a 348 KB site homepage returned for a feed path. Nothing about it is a
+ * challenge, so the denylist was never the honest reason for rejecting it, and
+ * the size band against a real feed baseline is. Losing a marker did not lose
+ * the trap.
+ */
+describe('checkHealth still rejects the homepage-for-a-feed-path trap', () => {
+  const neuronFeed = () =>
+    src({ contentType: 'html', invariants: { ...src().invariants, minBytes: 100, canary: 'Neuron' } });
+
+  it('rejects it on size against the feed baseline it would have replaced', () => {
+    const v = checkHealth(neuronFeed(), obs(fxBytes('trap-interstitial.html')), { bytes: 6000 }, NOW);
+    expect(v.reason).toBe('size ratio 58.112 outside band [0.5, 2]');
+  });
+
+  it('counts that rejection as a failure', () => {
+    const v = checkHealth(neuronFeed(), obs(fxBytes('trap-interstitial.html')), { bytes: 6000 }, NOW);
+    expect(v.countsAsFailure).toBe(true);
+  });
+
+  // The canary would have let it through on its own: the page really does
+  // contain the word the feed's canary would have been.
+  it('carries the canary that would have passed it', () => {
+    expect(fxText('trap-interstitial.html').includes('Neuron')).toBe(true);
   });
 });
 
@@ -926,23 +1032,48 @@ describe('the configured canaries', () => {
     expect(textSources.filter((s) => (s.invariants.canary ?? '').length < 10).map((s) => s.id)).toEqual([]);
   });
 
-  // The `archived` filter below is a filter, and a filter that quietly dropped
-  // a source would be a coverage gap that looks like coverage. So the set it
-  // drops is named. It is empty now: `xai-llms-txt` was the one entry here
-  // while it shipped `pending`, and activating it gave the collector something
-  // to archive on its first run.
-  // An ACTIVE text source must have a capture, or its canary is never checked
-  // against real bytes. A PENDING one has none by definition, so the gap is
-  // asserted by name rather than skipped silently: if a source goes dark, this
-  // test says which, and if one is reactivated without a capture it fails.
-  it('has an archived capture for every ACTIVE text source, so the canary loop skips none', () => {
-    const missing = textSources.filter((s) => s.status === 'active' && !fs.existsSync(s.path));
+  /**
+   * The `archived` filter below is a filter, and a filter that quietly dropped
+   * a source would be a coverage gap that looks like coverage. So the set it
+   * drops is named, and so is the reason.
+   *
+   * There are now exactly two lawful reasons a text source has no capture: it
+   * has never run, or a write gate is holding it. `xai-llms-txt` is the second
+   * kind. It is ACTIVE, its fetch is healthy, and the credential gate holds
+   * every snapshot because xAI is still publishing an 84-character `xai-` key
+   * in their own `llms.txt`. Anything else with no capture is a source that
+   * has gone dark without saying so.
+   *
+   * The day xAI takes the key down this source archives and the two
+   * expectations below go red on good news. That is the intended cost of a
+   * pin: the archive changed state, and somebody should update the number
+   * rather than have a test that cannot tell the two states apart.
+   */
+  const status = parseStatusFile(fs.readFileSync('meta/status.json', 'utf8'));
+  const heldReason = (id: string): string | null => status?.sources[id]?.held?.reason ?? null;
+
+  it('has an archived capture for every active text source no gate is holding', () => {
+    const missing = textSources.filter(
+      (s) => s.status === 'active' && !fs.existsSync(s.path) && heldReason(s.id) === null,
+    );
     expect(missing.map((s) => s.id)).toEqual([]);
   });
 
-  it('names every text source that is dark, rather than skipping it quietly', () => {
+  it('names every text source with no archived capture, rather than skipping it quietly', () => {
     const dark = textSources.filter((s) => !fs.existsSync(s.path)).map((s) => s.id).sort();
     expect(dark).toEqual(['xai-llms-txt']);
+  });
+
+  /**
+   * The counts and offsets move whenever xAI edits the file, so they are
+   * normalised away and the PATTERNS are pinned. Which formats fired is the
+   * claim; how many times is not.
+   */
+  it('explains that gap with a recorded credential hold naming the formats it found', () => {
+    const shape = (r: string): string => r.replace(/x\d+ at byte \d+/g, 'xN at byte N');
+    expect(shape(heldReason('xai-llms-txt') ?? '')).toBe(
+      'credential gate: xai-api-key xN at byte N, generic-api-key-assignment xN at byte N',
+    );
   });
 
   const archived = textSources.filter((s) => fs.existsSync(s.path));
@@ -964,4 +1095,102 @@ describe('the configured canaries', () => {
       expect(v.state).toBe('ok');
     });
   }
+});
+
+/**
+ * THE BAR EVERY MARKER ON THE DENYLIST HAS TO CLEAR, IN BOTH DIRECTIONS.
+ *
+ * The denylist is a module constant shared by every source, so one bad entry
+ * takes healthy sources dark and nothing says which. That is not a
+ * hypothetical: `__CF$cv$params` sat here for a week and `arena-leaderboard`
+ * sat dark behind it, with a working extractor and 5.2 MB of real content, and
+ * the notes in `meta/sources.json` blamed the extractor's own risk rather than
+ * the marker.
+ *
+ * So the bar is measured rather than argued. A marker must score ZERO against
+ * every body this archive has actually stored and against the ordinary
+ * Cloudflare-fronted page that made the mistake, and the list as a whole must
+ * still catch two real captured challenges. Adding a marker without clearing
+ * both halves turns this file red.
+ */
+describe('the interstitial denylist against reality', () => {
+  const captures = (): string[] =>
+    fs
+      .readdirSync('raw', { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .flatMap((e) =>
+        fs
+          .readdirSync(path.join('raw', e.name))
+          .filter((n) => n.startsWith('response.'))
+          .map((n) => path.join('raw', e.name, n)),
+      )
+      .sort();
+
+  /** Every `<file>:<marker>` pair a marker list scores against a file list. */
+  const sweep = (markers: readonly string[], files: string[]): string[] =>
+    files.flatMap((f) => {
+      const text = fs.readFileSync(f, 'utf8');
+      return markers.filter((m) => text.includes(m)).map((m) => `${f}:${m}`);
+    });
+
+  it('checks exactly these six markers, in this order', () => {
+    expect(INTERSTITIAL_MARKERS).toEqual([
+      'cf_chl_opt',
+      '/cdn-cgi/challenge-platform/h/',
+      'cf-mitigated',
+      'Just a moment',
+      'Enable JavaScript and cookies to continue',
+      'Attention Required!',
+    ]);
+  });
+
+  it('has captures to sweep, so a zero below is a measurement', () => {
+    expect(captures().length).toBeGreaterThan(10);
+  });
+
+  /**
+   * The sweep, given the marker that was REMOVED, finds it. Without this the
+   * zeroes below are satisfied by a sweep that reads no files, matches
+   * nothing, or was handed an empty marker list.
+   */
+  it('finds the removed marker when it is given it, so a zero is not a broken sweep', () => {
+    expect(sweep(['__CF$cv$params'], ['test/fixtures/trap-interstitial.html'])).toEqual([
+      'test/fixtures/trap-interstitial.html:__CF$cv$params',
+    ]);
+  });
+
+  it('scores zero against every capture the collector has committed', () => {
+    expect(sweep(INTERSTITIAL_MARKERS, captures())).toEqual([]);
+  });
+
+  /**
+   * Named on its own rather than left inside the sweep above. This is the
+   * source the old marker kept dark, its capture is a live 5.2 MB
+   * Cloudflare-fronted page, and it is the body the denylist has to be right
+   * about for the fix to have worked.
+   */
+  it('scores zero against the archived arena leaderboard, the source it kept dark', () => {
+    expect(sweep(INTERSTITIAL_MARKERS, ['raw/arena-leaderboard/response.html'])).toEqual([]);
+  });
+
+  it('scores zero against the ordinary Cloudflare-fronted page it used to reject', () => {
+    expect(sweep(INTERSTITIAL_MARKERS, ['test/fixtures/trap-interstitial.html'])).toEqual([]);
+  });
+
+  it('still catches the real managed challenge', () => {
+    expect(sweep(INTERSTITIAL_MARKERS, ['test/fixtures/trap-cf-challenge-udemy.html'])).toEqual([
+      'test/fixtures/trap-cf-challenge-udemy.html:cf_chl_opt',
+      'test/fixtures/trap-cf-challenge-udemy.html:/cdn-cgi/challenge-platform/h/',
+      'test/fixtures/trap-cf-challenge-udemy.html:Just a moment',
+      'test/fixtures/trap-cf-challenge-udemy.html:Enable JavaScript and cookies to continue',
+    ]);
+  });
+
+  it('still catches the real challenge that has no challenge text in it', () => {
+    expect(sweep(INTERSTITIAL_MARKERS, ['test/fixtures/trap-cf-challenge-indeed.html'])).toEqual([
+      'test/fixtures/trap-cf-challenge-indeed.html:cf_chl_opt',
+      'test/fixtures/trap-cf-challenge-indeed.html:/cdn-cgi/challenge-platform/h/',
+      'test/fixtures/trap-cf-challenge-indeed.html:Enable JavaScript and cookies to continue',
+    ]);
+  });
 });

@@ -3,6 +3,7 @@ import { runTier, type RunDeps } from '../src/run.js';
 import type { Source } from '../src/config.js';
 import type { HeaderRecord } from '../src/headers.js';
 import { parseStatusFile, shouldCommitStatus, type SourceStatus, type StatusFile } from '../src/status.js';
+import { KEY80 } from './secrets.test.js';
 
 const enc = (s: string) => new TextEncoder().encode(s);
 const dec = (b: Uint8Array | undefined) => new TextDecoder().decode(b);
@@ -420,8 +421,21 @@ describe('runTier consults the health gate before it writes', () => {
       ...over,
     });
 
-  /** Carries the canary, so only the interstitial denylist can reject it. */
-  const CHALLENGE = enc('CANARY\n<title>Just a moment...</title>\n__CF$cv$params\n');
+  /**
+   * Carries the canary, so only the interstitial denylist can reject it.
+   *
+   * Shaped like a real Cloudflare managed challenge rather than like the
+   * beacon that used to be mistaken for one: `_cf_chl_opt` is the options
+   * object a challenge page has to define to run at all, and the orchestrate
+   * path is the one only a challenge loads. `__CF$cv$params` was the marker
+   * here and it was WRONG in both directions, which is why this body changed:
+   * a real challenge does not carry it and three ordinary 200s do.
+   */
+  const CHALLENGE = enc(
+    'CANARY\n<title>Just a moment...</title>\n' +
+      "window._cf_chl_opt={cType:'managed'};" +
+      "a.src='/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1';\n",
+  );
   const LAST_GOOD = enc('CANARY\nthe bytes that were good\n');
 
   const feedDated = (iso: string) =>
@@ -462,7 +476,7 @@ describe('runTier consults the health gate before it writes', () => {
 
   it('says which check refused the write', async () => {
     const d = await runWith(source(), CHALLENGE, { 'raw/a/response.txt': LAST_GOOD });
-    expect(d.logs).toContain('a: failed, not written: interstitial marker present: __CF$cv$params');
+    expect(d.logs).toContain('a: failed, not written: interstitial marker present: cf_chl_opt');
   });
 
   it('records the refusal in the trace it returns', async () => {
@@ -1336,6 +1350,164 @@ describe('the magnitude guard, as runTier applies it', () => {
   it('does not hold the seed fetch of a source with nothing archived yet', async () => {
     const { r, d, committed } = await runAgainst(guarded(), lines(3), null);
     expect(r.status?.sources['a']?.held).toBeNull();
+    expect(d.trace).toContain(committed);
+  });
+});
+
+/**
+ * THE CREDENTIAL GATE, AS runTier APPLIES IT.
+ *
+ * On 2026-08-31 xAI's own published `llms.txt` carried an 84 character `xai-`
+ * credential three times. The collector captured it and committed it locally,
+ * and GitHub push protection refusing the push is the only reason it never
+ * entered a public archive that is never rewritten. Push protection is not a
+ * control we get to rely on: it only knows the formats it has partnered on,
+ * and it fires after the bytes are already in a commit.
+ *
+ * So the gate sits where the magnitude guard sits, between the change decision
+ * and the write, and it behaves the same way on purpose. Withhold one write,
+ * record the hold, exit zero. It is NOT a source failure: the source is
+ * healthy, the fetch worked, the predicate saw a real change, and the provider
+ * made the mistake.
+ *
+ * Every credential below is generated in `test/secrets.test.ts` rather than
+ * pasted. The real key appears nowhere in this repository, because a fixture
+ * is committed to the same public history the gate exists to protect.
+ */
+describe('the credential gate, as runTier applies it', () => {
+  const withKey = (): Uint8Array => enc(`CANARY\n{"apiKey": "xai-${KEY80}"}\n`);
+  const clean = (): Uint8Array => enc('CANARY\nno credential in this body at all\n');
+
+  it('does not commit a body carrying a credential', async () => {
+    const { d, committed } = await runAgainst(source(), withKey(), clean());
+    expect(d.trace).not.toContain(committed);
+  });
+
+  it('leaves the last accepted bytes in place rather than writing over them', async () => {
+    const stored = clean();
+    const { d } = await runAgainst(source(), withKey(), stored);
+    expect(d.files['raw/a/response.txt']).toEqual(stored);
+  });
+
+  // The sidecar is written by the same branch as the body. A gate that stopped
+  // the body and let the headers through would commit a headers.json describing
+  // a snapshot that is not in the archive.
+  it('does not write the headers sidecar either', async () => {
+    const { d } = await runAgainst(source(), withKey(), clean());
+    expect(d.trace).not.toContain('write:raw/a/headers.json');
+  });
+
+  it('records the hold in status, naming the pattern, the count and the offset', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.status?.sources['a']?.held).toEqual({
+      at: '2026-08-26T14:00:00.000Z',
+      reason: 'credential gate: xai-api-key x1 at byte 19, generic-api-key-assignment x1 at byte 8',
+    });
+  });
+
+  // The status file is committed, so a reason that quoted the match would
+  // archive the credential through the very gate that stopped it.
+  it('records a hold reason that does not contain the credential', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.status?.sources['a']?.held?.reason.includes(KEY80)).toBe(false);
+  });
+
+  it('logs a hold reason that does not contain the credential', async () => {
+    const { d } = await runAgainst(source(), withKey(), clean());
+    expect(d.logs.some((l) => l.includes(KEY80))).toBe(false);
+  });
+
+  it('traces the hold under the same name a magnitude hold uses', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.trace).toContain('held:a');
+  });
+
+  it('exits zero, because a provider publishing their own key is not our outage', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.exitCode).toBe(0);
+  });
+
+  it('does not advance the failure counter', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.status?.sources['a']?.consecutiveFailures).toBe(0);
+  });
+
+  // The response passed every health check. Recording it as failed would send
+  // an operator looking for a broken source that is working perfectly.
+  it('leaves the recorded health as ok rather than failed', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.status?.sources['a']?.health).toBe('ok');
+  });
+
+  it('does not stamp a change clock on a held run', async () => {
+    const { r } = await runAgainst(source(), withKey(), clean());
+    expect(r.status?.sources['a']?.lastChangeAt).toBeNull();
+  });
+
+  /**
+   * The magnitude guard exempts the seed fetch, because a percentage of
+   * nothing is not a number. This gate must NOT copy that exemption: the xAI
+   * incident WAS a seed fetch, on a source with nothing archived yet, and an
+   * exemption there is the exact hole the gate exists to close.
+   */
+  it('holds the seed fetch of a source with nothing archived yet', async () => {
+    const { r } = await runAgainst(source(), withKey(), null);
+    // `?? 'not held'` so a mutant that skips the seed reads as a value diff
+    // rather than as a chai complaint about calling toContain on undefined.
+    expect(r.status?.sources['a']?.held?.reason ?? 'not held').toContain('credential gate');
+  });
+
+  it('writes nothing on that seed fetch', async () => {
+    const { d } = await runAgainst(source(), withKey(), null);
+    expect(d.trace).not.toContain('write:raw/a/response.txt');
+  });
+
+  /**
+   * Both gates would hold this body. The credential is the actionable one, so
+   * it is the one the operator is told about: "89.1% removal" sends them to
+   * look for a broken extractor.
+   */
+  it('reports the credential rather than the shrink when both would hold', async () => {
+    const guarded = source({
+      invariants: { minBytes: 1, requiredKeyPath: null, minRecords: null, canary: 'CANARY', sizeBand: [0.01, 10] },
+    });
+    const stored = enc(`CANARY\n${Array.from({ length: 100 }, (_, i) => `l${i}`).join('\n')}`);
+    const { d } = await runAgainst(guarded, withKey(), stored);
+    expect(d.logs).toContain(
+      'a: held for review, not written: credential gate: xai-api-key x1 at byte 19, generic-api-key-assignment x1 at byte 8',
+    );
+  });
+
+  /**
+   * The gate is asked only about bytes that would actually be written. The
+   * mask swallows everything from `drop` on, so these two bodies project
+   * equal and nothing is written either way. Scanning here would pin a source
+   * in a permanent hold over bytes nobody is committing.
+   */
+  it('does not hold a snapshot the predicate already called unchanged', async () => {
+    const masked = source({ predicate: { type: 'mask', patterns: ['drop[\\s\\S]*'] } });
+    const { r } = await runAgainst(masked, enc(`CANARY\ndrop {"apiKey": "xai-${KEY80}"}`), enc('CANARY\ndrop nothing'));
+    expect(r.status?.sources['a']?.held).toBeNull();
+  });
+
+  it('commits the next snapshot once the provider has taken the key down', async () => {
+    const held = await runAgainst(source(), withKey(), clean());
+    const { d, committed } = await runAgainst(source(), enc('CANARY\nkey removed\n'), clean(), held.r.status);
+    expect(d.trace).toContain(committed);
+  });
+
+  it('clears the recorded hold on that accepted snapshot', async () => {
+    const held = await runAgainst(source(), withKey(), clean());
+    const { r } = await runAgainst(source(), enc('CANARY\nkey removed\n'), clean(), held.r.status);
+    expect(r.status?.sources['a']?.held).toBeNull();
+  });
+
+  it('commits a body that carries a prefix without a credential behind it', async () => {
+    const { d, committed } = await runAgainst(
+      source(),
+      enc('CANARY\nGet a key from the xai-console-or-through-api page.\n'),
+      clean(),
+    );
     expect(d.trace).toContain(committed);
   });
 });

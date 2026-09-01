@@ -26,7 +26,7 @@ export type HealthVerdict = {
 };
 
 /**
- * Strings that appear in bot-challenge and block pages.
+ * Strings that appear in bot-challenge and block pages, and NOWHERE ELSE.
  *
  * A module constant, deliberately not a per-source field. The config schema
  * rejects unknown keys, so a per-source copy would be a per-source opportunity
@@ -36,14 +36,48 @@ export type HealthVerdict = {
  * Checked independently of the canary rather than folded into it, because a
  * challenge page can carry a source's canary by accident: the canary is often
  * a word from the site's own chrome, and the challenge is served from the same
- * host. Measured on the captured fixture, which contains both `__CF$cv$params`
- * and the word the neuron feed's canary would have been.
+ * host.
+ *
+ * `__CF$cv$params` USED TO BE ON THIS LIST AND WAS A MISTAKE. It is set by
+ * Cloudflare's challenge-platform beacon, which loads on ORDINARY proxied 200s
+ * wherever JS Detections or Bot Fight Mode is switched on, so it marks "this
+ * site is behind Cloudflare" rather than "this response is a challenge". Every
+ * Cloudflare-fronted source was a potential false positive and `arena-leaderboard`
+ * was the first: it carried the beacon on a perfectly good 5.2 MB leaderboard
+ * and sat dark for it. Three live captures on 2026-08-31 settle the direction
+ * of the error. A real Cloudflare managed challenge (udemy.com, "Just a
+ * moment...") carries NO `__CF$cv$params` at all, while three ordinary 200s
+ * that are not challenges (arena.ai/leaderboard, crunchbase.com, and the
+ * neuron homepage in `test/fixtures/trap-interstitial.html`) each carry
+ * exactly one. The marker had the sign backwards.
+ *
+ * What replaces it is challenge-specific by construction. `cf_chl_opt` is the
+ * challenge options object a challenge page has to define to run, and
+ * `/cdn-cgi/challenge-platform/h/` is the challenge orchestration path, which
+ * the beacon's own `/cdn-cgi/challenge-platform/scripts/jsd/main.js` is not.
+ * Both appear in all three live challenge captures and in none of the
+ * non-challenge ones.
+ *
+ * `test/health.test.ts` holds both halves of that as a test: every marker here
+ * scores zero against every body this archive has actually stored, and the
+ * real challenge fixture is still rejected. A marker added without clearing
+ * that bar fails the suite.
  */
-const INTERSTITIAL_MARKERS = [
-  '__CF$cv$params',
+export const INTERSTITIAL_MARKERS = [
+  // The challenge page's own options object, defined by every managed
+  // challenge and by no ordinary page.
+  'cf_chl_opt',
+  // The challenge orchestration path. Distinct from the JS Detections beacon
+  // script at /cdn-cgi/challenge-platform/scripts/, which ordinary pages load.
+  '/cdn-cgi/challenge-platform/h/',
+  // The response header Cloudflare sets on a mitigated request, which turns up
+  // in a body when a proxy or a debug page echoes headers back.
   'cf-mitigated',
+  // The interstitial's title.
   'Just a moment',
+  // Its body text.
   'Enable JavaScript and cookies to continue',
+  // The legacy block page's title.
   'Attention Required!',
 ];
 

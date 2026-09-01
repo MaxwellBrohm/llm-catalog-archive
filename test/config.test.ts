@@ -277,24 +277,25 @@ describe('the shipped meta/sources.json', () => {
     expect(shipped().sources).toHaveLength(18);
   });
 
-  // Five sources were volatile and all five now have a predicate. Four of them
-  // are active. `arena-leaderboard` alone is still pending, and its extractor
-  // is not the reason: it is blocked at the health check, because the live page
-  // carries the same `__CF$cv$params` beacon that is the only denylist marker
-  // `trap-interstitial.html` carries.
-  it('leaves arena-leaderboard and xai-llms-txt pending', () => {
-    expect(
-      shipped().sources
-        .filter((s) => s.status === 'pending')
-        .map((s) => s.id)
-        .sort(),
-    ).toEqual(['arena-leaderboard', 'xai-llms-txt']);
+  /**
+   * Nothing is pending any more, and the last two went active for reasons that
+   * had nothing to do with their predicates.
+   *
+   * `arena-leaderboard` was blocked at the health check by `__CF$cv$params`,
+   * which turned out to mark "behind Cloudflare" rather than "is a challenge";
+   * the denylist now carries markers only a real challenge has.
+   * `xai-llms-txt` was dark because the provider published their own API key
+   * in it, and the write-time credential gate in `src/secrets.ts` is now what
+   * protects the archive from that rather than the darkness.
+   */
+  it('ships no pending source at all', () => {
+    expect(shipped().sources.filter((s) => s.status === 'pending').map((s) => s.id)).toEqual([]);
   });
 
-  // The half of the pending story that a status field cannot say. Removing the
-  // predicate would leave the source pending and this assertion would still
-  // pass, so the extractor is named here too.
-  it('gives arena-leaderboard its extractor despite leaving it pending', () => {
+  // The half of the story a status field cannot say. Flipping the status
+  // without the extractor would still pass the assertion above, and the source
+  // would commit 5.2 MB of per-request noise every day forever.
+  it('gives arena-leaderboard the extractor its activation depends on', () => {
     const arena = shipped().sources.find((s) => s.id === 'arena-leaderboard')!;
     expect(arena.predicate).toEqual({ type: 'extracted', extractor: 'arena' });
   });
@@ -332,13 +333,24 @@ describe('the shipped meta/sources.json', () => {
     expect(sourcesForTier(shipped(), 'fast').map((s) => s.id)).toEqual(['openrouter-models']);
   });
 
-  it('never hands a pending source to the collector', () => {
+  it('hands the collector every one of the eighteen sources', () => {
     const fetched = [
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(16);
-    expect(fetched).not.toContain('arena-leaderboard');
+    expect(fetched).toHaveLength(18);
+  });
+
+  // The filter still filters. With nothing pending in the shipped file the
+  // assertion above passes just as well against a function that ignores
+  // `status` entirely, so the behaviour is pinned against a source that is.
+  it('still withholds a source that is marked pending', () => {
+    const file = shipped();
+    const marked = {
+      ...file,
+      sources: file.sources.map((s) => (s.id === 'arena-leaderboard' ? { ...s, status: 'pending' as const } : s)),
+    };
+    expect(activeSourcesForTier(marked, 'daily').map((s) => s.id)).not.toContain('arena-leaderboard');
   });
 
   it('matches spec section 4 on every id and url', () => {
