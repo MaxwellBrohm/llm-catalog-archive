@@ -13,7 +13,14 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      # DEPTH, because test/invariants.test.ts walks real commits to assert that
+      # every stored body was committed with its headers sidecar. The default
+      # shallow checkout gives it ONE commit, which made the guard pass
+      # vacuously on any repo and fail loudly here only because it asserts a
+      # minimum. 250 covers the 200 it reads without cloning an archive whose
+      # bulk is captured payloads.
       - uses: actions/checkout@v4
+        with: { fetch-depth: 250 }
       - uses: actions/setup-node@v4
         with:
           node-version: '24'

@@ -81,10 +81,27 @@ describe('the CLI and the site agree on where the archive is published', () => {
  * R7 forbids rewriting, so it can never be repaired.
  */
 describe('a stored body is never committed without its headers', () => {
-  const commits = execFileSync('git', ['log', '--format=%H', '-n', '200'], { encoding: 'utf8' }).trim().split('\n');
+  const commits = execFileSync('git', ['log', '--format=%H', '-n', '200'], { encoding: 'utf8' })
+    .trim()
+    .split('\n')
+    .filter((l) => l !== '');
+  const shallow =
+    execFileSync('git', ['rev-parse', '--is-shallow-repository'], { encoding: 'utf8' }).trim() === 'true';
 
-  it('has commits to check, so this cannot pass by walking nothing', () => {
-    expect(commits.length).toBeGreaterThan(20);
+  /*
+   * A SHALLOW CLONE MAKES THIS TEST A LIE, NOT A SKIP. With one commit reachable
+   * the walk below finds no offender and reports success, which is the vacuous
+   * pass this whole suite exists to refuse. CI therefore checks out with a
+   * depth, and this asserts it got one, so the guard fails LOUDLY rather than
+   * passing quietly if that is ever removed.
+   */
+  it('was given enough history to be evidence, rather than one grafted commit', () => {
+    expect(
+      commits.length,
+      shallow
+        ? `only ${commits.length} commit(s) reachable in a shallow clone; the workflow needs fetch-depth`
+        : 'the repository has too little history for this check',
+    ).toBeGreaterThan(20);
   });
 
   it('pairs every raw/<id>/response.* with raw/<id>/headers.json in the same commit', () => {
