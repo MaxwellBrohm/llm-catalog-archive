@@ -333,7 +333,7 @@ describe('ALL_TYPES covers both derivations', () => {
     expect(new Set(ALL_TYPES).size).toBe(ALL_TYPES.length);
   });
 
-  it('lists exactly fifteen types', () => {
-    expect(ALL_TYPES).toHaveLength(15);
+  it('lists exactly sixteen types', () => {
+    expect(ALL_TYPES).toHaveLength(16);
   });
 });

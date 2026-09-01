@@ -83,6 +83,7 @@ export type EventType =
   | 'expiration_set'
   | 'alias_retargeted'
   | 'doc_added'
+  | 'doc_moved'
   | 'doc_removed'
   | 'retirement_floor';
 
@@ -133,6 +134,7 @@ export type DerivedEvent = Common &
     | { type: 'expiration_set'; modelId: string; date: string }
     | { type: 'alias_retargeted'; alias: string; from: string; to: string }
     | { type: 'doc_added'; provider: string; title: string; url: string }
+    | { type: 'doc_moved'; provider: string; title: string; url: string; fromUrl: string }
     | { type: 'doc_removed'; provider: string; title: string; url: string }
     | {
         type: 'retirement_floor';
@@ -477,8 +479,64 @@ function docEvents(change: ContentChange, before: string, after: string): Derive
   const next = parseDocIndex(after);
   const out: DerivedEvent[] = [];
 
-  for (const [url, title] of next) {
-    if (prev.has(url)) continue;
+  /*
+   * A MOVE IS ONE EVENT, NOT A REMOVAL PLUS AN ADDITION.
+   *
+   * A documentation index that renames a directory produces, per page, a url
+   * that vanishes and a url that appears carrying the SAME TITLE. Reported as
+   * two events that is twice wrong: it says a page was removed when the page is
+   * still published, and it says a page was added when it is not new.
+   *
+   * It also drowns the real signal. In one live diff, four of the nine
+   * removals were Perplexity moving /gateway/ to /router/ and OpenRouter
+   * lifting containers.md up a level, and the other five were OpenAI's
+   * Assistants API pages actually leaving the index. All nine rendered at
+   * identical weight, so a deprecation worth knowing about sat beside four
+   * non-events.
+   *
+   * MATCHED ON TITLE, WITHIN ONE DIFF, AND ONLY WHEN THE TITLE IS UNAMBIGUOUS.
+   * A title appearing once among the departures and once among the arrivals is
+   * the only case paired here. If a title occurs twice on either side there is
+   * no way to say which went where, so both stay as separate add and remove
+   * events: an unpaired pair of true statements beats one confident wrong one.
+   * The claim names the INDEX ENTRY rather than the page, because what the
+   * bytes support is that an entry under this title now points somewhere else.
+   */
+  const gone = [...prev].filter(([url]) => !next.has(url));
+  const arrived = [...next].filter(([url]) => !prev.has(url));
+
+  const countByTitle = (rows: [string, string][]): Map<string, number> => {
+    const n = new Map<string, number>();
+    for (const [, title] of rows) n.set(title, (n.get(title) ?? 0) + 1);
+    return n;
+  };
+  const goneTitles = countByTitle(gone);
+  const arrivedTitles = countByTitle(arrived);
+  const movable = (title: string): boolean => goneTitles.get(title) === 1 && arrivedTitles.get(title) === 1;
+
+  const movedFrom = new Map<string, string>();
+  for (const [url, title] of gone) if (movable(title)) movedFrom.set(title, url);
+
+  for (const [url, title] of arrived) {
+    if (movable(title)) {
+      const from = movedFrom.get(title) as string;
+      const entities = entitiesForDocUrl(url, provider);
+      out.push({
+        id: `${change.sha}:doc_moved:${url}`,
+        type: 'doc_moved' as const,
+        sha: change.sha,
+        sourceId: change.sourceId,
+        path: change.path,
+        stamp: change.stamp,
+        entities,
+        held: entities.length === 0,
+        provider,
+        title,
+        url,
+        fromUrl: from,
+      });
+      continue;
+    }
     const entities = entitiesForDocUrl(url, provider);
     out.push({
       id: `${change.sha}:doc_added:${url}`,
@@ -494,8 +552,8 @@ function docEvents(change: ContentChange, before: string, after: string): Derive
       url,
     });
   }
-  for (const [url, title] of prev) {
-    if (next.has(url)) continue;
+  for (const [url, title] of gone) {
+    if (movable(title)) continue;
     const entities = entitiesForDocUrl(url, provider);
     out.push({
       id: `${change.sha}:doc_removed:${url}`,
@@ -817,6 +875,8 @@ export function claimSentence(event: DerivedEvent): string {
       return `OpenRouter's catalog recorded an expiration_date of ${quoteValue(event.date)} for ${quoteValue(event.modelId)}.`;
     case 'alias_retargeted':
       return `OpenRouter's catalog canonical_slug for ${quoteValue(event.alias)} changed from ${quoteValue(event.from)} to ${quoteValue(event.to)}.`;
+    case 'doc_moved':
+      return `The documentation index entry titled ${quoteValue(event.title)} moved from ${quoteValue(event.fromUrl)} to ${quoteValue(event.url)}.`;
     case 'doc_added':
       return `The ${event.sourceId} index added an entry titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'doc_removed':

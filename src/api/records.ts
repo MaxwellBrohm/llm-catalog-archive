@@ -237,6 +237,7 @@ export function subjectOf(item: FeedItem): string {
     case 'alias_retargeted':
       return event.alias;
     case 'doc_added':
+    case 'doc_moved':
     case 'doc_removed':
       return event.url;
     case 'retirement_floor':
@@ -281,6 +282,10 @@ export function eventFields(
     case 'doc_added':
     case 'doc_removed':
       return { provider: event.provider, title: event.title, url: event.url };
+    // from_url is the whole point of the type: a consumer that only reads `url`
+    // sees where the entry is now, and one that reads both sees the move.
+    case 'doc_moved':
+      return { provider: event.provider, title: event.title, url: event.url, from_url: event.fromUrl };
     case 'retirement_floor':
       return {
         provider: event.provider,

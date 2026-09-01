@@ -72,6 +72,7 @@ export const ALL_TYPES: FeedType[] = [
   'alias_retargeted',
   'retirement_floor',
   'doc_added',
+  'doc_moved',
   'doc_removed',
   'codename_entered',
   'codename_unmasked',
