@@ -88,7 +88,7 @@
         "minBytes": 33677,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": null,
+        "canary": "anthropic.com",
         "sizeBand": [
           0.5,
           2.0
@@ -233,7 +233,7 @@
         "minBytes": 308343,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": null,
+        "canary": "openrouter.ai",
         "sizeBand": [
           0.5,
           2.0

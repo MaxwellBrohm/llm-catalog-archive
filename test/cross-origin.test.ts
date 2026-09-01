@@ -98,23 +98,28 @@ describe('a foreign body cannot be archived under the wrong source', () => {
 describe('canary coverage', () => {
   const withoutCanary = active.filter((s) => s.invariants.canary === null);
 
+  /**
+   * This list SHRANK when two sitemaps were added. anthropic-sitemap and
+   * openrouter-sitemap were safe on structure alone only while they were the
+   * only two urlsets in the archive; deepmind-sitemap and openai-sitemap ended
+   * that, and the sweep above immediately accepted each of them as the other.
+   * Structural uniqueness is a property of the OTHER entries, which is exactly
+   * why it cannot be relied on as sources arrive.
+   */
   it('names the sources standing on structure alone, so the list is deliberate', () => {
-    expect(withoutCanary.map((s) => s.id).sort()).toEqual(
-      ['anthropic-sitemap', 'arena-leaderboard', 'openrouter-models', 'openrouter-sitemap'].sort(),
-    );
+    expect(withoutCanary.map((s) => s.id).sort()).toEqual(['arena-leaderboard', 'openrouter-models'].sort());
   });
 
   it('gives every source that has a same-shaped sibling a canary', () => {
-    // The four above are the only structurally unique ones: a JSON catalogue
-    // with a data key, a 5MB HTML picker payload, and two sitemaps that the
-    // sweep above proves already refuse each other on size band.
+    // Two left: a JSON catalogue with a data key, and a 5MB HTML picker
+    // payload. Nothing else in the archive has either shape.
     for (const s of active) {
       const siblings = active.filter(
         (o) => o.id !== s.id && o.contentType === s.contentType && o.expectedRoot === s.expectedRoot,
       );
       if (siblings.length > 0 && s.invariants.canary === null) {
         expect(
-          ['anthropic-sitemap', 'arena-leaderboard', 'openrouter-models', 'openrouter-sitemap'],
+          ['arena-leaderboard', 'openrouter-models'],
           `${s.id} shares its shape with ${siblings.map((x) => x.id).join(', ')} but has no canary`,
         ).toContain(s.id);
       }
