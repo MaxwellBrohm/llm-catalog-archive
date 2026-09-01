@@ -734,6 +734,117 @@
         "maxShrinkPct": 25
       },
       "notes": "The RESEARCH SUB-SITEMAP, not the root. openai.com/sitemap.xml is a sitemap INDEX whose children are urlsets, and this is the child that carries the announcement posts: 46 URLs, all under /index/, which is where OpenAI publishes. Predicate is sitemapLoc for the same reason as deepmind-sitemap. Activated after the double-fetch gate: two fetches 20 seconds apart returned byte-identical bodies and an IDENTICAL sitemapLoc projection, so a second consecutive run commits nothing. The bytes predicate is wrong here for the reason openrouter-sitemap documents: a sitemap of this shape is regenerated on the provider's schedule and rewrites per-URL stamps and ordering independently of any content change, so bytes would commit that churn every run into a history that is never rewritten. Only a 20 second byte-stability window was measured, which is evidence about edge caches and not about rebuilds, so the conservative projection is the one the derivation actually reads: the loc set."
+    },
+    {
+      "id": "openai-news-feed",
+      "url": "https://openai.com/news/rss.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/openai-news-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 352386,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "openai.com/index/",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "An ANNOUNCEMENT FEED, and the first source that carries a provider's own HEADLINES rather than URLs alone: 1,159 items, RSS 2.0. Added 2026-09-01 so the publication reports news a person can read rather than \"a URL appeared\". Predicate is extracted/feedPosts, not bytes, and the bytes predicate is wrong here DAILY: the channel carries a <lastBuildDate> that re-stamps on every rebuild, so bytes would commit 700 KB on every run into a history that is never rewritten, for a feed whose posts had not changed. Two fetches 15 seconds apart were byte-identical, which is evidence about one cache generation and says nothing about tomorrow. Activation gate passed: identical feedPosts projection across both fetches."
+    },
+    {
+      "id": "deepmind-blog-feed",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/deepmind-blog-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 37058,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "deepmind.google",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "Google DeepMind's blog feed, 100 items, RSS 2.0, with real headlines. Complements deepmind-sitemap, which carries 727 URLs and no titles: where a provider offers both, the feed is the better artifact and the sitemap stays for coverage. Predicate is extracted/feedPosts for the same reason as openai-news-feed, and the bytes predicate is wrong because this channel also carries a <lastBuildDate>. Activation gate passed: identical feedPosts projection across two fetches 15 seconds apart."
+    },
+    {
+      "id": "huggingface-blog-feed",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/huggingface-blog-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 125840,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "huggingface.co",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The Hugging Face blog, 853 items, RSS 2.0. The only source here that is not a model provider: it is where model releases, quantisation work and inference-stack changes get written up, which is the developer-facing half of AI news the provider feeds do not carry. Predicate is extracted/feedPosts, not bytes, because the channel carries a <pubDate> that re-stamps independently of the posts. Activation gate passed: identical feedPosts projection across two fetches 15 seconds apart."
     }
   ]
 }

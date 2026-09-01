@@ -402,6 +402,7 @@ const MAGNITUDE_LABEL: Partial<Record<FeedType, string>> = {
   context_changed: 'context moved',
   doc_moved: 'docs moved',
   post_listed: 'posts listed',
+  post_published: 'posts published',
   incident_opened: 'incidents opened',
   doc_added: 'docs listed',
   doc_removed: 'docs delisted',
@@ -1136,6 +1137,7 @@ ${rows}
  */
 export const TYPE_LABEL: Record<FeedType, string> = {
   post_listed: 'A post appeared in a provider sitemap',
+  post_published: 'A provider feed published a post',
   incident_opened: 'A provider opened a status incident',
   model_added: 'A model id entered the catalog',
   model_removed: 'A model id left the catalog',

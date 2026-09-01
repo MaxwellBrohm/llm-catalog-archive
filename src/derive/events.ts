@@ -39,8 +39,10 @@ import {
   ANNOUNCEMENT_PATHS,
   announcementUrls,
   incidentEntries,
+  isAnnouncementFeed,
   isAnnouncementSource,
   isIncidentSource,
+  postEntries,
 } from './announcements.js';
 import type { Stamp } from '../site/record.js';
 
@@ -93,6 +95,7 @@ export type EventType =
   | 'doc_moved'
   | 'doc_removed'
   | 'post_listed'
+  | 'post_published'
   | 'incident_opened'
   | 'retirement_floor';
 
@@ -146,6 +149,7 @@ export type DerivedEvent = Common &
     | { type: 'doc_moved'; provider: string; title: string; url: string; fromUrl: string }
     | { type: 'doc_removed'; provider: string; title: string; url: string }
     | { type: 'post_listed'; provider: string; url: string }
+    | { type: 'post_published'; provider: string; title: string; url: string; published: string | null }
     | { type: 'incident_opened'; provider: string; title: string; url: string; published: string | null }
     | {
         type: 'retirement_floor';
@@ -622,6 +626,40 @@ function announcementEvents(change: ContentChange, before: string, after: string
 }
 
 /**
+ * New posts in an announcement feed.
+ *
+ * Identity is the canonical URL, not a guid. RSS guids are optional and a CMS
+ * migration rewrites them while the post stays the same, so keying on one would
+ * republish a provider's whole back catalogue the day they moved platforms.
+ */
+function announcementFeedEvents(change: ContentChange, before: string, after: string): DerivedEvent[] {
+  const provider = providerFromSourceId(change.sourceId);
+  if (provider === null) return [];
+
+  const prev = new Set(postEntries(before).map((e) => e.id));
+  const out: DerivedEvent[] = [];
+  for (const entry of postEntries(after)) {
+    if (prev.has(entry.id)) continue;
+    const entities = entitiesForDocUrl(entry.url, provider);
+    out.push({
+      id: `${change.sha}:post_published:${entry.id}`,
+      type: 'post_published',
+      sha: change.sha,
+      sourceId: change.sourceId,
+      path: change.path,
+      stamp: change.stamp,
+      entities,
+      held: entities.length === 0,
+      provider,
+      title: entry.title,
+      url: entry.url,
+      published: entry.published,
+    });
+  }
+  return out;
+}
+
+/**
  * New incidents in a status feed.
  *
  * KEYED ON THE ENTRY ID, not on the title or the content. A provider EDITS an
@@ -883,6 +921,7 @@ export function eventsFromChange(
   if (isDocIndexSource(change.sourceId)) return docEvents(change, before, change.after);
   if (isAnnouncementSource(change.sourceId)) return announcementEvents(change, before, change.after);
   if (isIncidentSource(change.sourceId)) return incidentEvents(change, before, change.after);
+  if (isAnnouncementFeed(change.sourceId)) return announcementFeedEvents(change, before, change.after);
   return [];
 }
 
@@ -970,6 +1009,13 @@ export function claimSentence(event: DerivedEvent): string {
      */
     case 'post_listed':
       return `The ${event.sourceId} index listed a URL it had not listed before: ${quoteValue(event.url)}.`;
+    /*
+     * A FEED CARRIES THE PROVIDER'S OWN HEADLINE, which is the difference
+     * between "a URL appeared" and news a person can read. It is quoted like
+     * every other third-party value, and the subject is still the feed.
+     */
+    case 'post_published':
+      return `The ${event.sourceId} feed published a post titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'incident_opened':
       return `The ${event.sourceId} feed listed an incident titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'doc_added':

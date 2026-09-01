@@ -240,6 +240,7 @@ export function subjectOf(item: FeedItem): string {
     case 'doc_moved':
     case 'doc_removed':
     case 'post_listed':
+    case 'post_published':
     case 'incident_opened':
       return event.url;
     case 'retirement_floor':
@@ -290,6 +291,8 @@ export function eventFields(
       return { provider: event.provider, title: event.title, url: event.url, from_url: event.fromUrl };
     case 'post_listed':
       return { provider: event.provider, url: event.url };
+    case 'post_published':
+      return { provider: event.provider, title: event.title, url: event.url, published: event.published };
     case 'incident_opened':
       return { provider: event.provider, title: event.title, url: event.url, published: event.published };
     case 'retirement_floor':

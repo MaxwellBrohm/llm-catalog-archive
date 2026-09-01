@@ -273,8 +273,8 @@ describe('the shipped meta/sources.json', () => {
   const shipped = (): SourcesFile =>
     (cached ??= loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8'))));
 
-  it('loads and has all 18 sources', () => {
-    expect(shipped().sources).toHaveLength(20);
+  it('loads and has all 23 sources', () => {
+    expect(shipped().sources).toHaveLength(23);
   });
 
   /**
@@ -337,12 +337,12 @@ describe('the shipped meta/sources.json', () => {
     expect(sourcesForTier(shipped(), 'fast').map((s) => s.id)).toEqual(['openrouter-models']);
   });
 
-  it('hands the collector every one of the twenty sources', () => {
+  it('hands the collector every one of the twenty-three sources', () => {
     const fetched = [
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(20);
+    expect(fetched).toHaveLength(23);
   });
 
   // The filter still filters. With nothing pending in the shipped file the
@@ -376,7 +376,7 @@ describe('the shipped meta/sources.json', () => {
       const m = /^\|\s*`([a-z0-9-]+)`\s*\|\s*`([^`]+)`\s*\|/.exec(line);
       if (m) fromSpec.set(m[1]!, m[2]!);
     }
-    expect(fromSpec.size).toBe(20);
+    expect(fromSpec.size).toBe(23);
 
     const fromTable = new Map(shipped().sources.map((s) => [s.id, s.url]));
     expect(Object.fromEntries(fromTable)).toEqual(Object.fromEntries(fromSpec));
@@ -388,7 +388,10 @@ describe('the shipped meta/sources.json', () => {
       'anthropic-sitemap',
       'arena-leaderboard',
       'claude-status',
+      'deepmind-blog-feed',
       'deepmind-sitemap',
+      'huggingface-blog-feed',
+      'openai-news-feed',
       'openai-sitemap',
       'openai-status',
       'openrouter-sitemap',
@@ -508,6 +511,12 @@ describe('the shipped meta/sources.json', () => {
       // provider going three months without publishing is quiet, not broken.
       'deepmind-sitemap': 'content/90',
       'openai-sitemap': 'content/90',
+      // The announcement feeds. feed/30 like modelsdev-commits: a blog that
+      // publishes nothing for a month is quiet, and the feed branch of the
+      // health check reads their newest item date directly.
+      'openai-news-feed': 'feed/30',
+      'deepmind-blog-feed': 'feed/30',
+      'huggingface-blog-feed': 'feed/30',
     });
   });
 
@@ -537,6 +546,12 @@ describe('the shipped meta/sources.json', () => {
       // what would catch a later edit pointing this back at the index.
       'deepmind-sitemap': 'urlset',
       'openai-sitemap': 'urlset',
+      // rss, not feed: all three are RSS 2.0, and pinning the value is what
+      // catches one of them being repointed at an Atom URL that a parser would
+      // accept just as happily.
+      'openai-news-feed': 'rss',
+      'deepmind-blog-feed': 'rss',
+      'huggingface-blog-feed': 'rss',
     });
   });
 

@@ -72,6 +72,11 @@ export function announcementUrls(text: string, prefixes: readonly string[]): Set
 export type IncidentEntry = { id: string; title: string; url: string; published: string | null };
 
 const ENTRY_G = /<entry>([\s\S]*?)<\/entry>/g;
+/** RSS 2.0 spells an entry `<item>`. OpenAI and Hugging Face both serve RSS. */
+const ITEM_G = /<item>([\s\S]*?)<\/item>/g;
+const GUID_ONE = /<guid[^>]*>([^<]*)<\/guid>/;
+const RSS_LINK_ONE = /<link>([^<]*)<\/link>/;
+const PUBDATE_ONE = /<pubDate>([^<]*)<\/pubDate>/;
 const ID_ONE = /<id>([^<]*)<\/id>/;
 const TITLE_ONE = /<title[^>]*>([\s\S]*?)<\/title>/;
 const PUBLISHED_ONE = /<published>([^<]*)<\/published>/;
@@ -114,4 +119,53 @@ export function incidentEntries(text: string): IncidentEntry[] {
     });
   }
   return out;
+}
+
+export type PostEntry = { id: string; title: string; url: string; published: string | null };
+
+/**
+ * Every post in an announcement FEED, Atom or RSS.
+ *
+ * WHY THIS EXISTS BESIDE `announcementUrls`. A sitemap carries URLs and no
+ * titles, so a post derived from one can only quote its URL. A feed carries the
+ * provider's own HEADLINE, which is the difference between "a URL appeared" and
+ * news a person can read. Where a provider offers both, the feed is the better
+ * artifact and the sitemap stays for coverage.
+ *
+ * IDENTITY IS THE LINK, not the guid. RSS guids are optional, and where they
+ * exist they are sometimes rewritten by a CMS migration while the post stays
+ * the same; the canonical URL is what both formats always carry and what a
+ * reader would call the same post.
+ */
+export function postEntries(text: string): PostEntry[] {
+  const out: PostEntry[] = [];
+
+  for (const m of text.matchAll(ENTRY_G)) {
+    const inner = m[1] ?? '';
+    const url = LINK_ONE.exec(inner)?.[1]?.trim() ?? '';
+    const title = unescapeXml(TITLE_ONE.exec(inner)?.[1]?.trim() ?? '');
+    if (url === '' || title === '') continue;
+    out.push({ id: url, title, url, published: PUBLISHED_ONE.exec(inner)?.[1]?.trim() ?? null });
+  }
+
+  for (const m of text.matchAll(ITEM_G)) {
+    const inner = m[1] ?? '';
+    const url = (RSS_LINK_ONE.exec(inner)?.[1] ?? GUID_ONE.exec(inner)?.[1] ?? '').trim();
+    const title = unescapeXml(TITLE_ONE.exec(inner)?.[1]?.trim() ?? '');
+    if (url === '' || title === '') continue;
+    out.push({ id: url, title, url, published: PUBDATE_ONE.exec(inner)?.[1]?.trim() ?? null });
+  }
+
+  return out;
+}
+
+/** Which stored sources are announcement feeds carrying their own headlines. */
+export const ANNOUNCEMENT_FEEDS: readonly string[] = [
+  'openai-news-feed',
+  'deepmind-blog-feed',
+  'huggingface-blog-feed',
+];
+
+export function isAnnouncementFeed(sourceId: string): boolean {
+  return ANNOUNCEMENT_FEEDS.includes(sourceId);
 }

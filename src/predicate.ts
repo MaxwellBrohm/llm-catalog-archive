@@ -350,12 +350,41 @@ export function applyMask(text: string, patterns: string[]): string {
   return out;
 }
 
+/**
+ * An announcement feed: the set of post links, sorted, and nothing else.
+ *
+ * `bytes` is wrong here and would be wrong DAILY. openai-news-feed carries a
+ * channel-level `<lastBuildDate>` that re-stamps on every rebuild, so a bytes
+ * predicate would commit 700 KB on every run into a history that is never
+ * rewritten, for a feed whose posts had not changed. Two fetches 15 seconds
+ * apart were byte-identical, which is evidence about one cache generation and
+ * says nothing about tomorrow's rebuild.
+ *
+ * The LINK set rather than the guid set: RSS guids are optional, and a CMS
+ * migration rewrites them while the posts stay the same. Titles are excluded
+ * too, so a provider correcting a typo in a headline is stored but is not a
+ * second story.
+ */
+export function extractFeedPosts(text: string): string {
+  const links = new Set<string>();
+  for (const m of text.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+    const link = /<link>([^<]*)<\/link>/.exec(m[1] ?? '')?.[1]?.trim();
+    if (link !== undefined && link !== '') links.add(link);
+  }
+  for (const m of text.matchAll(/<entry>([\s\S]*?)<\/entry>/g)) {
+    const link = /<link[^>]*href="([^"]*)"/.exec(m[1] ?? '')?.[1]?.trim();
+    if (link !== undefined && link !== '') links.add(link);
+  }
+  return [...links].sort().join('\n');
+}
+
 const EXTRACTORS = {
   arena: extractArena,
   xai: (t: string): Projection => ({ ok: true, key: extractXai(t) }),
   sitemapLoc: (t: string): Projection => ({ ok: true, key: extractSitemapLoc(t) }),
   sitemapDated: (t: string): Projection => ({ ok: true, key: extractSitemapDated(t) }),
   atomStatus: (t: string): Projection => ({ ok: true, key: extractAtomStatus(t) }),
+  feedPosts: (t: string): Projection => ({ ok: true, key: extractFeedPosts(t) }),
   githubPulls: extractGithubPulls,
 } as const;
 

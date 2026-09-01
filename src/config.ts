@@ -39,7 +39,7 @@ const Predicate = z.discriminatedUnion('type', [
      * query and advances `updated_at` on any comment, so a byte predicate on
      * two 650 KB payloads commits half a megabyte a day of nothing.
      */
-    extractor: z.enum(['arena', 'xai', 'sitemapLoc', 'sitemapDated', 'atomStatus', 'githubPulls']),
+    extractor: z.enum(['arena', 'xai', 'sitemapLoc', 'sitemapDated', 'atomStatus', 'feedPosts', 'githubPulls']),
   }),
 ]);
 
