@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T16:40:38.328Z",
+  "updatedAt": "2026-09-01T16:40:51.752Z",
   "sources": {
     "anthropic-deprecations": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -15,8 +15,8 @@
       "held": null
     },
     "claude-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -27,20 +27,20 @@
       "held": null
     },
     "openrouter-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T00:53:57.464Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 69615,
-      "originDate": "2026-09-01T14:36:50.000Z",
+      "originDate": "2026-09-01T16:36:53.000Z",
       "held": null
     },
     "openai-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-08-28T11:23:40.461Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -51,20 +51,20 @@
       "held": null
     },
     "together-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 62354,
-      "originDate": "2026-09-01T15:36:28.000Z",
+      "originDate": "2026-09-01T15:36:29.000Z",
       "held": null
     },
     "perplexity-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-08-28T11:23:40.461Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -75,8 +75,8 @@
       "held": null
     },
     "mistral-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -87,8 +87,8 @@
       "held": null
     },
     "groq-llms-full-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -99,8 +99,8 @@
       "held": null
     },
     "modelsdev-commits": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -111,15 +111,15 @@
       "held": null
     },
     "claude-status": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 33223,
-      "originDate": "2026-09-01T16:40:17.000Z",
+      "originDate": "2026-09-01T16:39:46.000Z",
       "held": null
     },
     "openrouter-models": {
@@ -135,20 +135,20 @@
       "held": null
     },
     "arena-leaderboard": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 5267648,
-      "originDate": "2026-09-01T08:44:35.000Z",
+      "originDate": "2026-09-01T08:44:36.000Z",
       "held": null
     },
     "anthropic-sitemap": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -159,20 +159,20 @@
       "held": null
     },
     "openrouter-sitemap": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 608349,
-      "originDate": "2026-09-01T16:40:41.000Z",
+      "originDate": "2026-09-01T16:41:12.000Z",
       "held": null
     },
     "xai-llms-txt": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -186,20 +186,20 @@
       }
     },
     "openai-status": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 85163,
-      "originDate": "2026-09-01T16:40:06.000Z",
+      "originDate": "2026-09-01T16:40:35.000Z",
       "held": null
     },
     "transformers-pulls": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -210,8 +210,8 @@
       "held": null
     },
     "vllm-pulls": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -222,8 +222,8 @@
       "held": null
     },
     "deepmind-sitemap": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -234,20 +234,20 @@
       "held": null
     },
     "openai-sitemap": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 408127,
-      "originDate": "2026-09-01T16:40:48.000Z",
+      "originDate": "2026-09-01T16:41:16.000Z",
       "held": null
     },
     "openai-news-feed": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:40:38.328Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -258,8 +258,8 @@
       "held": null
     },
     "deepmind-blog-feed": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:40:38.328Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -270,8 +270,8 @@
       "held": null
     },
     "huggingface-blog-feed": {
-      "lastAttemptAt": "2026-09-01T16:40:38.328Z",
-      "lastSuccessAt": "2026-09-01T16:40:38.328Z",
+      "lastAttemptAt": "2026-09-01T16:40:51.752Z",
+      "lastSuccessAt": "2026-09-01T16:40:51.752Z",
       "lastChangeAt": "2026-09-01T16:40:38.328Z",
       "consecutiveFailures": 0,
       "failing": false,
