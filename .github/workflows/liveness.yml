@@ -1,0 +1,84 @@
+name: liveness
+
+# THE DEAD MAN'S SWITCH.
+#
+# Everything else in this repository is a scheduled job that appends to git.
+# When that job stops, NOTHING GOES RED: the site keeps serving its last good
+# build, the API keeps answering, every page still resolves, and the only
+# symptom is that the newest timestamp stops moving. An archive that quietly
+# stopped collecting three weeks ago is indistinguishable from an archive where
+# nothing happened for three weeks.
+#
+# And the failure is self-sealing. GitHub disables scheduled workflows after 60
+# days of repository inactivity, and the collector's own commits are what reset
+# that clock, so a collector that stops is also a collector that cannot restart
+# itself. This job's whole reason to exist is to shout before day 60.
+#
+# It runs on its own schedule rather than as a step of the collector, because a
+# collector that is not running cannot report that it is not running.
+on:
+  schedule: [{ cron: '40 6 * * *' }]
+  workflow_dispatch:
+
+# Not in the collector-archive group. This job never pushes, and it must be able
+# to run while a stuck collector holds that group, which is exactly when it is
+# most needed.
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # fetch-depth 0 because the check asks git for the newest commit touching
+      # raw/. On a shallow checkout that is the graft point, which would read as
+      # a recent capture and produce a false ALL CLEAR: the one answer this job
+      # must never give wrongly.
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '24', cache: npm }
+      - run: npm ci --ignore-scripts
+
+      - name: Assess
+        id: assess
+        continue-on-error: true
+        run: npx tsx src/liveness-cli.ts
+
+      - name: Open or update the issue
+        if: steps.assess.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          title='Liveness: the archive has stopped collecting, or a source has stopped working'
+          existing="$(gh issue list --label liveness --state open --limit 1 --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file liveness-body.md
+            echo "commented on #$existing"
+          else
+            gh label create liveness --description 'Opened by the liveness dead-man switch' --color B60205 2>/dev/null || true
+            gh issue create --title "$title" --label liveness --body-file liveness-body.md
+          fi
+
+      # Closing on recovery is what makes the signal trustworthy. An issue that
+      # stays open after the archive recovers trains its only reader to ignore it.
+      - name: Close the issue on recovery
+        if: steps.assess.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for n in $(gh issue list --label liveness --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment 'The archive is collecting again and every source is healthy. Closed by .github/workflows/liveness.yml.'
+          done
+
+      # The step above is allowed to fail softly so the issue still gets opened;
+      # this makes the RUN red so the failure is visible in the Actions tab too.
+      - name: Fail the run when the archive is unhealthy
+        if: steps.assess.outcome == 'failure'
+        run: |
+          echo '::error::the archive is unhealthy; see the open liveness issue'
+          exit 1

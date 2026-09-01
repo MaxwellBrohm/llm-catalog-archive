@@ -13,6 +13,30 @@ export function git(args: string[], cwd: string): { stdout: string; stderr: stri
 }
 
 /**
+ * The newest commit instant touching `pathspec`, ISO 8601, or null.
+ *
+ * LIVES HERE BECAUSE src/git.ts IS THE ONLY MODULE ALLOWED TO START A PROCESS,
+ * an invariant test/git.test.ts enforces by scanning every source file for a
+ * child_process import. The liveness check needs exactly one git fact and the
+ * first version of it imported execFileSync directly, which broke that
+ * invariant and turned the whole suite red. Widening the guard would have been
+ * the wrong repair: the point of a single spawning module is that the surface
+ * which can run a command is one reviewed file, and a read-only query is not a
+ * reason to make it two.
+ *
+ * A SHALLOW CHECKOUT LIES HERE. On a grafted clone this returns the graft point
+ * rather than the real newest commit, which reads as a recent capture and
+ * produces a false ALL CLEAR: the one answer the liveness check must never give
+ * wrongly. The workflow that calls it checks out with fetch-depth 0.
+ */
+export function lastCommitInstant(cwd: string, pathspec: string): string | null {
+  const r = git(['log', '-1', '--format=%cI', '--', pathspec], cwd);
+  if (r.status !== 0) return null;
+  const out = r.stdout.trim();
+  return out === '' ? null : out;
+}
+
+/**
  * Stage exactly these paths and commit. Returns false when there was nothing
  * to commit, which is the ordinary no-change case and not an error.
  *

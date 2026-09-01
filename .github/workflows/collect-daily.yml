@@ -38,3 +38,36 @@ jobs:
       # into a history R7 forbids rewriting. Worse, every regenerated file was a
       # conflict waiting for the next push. .github/workflows/pages.yml rebuilds
       # and deploys it, triggered by this workflow's completion.
+
+  # A FAILED RUN MUST LEAVE A TRACE A HUMAN SEES.
+  #
+  # Without this, a collector that starts failing produces a red tick in the
+  # Actions tab that nobody is watching, and the archive simply stops growing.
+  # The liveness workflow catches a prolonged outage on its own schedule; this
+  # catches the FIRST failure, on the run that failed, while it is still one
+  # failure rather than a fortnight of them.
+  notify:
+    needs: collect
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions: { issues: write }
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          body="The \`${{ github.workflow }}\` collector run failed.
+
+          Run: $RUN_URL
+
+          The archive stops growing while this is broken. If the failure persists,
+          .github/workflows/liveness.yml will escalate on its own schedule, and past
+          60 days of repository inactivity GitHub disables the schedules entirely."
+          existing="$(gh issue list --label collector-failure --state open --limit 1 --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh label create collector-failure --description 'A scheduled collector run failed' --color D93F0B 2>/dev/null || true
+            gh issue create --title 'Collector: a scheduled run failed' --label collector-failure --body "$body"
+          fi

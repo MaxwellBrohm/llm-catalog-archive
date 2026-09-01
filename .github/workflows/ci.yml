@@ -40,26 +40,57 @@ jobs:
             exit 1
           fi
 
-      # The one failure that is invisible from inside the repository: Node
-      # refuses to strip types under node_modules, and npx installs into
+      # THE FAILURE THAT IS INVISIBLE FROM INSIDE THE REPOSITORY.
+      #
+      # Node refuses to strip types under node_modules and npx installs into
       # node_modules, so `npx github:...` can be broken while every local
       # invocation works. It was, for the whole life of the documented command.
-      - name: The documented install command actually runs
+      # A second, separate bug then made it exit 0 printing NOTHING: npm installs
+      # a bin as a SYMLINK, so process.argv[1] was the link while import.meta.url
+      # was its target and the entry guard never fired.
+      #
+      # PACKED FROM THIS CHECKOUT, NOT FETCHED FROM GITHUB. An earlier version
+      # ran `npx -y github:$GITHUB_REPOSITORY`, which resolves the DEFAULT
+      # BRANCH: on a pull request it tested main rather than the commit under
+      # test, so the gate could not fail on the change that broke it. Packing the
+      # working checkout tests exactly this commit, on every event, and still
+      # exercises the two things that actually broke, because npm pack honours
+      # `files` and `bin` and npx installs the tarball into node_modules and runs
+      # it through the same symlink.
+      - name: The documented install command actually runs, from this commit
         run: |
           set -euo pipefail
           rm -rf ~/.npm/_npx
-          out="$(npx -y "github:${GITHUB_REPOSITORY}" help 2>&1)"
+          tarball="$(npm pack --silent | tail -1)"
+          echo "packed $tarball"
+          work="$(mktemp -d)"
+          mv "$tarball" "$work/"
+          cd "$work"
+          out="$(npx -y "./$tarball" help 2>&1)"
           printf '%s\n' "$out"
           case "$out" in
             *ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING*)
               echo "::error::npx cannot run the published bin entry; it is TypeScript under node_modules"
-              exit 1
-              ;;
+              exit 1 ;;
           esac
           case "$out" in
             *"llmcat: the keyless CLI"*) ;;
             *)
-              echo "::error::npx ran but did not print the CLI help"
-              exit 1
-              ;;
+              echo "::error::npx ran the bin but it printed no help. The entry guard did not fire (npm installs a bin as a symlink)."
+              exit 1 ;;
+          esac
+
+      # And the literal command the README tells people to run, against the ref
+      # that is actually published. Only on a push to the default branch, because
+      # that is the only time the commit under test is the one github: resolves.
+      - name: The literal README command resolves on GitHub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          rm -rf ~/.npm/_npx
+          out="$(npx -y "github:${GITHUB_REPOSITORY}#${GITHUB_SHA}" help 2>&1)"
+          printf '%s\n' "$out"
+          case "$out" in
+            *"llmcat: the keyless CLI"*) ;;
+            *) echo "::error::the documented npx command did not print the CLI help"; exit 1 ;;
           esac

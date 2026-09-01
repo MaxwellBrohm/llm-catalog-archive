@@ -10,3 +10,4 @@ build/
 # The old output directory, kept here so a stale checkout or an older generator
 # cannot quietly start committing build output back into the archive.
 docs/site/
+liveness-body.md

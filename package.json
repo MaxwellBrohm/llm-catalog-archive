@@ -1,5 +1,6 @@
 {
   "name": "llm-catalog-archive",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,7 +13,8 @@
     "build:site": "tsx src/site-cli.ts",
     "mutate": "stryker run",
     "build:bin": "tsc -p tsconfig.bin.json && cp build/bin/llmcat.js bin/llmcat.mjs",
-    "check:bin": "npm run build:bin && git diff --exit-code -- bin/llmcat.mjs"
+    "check:bin": "npm run build:bin && git diff --exit-code -- bin/llmcat.mjs",
+    "liveness": "tsx src/liveness-cli.ts"
   },
   "dependencies": {
     "zod": "^4.4.3"
