@@ -20,6 +20,7 @@
 - [Keep context](https://docs.perplexity.ai/docs/agent-api/building-agents/keep-context.md): Carry a conversation across turns by replaying it in the input array, so a follow-up understands what came before.
 - [Agent API Models](https://docs.perplexity.ai/docs/agent-api/models.md): Compare third-party and Perplexity models available through the Agent API, including token pricing and provider documentation.
 - [Presets](https://docs.perplexity.ai/docs/agent-api/presets.md): Explore Perplexity's Agent API presets - pre-configured setups optimized for different use cases with specific models, search configs, and tool access.
+- [Profiles](https://docs.perplexity.ai/docs/agent-api/profiles.md): Run an Agent API request with a reusable, versioned configuration that you save and manage.
 - [Model Fallback](https://docs.perplexity.ai/docs/agent-api/model-fallback.md): Specify multiple models in a fallback chain for higher availability and automatic failover.
 - [Tools overview](https://docs.perplexity.ai/docs/agent-api/tools/overview.md): The tools an Agent API run can call - Perplexity-hosted built-in tools, remote MCP servers, and your own custom functions - and where to go for each.
 - [Web Search](https://docs.perplexity.ai/docs/agent-api/tools/web-search.md): Search the web from the Agent API with filters, search configurations, pricing, parameters, and response fields.
@@ -35,7 +36,7 @@
 - [Image Attachments](https://docs.perplexity.ai/docs/agent-api/image-attachments.md): Learn how to upload and analyze images using base64 encoding or HTTPS URLs
 - [Background Mode](https://docs.perplexity.ai/docs/agent-api/background-mode.md): Run long agentic tasks asynchronously — submit with background, poll by response id, stream, reconnect, and cancel.
 - [Working with Files](https://docs.perplexity.ai/docs/agent-api/working-with-files.md): List and download files an Agent API response produced in the sandbox.
-- [Skills](https://docs.perplexity.ai/docs/agent-api/skills.md): Give the agent on-demand domain expertise with built-in and inline skills.
+- [Skills](https://docs.perplexity.ai/docs/agent-api/skills.md): Give the agent on-demand domain expertise with built-in, inline, and custom skills.
 - [Wide Research](https://docs.perplexity.ai/docs/agent-api/wide-research.md): Run wide-and-deep research tasks with the wide-research preset — build large, evidence-backed collections in the background.
 - [OpenAI Compatibility](https://docs.perplexity.ai/docs/agent-api/openai-compatibility.md): Use your existing OpenAI SDKs with Perplexity's Agent API. Full compatibility with minimal code changes.
 - [Migrate from Sonar to the Agent API](https://docs.perplexity.ai/docs/agent-api/migrate-from-sonar/overview.md): The Agent API represents a major upgrade of Sonar Chat Completions, bringing added configuration and powerful agentic primitives to your AI applications.
@@ -156,6 +157,7 @@
 - [SEC Filing Search](https://docs.perplexity.ai/docs/cookbook/examples/sec-filing-search/README.md): Use search domain filtering to query SEC.gov and EDGAR for financial filings, extract key financial data, and build structured financial summaries
 - [Competitor Buzz Tracker](https://docs.perplexity.ai/docs/cookbook/examples/competitor-buzz-tracker/README.md): Turn a basket of searches and keyword rules into a one-page share-of-voice chart (PDF) with two chained Agent API requests. The first searches and counts inside the sandbox and returns a structured-output JSON contract. The second renders the bar chart and shares it as a downloadable file.
 - [Talent Sourcer](https://docs.perplexity.ai/docs/cookbook/examples/talent-sourcer/README.md): Build a vetted engineer sourcing shortlist with one Agent API request. The model works in a Python sandbox - segmenting the brief, calling people_search across sub-segments, verifying each candidate's role, location, and tenure with web_search, collecting GitHub, social, and publication links, scori…
+- [Enrich Customer Data with Agent API](https://docs.perplexity.ai/docs/cookbook/examples/customer-enrichment-agent-api/README.md): Use Agent API with people_search to enrich a ClickHouse customer data row and append the result to the table.
 - [Model Picker](https://docs.perplexity.ai/docs/cookbook/examples/model-picker/README.md): Describe a task and get a grounded shortlist of open models to use. One Agent API request combines the Hugging Face MCP server with web search to find, verify, and recommend a model.
 - [Grounded Data Story with Kimi K3](https://docs.perplexity.ai/docs/cookbook/examples/data-story-kimi-k3/README.md): Turn any topic into a self-contained, source-linked interactive HTML report using Kimi K3, live web search, and the Agent API.
 - [Customizing Presets](https://docs.perplexity.ai/docs/cookbook/examples/agent-api-presets/README.md)
