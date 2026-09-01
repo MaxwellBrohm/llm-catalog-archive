@@ -237,7 +237,7 @@ export function canRenderAt(precisionSeconds: number, resolutionSeconds: number)
 // openrouter-models
 // ---------------------------------------------------------------------------
 
-type CatalogEntry = {
+export type CatalogEntry = {
   id: string;
   created: number | null;
   canonicalSlug: string | null;
@@ -587,6 +587,59 @@ export function parseDeprecationTable(text: string): Map<string, string> {
     if (/^-+$/.test(name)) continue;
     if (name === '') continue;
     if (!out.has(name)) out.set(name, retirement);
+  }
+  return out;
+}
+
+/**
+ * The deprecation-history tables, keyed by the DEPRECATED API model name and
+ * mapping to the replacement that provider's own table recommends.
+ *
+ * A different table from parseDeprecationTable's, in the same document, and the
+ * two are not merged. The lifecycle table above is current state: every model
+ * the provider still serves, with the date it will stop. These are the
+ * historical entries, three columns wide, and the third column is the only
+ * place in the archive where a provider names a successor to one of its own
+ * models. Reading a replacement out of it is transcription; deciding that a
+ * replacement is equivalent to what it replaces would be the inference this
+ * project refuses, so nothing here or downstream says a replacement is a
+ * substitute. It says the table recommends it.
+ *
+ * Anchored on all THREE header cells rather than on column count, for the
+ * reason parseDeprecationTable is anchored on its own: the lifecycle table in
+ * the same file is four columns of the same shape, and a width-only parser
+ * would read `Deprecated` out of its column 1 and file every live model under a
+ * replacement named "N/A".
+ *
+ * FIRST WINS, and the document is ordered newest first, so a model that appears
+ * in two history entries keeps the most recent recommendation.
+ */
+export function parseReplacementTable(text: string): Map<string, string> {
+  const out = new Map<string, string>();
+  let inTable = false;
+  for (const line of text.split('\n')) {
+    const row = cells(line);
+    if (!inTable) {
+      // All THREE header cells, and no width check beside them. A row with
+      // fewer than three cells already fails these comparisons against
+      // undefined, so a length test here would be a condition no input can
+      // falsify, which is a line no test can ever prove is doing anything.
+      inTable =
+        row[0] === 'Retirement date' &&
+        row[1] === 'Deprecated model' &&
+        row[2] === 'Recommended replacement';
+      continue;
+    }
+    if (row.length !== 3) {
+      inTable = false;
+      continue;
+    }
+    const model = row[1] ?? '';
+    const replacement = row[2] ?? '';
+    // The `| --- | --- |` separator git renders under every header row.
+    if (/^-+$/.test(model)) continue;
+    if (model === '' || replacement === '') continue;
+    if (!out.has(model)) out.set(model, replacement);
   }
   return out;
 }

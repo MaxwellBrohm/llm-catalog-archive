@@ -28,6 +28,17 @@ export const REPO_URL = 'https://github.com/MaxwellBrohm/llm-catalog-archive';
  */
 export const SITE_URL = 'https://maxwellbrohm.github.io/llm-catalog-archive';
 
+/**
+ * The CLI's command name, and the spec `npx` resolves it from.
+ *
+ * A GitHub spec rather than a bare package name because this package is not on
+ * npm and saying `npx llmcat` on the docs page would send a reader to whatever
+ * somebody else has published under that name. `npx github:owner/repo` installs
+ * from this repository, which is the repository the docs page is served from.
+ */
+export const CLI_NAME = 'llmcat';
+export const REPO_SLUG = 'github:MaxwellBrohm/llm-catalog-archive';
+
 export type DiffLineKind = 'add' | 'remove' | 'context' | 'hunk';
 
 export type DiffLine = {

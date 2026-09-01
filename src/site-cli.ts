@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildSite, writeSite } from './site/build.js';
+import { buildApi } from './api/build.js';
 import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
 import { parseRetractions } from './site/retractions.js';
@@ -90,7 +91,14 @@ const feed = buildFeed(events, leaks);
 const threads = buildThreads(feed);
 
 const files = buildSite(records, siteUrl, threads, leaks, claims, feed, refusals);
-writeSite(outDir, files);
+
+// The static JSON API, generated at deploy time alongside the site and served
+// off the same Pages deployment. It is a second projection of the SAME derived
+// stream the HTML pages are built from, not a second derivation: the sentences
+// are copied and the records carry the same artifact permalinks, so the API and
+// the site cannot disagree about what the archive holds.
+const apiFiles = buildApi({ feed, threads, refusals, ledger: claims, changes: contentChanges, siteUrl });
+writeSite(outDir, [...files, ...apiFiles]);
 
 // There is deliberately no second .nojekyll written outside outDir. Pages looks
 // for it in the ROOT of what it publishes, and what it publishes is now the
@@ -101,6 +109,7 @@ console.log(`site: ${records.length} changes, ${files.length} files, ${retractio
 console.log(
   `derive: ${events.length} events, ${threads.threads.length} threads, ${threads.held.length} held`,
 );
+console.log(`api: ${apiFiles.length} files under api/v1/`);
 // Per type, because one total hides the case that matters: a signal that has
 // silently stopped producing while the others carry the number.
 const byType = new Map<string, number>();

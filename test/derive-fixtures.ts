@@ -79,6 +79,18 @@ export function docChange(before: string, after: string, sourceId = 'openai-llms
   });
 }
 
+/**
+ * One deprecation-history table, as the stored markdown writes it: three
+ * columns, the model and replacement names wrapped in backticks the way the
+ * real document wraps them.
+ */
+export function replacementTable(rows: [string, string, string][]): string {
+  const head = '| Retirement date | Deprecated model | Recommended replacement |';
+  const rule = '| --------------- | ---------------- | ----------------------- |';
+  const body = rows.map(([date, model, replacement]) => `| ${date} | \`${model}\` | \`${replacement}\` |`);
+  return [head, rule, ...body].join('\n');
+}
+
 /** The lifecycle table, as the stored deprecations markdown writes it. */
 export function deprecationsDoc(rows: [string, string, string, string][]): string {
   const head = '| API model name | Current state | Deprecated | Tentative retirement date |';

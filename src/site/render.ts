@@ -40,12 +40,14 @@ import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
   artifactPermalink,
   changePagePath,
+  CLI_NAME,
   commitPermalink,
   escapeHtml,
   formatInt,
   formatUtc,
   isArtifactRetracted,
   recordStamp,
+  REPO_SLUG,
   REPO_URL,
   SITE_URL,
   sourcePagePath,
@@ -76,13 +78,14 @@ function plural(n: number, word: string): string {
  * default view, the desk and the changelog are two ways of reading the same
  * derivations, and Threads is the entity archive both of them link into.
  */
-export type Section = 'everything' | 'leaks' | 'changelog' | 'threads' | 'about';
+export type Section = 'everything' | 'leaks' | 'changelog' | 'threads' | 'api' | 'about';
 
 const NAV: { key: Section; href: string; label: string }[] = [
   { key: 'everything', href: 'index.html', label: 'Everything' },
   { key: 'leaks', href: 'leaks/index.html', label: 'Rumors and leaks' },
   { key: 'changelog', href: 'changelog/index.html', label: 'Changelog' },
   { key: 'threads', href: 'threads/index.html', label: 'Threads' },
+  { key: 'api', href: 'api.html', label: 'API and CLI' },
   { key: 'about', href: 'about.html', label: 'About' },
 ];
 
@@ -1165,6 +1168,113 @@ ${itemListHtml(items, 1, 'No item in the archive attaches to this lab.')}`;
  * documentation or a machine-readable catalogue and raises nothing like it.
  * A reader is entitled to know that before deciding what this project is.
  */
+/** Where the API lives, so the docs page and the generator cannot disagree. */
+export const API_PATH = 'api.html';
+
+/**
+ * The API and CLI documentation. One page, examples that run as written.
+ *
+ * WRITTEN AGAINST THE REAL BASE URL rather than a placeholder, because a docs
+ * page whose examples have to be edited before they work is a docs page nobody
+ * has run. `siteUrl` is threaded in from the generator for the same reason the
+ * feed takes it: it is the one thing here that depends on how the repository's
+ * Pages source is configured, which is a repository setting and not code.
+ *
+ * THE THREE TIERS ARE LABELLED HONESTLY, including the one that is a commodity.
+ * Product design section 3 is explicit that the current model list, the current
+ * prices and the current context windows cost nothing to serve and are the
+ * front door rather than the product, and a page that presented them as unique
+ * would be making the kind of claim the rest of this site exists to refuse.
+ */
+export function renderApiPage(siteUrl: string = SITE_URL, cliName: string = CLI_NAME, repoSlug: string = REPO_SLUG): string {
+  const base = `${siteUrl.replace(/\/+$/, '')}/api/v1`;
+  const npx = `npx ${repoSlug}`;
+  const body = `<p class="eyebrow">Data product</p>
+<h1>A keyless JSON API and a CLI</h1>
+<p class="lede">Everything this archive derives is served as flat JSON from the same GitHub Pages deployment as the site. No key, no signup, no rate limit, no server. Every record carries the permalink of the raw artifact it was derived from, at the full sha of the commit that changed it, so any number here can be checked against the bytes it came from without asking us anything.</p>
+
+<div class="panel prose">
+<h2>Start here</h2>
+<p><code>index.json</code> is a machine-readable directory of every other file, including the literal list of which micro-categories and which labs exist. That list is what lets a client tell "this lab has nothing in the archive" from "the deploy is broken", which are otherwise the same 404.</p>
+<div class="shell">curl -s ${escapeHtml(base)}/index.json | jq '.endpoints'</div>
+</div>
+
+<div class="panel prose">
+<h2>The endpoints</h2>
+<div class="shell">${escapeHtml(base)}/index.json          the directory of everything below
+${escapeHtml(base)}/models.json         current catalog state, one row per model
+${escapeHtml(base)}/models/{slug}.json  one model with its full event history
+${escapeHtml(base)}/events.json         every derived item, newest first, paginated
+${escapeHtml(base)}/events/{type}.json  filtered by micro-category
+${escapeHtml(base)}/events/page-{n}.json  page 2 and up of the stream
+${escapeHtml(base)}/labs/{lab}.json     one lab
+${escapeHtml(base)}/retirements.json    current retirement floors and recorded replacements
+${escapeHtml(base)}/leaks.json          the leaks desk, with sourcing tiers and refusals
+${escapeHtml(base)}/accuracy.json       the public accuracy ledger</div>
+<p>A model's <code>{slug}</code> is the same slug its thread page uses, and every row of <code>models.json</code> carries it along with the absolute URL of its own endpoint, so nothing has to be constructed by hand.</p>
+</div>
+
+<div class="panel prose">
+<h2>Examples that run as written</h2>
+<p>Every model whose listed prompt price changed, newest first:</p>
+<div class="shell">curl -s ${escapeHtml(base)}/events/price-changed.json \\
+  | jq -r '.items[] | [.timestamp.value, .subject, .fields.field, .fields.from, .fields.to] | @tsv'</div>
+<p>The catalog context_length beside the top_provider value on the same two sides, which is the pair that shows routing churn without anybody asserting a cause:</p>
+<div class="shell">curl -s ${escapeHtml(base)}/events/context-changed.json \\
+  | jq -r '.items[] | [.subject, .fields.from, .fields.to, .fields.top_provider_from, .fields.top_provider_to] | @tsv'</div>
+<p>Everything the archive holds on one model, with the artifact behind each row:</p>
+<div class="shell">curl -s ${escapeHtml(base)}/models.json \\
+  | jq -r '.models[] | select(.id == "anthropic/claude-opus-5") | .api' \\
+  | xargs curl -s | jq -r '.items[] | [.timestamp.value, .sentence, .artifact] | @tsv'</div>
+<p>The leaks desk, confirmed-artifact tier only:</p>
+<div class="shell">curl -s ${escapeHtml(base)}/leaks.json \\
+  | jq -r '.items[] | select(.tier == "confirmed-artifact") | [.type, .subject, .artifact] | @tsv'</div>
+<p>The accuracy ledger's single number:</p>
+<div class="shell">curl -s ${escapeHtml(base)}/accuracy.json | jq '.scorecard'</div>
+</div>
+
+<div class="panel prose">
+<h2>The CLI</h2>
+<p>One file, no dependencies, nothing to install. It reads the same static files the examples above do.</p>
+<div class="shell">${escapeHtml(npx)} models --lab anthropic
+${escapeHtml(npx)} watch anthropic/claude-opus-5 --once
+${escapeHtml(npx)} price-history anthropic/claude-opus-5
+${escapeHtml(npx)} leaks --tier confirmed-artifact
+${escapeHtml(npx)} retiring --within 90d --models claude-opus-4-8,claude-sonnet-4-6</div>
+<p>Every command takes <code>--json</code> to print the records instead of a table, and <code>--api &lt;base&gt;</code> to read from a local mirror of the API instead of the network. <code>${escapeHtml(cliName)} help</code> lists the rest.</p>
+</div>
+
+<div class="panel prose">
+<h2>The query this exists for</h2>
+<p>Which of the models I depend on have a retirement floor inside my planning horizon, and what the provider's own document recommends instead. One command:</p>
+<div class="shell">${escapeHtml(npx)} retiring --within 90d --models claude-opus-4-8,claude-3-5-sonnet-20241022</div>
+<p>The names are the provider's own API model names, because that is the namespace the retirement dates are published in. They are <strong>not</strong> OpenRouter catalog ids and this archive does not join the two: <code>anthropic/claude-opus-4.1</code> and <code>claude-opus-4-1-20250805</code> are different strings issued by different parties, and deciding they name the same model is a judgement nothing here makes on a reader's behalf. Pass a catalog id and the command says so rather than guessing.</p>
+</div>
+
+<div class="panel prose">
+<h2>What is unique, what is merely accessible, and what is a commodity</h2>
+<ul class="tierlist">
+<li><span class="tiername">Unique</span><span class="tierwhat">The arena codename map, the upstream pull-request leak feed, the documentation differ across nine providers, and the join of all of them to catalog and lifecycle state in one surface. Published by nobody else, in this form, that we could find.</span></li>
+<li><span class="tiername">Better because it is reachable</span><span class="tierwhat">Price history, lifecycle events and catalog history. These exist elsewhere and the incumbents are good. They are not expensive, they are shut: one has price history and no API at all, one puts its API behind a 401, and one is current state only with its history existing solely as a diff over thousands of sync commits. The claim here is access, not accuracy and not price.</span></li>
+<li><span class="tiername">Free commodity</span><span class="tierwhat">The current model list, current prices, current context windows and current deprecation status. Several people serve this and it costs nothing to serve. It is the front door, not the product.</span></li>
+</ul>
+</div>
+
+<div class="panel prose">
+<h2>Rules a consumer should know before parsing</h2>
+<p>A timestamp is an object, never a bare string: <code>{"value": "...", "field": "origin_date"}</code> or <code>"field": "observed_at"</code>. <code>origin_date</code> is when the provider generated the bytes, <code>observed_at</code> is when this collector saw them. They are not interchangeable and neither is silently substituted for the other.</p>
+<p><code>precision_seconds</code> is the measured worst-case first-seen error for that source, taken from the largest gap between consecutive accepted captures of it. It is <code>null</code> when unbounded, meaning the archive holds fewer than two captures. <strong>Null is not zero error.</strong></p>
+<p><code>first_seen_in_catalog_at</code> is a day or it is null, and it is null wherever <code>precision_seconds</code> is wider than a day. Under the values this archive measures today that is every source, so the field publishes null rather than a date it has not earned. That is the rule working, not the API failing.</p>
+<p>Every <code>sentence</code> names an artifact as its subject. No record here says why a value changed, and none should be re-published as if it did.</p>
+</div>
+
+<div class="panel prose">
+<h2>Terms</h2>
+<p>Free. No key, no signup, no rate limit imposed by this project, and GitHub Pages sends <code>access-control-allow-origin: *</code> so it works from a browser. Mirror it if you depend on it: <code>wget -r</code> over the directory in <code>index.json</code> takes the whole thing.</p>
+</div>`;
+  return layout({ title: 'API and CLI - llm-catalog-archive', depth: 0, body, active: 'api' });
+}
+
 export function renderAboutPage(): string {
   const body = `<p class="eyebrow">About</p>
 <h1>What this archive stores</h1>

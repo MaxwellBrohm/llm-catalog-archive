@@ -9,6 +9,7 @@ import { STYLESHEET } from './css.js';
 import {
   labPagePath,
   renderAboutPage,
+  renderApiPage,
   renderChangePage,
   renderChangelogPage,
   renderEverythingFeed,
@@ -25,6 +26,7 @@ import {
   threadPagePath,
   typePagePath,
   ABOUT_PATH,
+  API_PATH,
   CHANGELOG_INDEX_PATH,
   EVERYTHING_FEED_PATH,
   LEAKS_INDEX_PATH,
@@ -80,6 +82,10 @@ export function buildSite(
     { path: 'index.html', contents: renderEverythingPage(feed, threads) },
     { path: EVERYTHING_FEED_PATH, contents: renderEverythingFeed(feed, siteUrl) },
     { path: ABOUT_PATH, contents: renderAboutPage() },
+    // The API's own documentation page. It takes siteUrl because every curl
+    // example on it is written against the real base URL: an example a reader
+    // has to edit before it runs is an example nobody has run.
+    { path: API_PATH, contents: renderApiPage(siteUrl) },
     { path: CHANGELOG_INDEX_PATH, contents: renderChangelogPage(records) },
     // feed.xml is UNCHANGED and still one item per artifact change. Repointing
     // it at the new stream would silently replace every existing subscriber's

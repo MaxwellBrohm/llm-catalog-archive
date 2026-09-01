@@ -470,6 +470,30 @@ footer.site-foot a { color: var(--text-dim); }
 
 .table-scroll { overflow-x: auto; }
 
+/* Copy-paste shell blocks on the API page. Scrolls in its own box rather than
+   wrapping, because a wrapped curl line pasted into a terminal is a broken
+   command and the whole page is a promise that these run as written. */
+.shell {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--panel-0);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--orange);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre;
+}
+.shell:last-child { margin-bottom: 0; }
+.tierlist { margin: 0; padding: 0; list-style: none; }
+.tierlist li { padding: 12px 0; border-top: 1px solid var(--line); }
+.tierlist li:first-child { border-top: 0; }
+.tierlist .tiername { font-family: var(--display); font-weight: 700; color: var(--text); display: block; }
+.tierlist .tierwhat { color: var(--text-dim); font-size: 14px; }
+
 @media (max-width: 900px) {
   .split { grid-template-columns: 1fr; gap: 24px; }
   .split-side { margin-top: 16px; }
