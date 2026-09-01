@@ -22,8 +22,19 @@ describe('parseLedger, the empty file', () => {
     expect(parseLedger('\n\n  \n')).toEqual([]);
   });
 
-  it('reads the shipped ledger, which is empty at launch', () => {
-    expect(parseLedger(fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8'))).toEqual([]);
+  /**
+   * The shipped ledger is no longer empty, so this asserts the property that
+   * matters instead: every line in it parses, and every claim carries the
+   * artifact its tier promises.
+   */
+  it('reads the shipped ledger without throwing', () => {
+    expect(() => parseLedger(fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8'))).not.toThrow();
+  });
+
+  it('gives every shipped confirmed-artifact claim a real artifact link', () => {
+    for (const c of parseLedger(fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8'))) {
+      if (c.tier === 'confirmed-artifact') expect(c.artifact, c.id).toMatch(/^https:\/\//);
+    }
   });
 });
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { parseLedger } from '../src/site/ledger.js';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -64,8 +65,20 @@ describe('scaffold', () => {
     expect(fs.readFileSync('meta/retractions.jsonl', 'utf8')).toBe('');
   });
 
-  it('ships the leaks accuracy ledger, empty', () => {
-    expect(fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8')).toBe('');
+  /**
+   * It shipped empty and no longer is: src/ledger-cli.ts appends a claim for
+   * every expiration_date the catalogue announces. What still has to hold is
+   * that the file exists and every line in it is a line the parser accepts,
+   * because a malformed line stops the site build.
+   */
+  it('ships a leaks accuracy ledger the parser accepts', () => {
+    const text = fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8');
+    expect(() => parseLedger(text)).not.toThrow();
+  });
+
+  it('ends every non-empty ledger with a newline, so an append cannot join two lines', () => {
+    const text = fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8');
+    if (text !== '') expect(text.endsWith('\n')).toBe(true);
   });
 
   /*

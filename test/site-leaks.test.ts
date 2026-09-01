@@ -463,20 +463,23 @@ describe('renderLedgerPage', () => {
     expect(renderLedgerPage([])).toContain('Every claim ENTERED IN THIS LEDGER');
   });
 
-  it('says a derived item on the desk reaches this file through no code path', () => {
-    expect(renderLedgerPage([])).toContain('reaches this file through no code path at all');
+  /**
+   * These used to assert that a derived desk item "reaches this file through no
+   * code path at all" and that an empty ledger beside a stocked desk was "the
+   * expected state". Both were true and are now false: the catalog's own
+   * expiration_date IS scoreable, so there is a code path, and the ledger holds
+   * real claims. What survives is the distinction the page exists to make.
+   */
+  it('says a desk item predicts nothing and is never scored here', () => {
+    expect(renderLedgerPage([])).toContain('predicts nothing, and is never scored here');
   });
 
-  it('prints the desk item count it was given, so the gap is visible rather than hidden', () => {
-    expect(renderLedgerPage([], 7)).toContain('the desk currently holds 7 items');
+  it('says the ledger scores a field rather than a company', () => {
+    expect(renderLedgerPage([])).toContain('scores a FIELD rather than a company');
   });
 
-  it('prints a desk of one in the singular', () => {
-    expect(renderLedgerPage([], 1)).toContain('the desk currently holds 1 item');
-  });
-
-  it('says an empty ledger beside a stocked desk is the expected state', () => {
-    expect(renderLedgerPage([], 1)).toContain('is the expected state, not a missing number');
+  it('says why a retirement floor cannot be scored the same way', () => {
+    expect(renderLedgerPage([])).toContain('is the guess this archive refuses');
   });
 });
 

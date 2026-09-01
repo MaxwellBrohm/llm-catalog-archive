@@ -1046,7 +1046,7 @@ ${Object.entries(TIER_NOTE)
     .join('\n')}
 </table></div>
 <p class="note">The tier is about the artifact, not about confidence. Every item on this page is <code>confirmed-artifact</code>, because a derivation reads stored bytes and cannot vouch for a source it has never had.</p>
-<p><a href="ledger.html">The accuracy ledger</a>: ${plural(score.total, 'recorded claim')}, ${formatInt(score.confirmed)} confirmed, ${formatInt(score.refuted)} refuted, ${formatInt(score.open)} open. A ledger claim is a PREDICTION entered by hand. Nothing on this page is one: the items below describe stored artifacts, so none of them is scored there.</p>
+<p><a href="ledger.html">The accuracy ledger</a>: ${plural(score.total, 'recorded claim')}, ${formatInt(score.confirmed)} confirmed, ${formatInt(score.refuted)} refuted, ${formatInt(score.open)} open. A ledger claim is a PREDICTION, and the only ones the archive can make honestly are the catalog's own: an <code>expiration_date</code> is a dated, falsifiable statement about an id in the same namespace, so it can be checked against a later capture without joining anything. Nothing else on this page is scored there: the items below describe stored artifacts and predict nothing.</p>
 </div>
 ${sections}
 <section class="day">
@@ -1104,7 +1104,7 @@ ${claims
   const body = `<p class="eyebrow">Leaks</p>
 <h1>Accuracy ledger</h1>
 <p class="lede">Every claim ENTERED IN THIS LEDGER and what became of it. Append-only: a claim line is written once and a resolution line is appended later naming it, so the outcome cannot be edited into the record after the fact. Enforced by <code>.github/workflows/append-only.yml</code>.</p>
-<p class="lede">It is not a scorecard for the whole desk, and saying so is the difference between a ledger and a boast. A claim here is a PREDICTION, entered by hand, that can turn out to be right or wrong. A derived item on <a href="index.html">the desk</a> describes a stored artifact, predicts nothing, and reaches this file through no code path at all; the desk currently holds ${plural(deskItems, 'item')}. So a desk with items on it and an empty ledger is the expected state, not a missing number.</p>
+<p class="lede">It is not a scorecard for the whole desk, and saying so is the difference between a ledger and a boast. A claim here is a PREDICTION that can turn out to be right or wrong, and it scores a FIELD rather than a company: whether OpenRouter's catalog <code>expiration_date</code> predicts the catalog's own behaviour. Nothing here says a lab missed a deadline. A retirement floor cannot be scored this way, because those dates are in a provider's own API namespace and joining <code>anthropic/claude-opus-4.1</code> to <code>claude-opus-4-1-20250805</code> is the guess this archive refuses. A derived item on <a href="index.html">the desk</a> describes a stored artifact, predicts nothing, and is never scored here; the desk currently holds ${plural(deskItems, 'item')}.</p>
 <dl class="facts">
 <div class="fact"><dt>Recorded claims</dt><dd class="big">${formatInt(score.total)}</dd></div>
 <div class="fact"><dt>Confirmed</dt><dd class="big">${formatInt(score.confirmed)}</dd></div>
