@@ -579,6 +579,26 @@ function entityChips(item: FeedItem, depth: number): string {
  * tier, and stamping every event `confirmed-artifact` to make the two look
  * alike would be inventing a grade the derivation never assigned.
  */
+/**
+ * A stable HTML id for one feed item, safe in a fragment and in an attribute.
+ *
+ * WHY EVERY ITEM NEEDS ONE. The everything feed pointed each of its 50 entries
+ * at `changes/<sha>.html#<sourceId>`, which is the same address for every item
+ * derived from one commit's read of one source. 48 of 50 entries collapsed onto
+ * two URLs, so a subscriber who clicked a headline about a codename landed on a
+ * page of truncated JSON that did not contain the sentence they clicked. The
+ * feed promised a permalink per story and delivered a permalink per commit.
+ *
+ * The item id is `<sha>:<type>:<subject>` and a subject can hold a slash, a
+ * colon and a dot, so it is folded to a conservative character set. Collisions
+ * are not possible within a build: the id is already unique per build and this
+ * mapping is injective on the characters that survive, because every run of
+ * rejected characters becomes a single dash and the sha prefix differs.
+ */
+export function feedItemAnchor(item: FeedItem): string {
+  return `item-${item.id.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase()}`;
+}
+
 export function feedItemHtml(item: FeedItem, depth: number): string {
   const { up } = links(depth);
   const permalink = artifactPermalink(item.sha, item.path);
@@ -588,7 +608,7 @@ export function feedItemHtml(item: FeedItem, depth: number): string {
     item.tier === null
       ? ''
       : ` <span class="badge badge-tier badge-${escapeHtml(item.tier)}">${escapeHtml(item.tier)}</span>`;
-  return `<li class="event">
+  return `<li class="event" id="${escapeHtml(feedItemAnchor(item))}">
 <p class="claim">${escapeHtml(item.sentence)}</p>
 <p class="event-meta"><a class="badge badge-type" href="${up}${typePagePath(item.type)}">${escapeHtml(item.type)}</a>${tier} ${stampHtml(item.stamp)} &middot; <a href="${up}${sourcePagePath(item.sourceId)}">${escapeHtml(item.sourceId)}</a> &middot; <a href="${up}${changePagePath(item.sha)}">${escapeHtml(item.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
 ${entityChips(item, depth)}
@@ -1411,7 +1431,11 @@ export function renderEverythingFeed(feed: FeedItem[], siteUrl: string = SITE_UR
   const items = feed
     .slice(0, EVERYTHING_FEED_LIMIT)
     .map((item) => {
-      const url = `${siteUrl}/${changePagePath(item.sha)}#${item.sourceId}`;
+      // The TYPE page, not the change page. Every item appears on its own
+      // micro-category page, which is uncapped, so this address always exists
+      // and always contains the sentence in the title. The change page is still
+      // one click away from the item, under its own sha link.
+      const url = `${siteUrl}/${typePagePath(item.type)}#${feedItemAnchor(item)}`;
       const when = item.stamp === null ? 'no timestamp recorded' : `${formatUtc(item.stamp.iso)} (${item.stamp.kind})`;
       const tier = item.tier === null ? '' : ` Sourcing tier ${item.tier}.`;
       const description = `${item.sentence} Type ${item.type}. Timestamp ${when}.${tier} Raw artifact at this commit: ${artifactPermalink(item.sha, item.path)}`;
@@ -1419,7 +1443,7 @@ export function renderEverythingFeed(feed: FeedItem[], siteUrl: string = SITE_UR
       return `<item>
 <title>${escapeHtml(item.sentence)}</title>
 <link>${escapeHtml(url)}</link>
-<guid isPermaLink="false">${escapeHtml(item.id)}</guid>
+<guid isPermaLink="true">${escapeHtml(url)}</guid>
 <category>${escapeHtml(item.type)}</category>${pubDate}
 <description>${escapeHtml(description)}</description>
 </item>`;

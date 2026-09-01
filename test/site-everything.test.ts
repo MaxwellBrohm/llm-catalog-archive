@@ -15,6 +15,7 @@ import {
   labPagePath,
   renderAboutPage,
   renderEverythingFeed,
+  feedItemAnchor,
   renderEverythingPage,
   renderLabPage,
   renderTypePage,
@@ -409,21 +410,32 @@ describe('renderEverythingFeed', () => {
     );
   });
 
-  // The link goes to the evidence page rather than to a front page that will
-  // have moved on by the time anybody clicks it.
-  it('links each item to the change page anchored at its source', () => {
+  /**
+   * THE DEFECT THIS REPLACED. Every item used to link to
+   * `changes/<sha>.html#<sourceId>`, which is one address per commit-and-source
+   * rather than per story. On the live feed that was 50 items sharing 3 links,
+   * so a subscriber clicking a headline landed on a page of truncated JSON that
+   * did not contain the sentence they clicked. The previous version of this
+   * test asserted that address, and the comment above it acknowledged that two
+   * claims share a link, which is the defect written down as an intention.
+   */
+  it('gives every item its own link, not one link per commit', () => {
+    const xml = renderEverythingFeed(FEED);
+    const links = [...xml.matchAll(/<item>[\s\S]*?<link>([^<]+)<\/link>/g)].map((m) => m[1]);
+    expect(links.length).toBeGreaterThan(1);
+    expect(new Set(links).size).toBe(links.length);
+  });
+
+  it('links each item to its micro-category page, anchored at the item', () => {
     expect(renderEverythingFeed(FEED)).toContain(
-      `<link>https://maxwellbrohm.github.io/llm-catalog-archive/changes/${SHA}.html#openrouter-models</link>`,
+      '<link>https://maxwellbrohm.github.io/llm-catalog-archive/type/model-added.html#item-',
     );
   });
 
-  // Two claims about one commit share a link and differ in guid, so the guid is
-  // an identity and not an address, and saying so is what stops a reader
-  // pasting it into a browser.
-  it('marks the guid as not being a permalink', () => {
-    expect(renderEverythingFeed(FEED)).toContain(
-      `<guid isPermaLink="false">${SHA}:model_added:anthropic/claude-opus-5</guid>`,
-    );
+  it('marks the guid as a permalink, because it now is one', () => {
+    const xml = renderEverythingFeed(FEED);
+    expect(xml).toContain('<guid isPermaLink="true">');
+    expect(xml).not.toContain('isPermaLink="false"');
   });
 
   it('categorises each item by its micro-category', () => {
@@ -879,5 +891,74 @@ describe('the card meta line', () => {
 
   it('links the source page from the card', () => {
     expect(renderTypePage('model_added', FEED)).toContain('<a href="../sources/openrouter-models.html">');
+  });
+});
+
+describe('feedItemAnchor', () => {
+  it('folds a subject carrying a slash and a colon into a fragment-safe id', () => {
+    const item = { id: 'abc123:model_added:openai/gpt-5.6-luna:batch' } as never;
+    const a = feedItemAnchor(item);
+    expect(a).toMatch(/^item-[a-z0-9-]+$/);
+  });
+
+  it('is different for two items from the same commit and source', () => {
+    const a = feedItemAnchor({ id: 'abc:model_added:openai/gpt-5' } as never);
+    const b = feedItemAnchor({ id: 'abc:model_added:openai/gpt-4' } as never);
+    expect(a).not.toBe(b);
+  });
+
+  it('is stable for the same item across calls, so the address does not move', () => {
+    const id = { id: 'abc:price_changed:deepseek/deepseek-v4-flash' } as never;
+    expect(feedItemAnchor(id)).toBe(feedItemAnchor(id));
+  });
+});
+
+/**
+ * THE HALF THAT MATTERS. A per-item link is worthless if the page it points at
+ * has no such anchor, and a mutation removing the id from the rendered item
+ * survived every test above: they all read the feed and none read the page.
+ * This one follows each link into the built site the way a subscriber does.
+ */
+describe('every everything-feed link resolves to its own item on a built page', () => {
+  const files = buildSite([], undefined, THREADS, [], [], FEED);
+  const byPath = new Map(files.map((f) => [f.path, f.contents]));
+  const xml = byPath.get('everything.xml') as string;
+  const base = 'https://maxwellbrohm.github.io/llm-catalog-archive/';
+
+  const entries = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map((m) => {
+    const body = m[1] as string;
+    return {
+      url: (/<link>([^<]+)<\/link>/.exec(body) as RegExpExecArray)[1] as string,
+      title: (/<title>([\s\S]*?)<\/title>/.exec(body) as RegExpExecArray)[1] as string,
+    };
+  });
+
+  it('has items to check, so this describe cannot pass by being empty', () => {
+    expect(entries.length).toBeGreaterThan(0);
+  });
+
+  it('points every link at a page the build actually emitted', () => {
+    for (const e of entries) {
+      const [p] = e.url.replace(base, '').split('#');
+      expect(byPath.has(p as string), `${e.url} points at a page the build did not emit`).toBe(true);
+    }
+  });
+
+  it('finds the anchor on that page', () => {
+    for (const e of entries) {
+      const [p, frag] = e.url.replace(base, '').split('#');
+      const html = byPath.get(p as string) as string;
+      expect(html.includes(`id="${frag}"`), `${p} has no element with id ${frag}`).toBe(true);
+    }
+  });
+
+  it('finds the item sentence at that anchor, not merely somewhere on the page', () => {
+    for (const e of entries) {
+      const [p, frag] = e.url.replace(base, '').split('#');
+      const html = byPath.get(p as string) as string;
+      const at = html.indexOf(`id="${frag}"`);
+      const segment = html.slice(at, at + 1500);
+      expect(segment.includes(e.title), `${frag} does not carry its own sentence`).toBe(true);
+    }
   });
 });
