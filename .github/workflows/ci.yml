@@ -1,0 +1,65 @@
+name: ci
+on: [pull_request, push]
+
+# The collector workflows share this group so a collect run and a CI run never
+# race on the same checkout. CI does not commit, but it does regenerate
+# bin/llmcat.mjs to compare it, and a concurrent collect push would make that
+# comparison meaningless.
+concurrency:
+  group: collector-archive
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      # bin/llmcat.mjs is generated from bin/llmcat.ts and COMMITTED, because
+      # `npx github:...` installs the repository and runs the bin entry with no
+      # build step available. That makes drift between the two files a real
+      # failure mode: the published CLI would silently be an older program than
+      # the tested one. Regenerating and diffing is the only thing that catches
+      # it, and it cannot be caught from inside the repo any other way.
+      - name: The published CLI matches its TypeScript source
+        run: |
+          npm run build:bin
+          if ! git diff --exit-code -- bin/llmcat.mjs; then
+            echo "::error::bin/llmcat.mjs is stale. Run 'npm run build:bin' and commit the result."
+            exit 1
+          fi
+
+      # The one failure that is invisible from inside the repository: Node
+      # refuses to strip types under node_modules, and npx installs into
+      # node_modules, so `npx github:...` can be broken while every local
+      # invocation works. It was, for the whole life of the documented command.
+      - name: The documented install command actually runs
+        run: |
+          set -euo pipefail
+          rm -rf ~/.npm/_npx
+          out="$(npx -y "github:${GITHUB_REPOSITORY}" help 2>&1)"
+          printf '%s\n' "$out"
+          case "$out" in
+            *ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING*)
+              echo "::error::npx cannot run the published bin entry; it is TypeScript under node_modules"
+              exit 1
+              ;;
+          esac
+          case "$out" in
+            *"llmcat: the keyless CLI"*) ;;
+            *)
+              echo "::error::npx ran but did not print the CLI help"
+              exit 1
+              ;;
+          esac

@@ -196,6 +196,22 @@ export function retiringRows(
   return rows;
 }
 
+/**
+ * The provider prefixes the archive actually holds floors for, comma separated.
+ * Read off the records rather than hardcoded, so it cannot drift from coverage.
+ */
+export function coveredProviders(retirements: Retirement[]): string {
+  const seen = new Set<string>();
+  for (const r of retirements) {
+    const slash = r.model.indexOf('/');
+    const dash = r.model.indexOf('-');
+    const cut = slash > 0 ? slash : dash > 0 ? dash : r.model.length;
+    seen.add(r.model.slice(0, cut));
+  }
+  const names = [...seen].sort();
+  return names.length === 0 ? 'no provider' : names.join(', ');
+}
+
 /** Left-aligned fixed-width columns. No dependency, no box drawing. */
 export function table(rows: string[][]): string {
   if (rows.length === 0) return '';
@@ -481,12 +497,19 @@ async function cmdRetiring(args: Args, base: string, out: (s: string) => void): 
   const rows = retiringRows(retirements, await wantedModels(args), within, today);
 
   if (args.flags.has('json')) {
-    out(JSON.stringify({ today, within_days: within, rows }, null, 2));
+    out(JSON.stringify({ today, within_days: within, covered_providers: coveredProviders(retirements), rows }, null, 2));
+    if (rows.some((r) => r.status === 'unknown' || r.status === 'undated')) return 2;
     return rows.some((r) => r.status === 'inside') ? 1 : 0;
   }
 
   const inside = rows.filter((r) => r.status === 'inside');
+  const unanswerable = rows.filter((r) => r.status === 'unknown' || r.status === 'undated');
   out(`Retirement floors within ${within} day(s) of ${today}.`);
+  // The coverage line is not decoration. Floors are collected from provider
+  // deprecation tables, and the archive has one such source, so a gate wired
+  // against any other vendor would otherwise sit green forever on no data.
+  out(`Retirement floors are collected for: ${coveredProviders(retirements)}. A name outside that set cannot be answered here.`);
+  out('A floor already in the past is reported as inside the window, not skipped: it is the case the query exists to catch.');
   out('');
   if (inside.length === 0) {
     out('None of the names checked has a retirement floor inside that window.');
@@ -518,8 +541,17 @@ async function cmdRetiring(args: Args, base: string, out: (s: string) => void): 
     out('');
     out(`Read from ${String(source['artifact'] ?? '')}`);
   }
-  // Nonzero when something is inside the horizon, so this is usable as a gate
-  // in CI rather than only as something a human reads.
+  // THE EXIT CODE IS THE WHOLE PRODUCT FOR A CI CALLER, which reads it and
+  // nothing else. 2 dominates 1: if even one requested name could not be
+  // answered, the 0-or-1 verdict is not trustworthy, and a gate that returned
+  // 0 there would pass on ignorance rather than on evidence. That was the old
+  // behaviour, and it made this command permanently green for every provider
+  // except the one whose table is collected.
+  if (unanswerable.length > 0) {
+    out('');
+    out(`${unanswerable.length} of ${rows.length} requested name(s) could not be answered. Exit code 2.`);
+    return 2;
+  }
   return inside.length > 0 ? 1 : 0;
 }
 

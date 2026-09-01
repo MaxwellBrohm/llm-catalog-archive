@@ -5,6 +5,7 @@ import path from 'node:path';
 import {
   DEFAULT_API,
   daysUntil,
+  coveredProviders,
   looksLikeCatalogId,
   parseArgs,
   parseWindowDays,
@@ -14,6 +15,7 @@ import {
   type Retirement,
 } from '../bin/llmcat.js';
 import { buildApi } from '../src/api/build.js';
+import { renderApiPage, exampleModelId } from '../src/site/render.js';
 import { writeSite } from '../src/site/build.js';
 import { deriveEvents } from '../src/derive/events.js';
 import { buildFeed } from '../src/derive/feed.js';
@@ -252,6 +254,71 @@ async function cli(argv: string[]): Promise<{ code: number; out: string }> {
   const code = await run([...argv, '--api', BASE], (s) => lines.push(s));
   return { code, out: lines.join('\n') };
 }
+
+/**
+ * THE EXIT CODE IS THE WHOLE PRODUCT FOR A CI CALLER. It reads the code and
+ * nothing else, so a code that says "clear" when the archive simply has no data
+ * for the name asked about is worse than no gate at all: it converts ignorance
+ * into a green build. Before this contract existed, `retiring` returned 0 for
+ * every provider except the one whose deprecation table is collected.
+ */
+describe('llmcat retiring, as a CI gate', () => {
+  it('exits 2 when a requested name cannot be answered, rather than 0', async () => {
+    const r = await cli(['retiring', '--models', 'openai/gpt-5.2', '--within', '90d']);
+    expect(r.code).toBe(2);
+  });
+
+  it('says out loud how many names it could not answer', async () => {
+    const r = await cli(['retiring', '--models', 'openai/gpt-5.2', '--within', '90d']);
+    expect(r.out).toContain('could not be answered');
+  });
+
+  it('lets an unanswerable name dominate a real hit, because the verdict is then untrustworthy', async () => {
+    // one name the archive has a floor for, one it does not
+    const r = await cli([
+      'retiring', '--models', 'claude-opus-4-1-20250805,openai/gpt-5.2', '--within', '3650d',
+    ]);
+    expect(r.code).toBe(2);
+  });
+
+  it('still exits 1 when every requested name was answerable and something is inside', async () => {
+    const r = await cli(['retiring', '--models', 'claude-opus-4-1-20250805', '--within', '3650d']);
+    expect(r.code).toBe(1);
+  });
+
+  it('prints which providers it actually has floors for', async () => {
+    const r = await cli(['retiring', '--within', '90d']);
+    expect(r.out).toContain('Retirement floors are collected for:');
+  });
+
+  it('says that an already-past floor is deliberately inside the window', async () => {
+    const r = await cli(['retiring', '--within', '90d']);
+    expect(r.out).toContain('already in the past');
+  });
+
+  it('carries the same contract into --json', async () => {
+    const r = await cli(['retiring', '--models', 'openai/gpt-5.2', '--within', '90d', '--json']);
+    expect(r.code).toBe(2);
+    expect(JSON.parse(r.out).covered_providers).toBeTypeOf('string');
+  });
+});
+
+describe('coveredProviders', () => {
+  it('reads the prefixes off the records rather than hardcoding them', () => {
+    expect(coveredProviders([
+      { model: 'claude-3-5-haiku-20241022' } as Retirement,
+      { model: 'claude-opus-4-20250514' } as Retirement,
+    ])).toBe('claude');
+  });
+
+  it('reports no provider on an empty archive instead of an empty string', () => {
+    expect(coveredProviders([])).toBe('no provider');
+  });
+
+  it('splits an OpenRouter-shaped id at the slash', () => {
+    expect(coveredProviders([{ model: 'openai/gpt-5' } as Retirement])).toBe('openai');
+  });
+});
 
 describe('llmcat models', () => {
   it('prints the catalogue id out of the current state', async () => {
@@ -730,5 +797,129 @@ describe('llmcat retiring over a richer table', () => {
 describe('llmcat --help', () => {
   it('answers --help even when a command was also typed', async () => {
     expect((await at(RICH, ['models', '--help'])).out).toContain('llmcat: the keyless CLI');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// the documentation's worked examples, against a real built API
+// ---------------------------------------------------------------------------
+
+/**
+ * THE GATE THAT WAS MISSING. The API page's examples sat under a heading
+ * reading "Examples that run as written" while naming a model whose `api`
+ * field is null, so the documented pipeline resolved to `curl null` and printed
+ * nothing. The old guard checked only that the `.json` addresses the page
+ * printed were real files, which a hardcoded model id sails straight past.
+ *
+ * This asserts the thing a reader actually does: take the id out of the page,
+ * look it up in models.json, and follow its `api` link to a file that exists.
+ */
+describe('the API page examples resolve against the built API', () => {
+  const page = renderApiPage(
+    'https://example.invalid',
+    undefined,
+    undefined,
+    exampleModelId(buildThreads(buildFeed(deriveEvents(changes), [])).threads),
+  );
+
+  /** Every model id the page's examples name, from the shell blocks. */
+  function idsNamedInExamples(html: string): string[] {
+    const out = new Set<string>();
+    for (const m of html.matchAll(/select\(\.id == &quot;([^&]+)&quot;\)/g)) out.add(m[1] as string);
+    for (const m of html.matchAll(/(?:watch|price-history) ([a-z0-9][\w.\-]*\/[\w.\-:]+)/g)) out.add(m[1] as string);
+    return [...out];
+  }
+
+  it('names at least one model id in its examples', () => {
+    expect(idsNamedInExamples(page).length).toBeGreaterThan(0);
+  });
+
+  it('every model id it names is in models.json with a non-null api link', () => {
+    const models = JSON.parse(fs.readFileSync(path.join(BASE, 'models.json'), 'utf8'));
+    const byId = new Map<string, { api: string | null }>(
+      (models.models as { id: string; api: string | null }[]).map((m) => [m.id, m]),
+    );
+    for (const id of idsNamedInExamples(page)) {
+      const record = byId.get(id);
+      expect(record, `${id} is named in an example but absent from models.json`).toBeDefined();
+      expect(record?.api, `${id} is named in an example but its api field is null`).not.toBeNull();
+    }
+  });
+
+  it('the api link each example follows is a file that exists and has items', () => {
+    const models = JSON.parse(fs.readFileSync(path.join(BASE, 'models.json'), 'utf8'));
+    const byId = new Map<string, { api: string | null }>(
+      (models.models as { id: string; api: string | null }[]).map((m) => [m.id, m]),
+    );
+    for (const id of idsNamedInExamples(page)) {
+      const api = byId.get(id)?.api;
+      expect(api).toBeTruthy();
+      // the api field is an absolute published URL; the mirror holds the tail
+      const tail = String(api).split('/api/v1/')[1] as string;
+      const doc = JSON.parse(fs.readFileSync(path.join(BASE, tail), 'utf8'));
+      expect(doc.items.length, `${id}'s thread document is empty`).toBeGreaterThan(0);
+    }
+  });
+});
+
+/**
+ * The mutation that proved the gate above was vacuous: with the chooser
+ * returning null the fixture still passed, because the fixture's only model
+ * happened to be the hardcoded fallback id. There is no fallback now, so a
+ * chooser that returns nothing produces a page with no model example at all,
+ * and that is what these two assert.
+ */
+describe('the API page without a usable example model', () => {
+  const page = renderApiPage('https://example.invalid', undefined, undefined, null);
+
+  it('names no model id at all rather than falling back to a hardcoded one', () => {
+    expect(page).not.toMatch(/select\(\.id == &quot;/);
+    expect(page).not.toMatch(/(?:watch|price-history) [a-z0-9][\w.\-]*\//);
+  });
+
+  it('says why the per-model example is missing', () => {
+    expect(page).toContain('omitted rather than written against an id that would not resolve');
+  });
+
+  it('refuses an empty string, which is neither an id nor an absence', () => {
+    expect(() => renderApiPage('https://example.invalid', undefined, undefined, '')).toThrow();
+  });
+});
+
+describe('exampleModelId', () => {
+  const th = (id: string, count: number) =>
+    ({
+      entity: { kind: 'model' as const, id: `model/openrouter:${id}`, label: id },
+      slug: id.replace('/', '-'),
+      events: Array.from({ length: count }, () => ({}) as never),
+      firstSeen: null,
+      lastActivity: null,
+    });
+
+  it('picks the busiest thread, because it is likeliest to still resolve tomorrow', () => {
+    expect(exampleModelId([th('a/one', 1), th('b/two', 9), th('c/three', 3)])).toBe('b/two');
+  });
+
+  it('breaks a tie on the id so the page is byte-stable across builds', () => {
+    expect(exampleModelId([th('z/last', 4), th('a/first', 4)])).toBe('a/first');
+  });
+
+  it('returns the catalog id, not the namespaced entity id', () => {
+    expect(exampleModelId([th('anthropic/claude-opus-5', 2)])).toBe('anthropic/claude-opus-5');
+  });
+
+  it('ignores a model entity from a provider API namespace, which is not a models.json id', () => {
+    const apiNamespaced = {
+      entity: { kind: 'model' as const, id: 'model/anthropic-api:claude-opus-4-1', label: 'claude-opus-4-1' },
+      slug: 'claude-opus-4-1',
+      events: Array.from({ length: 99 }, () => ({}) as never),
+      firstSeen: null,
+      lastActivity: null,
+    };
+    expect(exampleModelId([apiNamespaced, th('a/one', 1)])).toBe('a/one');
+  });
+
+  it('returns null when the archive holds no model thread', () => {
+    expect(exampleModelId([])).toBeNull();
   });
 });

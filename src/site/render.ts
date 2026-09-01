@@ -1207,8 +1207,54 @@ export const API_PATH = 'api.html';
  * front door rather than the product, and a page that presented them as unique
  * would be making the kind of claim the rest of this site exists to refuse.
  */
-export function renderApiPage(siteUrl: string = SITE_URL, cliName: string = CLI_NAME, repoSlug: string = REPO_SLUG): string {
+/**
+ * The model id the documentation's worked examples are written against.
+ *
+ * WHY THIS IS COMPUTED AND NOT TYPED IN. The examples used to name
+ * `anthropic/claude-opus-5`, whose `api` field is null, because a model only
+ * gets an `api` URL once it has a thread. 342 of 425 catalogue models have no
+ * thread, so the odds that a hand-picked id is one of them are good, and the
+ * failure is silent: the pipeline resolves to `curl null` and prints nothing
+ * under a heading that reads "Examples that run as written". Choosing the
+ * busiest thread instead means the example is the one most likely to still
+ * resolve tomorrow, and `renderApiPage` throws when there is no such model at
+ * all, so the build fails rather than shipping a dead example.
+ *
+ * Ties break on the id so the page is byte-stable across builds.
+ */
+export const CATALOG_ENTITY_PREFIX = 'model/openrouter:';
+
+export function exampleModelId(threads: readonly Thread[]): string | null {
+  let best: { id: string; count: number } | null = null;
+  for (const t of threads) {
+    // The catalogue namespace only. A provider's own API model name lives under
+    // a different prefix and is not a `models.json` id, so an example written
+    // against one would 404 exactly the way the null `api` field did.
+    if (t.entity.kind !== 'model' || !t.entity.id.startsWith(CATALOG_ENTITY_PREFIX)) continue;
+    const id = t.entity.id.slice(CATALOG_ENTITY_PREFIX.length);
+    if (id === '') continue;
+    if (best === null || t.events.length > best.count || (t.events.length === best.count && id < best.id)) {
+      best = { id, count: t.events.length };
+    }
+  }
+  return best?.id ?? null;
+}
+
+export function renderApiPage(
+  siteUrl: string = SITE_URL,
+  cliName: string = CLI_NAME,
+  repoSlug: string = REPO_SLUG,
+  exampleId: string | null = null,
+): string {
   const base = `${siteUrl.replace(/\/+$/, '')}/api/v1`;
+  // NO FALLBACK ID, DELIBERATELY. A page that documents a dead example is worse
+  // than a page with no example, because the reader blames their own shell. The
+  // previous fallback was a hardcoded id whose `api` field is null in
+  // production, and it was invisible to tests precisely because a fixture whose
+  // only model IS that id resolves it fine. When the archive has no model
+  // thread, the model-specific examples are omitted and the page says so.
+  if (exampleId === '') throw new Error('renderApiPage: exampleId must be a model id or null, never empty');
+  const example = exampleId;
   const npx = `npx ${repoSlug}`;
   const body = `<p class="eyebrow">Data product</p>
 <h1>A keyless JSON API and a CLI</h1>
@@ -1243,10 +1289,14 @@ ${escapeHtml(base)}/accuracy.json       the public accuracy ledger</div>
 <p>The catalog context_length beside the top_provider value on the same two sides, which is the pair that shows routing churn without anybody asserting a cause:</p>
 <div class="shell">curl -s ${escapeHtml(base)}/events/context-changed.json \\
   | jq -r '.items[] | [.subject, .fields.from, .fields.to, .fields.top_provider_from, .fields.top_provider_to] | @tsv'</div>
-<p>Everything the archive holds on one model, with the artifact behind each row:</p>
+${
+    example === null
+      ? '<p>The archive holds no model thread yet, so the worked example for one model is omitted rather than written against an id that would not resolve.</p>'
+      : `<p>Everything the archive holds on one model, with the artifact behind each row:</p>
 <div class="shell">curl -s ${escapeHtml(base)}/models.json \\
-  | jq -r '.models[] | select(.id == "anthropic/claude-opus-5") | .api' \\
-  | xargs curl -s | jq -r '.items[] | [.timestamp.value, .sentence, .artifact] | @tsv'</div>
+  | jq -r '.models[] | select(.id == &quot;${escapeHtml(example)}&quot;) | .api' \\
+  | xargs curl -s | jq -r '.items[] | [.timestamp.value, .sentence, .artifact] | @tsv'</div>`
+  }
 <p>The leaks desk, confirmed-artifact tier only:</p>
 <div class="shell">curl -s ${escapeHtml(base)}/leaks.json \\
   | jq -r '.items[] | select(.tier == "confirmed-artifact") | [.type, .subject, .artifact] | @tsv'</div>
@@ -1257,9 +1307,13 @@ ${escapeHtml(base)}/accuracy.json       the public accuracy ledger</div>
 <div class="panel prose">
 <h2>The CLI</h2>
 <p>One file, no dependencies, nothing to install. It reads the same static files the examples above do.</p>
-<div class="shell">${escapeHtml(npx)} models --lab anthropic
-${escapeHtml(npx)} watch anthropic/claude-opus-5 --once
-${escapeHtml(npx)} price-history anthropic/claude-opus-5
+<div class="shell">${escapeHtml(npx)} models --lab anthropic${
+    example === null
+      ? ''
+      : `
+${escapeHtml(npx)} watch ${escapeHtml(example)} --once
+${escapeHtml(npx)} price-history ${escapeHtml(example)}`
+  }
 ${escapeHtml(npx)} leaks --tier confirmed-artifact
 ${escapeHtml(npx)} retiring --within 90d --models claude-opus-4-8,claude-sonnet-4-6</div>
 <p>Every command takes <code>--json</code> to print the records instead of a table, and <code>--api &lt;base&gt;</code> to read from a local mirror of the API instead of the network. <code>${escapeHtml(cliName)} help</code> lists the rest.</p>

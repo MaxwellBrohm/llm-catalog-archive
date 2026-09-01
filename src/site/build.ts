@@ -12,6 +12,7 @@ import {
   labPagePath,
   renderAboutPage,
   renderApiPage,
+  exampleModelId,
   renderChangePage,
   renderChangelogPage,
   renderEverythingFeed,
@@ -73,6 +74,11 @@ export function buildSite(
   refusals: LeakRefusal[] = [],
 ): SiteFile[] {
   const records = sortByStampDesc(input);
+  // The documentation's worked examples are written against a model that
+  // actually has a thread, chosen here rather than typed into the page. See
+  // exampleModelId. Null only when the archive holds no model thread at all,
+  // in which case the examples fall back and the API page test catches it.
+  const apiExampleId = exampleModelId(threads.threads);
 
   const files: SiteFile[] = [
     { path: '.nojekyll', contents: '' },
@@ -92,7 +98,7 @@ export function buildSite(
     // The API's own documentation page. It takes siteUrl because every curl
     // example on it is written against the real base URL: an example a reader
     // has to edit before it runs is an example nobody has run.
-    { path: API_PATH, contents: renderApiPage(siteUrl) },
+    { path: API_PATH, contents: renderApiPage(siteUrl, undefined, undefined, apiExampleId) },
     { path: CHANGELOG_INDEX_PATH, contents: renderChangelogPage(records) },
     // feed.xml is UNCHANGED and still one item per artifact change. Repointing
     // it at the new stream would silently replace every existing subscriber's

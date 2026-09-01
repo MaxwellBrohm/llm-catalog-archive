@@ -2,15 +2,21 @@
   "name": "llm-catalog-archive",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "collect": "tsx src/cli.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build:site": "tsx src/site-cli.ts",
-    "mutate": "stryker run"
+    "mutate": "stryker run",
+    "build:bin": "tsc -p tsconfig.bin.json && cp build/bin/llmcat.js bin/llmcat.mjs",
+    "check:bin": "npm run build:bin && git diff --exit-code -- bin/llmcat.mjs"
   },
-  "dependencies": { "zod": "^4.4.3" },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "tsx": "^4.23.9",
@@ -20,6 +26,12 @@
     "@stryker-mutator/vitest-runner": "^9.6.1",
     "three": "^0.181.2"
   },
-  "bin": { "llmcat": "bin/llmcat.ts" },
-  "files": ["bin", "src", "meta"]
+  "bin": {
+    "llmcat": "bin/llmcat.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "meta"
+  ]
 }
