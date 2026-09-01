@@ -8,6 +8,7 @@ import {
   exitCodeFor,
   type StatusFile,
   type SourceStatus,
+  type Outcome,
 } from '../src/status.js';
 
 /** Fifteen minutes apart, which is the fast tier's real cadence. */
@@ -378,5 +379,78 @@ describe('src/status.ts stays pure', () => {
   it('imports nothing that touches a disk, a process, a network or a repository', () => {
     const forbidden = ['node:fs', 'node:child_process', './fetch.js', './git.js'];
     expect(imports().filter((i) => forbidden.includes(i))).toEqual([]);
+  });
+});
+
+/**
+ * A HOLD IS DATED WHEN IT BEGAN, NOT WHEN IT WAS LAST OBSERVED.
+ *
+ * `held` used to be restamped from the run's own clock every time, so the field
+ * answered "when did we last notice this" while being named, rendered and read
+ * as "when did this start". Measured on the real archive: one unbroken
+ * xai-llms-txt hold with an identical reason carried three different `at`
+ * values across four consecutive commits, and src/liveness.ts renders it as
+ * "held out of the archive since X".
+ *
+ * It also made meta/status.json churn. `held` is not in SELF_TICKING, so a
+ * moving `at` was a meaningful change on every run, which for a held fast-tier
+ * source is 96 commits a day forever.
+ */
+describe('a hold carries the instant it began', () => {
+  const heldOutcome = (reason: string): Outcome => ({
+    health: 'failed',
+    changed: false,
+    countsAsFailure: false,
+    httpStatus: 200,
+    bytes: null,
+    originDate: null,
+    held: { at: 'IGNORED', reason },
+  });
+
+  const T1 = '2026-09-01T00:00:00.000Z';
+  const T2 = '2026-09-01T00:15:00.000Z';
+  const T3 = '2026-09-02T00:15:00.000Z';
+
+  it('stamps the first hold with the run that found it', () => {
+    const first = applyOutcome(undefined, { ...heldOutcome('credential gate: xai-api-key'), held: { at: T1, reason: 'credential gate: xai-api-key' } }, T1);
+    expect(first.held?.at).toBe(T1);
+  });
+
+  it('does not move the instant while the reason is unchanged', () => {
+    let s = applyOutcome(undefined, { ...heldOutcome('gate: key'), held: { at: T1, reason: 'gate: key' } }, T1);
+    s = applyOutcome(s, { ...heldOutcome('gate: key'), held: { at: T2, reason: 'gate: key' } }, T2);
+    s = applyOutcome(s, { ...heldOutcome('gate: key'), held: { at: T3, reason: 'gate: key' } }, T3);
+    expect(s.held?.at).toBe(T1);
+  });
+
+  /** A hold for a different reason is a different hold, so it gets its own instant. */
+  it('moves the instant when the reason changes', () => {
+    let s = applyOutcome(undefined, { ...heldOutcome('gate: key'), held: { at: T1, reason: 'gate: key' } }, T1);
+    s = applyOutcome(s, { ...heldOutcome('gate: token'), held: { at: T2, reason: 'gate: token' } }, T2);
+    expect(s.held?.at).toBe(T2);
+    expect(s.held?.reason).toBe('gate: token');
+  });
+
+  it('clears the hold entirely when the source stops being held', () => {
+    let s = applyOutcome(undefined, { ...heldOutcome('gate: key'), held: { at: T1, reason: 'gate: key' } }, T1);
+    s = applyOutcome(s, { health: 'ok', changed: false, countsAsFailure: false, httpStatus: 200, bytes: 10, originDate: null, held: null }, T2);
+    expect(s.held).toBeNull();
+  });
+
+  /**
+   * The churn half. Two consecutive held runs with the same reason must be
+   * indistinguishable to meaningfulFields, or a held fast-tier source commits
+   * meta/status.json on every run for as long as the hold lasts.
+   */
+  it('makes two consecutive held runs meaningfully identical, so the file stops churning', () => {
+    const a = applyOutcome(undefined, { ...heldOutcome('gate: key'), held: { at: T1, reason: 'gate: key' } }, T1);
+    const b = applyOutcome(a, { ...heldOutcome('gate: key'), held: { at: T2, reason: 'gate: key' } }, T2);
+    expect(JSON.stringify(meaningfulFields(b))).toBe(JSON.stringify(meaningfulFields(a)));
+  });
+
+  it('a hold whose reason changed IS a meaningful change, so it does commit', () => {
+    const a = applyOutcome(undefined, { ...heldOutcome('gate: key'), held: { at: T1, reason: 'gate: key' } }, T1);
+    const b = applyOutcome(a, { ...heldOutcome('gate: token'), held: { at: T2, reason: 'gate: token' } }, T2);
+    expect(JSON.stringify(meaningfulFields(b))).not.toBe(JSON.stringify(meaningfulFields(a)));
   });
 });

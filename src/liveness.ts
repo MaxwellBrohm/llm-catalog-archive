@@ -154,6 +154,18 @@ export function assessLiveness(input: LivenessInput): LivenessReport {
         severity: 'critical',
         message: `Source ${id} is failing: ${plural(s.consecutiveFailures, 'consecutive failure')}, health ${s.health}.`,
       });
+    } else if (s.health === 'stale') {
+      /*
+       * Stale is quiet, not broken, and deliberately does not count as a
+       * failure: a provider having a genuinely silent quarter must not send a
+       * daily failure email, because that is how an alerting channel gets
+       * muted. It is still worth one warning line, because the other thing that
+       * produces a stale source is us silently no longer reaching the real page.
+       */
+      warning.push({
+        severity: 'warning',
+        message: `Source ${id} is stale: ${s.health === 'stale' ? 'past its configured quiet limit' : s.health}. Nothing has been written for it recently.`,
+      });
     }
     if (s.held !== null) {
       warning.push({

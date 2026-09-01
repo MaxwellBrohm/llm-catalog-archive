@@ -1194,3 +1194,97 @@ describe('the interstitial denylist against reality', () => {
     ]);
   });
 });
+
+/**
+ * THE GUARD THAT WAS CONFIGURED ON 14 OF 18 SOURCES AND NEVER READ.
+ *
+ * `maxQuietDays` was compared only for `kind: 'feed'`, so every content source
+ * carried a threshold nothing evaluated: a documentation index or an llms.txt
+ * that froze, or whose real version we silently stopped reaching, passed as
+ * healthy for ever. A config that names a limit and does not enforce it is
+ * worse than one that says nothing, because it stops anyone from looking.
+ *
+ * A feed carries its own newest-item date. A content source does not, so the
+ * equivalent question is how long the STORED bytes have gone unchanged.
+ */
+describe('content freshness', () => {
+  const content = (maxQuietDays: number | null) =>
+    src({
+      invariants: { minBytes: 10, requiredKeyPath: null, minRecords: null, canary: null, sizeBand: [0.5, 2.0] },
+      freshness: { kind: 'content', maxQuietDays },
+    });
+  const body = enc('x'.repeat(2000));
+  const daysAgo = (n: number) => new Date(NOW - n * 86_400_000).toISOString();
+
+  it('is ok while the stored bytes changed inside the limit', () => {
+    const v = checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: daysAgo(10) }, NOW);
+    expect(v.state).toBe('ok');
+    expect(v.writeAllowed).toBe(true);
+  });
+
+  it('goes stale once the stored bytes have been unchanged past the limit', () => {
+    const v = checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: daysAgo(40) }, NOW);
+    expect(v.state).toBe('stale');
+  });
+
+  /** Quiet is not broken. A silent provider must never send a daily failure. */
+  it('does not count a quiet source as a failure', () => {
+    const v = checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: daysAgo(40) }, NOW);
+    expect(v.countsAsFailure).toBe(false);
+    expect(v.writeAllowed).toBe(false);
+  });
+
+  it('says how long and against what limit, so the reason is actionable', () => {
+    const v = checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: daysAgo(40) }, NOW);
+    expect(v.reason).toContain('unchanged for 40 days');
+    expect(v.reason).toContain('limit 30');
+  });
+
+  it('is exactly at the boundary rather than one day off', () => {
+    expect(checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: daysAgo(30) }, NOW).state).toBe('ok');
+    expect(checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: daysAgo(31) }, NOW).state).toBe('stale');
+  });
+
+  it('leaves a source with no configured limit alone', () => {
+    expect(checkHealth(content(null), obs(body), { bytes: 2000, lastChangeAt: daysAgo(400) }, NOW).state).toBe('ok');
+  });
+
+  /**
+   * SEEDING BEATS STALLING. Withholding a write on a source with no baseline
+   * closes a loop: no write, so no baseline, so still quiet, for ever. The same
+   * reasoning the feed branch is built on.
+   */
+  it('seeds rather than stalling when there is no baseline at all', () => {
+    expect(checkHealth(content(30), obs(body), { bytes: null, lastChangeAt: null }, NOW).state).toBe('ok');
+  });
+
+  it('seeds rather than stalling when the archive has bytes but has never recorded a change', () => {
+    expect(checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: null }, NOW).state).toBe('ok');
+  });
+
+  it('does not throw or stall on an unparseable lastChangeAt', () => {
+    expect(checkHealth(content(30), obs(body), { bytes: 2000, lastChangeAt: 'not-a-date' }, NOW).state).toBe('ok');
+  });
+
+  it('leaves a feed source to the feed branch rather than double-judging it', () => {
+    const feed = src({ freshness: { kind: 'feed', maxQuietDays: 30 }, contentType: 'text' });
+    // A content-shaped body under a feed source must not be judged by lastChangeAt.
+    const v = checkHealth(feed, obs(body), { bytes: 2000, lastChangeAt: daysAgo(400) }, NOW);
+    expect(v.reason ?? '').not.toContain('unchanged for');
+  });
+});
+
+/**
+ * The config half of the same finding: the thresholds are real numbers on real
+ * sources, so the guard above is not theoretical.
+ */
+describe('the shipped sources actually configure content freshness', () => {
+  const file = loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8')));
+
+  it('has content sources carrying a quiet limit', () => {
+    const withLimit = file.sources.filter(
+      (s) => s.status === 'active' && s.freshness.kind === 'content' && s.freshness.maxQuietDays !== null,
+    );
+    expect(withLimit.length).toBeGreaterThan(0);
+  });
+});

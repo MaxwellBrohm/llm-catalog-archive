@@ -60,7 +60,33 @@ export function applyOutcome(prev: SourceStatus | undefined, o: Outcome, nowIso:
     httpStatus: o.httpStatus,
     bytes: o.bytes ?? (prev?.bytes ?? null),
     originDate: o.originDate ?? (prev?.originDate ?? null),
-    held: o.held ?? null,
+    /*
+     * A HOLD IS DATED WHEN IT BEGAN, NOT WHEN IT WAS LAST OBSERVED.
+     *
+     * This used to be `o.held ?? null`, so every run restamped `at` with its own
+     * clock and the field answered "when did we last notice this hold" while
+     * being named, rendered and read as "when did this hold start". Measured on
+     * the real archive: one unbroken xai-llms-txt hold with an identical reason
+     * carried three different `at` values across four consecutive commits, and
+     * src/liveness.ts renders that value as "held out of the archive since X".
+     * A dead man's switch that reports a fresh date for a month-old hold is
+     * worse than one that reports nothing.
+     *
+     * It also made the file churn. `held` is not in SELF_TICKING, so a moving
+     * `at` is a meaningful-field change on every run, and a held fast-tier
+     * source therefore committed meta/status.json 96 times a day forever. That
+     * is the instruction against committing status.json every fast run, broken
+     * by a field nobody thought of as a clock.
+     *
+     * Carried forward only while the REASON is unchanged. A hold for a new
+     * reason is a new hold and gets the new instant, which is why this compares
+     * the reason rather than merely checking that a hold existed.
+     */
+    held: o.held === null || o.held === undefined
+      ? null
+      : prev?.held != null && prev.held.reason === o.held.reason
+        ? prev.held
+        : o.held,
   };
 }
 

@@ -201,7 +201,31 @@ export function buildApi(input: ApiInput): SiteFile[] {
         api_version: API_VERSION,
         entity: { kind: thread.entity.kind, id: thread.entity.id, label: thread.entity.label, slug: thread.slug },
         thread: `${siteUrl}/threads/${thread.slug}.html`,
-        first_seen: timestampView(thread.firstSeen),
+        /*
+         * NOT `first_seen`, WHICH IS THE ONE NAME THE SPEC FORBIDS.
+         *
+         * Section 10 of the collector design says it outright: "Not
+         * `launched_at`, not `released_at`, not bare `first_seen`. A field named
+         * `launched_at` will eventually be rendered as a launch date by
+         * something downstream." This endpoint shipped `first_seen` on all 116
+         * model documents anyway.
+         *
+         * The name mattered here more than usual, because the value is NOT the
+         * catalogue's first-seen date. `first_seen_in_catalog_at` in models.json
+         * is null on every model, because the measured worst-case error for that
+         * source is 348,766 seconds against an 86,400 second gate. This field is
+         * a different quantity: the origin_date of the EARLIEST EVENT on this
+         * thread, which for most models is a price change and not an arrival.
+         * Publishing that at second resolution under a name that reads as
+         * "when this model first existed" is precisely the inference the whole
+         * archive refuses to make, sitting in its own API.
+         *
+         * It is deliberately NOT routed through dayIfPermitted. The precision
+         * gate governs when the archive first saw a MODEL; this is when the
+         * archive recorded its first EVENT, which is an exact fact about our own
+         * history and carries no error bar at all.
+         */
+        first_event_at: timestampView(thread.firstSeen),
         last_activity: timestampView(thread.lastActivity),
         total: thread.events.length,
         items: records(thread.events, precision, siteUrl, repoUrl),

@@ -125,7 +125,10 @@ export async function runTier(
         const health = checkHealth(
           s,
           got.observed,
-          { bytes: stored === null ? null : stored.byteLength },
+          // lastChangeAt lets the content-freshness guard ask how long the
+          // STORED bytes have gone unchanged, which is the only form the
+          // question takes for a source that carries no dates of its own.
+          { bytes: stored === null ? null : stored.byteLength, lastChangeAt: prev?.lastChangeAt ?? null },
           Date.parse(now),
         );
         if (!health.writeAllowed) {

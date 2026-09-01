@@ -197,7 +197,13 @@ export function newestFeedDate(text: string): number | null {
 export function checkHealth(
   source: Source,
   obs: Observed,
-  prev: { bytes: number | null },
+  /**
+   * `lastChangeAt` is the instant the STORED BYTES last changed, from
+   * meta/status.json. Optional because most callers only need the byte count,
+   * and absent reads as "no baseline to be quiet against", which seeds rather
+   * than stalls.
+   */
+  prev: { bytes: number | null; lastChangeAt?: string | null },
   nowMs: number,
 ): HealthVerdict {
   if (obs.status < 200 || obs.status >= 300) return fail(`status ${obs.status}`);
@@ -306,6 +312,37 @@ export function checkHealth(
       const days = (nowMs - newest) / 86_400_000;
       if (days > source.freshness.maxQuietDays) {
         const old = quiet(`newest item ${Math.round(days)} days old, limit ${source.freshness.maxQuietDays}`);
+        if (old !== null) return old;
+      }
+    }
+  }
+
+  /*
+   * THE SAME GUARD FOR A SOURCE THAT IS NOT A FEED.
+   *
+   * `maxQuietDays` was read for `kind: 'feed'` only, so 14 of the 18 sources
+   * carried a threshold nothing ever compared against: a documentation index or
+   * an llms.txt that froze, or that we silently stopped reaching the real
+   * version of, passed as healthy for ever. A config that names a limit is
+   * worse than one that does not, because it stops anyone from looking.
+   *
+   * A feed carries its own newest-item date inside the bytes. A content source
+   * does not, so the equivalent question is how long the STORED bytes have gone
+   * unchanged, which meta/status.json already records as lastChangeAt.
+   *
+   * `stale` withholds the write, which costs nothing here: bytes that have not
+   * changed were not going to be written anyway. What it buys is the state
+   * showing up as stale rather than ok, where the liveness check can see it.
+   */
+  if (source.freshness.kind === 'content' && source.freshness.maxQuietDays !== null) {
+    const last = prev.lastChangeAt ?? null;
+    const lastMs = last === null ? NaN : Date.parse(last);
+    if (!Number.isNaN(lastMs)) {
+      const days = (nowMs - lastMs) / 86_400_000;
+      if (days > source.freshness.maxQuietDays) {
+        const old = quiet(
+          `stored bytes unchanged for ${Math.round(days)} days, limit ${source.freshness.maxQuietDays}`,
+        );
         if (old !== null) return old;
       }
     }

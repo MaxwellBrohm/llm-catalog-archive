@@ -236,8 +236,14 @@ describe('the per-model files', () => {
     });
   });
 
-  it('carries the first-seen stamp of the oldest item on the thread, labelled', () => {
-    expect(doc(files, 'models/model-openrouter-vendor-model-0000.json')['first_seen']).toEqual({
+  /**
+   * NOT named `first_seen`. The spec forbids that name outright, and the value
+   * is not the catalogue's first-seen date: it is the origin_date of the
+   * earliest EVENT on the thread, which for most models is a price change.
+   */
+  it('carries the oldest item stamp under a name that says what it is', () => {
+    expect(doc(files, 'models/model-openrouter-vendor-model-0000.json')['first_seen']).toBeUndefined();
+    expect(doc(files, 'models/model-openrouter-vendor-model-0000.json')['first_event_at']).toEqual({
       value: ORIGIN.iso,
       field: 'origin_date',
     });
@@ -636,5 +642,64 @@ describe('the copy the other documents publish', () => {
     expect(doc(buildApi(empty), 'accuracy.json')['accuracy_note']).toBe(
       'accuracy_pct is confirmed over resolved. It is null, never zero and never a hundred, while nothing has resolved: a ledger with no resolved claims has no accuracy.',
     );
+  });
+});
+
+/**
+ * THE NAMES THE SPEC FORBIDS, ENFORCED OVER EVERY EMITTED DOCUMENT.
+ *
+ * docs/superpowers/specs/2026-08-26-collector-and-archive-design.md section 10:
+ * "Not `launched_at`, not `released_at`, not bare `first_seen`. A field named
+ * `launched_at` will eventually be rendered as a launch date by something
+ * downstream."
+ *
+ * The API shipped `first_seen` on all 116 model documents regardless, so the
+ * rule needed a test rather than a sentence. This walks every key of every
+ * emitted JSON document rather than checking one endpoint, because the next
+ * violation will be somewhere else.
+ */
+describe('no emitted document uses a forbidden date field name', () => {
+  const FORBIDDEN = ['first_seen', 'launched_at', 'released_at', 'release_date'];
+
+  /** Every key at every depth of a parsed document. */
+  function keysOf(value: unknown, into: Set<string> = new Set()): Set<string> {
+    if (Array.isArray(value)) {
+      for (const v of value) keysOf(v, into);
+    } else if (value !== null && typeof value === 'object') {
+      for (const [k, v] of Object.entries(value)) {
+        into.add(k);
+        keysOf(v, into);
+      }
+    }
+    return into;
+  }
+
+  const changes = [change({ before: catalog([{ id: 'vendor/model-0000' }]), after: catalog([{ id: 'vendor/model-0000' }, { id: 'vendor/model-0001' }]) })];
+  const feed = buildFeed(deriveEvents(changes), []);
+  const built = buildApi({ feed, threads: buildThreads(feed), refusals: [], ledger: [], changes });
+
+  it('emits documents to check, so this cannot pass by walking nothing', () => {
+    expect(built.length).toBeGreaterThan(10);
+  });
+
+  it('uses none of the forbidden names anywhere, at any depth', () => {
+    const offenders: string[] = [];
+    for (const f of built) {
+      if (!f.path.endsWith('.json')) continue;
+      for (const key of keysOf(JSON.parse(textContents(f)))) {
+        if (FORBIDDEN.includes(key)) offenders.push(`${f.path}: ${key}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  /** first_seen_in_catalog_at is the REQUIRED name and must not be caught by the rule above. */
+  it('still permits the one first-seen name the spec asks for by name', () => {
+    const all = new Set<string>();
+    for (const f of built) {
+      if (!f.path.endsWith('.json')) continue;
+      for (const k of keysOf(JSON.parse(textContents(f)))) all.add(k);
+    }
+    expect(all.has('first_seen_in_catalog_at')).toBe(true);
   });
 });
