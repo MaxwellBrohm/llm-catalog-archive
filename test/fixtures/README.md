@@ -26,7 +26,7 @@ exists.
 | `trap-qwen-stale.xml` | 39,167 | qwenlm.github.io/blog/index.xml | 200, valid XML, parses, and years stale | newest item date is far in the past |
 | `trap-anthropic-catchall.html` | 64,176 | alignment.anthropic.com/feed.xml | a feed path that returns the blog homepage | byte-identical to `trap-anthropic-404path.html` |
 | `trap-anthropic-404path.html` | 64,176 | alignment.anthropic.com/zzz-not-a-real-path-9999 | the pair above, for the identity check | `cmp` against the catch-all |
-| `trap-interstitial.html` | 348,670 | theneurondaily.com/feed | a 200 that is not the feed: it is the site homepage. It carries the Cloudflare **beacon** `__CF$cv$params` and ZERO challenge markers, which is the measurement that got `__CF$cv$params` taken off the denylist | `<title>The Neuron</title>`; zero denylist markers; carries `/cdn-cgi/challenge-platform/scripts/` and not `/h/` |
+| `trap-interstitial.html` | 345,910 | theneurondaily.com/feed | a 200 that is not the feed: it is the site homepage. It carries the Cloudflare **beacon** `__CF$cv$params` and ZERO challenge markers, which is the measurement that got `__CF$cv$params` taken off the denylist | `<title>The Neuron</title>`; zero denylist markers; carries `/cdn-cgi/challenge-platform/scripts/` and not `/h/` |
 | `trap-cf-challenge-udemy.html` | 5,575 | www.udemy.com/ | a REAL Cloudflare managed challenge, captured at HTTP 403 on 2026-08-31. Carries `cf_chl_opt`, `/cdn-cgi/challenge-platform/h/`, `Just a moment` and `Enable JavaScript and cookies to continue`, and carries NO `__CF$cv$params` | `<title>Just a moment...</title>`; four denylist markers |
 | `trap-cf-challenge-indeed.html` | 27,518 | www.indeed.com/ | the other real challenge, and it earns its place by having NO `Just a moment` title. A denylist of human-readable strings alone would pass it | `<title>Security Check - Indeed.com</title>`; three denylist markers, no `Just a moment` |
 | `trap-openai-redirect-stub.txt` | 81 | platform.openai.com/docs/llms.txt | an 81-byte redirect body that only a size floor catches | 81 bytes |
@@ -80,10 +80,30 @@ status line cannot catch it and only the denylist can.
 and against the ordinary pages above, and asserts both challenge fixtures are
 still caught. A marker added without clearing both halves turns that file red.
 
+`trap-interstitial.html` was **345,910 bytes from 2026-08-31, not the 348,670
+it was captured at.** It arrived carrying a real AWS access key id twelve
+times, in the `X-Amz-Credential` parameter of presigned S3 URLs the newsletter
+published for its own audio files, and the key id and the signatures have been
+redacted out of it. History was left alone: an access key id is the public half
+of the pair, AWS puts it in the headers of every signed request by design, and
+the grants expire 2026-09-02, so it was not worth rewriting a published history
+over. The property this fixture proves is untouched by the redaction.
+
+**No test asserts against that credential.** Asserting against a real one makes
+it part of the test contract, and then the repository fights the next person
+who tries to clean it up. `test/secrets.test.ts` proves the same thing about
+the gate using a synthetic presigned URL built from the seeded generator: a
+fake key id, a fake signature, the real URL shape.
+
 Neither challenge fixture carries a credential. The `cH`, `md`, `mdrd` and
 `__cf_chl_tk` blobs in them are single-use, IP-bound, minutes-long challenge
-nonces that authorise nothing, and `test/secrets.test.ts` sweeps the credential
-gate over the archive rather than trusting that sentence.
+nonces that authorise nothing.
+
+None of this is trusted to a paragraph. `test/secrets.test.ts` sweeps the
+credential patterns over **every tracked file in the repository**, not just the
+collector's captures, because a hand-committed fixture is third-party bytes
+arriving by a route the write-time gate never sees. That sweep is how this one
+got here, and it is now the thing that stops the next one.
 
 `volatile-claude-status.atom` is a FROZEN copy of `raw/claude-status/`. The
 mask tests must not read the live archive path: the collector rewrites it on

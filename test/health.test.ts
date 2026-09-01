@@ -325,7 +325,7 @@ describe('checkHealth still rejects the homepage-for-a-feed-path trap', () => {
 
   it('rejects it on size against the feed baseline it would have replaced', () => {
     const v = checkHealth(neuronFeed(), obs(fxBytes('trap-interstitial.html')), { bytes: 6000 }, NOW);
-    expect(v.reason).toBe('size ratio 58.112 outside band [0.5, 2]');
+    expect(v.reason).toBe('size ratio 57.652 outside band [0.5, 2]');
   });
 
   it('counts that rejection as a failure', () => {

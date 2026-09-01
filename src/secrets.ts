@@ -126,11 +126,13 @@ const CREDENTIAL_PATTERNS: CredentialPattern[] = [
     // The floor is 3.4 rather than 4.0 and that is deliberate, because 16
     // characters cannot carry more than 4.0 bits at all: a real random key id
     // measures about 3.75, and AWS's own canonical example key measures 3.63,
-    // so no floor separates them. Holding is the safe direction. It is also
-    // the right answer more often than it looks: the only AKIA anywhere in
-    // this repository is a real key id inside a presigned S3 URL in
-    // `test/fixtures/trap-interstitial.html`, and archiving a presigned URL
-    // republishes a working seven day access grant, not just an identifier.
+    // so no floor separates them. Holding is the safe direction, and the
+    // presigned S3 URL is why: the signature beside the key id is a working
+    // read grant with an expiry, so archiving one republishes access rather
+    // than an identifier. That shape really did arrive here, hand-committed
+    // inside `test/fixtures/trap-interstitial.html` on 2026-08-26 and
+    // redacted out of it since. `test/secrets.test.ts` pins the behaviour
+    // against a SYNTHETIC presigned URL, never against that file.
     name: 'aws-access-key-id',
     re: /\bAKIA([A-Z0-9]{16})\b/g,
     minLength: 16,
