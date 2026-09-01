@@ -23,6 +23,30 @@ export type RunDeps = {
   commitPaths: (paths: string[], message: string) => boolean;
   push: () => void;
   log: (line: string) => void;
+  /**
+   * Milliseconds elapsed, from a monotonic source. Optional: absent means no
+   * deadline, which is what every unit test wants. src/cli.ts supplies it.
+   */
+  elapsedMs?: () => number;
+  /**
+   * How long the loop may spend fetching before it stops starting new sources
+   * and goes to write its heartbeat. Absent means unbounded.
+   *
+   * THIS EXISTS BECAUSE THE JOB CAP IS NOT A BUDGET, IT IS A GUILLOTINE. The
+   * daily tier's own worst case is 17 active sources times their timeout times
+   * retries, which is 3,570 seconds, against a workflow timeout-minutes of 15.
+   * A run that hits the cap is killed mid-loop, and because the status file is
+   * written after the loop, it commits NOTHING: no heartbeat, no counters, no
+   * captures it had already made. Measured on a clone with three sources
+   * pointed at a blackhole and SIGTERM at 45 seconds: HEAD unchanged, the
+   * status blob unchanged, the working tree clean.
+   *
+   * That is the exact failure the module's own header says must never happen,
+   * because the run that must not skip its heartbeat is the run in which
+   * everything is failing, and skipping it re-arms GitHub's 60-day
+   * inactivity clock at the worst possible moment.
+   */
+  budgetMs?: number;
 };
 
 export type RunResult = { exitCode: number; status: StatusFile | null; trace: string[] };
@@ -109,6 +133,17 @@ export async function runTier(
     if (s.status !== 'active') {
       deps.log(`${s.id}: pending, skipped`);
       continue;
+    }
+
+    // Checked BEFORE starting a fetch, never during one: a source that has
+    // begun is allowed to finish, so a capture is never half-written. Stopping
+    // early costs this run the remaining sources; being killed costs it every
+    // source AND the heartbeat.
+    if (deps.budgetMs !== undefined && deps.elapsedMs !== undefined && deps.elapsedMs() >= deps.budgetMs) {
+      const line = `budget of ${Math.round(deps.budgetMs / 1000)}s reached, stopping before ${s.id} to commit the heartbeat`;
+      deps.log(line);
+      trace.push(`budget:${s.id}`);
+      break;
     }
 
     const prev = prevStatus?.sources[s.id];

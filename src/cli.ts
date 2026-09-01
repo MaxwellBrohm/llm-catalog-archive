@@ -1,9 +1,25 @@
 /**
  * `collect --tier fast|daily`.
  *
- * Fetching is serial. Task 12 adds the politeness pool. Thirteen sources at a
- * 60 second timeout is under fifteen minutes in the worst case and typically
- * well under one, which is comfortably inside a daily slot.
+ * FETCHING IS SERIAL, AND THE WORST CASE DOES NOT FIT THE JOB.
+ *
+ * An older version of this comment said "thirteen sources at a 60 second
+ * timeout is under fifteen minutes in the worst case". All three numbers were
+ * wrong: there are 17 daily-active sources, three of them above 60 seconds, and
+ * it ignored retries entirely. Measured properly, the sum of
+ * `timeoutS * (retries + 1)` over the daily tier is 3,570 seconds, which is
+ * 59.5 minutes against a workflow `timeout-minutes: 15`. A single hung socket
+ * costs 190 seconds on the shipped claude-llms-txt config.
+ *
+ * The everyday cost of that is zero, because sources answer in milliseconds.
+ * The outage cost was total: a run killed at the cap commits NOTHING, losing
+ * its heartbeat, its counters and every capture it had already made, which is
+ * the one thing src/run.ts's header says must never happen.
+ *
+ * So the loop is given a budget below the job cap and stops starting new
+ * sources when it runs out, falling through to the status write. Sources are
+ * still serial and still polite; what changed is that running out of time is
+ * now an ordinary end to the loop rather than a kill.
  */
 
 import fs from 'node:fs';
@@ -53,6 +69,14 @@ if (rawStatus !== null && prevStatus === null) {
   console.log('meta/status.json is present but not readable as a status file; counters restart from zero this run');
 }
 
+/**
+ * Eleven minutes against a `timeout-minutes: 15` job, leaving four for npm ci,
+ * the checkout, the last in-flight fetch and the commit and push that follow
+ * the loop. Both collector workflows use the same cap.
+ */
+const BUDGET_MS = 11 * 60 * 1000;
+const startedAt = performance.now();
+
 const result = await runTier(activeSourcesForTier(file, tier), tier, prevStatus, {
   cwd,
   nowIso: () => new Date().toISOString(),
@@ -64,6 +88,8 @@ const result = await runTier(activeSourcesForTier(file, tier), tier, prevStatus,
     if (process.env['LCA_NO_PUSH'] !== '1') pushWithRebase(cwd, process.env['LCA_BRANCH'] ?? 'main');
   },
   log: (l) => console.log(l),
+  elapsedMs: () => Math.round(performance.now() - startedAt),
+  budgetMs: BUDGET_MS,
 });
 
 process.exit(result.exitCode);

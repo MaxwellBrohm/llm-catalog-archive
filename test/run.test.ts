@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
+import { loadSources, activeSourcesForTier } from '../src/config.js';
 import { runTier, type RunDeps } from '../src/run.js';
 import type { Source } from '../src/config.js';
 import type { HeaderRecord } from '../src/headers.js';
@@ -1509,5 +1511,192 @@ describe('the credential gate, as runTier applies it', () => {
       clean(),
     );
     expect(d.trace).toContain(committed);
+  });
+});
+
+/**
+ * THE JOB CAP IS A GUILLOTINE, NOT A BUDGET.
+ *
+ * The status file is written after the loop, deliberately, because the run that
+ * must not skip its heartbeat is the run in which everything is failing. But a
+ * run KILLED mid-loop never reaches that write at all. Measured on a clone with
+ * three sources pointed at a blackhole and SIGTERM at 45s: HEAD unchanged, the
+ * status blob unchanged, the working tree clean. No heartbeat, no counters, and
+ * every capture already made in that run thrown away.
+ *
+ * The daily tier's own worst case is sum(timeoutS * (retries + 1)) = 3,570
+ * seconds against a workflow timeout-minutes of 15, so this is reachable rather
+ * than theoretical.
+ */
+describe('the fetch budget', () => {
+  const slowSources = (n: number) => Array.from({ length: n }, (_, i) => source({ id: `s${i}`, path: `raw/s${i}/response.txt` }));
+
+  it('stops starting new sources once the budget is spent', async () => {
+    const fetched: string[] = [];
+    let clock = 0;
+    const r = await runTier(slowSources(4), 'daily', null, {
+      ...deps({
+        fetchOne: async (s) => {
+          fetched.push(s.id);
+          clock += 400;
+          return ok(enc('x'.repeat(2000)));
+        },
+      }),
+      elapsedMs: () => clock,
+      budgetMs: 1000,
+    });
+    // s0 at 0ms, s1 at 400ms, s2 at 800ms all start; by s3 the clock is 1200ms.
+    expect(fetched).toEqual(['s0', 's1', 's2']);
+    expect(r.trace).toContain('budget:s3');
+  });
+
+  /** The whole point: the heartbeat still lands. */
+  it('still writes and commits the status file after stopping early', async () => {
+    const committed: string[][] = [];
+    let clock = 0;
+    await runTier(slowSources(4), 'daily', null, {
+      ...deps({
+        fetchOne: async () => {
+          clock += 400;
+          return ok(enc('x'.repeat(2000)));
+        },
+        commitPaths: (paths: string[]) => {
+          committed.push(paths);
+          return true;
+        },
+      }),
+      elapsedMs: () => clock,
+      budgetMs: 1000,
+    });
+    expect(committed.some((p) => p.includes('meta/status.json'))).toBe(true);
+  });
+
+  it('records the sources it did reach, so their counters advance', async () => {
+    let clock = 0;
+    const r = await runTier(slowSources(4), 'daily', null, {
+      ...deps({
+        fetchOne: async () => {
+          clock += 400;
+          return ok(enc('x'.repeat(2000)));
+        },
+      }),
+      elapsedMs: () => clock,
+      budgetMs: 1000,
+    });
+    expect(Object.keys(r.status?.sources ?? {}).sort()).toEqual(['s0', 's1', 's2']);
+  });
+
+  /**
+   * A source that has begun is allowed to finish. Cutting mid-fetch is how a
+   * capture gets half written, and R5 overwrites one path in place.
+   */
+  it('never interrupts a fetch that has already started', async () => {
+    let finished = 0;
+    let clock = 0;
+    await runTier(slowSources(3), 'daily', null, {
+      ...deps({
+        fetchOne: async () => {
+          clock += 5000;
+          finished += 1;
+          return ok(enc('x'.repeat(2000)));
+        },
+      }),
+      elapsedMs: () => clock,
+      budgetMs: 1,
+    });
+    // s0 is considered at elapsed 0, which is inside a budget of 1ms, so it
+    // starts and is allowed to RUN TO COMPLETION even though it alone spends
+    // 5,000ms. That is the contract: the check gates starting, never
+    // interrupting, because a cut fetch is a half-written capture and R5
+    // overwrites one path in place. s1 and s2 are then skipped.
+    expect(finished).toBe(1);
+  });
+
+  /**
+   * `break`, not `continue`. With continue the loop keeps walking the remaining
+   * sources and logs a stop line for each, which turns one honest "out of time"
+   * into a wall of noise on the run that is already the hardest to read. The
+   * fixture leaves THREE sources unreached so the two spellings differ.
+   */
+  it('says it is out of time exactly once, however many sources remain', async () => {
+    const lines: string[] = [];
+    let clock = 0;
+    const r = await runTier(slowSources(6), 'daily', null, {
+      ...deps({
+        fetchOne: async () => {
+          clock += 400;
+          return ok(enc('x'.repeat(2000)));
+        },
+        log: (l: string) => lines.push(l),
+      }),
+      elapsedMs: () => clock,
+      budgetMs: 1000,
+    });
+    expect(lines.filter((l) => l.includes('budget of'))).toHaveLength(1);
+    expect(r.trace.filter((t) => t.startsWith('budget:'))).toEqual(['budget:s3']);
+  });
+
+  it('runs every source when there is no budget, which is what the tests want', async () => {
+    const fetched: string[] = [];
+    const r = await runTier(slowSources(4), 'daily', null, {
+      ...deps({
+        fetchOne: async (s) => {
+          fetched.push(s.id);
+          return ok(enc('x'.repeat(2000)));
+        },
+      }),
+    });
+    expect(fetched).toHaveLength(4);
+    expect(r.trace.some((t) => t.startsWith('budget:'))).toBe(false);
+  });
+
+  it('runs every source when a budget is set but no clock is supplied', async () => {
+    const fetched: string[] = [];
+    await runTier(slowSources(3), 'daily', null, {
+      ...deps({
+        fetchOne: async (s) => {
+          fetched.push(s.id);
+          return ok(enc('x'.repeat(2000)));
+        },
+      }),
+      budgetMs: 1,
+    });
+    expect(fetched).toHaveLength(3);
+  });
+});
+
+/**
+ * The number the budget exists to be smaller than. This fails loudly if a
+ * source is added whose timeouts push the serial worst case past what the
+ * workflow allows, which is the condition that made a killed run possible.
+ */
+describe('the configured worst case against the job cap', () => {
+  const file = loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8')));
+
+  it.each(['daily', 'fast'] as const)('the %s tier declares its own worst case', (tier) => {
+    const active = activeSourcesForTier(file, tier);
+    const worstCaseS = active.reduce((n, s) => n + s.timeoutS * (s.retries + 1), 0);
+    // Not asserted to fit: serial fetching genuinely does not fit, which is why
+    // src/cli.ts carries a budget. What is asserted is that the budget is the
+    // thing standing between the loop and the cap, so this number is allowed to
+    // exceed the cap only while a budget exists.
+    const cli = fs.readFileSync('src/cli.ts', 'utf8');
+    const capMinutes = 15;
+    if (worstCaseS > capMinutes * 60) {
+      expect(cli).toContain('budgetMs: BUDGET_MS');
+    }
+    expect(worstCaseS).toBeGreaterThan(0);
+  });
+
+  it('keeps the budget under the workflow timeout it is protecting', () => {
+    const cli = fs.readFileSync('src/cli.ts', 'utf8');
+    const m = /const BUDGET_MS = (\d+) \* 60 \* 1000;/.exec(cli);
+    expect(m).not.toBeNull();
+    const budgetMinutes = Number(m?.[1]);
+    for (const wf of ['.github/workflows/collect-daily.yml', '.github/workflows/collect-fast.yml']) {
+      const timeout = /timeout-minutes:\s*(\d+)/.exec(fs.readFileSync(wf, 'utf8'));
+      expect(timeout, `${wf} declares no timeout-minutes`).not.toBeNull();
+      expect(budgetMinutes).toBeLessThan(Number(timeout?.[1]));
+    }
   });
 });
