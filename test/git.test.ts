@@ -354,6 +354,11 @@ describe('pushWithRebase', () => {
   const argvFiles = (): string[] => [
     ...sourceFiles(),
     ...walk('.github/workflows', /\.ya?ml$/),
+    // tools/ is in scope because the append-only guard moved there to become
+    // executable by this suite, and it runs git. A place that can hand git an
+    // argument has to be scanned wherever it is, or extracting shell out of a
+    // workflow becomes a way to escape the check.
+    ...walk('tools', /\.(sh|mjs|[jt]s)$/),
     'package.json',
   ];
 

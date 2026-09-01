@@ -68,14 +68,29 @@ describe('scaffold', () => {
     expect(fs.readFileSync('meta/leaks-ledger.jsonl', 'utf8')).toBe('');
   });
 
-  // Empty is only half of it. An append-only ledger that no workflow guards is
-  // a mutable file with a promise written on it, and the promise is the whole
-  // product claim: a scorecard anyone can edit after the fact is not evidence
-  // of having been right.
-  it('guards the leaks ledger in the append-only workflow', () => {
-    const workflow = fs.readFileSync('.github/workflows/append-only.yml', 'utf8');
-    const guarded = workflow.split('\n').filter((l) => l.includes('meta/leaks-ledger.jsonl'));
-    expect(guarded).toHaveLength(2);
+  /*
+   * Empty is only half of it. An append-only ledger that nothing guards is a
+   * mutable file with a promise written on it, and the promise is the whole
+   * product claim: a scorecard anyone can edit after the fact is not evidence
+   * of having been right.
+   *
+   * This used to count two occurrences of one filename inside the workflow
+   * YAML, which was weak in both directions: it passed when the OTHER two
+   * ledgers were dropped from the guard, and it broke when the guard was
+   * extracted into a script so it could finally be executed. The guard is now
+   * tools/append-only.sh and test/append-only.test.ts RUNS it against real
+   * temporary repositories, over all three ledgers. All this needs to assert is
+   * that the wiring exists.
+   */
+  it('guards every ledger, in a script the suite can execute', () => {
+    const script = fs.readFileSync('tools/append-only.sh', 'utf8');
+    for (const ledger of ['meta/corrections.jsonl', 'meta/retractions.jsonl', 'meta/leaks-ledger.jsonl']) {
+      expect(script).toContain(ledger);
+    }
+  });
+
+  it('calls that script from the workflow rather than duplicating it', () => {
+    expect(fs.readFileSync('.github/workflows/append-only.yml', 'utf8')).toContain('tools/append-only.sh');
   });
 });
 

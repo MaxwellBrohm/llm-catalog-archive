@@ -6,59 +6,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      # The guard itself lives in tools/append-only.sh so that test/append-only.test.ts
+      # can execute it against real temporary repositories. As inline shell here it was
+      # unreachable from the suite, and two mutations that disabled it entirely left
+      # every test green.
       - name: Ledgers may only gain lines
-        run: |
-          set -euo pipefail
-
-          # Existence first, because it needs no diff base and the diff below
-          # cannot see this. Deleting a zero-line file produces no '-' content
-          # lines at all, so while the ledgers are still empty, git rm would
-          # otherwise sail through every check underneath.
-          for f in meta/corrections.jsonl meta/retractions.jsonl meta/leaks-ledger.jsonl; do
-            if [ ! -f "$f" ]; then
-              echo "::error::$f is missing; the append-only ledgers may not be deleted or renamed"
-              exit 1
-            fi
-          done
-
-          base="${{ github.event.before || 'HEAD~1' }}"
-
-          # A branch-creation push reports an all-zeroes before-sha. There is
-          # genuinely no prior state to compare against, so skip.
-          case "$base" in
-            *[!0]*) ;;
-            *)
-              echo "::notice::no prior commit on this branch (before-sha is all zeroes); skipping the ledger diff"
-              exit 0
-              ;;
-          esac
-
-          # A base that looks like a sha but is unreachable means the commit it
-          # named was discarded, i.e. history was rewritten. That is one of the
-          # ways an append-only ledger gets violated, so it must fail rather
-          # than skip.
-          if ! git cat-file -e "$base^{commit}" 2>/dev/null; then
-            echo "::error::diff base $base is not a reachable commit, which normally means history was force-pushed away; the append-only check could not be performed"
-            exit 1
-          fi
-
-          # git's own exit status has to be checked. grep -c prints 0 and exits
-          # 1 when it matches nothing, so piping a failed diff into it reports
-          # "no lines removed" exactly as confidently as a clean diff does.
-          diff_out="$(mktemp)"
-          for f in meta/corrections.jsonl meta/retractions.jsonl meta/leaks-ledger.jsonl; do
-            if ! git diff "$base" HEAD -- "$f" > "$diff_out"; then
-              echo "::error::git diff $base HEAD -- $f failed; the append-only check could not be performed"
-              exit 1
-            fi
-            grep_rc=0
-            removed=$(grep -c '^-[^-]' "$diff_out") || grep_rc=$?
-            if [ "$grep_rc" -gt 1 ]; then
-              echo "::error::grep exited $grep_rc while scanning the diff of $f; the append-only check could not be performed"
-              exit 1
-            fi
-            if [ "$removed" -ne 0 ]; then
-              echo "::error::$f is append-only; $removed line(s) removed or modified"
-              exit 1
-            fi
-          done
+        run: tools/append-only.sh "${{ github.event.before || 'HEAD~1' }}"
