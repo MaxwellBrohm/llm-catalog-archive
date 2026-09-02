@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Blog &#8211; PyTorch</title>
+	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
+	<link>https://pytorch.org</link>
+	<description></description>
+	<lastBuildDate>Fri, 28 Aug 2026 21:30:18 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=7.0.3</generator>
+
+<image>
+	<url>https://pytorch.org/wp-content/uploads/2024/10/cropped-favicon-32x32.webp</url>
+	<title>Blog &#8211; PyTorch</title>
+	<link>https://pytorch.org</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>vLLM Sessions at PyTorch Conference North America 2026</title>
+		<link>https://pytorch.org/blog/vllm-sessions-at-pytorch-conference-north-america-2026/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Fri, 28 Aug 2026 21:30:18 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<category><![CDATA[PyTorch Conference]]></category>
+		<category><![CDATA[PyTorch Conference North America]]></category>
+		<category><![CDATA[vLLM]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=160393</guid>
+
+					<description><![CDATA[TL;DR PyTorch Conference North America 2026 features vLLM across sessions on KV cache management and disaggregated serving, hardware portability, kernel optimization, PyTorch integration, Mixture-of-Experts inference, attention, and production serving. vLLM...]]></description>
+										<content:encoded><![CDATA[<h3><b>TL;DR</b></h3>
+<p>PyTorch Conference North America 2026 features vLLM across sessions on KV cache management and disaggregated serving, hardware portability, kernel optimization, PyTorch integration, Mixture-of-Experts inference, attention, and production serving.</p>
+<h3><b>vLLM at #PyTorchCon NA</b></h3>
+<p><span style="font-weight: 400;">PyTorch Conference North America 2026 comes to San Jose, CA, October 20–21, with technical talks, live demos, lightning talks, sponsored sessions, a keynote, and a Birds of a Feather discussion featuring vLLM.</span></p>
+<p>Across the program, vLLM appears in sessions on serving architecture and KV cache work, hardware portability, kernel and performance optimization, and PyTorch integration. Additional sessions cover Mixture-of-Experts inference, attention, production deployment, broader application stacks, and open source contribution.</p>
+<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
+<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026</span></a></p>
+<h3><strong data-start="1641" data-end="1701">Serving Architecture, KV Cache, and Production Inference</strong></h3>
+<h4><b>A Developer’s Guide to Attention in vLLM</b></h4>
+<p><b>Lucas Wilkinson, Red Hat; Matthew Bonanni, Red Hat</b><b><br />
+</b><b>October 20, 11:45 a.m.–12:10 p.m. | LL20AB | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session explains how vLLM represents, serves, and optimizes attention as models adopt approaches including sliding windows, sparsity, compression, linear variants, and hybrid attention.</span></p>
+<p><span style="font-weight: 400;">The speakers cover attention backends, KV-cache connectors, and the hybrid memory allocator, along with a recent overhaul of vLLM’s attention abstractions, what changed, and how the new design makes emerging architectures easier and cleaner to support.</span></p>
+<h4><b>State-of-the-Art KV Transfer for Disaggregated LLM Serving in vLLM</b></h4>
+<p><b>Nicolò Lucchesi, Mistral AI; Sunita Nadampalli, Amazon; Zhanqiu Hu, Red Hat</b><b><br />
+</b><b>October 20, 2:15–2:40 p.m. | LL20CD | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session covers developments in vLLM’s disaggregated serving stack for transferring KV cache between prefill and decode. Topics include hybrid-model transfer with heterogeneous tensor parallelism, bidirectional KV transfer, the KV Push connector, and KV cache leases for reliability.</span></p>
+<p><span style="font-weight: 400;">The speakers report that KV Push reduces time to first token and that, on Nemotron, disaggregated prefill/decode Pareto-dominates co-located serving across concurrency levels.</span></p>
+<h4><b>Native Tiered KV Cache Offloading in vLLM: From Storage Offloading to Disaggregated Serving</b></h4>
+<p><b>Or Ozeri, IBM</b><b><br />
+</b><b>October 20, 2:50–3:15 p.m. | LL20CD | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This talk presents vLLM’s native tiered KV cache offloading framework, newly integrated upstream with no external dependencies.</span></p>
+<p><span style="font-weight: 400;">The framework routes transfers through CPU memory as a universal transport hub. The design minimizes GPU transfer overhead, consolidates I/O through a CPU buffer, avoids specialized transfer APIs, and remains independent of KV cache memory layout across hardware, attention backends, parallelism schemes, and model architectures.</span></p>
+<h4><b>LMCache: a cluster-wide open source solution for LLM prompt caching</b></h4>
+<p><b>Kuntai Du, Tensormesh, Inc.</b><b><br />
+</b><b>October 20, 3:40–3:50 p.m. | LL20CD | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">LMCache provides prompt caching across inference engines including vLLM, SGLang, and TensorRT-LLM and storage systems including Mooncake, Redis, and AWS S3.</span></p>
+<p><span style="font-weight: 400;">The session includes a tutorial on deploying LMCache in Kubernetes along with the techniques and research behind its prompt-caching approach.</span></p>
+<h4><b>vLLM KV Cache Management for Model-Specific Requirements</b></h4>
+<p><b>Mengqing Cao, Huawei</b><b><br />
+</b><b>October 20, 5:30–5:40 p.m. | LL20CD | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This session addresses KV cache requirements that vary across model architectures including MLA, SWA, Eagle, and DeepSeek-V4.</span></p>
+<p><span style="font-weight: 400;">It proposes a model-customized KV Cache Planner built around a default planner plus model-specific planners for requirements such as spec grouping, block-size derivation, cache tensor creation, and </span><span style="font-weight: 400;">max_model_len</span><span style="font-weight: 400;"> adjustment.</span></p>
+<h4><b>Elastic Expert Parallelism in vLLM</b></h4>
+<p><b>Itay Alroy, NVIDIA</b><b><br />
+</b><b>October 21, 2:50–3:15 p.m. | LL20CD | Breakout Session</b></p>
+<p><span style="font-weight: 400;">Elastic Expert Parallelism enables vLLM deployments to add or remove workers at runtime and redistribute experts across the updated worker set with minimal interruption to serving.</span></p>
+<p><span style="font-weight: 400;">The session covers communication reconfiguration, CUDA Graph recapture, expert rebalancing through the EP Load Balancer, weight transfer to new GPUs, and coordination with model forward execution. It also covers how NIXL EP enables grow and shrink operations under live traffic, fault detection, reporting, and recovery.</span></p>
+<h4><b>Prefix Caching for Autoregressive Stages in Multi-Stage Pipelines</b></h4>
+<p><b>Ricardo Noriega, Red Hat; Alex Brooks, Red Hat</b><b><br />
+</b><b>October 21, 4:20–4:45 p.m. | LL20AB | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This talk explores Automatic Prefix Caching for Stage Outputs in vLLM-Omni, an approach for extending vLLM’s prefix caching to multi-stage models while minimizing GPU memory cost.</span></p>
+<p><span style="font-weight: 400;">The approach aligns external CPU tensor caches with vLLM’s native block management. The speakers also describe how vLLM-Omni dynamically discovers cacheable tensors without requiring manual configuration.</span></p>
+<h3><b>Hardware Portability and Accelerator Backends</b></h3>
+<h4><b>Sponsored: Unifying Open Source LLM Serving on Google Cloud TPUs with TorchTPU</b></h4>
+<p><b>Rob Mulla, Google</b><b><br />
+</b><b>October 20, 10:40–10:50 a.m. | Community Expo | Demo Theater</b></p>
+<p><span style="font-weight: 400;">This 10-minute demo shows TorchTPU’s native, high-performance compilation path for PyTorch models on Cloud TPUs.</span></p>
+<p><span style="font-weight: 400;">The demo highlights TorchTPU as a unified backend for inference engines including vLLM and SGLang, enabling model deployment through those serving engines with minimal code modifications.</span></p>
+<h4><b>Sponsored: PyTorch Ecosystem Running Natively on Trainium</b></h4>
+<p><b>Maen Suleiman, Amazon Web Services</b><b><br />
+</b><b>October 20, 10:55–11:05 a.m. | Community Expo | Demo Theater</b></p>
+<p><span style="font-weight: 400;">This live demo covers PyTorch workflows on Trainium through TorchNeuron, including training with TorchTitan or Hugging Face Transformers v5, serving with vLLM-Neuron, profiling with Neuron Explorer, and adding NKI kernels directly to PyTorch code.</span></p>
+<p><span style="font-weight: 400;">The session also demonstrates Neuron Agentic Development, AI-assisted tooling for kernel authoring and optimization.</span></p>
+<h4><b>One Model Definition, Many Accelerators: Scaling vLLM Across Hardware Without Forks</b></h4>
+<p><b>Thomas Parnell, IBM; Richard Zou, Meta</b><b><br />
+</b><b>October 20, 4:20–4:45 p.m. | LL20CD | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This talk presents hardware-agnostic model definitions for vLLM, an approach that separates model logic from hardware execution paths so the same model definition can run across accelerators without forks or per-platform maintenance.</span></p>
+<p><span style="font-weight: 400;">The design relies on compatibility with </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;">, well-defined extensibility hooks, and isolation from hardware-specific paths. The speakers show how the approach supports Intel Gaudi/HPU and IBM Spyre without hardware-specific modeling code.</span></p>
+<h4><b>Portable PyTorch Across AI Accelerators: A Triton Operator Stack from Eager Mode to vLLM</b></h4>
+<p><b>Yonghua Lin, Beijing Academy of Artificial Intelligence</b><b><br />
+</b><b>October 20, 4:55–5:20 p.m. | LL20CD | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session presents FlagOS, an open source system stack using a Triton-based operator, compiler, and runtime layer for PyTorch.</span></p>
+<p><span style="font-weight: 400;">FlagGems implements PyTorch eager-mode operators and LLM-critical kernels in Triton, while the same operator layer connects to vLLM through the </span><span style="font-weight: 400;">vllm-plugin-fl</span><span style="font-weight: 400;"> multi-backend plugin.</span></p>
+<p>The speakers report testing FlagOS on 20+ AI chips and architectures and say it has enabled Day-0 adaptation of models including Qwen3.5, MiniMax-M3, MiniCPM-5, and DeepSeek-V4. They report 5–40% inference performance improvement over original vendor adaptation.</p>
+<h4><b>Efficient MoE LLM Inference on Arm with vLLM and OpenVINO</b></h4>
+<p><b>Abhishek Jain, Fujitsu Research of India; N Maajid Khan, Fujitsu Research of India</b><b><br />
+</b><b>October 20, 4:55–5:05 p.m. | LL21ABC | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk presents a vLLM and OpenVINO inference stack optimized for Arm CPUs, including SVE-optimized SDPA and Paged Attention, U8 KV-cache quantization, operator fusion, KleidiAI integration, and optimized threading for 8-bit and 4-bit inference.</span></p>
+<p><span style="font-weight: 400;">For Mixture-of-Experts models, the speakers introduce a NUMA-aware GatherMatMul operator that combines dynamic token and expert selection with matrix multiplication. Benchmarks on AWS Graviton3e show approximately 2x throughput on GPTOSS/Llama models.</span></p>
+<h4><b>Integrating the IBM Spyre Accelerator</b></h4>
+<p><b>David Grove, IBM; Antoni Viros i Martin, IBM Research; Avery Blanchard, IBM Research</b><b><br />
+</b><b>October 20, 4:55–5:20 p.m. | LL21DEF | Breakout Session</b></p>
+<p><span style="font-weight: 400;">Torch-Spyre is an open source project that provides a PyTorch PrivateUse1 device with OpenReg, including an Inductor backend, for the IBM Spyre Accelerator.</span></p>
+<p><span style="font-weight: 400;">The speakers report that the IBM Spyre Accelerator can now run thousands of models from Hugging Face and vLLM through its PyTorch integration. The session covers the state of Torch-Spyre, functional enablement and performance improvements made in 2026, contributions back to PyTorch, device-specific tensor layouts, and scratchpad-optimized tiling.</span></p>
+<h4><b>Keynote: Workload Fungibility in the Age of Agents</b></h4>
+<p><b>Bill Jia, Google Cloud</b><b><br />
+</b><b>October 21, 9:15–9:25 a.m. | Grand Ballroom | Keynote</b></p>
+<p><span style="font-weight: 400;">This keynote uses TorchTPU to show PyTorch workflows across model development, training, and serving, including serving through vLLM and SGLang.</span></p>
+<p><span style="font-weight: 400;">The session also demonstrates agentic workflows for moving model workloads from GPUs to TPUs and explores their use for performance optimization tasks including quantization, custom kernel generation, and sharding strategies.</span></p>
+<h4><b>PyTorch-Native LLM Serving on TPU: SGLang and vLLM</b></h4>
+<p><b>Colin Taylor, Meta; Qi Zhou, Google; Angela Yi, Meta</b><b><br />
+</b><b>October 21, 2:15–2:40 p.m. | LL20CD | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session presents SGLang and vLLM running on TPUs through a new PyTorch-native TPU backend while preserving the serving engines’ schedulers, batching systems, OpenAI-compatible APIs, and </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;"> workflows.</span></p>
+<p><span style="font-weight: 400;">The speakers cover </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;"> lowering to TPU, Pallas attention, tensor and expert parallelism, Mixture-of-Experts execution, FP8 for large MoE models including Qwen3-Coder-480B, multimodal encoders, prefill/decode disaggregation, and speculative decoding. The speakers say both platforms will be open sourced as of the talk.</span></p>
+<h3>Kernel and Performance Optimization</h3>
+<h4><b>High-Velocity GPU Kernel Authoring with CUTLASS Python</b></h4>
+<p><b>Michael Goldfarb, NVIDIA; Guray Ozen, NVIDIA</b><b><br />
+</b><b>October 20, 12:20–12:45 p.m. | 210BF | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This talk presents new Python-first capabilities for CUTLASS CuTe DSL, which the speakers report has delivered high-performance GPU kernels in projects including FlashAttention 4, TRT-LLM, vLLM, and FlashInfer.</span></p>
+<p><span style="font-weight: 400;">The session introduces CuTe DSL extensions, CUTLASS Python Primitives for direct access to low-level hardware instructions, and the Resource and Task Scheduler, a zero-cost metaprogramming framework for static verification of asynchronous primitives.</span></p>
+<h4><b>Faster LLM Serving Startup with fastsafetensors</b></h4>
+<p><b>Takeshi Yoshimura, IBM</b><b><br />
+</b><b>October 20, 3:25–3:35 p.m. | LL20CD | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk presents fastsafetensors, an open source library for accelerating safetensors checkpoint loading in PyTorch inference systems including vLLM.</span></p>
+<p><span style="font-weight: 400;">fastsafetensors removes per-tensor copies, coalesces fragmented I/O, and skips host staging. The speakers report 4.8x to 7.5x faster model loading and up to 28 GB/s of NVMe read throughput.</span></p>
+<p><span style="font-weight: 400;">The session also covers contributions including parallel loading, 3FS integration, ROCm support, a universal wheel with runtime CUDA/ROCm detection, Windows DirectStorage exploration, and unified-memory support.</span></p>
+<h4><b>Sponsored: Quantization Showdown: PyTorch Inference Optimization</b></h4>
+<p><b>Markell Rawls, Red Hat</b><b><br />
+</b><b>October 20, 4:10–4:20 p.m. | Community Expo | Demo Theater</b></p>
+<p><span style="font-weight: 400;">This live demo examines quantization and speculative decoding using tools including LLM Compressor and vLLM.</span></p>
+<p><span style="font-weight: 400;">The session stress-tests the techniques under load to examine the performance, cost, and quality tradeoffs involved in production deployments.</span></p>
+<h4><b>From Weeks to Overnight: Autonomous Day-0 Kernel Bring-Up with Agent Pipelines</b></h4>
+<p><b>Xiaogang Gu, Intel; Qun Yang, Intel</b><b><br />
+</b><b>October 20, 5:30–5:40 p.m. | 210BF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This session presents a pipeline-driven autonomous system for GPU kernel optimization, with specialized agents handling profiling, analysis, code generation, verification, fixes, benchmarking, and evaluation in isolated contexts.</span></p>
+<p><span style="font-weight: 400;">Using real vLLM inference workloads, the speakers report reducing kernel bring-up and optimization cycles from weeks to overnight unattended runs.</span></p>
+<h4><b>Making vLLM Faster on Intel GPUs with Triton Kernels</b></h4>
+<p><b>Whitney Tsang, Intel; Artur Fierka, Intel</b><b><br />
+</b><b>October 21, 12:20–12:30 p.m. | 210BF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk examines Triton kernels for vLLM on Intel GPUs and where Triton can outperform SYCL on inference workloads.</span></p>
+<p><span style="font-weight: 400;">The speakers focus on unified attention, fused MoE, batched MoE, autotuning, tensor-descriptor-oriented kernel structure, and fusion opportunities. They also discuss where these choices improve end-to-end vLLM throughput and latency and where SYCL remains competitive.</span></p>
+<h4><b>HiFloat: Democratizing Ultra-Low Precision Training and Inference in PyTorch Ecosystems</b></h4>
+<p><b>Yun Zhao, Huawei; Haonan Zhang, Huawei</b><b><br />
+</b><b>October 21, 2:50–3:00 p.m. | LL20AB | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This session introduces HiFloat8 and HiFloat4 and demonstrates HiFloat-accelerated LLM workflows within DeepSpeed and vLLM.</span></p>
+<p><span style="font-weight: 400;">The implementation uses PyTorch custom ops, Triton-based kernels, and </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;">. In the benchmarks presented, the speakers report that HiF8 achieves final-loss parity with FP16 while delivering a 1.5x–1.7x GEMM speedup.</span></p>
+<h4><b>Portable Paged Attention: From Triton to Helion</b></h4>
+<p><b>Burkhard Ringlein, IBM Research</b><b><br />
+</b><b>October 21, 3:25–3:50 p.m. | 210BF | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session compares Triton and Helion implementations of Paged Attention and presents an experimental Helion attention backend for vLLM.</span></p>
+<p><span style="font-weight: 400;">The speaker covers differences between the two implementations, algorithm changes needed to achieve matching performance, and optimizations enabled by Helion. Early results indicate that the experimental Helion backend can reduce latency by up to 50% and improve end-to-end throughput versus Triton by up to 10%.</span></p>
+<h3>PyTorch Integration and Compatibility</h3>
+<h4><b>Shipping PyTorch and Its Ecosystem: A Modern Release Story</b></h4>
+<p><b>Andrey Talman, Meta</b><b><br />
+</b><b>October 20, 11:45–11:55 a.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk covers changes to PyTorch release engineering, including continuous validation of Triton and vLLM against PyTorch nightlies so ecosystem breakage can surface upstream before the release branch is cut.</span></p>
+<p><span style="font-weight: 400;">The session also covers a faster, more predictable release process and the use of AI agents to triage CI, separate noise from regressions, and draft fixes, while leaving final decisions with people.</span></p>
+<h4><b>Sponsored: Making Enterprise Agentic Inference Production-Ready with PyTorch and vLLM</b></h4>
+<p><b>Joseph Groenenboom, Red Hat; Tyler Michael Smith, Red Hat</b><b><br />
+</b><b>October 20, 3:25–3:50 p.m. | LL21ABC | Sponsored Session</b></p>
+<p><span style="font-weight: 400;">This session examines reliability, observability, KV cache management, and concurrency requirements for enterprise inference systems.</span></p>
+<p><span style="font-weight: 400;">The speakers cover a sample of upstream work across PyTorch, vLLM, other Foundation projects, and the broader ecosystem, from core PyTorch build infrastructure to model-serving improvements for tool calling and long-context, multi-turn chat.</span></p>
+<h4><b>Clearing the Path Towards an ABI Stable PyTorch C++ Extension Ecosystem</b></h4>
+<p><b>Sean McGovern, Red Hat; Chris Leonard, Red Hat; Jane Xu, Meta</b><b><br />
+</b><b>October 21, 2:15–2:40 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">PyTorch’s stable ABI provides a binary-compatible C interface that extensions can target across PyTorch versions without recompilation.</span></p>
+<p><span style="font-weight: 400;">This session presents tools for identifying and inventorying unstable API usage and applying source-to-source conversion with LLM-assisted follow-up. The speakers demonstrate the process on libraries including vLLM and SGLang.</span></p>
+<h4><b>From Backed to Unbacked: Sound, Predictable, and Controllable Dynamic Shapes in PyTorch</b></h4>
+<p><b>Laith Sakka, Meta</b><b><br />
+</b><b>October 21, 4:20–4:45 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This talk covers unbacked dynamic shapes for explicit graph-capture workflows including vLLM, export, and pre-compilation, as well as JIT deployments where dynamic-shape recompilation is not acceptable.</span></p>
+<p><span style="font-weight: 400;">The session covers data-dependent errors and branching, work to close the performance gap with backed shapes across TorchBench and vLLM, and APIs for shape constraints and dispatch across compiled artifacts.</span></p>
+<h3><b>vLLM in Broader Applications and Infrastructure</b></h3>
+<h4><b>Understanding Modern Vision Language Models</b></h4>
+<p><b>Aastha Jhunjhunwala, NVIDIA; Mark Moyou, NVIDIA</b><b><br />
+</b><b>October 20, 12:20–12:45 p.m. | LL20AB | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session deconstructs five open source vision-language model architectures, covering image tokenization, vision-language fusion, differences between training and inference, fine-tuning, and multi-GPU training.</span></p>
+<p><span style="font-weight: 400;">For production serving, the speakers cover image-token growth, KV-cache pressure, throughput, and where tools including vLLM fit.</span></p>
+<h4><b>Sponsored: Hardware-Aware AI: Building Agentic Systems from Cloud to Edge with PyTorch, ExecuTorch</b></h4>
+<p><b>Kavya Sri Chennoju, Arm</b><b><br />
+</b><b>October 20, 12:20–12:45 p.m. | LL20CD | Sponsored Session</b></p>
+<p><span style="font-weight: 400;">This session presents a cloud-to-edge workflow combining PyTorch for model development, ExecuTorch for on-device inference, vLLM for scalable LLM serving, and Arm Device Connect for interaction with heterogeneous hardware.</span></p>
+<p><span style="font-weight: 400;">The live workflow shows foundation models reasoning about tasks, invoking edge models, retrieving live sensor data, and coordinating physical devices.</span></p>
+<h4><b>Keeping GPUs Busy: High-Speed Storage for PyTorch via fsspec</b></h4>
+<p><b>Ankita Luthra, Google; Trinadh Kotturu, Google</b><b><br />
+</b><b>October 20, 3:40–3:50 p.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk presents Rapid Storage, which brings Google’s Colossus stateful protocol to PyTorch through </span><span style="font-weight: 400;">fsspec</span><span style="font-weight: 400;"> and uses persistent gRPC streams to the storage layer.</span></p>
+<p><span style="font-weight: 400;">The speakers report less than 1 ms random read/write latency, 20x faster data access, 6 TB/s of aggregate throughput, and 10x lower tail latency for random I/O. The integration extends through </span><span style="font-weight: 400;">gcsfs</span><span style="font-weight: 400;"> and the broader </span><span style="font-weight: 400;">fsspec</span><span style="font-weight: 400;"> ecosystem, including vLLM alongside other data and AI frameworks.</span></p>
+<h4><b>Sponsored: From Prompt to Physical Action: A Live Hardware-Aware AI Demo with PyTorch, ExecuTorch</b></h4>
+<p><b>Kavya Sri Chennoju, Arm</b><b><br />
+</b><b>October 20, 3:55–4:05 p.m. | Community Expo | Demo Theater</b></p>
+<p><span style="font-weight: 400;">This live demonstration combines PyTorch, ExecuTorch, vLLM, and Arm Device Connect in a workflow spanning cloud, edge, and embedded devices.</span></p>
+<p><span style="font-weight: 400;">Starting with a natural-language request, a large language model reasons about the task, discovers available devices, invokes edge AI models, retrieves live sensor data, and coordinates hardware through a unified programming model.</span></p>
+<h4><b>From PyTorch to Production: Serving a Physics-Constrained Generative Model with ONNX, Ray, and vLLM</b></h4>
+<p><b>Arun Sharma, University of Minnesota</b><b><br />
+</b><b>October 21, 2:50–3:15 p.m. | 210AE | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session follows a physics-constrained generative downscaling model from PyTorch training into a served stack.</span></p>
+<p><span style="font-weight: 400;">The talk covers model export through </span><span style="font-weight: 400;">torch.onnx</span><span style="font-weight: 400;"> and AOTInductor, rectified-flow sampling, physics constraints at inference, and a Ray Train recipe for scaling. The serving path combines ONNX Runtime in Rust, Temporal in Go, and a vLLM agent that calls the downscaler as a tool.</span></p>
+<h3><b>vLLM Community and Contribution</b></h3>
+<h4><b>Contributing to Inference OSS That Won’t Stand Still: A BoF on vLLM, llm-d, and the Moving Target</b></h4>
+<p><b>Maroon Ayoub, Red Hat; Nili Guy, IBM</b><b><br />
+</b><b>October 21, 10:35–11:05 a.m. | Community Expo | Birds of a Feather</b></p>
+<p><span style="font-weight: 400;">This Birds of a Feather session focuses on contributing to fast-moving inference projects including vLLM and llm-d.</span></p>
+<p><span style="font-weight: 400;">Contributors, maintainers, and prospective contributors will compare approaches to landing a first pull request, onboarding contributors, following technical decisions across project channels, and participating in cross-company open source development.</span></p>
+<h3><b>Explore the Full Program</b></h3>
+<p><span style="font-weight: 400;">These sessions include both talks centered directly on vLLM and broader sessions where vLLM is part of the serving stack, implementation, hardware integration, optimization work, or application workflow.</span></p>
+<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
+<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026</span></a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Core PyTorch Sessions at PyTorch Conference North America 2026</title>
+		<link>https://pytorch.org/blog/core-pytorch-sessions-at-pytorch-conference-north-america-2026/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 27 Aug 2026 20:49:08 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<category><![CDATA[PyTorch Conference]]></category>
+		<category><![CDATA[PyTorch Conference North America]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=159992</guid>
+
+					<description><![CDATA[TL;DR PyTorch Conference North America 2026 features Core PyTorch sessions spanning compiler and runtime work, distributed communication, device portability, release engineering, CI, observability, accelerator integration, and contributor infrastructure. Core PyTorch...]]></description>
+										<content:encoded><![CDATA[<h2><b>TL;DR</b></h2>
+<p><span style="font-weight: 400;">PyTorch Conference North America 2026 features Core PyTorch sessions spanning compiler and runtime work, distributed communication, device portability, release engineering, CI, observability, accelerator integration, and contributor infrastructure.</span></p>
+<h3><b>Core PyTorch at #PyTorchCon NA:</b></h3>
+<p><span style="font-weight: 400;">PyTorch Conference North America 2026 comes to San Jose, CA, October 20–21, with two days of technical talks, workshops, and discussions across the open source AI stack.</span></p>
+<p><span style="font-weight: 400;">Our Core PyTorch program gets into the machinery of the framework: compiler and runtime internals, distributed communication, device abstractions, hardware integration, release engineering, CI, profiling, and compatibility. The sessions below cover the APIs, implementation work, performance results, and engineering approaches shaping how PyTorch is built and extended.</span></p>
+<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
+<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026 by September 4 to save on your ticket</span></a></p>
+<h3><b>Release Engineering, Compatibility, and Contributor Infrastructure</b></h3>
+<h4><b>Relay and Reuse: The Dual Engine Behind PyTorch Out-of-Tree Release Readiness</b></h4>
+<p><b>Jiahao Chen, Huawei; Jiahao Tan, Huawei</b><b><br />
+</b><b>October 20, 11:10–11:35 a.m. | LL21DEF | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session explains how an out-of-tree accelerator backend uses device-agnostic test reuse and cross-repository CI to keep pace with PyTorch releases. The speakers say </span><span style="font-weight: 400;">instantiate_device_type_tests</span><span style="font-weight: 400;"> and dynamic skipping make 580K+ community test cases reusable out of the box, while the Cross-Repo CI Relay validates PyTorch PRs against accelerator code before merge.</span></p>
+<p><span style="font-weight: 400;">Together, the approach supports stable out-of-tree backend releases within 30 days of each upstream update.</span></p>
+<h4><b>Shipping PyTorch and Its Ecosystem: A Modern Release Story</b></h4>
+<p><b>Andrey Talman, Meta</b><b><br />
+</b><b>October 20, 11:45–11:55 a.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk covers changes to PyTorch release engineering across three areas: a faster and more predictable release process; continuous validation of Triton and vLLM against PyTorch nightlies so breakage surfaces upstream early; and AI agents that triage CI, separate noise from regressions, and draft fixes.</span></p>
+<p><span style="font-weight: 400;">The session also examines where agents accelerate release work and where humans still make the call.</span></p>
+<h4><b>Scaling PyTorch&#8217;s Compatibility Promise: A Tiered Cross-Repository CI Relay for Out-of-Tree Backends</b></h4>
+<p><b>Subin George, Red Hat LLC; Jewel K M, Red Hat</b><b><br />
+</b><b>October 20, 12:00–12:10 p.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk presents the Cross-Repository CI Relay, or CRCR, which forwards PyTorch PR and push events to downstream repositories in real time for compatibility validation before merge. It covers a four-tier trust model ranging from event dispatch through blocking merge prerequisites, along with the relay, ingestion, visualization, and security architecture.</span></p>
+<p><span style="font-weight: 400;">The speakers report that deployment with Ascend NPU and RISC-V backends reduces breakage detection from days to minutes.</span></p>
+<h4><b>Fighting Agents with Agents Bringing Claude to PyTorch CI, triage, and PR review</b></h4>
+<p><b>Driss Guessous, Meta</b><b><br />
+</b><b>October 20, 12:35–12:45 p.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">PyTorch maintainers are reviewing an increasing number of PRs written by AI agents. This talk covers how Claude was added to PyTorch infrastructure through </span><span style="font-weight: 400;">@claude</span><span style="font-weight: 400;"> on issues and PRs, automatic issue triage, reusable onboarding for </span><span style="font-weight: 400;">pytorch</span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;">meta-pytorch</span><span style="font-weight: 400;"> repositories, PR review skills, and CI and autorevert investigation.</span></p>
+<p><span style="font-weight: 400;">The session also covers Bedrock/OIDC setup, two-stage GitHub Actions, tool allowlists, and repository-specific skills, with the stated goal of supporting maintainers rather than replacing them.</span></p>
+<h4><b>Clearing the Path Towards an ABI Stable PyTorch C++ Extension Ecosystem</b></h4>
+<p><b>Sean McGovern, Red Hat; Chris Leonard, Red Hat; Jane Xu, Meta</b><b><br />
+</b><b>October 21, 2:15–2:40 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">PyTorch&#8217;s stable ABI provides a binary-compatible C interface that extensions can target across PyTorch versions without recompilation. This session presents tools for identifying and inventorying unstable API usage and applying source-to-source conversion, with LLM-assisted follow-up for migration work.</span></p>
+<p><span style="font-weight: 400;">The speakers demonstrate the process on libraries including vLLM and SGLang.</span></p>
+<h3><b>Compiler, Runtime, Tensor, and Observability Work</b></h3>
+<h4><b>Beyond Size and Stride: Unleash Performance with Device-Aware Tensor Layouts</b></h4>
+<p><b>Olivier Tardieu, IBM; Matthew Arnold, IBM Research</b><b><br />
+</b><b>October 20, 4:20–4:30 p.m. | LL20AB | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">PyTorch tensors encode size, stride, and storage offset, but the speakers argue that these fields are insufficient to capture hardware layouts required by modern accelerators. This session introduces a tensor layout extension for device-aware specialization, including tiling and NUMA-aware placement, while preserving standard PyTorch tensor semantics.</span></p>
+<p><span style="font-weight: 400;">The speakers also demonstrate how torch.compile and Inductor can use these controls to adapt layouts to the target device and adjust computations.</span></p>
+<h4><b>Observability Tooling for Cudagraph Workloads</b></h4>
+<p><b>Natalia Gimelshein, Meta; Driss Guessous, Meta</b><b><br />
+</b><b>October 20, 4:20–4:30 p.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">Cudagraph workloads can make profiling, stream visualization, and memory tracking difficult. This talk covers PyTorch utilities for using information captured during graph capture to enrich runtime information collected during replay.</span></p>
+<p><span style="font-weight: 400;">The goal is more information-rich performance and memory monitoring at low overhead, including nearly zero-overhead always-on monitoring.</span></p>
+<h4><b>Nested Graph Breaks: Reducing the Cost of Graph Breaks in torch.compile</b></h4>
+<p><b>William Wen, Meta</b><b><br />
+</b><b>October 20, 4:35–4:45 p.m. | LL20AB | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">A nested graph break previously caused O(N) duplicate graph breaks, O(N) graphs to be traced, and O(N²) frame traces for a function call O(N) layers deep.</span></p>
+<p><span style="font-weight: 400;">This session presents nested graph break support in Dynamo, reducing those costs to O(1) duplicate graph breaks, O(1) graphs traced, and O(N) frame traces. The speakers report larger captured graphs, fewer graph breaks, reduced Dynamo trace time, and improved debuggability.</span></p>
+<h4><b>Static Tensor Shape Checking for PyTorch with Pyrefly</b></h4>
+<p><b>Steven Troxler, Meta Platforms; Avik Chaudhuri, Meta</b><b><br />
+</b><b>October 20, 5:30–5:55 p.m. | LL20AB | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session presents static tensor shape checking in the Pyrefly type checker, including inline tensor-shape hints and detection of mismatches before execution.</span></p>
+<p><span style="font-weight: 400;">The speakers cover symbolic integers, </span><span style="font-weight: 400;">Tensor</span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;">Dim</span><span style="font-weight: 400;"> types, a shape-transform DSL, evaluation across 28 models spanning LLMs, vision, recommenders, and reinforcement learning, and AI-assisted annotations using a Claude skill.</span></p>
+<h4><b>TorchInsights: Zero-GPU Memory &amp; Runtime Estimation for Distributed Training and Agentic Research</b></h4>
+<p><b>Sanket Jayant Purandare, Meta; Aditya Venkataraman, Meta</b><b><br />
+</b><b>October 20, 5:45–5:55 p.m. | LL21ABC | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">TorchInsights estimates memory use and runtime for distributed training without running workloads on GPUs. Using fake tensors and fake execution, it can break down peak memory, sweep training configurations, rank parallelism plans, and simulate multi-stream GPU execution with Perfetto traces.</span></p>
+<p><span style="font-weight: 400;">The tool uses pluggable cost models and is also presented as a lower-cost evaluation loop for AI-agent auto-research before spending real GPU time.</span></p>
+<h4><b>Parametrized Dynamic Shape CUDA Graphs</b></h4>
+<p><b>Elias Ellison, Meta; Daniel Galvez, NVIDIA</b><b><br />
+</b><b>October 21, 11:45 a.m.–12:10 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">Dynamic workloads can require padding, on-device shapes, repeated recordings, or larger model changes to use CUDA Graphs. This session combines parametrized CUDA Graphs with torch.compile&#8217;s symbolic tracing and guard infrastructure to capture and re-parametrize a single CUDA Graph across dynamic shapes.</span></p>
+<p><span style="font-weight: 400;">The speakers report performance wins and reduced cold-start times for inference serving.</span></p>
+<h4><b>Native DSL Operators in PyTorch Core</b></h4>
+<p><b>Simon Layton, Meta</b><b><br />
+</b><b>October 21, 2:50–3:15 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">DSL-authored kernels have largely remained outside PyTorch core. This talk presents work toward adding DSL-authored operators as first-class citizens of PyTorch core, tying them into dispatch and testing.</span></p>
+<p><span style="font-weight: 400;">The work is intended to support new operators, highly optimized implementations, and targeted fixes for specialized performance cliffs.</span></p>
+<h4><b>From Backed to Unbacked: Sound, Predictable, and Controllable Dynamic Shapes in PyTorch</b></h4>
+<p><b>Laith Sakka, Meta</b><b><br />
+</b><b>October 21, 4:20–4:45 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">Backed dynamic shapes use symbolic sizes together with example-input hints and guards, which can allow recompilation. For workflows including vLLM, export, pre-compilation, and JIT deployments where dynamic-shape recompilation is not acceptable, this talk presents unbacked shapes, which disallow implicit guards on dynamic shapes.</span></p>
+<p><span style="font-weight: 400;">The session covers data-dependent errors and branching, work to close the performance gap with backed shapes across TorchBench and vLLM, and APIs for shape constraints and dispatch across compiled artifacts.</span></p>
+<h4 class="PDq2pG_selectionAnchorContainer" data-start="0" data-end="52"><span role="text"><strong data-start="5" data-end="52">Speeding Up torch.compile: A New FakeTensor</strong></span></h4>
+<p data-start="54" data-end="132"><strong data-start="54" data-end="72">Angel Li, Meta</strong><br data-start="72" data-end="75" /><strong data-start="75" data-end="132">October 21, 4:55–5:05 p.m. | LL21ABC | Lightning Talk</strong></p>
+<p data-start="134" data-end="308">FakeTensor is a lightweight substitute for regular tensors used by Dynamo and Inductor when building FX graphs, but its propagation contributes to torch.compile tracing time.</p>
+<p data-start="310" data-end="666">The speaker reports that one FakeTensor propagation takes around 20% of total Dynamo tracing time and that <code data-start="417" data-end="426">aten.mm</code> takes around 225 microseconds with a Python FakeTensor, while a C++ FakeTensor shows a 30x speedup for that operation. The talk covers key changes, design decisions, performance benchmarks, and integration with the torch.compile ecosystem.</p>
+<h4><b>Lightweight FX Tracing in PyTorch</b></h4>
+<p><b>Richard Zou, Meta; Yidi Wu, Meta Inc.</b><b><br />
+</b><b>October 21, 5:10–5:20 p.m. | LL21ABC | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">Dynamo traces Python bytecode and can fall back to graph breaks, but the speakers say they have received feedback that Dynamo is too heavy for use cases where users require a full graph.</span></p>
+<p><span style="font-weight: 400;">This talk presents a lightweight FX tracer based on </span><span style="font-weight: 400;">make_fx</span><span style="font-weight: 400;"> for functionally pure PyTorch code. It covers the API, its guarantees, how it differs from Dynamo, and how it interacts with other APIs.</span></p>
+<h3><b>Distributed Communication and Device Portability</b></h3>
+<h4><b>PyTorch Generalization: A Journey Toward Write Once, Run Anywhere</b></h4>
+<p><b>Yu Guangye, Intel; Eikan Wang, Intel</b><b><br />
+</b><b>October 20, 12:20–12:30 p.m. | LL21DEF | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">This talk covers ongoing work to make PyTorch APIs, runtime interfaces, and testing infrastructure less backend-specific. The speakers focus on model-level API unification across Autocast, Inductor, and graph capture and replay; </span><span style="font-weight: 400;">torch.accelerator</span><span style="font-weight: 400;"> for device, stream, event, RNG, and memory management; and test infrastructure spanning Distributed, Dynamo, Inductor, ATen operators, and more.</span></p>
+<p><span style="font-weight: 400;">The stated goal is a consistent user and developer experience across in-tree and out-of-tree backends.</span></p>
+<h4><b>Future of Distributed Communication in PyTorch: New APIs for Fault Tolerance, RDMA and Extensibility</b></h4>
+<p><b>Tristan Rice, Meta; Kapil Sharma, Meta</b><b><br />
+</b><b>October 20, 4:20–4:45 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This talk presents new APIs for fault tolerance, one-sided RDMA, collective hooks, backend extensibility, and backend interfaces. Examples include </span><span style="font-weight: 400;">torch.distributed.reconfigure()</span><span style="font-weight: 400;"> for live process-group reconfiguration after rank failures, Window APIs for one-sided put/get, composable hooks for collectives, and pip-installable backends registered through </span><span style="font-weight: 400;">entry_points</span><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">The speakers say these features were incubated in TorchComms and are now being upstreamed into </span><span style="font-weight: 400;">torch.distributed</span><span style="font-weight: 400;">.</span></p>
+<h4 class="PDq2pG_selectionAnchorContainer" data-start="668" data-end="726"><span role="text"><strong data-start="673" data-end="726">rocSHMEM Symmetric Memory in PyTorch for AMD GPUs</strong></span></h4>
+<p data-start="728" data-end="809"><strong data-start="728" data-end="749">Prachi Gupta, AMD</strong><br data-start="749" data-end="752" /><strong data-start="752" data-end="809">October 20, 4:35–4:45 p.m. | LL21DEF | Lightning Talk</strong></p>
+<p data-start="811" data-end="1062">PyTorch symmetric memory issues communication from within device kernels, including Triton, allowing communication to overlap with computation. This talk covers extending that capability to AMD GPUs through rocSHMEM, now available in upstream PyTorch.</p>
+<p data-start="1064" data-end="1380">The session covers rocSHMEM device-side OpenSHMEM primitives exposed as Triton-callable operations, AMD-specific device-bitcode linking and HIP-module initialization behind a backend-agnostic layer shared with NVSHMEM, and a comparison with RCCL host-driven all-to-all on representative Mixture-of-Experts workloads.</p>
+<h4><b>XCCL: Scaling PyTorch Collectives to Exascale on Intel GPUs with TorchComms</b></h4>
+<p><b>Panagiotis Kourdis, Intel; Tanima Dey, Intel Corporation</b><b><br />
+</b><b>October 20, 5:10–5:20 p.m. | LL21ABC | Lightning Talk</b></p>
+<p><span style="font-weight: 400;">XCCL adds native Intel GPU support to TorchComms through an in-tree backend built on Intel&#8217;s oneCCL library.</span></p>
+<p><span style="font-weight: 400;">The speakers report over 90% scaling efficiency across thousands of nodes on Argonne National Laboratory&#8217;s Aurora system while running TorchTitan and other AI workloads. The talk also covers a stream-ordered asynchronous execution model, differences between PyTorch collective semantics and oneCCL, CI, testing on Intel hardware, and comparisons with NCCL and RCCL.</span></p>
+<h4><b>Introducing NCCL Extensions: Communication Patterns for Modern AI</b></h4>
+<p><b>Sreeram Potluri, NVIDIA; Artem Polyakov, NVIDIA</b><b><br />
+</b><b>October 21, 4:55–5:20 p.m. | 210AE | Breakout Session</b></p>
+<p><span style="font-weight: 400;">NCCL domain extensions are specialized libraries built on NCCL Device APIs for emerging communication patterns. This session introduces NCCL-EP for Mixture-of-Experts dispatch and combine and NCCL-M2N for zero-copy resharding between disjoint device meshes.</span></p>
+<p><span style="font-weight: 400;">The speakers cover their design rationale, APIs, and performance results, including the use of NCCL-M2N to move weight snapshots from trainers to inference replicas for reinforcement learning rollout without CPU staging.</span></p>
+<h3><b>Accelerator Integration and Hardware-Aware Tooling</b></h3>
+<h4><b>Integrating the IBM Spyre Accelerator</b></h4>
+<p><b>David Grove, IBM; Antoni Viros Martin, IBM Research; Avery Blanchard, IBM Research</b><b><br />
+</b><b>October 20, 4:55–5:20 p.m. | LL21DEF | Breakout Session</b></p>
+<p><span style="font-weight: 400;">Torch-Spyre is an open source project that provides a PyTorch PrivateUse1 device with OpenReg, including an Inductor backend, for the IBM Spyre Accelerator.</span></p>
+<p><span style="font-weight: 400;">The talk covers the state of Torch-Spyre, functional enablement and performance improvements made in 2026, and contributions made back to PyTorch. It also discusses device-specific tensor layouts and scratchpad-optimized tiling, with an emphasis on integration with upstream PyTorch.</span></p>
+<h4 class="PDq2pG_selectionAnchorContainer" data-start="1382" data-end="1440"><span role="text"><strong data-start="1387" data-end="1440">TorchTPU: Running PyTorch Natively on Google TPUs</strong></span></h4>
+<p class="" data-start="1442" data-end="1532"><strong data-start="1442" data-end="1468">Claudio Basile, Google</strong><br data-start="1468" data-end="1471" /><strong data-start="1471" data-end="1532">October 21, 11:10–11:35 a.m. | LL21ABC | Breakout Session</strong></p>
+<p data-start="1534" data-end="1850">This session presents TorchTPU as a high-performance, native PyTorch backend for Google TPUs. It covers an eager-first stack with ATen-to-StableHLO lowering and &#8220;DeferAndFuse&#8221; execution, an XLA stack that uses SparseCore for compute-communication overlap, bounded dynamism, and integrations with vLLM and TorchTitan.</p>
+<p data-start="1852" data-end="2045" data-is-last-node="" data-is-only-node="">The speaker reports production-scale engagements with private preview partners and describes TorchTPU as transitioning to an open source model, with a public GitHub repository release upcoming.</p>
+<h4><b>From torch.profiler to Hardware Cycles: A Practical Profiling Playbook for AWS Trainium</b></h4>
+<p><b>Esha Lakhotia, AWS Annapurna Labs; Pinak Panigrahi, Amazon</b><b><br />
+</b><b>October 21, 12:20–12:45 p.m. | LL21ABC | Breakout Session</b></p>
+<p><span style="font-weight: 400;">This session shows how the </span><span style="font-weight: 400;">torch.profiler</span><span style="font-weight: 400;"> API can be used on AWS Trainium without code changes or separate tooling, from CPU dispatch and runtime orchestration down to on-device hardware execution.</span></p>
+<p><span style="font-weight: 400;">The speakers walk through tracing slow model components to compiled operations and Python source, using cycle-level device timelines to identify bottlenecks, and AI-assisted analysis that identifies performance bottlenecks and suggests potential fixes.</span></p>
+<h3><b>Explore the Full Program</b></h3>
+<p><span style="font-weight: 400;">These sessions represent part of our Core PyTorch program across October 20 and 21. Explore the full PyTorch Conference North America program for additional sessions across training, inference, applications, kernel engineering, responsible AI, and more.</span></p>
+<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
+<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026</span></a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>PyTorch Ecosystem Landscape Welcomes Perforated, AReaL, TorchJD, RLinf, Miles, SMG, FiftyOne, TokenSpeed, VisualTorch, and TorchSurv</title>
+		<link>https://pytorch.org/blog/pytorch-ecosystem-landscape-q3-update/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Wed, 26 Aug 2026 20:53:37 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=159483</guid>
+
+					<description><![CDATA[The PyTorch Ecosystem Working Group is happy to welcome 10 new projects to the PyTorch Ecosystem Landscape including Perforated, AReaL, TorchJD, RLinf, Miles, SMG, FiftyOne, TokenSpeed, VisualTorch, and TorchSurv. The...]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;">The PyTorch Ecosystem Working Group is happy to welcome 10 new projects to the PyTorch Ecosystem Landscape including Perforated, AReaL, TorchJD, RLinf, Miles, SMG, FiftyOne, TokenSpeed, VisualTorch, and TorchSurv. The </span><a href="https://landscape.pytorch.org/"><span style="font-weight: 400;">PyTorch Ecosystem Landscape</span></a><span style="font-weight: 400;"> is a map of the innovative open source AI projects that extend, integrate with, or build upon PyTorch. Welcome to the newest PyTorch Ecosystem Landscape projects!</span></p>
+<h2><span style="font-weight: 400;">New Additions to the PyTorch Ecosystem</span></h2>
+<h3><span style="font-weight: 400;">Perforated</span></h3>
+<p><span style="font-weight: 400;">Perforated is a data-efficiency library for PyTorch that improves model performance by adding neuron-specific reinforcement learning signals during training. Originally inspired by a breakthrough in neuroscience research, Perforated applies a lightweight modification to backpropagation. This library helps models extract more value from available training data, enabling ML teams to reach target performance with fewer labeled examples and no changes to core model architecture. While broadly applicable across machine learning, Perforated has been most extensively validated on edge AI and computer vision workloads. ML teams that have adopted Perforated reduced error by 70% with existing data, meeting deployment criteria while truncating painful data collection and labeling.</span></p>
+<p><span style="font-weight: 400;">Implemented entirely in Python using standard PyTorch functionality, Perforated is proud to be officially welcomed to the PyTorch ecosystem. Teams can evaluate Perforated against their current models and benchmarks with minimal integration effort, making it easy to assess the impact of improved data efficiency within established development pipelines. We look forward to working with the PyTorch community to advance practical approaches for training higher-performing models.</span></p>
+<p><span style="font-weight: 400;">Learn more at </span><a href="http://perforatedai.com"><span style="font-weight: 400;">perforatedai.com</span></a><span style="font-weight: 400;">. Find us on </span><a href="https://github.com/PerforatedAI/PerforatedAI"><span style="font-weight: 400;">Github</span></a><span style="font-weight: 400;">. Join the </span><a href="https://join.slack.com/t/perforatedcommunity/shared_invite/zt-469gt412a-rDFGRW1H5eo0mwAf5rrl8Q"><span style="font-weight: 400;">Perforated Community Slack</span></a></p>
+<h3><span style="font-weight: 400;">AReaL</span></h3>
+<p><span style="font-weight: 400;">AReaL is an open source, modular RL infrastructure that bridges foundation model training with modern LLM/VLM-based agent applications. Built on a fully asynchronous RL training paradigm, AReaL enables seamless building, deployment, evaluation, and fine tuning of agents through standardized data and execution interfaces. Black-box or online agentic systems can be incorporated into the full RL training loop with minimal integration overhead and no intrusive code changes.</span></p>
+<p><span style="font-weight: 400;">AReaL decomposes RL into independent, composable services, enabling flexible scaling, fault tolerance, and independent optimization of system components. This design also allows broad integration with diverse training and inference backends, including vLLM, SGLang, custom PyTorch-native 5D parallel engines, and other projects within the PyTorch ecosystem. Rather than introducing new components, AReaL focuses on connecting existing ecosystem pieces into a practical, end-to-end loop that supports the full lifecycle of an agentic system &#8211; from development to continuous evolution.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/inclusionAI/AReaL"><span style="font-weight: 400;">AReaL</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">TorchJD</span></h3>
+<p><span style="font-weight: 400;">TorchJD is a library to train neural networks with multiple losses. Two main classes of methods are supported:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">scalarization: combine the losses into a single scalar loss, and minimize it with a gradient-based optimizer.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Jacobian Descent (JD): compute the Jacobian of the vector of losses (one gradient per loss), and aggregate it into a common update direction to feed to the optimizer.</span></li>
+</ul>
+<p><span style="font-weight: 400;">There is a key advantage to Jacobian descent: with the proper aggregation method, the parameter update will decrease all losses simultaneously. In some cases though (e.g. very aligned gradients), scalarization may be enough. Our goal is to provide a comprehensive collection of gradient-based multi-objective optimization methods, making it easy both for experts to compare approaches and for newcomers to start solving multi-loss problems without requiring deep expertise in the field.</span></p>
+<p><span style="font-weight: 400;">We&#8217;re joining the PyTorch ecosystem in the hope of gathering a larger community of users and contributors. We have many ideas for the future of TorchJD, and we&#8217;re looking forward to building them together with the community as we continue working toward making TorchJD the ideal library for training models with multiple losses.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/SimplexLab/TorchJD"><span style="font-weight: 400;">TorchJD</span></a><span style="font-weight: 400;"> or join the </span><a href="https://discord.com/invite/76KkRnb3nk"><span style="font-weight: 400;">Discord community</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">RLinf</span></h3>
+<p><span style="font-weight: 400;">RLinf is an open source reinforcement learning framework for embodied and agentic AI, built for a world where models are increasingly trained through complex real-world interactions across robots and sensors, simulators, tools, web environments, code, and multi-agent workflows. RLinf connects these interactive feedback loops with scalable training, offering standard and reusable building blocks for rollout, reward computation, environment execution, and learning, without revealing the intricate details of managing heterogeneous hardware and complex environments. Together with push-button recipes for reproducing state-of-the-art RL algorithms, RLinf helps accelerate the advancement of reinforcement learning in embodied and agentic systems.</span></p>
+<p><span style="font-weight: 400;">As part of the PyTorch ecosystem, RLinf brings a real-world perspective to scalable RL: PyTorch users can prototype with familiar model code while RLinf handles the coordination between learning, acting, sensing, evaluating, and scaling across heterogeneous hardware. By making robots and GPUs first-class citizens in the same workflow, RLinf aims to help the ecosystem push post-training beyond isolated model loops toward reproducible, extensible systems that learn through interaction. Learn more at </span><a href="http://github.com/RLinf/RLinf"><span style="font-weight: 400;">RLinf</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">Miles</span></h3>
+<p><span style="font-weight: 400;">Miles is an open source post-training framework for large-scale models, built and maintained by RadixArk. It targets the scale at which post-training actually runs: frontier scale open MoEs, multi-node clusters, and long-running jobs that have to stay up. Miles has deep SGLang integration and first-class support for new model architectures and hardware platforms as they land, along with production capabilities including LoRA, TITO, and low-precision training. It is customizable rather than prescriptive, so teams can modify the training loop, swap components, and adapt algorithms to their own recipes instead of working around the framework.</span></p>
+<p><span style="font-weight: 400;">Miles is already used by research labs and industry teams to post-train open models at that scale. RL post-training is where PyTorch-native training meets high-throughput inference, and Miles is built to connect the two. We are joining the PyTorch Ecosystem Landscape to develop that path in the open, alongside the rest of the PyTorch community.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/radixark/miles"><span style="font-weight: 400;">Miles</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">SMG</span></h3>
+<p><span style="font-weight: 400;">SMG (Shepherd Model Gateway) is an engine-agnostic, high-performance model-routing gateway for large-scale LLM deployments. Written in Rust, SMG sits in front of self-hosted inference engines — vLLM, TensorRT-LLM, TokenSpeed, SGLang, MLX — and cloud providers, unifying them behind a single OpenAI-compatible endpoint. Its cache-aware routing tracks each worker&#8217;s KV-cache state in radix trees to maximize prefix reuse and GPU utilization, while a native streaming gRPC pipeline supports prefill/decode disaggregation and data-parallel-aware routing. SMG adds enterprise-grade controls — priority admission scheduling, multi-tenancy, API-key auth with OIDC, WebAssembly plugins, and self-hosted chat history — along with 90+ Prometheus metrics and OpenTelemetry tracing. We&#8217;re excited to join the PyTorch Ecosystem and to keep building the serving layer for open source models alongside the community.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://lightseek.org/smg/"><span style="font-weight: 400;">SMG</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">FiftyOne</span></h3>
+<p>FiftyOne is the multimodal data platform for physical AI. It helps developers build better models by indexing multimodal data for search, curation, annotation, and model evaluation.That data spans images, video, and sensor streams like LiDAR and radar. FiftyOne gives ML teams the tools to find the failure modes, data quality issues, and edge cases that improve model performance, from initial dataset exploration through production model debugging.</p>
+<p>FiftyOne integrates natively with PyTorch across the full development loop. Teams can load pre-trained models directly from PyTorch Hub for inference, embeddings, and evaluation, and they can use FiftyOne datasets inside PyTorch training pipelines without maintaining separate dataset definitions. Thousands of teams already work this way: they train models in PyTorch and use FiftyOne to understand, curate, and improve the data those models learn from. Joining the PyTorch ecosystem allows us to make that workflow even better. As physical AI moves from research to production, we look forward to collaborating with the PyTorch community on the data tooling those systems depend on.</p>
+<p>Learn more about <a href="https://voxel51.com/fiftyone">FiftyOne</a>.</p>
+<h3><span style="font-weight: 400;">TokenSpeed</span></h3>
+<p><span style="font-weight: 400;">TokenSpeed is an open source LLM inference engine and the first to separate the control plane from the execution plane. The control plane is implemented in C++ as a finite-state machine, using the type system to enforce safe resource management, including request lifecycles and KV cache state, at compile time rather than runtime. The execution plane is implemented in Python, enabling fast iteration and lowering the cognitive load for researchers and engineers. This architecture combines strong correctness guarantees in the core scheduling system with the development velocity of a high-level execution layer.</span></p>
+<p><span style="font-weight: 400;">TokenSpeed also treats kernels as a first-class, modular subsystem, separating them from the core engine through a portable public API, centralized registry and selection model, and an extensible plugin mechanism for heterogeneous accelerators. We’re joining the PyTorch Ecosystem to work with the broader community on building high-performance, extensible inference infrastructure for open source models. By making both the scheduler and kernel layers modular and extensible, TokenSpeed aims to make it easier to support new models, hardware platforms, and optimizations in production inference systems.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/lightseekorg/tokenspeed"><span style="font-weight: 400;">TokenSpeed</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">VisualTorch</span></h3>
+<p><span style="font-weight: 400;">VisualTorch is an open source PyTorch model visualization library designed to help researchers and engineers create publication-ready diagrams of neural network architectures. It traces an actual forward pass, so branching architectures and custom forward logic are all captured automatically. It renders in multiple visual styles, including animated GIF reveals that build a model&#8217;s structure up layer by layer.</span></p>
+<p><span style="font-weight: 400;">VisualTorch has already been used in published research, including work in Nature, IEEE, Elsevier, and MDPI journals. Joining the PyTorch Ecosystem Landscape puts VisualTorch in front of more PyTorch researchers and engineers who need a reliable way to visualize and communicate their models, and connects the project more directly with the broader PyTorch community as it continues to grow.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://visualtorch.readthedocs.io/en/latest/"><span style="font-weight: 400;">VisualTorch</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">TorchSurv</span></h3>
+<p><span style="font-weight: 400;">TorchSurv is a lightweight, PyTorch-native toolkit developed through a cross-institution research collaboration spanning industry, regulatory science, and academia, with a simple goal: bring survival analysis modeling directly into PyTorch. By keeping the package focused, lightweight, and well-tested, TorchSurv gives researchers a reliable tool they need to build, evaluate, and extend deep survival models without introducing a separate framework.</span></p>
+<p><span style="font-weight: 400;">TorchSurv provides fully differentiable survival losses, including Cox proportional hazards and Weibull AFT, alongside evaluation tools such as the concordance index, time-dependent AUC, and Brier score, all designed to work with standard PyTorch training loops and arbitrary neural network architectures.</span></p>
+<p><span style="font-weight: 400;">Since its release, TorchSurv has gained traction across the research community, with its use in published studies spanning oncology, medical imaging, and multimodal AI, including work presented at NeurIPS and published in Nature npj Digital Medicine. TorchSurv has also been published in the Journal of Open Source Software and is included in the</span><a href="https://cdrh-rst.fda.gov/torchsurv-deep-learning-tools-survival-analysis"><span style="font-weight: 400;"> FDA’s Regulatory Science Tools Catalog</span></a><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">Learn more about </span><a href="https://opensource.nibr.com/torchsurv/index.html"><span style="font-weight: 400;">TorchSurv.</span></a></p>
+<h2><span style="font-weight: 400;">How to Join the PyTorch Ecosystem Landscape</span></h2>
+<p><span style="font-weight: 400;">If you’re developing a project that supports the PyTorch community, you’re welcome to </span><a href="https://pytorch.org/join-ecosystem/"><span style="font-weight: 400;">apply for inclusion in the Ecosystem Landscape</span></a><span style="font-weight: 400;">. Please review the </span><a href="https://github.com/pytorch-fdn/tac/blob/main/docs/governance/PyTorch_Ecosystem_Process.md"><span style="font-weight: 400;">PyTorch Ecosystem Landscape Review Process</span></a><span style="font-weight: 400;"> to ensure that you meet the minimum expectations before applying.</span></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>PyTorch Conference North America 2026 Keynote Speaker Sessions Announced</title>
+		<link>https://pytorch.org/blog/pytorch-conference-north-america-2026-keynote-speaker-sessions-announced/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 20 Aug 2026 20:56:13 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=157323</guid>
+
+					<description><![CDATA[The keynote lineup is set for PyTorch Conference North America 2026, taking place October 20–21 in San Jose, California. The program includes sessions on PyTorch updates, native PyTorch on Trainium,...]]></description>
+										<content:encoded><![CDATA[<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-119439 size-full" src="https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026.png" alt="PyTorch Conference North America 2026" width="1200" height="630" srcset="https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026.png 1200w, https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026-300x158.png 300w, https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026-1024x538.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
+<p>The keynote lineup is set for <strong>PyTorch Conference North America 2026</strong>, taking place October 20–21 in San Jose, California. The program includes sessions on PyTorch updates, native PyTorch on Trainium, agent workloads, model customization, open science, and more.</p>
+<p>Featured keynote speakers and their scheduled sessions include:</p>
+<ul>
+<li><strong>Mark Collier, PyTorch Foundation</strong>: <em>Welcome to PyTorch Conference North America</em> and <em>Welcome Back</em></li>
+<li><strong>Alban Desmaison and Edward Yang, Meta</strong>: <em>PyTorch Updates</em></li>
+<li><strong>Maen Suleiman, Amazon Web Services</strong>: <em>Sponsored Keynote: Trainium’s Journey to Native PyTorch</em></li>
+<li><strong>Sara Hooker, Adaption</strong>: <em>Beyond Brute Force: The Era of Adaptive Intelligence.</em></li>
+<li><strong>Jana van Greunen, Meta</strong>: <em>Sponsored Keynote: PyTorch at Meta &#8211; From Internal Workloads to Multi-Silicon Ecosystem</em></li>
+<li><strong>Simon Mo, Inferact</strong>: <em>Keynote: Simon Mo, Inferact</em></li>
+<li><strong>Brian Stevens, Red Hat</strong>: <em>Keynote: Brian Stevens, SVP and AI CTO, Red Hat</em></li>
+<li><strong>Ujval Kapasi, NVIDIA</strong>: <em>Keynote: Ujval Kapasi, VP, AI &amp; HPC Frameworks and Libraries, NVIDIA</em></li>
+<li><strong>Mazin Gilbert, Agentic AI Foundation</strong>: <em>Keynote: Mazin Gilbert, Executive Director, Agentic AI Foundation</em></li>
+<li><strong>Bill Jia, Google Cloud</strong>: <em>Workload Fungibility in the Age of Agents</em></li>
+<li><strong>Chris Lattner, Qualcomm</strong>: <em>Sponsored Keynote: Chris Lattner, EVP of Advanced AI Software and Platforms, Qualcomm</em></li>
+<li><strong>Joelle Pineau, Cohere</strong>: <em>Open Science and AI Foundation Models: Allies in the Pursuit of Knowledge</em></li>
+<li><strong>Yiwei Song, Crusoe</strong>: <em>Sponsored Keynote: AI Model Customization Platform</em></li>
+<li><strong>Mark Saroufim, Core Automation</strong>: <em>Linear Algebra for the Age of Research</em></li>
+</ul>
+<p>Stay tuned for more.</p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?utm_campaign=49768803-26Q3_PyTorch%20Conference%20North%20America&amp;utm_source=PyTorch.blog%20%28schedule%29"><strong>View the full schedule</strong></a></p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/register/?utm_campaign=49768803-26Q3_PyTorch%20Conference%20North%20America&amp;utm_source=Pytorch.org%20blog#register-now"><strong>Register for PyTorch Conference North America</strong></a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Harnessing AI for Day-One Model Enablement</title>
+		<link>https://pytorch.org/blog/harnessing-ai-for-day-one-model-enablement/</link>
+		
+		<dc:creator><![CDATA[IBM Spyre Team]]></dc:creator>
+		<pubDate>Thu, 20 Aug 2026 15:45:59 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=154257</guid>
+
+					<description><![CDATA[TL;DR The AI model landscape never stops moving, and the software stack that runs those models is always a step behind: even on a mature compilation stack, a new model...]]></description>
+										<content:encoded><![CDATA[<p><strong>TL;DR</strong></p>
+<p>The AI model landscape never stops moving, and the software stack that runs those models is always a step behind: even on a mature compilation stack, a new model family often arrives with some novel module that doesn&#8217;t lower well, and on new hardware &#8211; where a young stack meets a whole ecosystem at once &#8211; the gap is far wider. Extending stack enablement to each new family has traditionally been slow, specialist work that delays deployment. In this blog we show how AI agents can facilitate <strong>day-one enablement</strong> for a new model or for entire ecosystems, by bridging between the model workflows and the compilation stack. We demonstrate this at the harder end of that spectrum: through a small number of AI-written adapters, we run stock HuggingFace Transformers models on IBM&#8217;s Spyre AI accelerator, achieving full enablement for thousands of models.</p>
+<h2>The problem: catching up to an evolving model landscape</h2>
+<p>The model landscape never stops moving. New architectures and checkpoints appear constantly — each a particular composition of operations, shapes, and numerical ranges — and the software that has to run them is always a step behind. Even on the most mature, widely-deployed stack, a brand-new model family lands with some novel module, some fused attention variant, some numeric range that the existing software doesn&#8217;t yet handle cleanly.</p>
+<p>&nbsp;</p>
+<p><em><strong><img decoding="async" class="alignnone size-large wp-image-154262" src="https://pytorch.org/wp-content/uploads/2026/08/model-landscape-timeline-1024x715.png" alt="model-landscape-timeline" width="1024" height="715" srcset="https://pytorch.org/wp-content/uploads/2026/08/model-landscape-timeline-1024x715.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/model-landscape-timeline-300x210.png 300w, https://pytorch.org/wp-content/uploads/2026/08/model-landscape-timeline.png 2031w" sizes="(max-width: 1024px) 100vw, 1024px" />New model families added to the HuggingFace Transformers library over time.</strong> Each step marks the inclusion of a prominent model family, illustrating the steady, accelerating pace at which new architectures arrive.</em></p>
+<p>Running a model on any device requires a software stack &#8211; a compiler, a set of operator lowerings, and a runtime &#8211; that maps it onto the hardware&#8217;s cores, memory hierarchy, and number formats. That stack is a large, evolving piece of software, and a new architecture can exercise a corner of it that isn&#8217;t yet mature. Until that corner is filled in, the model cannot run, or doesn&#8217;t run well &#8211; and closing such a gap has traditionally taken weeks or months of specialist work.</p>
+<p>New hardware is where the gap is at its widest. A new accelerator is not just a chip: it ships with a young stack still growing into the needs of different models. Here it is not one new model meeting a mature stack, but a whole ecosystem of models meeting a stack that is still being built &#8211; and that must simultaneously keep pace with new architectures landing on top of it. Enablement can&#8217;t wait for the stack to be complete; it should progress in parallel, letting real models run while the platform underneath them matures.</p>
+<p>&nbsp;</p>
+<p><em><strong><img decoding="async" class="alignnone size-large wp-image-154261" src="https://pytorch.org/wp-content/uploads/2026/08/accelerator_timeline-1024x508.png" alt="accelerator_timeline" width="1024" height="508" srcset="https://pytorch.org/wp-content/uploads/2026/08/accelerator_timeline-1024x508.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/accelerator_timeline-300x149.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" />AI accelerator releases. </strong>Each dot marks the announcement date for a new chip. New hardware arrives almost as steadily as new models do &#8211; and every chip architecture needs a continually evolving software stack.</em></p>
+<p>New hardware is the extreme case, but the challenge is a general one: keeping the software in step with the model landscape, whether the stack is mature or brand new. Below we describe a strategy for bridging that gap, and demonstrate it through a concrete instance &#8211; running stock HuggingFace Transformers models on <strong>IBM&#8217;s Spyre accelerator</strong>.</p>
+<h2>The strategy: adapters as a bridge between models and stack</h2>
+<p>The strategy we describe is a thin layer of runtime patches &#8211; adapters &#8211; that allow a stock model to run on a given platform today, without waiting for every underlying gap in the stack to be closed first. We assume that the platform already provides a PyTorch compiler that lowers<br />
+core tensor operations in ordinary torch code &#8211; including matrix multiplications, elementwise operations, and reductions &#8211; onto the target hardware, so most of the model logic runs through it unchanged. When some operation in a model doesn&#8217;t yet have a clean path through the stack, the adapter reaches in at runtime and swaps it for an equivalent one that does. The patches change how the model is expressed for the device, but not what it computes: the underlying math is preserved. An adapter isn&#8217;t a hand-optimized kernel &#8211; it hands the stack a form it can lower well, but performance remains the compiler&#8217;s responsibility.</p>
+<p>Rather than blocking on the state of the stack, adapters provide a practical bridge across it as it stands today. A useful analogy is a large construction project. Around a building with active construction &#8211; whether it is still going up or already standing and being renovated — there is almost always scaffolding somewhere: temporary access ramps and support beams that keep work moving on whatever part isn&#8217;t finished yet. No single piece of scaffolding is permanent; each comes down once the structure behind it can stand on its own.</p>
+<p>Adapters play the same role. An individual adapter is usually transitional: its job is to carry a model across one specific gap in the stack as it stands today, and it is designed to be removed once that gap is closed — as the platform matures, new optimizations are integrated, more architectures are enabled, and the permanent path opens up underneath it. Not every adapter comes down, though: some bridge a temporary gap the stack will eventually close, while others accommodate a genuine, lasting difference in the target hardware; and where an accelerator harware has a unique architecture, those bridges may stay in place for good.</p>
+<p>The adapter layer, however, is permanent in a way no individual adapter is. Because the model landscape never stops moving, there is always some new gap the stack hasn&#8217;t caught up to yet — so even as old scaffolding comes down, new scaffolding goes up elsewhere. That layer connects two things evolving in parallel. On one side is a model ecosystem &#8211; in our case HuggingFace Transformers, thousands of models with a stable API and an enormous community. On the other is the platform&#8217;s hardware-lowering stack &#8211; in our case Spyre, a compiler and runtime stack that maps those models onto the accelerator device and is itself under continual development. The adapters sit in between, letting models run on the hardware while the two ends continue to evolve.</p>
+<p>What makes this strategy practical at the scale of thousands of models is AI. Historically, enabling each new model family was a slow, specialist effort, requiring a great deal of work for every hardware platform and chip architecture. Coding agents change the economics, turning what used to be a bespoke effort into something that can keep pace with the ecosystem. The rest of this post shows how that plays out &#8211; but first we will introduce the concrete platform in which we implement this.</p>
+<h2>The platform: Spyre and torch-spyre</h2>
+<p>The hardware in our example is <strong>Spyre</strong>, IBM&#8217;s AI accelerator, built on the AIU (Artificial Intelligence Unit). It is made of small cores connected by a high-bandwidth ring, each with its own local scratchpad memory and arrays of processing elements that carry out the matrix multiplications at the heart of a model. A few things make it distinctive. First, it is dataflow-driven: computation is triggered by data arriving at a compute engine, which reduces the bottleneck of sequential control flow, and keeps the hardware busy on the structured, repetitive math that models are made of. This is in contrast to a conventional GPU, which executes kernels as explicit instruction streams across scheduled groups of threads. Second, Spyre uses reduced-precision number formats designed for inference, which lets it deliver high throughput at low power.</p>
+<p>Spyre&#8217;s memory and compute operate on fixed-size chunks called sticks &#8211; 128 bytes, or 64 values in fp16 &#8211; and it expects tensor dimensions to line up on stick boundaries (see the <a href="https://github.com/torch-spyre/RFCs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md">Tiled Tensors RFC</a>). This is a different contract than the one PyTorch and model code are written against, where a tensor is a flat array of any shape and the framework hides how it maps onto memory. Model architectures pick their head dimensions, sequence lengths, and vocabulary sizes for statistical and modeling reasons, with no notion of a stick &#8211; so in our scenario, part of an adapter&#8217;s job is reconciling those two views, by bridging between the HF Transformers model implementation and the Spyre compiler extensions in PyTorch.</p>
+<p>The software stack that maps a model onto this hardware is <strong><a href="https://github.com/torch-spyre/torch-spyre">torch-spyre</a></strong>, a PyTorch backend that compiles and runs ordinary torch code on Spyre: a model is compiled into a plan the hardware can execute. And the adapters &#8211; the temporary scaffolding from the previous section — are a project we call <strong><a href="https://github.com/torch-spyre/hf-adapters">HF-adapters</a></strong>: runtime patches that let stock HuggingFace models run on Spyre today.</p>
+<h2>How AI helps build adapters</h2>
+<p>An adapter lives in the gap between two codebases. On one side is the model as Transformers expresses it &#8211; the modules, the attention blocks, the way a particular architecture wires its RoPE and its norms together. On the other is torch-spyre, the compiler and runtime that lower that computation onto the device. Writing an adapter requires understanding both at once and finding the exact places where they don&#8217;t yet meet: the operation the model expresses in a form the compiler can&#8217;t lower cleanly. In practice, this means following the model&#8217;s internal logic while tracing how each piece of it flows through the compilation stack. This is the part of the work AI has transformed.</p>
+<p>Coding agents can now follow the internal logic of an entire transformer model at every level, from a single module up through the attention blocks to the full forward pass. They can trace the same computation down through torch-spyre&#8217;s lowering logic to see how it is meant to run on the hardware. Holding both views at the same time is what enables the core loop of this work: identify a gap in the stack, then draft a high-level patch that carries the model across it. The model side and the device side are usually documented in different places, in different languages, at different levels of abstraction. Reading both and cross-referencing them quickly is the bottleneck that once made an effort like this impractical to attempt at all.</p>
+<p>&nbsp;</p>
+<p><img decoding="async" class="alignnone size-large wp-image-154260" src="https://pytorch.org/wp-content/uploads/2026/08/how-ai-helps-cycleagent-1024x588.png" alt="how-ai-helps-cycleagent" width="1024" height="588" srcset="https://pytorch.org/wp-content/uploads/2026/08/how-ai-helps-cycleagent-1024x588.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/how-ai-helps-cycleagent-300x172.png 300w, https://pytorch.org/wp-content/uploads/2026/08/how-ai-helps-cycleagent.png 2016w" sizes="(max-width: 1024px) 100vw, 1024px" /></p>
+<p>A few things make this work in practice. We keep a knowledge base that describes both the hardware and the software stack as it evolves, so an agent can ground its reasoning in how Spyre actually behaves rather than in generic assumptions. We give it direct access to the source and GitHub of both the HuggingFace Transformers library and the torch-spyre backend, so it can trace the logic through the actual code, issues and pull requests. Moreover, frontier models already carry a deep working knowledge of machine learning and transformer architecture &#8211; they know what attention, RoPE, and RMSNorm are before they ever open our repository, which means the reading starts from understanding rather than from scratch.</p>
+<p>Importantly, every adapter we add is also a record of which adaptations work, and for what reason. A new model is rarely a completely new problem: it is usually a variation on an architecture we have already brought up, and the closest existing adapter is both a template to imitate and a source of patches that can be reused directly. So each model we enable lowers the cost of the next one that resembles it, and adding a new adapter gets easier over time. The chart below shows this compounding in practice: a small number of distinct adapters, added over a few months, comes to cover the large majority of the models in the target set.</p>
+<p>&nbsp;</p>
+<p><em><strong><img decoding="async" class="alignnone size-large wp-image-154259" src="https://pytorch.org/wp-content/uploads/2026/08/spyre-embedding-adapter-coverage-1024x481.png" alt="spyre-embedding-adapter-coverage" width="1024" height="481" srcset="https://pytorch.org/wp-content/uploads/2026/08/spyre-embedding-adapter-coverage-1024x481.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/spyre-embedding-adapter-coverage-300x141.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" />Coverage of the target model set from mid-April to late June 2026. </strong>The left axis counts embedding models, the right axis counts distinct adapters. By the final snapshot, 13 distinct adapters cover 7,960 of the 10,000 most-downloaded HF embedding models, of which 6,804 pass their end-to-end test on Spyre. The coverage lines rise in a few large steps rather than one model at a time: because most new models are variations on an architecture already brought up, each new adapter picks up a whole family of similar models at once. Effort scales with the number of architectures, the coverage it buys with the number of models. The gap between the two coverage lines — models that have an adapter versus models that pass on Spyre — illustrates the debugging challenge: an adapter is necessary but not sufficient, and closing that gap is where the human-in-the-loop diagnosis below is spent.</em></p>
+<p>At the same time, human expertise and supervision remain essential. Two failure modes recur.</p>
+<p>The first is that <strong>localization is genuinely difficult</strong>. When a model that is correct on CPU or GPU produces the wrong output on the device, narrowing down the exact source of the mislowering is rarely a matter of reading the code once. It means reproducing different parts of the model both in isolation and in concert — pulling a single block out to test it alone, then putting it back to see whether the failure survives the surrounding computation — because the fault often lives not in any one operation but in the interaction between them, where small faithful deviations line up in a way a downstream component happens to amplify. When the original and adapted code run on the same CPU or GPU, we generally expect bitwise-identical outputs, confirming that the adapter preserves the computation. However, this bitwise determinism expectation does not extend to the target hardware, where expected numerical drift can be difficult to distinguish from a genuine lowering error. Localization is made harder still by the fact that the compiler does not lower each operation in isolation: it fuses neighboring operations together, and which operations get fused depends on the context they appear in. The same operation can lower one way when it stands alone and a different way once it is fused with what surrounds it — so an operation that tests as faithful when pulled out can still misbehave in place, precisely because pulling it out changed the fusion. This is patient, method-driven work, and no single automated probe substitutes for it.</p>
+<p>The second is that <strong>the agent will often draw the wrong conclusion from a targeted experiment</strong>. A large numerical discrepancy somewhere deep inside the model is a clue, not a verdict. It is easy — for a person and an agent alike — to find an alarming difference in some intermediate tensor and conclude that it is the cause of the end-to-end failure. But downstream layers routinely attenuate an internal error until it never reaches the output, so a component can look badly broken and be entirely harmless to the final result. The discipline that separates a real diagnosis from a plausible one — trace the discrepancy forward to the actual output, distrust any probe that disagrees with the end-to-end result, confirm that the one thing you changed is really the thing that mattered — is judgment an agent does not reliably supply on its own. It will propose a confident explanation from a single suggestive experiment, and someone has to check whether it holds up.<br />
+The division of labor follows from this. AI handles the wide, repetitive, cross-referencing part of the work: reading two large codebases at once, recognizing an architecture, and drafting a first adapter by analogy to the ones that came before. Human expertise handles the diagnosis: localizing the silent failures that only appear on the device, and not trusting a lead until it has survived the end-to-end test. Another important role for the human is deciding what the agent should learn from past mistakes — updating the procedures it follows when drafting adapters and debugging, and separating isolated issues from recurring &#8220;gotchas&#8221; that are worth capturing. These are recorded as agent skills and memories that make the process more efficient, but do not remove the need for explicit human supervision.</p>
+<h2>Adapters as a validation tool</h2>
+<p>Each adapter does more than carry its model onto the device. In doing so, it also exposes exactly where the stack underneath still needs work.</p>
+<p>This is a general property of bridging a mature ecosystem to a young stack. The gaps in such a stack rarely live in a single operation; they live in combinations no unit test anticipated, and the only reliable way to surface them is to run real workflows end to end against a trusted reference. Adapters make that possible before the stack is finished &#8211; so every model they carry doubles as a stress test of the platform.</p>
+<p>In our example, the Torch-Spyre team works primarily at the lower levels of the software stack &#8211; the compiler, the operator lowerings, the runtime that places work on the device. At that level it is genuinely hard to predict how a real model will behave. A production model is a particular composition of shapes, operators, weight layouts, and numerical ranges, and it is often that specific combination &#8211; not any one piece in isolation &#8211; that trips over a gap in the stack. The gaps are real, but from the bottom of the stack they are mostly invisible: nothing about a single lowering tells you which model, at which layer, with which input, will finally exercise it.</p>
+<p>Running stock HuggingFace models end-to-end is what makes these gaps visible. An end-to-end divergence from a CPU/GPU reference is a strong signal that something in the platform needs attention. In practice the issues that surface fall into a few recurring families:</p>
+<ul>
+<li><strong>Missing lowering paths</strong> &#8211; a block or fused shape the stack cannot yet lower, even when the individual ops are already working in isolation.</li>
+<li><strong>Device-only numerical behavior</strong> &#8211; values that overflow or turn into NaNs on the device where the CPU/GPU reference stays finite.</li>
+<li><strong>Alignment and padding assumptions</strong> &#8211; shapes that quietly corrupt results when they don&#8217;t match what the hardware expects.</li>
+</ul>
+<p>What ties these together is that they are largely fusion-dependent. When a full model is compiled, the stack fuses different ops and shapes into combined kernels, and which things get fused depends on the surrounding graph. That is why an operator can pass low-level testing on its own and still fail here: the failure belongs to the fused context, not the bare op.</p>
+<p>Real models also bring real data. Low-level tests typically feed operators random tensors, but trained weights and the activations they produce have structure that random inputs don&#8217;t — particular value ranges, near-constant rows, occasional large outliers. That structure is often exactly what pushes a kernel into overflow or a NaN. So none of these families are apparent from a unit test of an operator alone; they emerge only when a full model drives real weights and activations through the stack.</p>
+<p>This also builds on itself. The temporary adaptations already in place each get a model past a known crash or mislowering at one point in the stack. Doing so is what lets execution reach further in and expose the next gap, which was invisible while the model was still failing earlier. So each adaptation is both a workaround and a probe: by clearing a known obstacle, it lets the full model run deep enough to reveal whatever comes after it.</p>
+<p>So the adapters play a double role &#8211; they are an integration layer that lets Transformer models run on Spyre today, and they are a validation tool that continuously exercises the platform against the messiness of real architectures. Every model we bring up is also a test case, and the failures it exposes feed directly back into hardening the lower layers.</p>
+<h2>Adaptation examples</h2>
+<p>To illustrate the range of adaptations we implement in <a href="https://github.com/torch-spyre/hf-adapters">HF-adapters</a>, we&#8217;ll walk through two examples, and then step back to see what they have in common, and where they differ.</p>
+<h3>Replacing an operator</h3>
+<p>The smallest patches replace one currently unsupported operation with a mathematically identical one.</p>
+<p>A concrete example is the <code>gelu_new</code> activation used by decoders like GPT-2 and GPT-Neo. Its tanh-approximation form, <code>0.5 x (1 + tanh(sqrt(2/pi) (x + 0.044715 x³)))</code>, computes the cube with <code>torch.pow(x, 3.0)</code>. This raise to a power op doesn&#8217;t yet lower well on the torch-spyre stack, but the plain multiplication <code>x * x * x</code> does — and it&#8217;s exactly the same number. So the patch is a one-line substitution, applied only on the Spyre device path:</p>
+<pre><code class="language-python">def gelu_forward(self, x):
+    if x.device.type == "spyre":
+        # x*x*x lowers on Spyre; torch.pow(x, 3) does not
+        inner = COEFF * (x + 0.044715 * (x * x * x))
+    else:
+        # CPU keeps the stock form → bit-identical to HuggingFace
+        inner = COEFF * (x + 0.044715 * torch.pow(x, 3.0))
+    return 0.5 * x * (1.0 + torch.tanh(inner))
+</code></pre>
+<p>These fixes are satisfying precisely because they&#8217;re invisible: the model&#8217;s math is untouched, and the only thing that changes is the shape of the instruction the stack sees.</p>
+<h3>Reshaping the data</h3>
+<p>Other issues can&#8217;t be fixed by swapping a single operator. They come from <em>how much</em> data is being processed and <em>how it&#8217;s laid out</em>, and the fix is to reshape the data before it reaches the hardware — through changes related to work division, padding, or other structural transformations.</p>
+<p>A concrete example is the model&#8217;s final output projection &#8211; the LM head &#8211; that turns the model&#8217;s internal representation into a score for every word in its vocabulary. On Spyre this is one large matrix multiply, and the device tackles it by slicing the vocabulary dimension into fixed-size blocks and, through a step of work division, spreading those blocks across its many cores. The work division only succeeds if the number of blocks can be split evenly across the cores. When it can&#8217;t — because the block count happens to have a large prime factor &#8211; one core is left holding a slice too big to fit within a hard on-device memory limit, and the model fails to compile at all.</p>
+<p>The fix is to pad the vocabulary: we round it up, adding a small number of unused entries, until the block count factors into pieces the work division can distribute evenly. The padding entries carry no meaning and are ignored, so the model&#8217;s output is unchanged &#8211; but the matrix multiply now divides cleanly across the cores and compiles. In practice the padding is tiny, often just a handful of rows, and it lets a single, efficient kernel handle even very large vocabularies:</p>
+<pre><code class="language-python">def pad_lm_head(model):
+    """Grow the vocabulary dimension so that the output matrix multiply can be 
+    efficiently divided across the device cores.
+
+    The extra rows are unused padding and do not affect the model output.
+    """
+    padded_vocab = round_up_to_divisible_size(model.vocab_size)
+    ...
+</code></pre>
+<h3>What these examples show</h3>
+<p>Taken together, these two examples span the range of adaptations we deal with. Replacing an operator is a low-level change to a single instruction: the problem is that one specific operation doesn&#8217;t lower well, and the fix is to rewrite that exact operation; there&#8217;s no gap between the symptom and the change. Modifying padding behavior is an example of a more complex and high-level adaptation. We intervene at the level of tensor shapes, not individual operations, yet that high-level change is precisely what steers the stack&#8217;s low-level behavior &#8211; how the work is divided across the device and how the computation is ultimately laid out. The adaptation is expressed high, but its effect reaches all the way down.</p>
+<p>The common thread is that in neither case do we change <em>what</em> is computed. The model&#8217;s math is preserved exactly &#8211; we only change the form it takes so the existing computation can succeed on the stack as it stands today.</p>
+<h2>Conclusion</h2>
+<p>The model landscape never stops moving, and every backend that runs it &#8211; each GPU architecture, each accelerator, each maturing compiler stack &#8211; is left playing catch-up. Historically this was slow, specialist work that kept new models from reaching cross-platform deployment. What changes the equation is AI. A coding agent can hold a model&#8217;s logic and the hardware-lowering stack in view at once, recognize an architecture, and draft the adapter that bridges them &#8211; with human judgment steering and overseeing the nuanced localization and debugging efforts. The result is not a one-off fix but a living adapter layer: each model brought up makes the next one easier, and each adapter can double as a probe that hardens the platform beneath it.</p>
+<p>We demonstrated this on Spyre, at the hardest end of the spectrum &#8211; a brand-new accelerator with a stack still being built. But nothing about the loop is specific to Spyre. Whenever a new model family lands ahead of the stack that must run it &#8211; whether that stack is brand new or mature &#8211; the same paradigm applies: AI-written adapters can turn day-one enablement from an aspiration into something routine.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>FP8 Training on AMD GPUs with TorchTitan and TorchAO: Upstreaming Performance Improvements</title>
+		<link>https://pytorch.org/blog/fp8-training-on-amd-gpus-with-torchtitan-and-torchao-upstreaming-performance-improvements/</link>
+		
+		<dc:creator><![CDATA[AMD: Rishi Sinha, Yuankai Chen, Liz Li, Shekhar Pandey, Wen Chen, Xiaobo Chen, Yao Fu, Zhenyu Gu, Andy Luo, Peng Sun META: Matthias Reso, Hamid Shojanazeri, TorchAO team, TorchTitan team]]></dc:creator>
+		<pubDate>Thu, 13 Aug 2026 16:00:31 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=154222</guid>
+
+					<description><![CDATA[At the PyTorch Conference 2025, we demonstrated linear scaling beyond 1,000 GPUs on AMD Instinct clusters using Primus-Turbo, an AMD optimization library for training frameworks such as TorchTitan. We have since upstreamed those AMD optimizations so TorchTitan supports AMD Instinct(™) GPUs directly, with competitive FP8 performance out of the box. All contributions mentioned have been merged into upstream pytorch/AO and pytorch/TorchTitan.]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;">At the PyTorch Conference 2025, we demonstrated linear scaling beyond 1,000 GPUs on AMD Instinct clusters using Primus-Turbo, an AMD optimization library for training frameworks such as TorchTitan. We have since upstreamed those AMD optimizations so TorchTitan supports AMD Instinct(<img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2122.png" alt="™" class="wp-smiley" style="height: 1em; max-height: 1em;" />) GPUs directly, with competitive FP8 performance out of the box. All contributions mentioned have been merged into upstream pytorch/AO and pytorch/TorchTitan.</span></p>
+<p><span style="font-weight: 400;">On dense models, FP8 training delivers a 13.4% throughput gain over BF16 on Llama3-8B (</span><a href="https://github.com/pytorch/ao/pull/2736"><span style="font-weight: 400;">#2736</span></a><span style="font-weight: 400;">) as shown in Figure 1. On MOE architectures like DeepSeek-V3 671B, FP8 quantization initially added significant overhead. Through fused Triton quantization kernels, we recovered 89% of the FP8 quantization overhead on DeepSeek-V3 671B MoE shapes (</span><a href="https://github.com/pytorch/ao/pull/4311"><span style="font-weight: 400;">#4311</span></a><span style="font-weight: 400;">), with individual kernel optimizations delivering up to a 6.2× speedup (</span><a href="https://github.com/pytorch/ao/pull/4113"><span style="font-weight: 400;">#4113</span></a><span style="font-weight: 400;">). </span></p>
+<p><span style="font-weight: 400;">This blog covers the FP8 optimizations that deliver these gains, from major kernel acceleration to the Triton fusion pipeline that narrowed the quantization overhead gap on MoE models. Getting there took three pieces of work: </span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Adding native support for AMD&#8217;s FP8 number format </span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Enabling grouped GEMM for Mixture-of-Experts models on ROCm</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Building a Triton fusion pipeline that reduced the quantization overhead</span></li>
+</ol>
+<p>&nbsp;</p>
+<table>
+<tbody>
+<tr>
+<td><b>Workload</b></td>
+<td><b>Optimization</b></td>
+<td><b>Result</b></td>
+<td><b>PR</b></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Llama3-8B (dense)</span></td>
+<td><span style="font-weight: 400;">Rowwise FP8 vs BF16</span></td>
+<td><span style="font-weight: 400;">+13.4% throughput</span></td>
+<td><a href="https://github.com/pytorch/ao/pull/2736"><span style="font-weight: 400;">#2736</span></a></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">DeepSeek-MoE-16B</span></td>
+<td><span style="font-weight: 400;">Backward transpose removal + fusion</span></td>
+<td><span style="font-weight: 400;">4.2x backward pass</span></td>
+<td><a href="https://github.com/pytorch/ao/pull/3972"><span style="font-weight: 400;">#3972</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/ao/pull/4069"><span style="font-weight: 400;">#4069</span></a></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">DeepSeek-V3 671B</span></td>
+<td><span style="font-weight: 400;">Colwise scales coalescing</span></td>
+<td><span style="font-weight: 400;">6.2x per MoE layer (7,290→1,170µs)</span></td>
+<td><a href="https://github.com/pytorch/ao/pull/4113"><span style="font-weight: 400;">#4113</span></a></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">DeepSeek-V3 671B</span></td>
+<td><span style="font-weight: 400;">Forward pass fusion</span></td>
+<td><span style="font-weight: 400;">+17% end-to-end; recovers 89% of FP8 gap</span></td>
+<td><a href="https://github.com/pytorch/ao/pull/4311"><span style="font-weight: 400;">#4311</span></a></td>
+</tr>
+</tbody>
+</table>
+<p><i><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-154235" src="https://pytorch.org/wp-content/uploads/2026/08/Rowwise-FP8-training-throughput-on-8×MI300X-GPU-with-Llama3-8B-e1786571048745-1024x544.png" alt="Rowwise FP8 training throughput on 8×MI300X GPU with Llama3-8B" width="1024" height="544" srcset="https://pytorch.org/wp-content/uploads/2026/08/Rowwise-FP8-training-throughput-on-8×MI300X-GPU-with-Llama3-8B-e1786571048745-1024x544.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/Rowwise-FP8-training-throughput-on-8×MI300X-GPU-with-Llama3-8B-e1786571048745-300x159.png 300w, https://pytorch.org/wp-content/uploads/2026/08/Rowwise-FP8-training-throughput-on-8×MI300X-GPU-with-Llama3-8B-e1786571048745.png 1963w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></i><em><span style="font-weight: 400;">Figure 1: Rowwise FP8 training throughput on 8×MI300X GPU with Llama3-8B (batch size 1, seq len 8192, 100 steps, torch.compile, FSDP2, per-op selective activation checkpointing). Rowwise FP8 with a high-precision weight-gradient recipe (the weight-update GEMM stays in BF16 while the forward and gradient-input GEMMs use FP8) delivers a 13.4% throughput gain over BF16, with peak memory nearly identical (~39 GB). The win comes from faster FP8 matrix cores, not memory savings. All numbers come from TorchAO PR </span><a href="https://github.com/pytorch/ao/pull/2736"><span style="font-weight: 400;">#2736.</span></a></em></p>
+<h2><b>AMD FP8 format in TorchAO</b></h2>
+<p><span style="font-weight: 400;">Each linear layer performs three matrix multiplications: the forward pass, gradient input, and gradient weight update. FP8 training quantizes these operations from 16 bits to 8 bits, greatly improving throughput. AMD Instinct GPUs implement a variant of the FP8 formats called FNUZ (Finite, No NaN, Unsigned Zero) which is illustrated in the table below</span></p>
+<table>
+<thead>
+<tr>
+<th><span style="font-weight: 400;">Property</span></th>
+<th><span style="font-weight: 400;">e4m3fnuz (AMD)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span style="font-weight: 400;">Max value</span></td>
+<td><span style="font-weight: 400;">240</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">NaN/Inf encodings</span></td>
+<td><span style="font-weight: 400;">No</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Hardware</span></td>
+<td><span style="font-weight: 400;">MI300X, MI325X, MI350X</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-weight: 400;">The FP8 capabilities demonstrated in Primus-Turbo were upstreamed directly to TorchAO and TorchTitan as displayed in Figure 2, spanning three areas: hardware-aware FP8 format support, MoE grouped GEMM enablement on ROCm, a Triton kernel fusion pipeline that reduced quantization overhead.</span></p>
+<p><i><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-154236" src="https://pytorch.org/wp-content/uploads/2026/08/TorchTitan-FP8-training-software-stack-on-ROCm-1024x626.png" alt="TorchTitan FP8 training software stack on ROCm" width="1024" height="626" srcset="https://pytorch.org/wp-content/uploads/2026/08/TorchTitan-FP8-training-software-stack-on-ROCm-1024x626.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/TorchTitan-FP8-training-software-stack-on-ROCm-300x183.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></i><em><span style="font-weight: 400;">Figure 2: The TorchTitan FP8 training software stack on ROCm. AMD&#8217;s upstream contributions span TorchAO (FP8 dtype support, Triton kernel optimizations) and TorchTitan (MFU fixes, loss baselines, scaling recipes)</span></em></p>
+<p><span style="font-weight: 400;">The TorchAO library initially did not support the same numerical format as AMD so it was computing scales against a different max value. On AMD Instinct GPU, where e4m3fnuz has a max of 240, this produced silently wrong results: tensors were scaled into a range that exceeded the hardware&#8217;s representable values, clipping activations and corrupting gradients. Because e4m3fnuz has no NaN/Inf encodings, the overflow did not raise an error; it degraded model quality instead. Selecting the correct format is therefore a correctness requirement, not a tuning option. We added hardware auto-detection so TorchAO selects the correct format automatically. Getting there took a cluster of format-correctness fixes across TorchAO and TorchTitan:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Auto-detect the platform and select the correct FP8 dtype and max value, instead of hardcoding NVIDIA e4m3fn: TorchAO </span><a href="https://github.com/pytorch/ao/pull/1142"><span style="font-weight: 400;">#1142</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/ao/pull/1150"><span style="font-weight: 400;">#1150</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/ao/pull/2225"><span style="font-weight: 400;">#2225</span></a></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Report correct MI300X peak FLOPS so MFU numbers are accurate : TorchTitan </span><a href="https://github.com/pytorch/torchtitan/pull/920"><span style="font-weight: 400;">#920</span></a></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Add platform-specific loss baselines for FNUZ numerics : TorchTitan </span><a href="https://github.com/pytorch/torchtitan/pull/2156"><span style="font-weight: 400;">#2156</span></a></li>
+</ul>
+<p><span style="font-weight: 400;">FP8 scaling can be applied at different granularities: a single scale per tensor (tensorwise, fastest but coarsest), a scale per row (rowwise, better accuracy), per fixed-size tile (blockwise), or per group packed alongside the data (MXFP8). TorchAO and TorchTitan support all four strategies. For AMD GPUs, we ensured each quantization strategy works correctly with AMD specific numerics and contributed blockwise kernel support for MI300 and MI350 GPUs (</span><a href="https://github.com/pytorch/ao/pull/3996"><span style="font-weight: 400;">#3996</span></a><span style="font-weight: 400;">).</span></p>
+<h2><b>Scaling FP8 to MoE Architectures</b></h2>
+<p><span style="font-weight: 400;">Mixture-of-Experts (MoE) models like DeepSeek V3 and Llama 4 route each token to a subset of experts, producing variable-size batches that must be processed through a grouped GEMM (Figure 3). Unlike dense models, where every linear layer has the same shape, grouped GEMM requires per-row scales on activations, per-expert-column scales on weights, and an offset tensor routing rows to the correct expert.</span></p>
+<p><span style="font-weight: 400;">We enabled FP8 grouped GEMM on ROCm by adapting the quantization pipeline to use the correct dtype and dispatch for AMD via the Composable Kernel backend (#3955).</span></p>
+<p><i><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-154237" src="https://pytorch.org/wp-content/uploads/2026/08/MoE-FP8-grouped-GEMM-pipeline-on-ROCm-1024x412.png" alt="MoE FP8 grouped GEMM pipeline on ROCm" width="1024" height="412" srcset="https://pytorch.org/wp-content/uploads/2026/08/MoE-FP8-grouped-GEMM-pipeline-on-ROCm-1024x412.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/MoE-FP8-grouped-GEMM-pipeline-on-ROCm-300x121.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></i><em><span style="font-weight: 400;">Figure 3: MoE FP8 grouped GEMM pipeline on ROCm. (A) Tokens are routed to experts via offsets, quantized by fused Triton kernels, and dispatched through Composable Kernel in a single launch. (B) Grouped GEMM requires per-row, per-expert-column scales and offset-based routing, which is more complex than dense GEMM uniform scaling.</span></em></p>
+<h2><b>Triton Kernel Optimization</b></h2>
+<p><span style="font-weight: 400;">With correctness established, we turned to performance. The FP8 quantization pipeline in TorchAO converts tensors to FP8 through a multi-step chain:</span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Compute per-row/column absolute max (absmax)</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Derive the scale factor and apply it</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Clamp and cast to FP8</span></li>
+</ol>
+<p><span style="font-weight: 400;">Each step is a separate kernel launch, and materializes an intermediate tensor to High Bandwidth Memory (HBM) between steps. For MoE models with dozens of expert weight tensors per layer, these extra round-trips dominate the FP8 overhead. On these shapes, FP8 quantization is memory-bound: the 8-bit math is cheap, but the kernel launches and HBM round-trips around it are not. The optimizations below reduce data movement rather than arithmetic, at three levels of granularity: launching fewer kernels (Level 1), making each remaining kernel move memory efficiently (Level 2), and removing unnecessary low-level synchronization (Level 3).</span></p>
+<p><b>Level 1: Launch fewer kernels:</b></p>
+<p><b>Backward pass:</b></p>
+<p><span style="font-weight: 400;"> Figure 4 illustrates how fp8 quantization was improved through fusion. The backward pass had two compounding problems. First, a </span><span style="font-weight: 400;">.t().contiguous().t()</span><span style="font-weight: 400;"> pattern forced a full tensor copy through HBM to convert weight layout for GEMM compatibility. We removed these redundant copies in </span><a href="https://github.com/pytorch/ao/pull/3972"><span style="font-weight: 400;">#3972</span></a><span style="font-weight: 400;">. Second, the multi-step scale-and-cast chain launched separate kernels with intermediate tensors materialized to HBM between them. We fused this chain into single Triton kernels in multiple places (</span><a href="https://github.com/pytorch/ao/pull/4069"><span style="font-weight: 400;">#4069</span></a><span style="font-weight: 400;">). On 8xMI300X GPUs with DeepSeek-MoE-16B, these backward fusions delivered a 4.2x backward pass throughput improvement.</span></p>
+<p><i><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-154238" src="https://pytorch.org/wp-content/uploads/2026/08/Backward-pass-FP8-quantization-before-and-after-optimization-1024x689.png" alt="Backward-pass FP8 quantization before and after optimization" width="1024" height="689" srcset="https://pytorch.org/wp-content/uploads/2026/08/Backward-pass-FP8-quantization-before-and-after-optimization-1024x689.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/Backward-pass-FP8-quantization-before-and-after-optimization-300x202.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></i><em><span style="font-weight: 400;">Figure 4: Backward-pass FP8 quantization before and after optimization. The upstream code launches five generic kernels per quantization call with a redundant transpose copy, materializing intermediate tensors to HBM between each. PR </span><a href="https://github.com/pytorch/ao/pull/3972"><span style="font-weight: 400;">#3972</span></a><span style="font-weight: 400;"> eliminates the transpose, and PR </span><a href="https://github.com/pytorch/ao/pull/4069"><span style="font-weight: 400;">#4069</span></a><span style="font-weight: 400;"> fuses the remaining chain into a single kernel with a companion dual-kernel for simultaneous grad_output + activation quantization.</span></em></p>
+<p><b>Forward pass:</b></p>
+<p><span style="font-weight: 400;">The same multi-kernel pattern applied to the forward path. Quantizing expert weights launched five generic kernels per call, and with 24 calls per step, this added ~90 ms/step of overhead. We replaced the entire chain with a single fused Triton kernel (</span><a href="https://github.com/pytorch/ao/pull/4311"><span style="font-weight: 400;">#4311</span></a><span style="font-weight: 400;">) that parallelizes across both experts and output-dimension blocks (Figure 5). Collapsing five launches into one also let the surrounding GEMMs issue sooner. On 8x MI325X GPU with DeepSeek-V3 671B: this change delivered a 17% end-to-end throughput improvement (5,996 → 7,027 tok/s).   </span></p>
+<table>
+<thead>
+<tr>
+<th><span style="font-weight: 400;">FP8 forward before optimization </span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img decoding="async" class="alignnone size-full wp-image-154239" src="https://pytorch.org/wp-content/uploads/2026/08/FP8-forward-before-optimization.png" alt="FP8 forward before optimization" width="927" height="454" srcset="https://pytorch.org/wp-content/uploads/2026/08/FP8-forward-before-optimization.png 927w, https://pytorch.org/wp-content/uploads/2026/08/FP8-forward-before-optimization-300x147.png 300w" sizes="(max-width: 927px) 100vw, 927px" /></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Fused FP8 forward</span></td>
+</tr>
+<tr>
+<td><img decoding="async" class="alignnone size-large wp-image-154240" src="https://pytorch.org/wp-content/uploads/2026/08/Fused-FP8-forward-1024x397.png" alt="Fused FP8 forward" width="1024" height="397" srcset="https://pytorch.org/wp-content/uploads/2026/08/Fused-FP8-forward-1024x397.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/Fused-FP8-forward-300x116.png 300w, https://pytorch.org/wp-content/uploads/2026/08/Fused-FP8-forward.png 1177w" sizes="(max-width: 1024px) 100vw, 1024px" /></td>
+</tr>
+</tbody>
+</table>
+<p><em><span style="font-weight: 400;">Figure 5: Perfetto trace comparison (8xMI325X GPU, DeepSeek-V3 671B). Left: FP8 (before forward optimization) showing the 5-kernel eager chain repeated across experts. Right: fused FP8 (after optimization) showing a single </span><span style="font-weight: 400;">triton_fp8_colwise_3d_scale_and_cast</span><span style="font-weight: 400;"> kernel replacing the chain. Performance in forward goes from ~19 ms to ~7 ms</span></em></p>
+<p><em><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-154241" src="https://pytorch.org/wp-content/uploads/2026/08/Per-category-GPU-time-breakdown-across-three-configurations-1024x499.png" alt="Per-category GPU time breakdown across three configurations" width="1024" height="499" srcset="https://pytorch.org/wp-content/uploads/2026/08/Per-category-GPU-time-breakdown-across-three-configurations-1024x499.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/Per-category-GPU-time-breakdown-across-three-configurations-300x146.png 300w, https://pytorch.org/wp-content/uploads/2026/08/Per-category-GPU-time-breakdown-across-three-configurations.png 2000w" sizes="(max-width: 1024px) 100vw, 1024px" />Figure 6: Per-category GPU time breakdown across three configurations on 8xMI325X GPU with DeepSeek-V3 671B (4-layer MoE). The FP8 upstream configuration (V2) adds 127 ms/step, 92% of which lands in &#8220;Others&#8221; (generic quantization kernels). The fused Triton kernel (V4) eliminates most of this overhead, recovering 89% of the BF16→FP8 gap.</span></em></p>
+<p><b>Level 2: Make each kernel move memory efficiently:</b><span style="font-weight: 400;"> The colwise scales kernel used in the backward pass had non-coalesced memory writes (</span><a href="https://github.com/pytorch/ao/pull/4113"><span style="font-weight: 400;">#4113</span></a><span style="font-weight: 400;">): consecutive SIMD lanes wrote to addresses K bytes apart, each triggering a separate memory transaction. We fixed this by transposing the output tile through LDS (Local Data Share) before storing, and added a fused single-pass variant that eliminates a redundant HBM read. On an MI300X GPU with DeepSeek-V3 671B shapes: 7,290μs → 1,170μs per MoE layer (</span><b>6.2x speedup</b><span style="font-weight: 400;">).</span></p>
+<p><b>Level 3: Strip synchronization the hardware never needed:</b><span style="font-weight: 400;"> We also addressed hardware-level inefficiencies. Triton&#8217;s atomic operations (</span><span style="font-weight: 400;">atomic_add</span><span style="font-weight: 400;">, </span><span style="font-weight: 400;">atomic_max</span><span style="font-weight: 400;">, </span><span style="font-weight: 400;">atomic_min</span><span style="font-weight: 400;">) default to acquire-release memory ordering, which on AMD GPU inserts memory fences before and after every atomic, which are expensive synchronization points that are unnecessary for commutative reductions. We switched these to relaxed ordering on AMD GPU (</span><a href="https://github.com/pytorch/ao/pull/3945"><span style="font-weight: 400;">#3945</span></a><span style="font-weight: 400;">), guarded by a </span><span style="font-weight: 400;">torch.version.hip</span><span style="font-weight: 400;"> check so NVIDIA behavior is unchanged.</span></p>
+<p><b>What didn&#8217;t work: autotuning the search space.</b><span style="font-weight: 400;"> We expanded the Triton autotune search space for MoE FP8 kernels from 1 to 8–16 candidate configurations (</span><a href="https://github.com/pytorch/ao/pull/3952"><span style="font-weight: 400;">#3952</span></a><span style="font-weight: 400;">), expecting the wider search to find faster tile sizes on AMD wavefront-based architecture. However,  benchmarking on Llama 4 shapes on MI300X GPU showed no measurable improvement, and the extra configs increased first-iteration compile time. We reverted it (</span><a href="https://github.com/pytorch/ao/pull/4024"><span style="font-weight: 400;">#4024</span></a><span style="font-weight: 400;">). The takeaway: autotuning search spaces should be shaped by hardware constraints (wavefront size, LDS capacity, register pressure), not expanded to more candidates by default.</span></p>
+<p><span style="font-weight: 400;">Attacking data movement at all three levels compounds on top of the baseline FP8 throughput gains shown in Figure 1. On DeepSeek-V3 671B shapes, the forward-pass kernel fusion alone recovered 89% of the quantization overhead (5,996 → 7,027 tok/s vs 7,156 BF16 baseline on 8xMI325X GPU), and the colwise scales optimization delivered a 6.2× speedup per MoE layer.</span></p>
+<h2><b>Summary and Next Steps</b></h2>
+<p><span style="font-weight: 400;">This blog described how we optimized FP8 training on AMD Instinct GPUs across TorchAO and TorchTitan: kernel speedups, numerical stability fixes, and support for MoE architectures. </span></p>
+<p><span style="font-weight: 400;">Work continues on next-generation hardware. We are developing MXFP8 grouped GEMM and quantization kernels for forward and backward passes on MI355X GPUs; results will follow in a future blog. The kernel fusion pipeline (#3972 → #4069 → #4113 → #4311) continues with further Triton optimizations.</span></p>
+<p><span style="font-weight: 400;">These FP8 gains are now available in the standard PyTorch training stack: teams with AMD Instinct GPUs get them by upgrading TorchAO and TorchTitan, with nothing AMD-specific to install. This work was a collaboration between AMD and Meta/PyTorch engineers. All contributions have been merged into mainline pytorch/ao and pytorch/torchtitan, ensuring that FP8 training on AMD GPUs works out of the box for the broader PyTorch community.</span></p>
+<h2><b>Additional Resources</b></h2>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><a href="https://github.com/pytorch/ao/tree/main/torchao/float8"><span style="font-weight: 400;">TorchAO float8 README</span></a><span style="font-weight: 400;">, including benchmark reproduction instructions</span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://github.com/pytorch/torchtitan"><span style="font-weight: 400;">TorchTitan</span></a></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://rocm.docs.amd.com/en/latest/what-is-rocm.html"><span style="font-weight: 400;">AMD ROCm Documentation</span></a><span style="font-weight: 400;">: Learn more about the ROCm software stack</span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://www.amd.com/en/developer/ai-dev-program.html?utm_source=Pytorch&amp;utm_medium=pytorch-blog&amp;utm_campaign=adp-aig&amp;utm_id=adp-aig&amp;utm_content=aig-blog"><span style="font-weight: 400;">AMD AI Developer Program</span></a><span style="font-weight: 400;">: </span><span style="font-weight: 400;">Access free cloud GPU resources and developer tools to get started with ROCm and PyTorch on AMD Instinct GPUs</span></li>
+</ul>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Fast, On Device Agentic AI with Muse Glimmer on ExecuTorch</title>
+		<link>https://pytorch.org/blog/fast-ondevice-agentic-ai-with-executorch/</link>
+		
+		<dc:creator><![CDATA[ExecuTorch Team at Meta]]></dc:creator>
+		<pubDate>Mon, 10 Aug 2026 13:42:54 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=152710</guid>
+
+					<description><![CDATA[Today, Meta introduced Muse Glimmer, an open-weight, 30-billion-parameter model distilled from Meta’s Muse Spark for on-device agentic workflows. Alongside, ExecuTorch is adding end-to-end support for running Muse Glimmer on NVIDIA...]]></description>
+										<content:encoded><![CDATA[<p>Today, Meta <a href="https://research.meta.ai/blog/introducing-muse-glimmer-open-agentic-model">introduced Muse Glimmer</a>, an open-weight, 30-billion-parameter model distilled from Meta’s Muse Spark for on-device agentic workflows. Alongside, ExecuTorch is adding end-to-end support for running Muse Glimmer on NVIDIA GPUs and Macs with Apple silicon.</p>
+<h2>Why ExecuTorch?</h2>
+<p>Most local AI frameworks rewrite models in other non-Python languages. That scaled well when LLMs were standard text transformers, but today&#8217;s models are becoming more complex &#8211; novel architectures, multimodal inputs and outputs, advanced decoding algorithms like <a href="https://arxiv.org/abs/2602.06036">DFlash</a> (parallel diffusion-based speculative decoding) for low latency. Reimplementing these across different backends doesn&#8217;t scale.</p>
+<p><a href="https://pytorch.org/blog/introducing-executorch-1-0/">ExecuTorch</a> takes a different approach. As machine learning engineers and researchers, you implement the model (and its decoding strategy) in PyTorch. Once you&#8217;re ready for deployment, you export to ExecuTorch, and the framework handles backend-specific lowering, Triton on CUDA, MLX-native and custom Metal on Apple silicon. Ahead-of-time compilation optimizes the full execution path end-to-end, not just individual ops.</p>
+<p>This is how we ship Muse Glimmer’s text and image inputs, direct GGUF export, native K-quant execution, 128K+-token context, and DFlash speculative decoding features. We have released prebuilt PTE artifact bundles that you can download and run on supported NVIDIA GPUs or Macs with Apple silicon using the ExecuTorch runtime.</p>
+<h2>Quickstart</h2>
+<h3>Getting the PTEs</h3>
+<p>A PTE is the serialized artifact produced ahead of time from a model&#8217;s PyTorch graph by the ExecuTorch Python stack, and optimized for a target backend.</p>
+<h4>Download (Preferred)</h4>
+<p>We have published verified PTEs on Hugging Face for NVIDIA CUDA and Apple Silicon (Metal). This includes text-only and text-plus-image artifacts, with and without DFlash speculative decoding. Download them here: <a href="https://huggingface.co/meta-models/Muse-Glimmer-30B-ExecuTorch-PTE/tree/main">link</a>.</p>
+<h4>Build your own</h4>
+<p>Starting with a prebuilt PTE is the fastest way to get running. To build your own, follow the ExecuTorch Muse Glimmer <a href="https://github.com/pytorch/executorch/blob/main/examples/models/muse-glimmer/README.md">README</a>, and select the backend, modality, context length, and whether to use DFlash. ExecuTorch exports directly from the released GGUF checkpoints through its torch.export-based ahead-of-time stack. CUDA export compiles and autotunes Triton kernels for the detected GPU architecture. For the best results, export on the same GPU architecture that will run the artifact.</p>
+<h3>Executing the PTEs</h3>
+<h4>1. Build the runtime</h4>
+<p>ExecuTorch ships CMake presets for both the <a href="https://docs.pytorch.org/executorch/stable/backends/cuda/cuda-overview.html">CUDA</a> and <a href="https://pytorch.org/blog/running-pytorch-models-on-apple-silicon-gpus-with-the-executorch-mlx-delegate/">MLX backends</a> for this model runner(s). Follow ExecuTorch installation instructions <a href="https://docs.pytorch.org/executorch/stable/getting-started.html">here</a>, and then use CMake to build the runners with or without speculative decoding for the PTE you selected. Both, with and without DFlash, runners support text and image modalities and are compatible with the example llm_server in ExecuTorch for agentic use cases.</p>
+<pre><code>### Build the runtime ###
+
+# After installing ExecuTorch, build the runners for your backend:
+
+$ cd examples/models/muse-glimmer
+$ cmake --workflow --preset muse-glimmer-cuda # use muse-glimmer-mlx for macOS
+
+# This builds solo_runner, dflash_runner, and the serving worker.</code></pre>
+<h4>2. Run the PTEs</h4>
+<p>Here are some examples of how to run the PTEs, once you have built the runners.</p>
+<pre><code>### Example 1: Standalone infereance on cmdline ###
+
+$ PROMPT='&lt;|start|&gt;user&lt;|message|&gt;Describe this image: &lt;img&gt;&lt;|eot|&gt;&lt;|start|&gt;assistant'
+
+$ cmake-out/examples/models/muse-glimmer/dflash_runner \
+--model_path artifacts/dflash-vision/model.pte \
+--data_path artifacts/dflash-vision/aoti_cuda_blob.ptd \
+--tokenizer_path assets/hf/tokenizer.json \
+--image_path image.jpg --prompt "$PROMPT" \
+--block_length 4 --n_draft 3 --temperature 0 --max_new_tokens 256</code></pre>
+<pre><code>### Example 2, step 1/2: Start the agent server ###
+
+$ python -m executorch.examples.models.muse_glimmer.serving.serve \
+--model-path artifacts/dflash-vision/model.pte \
+--data-path artifacts/dflash-vision/aoti_cuda_blob.ptd \ # only for cuda
+--tokenizer-path assets/hf/tokenizer.json --hf-tokenizer assets/hf \
+--worker-bin cmake-out/examples/models/muse-glimmer/muse_glimmer_worker \
+--tool-parser atem --max-context 131072
+
+# APIs at http://127.0.0.1:8000/v1
+
+### Example 2, step 2/2: Start your agent (use Pi as example) ###
+  
+$ pi \
+--provider muse-glimmer-local \
+--model muse-glimmer \
+--thinking high \
+--tools read,bash,edit,write
+
+# This will automatically start your pi agent by using your local muse glimmer server.
+# Register muse_glimmer-local in ~/.pi/agent/models.json first.
+# See the README.md for more details.</code></pre>
+<h2>Use cases enabled</h2>
+<h3>Image understanding with Muse Glimmer, with and without speculative decoding</h3>
+<p><img decoding="async" class="alignnone size-large wp-image-153335" src="https://pytorch.org/wp-content/uploads/2026/08/Muse-Glimmer-text-image-input-experiment-on-M5-Pro.gif" alt="Muse Glimmer text-image input experiment on M5 Pro" width="1024" height="430" /><br />
+Figure 1: Muse Glimmer text-image input experiment on M5 Pro (64 GiB). Solo achieves 21.6 tok/s, while our speculative decoding set up (DFlash) reaches 33.0 tok/s, a 52.8% performance improvement without quality regression</p>
+<h3>Muse Glimmer powering Pi Coding Agent through ExecuTorch</h3>
+<p><img decoding="async" class="alignnone size-large wp-image-153336" src="https://pytorch.org/wp-content/uploads/2026/08/Muse-Glimmer-agent-pipeline-on-an-M5-Pro-using-the-Pi-coding-agent.gif" alt="Muse Glimmer agent pipeline on an M5 Pro using the Pi coding agent" width="1024" height="853" />Figure 2: Muse Glimmer agent pipeline on an M5 Pro (64 GB) using the Pi coding agent. The agent creates a bird-themed game, iteratively refining details through extended reasoning, calling tools to create files, installing required packages, writing and running tests, and proactively asking the user about next steps and additional requirements</p>
+<h2>Performance</h2>
+<p><img decoding="async" class="alignnone size-large wp-image-153337" src="https://pytorch.org/wp-content/uploads/2026/08/Muse-Glimmer-performance-on-ExecuTorch-using-text-only-input-with-varying-context-on-NVIDIA-A100-and-Apple-Mac-1024x743.png" alt="Muse Glimmer performance on ExecuTorch using text-only input with varying context on NVIDIA A100 and Apple Mac" width="1024" height="743" srcset="https://pytorch.org/wp-content/uploads/2026/08/Muse-Glimmer-performance-on-ExecuTorch-using-text-only-input-with-varying-context-on-NVIDIA-A100-and-Apple-Mac-1024x743.png 1024w, https://pytorch.org/wp-content/uploads/2026/08/Muse-Glimmer-performance-on-ExecuTorch-using-text-only-input-with-varying-context-on-NVIDIA-A100-and-Apple-Mac-300x218.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" />Figure 3: Muse Glimmer performance on ExecuTorch using text-only input with varying context on NVIDIA A100 (as a proxy for RTX cards) and Apple Mac with an M5-max measuring prefill and decode performance in tokens/second with and without DFlash using coding prompt, which also has a good acceptance rate for this model, as seen in the decode charts</p>
+<h2>Under the Hood</h2>
+<p>Muse Glimmer now runs end-to-end on ExecuTorch on both NVIDIA GPUs and Apple Silicon GPUs. Here are some of the key capabilities and optimizations we built.</p>
+<h3>Enabling DFlash speculative decoding</h3>
+<ul>
+<li>We optimized target and draft interoperability through weight sharing, exporting both into a single PTE.</li>
+<li>The DFlash block dimension is exported dynamically, allowing one PTE to support runtime-selectable block lengths.</li>
+<li>The runtime supports both greedy decoding and rejection sampling.</li>
+</ul>
+<h3>Supporting GGUF loading and k-quant</h3>
+<ul>
+<li>We export straight from the GGUF released with the Muse Glimmer.</li>
+<li>We map Q4_K/Q5_K/Q6_K to packed INT4/5/6 with dp4a GEMV kernels on CUDA, and to repacked or fused Metal kernels on MLX.</li>
+<li>On MLX, for performance, at repack time we merge adjacent sub-blocks whose scale and min are identical into a larger group size, up to 128, whenever the merge is lossless.</li>
+</ul>
+<h3>Agentic harness and LLM serving</h3>
+<ul>
+<li>One model load serves multiple isolated conversations, through per-session mutable-state rebinding we added to both backends.</li>
+<li>We added Harmony chat templating with reasoning routing.</li>
+<li>We added a parser for the model&#8217;s XML tool-call format, including multiple calls in one turn.</li>
+</ul>
+<h3>Backend-specific performance optimizations</h3>
+<p><strong>CUDA</strong></p>
+<ul>
+<li>We capture decode into a CUDA graph, reducing per-kernel launch overhead into one submission.</li>
+<li>Packed K-quant kernels accelerate low-batch decode, while length-aware split-K FlashDecoding++ paths optimize single-token decode and small DFlash verification blocks.</li>
+</ul>
+<p><strong>MLX</strong></p>
+<ul>
+<li>RMSNorm, RoPE, SDPA, KV-cache updates, and quantized linear operations are lowered to MLX-native or custom Metal implementations.</li>
+<li>GGUF K-quant weights use either repacked MLX-native operations or fused Metal kernels.</li>
+</ul>
+<h3>Supporting long context</h3>
+<p>Muse Glimmer supports a 128K+ token context, and is efficient in how its KV-cache grows: only 13 of its 52 layers are global; the other 39 are sliding-window. ExecuTorch supports this efficiently, making the long context use cases practical on edge devices.</p>
+<h2>What’s next</h2>
+<ul>
+<li>This initial release supports text and image inputs; video input is not yet supported. It is a work in progress.</li>
+<li>No cross-session prefix sharing or checkpointing or continuous batching as of now. These are all actively being worked on to make ExecuTorch even more suitable for agentic workflows.</li>
+</ul>
+<p>Try Muse Glimmer with ExecuTorch and let us know what you think on <a href="https://discord.com/invite/Dh43CKSAdc">Discord</a>. If you run into any issues, feel free to open a Github <a href="https://github.com/pytorch/executorch/issues/new/choose">Issue</a>.</p>
+<h2>References</h2>
+<p><a href="https://github.com/pytorch/executorch/blob/main/examples/models/muse-glimmer/README.md">Muse Glimmer in ExecuTorch</a> | <a href="https://huggingface.co/meta-models">Muse Glimmer on Hugging Face</a> | <a href="https://docs.pytorch.org/executorch/main/getting-started.html">ExecuTorch Documentation</a> | <a href="https://github.com/pytorch/executorch">ExecuTorch on Github</a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>PyTorch Conference North America Announces 2026 Keynotes</title>
+		<link>https://pytorch.org/blog/pytorch-conference-north-america-announces-2026-keynotes/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 06 Aug 2026 18:37:47 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=151671</guid>
+
+					<description><![CDATA[PyTorch Conference North America will be held in San Jose, California, on October 20–21, 2026. Featured PyTorchCon NA 2026 keynote speakers include: Mark Collier, Executive Director, PyTorch Foundation Mazin Gilbert,...]]></description>
+										<content:encoded><![CDATA[<p>PyTorch Conference North America will be held in San Jose, California, on October 20–21, 2026.</p>
+<p>Featured PyTorchCon NA 2026 <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/keynote-speakers/">keynote speakers</a> include:</p>
+<ul>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=mark-collier">Mark Collier</a>, Executive Director, PyTorch Foundation</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=mazin-gilbert">Mazin Gilbert</a>, Executive Director, Agentic AI Foundation</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=edward-yang">Edward Yang</a>, Research Engineer, Meta</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=alban-desmaison">Alban Desmaison</a>, Research Engineer, Meta</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=simon-mo">Simon Mo</a>, Co-Founder &amp; CEO, Inferact</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=bill-jia">Bill Jia</a>, VP of Engineering, Core ML/AI, Google Cloud</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=brian-stevens">Brian Stevens</a>, SVP &amp; AI CTO, Red Hat</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=ujval-kapasi">Ujval Kapasi</a>, VP, AI &amp; HPC Frameworks &amp; Libraries, NVIDIA</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=joelle-pineau">Joelle Pineau</a>, Chief AI Officer, Cohere</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=mark-saroufim">Mark Saroufim</a>, Co-founder, Core Automation</li>
+<li><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/?speaker=sara-hooker">Sara Hooker</a>, CEO &amp; Co-Founder, Adaption</li>
+</ul>
+<p>The two-day conference will include technical sessions and community collaboration across the PyTorch ecosystem.</p>
+<div class="qMYqUG_convSearchResultHighlightRoot">
+<div class="" data-turn-id-container="request-6a74aedf-4094-83e8-be31-ab556d56a4d1-6" data-is-intersecting="true">
+<section class="text-token-text-primary w-full focus:outline-none has-data-writing-block:pointer-events-none [&amp;:has([data-writing-block])&gt;*]:pointer-events-auto R6Vx5W_threadScrollVars scroll-mb-[calc(var(--scroll-root-safe-area-inset-bottom,0px)+var(--thread-response-height))] scroll-mt-[calc(var(--header-height)+min(200px,max(70px,20svh)))]" dir="auto" data-turn-id="request-6a74aedf-4094-83e8-be31-ab556d56a4d1-6" data-turn-id-container="request-6a74aedf-4094-83e8-be31-ab556d56a4d1-6" data-testid="conversation-turn-36" data-turn="assistant">
+<div class="text-base my-auto mx-auto pb-8 [--thread-content-margin:var(--thread-content-margin-xs,calc(var(--spacing)*4))] @w-sm/main:[--thread-content-margin:var(--thread-content-margin-sm,calc(var(--spacing)*6))] @w-lg/main:[--thread-content-margin:var(--thread-content-margin-lg,calc(var(--spacing)*16))] px-(--thread-content-margin)">
+<div class="[--thread-content-max-width:40rem] @w-lg/main:[--thread-content-max-width:48rem] mx-auto max-w-(--thread-content-max-width) flex-1 group/turn-messages focus-visible:outline-hidden relative flex w-full min-w-0 flex-col agent-turn" data-conversation-screenshot-content="">
+<div class="flex max-w-full flex-col gap-4 grow">
+<div class="min-h-8 text-message relative flex w-full flex-col items-end gap-2 text-start break-words whitespace-normal outline-none keyboard-focused:focus-ring [.text-message+&amp;]:mt-1" dir="auto" tabindex="0" data-message-author-role="assistant" data-message-id="8001f884-dba5-4129-9a16-d894c30ef4c2" data-turn-start-message="true" data-message-model-slug="gpt-5-6-thinking">
+<div class="flex w-full flex-col gap-1 empty:hidden">
+<div class="markdown prose dark:prose-invert wrap-break-word w-full light markdown-new-styling">
+<h2 class="PDq2pG_selectionAnchorContainer" data-section-id="1u1pdx2" data-start="0" data-end="34"><span style="color: #000000;">Register by September 4 to Save</span></h2>
+<p data-start="36" data-end="92"><span style="color: #000000;">Register by September 4 to save on your conference pass.</span></p>
+<p data-start="94" data-end="220" data-is-last-node="" data-is-only-node=""><a class="decorated-link" href="https://events.linuxfoundation.org/pytorch-conference-north-america/register/" target="_new" rel="noopener" data-start="94" data-end="220" data-is-last-node="">Register for PyTorch Conference North America</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<h2>Submit a Flare Pin Design by August 14</h2>
+<p>PyTorch Foundation is accepting original designs for the 2026 PyTorch Foundation flare pin through August 14, 2026, at 11:59 p.m. PT.</p>
+<p>The winning entrant will receive one complimentary ticket to PyTorch Conference North America. PyTorch Foundation will produce the winning design as a 1-inch die-cut soft enamel pin for the conference.</p>
+<p>Share your design on LinkedIn, X, Facebook, or Bluesky using #PyTorchPin and #PyTorchCon.</p>
+<p><a href="https://pytorch.org/blog/pytorch-foundation-flare-pin-community-design-contest/">Review the contest requirements and submit a design</a></p>
+<h2>Become a Sponsor</h2>
+<p>PyTorch Conference North America brings together 3,000+ members of the open source AI ecosystem.</p>
+<p>Companies interested in visibility with the engineers and technical leaders building the next generation of AI infrastructure and applications can review the available sponsorship opportunities.</p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/">View sponsorship opportunities</a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>PyTorch by the Sea: The inaugural Santa Cruz PyTorch Meetup</title>
+		<link>https://pytorch.org/blog/pytorch-by-the-sea-the-inaugural-santa-cruz-pytorch-meetup/</link>
+		
+		<dc:creator><![CDATA[Steve Pousty, Red Hat]]></dc:creator>
+		<pubDate>Thu, 06 Aug 2026 15:50:43 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=151412</guid>
+
+					<description><![CDATA[TL;DR The inaugural Santa Cruz PyTorch Meetup brought together 45 local engineers, students, and leaders for GPU/CUDA talks and lightning presentations on chemistry, plant health, and autonomous driving &#8211; demonstrating...]]></description>
+										<content:encoded><![CDATA[<h3><img decoding="async" class="aligncenter wp-image-151417 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/All-PyTorch-Blog-Social-Images-18.png" alt="" width="1920" height="1080" srcset="https://pytorch.org/wp-content/uploads/2026/08/All-PyTorch-Blog-Social-Images-18.png 1920w, https://pytorch.org/wp-content/uploads/2026/08/All-PyTorch-Blog-Social-Images-18-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/All-PyTorch-Blog-Social-Images-18-1024x576.png 1024w" sizes="(max-width: 1920px) 100vw, 1920px" /></h3>
+<h3>TL;DR</h3>
+<p>The inaugural Santa Cruz PyTorch Meetup brought together 45 local engineers, students, and leaders for GPU/CUDA talks and lightning presentations on chemistry, plant health, and autonomous driving &#8211; demonstrating how easy and impactful it is to launch a low-key, welcoming PyTorch community in your own area.</p>
+<p><img decoding="async" class="aligncenter wp-image-151421 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/PyTorch-sail-1.avif" alt="" width="1250" height="357" /></p>
+<p>One of the great parts about being the lead for the Red Hat Open Source and AI Programs Office to the PyTorch Foundation is I get a front seat view to all the exciting activity in the community. One of the most impressive (and growing) developments is the PyTorch Meetup groups popping up all over the globe.</p>
+<p>Living in Santa Cruz California I am “Silicon Valley adjacent” and there is almost too much activity “over the hill”. Getting over the mountains to the activity, while relatively close as the crow flies, is not the easiest. But, by being so close we actually have a thriving tech. community with down to earth people who appreciate being closer to Nature and a slightly slower, more affordable lifestyle.</p>
+<p>With this background I thought, “Hey Steve, we have a major research university and a great tech. community, let’s get a PyTorch Meetup going here.”</p>
+<h2>What I hope you get from this post</h2>
+<p>I have a twofold purpose in writing today’s post:</p>
+<ol>
+<li>Fill you in on what was covered at our first meetup &#8211; tl;dr it was a great session, especially for those first diving into AI and PyTorch</li>
+<li>Inspire you to start a PyTorch meetup in your local area. It doesn’t have to be big, it doesn’t have to meet every 2 weeks, and it doesn’t have to be focused on low-level PyTorch or those directly contributing to the code base.</li>
+</ol>
+<p>PyTorch has come a long way from being an internal Meta project with a strong focus on basic research to the foundation of the modern AI stack. The breadth of contributors, both to doc and the codebase has grown considerably, broadening the capabilities and range of what PyTorch (and it’s ecosystem) can do. As a consequence, It is now used, either directly or indirectly, by almost everyone in the AI and ML space and I believe we should be celebrating and showing off all the wider work PyTorch makes possible.</p>
+<h2>How our PyTorch Meetup came to be</h2>
+<p>Red Hat, true to our upstream first roots, wanted to continue to grow PyTorch&#8217;s broader community &#8211; more skill levels and more geographies. I have been to a few meetups in the Santa Cruz area, and met with various students at faculty at UCSC, and I have always been impressed with the skills and perspective that comes from being close to the tech epicenter yet staying just a bit outside the bubble.</p>
+<p>Another key factor was that UCSC has an active and involved <a href="https://ucsc-ospo.github.io/">OSPO office</a> that had worked with my team before. So when the UC Open <a href="https://ucospo.net/events/uc-open-2026/">Summit</a> happened this Spring in Berkley I made sure to attend and try to touch base with some of the UCSC OSPO staff. Sure enough, once I met with Stephanie <a href="http://google.com/url?q=https://www.linkedin.com/in/stephanie-lieggi-8542624/&amp;sa=D&amp;source=docs&amp;ust=1785931146841664&amp;usg=AOvVaw2QtbyaaLPFiioYlnwFNhCw">Lieggi</a>, my co-organizer, and told her about my idea, she was excited to work together and we almost immediately kicked off planning. They contacted some of their people and I contacted some of my people, we got some food and they got a venue and parking &#8211; let the meetup commence!</p>
+<p><img decoding="async" class="aligncenter wp-image-151439 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-2.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-2.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-2-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-2-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p>We had about 45 people attend the first meetup and we had the talks in a lecture hall in one of the engineering buildings. We had a wide range of people show up with some professional engineers from the local community, some business leaders, some graduate students, and rounding out the group were undergraduates there on summer internships. The weather was gorgeous, which is typical for Santa Cruz in the non-rainy season, so we served Mediteranean dinner outside in the courtyard. There was also some swag giveaways and, as always, the most popular items were STICKERS!!</p>
+<h2>The successful first meetup</h2>
+<p><img decoding="async" class="aligncenter wp-image-151442 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-3.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-3.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-3-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-3-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p>The evening began with a really well done talk by <a href="https://www.linkedin.com/in/faradawn/">Faradawn Yang</a> from NVIDIA, where he focused on teaching us the different parts of the GPU. His approach was something I had not seen before. He started with basic matrix math operations and how these are bread and butter for CUDA cores. Then he helped us understand how Tensor cores are used to group higher level matrix operations, thereby avoiding overhead and speeding up the operations. He even helped explain which parts are used in the forward-pass and back-pass for inference versus training.</p>
+<p><img decoding="async" class="aligncenter wp-image-151447 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-4.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-4.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-4-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-4-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-151448 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-5.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-5.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-5-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-5-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p>Faradan&#8217;s talk turned out to be a great introduction for the second talk by Anil Vishnoi from Red Hat. Anil’s talk was about programming for the GPU and for PyTorch Kernels in particular. First he helped us understand how the CPU and GPU differ in their architecture, threading, and overall model of execution. He gave an introduction to the patterns you needed to be aware of when working with GPU, how the type of operation was important, and tips on getting started with the work.</p>
+<p><img decoding="async" class="aligncenter wp-image-151456 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-6.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-6.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-6-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-6-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p>To wrap up the evening we had 3 lightning talks by speakers associated with UCSC. These speakers did a great job of demonstrating the reach and ease of using PyTorch and AI with modern stacks. The first was Filippo Balzaretti, a chemistry PostDoc, demonstrating how PyTorch could be used to approximate interatomic potentials. There are existing analytical and statistical solutions to understanding the forces but they did not scale well and become unsolvable in human relevant time. By using neural networks in PyTorch they are able to simulate much larger systems and successfully predict the properties that mattered to them. It was interesting to see how this has broad applications from batteries to quantum computing and is supported by most of the large AI labs.</p>
+<p><img decoding="async" class="aligncenter wp-image-151459 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-7.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-7.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-7-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-7-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-151460 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-8.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-8.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-8-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-8-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p>The next talk was by <a href="https://github.com/kameron-ctrl">Kameron Benjamin</a>, an undergrad at Florida A&amp;M University, and it had a special place in my heart as an ecologist and someone who loves computer vision. He has a busy schedule and he was noticing his house plants were starting to get sick. So, in the best open source fashion, he scratched that itch and made a computer vision based AI application to diagnose his plants based on pictures of the leaves. He built <a href="https://github.com/kameron-ctrl/greenguardian">Green Guardian</a> and he got bonus points for giving us a live demo of the application in action. It was great to hear his voyage, using the resources on the PyTorch site and many tutorials throughout the internet to build this project on his own.</p>
+<p><img decoding="async" class="aligncenter wp-image-151461 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-9.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-9.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-9-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-9-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-151466 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-10.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-10.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-10-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-10-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p>Bringing us home was Ph.D. student <a href="https://www.linkedin.com/in/manasi-pawar-bb031b210/">Manasi Pawar</a>, whose research focuses on Visual Language Action models. The focus of her talk for the evening was “how much can we trust output reasoning traces from these models for why the model chose a particular action”. She is focused on their use in autonomous vehicles and so the ability to trust these traces has critical implications for model (and human) safety. It was intriguing to watch how they correlated actual driving traces with the reasoning from the model. Spoiler: just like we have learned in LLMs, you can NOT trust the reasoning traces to provide you accurate accounts for the output produced. Manasi gave a very convincing example where the reasoning trace explained why it took a right hand turn when the model had actually taken a left turn.</p>
+<h2><img decoding="async" class="aligncenter wp-image-151467 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-11.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-11.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-11-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-11-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></h2>
+<h2><img decoding="async" class="aligncenter wp-image-151468 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/Picture-12.jpg" alt="" width="2048" height="1536" srcset="https://pytorch.org/wp-content/uploads/2026/08/Picture-12.jpg 2048w, https://pytorch.org/wp-content/uploads/2026/08/Picture-12-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/08/Picture-12-1024x768.jpg 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></h2>
+<h2>Join us at our upcoming PyTorch meetup</h2>
+<p>Overall it was not only an informative but entertaining meeting as well. It was great to see AI practitioners from throughout the Santa Cruz community talking and sharing their knowledge. We already have our <a href="https://luma.com/v8ncjgie">next meetup scheduled</a> and our first speaker lined up with more to come. We will have <a href="http://google.com/url?q=https://www.linkedin.com/in/rob-timpe/&amp;sa=D&amp;source=docs&amp;ust=1785931289717648&amp;usg=AOvVaw3n-r0OYwA5szvt6Rq6_oVl">Rob Timpe</a> from <a href="http://google.com/url?q=https://openteams.com/&amp;sa=D&amp;source=docs&amp;ust=1785931319409391&amp;usg=AOvVaw38_8JSk1ADKY1HDHPG9yXl">OpenTeams</a> speaking about using and debugging Torch.compile.</p>
+<p>With the active tech scene in Santa Cruz we are looking to get speakers from local companies such as <a href="https://www.jobyaviation.com/">Joby</a>, Looker(Google), or <a href="https://fullpower.com/">Fullpower-AI</a>. We are also thinking about exploring different venues such as <a href="https://pacificworkplaces.com/">Pacific Workplaces</a>, <a href="https://luma.com/citizenspace">CitizenSpace</a>, <a href="https://www.cruzio.com/services/coworking/">Cruzio</a>, or maybe even one of our public libraries.</p>
+<p>If you have a suggestion for a topic, want to be a speaker, or know of a good location we would love to hear from you. Drop a note on our Luma <a href="https://luma.com/pytorch-sc">calendar page</a> or contact <a href="https://www.linkedin.com/in/thesteve0/">me directly</a>.</p>
+<h2>Wrap up</h2>
+<p>Our first meetup was a good start, but like I said in the beginning, one of the main goals of this post is to see this energy replicated. If you&#8217;ve been on the fence about starting a PyTorch community in your own backyard, consider this your nudge to go for it. You don’t need a massive budget or a rigid structure to make a difference:</p>
+<ul>
+<li><strong>Start small</strong>: You don&#8217;t need a massive crowd to have a great, high-impact conversation.</li>
+<li><strong>Leverage your strengths</strong>: Whether you have a university nearby or a local tech scene, build on the existing pockets of curiosity in your area.</li>
+<li><strong>Keep it low-key</strong>: The best meetups are the ones that feel welcoming and low-fuss, not overly formal or intimidating.</li>
+<li><strong>Broaden the scope</strong>: Remember that PyTorch touches almost every corner of the modern AI stack &#8211; there is always something interesting to explore. For inspiration look at the range of <a href="https://pytorch.org/projects/?_gl=1*1s441xy*_up*MQ..*_ga*NzIwNjM2Nzk5LjE3ODU5Mjc5MDQ.*_ga_469Y0W5V62*czE3ODU5Mjc5MDMkbzEkZzAkdDE3ODU5Mjc5MDMkajYwJGwwJGgw">PyTorch Foundation</a> hosted projects and the even broader use cases supported by member of the <a href="https://landscape.pytorch.org/">PyTorch Ecosystem</a>.</li>
+<li><strong>Most importantly, have fun</strong>: Technology is better when you explore it together.</li>
+</ul>
+<p>We’re thrilled with how our inaugural event turned out, and we’re already looking forward to growing this community. If you are local, we look forward to you joining us for the next one. If you can’t make it to our then no time like the present to start your own! Let’s keep building.</p>
+<p><img decoding="async" class="aligncenter wp-image-151472 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/lastpicture-scaled.png" alt="" width="2560" height="1396" srcset="https://pytorch.org/wp-content/uploads/2026/08/lastpicture-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/08/lastpicture-300x164.png 300w, https://pytorch.org/wp-content/uploads/2026/08/lastpicture-1024x559.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>FBTriton Infra: Upstream Ingestion, Hierarchical Validation, Ideals vs Realities</title>
+		<link>https://pytorch.org/blog/fbtriton-infra-upstream-ingestion-hierarchical-validation-ideals-vs-realities/</link>
+		
+		<dc:creator><![CDATA[Meta Triton Team: Daohang Shi, Xu Zhao, Agron Tsai, Wenyuan Chi, Alexey Loginov]]></dc:creator>
+		<pubDate>Thu, 30 Jul 2026 15:26:48 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=150166</guid>
+
+					<description><![CDATA[TL:DR Learn how Meta’s FBTriton infrastructure powers custom GPU compiler innovations like TLX and autoWS while staying synced with upstream Triton using agentic ingestion and a stratified L1/L2/L3 validation framework....]]></description>
+										<content:encoded><![CDATA[<h3><img decoding="async" class="aligncenter wp-image-150190 size-full" src="https://pytorch.org/wp-content/uploads/2026/07/All-PyTorch-Blog-Social-Images-17.png" alt="" width="1920" height="1080" srcset="https://pytorch.org/wp-content/uploads/2026/07/All-PyTorch-Blog-Social-Images-17.png 1920w, https://pytorch.org/wp-content/uploads/2026/07/All-PyTorch-Blog-Social-Images-17-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/07/All-PyTorch-Blog-Social-Images-17-1024x576.png 1024w" sizes="(max-width: 1920px) 100vw, 1920px" /></h3>
+<h3>TL:DR</h3>
+<p>Learn how Meta’s FBTriton infrastructure powers custom GPU compiler innovations like TLX and autoWS while staying synced with upstream Triton using agentic ingestion and a stratified L1/L2/L3 validation framework.</p>
+<h2>Introduction of fbtriton</h2>
+<p>Triton is a foundational element of our AI hardware acceleration strategy. While Triton is developed and maintained by OpenAI, the upstream repository alone cannot fully accommodate our internal feature requests, hardware-specific optimizations, and urgent bug fixes. In parallel, we are developing our own GPU optimization solutions, including TLX/torchTLX and autoWS, whose development timelines and code structures do not always align with upstream.</p>
+<p>To bridge this gap, we consolidate our innovations into a downstream fork called fbtriton (<code>pip install fbtriton</code>). This allows us to rapidly develop features optimized for our workloads while keeping the delta from upstream as small as possible. The repository is continuously synchronized into our internal codebase with minimal in-house adjustment and powers GPU training and inference workloads across <span style="font-weight: 400;">Meta’s services</span>.</p>
+<p>Since its consolidation in Q3 2025, fbtriton has served as an optimization runway for Meta engineers and external partners, including NVIDIA, AMD, and academic collaborators, to co-design compiler and DSL innovations and make them accessible for OSS and industry&#8217;s evaluation.</p>
+<p>This blog covers continuous upstream ingestion, the L1/L2/L3 validation hierarchy, and the practical gap between engineering ideals and production realities.</p>
+<h2>Closing the Upstream Gap: Risk-partitioned Agentic Bundling</h2>
+<p>It is not easy for fbtriton to aggressively develop Meta-inspired optimizations while keeping the gap against a fast-moving upstream small.<br />
+Maintaining a downstream fork usually forces a choice between two strategies: periodic full-trunk rebases or continuous cherry-picking. We chose continuous cherry-picking to keep our modifications stable and decouple daily development from the structural uncertainty and friction of large rebases.<br />
+The core friction comes from architectural divergence in the compiler stack. fbtriton uses distinct strategies and designs for layout interfaces, quantization, and warp specialization.<br />
+To clear the accumulated backlog without overwhelming CI engineers with manual conflict resolution, we built an agentic loop that separates upstream commits into large low-risk bundles and context-heavy risky chains.</p>
+<p><strong>Step 1: Dependency tracking.</strong><br />
+The system checks whether an incoming patch touches files or symbols linked to an ongoing complex change, also known as an existing risky chain.</p>
+<p><strong>Step 2: Path selection.</strong><br />
+If a correlation is found, the patch is automatically grouped into that existing chain to preserve the correct ordering of dependent changes. Otherwise, the commit is considered safe and merged into a large low-risk bundle, such as commit <a href="https://github.com/facebookexperimental/triton/pull/1872">#1872</a>.</p>
+<h3>Operation metrics: Ingestion Tracking</h3>
+<p>To measure progress accurately, we track two distinct operational metrics.</p>
+<p><strong>Main Metric: Days Behind Upstream</strong><br />
+This metric tracks how many days the tip of our upstream ingestion lags behind the tip of the upstream main branch. In rare circumstances, we may urgently cherry-pick specific commits from very recent upstream. These isolated picks do not affect the main metric.</p>
+<p><strong>Counter Metric: Backlog Commits</strong><br />
+This metric tracks the holes left behind the ingestion tip: older upstream commits that remain unpicked and outstanding.</p>
+<p>By decoupling these metrics, CI engineers can focus on driving down the main metric, while context-heavy backlog commits can be triaged asynchronously to keep the counter metric low. This allows the team to operate efficiently without conflating forward progress with backlog cleanup.</p>
+<h3>Out-of-Order Landing</h3>
+<p>Commits can be landed out of order as long as each one independently passes both OSS CI and internal CI. This flexibility allows us to unblock clean upstream features immediately instead of stalling behind a single complex dependency.<br />
+However, operating this way safely requires a robust, stratified hierarchical test framework discussed in the next section.</p>
+<h2>Designing the Hierarchical Test Framework</h2>
+<p>A risky Triton change, including an LLVM version bump, can trigger cascading regressions across the production stack. These issues are rarely clean build failures. Instead, they may appear as silent regressions in training/serving efficiency, increased PT2 compilation time, or subtle drift in model performance (normalized entropy).<br />
+Evaluating this entire spectrum of signals for every commit is both operationally and financially impractical. A localized single-GPU correctness test may finish in seconds, while validating job-level metrics may require GPU clusters running for hours. In practice, we manage this resource asymmetry by organizing tests into an L1/L2/L3 hierarchy based on relative value and cost.</p>
+<p><strong>L1: Diff tests</strong><br />
+Fast, localized tests, including LITs (LLVM Integrated Tester), Triton unit tests, TLX tutorial kernel correctness tests, and internal customers&#8217; kernel tests. These are triggered at every diff to prevent major breakage and kernel-level numeric mismatches.</p>
+<p><strong>L2: Trunk tests</strong><br />
+Periodic, resource-intensive integration tests run on trunk, such as a tritonbench run sweeping required matrix-multiplication shapes or a distributed training job. These tests are fully bisectable on metric regressions, such as performance degradation, so we can automatically locate the culprit commit.</p>
+<p><strong>L3: Manual tests</strong><br />
+Heavy, fully on-demand production workloads provided dynamically by internal production teams. These consume significant GPU hours and require explicit metric sign-off from area owners.</p>
+<h2>Discussion: Practical Engineering Problems</h2>
+<p>Moving from an abstract pipeline blueprint to a real production environment introduces operational realities across infrastructure reliability, human behavior, and shifting business context.</p>
+<h3>Derisking from Infrastructure Single Points of Failure</h3>
+<p>We cannot assume a testing platform is a flawless source of truth. We learned this when a silent bug in an underlying test infrastructure layer began omitting L1 test suites without raising alerts, creating a blind spot of unmonitored false negatives.<br />
+To eliminate this single point of failure, we adopted a saturated validation strategy by adopting various testing harnesses (such as <a href="https://www.usenix.org/conference/osdi24/presentation/chow">servicelab</a>), diverse compute capacities across both internal and OSS pipelines to improve CI signal robustness.</p>
+<h3>Managing Daily Operational Friction</h3>
+<p>Leaving an error on the trunk inevitably masks subsequent regressions. At the same time, diff authors often ignore trunk errors if a failure appears unrelated to their specific code change. These overlapping error lifecycles can quickly paralyze daily triage.<br />
+Maintaining a green trunk requires continuous team discipline and rapid daily resolution of incoming failures.</p>
+<h3>Navigating the Context Gap During Pin Updates</h3>
+<p>As a core compiler team, it is impossible to maintain a complete view of every downstream workload and model architecture across the fleet. This context gap exists both internally and in the broader OSS community.</p>
+<p>The only viable mitigation is a dynamic, continuous context-sharing loop between teams, ensuring that compiler optimizations remain aligned with changing fleet realities.</p>
+<h2>Flawless CI: Ideals vs Realities</h2>
+<p>The engineering ideal is a fully autonomous, zero-noise, instantaneous CI/CD loop that maps perfectly to broad subsystem-level metrics. Production reality is more complicated. Coarse metrics do not fully capture risk, and fleet-scale stability requires localized operational discipline in addition to abstract subsystem-level tracking.</p>
+<p>A high-craftsmanship CI system cannot be built in a day. It requires not only putting code together, but also putting teams together, and sustaining that cultural alignment over time.</p>
+<p>Agentic solutions are now deeply integrated into our daily workflow, but it is important to stay clear-eyed about what has changed and what has not. AI agents are effective at eliminating tedious engineering work. We use them to resolve merge conflicts, report infrastructure issues, summarize test results, group error types, and auto-file tracking issues with proposed fixes when nightly tests break.</p>
+<p>However, the underlying physics of the compiler and hardware remain unchanged. In practice, we must remain cautious about both AI hallucinations and human error, ensuring that agentic velocity is always guarded by deterministic safety rails.</p>
+<h3>Acknowledgments</h3>
+<p>We would like to extend our gratitude to Abhinav Singh (NVIDIA), Shucai Xiao (AMD), and Andrey Talman (PyTorch Dev Infra) for their invaluable support in providing OSS test capacity.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>
+
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4108 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1216389 metric#prefetches=223 metric#store-reads=36 metric#store-writes=6 metric#store-hits=232 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=450.93 metric#ms-cache=18.45 metric#ms-cache-avg=0.4501 metric#ms-cache-ratio=4.1 -->
