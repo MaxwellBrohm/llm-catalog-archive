@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T01:32:20.414Z",
+  "updatedAt": "2026-09-02T02:25:34.268Z",
   "sources": {
     "anthropic-deprecations": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -15,20 +15,20 @@
       "held": null
     },
     "claude-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 73393,
-      "originDate": "2026-09-02T00:34:58.000Z",
+      "originDate": "2026-09-02T01:36:18.000Z",
       "held": null
     },
     "openrouter-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -39,20 +39,20 @@
       "held": null
     },
     "openai-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-08-28T11:23:40.461Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 33743,
-      "originDate": "2026-09-02T00:47:35.000Z",
+      "originDate": "2026-09-02T01:31:01.000Z",
       "held": null
     },
     "together-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -63,8 +63,8 @@
       "held": null
     },
     "perplexity-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -75,51 +75,51 @@
       "held": null
     },
     "mistral-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 14658,
-      "originDate": "2026-08-31T16:56:36.000Z",
+      "originDate": "2026-09-02T01:39:43.000Z",
       "held": null
     },
     "groq-llms-full-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 797252,
-      "originDate": "2026-08-31T21:09:33.000Z",
+      "originDate": "2026-08-31T23:02:08.000Z",
       "held": null
     },
     "modelsdev-commits": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
-      "lastChangeAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
+      "lastChangeAt": "2026-09-02T02:25:34.268Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
-      "bytes": 18096,
+      "bytes": 18084,
       "originDate": null,
       "held": null
     },
     "claude-status": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 33790,
-      "originDate": "2026-09-02T01:32:22.000Z",
+      "originDate": "2026-09-02T02:25:25.000Z",
       "held": null
     },
     "openrouter-models": {
@@ -135,20 +135,20 @@
       "held": null
     },
     "arena-leaderboard": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
-      "lastChangeAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
+      "lastChangeAt": "2026-09-02T02:25:34.268Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
-      "bytes": 5289410,
+      "bytes": 5293857,
       "originDate": "2026-09-02T00:03:53.000Z",
       "held": null
     },
     "anthropic-sitemap": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -159,20 +159,20 @@
       "held": null
     },
     "openrouter-sitemap": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
-      "lastChangeAt": "2026-09-01T23:17:40.729Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
+      "lastChangeAt": "2026-09-02T02:25:34.268Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
-      "bytes": 609603,
-      "originDate": "2026-09-02T01:32:23.000Z",
+      "bytes": 609829,
+      "originDate": "2026-09-02T02:25:37.000Z",
       "held": null
     },
     "xai-llms-txt": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -186,20 +186,20 @@
       }
     },
     "openai-status": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 81262,
-      "originDate": "2026-09-02T01:31:58.000Z",
+      "originDate": "2026-09-02T02:25:30.000Z",
       "held": null
     },
     "transformers-pulls": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": null,
       "consecutiveFailures": 0,
       "failing": false,
@@ -210,20 +210,20 @@
       "held": null
     },
     "vllm-pulls": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
-      "bytes": 670239,
+      "bytes": 670742,
       "originDate": null,
       "held": null
     },
     "deepmind-sitemap": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -234,32 +234,32 @@
       "held": null
     },
     "openai-sitemap": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T16:30:51.048Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 408127,
-      "originDate": "2026-09-02T01:32:27.000Z",
+      "originDate": "2026-09-02T02:25:43.000Z",
       "held": null
     },
     "openai-news-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 707231,
-      "originDate": "2026-09-02T01:07:50.000Z",
+      "originDate": "2026-09-02T02:07:39.000Z",
       "held": null
     },
     "deepmind-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -270,8 +270,8 @@
       "held": null
     },
     "huggingface-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -282,20 +282,20 @@
       "held": null
     },
     "together-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
       "bytes": 60677,
-      "originDate": "2026-08-31T21:20:52.000Z",
+      "originDate": "2026-08-31T21:20:51.000Z",
       "held": null
     },
     "google-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -318,8 +318,8 @@
       "held": null
     },
     "aws-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-01T23:17:40.729Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -342,8 +342,8 @@
       "held": null
     },
     "mistral-news-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -354,8 +354,8 @@
       "held": null
     },
     "ollama-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
@@ -366,20 +366,20 @@
       "held": null
     },
     "pytorch-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "relocated",
       "httpStatus": 200,
       "bytes": 174419,
-      "originDate": "2026-09-02T01:32:05.000Z",
+      "originDate": "2026-09-02T01:56:51.000Z",
       "held": null
     },
     "gcloud-blog-feed": {
-      "lastAttemptAt": "2026-09-02T01:32:20.414Z",
-      "lastSuccessAt": "2026-09-02T01:32:20.414Z",
+      "lastAttemptAt": "2026-09-02T02:25:34.268Z",
+      "lastSuccessAt": "2026-09-02T02:25:34.268Z",
       "lastChangeAt": "2026-09-02T01:32:20.414Z",
       "consecutiveFailures": 0,
       "failing": false,
