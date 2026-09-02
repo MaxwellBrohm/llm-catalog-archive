@@ -574,3 +574,77 @@ describe('the stylesheet no longer sets a floor the viewport cannot honour', () 
     expect(STYLESHEET).not.toContain('clamp(420px, 62vh, 640px)');
   });
 });
+
+/**
+ * THE WIRE IN THREE DIMENSIONS.
+ *
+ * The stream's conductor was CSS gradients arranged to imply depth. This is
+ * real geometry in the scene the wall already loads, so it costs no extra
+ * download: three.js is vendored and imported once. An earlier commit justified
+ * NOT building this on a 700 KB figure that was simply wrong.
+ */
+describe('the 3D wire shares the wall’s three.js rather than fetching its own', () => {
+  it('adds no second import of the library', () => {
+    const imports = [...WALL_JS.matchAll(/\bimport\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1]);
+    expect(imports).toEqual(['./vendor/three.module.min.js']);
+  });
+
+  it('mounts the wire from the module the wall already resolved', () => {
+    expect(WALL_JS).toContain('mountWire(parts[0])');
+  });
+
+  it('fetches nothing from another origin', () => {
+    expect(WALL_JS).not.toContain('://');
+  });
+});
+
+describe('the conductor is measured in pixels, not implied', () => {
+  /**
+   * A capsule's total height is its length PLUS two radii, so scaling one by a
+   * pixel length gives 6.2x that at radius 2.6. The first build did exactly
+   * that and every conductor overshot its wire by 300px at each end, drawing
+   * through the lab filter above the stream. A cylinder of height 1 scales
+   * exactly.
+   */
+  it('uses a unit-height cylinder so a pixel length scales one to one', () => {
+    expect(WALL_JS).toContain('CylinderGeometry(2.6, 2.6, 1');
+    expect(WALL_JS).not.toContain('CapsuleGeometry');
+  });
+
+  it('uses an orthographic camera, so a stud lands on its capture by construction', () => {
+    expect(WALL_JS).toContain('OrthographicCamera');
+  });
+
+  /** 27,000px of document would exceed texture limits as one tall canvas. */
+  it('pins a viewport-sized canvas and moves the scene by the scroll offset', () => {
+    expect(WALL_JS).toContain('window.innerHeight');
+    expect(WALL_JS).toContain('window.scrollY');
+  });
+
+  it('puts the CSS conductor back if the context is lost', () => {
+    expect(WALL_JS).toContain('webglcontextlost');
+    expect(WALL_JS).toContain("classList.remove('wire-3d-on')");
+  });
+
+  it('stands the CSS conductor down only after a frame is on screen', () => {
+    const relayout = WALL_JS.indexOf('relayout();\n  /* Only after a frame');
+    const addClass = WALL_JS.indexOf("classList.add('wire-3d-on')");
+    expect(relayout).toBeGreaterThan(-1);
+    expect(addClass).toBeGreaterThan(relayout);
+  });
+});
+
+describe('the wire canvas sits behind the page', () => {
+  it('is painted under the content, so it cannot occlude text', () => {
+    expect(STYLESHEET).toContain('z-index: -1;');
+  });
+
+  it('takes no pointer events, because it is an object and not a control', () => {
+    expect(STYLESHEET).toContain('pointer-events: none;');
+  });
+
+  it('hides the CSS conductor and studs only under the mounted class', () => {
+    expect(STYLESHEET).toContain('.wire-3d-on .wire::before');
+    expect(STYLESHEET).toContain('.wire-3d-on .capture::before');
+  });
+});

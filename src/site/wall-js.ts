@@ -111,12 +111,217 @@ function reducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+
+/* ===========================================================================
+ * THE WIRE, IN THREE DIMENSIONS
+ *
+ * The stream below the front door is drawn as a conductor with the archive's
+ * CAPTURES as nodes on it, and until now that conductor was a CSS gradient with
+ * shadows arranged to imply depth. This replaces it with real geometry: an
+ * extruded conductor, a stud per capture, and two lights.
+ *
+ * IT COSTS NOTHING TO DOWNLOAD. three.js is already vendored and already
+ * imported by the wall above, so this scene reuses a module the reader has
+ * fetched and parsed. The earlier decision not to build it was justified in a
+ * commit message on a 700 KB figure that was simply wrong.
+ *
+ * ORTHOGRAPHIC, AT ONE UNIT PER CSS PIXEL. This object has to line up with HTML
+ * rows, and under a perspective camera a stud's screen position depends on its
+ * depth, so alignment would drift with any change to the scene. With an
+ * orthographic camera scaled to the viewport, scene Y IS document Y minus
+ * scroll, and a stud sits on its capture by construction rather than by
+ * tuning.
+ *
+ * FIXED CANVAS, NOT A TALL ONE. The document is 27,000px; a canvas that tall
+ * exceeds texture limits on real hardware and would allocate hundreds of
+ * megabytes. So the canvas is viewport height, pinned, and the scene translates
+ * by the scroll offset.
+ *
+ * PROGRESSIVE ENHANCEMENT, THE SAME CONTRACT AS THE WALL. The CSS conductor is
+ * the real one. This draws over it and only once a frame is actually on screen,
+ * and it puts the CSS one back if the context is ever lost.
+ * =========================================================================== */
+
+var WIRE_GUTTER = 34; /* matches .wire padding-left in the stylesheet */
+
+function wireHosts() {
+  return Array.prototype.slice.call(document.querySelectorAll('.wire'));
+}
+
+function mountWire(THREE) {
+  var hosts = wireHosts();
+  if (hosts.length === 0) return;
+
+  var canvas = document.createElement('canvas');
+  canvas.className = 'wire-3d';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(canvas);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -400, 400);
+  camera.position.z = 120;
+
+  /*
+   * One warm key from the upper left and a cool fill, which is the whole rig.
+   * The palette is a single live colour on near-black, so a third light would
+   * only wash the conductor toward grey.
+   */
+  scene.add(new THREE.AmbientLight(0x1a1a20, 2.2));
+  var key = new THREE.DirectionalLight(0xff8a3a, 3.1);
+  key.position.set(-0.7, 0.9, 1);
+  scene.add(key);
+  var rim = new THREE.DirectionalLight(0x4a5a7a, 1.5);
+  rim.position.set(0.9, -0.4, 0.6);
+  scene.add(rim);
+
+  var conductorMat = new THREE.MeshStandardMaterial({ color: 0x241608, roughness: 0.34, metalness: 0.85 });
+  var studMat = new THREE.MeshStandardMaterial({
+    color: 0xff6a00,
+    roughness: 0.28,
+    metalness: 0.55,
+    emissive: 0x3a1300,
+  });
+
+  var group = new THREE.Group();
+  scene.add(group);
+
+  /*
+   * A CYLINDER OF HEIGHT EXACTLY 1, so scaling Y by a pixel length gives that
+   * many pixels. The first build used a capsule, whose total height is its
+   * length PLUS two radii: at radius 2.6 that is 6.2 units, so every conductor
+   * rendered 6.2 times too long and, being centred on its midpoint, overshot
+   * its wire by 300px at each end. It was drawing through the lab filter above
+   * the stream, which is how it was spotted.
+   */
+  var conductorGeo = new THREE.CylinderGeometry(2.6, 2.6, 1, 20, 1);
+  var studGeo = new THREE.SphereGeometry(6.2, 28, 20);
+
+  var conductors = [];
+  var studs = [];
+
+  function clear() {
+    for (var i = 0; i < conductors.length; i++) group.remove(conductors[i]);
+    for (var j = 0; j < studs.length; j++) group.remove(studs[j]);
+    conductors = [];
+    studs = [];
+  }
+
+  /* Document coordinates for every conductor run and every stud on it. */
+  var runs = [];
+  var nodes = [];
+
+  function measure() {
+    runs = [];
+    nodes = [];
+    var scrollY = window.scrollY || window.pageYOffset || 0;
+    var list = wireHosts();
+    for (var i = 0; i < list.length; i++) {
+      var host = list[i];
+      var hb = host.getBoundingClientRect();
+      var x = hb.left + WIRE_GUTTER - 25;
+      runs.push({ x: x, top: hb.top + scrollY + 6, bottom: hb.bottom + scrollY - 6 });
+      var caps = host.querySelectorAll('.capture');
+      for (var c = 0; c < caps.length; c++) {
+        var cb = caps[c].getBoundingClientRect();
+        nodes.push({ x: x, y: cb.top + scrollY + 12 });
+      }
+    }
+    clear();
+    for (var r = 0; r < runs.length; r++) {
+      var m = new THREE.Mesh(conductorGeo, conductorMat);
+      group.add(m);
+      conductors.push(m);
+    }
+    for (var n = 0; n < nodes.length; n++) {
+      var st = new THREE.Mesh(studGeo, studMat);
+      group.add(st);
+      studs.push(st);
+    }
+  }
+
+  function size() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.left = 0;
+    camera.right = w;
+    camera.top = 0;
+    camera.bottom = -h;
+    camera.updateProjectionMatrix();
+  }
+
+  function draw() {
+    var scrollY = window.scrollY || window.pageYOffset || 0;
+    var h = window.innerHeight;
+    for (var i = 0; i < conductors.length; i++) {
+      var run = runs[i];
+      var top = Math.max(run.top, scrollY - 200);
+      var bottom = Math.min(run.bottom, scrollY + h + 200);
+      var len = Math.max(bottom - top, 0);
+      var m = conductors[i];
+      m.visible = len > 0;
+      if (!m.visible) continue;
+      m.scale.set(1, len, 1);
+      m.position.set(run.x, -(top + len / 2 - scrollY), 0);
+    }
+    for (var n = 0; n < studs.length; n++) {
+      var node = nodes[n];
+      var y = node.y - scrollY;
+      var st = studs[n];
+      /* Off-screen studs are skipped rather than drawn behind the viewport. */
+      st.visible = y > -80 && y < h + 80;
+      if (!st.visible) continue;
+      st.position.set(node.x, -y, 14);
+    }
+    renderer.render(scene, camera);
+  }
+
+  var queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () {
+      queued = false;
+      draw();
+    });
+  }
+
+  function relayout() {
+    size();
+    measure();
+    draw();
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', relayout);
+
+  canvas.addEventListener('webglcontextlost', function (ev) {
+    ev.preventDefault();
+    window.removeEventListener('scroll', schedule);
+    window.removeEventListener('resize', relayout);
+    document.documentElement.classList.remove('wire-3d-on');
+    if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+  });
+
+  relayout();
+  /* Only after a frame is genuinely on screen does the CSS conductor stand down. */
+  document.documentElement.classList.add('wire-3d-on');
+}
+
 function boot() {
   Promise.all([import('./vendor/three.module.min.js'), faces()]).then(function (parts) {
     try {
       mount(parts[0]);
     } catch (err) {
       /* The list is still in the DOM and still visible. Nothing to undo. */
+    }
+    try {
+      mountWire(parts[0]);
+    } catch (err) {
+      /* The CSS conductor is still the one being drawn. Nothing to undo. */
     }
   }, function () {});
 }

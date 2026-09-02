@@ -605,6 +605,37 @@ footer.site-foot a { color: var(--text-dim); }
 .wall-stage canvas { display: block; width: 100%; height: 100%; }
 
 
+
+/*
+ * THE 3D WIRE'S CANVAS.
+ *
+ * Pinned and viewport sized, with the scene translating by the scroll offset,
+ * because the document is 27,000px and a canvas that tall exceeds texture
+ * limits on real hardware. It sits BEHIND the content and takes no pointer
+ * events: it is an object in the page, not a surface to interact with.
+ *
+ * The CSS conductor stands down only once a real frame is on screen, which is
+ * what the wire-3d-on class means. Hiding it on the strength of an intent to draw is
+ * how a page ends up with no wire at all.
+ */
+.wire-3d {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /*
+   * BEHIND EVERYTHING. At z-index 0 the canvas painted over page text: the "Y"
+   * of the lab filter's heading was occluded by the conductor passing through
+   * it. A negative index puts it behind all in-flow content, which is what an
+   * object drawn in the page's gutter should be, and means no other rule has to
+   * lift anything above it.
+   */
+  z-index: -1;
+  pointer-events: none;
+}
+.wire-3d-on .wire::before,
+.wire-3d-on .capture::before { display: none; }
+
 /* ===========================================================================
  * THE WIRE
  *
