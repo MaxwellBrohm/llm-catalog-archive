@@ -104,20 +104,99 @@ describe('a stored body is never committed without its headers', () => {
     ).toBeGreaterThan(20);
   });
 
-  it('pairs every raw/<id>/response.* with raw/<id>/headers.json in the same commit', () => {
+  /**
+   * ONE GIT PROCESS, NOT ONE PER COMMIT.
+   *
+   * This used to run `git show` per commit, so its cost grew with the archive
+   * and it began timing out against vitest's 5s default at 116 commits: 5.77s,
+   * measured. That is not a flake to retry, it is a check with a shelf life,
+   * and the archive gains commits every day. A single log pass returns the same
+   * information for the whole window in one subprocess.
+   *
+   * THE DETECTOR IS A PURE FUNCTION so it can be proved on input that VIOLATES
+   * the rule. Asserting an empty offender list over real history passes exactly
+   * as well when the detector is broken as when the archive is clean, and the
+   * archive is clean: neutering the comparison left this test green. A guard
+   * that cannot fail is not a guard.
+   */
+  type Commit = { sha: string; files: string[] };
+
+  function unpairedBodies(history: Commit[]): string[] {
     const offenders: string[] = [];
-    for (const sha of commits) {
-      const files = execFileSync('git', ['show', '--name-only', '--format=', sha], { encoding: 'utf8' })
-        .trim()
-        .split('\n')
-        .filter((f) => f.startsWith('raw/'));
-      if (files.length === 0) continue;
-      const bodies = files.filter((f) => /^raw\/[^/]+\/response\./.test(f));
-      for (const body of bodies) {
+    for (const commit of history) {
+      const files = commit.files.filter((f) => f.startsWith('raw/'));
+      for (const body of files.filter((f) => /^raw\/[^/]+\/response\./.test(f))) {
         const dir = body.slice(0, body.lastIndexOf('/'));
-        if (!files.includes(`${dir}/headers.json`)) offenders.push(`${sha.slice(0, 7)}: ${body}`);
+        if (!files.includes(`${dir}/headers.json`)) offenders.push(`${commit.sha.slice(0, 7)}: ${body}`);
       }
     }
-    expect(offenders).toEqual([]);
+    return offenders;
+  }
+
+  /*
+   * THE SAME WINDOW THE LIST ABOVE USES: the last 200 commits from HEAD, with
+   * no pathspec, filtering raw/ in code exactly as the per-commit version did.
+   *
+   * The first rewrite of this passed commits.slice(-1) as a revision, which is
+   * the OLDEST of those 200, so git walked backwards from it and checked the
+   * ancient history while skipping the 199 newest commits. It still passed, and
+   * it still cleared the non-vacuity guard, because there is older history
+   * beyond the window. A faster check that quietly stops checking the part you
+   * care about is worse than a slow one. Verified equivalent to the per-commit
+   * walk: both see the same 98 commits touching raw/.
+   */
+  function realHistory(): Commit[] {
+    const log = execFileSync('git', ['log', '--name-only', '--format=%x00%H', '-n', '200'], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    const out: Commit[] = [];
+    for (const block of log.split('\u0000')) {
+      if (block.trim() === '') continue;
+      const lines = block.trim().split('\n');
+      out.push({ sha: lines[0] as string, files: lines.slice(1) });
+    }
+    return out;
+  }
+
+  it('catches a body committed without its headers', () => {
+    expect(
+      unpairedBodies([{ sha: 'a'.repeat(40), files: ['raw/openrouter-models/response.json'] }]),
+    ).toEqual(['aaaaaaa: raw/openrouter-models/response.json']);
+  });
+
+  it('accepts a body committed with its headers', () => {
+    expect(
+      unpairedBodies([
+        {
+          sha: 'b'.repeat(40),
+          files: ['raw/openrouter-models/response.json', 'raw/openrouter-models/headers.json'],
+        },
+      ]),
+    ).toEqual([]);
+  });
+
+  /** The sidecar has to be the body's OWN, not any sidecar in the commit. */
+  it('does not accept another source’s headers as this body’s pair', () => {
+    expect(
+      unpairedBodies([
+        {
+          sha: 'c'.repeat(40),
+          files: ['raw/openrouter-models/response.json', 'raw/arena-leaderboard/headers.json'],
+        },
+      ]),
+    ).toHaveLength(1);
+  });
+
+  it('ignores commits that touch nothing under raw/', () => {
+    expect(unpairedBodies([{ sha: 'd'.repeat(40), files: ['src/site/render.ts', 'README.md'] }])).toEqual([]);
+  });
+
+  it('pairs every raw/<id>/response.* with raw/<id>/headers.json in the same commit', () => {
+    const history = realHistory();
+    const touching = history.filter((c) => c.files.some((f) => f.startsWith('raw/')));
+    /* A walk that matched nothing would pass this vacuously. */
+    expect(touching.length, 'no commit touching raw/ was walked').toBeGreaterThan(10);
+    expect(unpairedBodies(history)).toEqual([]);
   });
 });
