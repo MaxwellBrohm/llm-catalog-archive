@@ -430,9 +430,26 @@ describe('renderChangelogPage', () => {
     expect(withoutScripts).not.toContain('class="filter-input"');
   });
 
-  it('loads only its own filter, and nothing from another origin', () => {
+  /**
+   * The claim is ORIGIN, not count. The changelog now also loads wall.js, which
+   * carries the capture graph: one node per commit, one lane per source. Both
+   * scripts are relative paths into this deployment, which is what "nothing
+   * from another origin" is actually asserting.
+   */
+  it('loads only same-origin scripts, and nothing from another origin', () => {
     const scripts = [...renderChangelogPage(two).matchAll(/<script[^>]*src="([^"]*)"/g)].map((m) => m[1]);
-    expect(scripts).toEqual(['../filter.js']);
+    expect(scripts.length).toBeGreaterThan(0);
+    for (const src of scripts) {
+      expect(src, `${src} is not a relative path`).toMatch(/^\.\.?\//);
+      expect(src).not.toContain('://');
+    }
+  });
+
+  it('carries the graph module and its data island', () => {
+    const html = renderChangelogPage(two);
+    expect(html).toContain('data-graph-stage');
+    expect(html).toContain('data-graph-nodes');
+    expect(html).toContain('../wall.js');
   });
 
   // The path cell and nothing else, so an unretracted row carries no leftover

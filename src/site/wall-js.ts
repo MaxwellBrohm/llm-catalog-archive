@@ -72,7 +72,19 @@ try {
   tabs = null;
 }
 
-if (wrap && stage && list && Array.isArray(tabs) && tabs.length > 0 && wide() && webgl()) {
+/*
+ * EACH SCENE GATES ITSELF. This condition used to require the WALL's three
+ * elements, so on any page without a wall the module loaded, resolved nothing
+ * and returned: the changelog's capture graph never got the chance to run,
+ * which is exactly what it did on its first build. The shared prerequisites are
+ * a wide enough window and a working WebGL context; which scenes then exist is
+ * each scene's own question.
+ */
+const hasWall = Boolean(wrap && stage && list && Array.isArray(tabs) && tabs.length > 0);
+const hasWire = Boolean(document.querySelector('.wire'));
+const hasGraph = Boolean(document.querySelector('[data-graph-stage]'));
+
+if ((hasWall || hasWire || hasGraph) && wide() && webgl()) {
   boot();
 }
 
@@ -249,7 +261,8 @@ function mountWire(THREE) {
       var caps = host.querySelectorAll('.capture');
       for (var c = 0; c < caps.length; c++) {
         var cb = caps[c].getBoundingClientRect();
-        nodes.push({ x: x, y: cb.top + scrollY + 12 });
+        var w = parseInt(caps[c].getAttribute('data-weight') || '1', 10);
+        nodes.push({ x: x, y: cb.top + scrollY + 12, weight: isFinite(w) ? w : 1 });
       }
     }
     clear();
@@ -258,8 +271,29 @@ function mountWire(THREE) {
       group.add(m);
       conductors.push(m);
     }
+    /*
+     * A STUD IS SIZED AND LIT BY WHAT ITS CAPTURE ACTUALLY CHANGED.
+     *
+     * Every stud used to be identical, which made the wire a decoration: it
+     * marked that a commit happened and said nothing about it. The weight is
+     * the capture's uncapped item count, and it drives radius and emissive
+     * together, so scanning the conductor tells a reader where the archive
+     * moved before they read a word.
+     *
+     * The curve is a cube root, not linear. Counts run from 1 to about 40 in
+     * this archive and a linear map would make the median node a speck beside
+     * the busiest one; the compression keeps a single price change visible
+     * while still ranking it clearly below a 27-value capture. Each stud gets
+     * its own material because emissiveIntensity is per material, not per mesh.
+     */
+    var maxWeight = 1;
+    for (var w = 0; w < nodes.length; w++) maxWeight = Math.max(maxWeight, nodes[w].weight);
     for (var n = 0; n < nodes.length; n++) {
-      var st = new THREE.Mesh(studGeo, studMat);
+      var t = Math.pow(nodes[n].weight / maxWeight, 1 / 3);
+      var m = studMat.clone();
+      m.emissiveIntensity = 0.34 + 0.5 * t;
+      var st = new THREE.Mesh(studGeo, m);
+      st.scale.setScalar(0.62 + 0.68 * t);
       group.add(st);
       studs.push(st);
     }
@@ -341,10 +375,209 @@ function mountWire(THREE) {
   document.documentElement.classList.add('wire-3d-on');
 }
 
+
+/* ===========================================================================
+ * THE CAPTURE GRAPH
+ *
+ * The changelog is the archive's own history: one commit per accepted capture,
+ * across thirty sources, over weeks. As a table that is true and flat. As a
+ * graph it is the shape of the thing: one LANE per source running back into
+ * depth, one node per capture along it, sized by how large that diff was.
+ *
+ * It is the only page where a git-shaped object is the honest illustration,
+ * because this page IS the git log. The tables underneath are the page; this
+ * draws above them and never replaces them.
+ * =========================================================================== */
+
+function mountGraph(THREE) {
+  var stage = document.querySelector('[data-graph-stage]');
+  var island = document.querySelector('[data-graph-nodes]');
+  if (!stage || !island) return;
+
+  var nodes;
+  try {
+    nodes = JSON.parse(island.textContent || '[]');
+  } catch (err) {
+    return;
+  }
+  if (!nodes.length) return;
+
+  /* Lanes in first-seen order, so the busiest sources are not shuffled per build. */
+  var lanes = [];
+  var laneOf = {};
+  for (var i = 0; i < nodes.length; i++) {
+    var srcName = nodes[i].source;
+    if (!(srcName in laneOf)) {
+      laneOf[srcName] = lanes.length;
+      lanes.push(srcName);
+    }
+  }
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setClearColor(new THREE.Color(0.019, 0.019, 0.021), 1);
+  var canvas = renderer.domElement;
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.setAttribute('tabindex', '-1');
+  stage.appendChild(canvas);
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(38, 2, 0.1, 400);
+
+  scene.add(new THREE.AmbientLight(0x20202a, 2.4));
+  var key = new THREE.DirectionalLight(0xff8a3a, 2.6);
+  key.position.set(-0.6, 1, 0.8);
+  scene.add(key);
+  var fill = new THREE.DirectionalLight(0x44507a, 1.2);
+  fill.position.set(0.8, -0.3, 0.5);
+  scene.add(fill);
+
+  var LANE_GAP = 1.15;
+  var STEP = 1.15;
+  var spanX = (lanes.length - 1) * LANE_GAP;
+
+  /* One rail per source. */
+  var railGeo = new THREE.CylinderGeometry(0.035, 0.035, 1, 8, 1);
+  /* Bright enough to read as a lane. At 0.08 the rails were invisible and the
+   * graph looked like scattered dots rather than thirty-one histories. */
+  var railMat = new THREE.MeshStandardMaterial({
+    color: 0x6b3410,
+    roughness: 0.5,
+    metalness: 0.15,
+    emissive: 0xff6a00,
+    emissiveIntensity: 0.22,
+  });
+
+  /* Per-source counts decide each rail's length, so a lane stops where its
+   * source stops rather than every lane spanning the whole window. */
+  var perLane = [];
+  for (var l = 0; l < lanes.length; l++) perLane.push(0);
+  for (var j = 0; j < nodes.length; j++) perLane[laneOf[nodes[j].source]] += 1;
+
+  for (var r = 0; r < lanes.length; r++) {
+    if (perLane[r] < 2) continue;
+    var len = (perLane[r] - 1) * STEP;
+    var rail = new THREE.Mesh(railGeo, railMat);
+    rail.scale.set(1, len, 1);
+    rail.rotation.x = Math.PI / 2;
+    rail.position.set(r * LANE_GAP - spanX / 2, 0, -len / 2);
+    scene.add(rail);
+  }
+
+  /*
+   * The nodes, instanced. Size is the diff's size on a cube root, for the same
+   * reason the wire's studs use one: this archive's diffs run from 2 lines to
+   * several hundred, and a linear map would make everything except the largest
+   * invisible.
+   */
+  var maxSize = 1;
+  for (var m = 0; m < nodes.length; m++) maxSize = Math.max(maxSize, nodes[m].size || 1);
+
+  var nodeGeo = new THREE.SphereGeometry(0.13, 18, 14);
+  var nodeMat = new THREE.MeshStandardMaterial({
+    color: 0xff6a00,
+    roughness: 0.3,
+    metalness: 0.2,
+    emissive: 0xff6a00,
+    emissiveIntensity: 0.42,
+  });
+  var mesh = new THREE.InstancedMesh(nodeGeo, nodeMat, nodes.length);
+  mesh.frustumCulled = false;
+  var dummy = new THREE.Object3D();
+  var seen = [];
+  for (var q = 0; q < lanes.length; q++) seen.push(0);
+  for (var k = 0; k < nodes.length; k++) {
+    var lane = laneOf[nodes[k].source];
+    var along = seen[lane];
+    seen[lane] += 1;
+    var t = Math.pow((nodes[k].size || 1) / maxSize, 1 / 3);
+    dummy.position.set(lane * LANE_GAP - spanX / 2, 0, -along * STEP);
+    dummy.scale.setScalar(0.55 + 1.5 * t);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(k, dummy.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  scene.add(mesh);
+
+  var deepest = 0;
+  for (var d = 0; d < perLane.length; d++) deepest = Math.max(deepest, perLane[d]);
+
+  function fit() {
+    /*
+     * MEASURED FROM THE PARENT, NOT FROM THE STAGE.
+     *
+     * The stage is display:none until is-mounted lands, and is-mounted lands
+     * only after a frame is drawn, so measuring the stage itself is a deadlock:
+     * clientWidth is 0, fit() refuses, the class never arrives and the graph
+     * never appears. That is exactly what the first build did. The panel around
+     * it is in flow and has a width whatever the stage is doing, and the height
+     * is the same clamp the stylesheet applies.
+     */
+    var host = stage.parentElement;
+    var w = host ? host.clientWidth : 0;
+    var h = Math.round(Math.max(300, Math.min(520, window.innerHeight * 0.46)));
+    if (!w || !h) return false;
+    stage.style.height = h + 'px';
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+
+    /*
+     * FRAMED FROM THE CONTENT'S BOUNDING BOX, not from a guessed distance. The
+     * first version placed the camera from spanX alone and looked down at a
+     * steep angle, which flattened the lanes into a thin band across the middle
+     * of an otherwise empty stage: thirty-one histories reading as a scatter of
+     * dots. Solving the box against both frustum planes fills the frame and
+     * keeps the depth legible as depth.
+     */
+    var depth = Math.max(deepest - 1, 1) * STEP;
+    var halfW = spanX / 2 + 1.2;
+    var halfD = depth / 2 + 1.2;
+    var vFov = (camera.fov * Math.PI) / 180;
+    /* The camera looks along the lanes from a low angle, so the vertical extent
+     * it must cover is the depth foreshortened, and the horizontal is the span. */
+    var forWidth = halfW / (Math.tan(vFov / 2) * camera.aspect);
+    var forDepth = (halfD * 0.62) / Math.tan(vFov / 2);
+    var dist = Math.max(forWidth, forDepth) * 1.08;
+
+    var centreZ = -depth / 2;
+    camera.position.set(spanX * 0.1, dist * 0.42, centreZ + dist * 0.86);
+    camera.lookAt(0, 0, centreZ);
+    camera.updateProjectionMatrix();
+    return true;
+  }
+
+  function draw() {
+    renderer.render(scene, camera);
+  }
+
+  var queued = false;
+  function onResize() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () {
+      queued = false;
+      if (fit()) draw();
+      else stage.classList.remove('is-mounted');
+    });
+  }
+  window.addEventListener('resize', onResize);
+
+  canvas.addEventListener('webglcontextlost', function (ev) {
+    ev.preventDefault();
+    window.removeEventListener('resize', onResize);
+    stage.classList.remove('is-mounted');
+    if (canvas.parentNode === stage) stage.removeChild(canvas);
+  });
+
+  if (!fit()) return;
+  draw();
+  stage.classList.add('is-mounted');
+}
+
 function boot() {
   Promise.all([import('./vendor/three.module.min.js'), faces()]).then(function (parts) {
     try {
-      mount(parts[0]);
+      if (hasWall) mount(parts[0]);
     } catch (err) {
       /* The list is still in the DOM and still visible. Nothing to undo. */
     }
@@ -352,6 +585,11 @@ function boot() {
       mountWire(parts[0]);
     } catch (err) {
       /* The CSS conductor is still the one being drawn. Nothing to undo. */
+    }
+    try {
+      mountGraph(parts[0]);
+    } catch (err) {
+      /* The changelog's tables are untouched and are the page. */
     }
   }, function () {});
 }
@@ -549,15 +787,33 @@ function buildAtlas(items) {
 
 /* ---- the scene ------------------------------------------------------- */
 
+/*
+ * THE TABS ARE SLABS, NOT DECALS.
+ *
+ * They were PlaneGeometry: flat quads with the tab artwork printed on them,
+ * billboarded on an arc. That reads as 3D from straight on and as paper the
+ * moment a tab turns. The geometry is a box now, so the outer columns show a
+ * lit edge, which is the whole reason for arranging them on an arc.
+ *
+ * vFace carries which face a fragment is on, computed once in the vertex stage
+ * from the object-space normal, because the atlas belongs to the front and
+ * nowhere else. vLight is a lambert term for the edges against a fixed key,
+ * which is what makes the extrusion legible rather than a black rim.
+ */
 const VERT = [
   'attribute vec4 aRect;',
   'attribute float aGlow;',
   'varying vec2 vUv;',
   'varying float vGlow;',
   'varying float vDepth;',
+  'varying float vFace;',
+  'varying float vLight;',
   'void main() {',
   '  vUv = aRect.xy + uv * aRect.zw;',
   '  vGlow = aGlow;',
+  '  vFace = step(0.5, normal.z);',
+  '  vec3 key = normalize(vec3(-0.45, 0.72, 0.52));',
+  '  vLight = 0.28 + 0.72 * max(dot(normalize(normal), key), 0.0);',
   '  vec4 mv = modelViewMatrix * instanceMatrix * vec4(position, 1.0);',
   '  vDepth = -mv.z;',
   '  gl_Position = projectionMatrix * mv;',
@@ -567,16 +823,26 @@ const VERT = [
 const FRAG = [
   'uniform sampler2D uAtlas;',
   'uniform vec3 uVoid;',
+  'uniform vec3 uEdge;',
   'uniform float uNear;',
   'uniform float uFar;',
   'varying vec2 vUv;',
   'varying float vGlow;',
   'varying float vDepth;',
+  'varying float vFace;',
+  'varying float vLight;',
   'void main() {',
+  /*
+   * The slab is OPAQUE. The atlas is composited onto the face rather than
+   * cutting through it, because a transparent front face on a solid box shows
+   * the inside of the box, and the tab artwork has rounded corners.
+   */
+  '  vec3 edge = uEdge * vLight;',
   '  vec4 texel = texture2D(uAtlas, vUv);',
-  '  vec3 col = texel.rgb * (0.66 + 0.34 * vGlow);',
+  '  vec3 face = mix(edge, texel.rgb, texel.a * vFace);',
+  '  vec3 col = mix(edge, face, vFace) * (0.66 + 0.34 * vGlow);',
   '  col = mix(col, uVoid, smoothstep(uNear, uFar, vDepth));',
-  '  gl_FragColor = vec4(col, texel.a);',
+  '  gl_FragColor = vec4(col, 1.0);',
   '}',
 ].join('\\n');
 
@@ -652,7 +918,8 @@ function mount(THREE) {
     rect[i * 4 + 3] = 1 / atlasRows;
   }
 
-  const geo = new THREE.PlaneGeometry(1, 1);
+  /* 4% of the tab's width, which is a slab rather than a wall. */
+  const geo = new THREE.BoxGeometry(1, 1, 0.13);
   geo.setAttribute('aRect', new THREE.InstancedBufferAttribute(rect, 4));
   const glowAttr = new THREE.InstancedBufferAttribute(glow, 1);
   glowAttr.setUsage(THREE.DynamicDrawUsage);
@@ -664,11 +931,17 @@ function mount(THREE) {
     uniforms: {
       uAtlas: { value: atlas },
       uVoid: { value: new THREE.Color(0.019, 0.019, 0.021) },
+      /* The cut edge of the slab: the panel colour, not the live orange. The
+       * accent belongs to the type on the face, and an orange edge on twelve
+       * tabs would out-shout it. */
+      uEdge: { value: new THREE.Color(0.055, 0.05, 0.048) },
       uNear: { value: 9 },
       uFar: { value: 26 },
     },
-    transparent: true,
-    depthWrite: false,
+    /* Opaque now: the slab is a solid and needs real depth, or its own back
+     * face draws over its front. */
+    transparent: false,
+    depthWrite: true,
   });
 
   const mesh = new THREE.InstancedMesh(geo, mat, n);

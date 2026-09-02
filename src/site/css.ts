@@ -925,6 +925,23 @@ footer.site-foot a { color: var(--text-dim); }
 }
 .chip { display: inline-flex; flex-wrap: wrap; }
 
+
+/*
+ * THE CAPTURE GRAPH'S STAGE. Collapsed until a frame is genuinely on screen,
+ * on the wall's contract: the source counts and the day tables underneath are
+ * the page, and this draws above them.
+ */
+.graph-stage { display: none; }
+.graph-stage.is-mounted {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 0 0 16px;
+}
+.graph-stage canvas { display: block; width: 100%; height: 100%; }
+
 .headlines { border-color: var(--line); }
 .headline-list { list-style: none; margin: 0; padding: 0; }
 .headline {

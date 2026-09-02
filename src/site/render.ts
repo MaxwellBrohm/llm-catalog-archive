@@ -37,7 +37,7 @@ import {
 } from '../derive/leaks.js';
 import { scoreLedger, type LedgerClaim } from './ledger.js';
 import { countEmails, redactLine } from './redact.js';
-import { wallHtml } from './wall.js';
+import { wallHtml, jsonIsland, WALL_JS_PATH } from './wall.js';
 import { FILTER_JS_PATH } from './filter-js.js';
 import type { Thread, ThreadSet } from '../derive/threads.js';
 import {
@@ -517,16 +517,36 @@ ${changesTable(rowsOf(g.records), 1, feed)}
     )
     .join('\n');
 
+  /*
+   * THE GRAPH'S DATA, as the changelog already knows it: one node per commit
+   * that changed a stored artifact, carrying its source and its size. The 3D
+   * layer reads this island; the tables below are the page whether or not it
+   * ever runs.
+   */
+  const graphNodes = rowsOf(records).map((r) => ({
+    sha: r.record.sha.slice(0, 7),
+    source: r.artifact.sourceId,
+    size: r.artifact.linesAdded + r.artifact.linesRemoved,
+    href: changePagePath(r.record.sha),
+  }));
+
   const body = `<p class="eyebrow">Changelog</p>
 <h1>The narrated diff</h1>
 <p class="lede">One entry per commit that changed a stored artifact under <code>raw/</code>. ${plural(records.length, 'change')} across ${plural(sourceIds.length, 'source')}, newest first by the timestamp each row shows rather than by commit order. This is the evidence layer: <a href="${up}index.html">Everything</a> is the same archive with the derivations applied.</p>
+<div class="panel graph-panel">
+<h2>Every capture, by source</h2>
+<div class="graph-stage" data-graph-stage></div>
+<p class="note">One node per commit that changed a stored artifact, one lane per source, newest at the front. Node size is the size of that diff. Where this browser cannot draw it, the source counts below are the same data.</p>
+</div>
 <div class="panel">
 <h2>Sources</h2>
 <div class="grid-sources">
 ${cards}
 </div>
 </div>
-${days}`;
+${days}
+<script type="application/json" data-graph-nodes>${jsonIsland(graphNodes)}</script>
+<script type="module" src="${up}${WALL_JS_PATH}"></script>`;
   return layout({
     title: 'Changelog - llm-catalog-archive',
     depth: 1,
@@ -1628,7 +1648,14 @@ function captureHtml(capture: Capture, depth: number, heldBack = 0, truth?: Capt
   const tapeItems = capture.items.filter((i) => TAPE_TYPES.has(i.type));
   const dispatches = capture.items.filter((i) => !TAPE_TYPES.has(i.type));
   const stamp = capture.items[0]?.stamp ?? null;
-  return `<li class="capture">
+  /*
+   * data-weight is the number of items this capture actually produced, before
+   * either cap. The 3D wire reads it to size and brighten the stud, so the
+   * conductor shows WHERE THE ARCHIVE MOVED rather than merely where a commit
+   * happened: a capture that changed 27 values is a bigger, hotter node than
+   * one that changed a single price. The HTML is unaffected by its presence.
+   */
+  return `<li class="capture" data-weight="${truth?.items ?? capture.items.length}">
 <div class="capture-head">
 <a class="capture-sha" href="${up}${changePagePath(capture.sha)}">${escapeHtml(capture.sha.slice(0, 7))}</a>
 <a class="capture-source" href="${up}${sourcePagePath(capture.sourceId)}">${escapeHtml(capture.sourceId)}</a>

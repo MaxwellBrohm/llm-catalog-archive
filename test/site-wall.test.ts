@@ -658,3 +658,108 @@ describe('the wire canvas sits behind the page', () => {
     expect(STYLESHEET).toContain('.wire-3d-on .capture::before');
   });
 });
+
+/**
+ * THE TABS ARE SLABS, NOT DECALS.
+ *
+ * They were PlaneGeometry: flat quads with the tab artwork printed on them.
+ * That reads as 3D head-on and as paper the moment a tab turns, which is the
+ * whole point of arranging them on an arc.
+ */
+describe('the wall tabs have depth', () => {
+  it('extrudes the tab instead of printing it on a plane', () => {
+    expect(WALL_JS).toContain('new THREE.BoxGeometry(1, 1, 0.13)');
+  });
+
+  /** A transparent front face on a solid box shows the inside of the box. */
+  it('is opaque, and composites the artwork onto the face', () => {
+    expect(WALL_JS).toContain('transparent: false');
+    expect(WALL_JS).toContain('depthWrite: true');
+    expect(WALL_JS).toContain('mix(edge, texel.rgb, texel.a * vFace)');
+  });
+
+  it('samples the atlas on the front face only', () => {
+    expect(WALL_JS).toContain('vFace = step(0.5, normal.z);');
+  });
+
+  it('lights the cut edges, so the extrusion reads rather than going black', () => {
+    expect(WALL_JS).toContain('vLight = 0.28 + 0.72 * max(dot(normalize(normal), key), 0.0);');
+  });
+});
+
+/**
+ * A STUD IS SIZED AND LIT BY WHAT ITS CAPTURE CHANGED. Identical studs made the
+ * wire a decoration: it marked that a commit happened and said nothing about it.
+ */
+describe('the wire’s studs carry the capture’s weight', () => {
+  it('reads the weight the page publishes on each capture', () => {
+    expect(WALL_JS).toContain("getAttribute('data-weight')");
+  });
+
+  /**
+   * Counts run 1 to about 40 here. A linear map makes the median node a speck
+   * beside the busiest one, so a single price change would vanish.
+   */
+  it('compresses the range instead of mapping it linearly', () => {
+    expect(WALL_JS).toContain('Math.pow(nodes[n].weight / maxWeight, 1 / 3)');
+  });
+
+  it('drives both radius and emissive from it', () => {
+    expect(WALL_JS).toContain('st.scale.setScalar(0.62 + 0.68 * t)');
+    expect(WALL_JS).toContain('m.emissiveIntensity = 0.34 + 0.5 * t');
+  });
+
+  /** emissiveIntensity is per material, not per mesh. */
+  it('clones the material per stud, or every stud would share one brightness', () => {
+    expect(WALL_JS).toContain('studMat.clone()');
+  });
+});
+
+/**
+ * THE CAPTURE GRAPH. The changelog IS the git log, so a git-shaped object is
+ * the honest illustration there rather than a decoration.
+ */
+describe('the capture graph', () => {
+  it('reads its own island rather than sharing the wall’s', () => {
+    expect(WALL_JS).toContain('[data-graph-nodes]');
+    expect(WALL_JS).toContain('[data-graph-stage]');
+  });
+
+  it('draws one lane per source and one node per commit', () => {
+    expect(WALL_JS).toContain('laneOf[srcName] = lanes.length');
+    expect(WALL_JS).toContain('new THREE.InstancedMesh(nodeGeo, nodeMat, nodes.length)');
+  });
+
+  /**
+   * The stage is display:none until is-mounted lands, and is-mounted lands only
+   * after a frame is drawn. Measuring the stage itself is a deadlock, and the
+   * first build hit it: the graph never appeared at all.
+   */
+  it('measures its parent, because its own box is collapsed until it mounts', () => {
+    expect(WALL_JS).toContain('var host = stage.parentElement;');
+    expect(WALL_JS).toContain('var w = host ? host.clientWidth : 0;');
+  });
+
+  it('frames from the content’s bounding box rather than a guessed distance', () => {
+    expect(WALL_JS).toContain('var forWidth = halfW / (Math.tan(vFov / 2) * camera.aspect);');
+  });
+
+  it('puts the tables back if the context is lost', () => {
+    expect(WALL_JS).toContain("stage.classList.remove('is-mounted')");
+  });
+});
+
+/**
+ * Each scene gates itself. This condition used to require the WALL's elements,
+ * so on the changelog the module loaded, resolved nothing and returned, and the
+ * capture graph never ran.
+ */
+describe('the scenes are gated independently', () => {
+  it('boots when any one of the three scenes is present', () => {
+    expect(WALL_JS).toContain('if ((hasWall || hasWire || hasGraph) && wide() && webgl())');
+  });
+
+  it('still refuses to mount the wall when the wall is not on the page', () => {
+    expect(WALL_JS).toContain('if (hasWall) mount(parts[0]);');
+  });
+});
