@@ -1655,11 +1655,31 @@ export function renderEverythingPage(
     .map((g) => dayHtml(g.day, g.items, 0, heldBack))
     .join('\n');
 
+  /*
+   * THREE BUCKETS, AND THE SENTENCE USED TO NAME TWO.
+   *
+   * The page is capped twice: capPerCommit holds items back so no single
+   * capture fills it, and the overall limit then truncates what survives. Only
+   * the first was counted, so the note read "Showing 150 items of 408, with 192
+   * more held back" and 150 + 192 is 342. SIXTY-SIX ITEMS WERE IN NEITHER
+   * NUMBER, on the front page of an archive whose entire claim is that its
+   * numbers can be checked.
+   *
+   * Both cuts are now named and the three add up, which the test beside this
+   * asserts arithmetically rather than by matching the sentence.
+   */
+  const beyondLimit = spread.length - shown.length;
+  const cuts = [
+    heldBackTotal > 0
+      ? `${formatInt(heldBackTotal)} held back so that no single capture fills the page`
+      : '',
+    beyondLimit > 0 ? `${formatInt(beyondLimit)} beyond this page's limit of ${formatInt(limit)}` : '',
+  ].filter((c) => c !== '');
   const capped =
     feed.length > shown.length
       ? `<p class="note">Showing ${plural(shown.length, 'item')} of ${formatInt(feed.length)}${
-          heldBackTotal > 0 ? `, with ${formatInt(heldBackTotal)} more held back so that no single capture fills the page` : ''
-        }. Nothing is dropped: every item is also on its micro-category page, on its lab page where it has one, and on the entity thread it attaches to, and none of those are capped.</p>`
+          cuts.length === 0 ? '' : `: ${cuts.join(', and ')}`
+        }. Nothing is dropped: every item is also on its micro-category page, on its lab page where it has one, and on the entity thread it attaches to where one could be resolved, and none of those are capped.</p>`
       : '';
 
   const stream =

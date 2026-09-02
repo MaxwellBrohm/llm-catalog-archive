@@ -1341,3 +1341,64 @@ describe('claimHtml', () => {
     expect(claimHtml('The catalog id "a/b" entered.')).toBe('The catalog id &quot;a/b&quot; entered.');
   });
 });
+
+/**
+ * THE FRONT PAGE'S OWN ARITHMETIC HAS TO ADD UP.
+ *
+ * The page is capped TWICE: capPerCommit holds items back so that no single
+ * capture fills it, and the overall limit then truncates what survives. The
+ * note counted only the first, so it read "Showing 150 items of 408, with 192
+ * more held back" and 150 + 192 is 342. Sixty-six items were in neither number,
+ * on the front page of an archive whose whole claim is that its numbers can be
+ * checked against the bytes.
+ *
+ * Asserted as arithmetic over the rendered numbers rather than as a string
+ * match, so it survives any rewording and fails on any third cut added later.
+ */
+describe('the front page accounts for every item it does not show', () => {
+  /*
+   * BOTH CUTS HAVE TO BITE, or this measures one of them. 40 captures of 15
+   * items: the per-capture cap holds back 3 from each, and the overall limit
+   * then truncates what survives.
+   */
+  const many: FeedItem[] = Array.from({ length: 40 }, (_, c) =>
+    Array.from({ length: 15 }, (_, i) => ({
+      ...(FEED[0] as FeedItem),
+      id: `${c.toString(16).padStart(40, '0')}:price_changed:m${c}-${i}`,
+      type: 'price_changed' as const,
+      sentence: `row ${c}-${i}`,
+      sha: c.toString(16).padStart(40, '0'),
+      sourceId: 'openrouter-models',
+    })),
+  ).flat();
+
+  const numbersFrom = (html: string) => {
+    const m = /Showing ([\d,]+) items? of ([\d,]+)([^.]*)\./.exec(html);
+    if (m === null) return null;
+    const n = (s: string) => Number(s.replace(/,/g, ''));
+    const cuts = [...(m[3] as string).matchAll(/([\d,]+) (?:held back|beyond)/g)].map((c) => n(c[1] as string));
+    return { shown: n(m[1] as string), total: n(m[2] as string), cuts };
+  };
+
+  it('renders the note at all, so this cannot pass by matching nothing', () => {
+    expect(numbersFrom(renderEverythingPage(many, THREADS))).not.toBeNull();
+  });
+
+  it('shown plus every cut equals the total', () => {
+    const got = numbersFrom(renderEverythingPage(many, THREADS));
+    const sum = (got as NonNullable<typeof got>).cuts.reduce((a, b) => a + b, (got as NonNullable<typeof got>).shown);
+    expect(sum).toBe((got as NonNullable<typeof got>).total);
+  });
+
+  it('names both cuts when both bite, not just the per-capture one', () => {
+    const html = renderEverythingPage(many, THREADS);
+    expect(html).toContain('held back');
+    expect(html).toContain('beyond this page');
+  });
+
+  /** With nothing held back and nothing truncated there is no note to make. */
+  it('says nothing when the whole feed fits', () => {
+    const few = many.slice(0, 3);
+    expect(renderEverythingPage(few, THREADS)).not.toContain('Showing 3 items of');
+  });
+});
