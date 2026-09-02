@@ -27,7 +27,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-export const DEFAULT_API = 'https://maxwellbrohm.github.io/llm-catalog-archive/api/v1';
+export const DEFAULT_API = 'https://diffwire.dev/api/v1';
 /**
  * `--flag value`, `--flag=value` and bare `--flag`. Nothing clever.
  *

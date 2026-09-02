@@ -4,7 +4,7 @@ A byte-level archive of what model providers actually publish, and a publication
 derived from it. Every sentence on the site links to the exact bytes it came
 from, at the exact commit that stored them.
 
-Live: <https://maxwellbrohm.github.io/llm-catalog-archive/>
+Live: <https://diffwire.dev/>
 
 ## Try it
 
@@ -70,7 +70,7 @@ Every command takes `--json` to print records instead of a table, and
 ## The API
 
 Flat JSON on the same GitHub Pages deployment, no key and no rate limit:
-<https://maxwellbrohm.github.io/llm-catalog-archive/api/v1/index.json>
+<https://diffwire.dev/api/v1/index.json>
 
 `index.json` lists every other file, including which micro-categories and which
 labs exist, so a client can tell "this lab has nothing" from "the deploy broke".

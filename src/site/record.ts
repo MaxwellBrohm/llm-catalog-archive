@@ -26,7 +26,7 @@ export const REPO_URL = 'https://github.com/MaxwellBrohm/llm-catalog-archive';
  * `<pages-root>/x.html`. Override with LCA_SITE_URL when building for anywhere
  * else.
  */
-export const SITE_URL = 'https://maxwellbrohm.github.io/llm-catalog-archive';
+export const SITE_URL = 'https://diffwire.dev';
 
 /**
  * The CLI's command name, and the spec `npx` resolves it from.

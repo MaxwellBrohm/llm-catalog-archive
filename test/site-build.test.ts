@@ -42,6 +42,7 @@ describe('buildSite: the file set', () => {
   it('emits exactly the pages, feeds, stylesheet, .nojekyll and one stub per page', () => {
     expect(buildSite(unsorted).map((f) => f.path).sort()).toEqual(sorted([
       '.nojekyll',
+      'CNAME',
       'about.html',
       'api.html',
       'changelog/index.html',
@@ -195,6 +196,7 @@ describe('buildSite: the file set', () => {
       '.nojekyll',
       'style.css',
       'favicon.svg',
+      'CNAME',
       'wall.js',
       'filter.js',
       'index.html',
@@ -284,7 +286,7 @@ describe('buildSite: the feed base URL', () => {
   // root, so the site is served at the root of the repository's Pages domain.
   it('defaults to the Pages root the artifact is deployed at', () => {
     expect(at(buildSite([newer]), 'feed.xml')).toContain(
-      '<link>https://maxwellbrohm.github.io/llm-catalog-archive/index.html</link>',
+      '<link>https://diffwire.dev/index.html</link>',
     );
   });
 

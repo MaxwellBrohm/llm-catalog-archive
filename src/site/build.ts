@@ -99,6 +99,18 @@ export function buildSite(
     { path: '.nojekyll', contents: '' },
     { path: 'style.css', contents: STYLESHEET },
     { path: 'favicon.svg', contents: FAVICON_SVG },
+    /*
+     * The custom domain. GitHub Pages reads this file from the published
+     * artifact and serves the site there, so it has to be emitted by the
+     * generator rather than committed once: the deploy uploads only what
+     * writeSite produced, and a CNAME that lives in the repository root would
+     * never reach it.
+     *
+     * It carries no scheme. .dev is on the HSTS preload list, so the browser
+     * refuses plain HTTP before a request is made, and GitHub provisions the
+     * certificate from this name.
+     */
+    { path: 'CNAME', contents: `${siteUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')}\n` },
     // The front door's browser module. Emitted unconditionally, next to the
     // stylesheet, because it is an asset of the same kind: index.html asks for
     // it by a fixed name, and a name that resolves on some builds and 404s on

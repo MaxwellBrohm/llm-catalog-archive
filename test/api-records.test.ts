@@ -23,7 +23,7 @@ import { buildFeed, feedItemFromEvent } from '../src/derive/feed.js';
 import { scoreLedger } from '../src/site/ledger.js';
 import { catalog, change, deprecationsDoc, replacementTable, ORIGIN, SHA } from './derive-fixtures.js';
 
-const SITE = 'https://maxwellbrohm.github.io/llm-catalog-archive';
+const SITE = 'https://diffwire.dev';
 const REPO = 'https://github.com/MaxwellBrohm/llm-catalog-archive';
 
 /** One catalogue change whose only difference is a context_length. */
@@ -45,19 +45,19 @@ describe('the version segment', () => {
 
   it('builds an absolute endpoint URL under that prefix', () => {
     expect(apiUrl(SITE, 'models.json')).toBe(
-      'https://maxwellbrohm.github.io/llm-catalog-archive/api/v1/models.json',
+      'https://diffwire.dev/api/v1/models.json',
     );
   });
 
   it('does not double the separator when the base carries a trailing slash', () => {
     expect(apiUrl(`${SITE}/`, 'models.json')).toBe(
-      'https://maxwellbrohm.github.io/llm-catalog-archive/api/v1/models.json',
+      'https://diffwire.dev/api/v1/models.json',
     );
   });
 
   it('builds a site URL outside the api prefix', () => {
     expect(siteUrlFor(SITE, 'threads/lab-anthropic.html')).toBe(
-      'https://maxwellbrohm.github.io/llm-catalog-archive/threads/lab-anthropic.html',
+      'https://diffwire.dev/threads/lab-anthropic.html',
     );
   });
 });
@@ -142,7 +142,7 @@ describe('entityRecord', () => {
       id: 'lab/anthropic',
       label: 'anthropic',
       slug: 'lab-anthropic',
-      thread: 'https://maxwellbrohm.github.io/llm-catalog-archive/threads/lab-anthropic.html',
+      thread: 'https://diffwire.dev/threads/lab-anthropic.html',
     });
   });
 });
@@ -334,7 +334,7 @@ describe('currentModels', () => {
 
   it('points a model with a thread at its own endpoint', () => {
     expect(built.models[0]!.api).toBe(
-      'https://maxwellbrohm.github.io/llm-catalog-archive/api/v1/models/model-openrouter-anthropic-claude-opus-5.json',
+      'https://diffwire.dev/api/v1/models/model-openrouter-anthropic-claude-opus-5.json',
     );
   });
 
@@ -442,13 +442,13 @@ const leakItem = feedItemFromLeak(deriveLeaks([expiringChange])[0]!);
 describe('apiUrl and siteUrlFor: the trailing-slash fold', () => {
   it('collapses every trailing slash on the base, not only the last one', () => {
     expect(apiUrl(`${SITE}//`, 'models.json')).toBe(
-      'https://maxwellbrohm.github.io/llm-catalog-archive/api/v1/models.json',
+      'https://diffwire.dev/api/v1/models.json',
     );
   });
 
   it('collapses every trailing slash for a site URL too', () => {
     expect(siteUrlFor(`${SITE}//`, 'about.html')).toBe(
-      'https://maxwellbrohm.github.io/llm-catalog-archive/about.html',
+      'https://diffwire.dev/about.html',
     );
   });
 });

@@ -17,6 +17,7 @@ import {
   type Retirement,
 } from '../bin/llmcat.js';
 import { buildApi } from '../src/api/build.js';
+import { SITE_URL } from '../src/site/record.js';
 import { renderApiPage, exampleModelId } from '../src/site/render.js';
 import { writeSite } from '../src/site/build.js';
 import { deriveEvents } from '../src/derive/events.js';
@@ -210,7 +211,7 @@ describe('retiringRows', () => {
 
 describe('the default API base', () => {
   it('points at the published deployment, so the CLI works with no flags', () => {
-    expect(DEFAULT_API).toBe('https://maxwellbrohm.github.io/llm-catalog-archive/api/v1');
+    expect(DEFAULT_API).toBe('https://diffwire.dev/api/v1');
   });
 });
 
@@ -957,5 +958,24 @@ describe('isMain, the entry guard', () => {
 
   it('is false when nothing was passed', () => {
     expect(isMain(undefined, url)).toBe(false);
+  });
+});
+
+/**
+ * THE ORIGIN IS SPELLED TWICE, AND A DOMAIN MOVE IS WHEN THAT BITES.
+ *
+ * bin/llmcat.ts cannot import SITE_URL: its whole claim is ONE FILE, ZERO
+ * DEPENDENCIES, because `npx github:...` runs it directly with no build step.
+ * So the constant is duplicated on purpose, and the duplication is held by a
+ * test instead of by hope. This fired for real when the site moved to its own
+ * domain.
+ */
+describe('the CLI default and the site origin agree', () => {
+  it('points the CLI at the API of the site the generator builds', () => {
+    expect(DEFAULT_API).toBe(`${SITE_URL}/api/v1`);
+  });
+
+  it('is an https origin, since .dev is HSTS preloaded and http never resolves', () => {
+    expect(DEFAULT_API.startsWith('https://')).toBe(true);
   });
 });

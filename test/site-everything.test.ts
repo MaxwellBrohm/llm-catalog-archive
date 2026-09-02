@@ -442,7 +442,7 @@ describe('renderEverythingFeed', () => {
 
   it('links each item to its micro-category page, anchored at the item', () => {
     expect(renderEverythingFeed(FEED)).toContain(
-      '<link>https://maxwellbrohm.github.io/llm-catalog-archive/type/model-added.html#item-',
+      '<link>https://diffwire.dev/type/model-added.html#item-',
     );
   });
 
@@ -937,7 +937,7 @@ describe('every everything-feed link resolves to its own item on a built page', 
   const files = buildSite([], undefined, THREADS, [], [], FEED);
   const byPath = new Map(files.map((f) => [f.path, f.contents]));
   const xml = byPath.get('everything.xml') as string;
-  const base = 'https://maxwellbrohm.github.io/llm-catalog-archive/';
+  const base = 'https://diffwire.dev/';
 
   const entries = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map((m) => {
     const body = m[1] as string;
