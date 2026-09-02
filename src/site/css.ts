@@ -931,8 +931,8 @@ footer.site-foot a { color: var(--text-dim); }
  * on the wall's contract: the source counts and the day tables underneath are
  * the page, and this draws above them.
  */
-.graph-stage { display: none; }
-.graph-stage.is-mounted {
+.graph-stage, [data-field-stage] { display: none; }
+.graph-stage.is-mounted, [data-field-stage].is-mounted {
   display: block;
   width: 100%;
   border: 1px solid var(--line);
@@ -940,7 +940,7 @@ footer.site-foot a { color: var(--text-dim); }
   overflow: hidden;
   margin: 0 0 16px;
 }
-.graph-stage canvas { display: block; width: 100%; height: 100%; }
+.graph-stage canvas, [data-field-stage] canvas { display: block; width: 100%; height: 100%; }
 
 .headlines { border-color: var(--line); }
 .headline-list { list-style: none; margin: 0; padding: 0; }

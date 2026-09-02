@@ -83,8 +83,9 @@ try {
 const hasWall = Boolean(wrap && stage && list && Array.isArray(tabs) && tabs.length > 0);
 const hasWire = Boolean(document.querySelector('.wire'));
 const hasGraph = Boolean(document.querySelector('[data-graph-stage]'));
+const hasField = Boolean(document.querySelector('[data-field-stage]'));
 
-if ((hasWall || hasWire || hasGraph) && wide() && webgl()) {
+if ((hasWall || hasWire || hasGraph || hasField) && wide() && webgl()) {
   boot();
 }
 
@@ -402,16 +403,36 @@ function mountGraph(THREE) {
   }
   if (!nodes.length) return;
 
-  /* Lanes in first-seen order, so the busiest sources are not shuffled per build. */
-  var lanes = [];
-  var laneOf = {};
+  /*
+   * LANES ARRANGED AS A RIDGELINE: busiest in the middle, quieter alternating
+   * outward.
+   *
+   * First-seen order looked arbitrary and framed badly. Because the sources
+   * that appear first are also the ones that capture most often, every long
+   * lane bunched on the left and the camera, fitting a box whose top was set by
+   * those lanes alone, left the entire top right of the stage empty. Sorting by
+   * activity and dealing outward from the centre puts the mass in the middle of
+   * the frame, which fills a wide stage and reads as a distribution rather than
+   * as a list that happens to be sorted.
+   *
+   * It is still only an ORDERING. No lane is resized, merged or dropped, and
+   * the count under each source below is the same number.
+   */
+  var counts = {};
   for (var i = 0; i < nodes.length; i++) {
-    var srcName = nodes[i].source;
-    if (!(srcName in laneOf)) {
-      laneOf[srcName] = lanes.length;
-      lanes.push(srcName);
-    }
+    counts[nodes[i].source] = (counts[nodes[i].source] || 0) + 1;
   }
+  var byActivity = Object.keys(counts).sort(function (a, b) {
+    return counts[b] - counts[a] || (a < b ? -1 : 1);
+  });
+  var lanes = [];
+  for (var b = 0; b < byActivity.length; b++) {
+    /* Busiest to the middle, then alternate right and left. */
+    if (b % 2 === 0) lanes.push(byActivity[b]);
+    else lanes.unshift(byActivity[b]);
+  }
+  var laneOf = {};
+  for (var q = 0; q < lanes.length; q++) laneOf[lanes[q]] = q;
 
   var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -429,7 +450,13 @@ function mountGraph(THREE) {
    * no depth. A wide lens close in gives real convergence, and fog tinted to
    * the ground makes distance legible rather than merely implied.
    */
-  var camera = new THREE.PerspectiveCamera(58, 2, 0.1, 400);
+  /*
+   * ORTHOGRAPHIC, for the reason the thread field is: this is a chart. Under a
+   * perspective lens a lane at the back both recedes and shrinks, so a short
+   * near lane and a long far one look alike, which is the one comparison the
+   * picture exists to support.
+   */
+  var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 400);
   scene.fog = new THREE.Fog(0x121215, 6, 46);
 
   scene.add(new THREE.AmbientLight(0x20202a, 2.4));
@@ -538,48 +565,32 @@ function mountGraph(THREE) {
      * viewport-height stage was doing. Bounded at both ends so a narrow window
      * does not produce a letterbox slit and a wide one does not produce a wall.
      */
-    var h = Math.round(Math.max(240, Math.min(430, w / 3.1)));
+    var h = Math.round(Math.max(200, Math.min(360, w / 4.2)));
     if (!w || !h) return false;
     stage.style.height = h + 'px';
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
+    /* An orthographic camera has no aspect property; the frustum takes the ratio. */
+    var aspect = w / h;
 
     /*
-     * FRAMED FROM THE CONTENT'S BOUNDING BOX, not from a guessed distance. The
-     * first version placed the camera from spanX alone and looked down at a
-     * steep angle, which flattened the lanes into a thin band across the middle
-     * of an otherwise empty stage: thirty-one histories reading as a scatter of
-     * dots. Solving the box against both frustum planes fills the frame and
-     * keeps the depth legible as depth.
-     */
-    /*
-     * FITTED BY PROJECTING THE BOX, NOT BY A CLOSED FORM OVER A SPHERE.
+     * FITTED BY MEASURING THE CORNERS IN CAMERA SPACE.
      *
-     * The content is 31 lanes wide and a dozen captures deep: a wide, shallow,
-     * flat field. A bounding sphere around that is dominated by its width, and
-     * fitting a sphere satisfies BOTH half-angles, so the narrower one wins and
-     * the camera retreats far enough to waste most of the frame. Measured: the
-     * sphere solution put the camera at 39.6 units when the horizontal extent
-     * only needed about 19, and the graph rendered as a smudge in the middle of
-     * an empty stage.
+     * Under the perspective lens this needed a bisection, because projected
+     * size depends on distance and no closed form over a sphere survives a wide
+     * shallow field: fitting a sphere satisfies both half-angles, the narrower
+     * wins, and the camera retreated to 39.6 units where 19 would do. An
+     * orthographic fit removes the dependency the search was compensating for,
+     * so the frustum is simply set to what the content occupies.
      *
-     * So the eight corners are actually projected and the distance is searched.
-     * Twenty iterations of a bisection is nothing once per layout, and it is
-     * correct for any box, any view angle and any aspect, which the closed form
-     * was not.
+     * STRAIGHT ON AND ABOVE, with no sideways component. An off-axis direction
+     * skews the lane axis, so a wide shallow field lands as a diagonal band
+     * with two corners of the stage empty.
      */
     var centre = bounds.getCenter(new THREE.Vector3());
-    /*
-     * STRAIGHT ON AND ABOVE, with no sideways component. An off-axis direction
-     * skews the lane axis across the frame, so a wide shallow field lands as a
-     * diagonal band with two corners of the stage empty. Square to the lanes,
-     * their width maps to the frame width and the depth recedes upward, which
-     * is the arrangement a 16:9 stage is shaped for.
-     */
     var dir = new THREE.Vector3(0, 0.5, 0.866).normalize();
     var corners = [];
-    var mins = [bounds.min.x - 0.5, bounds.min.y - 0.5, bounds.min.z - 0.5];
-    var maxs = [bounds.max.x + 0.5, bounds.max.y + 0.5, bounds.max.z + 0.5];
+    var mins = [bounds.min.x - 0.6, bounds.min.y - 0.6, bounds.min.z - 0.6];
+    var maxs = [bounds.max.x + 0.6, bounds.max.y + 0.6, bounds.max.z + 0.6];
     for (var cx = 0; cx < 2; cx++) {
       for (var cy = 0; cy < 2; cy++) {
         for (var cz = 0; cz < 2; cz++) {
@@ -588,35 +599,41 @@ function mountGraph(THREE) {
       }
     }
 
-    /* The largest |NDC| any corner reaches at this distance. Under 1 fits. */
-    function worstAt(d) {
-      camera.position.copy(centre).addScaledVector(dir, d);
-      camera.lookAt(centre);
-      camera.near = 0.1;
-      camera.far = d * 4 + 40;
-      camera.updateProjectionMatrix();
-      camera.updateMatrixWorld(true);
-      var worst = 0;
-      for (var i = 0; i < corners.length; i++) {
-        var v = corners[i].clone().project(camera);
-        worst = Math.max(worst, Math.abs(v.x), Math.abs(v.y));
-      }
-      return worst;
-    }
+    var span = bounds.min.distanceTo(bounds.max);
+    var back = span * 2 + 20;
+    camera.position.copy(centre).addScaledVector(dir, back);
+    camera.lookAt(centre);
+    camera.updateMatrixWorld(true);
 
-    var lo = 1;
-    var hi = 400;
-    for (var it = 0; it < 22; it++) {
-      var mid = (lo + hi) / 2;
-      if (worstAt(mid) > 0.97) lo = mid;
-      else hi = mid;
+    var inv = camera.matrixWorldInverse;
+    var minX = Infinity;
+    var maxX = -Infinity;
+    var minY = Infinity;
+    var maxY = -Infinity;
+    for (var i = 0; i < corners.length; i++) {
+      var v = corners[i].clone().applyMatrix4(inv);
+      minX = Math.min(minX, v.x);
+      maxX = Math.max(maxX, v.x);
+      minY = Math.min(minY, v.y);
+      maxY = Math.max(maxY, v.y);
     }
-    var dist = hi;
-    worstAt(dist);
-    /* Fog tied to the fitted distance rather than to fixed world units, or it
-     * either does nothing or swallows the whole graph as the box changes. */
-    scene.fog.near = dist * 0.55;
-    scene.fog.far = dist * 1.75;
+    var halfW = (maxX - minX) / 2;
+    var halfH = (maxY - minY) / 2;
+    /* Widen the short axis so the content is contained and centred rather than
+     * stretched to the stage's shape. */
+    if (halfW / halfH < aspect) halfW = halfH * aspect;
+    else halfH = halfW / aspect;
+    var midX = (minX + maxX) / 2;
+    var midY = (minY + maxY) / 2;
+    camera.left = midX - halfW * 1.04;
+    camera.right = midX + halfW * 1.04;
+    camera.top = midY + halfH * 1.04;
+    camera.bottom = midY - halfH * 1.04;
+    camera.near = 0.1;
+    camera.far = back + span * 3;
+    camera.updateProjectionMatrix();
+    scene.fog.near = back - span * 0.4;
+    scene.fog.far = back + span * 0.85;
     return true;
   }
 
@@ -646,6 +663,261 @@ function mountGraph(THREE) {
   if (!fit()) return;
   draw();
   stage.classList.add('is-mounted');
+  /*
+   * FIT AGAIN ONCE IT IS ACTUALLY LAID OUT.
+   *
+   * The first fit runs while the stage is still display:none, because
+   * is-mounted is what reveals it and is-mounted is only earned by a frame
+   * existing. Measurements taken then describe a box the layout engine has not
+   * resolved, so the frame that gets revealed was fitted to the wrong one: the
+   * camera frustum read correctly at 52 units wide while the content rendered
+   * 134px into a 1030px canvas. Re-fitting on the next frame, when the element
+   * is in flow, is the cheap and correct half of the deadlock this pattern
+   * created.
+   */
+  requestAnimationFrame(function () {
+    if (fit()) draw();
+  });
+}
+
+
+/* ===========================================================================
+ * THE THREAD FIELD
+ *
+ * The front door shows twelve threads as a wall. This page has all of them, and
+ * showing a list where the wall was is the reason it read as the plain sibling
+ * of a page with a 3D front door.
+ *
+ * ONE BLOCK PER THREAD, HEIGHT BY WHAT THE ARCHIVE HOLDS. That is the only
+ * quantity here worth encoding in a shape: a thread with 110 events IS the
+ * archive's deepest subject, and a skyline says that faster than a sorted
+ * column of numbers. No text on the blocks, because 164 labels at this size
+ * would be an atlas larger than the library that draws it, and the table below
+ * carries every name.
+ * =========================================================================== */
+
+function mountField(THREE) {
+  var stage = document.querySelector('[data-field-stage]');
+  var island = document.querySelector('[data-field-threads]');
+  if (!stage || !island) return;
+
+  var rows;
+  try {
+    rows = JSON.parse(island.textContent || '[]');
+  } catch (err) {
+    return;
+  }
+  if (!rows.length) return;
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setClearColor(new THREE.Color(0.019, 0.019, 0.021), 1);
+  var canvas = renderer.domElement;
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.setAttribute('tabindex', '-1');
+  stage.appendChild(canvas);
+
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x121215, 20, 90);
+  /*
+   * ORTHOGRAPHIC, NOT PERSPECTIVE.
+   *
+   * This is a chart: its whole job is comparing block heights. Under a
+   * perspective lens the far rows both recede AND shrink, so the blocks a
+   * reader most wants to compare become the hardest to see, and a difference in
+   * height is indistinguishable from a difference in distance. An orthographic
+   * camera keeps a block at the back exactly the size of one at the front,
+   * which is why architectural and isometric drawings use it, and it keeps the
+   * dimensional read without lying about magnitude.
+   */
+  var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 400);
+
+  scene.add(new THREE.AmbientLight(0x1c1c24, 2.6));
+  var key = new THREE.DirectionalLight(0xff8a3a, 3.0);
+  key.position.set(-0.5, 1, 0.6);
+  scene.add(key);
+  var rim = new THREE.DirectionalLight(0x46527c, 1.4);
+  rim.position.set(0.85, 0.2, 0.5);
+  scene.add(rim);
+
+  /*
+   * A near-square grid, so the field reads as a city rather than as a queue.
+   * Rows run back into depth in the order the page lists them, which is most
+   * recently active first, so the front row is the live edge of the archive.
+   */
+  var COLS = Math.max(8, Math.round(Math.sqrt(rows.length * 2.2)));
+  var GAP = 1.34;
+  var maxItems = 1;
+  for (var i = 0; i < rows.length; i++) maxItems = Math.max(maxItems, rows[i].items || 1);
+
+  var geo = new THREE.BoxGeometry(1, 1, 1);
+  var mat = new THREE.MeshStandardMaterial({
+    color: 0x8f3d0b,
+    roughness: 0.46,
+    metalness: 0.18,
+    emissive: 0xff6a00,
+    emissiveIntensity: 0.14,
+  });
+  var mesh = new THREE.InstancedMesh(geo, mat, rows.length);
+  mesh.frustumCulled = false;
+
+  var dummy = new THREE.Object3D();
+  var colour = new THREE.Color();
+  var bounds = new THREE.Box3();
+  var spanX = (COLS - 1) * GAP;
+
+  for (var n = 0; n < rows.length; n++) {
+    var col = n % COLS;
+    var row = Math.floor(n / COLS);
+    /* Cube root for the same reason the wire's studs use one: counts run 1 to
+     * 110 and a linear height would flatten everything except the top few. */
+    var t = Math.pow((rows[n].items || 1) / maxItems, 1 / 3);
+    var h = 0.5 + 7.5 * t;
+    dummy.position.set(col * GAP - spanX / 2, h / 2, -row * GAP);
+    dummy.scale.set(0.82, h, 0.82);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(n, dummy.matrix);
+    /* Hotter with height, so the deepest subjects read at a glance. */
+    colour.setRGB(1, 0.24 + 0.26 * t, 0.02 + 0.06 * t);
+    mesh.setColorAt(n, colour);
+    bounds.expandByPoint(new THREE.Vector3(dummy.position.x, h, dummy.position.z));
+    bounds.expandByPoint(new THREE.Vector3(dummy.position.x, 0, dummy.position.z));
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  scene.add(mesh);
+
+  /*
+   * A ground the blocks stand on, so they read as standing rather than floating.
+   * MeshBasicMaterial, not Standard: a lit plane under a warm key turned into a
+   * bright wedge that read as a spill rather than as a floor, and this surface
+   * has no business catching light. It is a shadow, not a stage.
+   */
+  var depth = Math.ceil(rows.length / COLS) * GAP;
+  var ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(spanX + 6, depth + 6),
+    new THREE.MeshBasicMaterial({ color: 0x0a0a0c }),
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.set(0, 0, -depth / 2 + GAP / 2);
+  scene.add(ground);
+
+  function fit() {
+    var host = stage.parentElement;
+    var w = host ? host.clientWidth : 0;
+    var h = Math.round(Math.max(260, Math.min(460, w / 2.4)));
+    if (!w || !h) return false;
+    stage.style.height = h + 'px';
+    renderer.setSize(w, h, false);
+    /* An orthographic camera has no aspect property; the frustum below is
+     * widened to this ratio instead. */
+    var aspect = w / h;
+
+    /*
+     * An orthographic fit is exact and needs no search: put the camera far
+     * enough back to clear the content, then measure the corners in CAMERA
+     * SPACE and set the frustum to what they occupy. The bisection the
+     * perspective version needed was only ever compensating for the fact that
+     * projected size depends on distance, which is the property being removed.
+     */
+    var centre = bounds.getCenter(new THREE.Vector3());
+    var corners = [];
+    for (var cx = 0; cx < 2; cx++) {
+      for (var cy = 0; cy < 2; cy++) {
+        for (var cz = 0; cz < 2; cz++) {
+          corners.push(
+            new THREE.Vector3(
+              cx ? bounds.max.x + 1 : bounds.min.x - 1,
+              cy ? bounds.max.y + 1.2 : bounds.min.y,
+              cz ? bounds.max.z + 1 : bounds.min.z - 1,
+            ),
+          );
+        }
+      }
+    }
+    var span = bounds.min.distanceTo(bounds.max);
+    var dir = new THREE.Vector3(0.12, 0.44, 0.89).normalize();
+    var back = span * 2 + 20;
+    camera.position.copy(centre).addScaledVector(dir, back);
+    camera.lookAt(centre);
+    camera.updateMatrixWorld(true);
+
+    var inv = camera.matrixWorldInverse;
+    var minX = Infinity;
+    var maxX = -Infinity;
+    var minY = Infinity;
+    var maxY = -Infinity;
+    for (var i = 0; i < corners.length; i++) {
+      var v = corners[i].clone().applyMatrix4(inv);
+      minX = Math.min(minX, v.x);
+      maxX = Math.max(maxX, v.x);
+      minY = Math.min(minY, v.y);
+      maxY = Math.max(maxY, v.y);
+    }
+    var halfW = (maxX - minX) / 2;
+    var halfH = (maxY - minY) / 2;
+    /* Widen whichever axis is short, so the content is contained and centred
+     * rather than stretched to the stage's aspect. */
+    if (halfW / halfH < aspect) halfW = halfH * aspect;
+    else halfH = halfW / aspect;
+    var midX = (minX + maxX) / 2;
+    var midY = (minY + maxY) / 2;
+    var pad = 1.04;
+    camera.left = midX - halfW * pad;
+    camera.right = midX + halfW * pad;
+    camera.top = midY + halfH * pad;
+    camera.bottom = midY - halfH * pad;
+    camera.near = 0.1;
+    camera.far = back + span * 3;
+    camera.updateProjectionMatrix();
+    /* Fog keyed to the content's own depth, not the camera's standoff, which is
+     * now arbitrary. */
+    scene.fog.near = back - span * 0.35;
+    scene.fog.far = back + span * 0.75;
+    return true;
+  }
+
+  function draw() {
+    renderer.render(scene, camera);
+  }
+
+  var queued = false;
+  function onResize() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () {
+      queued = false;
+      if (fit()) draw();
+      else stage.classList.remove('is-mounted');
+    });
+  }
+  window.addEventListener('resize', onResize);
+
+  canvas.addEventListener('webglcontextlost', function (ev) {
+    ev.preventDefault();
+    window.removeEventListener('resize', onResize);
+    stage.classList.remove('is-mounted');
+    if (canvas.parentNode === stage) stage.removeChild(canvas);
+  });
+
+  if (!fit()) return;
+  draw();
+  stage.classList.add('is-mounted');
+  /*
+   * FIT AGAIN ONCE IT IS ACTUALLY LAID OUT.
+   *
+   * The first fit runs while the stage is still display:none, because
+   * is-mounted is what reveals it and is-mounted is only earned by a frame
+   * existing. Measurements taken then describe a box the layout engine has not
+   * resolved, so the frame that gets revealed was fitted to the wrong one: the
+   * camera frustum read correctly at 52 units wide while the content rendered
+   * 134px into a 1030px canvas. Re-fitting on the next frame, when the element
+   * is in flow, is the cheap and correct half of the deadlock this pattern
+   * created.
+   */
+  requestAnimationFrame(function () {
+    if (fit()) draw();
+  });
 }
 
 function boot() {
@@ -664,6 +936,11 @@ function boot() {
       mountGraph(parts[0]);
     } catch (err) {
       /* The changelog's tables are untouched and are the page. */
+    }
+    try {
+      mountField(parts[0]);
+    } catch (err) {
+      /* The thread tables are untouched and are the page. */
     }
   }, function () {});
 }

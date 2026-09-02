@@ -726,8 +726,20 @@ describe('the capture graph', () => {
   });
 
   it('draws one lane per source and one node per commit', () => {
-    expect(WALL_JS).toContain('laneOf[srcName] = lanes.length');
+    expect(WALL_JS).toContain('var laneOf = {};');
     expect(WALL_JS).toContain('new THREE.InstancedMesh(nodeGeo, nodeMat, nodes.length)');
+  });
+
+  /**
+   * Lanes in first-seen order looked arbitrary and framed badly: the sources
+   * that appear first also capture most often, so every long lane bunched left
+   * and the whole top right of the stage stayed empty. Sorting by activity and
+   * dealing outward from the centre puts the mass in the middle. It is only an
+   * ORDERING: no lane is resized, merged or dropped.
+   */
+  it('arranges lanes as a ridgeline, busiest in the middle', () => {
+    expect(WALL_JS).toContain('if (b % 2 === 0) lanes.push(byActivity[b]);');
+    expect(WALL_JS).toContain('else lanes.unshift(byActivity[b]);');
   });
 
   /**
@@ -747,14 +759,36 @@ describe('the capture graph', () => {
    * units where the horizontal extent needed about 19, and the graph rendered
    * as a smudge in an empty stage.
    */
-  it('frames by searching a distance that actually fits the projected corners', () => {
-    expect(WALL_JS).toContain('corners[i].clone().project(camera)');
-    expect(WALL_JS).toContain('if (worstAt(mid) > 0.97) lo = mid;');
+  /**
+   * ORTHOGRAPHIC. This is a chart, and under a perspective lens a lane at the
+   * back both recedes and shrinks, so a short near lane and a long far one look
+   * alike: exactly the comparison the picture exists to support. The fit is
+   * then exact and needs no search, because projected size no longer depends on
+   * distance, which is all the bisection was ever compensating for.
+   */
+  it('projects orthographically, so depth cannot pass for magnitude', () => {
+    const cameras = [...WALL_JS.matchAll(/new THREE\.(\w+)Camera\(/g)].map((m) => m[1]);
+    /* Three data scenes are orthographic; only the front door's wall is not. */
+    expect(cameras.filter((c) => c === 'Orthographic').length).toBe(3);
+  });
+
+  it('sets the frustum from the corners measured in camera space', () => {
+    expect(WALL_JS).toContain('corners[i].clone().applyMatrix4(inv)');
+    expect(WALL_JS).toContain('camera.left = midX - halfW');
+  });
+
+  /**
+   * The first fit runs while the stage is display:none, because is-mounted is
+   * what reveals it and is-mounted is only earned by a frame existing. The
+   * frame that got revealed was therefore fitted to an unresolved box.
+   */
+  it('fits again on the next frame, once the stage is actually laid out', () => {
+    expect(WALL_JS).toContain('requestAnimationFrame(function () {\n    if (fit()) draw();');
   });
 
   /** A 5:1 field in a 1.9:1 box leaves half the stage empty whatever the camera does. */
   it('shapes the stage to the data rather than to the viewport', () => {
-    expect(WALL_JS).toContain('Math.max(240, Math.min(430, w / 3.1))');
+    expect(WALL_JS).toContain('Math.max(200, Math.min(360, w / 4.2))');
   });
 
   it('squares the camera to the lanes, so a wide field is not a diagonal band', () => {
@@ -772,8 +806,8 @@ describe('the capture graph', () => {
  * capture graph never ran.
  */
 describe('the scenes are gated independently', () => {
-  it('boots when any one of the three scenes is present', () => {
-    expect(WALL_JS).toContain('if ((hasWall || hasWire || hasGraph) && wide() && webgl())');
+  it('boots when any one of the four scenes is present', () => {
+    expect(WALL_JS).toContain('if ((hasWall || hasWire || hasGraph || hasField) && wide() && webgl())');
   });
 
   it('still refuses to mount the wall when the wall is not on the page', () => {

@@ -922,15 +922,33 @@ ${rows.map(threadRowHtml).join('\n')}
       ? '<p class="note">No event was held. Every derived event attached to at least one entity.</p>'
       : `<ol class="events">\n${set.held.map((e) => feedItemHtml(e, 1)).join('\n')}\n</ol>`;
 
+  /*
+   * THE FIELD'S DATA. Every thread, not the twelve the front door shows: the
+   * point of this page is that it is the complete one, and a reader arriving
+   * from a wall of twelve should meet the whole archive here.
+   */
+  const field = set.threads.map((t) => ({
+    label: t.entity.label,
+    kind: t.entity.kind,
+    items: t.events.length,
+  }));
+
   const body = `<p class="eyebrow">Threads</p>
 <h1>Entity threads</h1>
 <p class="lede">${plural(set.threads.length, 'thread')} carrying ${plural(totalEvents, 'event attachment')}, most recently active first. An event attaches to every entity it names, so one price change appears on the model's thread and on its lab's.</p>
+<div class="panel graph-panel">
+<h2>Every thread the archive holds</h2>
+<div class="graph-stage" data-field-stage></div>
+<p class="note">One block per thread, ${formatInt(set.threads.length)} in all, tallest where the archive holds most. The front door shows twelve; this is the rest of them. Where this browser cannot draw it, the tables below are the same data.</p>
+</div>
 ${sections}
 <section class="day">
 <h2>Held</h2>
 <p class="note">${plural(set.held.length, 'event')} could not be attached to an entity mechanically, and nothing here guesses. They keep their place in the stream and on their micro-category page; what they lack is a thread to accrete onto.</p>
 ${held}
-</section>`;
+</section>
+<script type="application/json" data-field-threads>${jsonIsland(field)}</script>
+<script type="module" src="${links(1).up}${WALL_JS_PATH}"></script>`;
   return layout({
     title: 'Threads - llm-catalog-archive',
     depth: 1,
