@@ -604,6 +604,262 @@ footer.site-foot a { color: var(--text-dim); }
 }
 .wall-stage canvas { display: block; width: 100%; height: 100%; }
 
+
+/* ===========================================================================
+ * THE WIRE
+ *
+ * Git history is this project's database, so the stream is drawn as a conductor
+ * with the CAPTURES as nodes on it. The device is structural rather than
+ * decorative: a node is a commit and a source, which is the key every claim here
+ * is addressed by, and the distance between two nodes is how much that capture
+ * actually changed. A busy capture clusters, a quiet one leaves the wire bare,
+ * and the page's rhythm becomes the archive's rhythm instead of a constant.
+ *
+ * Depth comes from lighting a 2px conductor rather than from a second WebGL
+ * scene. The front door already spends the page's 3D budget, and a canvas down
+ * here would compete with it and cost every reader another 700 KB.
+ * =========================================================================== */
+.wire {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 34px;
+  position: relative;
+}
+.wire::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--orange) 0%, #6b3410 14%, var(--line) 46%, var(--line) 100%);
+  box-shadow: 0 0 0 1px #000, 1px 0 0 rgba(255, 255, 255, 0.045), -1px 0 6px rgba(255, 106, 0, 0.16);
+}
+
+.capture { position: relative; margin: 0 0 34px; }
+.capture:last-child { margin-bottom: 0; }
+
+/* The stud. A bevel, a core and a cast shadow, so it reads as sitting ON the
+ * conductor rather than beside it. */
+.capture::before {
+  content: "";
+  position: absolute;
+  left: -30px;
+  top: 7px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffb680 0%, var(--orange) 42%, #7a3100 100%);
+  box-shadow:
+    0 0 0 3px var(--void),
+    0 0 0 4px #3a1c07,
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(255, 106, 0, 0.4);
+}
+
+.capture-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+/* The sha at display size, because it is the archive's primary key and not a
+ * footnote. Printing it small was the page treating its own evidence as fine
+ * print. */
+.capture-sha {
+  font-family: var(--mono);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.capture-sha:hover { border-bottom-color: var(--orange); color: var(--orange); }
+.capture-source { font-family: var(--mono); font-size: 12px; color: var(--orange); text-decoration: none; }
+.capture-source:hover { text-decoration: underline; }
+.capture-when { font-family: var(--mono); font-size: 12px; color: var(--text-faint); margin-left: auto; }
+.capture-more { font-size: 12px; color: var(--text-faint); margin: 12px 0 0; }
+
+/* ---- dispatches: the things a person came to read --------------------- */
+.dispatches { list-style: none; margin: 0; padding: 0; }
+.dispatch { margin: 0 0 20px; }
+.dispatch:last-child { margin-bottom: 0; }
+.dispatch-claim {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 21px;
+  line-height: 1.34;
+  letter-spacing: -0.011em;
+  margin: 10px 0 8px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  max-width: 62ch;
+}
+.dispatch-meta { font-family: var(--mono); font-size: 12px; color: var(--text-faint); margin: 0; }
+/*
+ * A QUOTED URL IS NOT A HEADLINE. The claim sentences are verbatim and must
+ * stay that way, but several of them end in a quoted https:// run, and setting
+ * that in 21px display type made the dispatch read as a broken headline. The
+ * TEXT is unchanged; only its typography is, which is the same licence the
+ * rendered diff takes when it masks an address.
+ */
+.dispatch-claim .url {
+  font-family: var(--mono);
+  font-size: 0.66em;
+  font-weight: 400;
+  color: var(--text-dim);
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ===========================================================================
+ * THE TAPE
+ *
+ * 207 of 391 items are price movements. As cards they were what made the page
+ * feel infinite, and they also said each one was a story, which is false: a
+ * listed price moving is telemetry. One capture's movements collapse into a
+ * monospace tape, many rows in the height one card used, carrying both of the
+ * artifact's own numbers and the direction between them.
+ *
+ * Inset rather than raised: a readout recessed into the page, which is the one
+ * surface here that is not a card.
+ * =========================================================================== */
+.tape {
+  margin: 4px 0 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #08080a 0%, var(--panel-0) 100%);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(255, 255, 255, 0.015);
+  overflow-x: auto;
+}
+/*
+ * FIXED LAYOUT, and the model column is the one allowed to give way. The first
+ * build let the subject column size to its content, which pushed the two
+ * columns that carry the actual payload, the new value and the change, off the
+ * right edge behind an overflow scroll. A tape whose numbers are off-screen is
+ * a worse card.
+ */
+.tape table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.tape col.c-field { width: 26%; }
+.tape col.c-from, .tape col.c-to { width: 26%; }
+.tape col.c-arrow { width: 6%; }
+.tape col.c-pct { width: 17%; }
+.tape caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: 8px 14px 12px;
+  font-family: var(--body);
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+.tape thead th {
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.tape td {
+  padding: 7px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.032);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The id is the row's subject, so it keeps its full value in the title even
+ * when the column clips it. */
+/* The model id, said once for the whole group. */
+.tape-model th {
+  text-align: left;
+  padding: 12px 14px 5px;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--text);
+  border-bottom: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.tape tbody tr.tape-model:first-child th { padding-top: 8px; }
+.tape-row td:first-child { padding-left: 26px; }
+.tape tbody tr:last-child td { border-bottom: 0; }
+.tape tbody tr:hover td { background: rgba(255, 106, 0, 0.045); }
+
+.tape-field { color: var(--text-faint); }
+.tape-from { color: var(--text-faint); }
+.tape-to { color: var(--text); }
+/* No ellipsis here: the cell holds one glyph, and text-overflow was appending
+ * a "…" to it, so the tape read "▼…" on every row. */
+.tape-arrow {
+  padding: 7px 4px;
+  color: var(--text-faint);
+  overflow: visible;
+  text-overflow: clip;
+  text-align: center;
+}
+.tape-pct { text-align: right; color: var(--text-dim); }
+/*
+ * Direction is carried by the glyph and by WEIGHT, not by a second hue. The
+ * palette is one live colour on black on purpose, and a green-and-red tape
+ * would break it and would also be the first thing on this site to encode
+ * meaning in colour alone.
+ */
+.tape-up .tape-arrow, .tape-up .tape-pct { color: var(--orange); }
+.tape-down .tape-arrow, .tape-down .tape-pct { color: var(--text-dim); }
+
+/* ---- the day mark ------------------------------------------------------ */
+.day-mark {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.day-mark::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+@media (prefers-reduced-motion: reduce) {
+  .capture::before { box-shadow: 0 0 0 3px var(--void), 0 0 0 4px #3a1c07; }
+}
+
+@media (max-width: 640px) {
+  .wire { padding-left: 24px; }
+  .capture::before { left: -22px; }
+  .dispatch-claim { font-size: 18px; }
+  .capture-sha { font-size: 16px; }
+  .capture-when { margin-left: 0; }
+}
+
+
+/*
+ * THE RESPONSIVE FLOOR. Long values here are catalogue ids, model names and
+ * URLs, none of which contain spaces, so anything that renders one has to be
+ * told it may break inside a word. Measured at 375px before this: the body
+ * scrolled to 629px, from the headline rows, the entity chips and inline code.
+ */
+.chip, .chips a, code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.chip { display: inline-flex; flex-wrap: wrap; }
+
 .headlines { border-color: var(--line); }
 .headline-list { list-style: none; margin: 0; padding: 0; }
 .headline {
@@ -615,8 +871,19 @@ footer.site-foot a { color: var(--text-dim); }
   border-top: 1px solid var(--line);
 }
 .headline:first-child { border-top: 0; }
-.headline-claim { flex: 1 1 24ch; color: var(--text); }
+/*
+ * min-width:0 is the load-bearing half. A flex item defaults to min-width:auto,
+ * so a long sentence refuses to shrink below its content and pushes the row
+ * wider than the viewport: measured at 375px the body scrolled to 629px. The
+ * basis stays generous on wide screens and the row stacks below 560px.
+ */
+.headline-claim { flex: 1 1 24ch; min-width: 0; color: var(--text); overflow-wrap: anywhere; }
 .headline-when { color: var(--text-dim); font-size: 12px; white-space: nowrap; }
+
+@media (max-width: 560px) {
+  .headline { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .headline-claim { flex: 1 1 auto; }
+}
 
 .wall-list {
   list-style: none;

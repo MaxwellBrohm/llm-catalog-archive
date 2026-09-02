@@ -1351,7 +1351,14 @@ export function headlines(feed: readonly FeedItem[], limit: number = HEADLINE_LI
   return out;
 }
 
-export const PER_COMMIT_LIMIT = 4;
+/**
+ * Raised from 4 when the tape arrived. The cap exists so one capture cannot own
+ * the page, and at 4 it was sized for a world where every item was a full card.
+ * A tape row costs a line, so twelve items from one capture is now roughly three
+ * dispatches over a nine-row tape, which reads as one event rather than as a
+ * wall. The cap still bites: the busiest capture in the archive carries forty.
+ */
+export const PER_COMMIT_LIMIT = 12;
 
 export function capPerCommit(
   items: readonly FeedItem[],
@@ -1375,6 +1382,246 @@ export function capPerCommit(
  * item, rather than an empty box claiming there is no news: an empty archive
  * and a quiet week must not render the same.
  */
+/**
+ * THE STREAM, REBUILT AROUND WHAT THE CONTENT ACTUALLY IS.
+ *
+ * WHAT WAS WRONG. Below the front door the page was 103 identical cards: same
+ * border, same padding, same rhythm, one after another for 27,000 pixels. An
+ * outage that took Claude Code down rendered exactly like the two hundredth
+ * price tick of the day. That is not a styling problem, it is a structural one:
+ * the page was treating telemetry and news as the same kind of thing because
+ * they arrive through the same pipe.
+ *
+ * TWO DEVICES, BOTH TRUE TO THE SUBJECT.
+ *
+ * THE WIRE. Git history is literally this project's database, so the stream is
+ * drawn as a conductor with the CAPTURES as nodes on it. That is not
+ * decoration: the node is a commit and a source, which is the primary key every
+ * claim on this site is addressed by, and the pixel distance between two nodes
+ * is how much that capture actually changed. A busy capture clusters; a quiet
+ * one leaves the wire bare. The rhythm of the page becomes the rhythm of the
+ * archive instead of a constant.
+ *
+ * THE TAPE. 207 of 391 items are price changes. Rendered as 207 cards they are
+ * what makes the page feel infinite, and rendering them that way says they are
+ * each a story, which is false: a listed price moving is telemetry. So the
+ * price and context movements of one capture collapse into a monospace tape,
+ * many rows in the height one card used, with both quoted values and the
+ * direction. Nothing is lost or hidden: every one of them keeps its own
+ * addressable row on its uncapped micro-category page, which is the arrangement
+ * the front page's own copy has always described.
+ *
+ * Everything else is a DISPATCH and gets display type and room, because an
+ * announcement, an incident, a leak and a model arriving are the things a
+ * person came to read.
+ */
+const TAPE_TYPES: ReadonlySet<FeedType> = new Set<FeedType>(['price_changed', 'context_changed']);
+
+/** One capture: the items a single commit produced for a single source. */
+type Capture = { sha: string; sourceId: string; items: FeedItem[] };
+
+/**
+ * Consecutive items sharing a commit AND a source, in stream order.
+ *
+ * Consecutive rather than grouped globally, because the stream is chronological
+ * and regrouping it would reorder the page. A source that appears twice in a
+ * day with another source between gets two nodes on the wire, which is what
+ * actually happened.
+ */
+export function capturesOf(items: readonly FeedItem[]): Capture[] {
+  const out: Capture[] = [];
+  for (const item of items) {
+    const last = out[out.length - 1];
+    if (last !== undefined && last.sha === item.sha && last.sourceId === item.sourceId) last.items.push(item);
+    else out.push({ sha: item.sha, sourceId: item.sourceId, items: [item] });
+  }
+  return out;
+}
+
+/**
+ * A price or context move as one tape row: both values as the artifact spelled
+ * them, and the direction between them.
+ *
+ * The percentage is OUR arithmetic over two quoted values, not a third-party
+ * claim, which is why it is not quoted and why it is omitted whenever the
+ * numbers do not support one. `null` on either side, a zero denominator or an
+ * unparseable value all yield no percentage rather than a confident 0%.
+ */
+export function tapeDelta(from: string | null, to: string | null): { dir: '+' | '-' | '=' ; pct: string | null } {
+  if (from === null || to === null) return { dir: '=', pct: null };
+  const a = Number(from);
+  const b = Number(to);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return { dir: '=', pct: null };
+  const dir = b > a ? '+' : b < a ? '-' : '=';
+  if (a === 0 || dir === '=') return { dir, pct: null };
+  const pct = Math.round(Math.abs((b - a) / a) * 100);
+  return { dir, pct: pct === 0 ? null : `${pct}%` };
+}
+
+/** The model, field and both values a tape row shows, read off the event. */
+function tapeCells(item: FeedItem): { subject: string; field: string; from: string | null; to: string | null } {
+  const e = item.event;
+  if (e !== null && e.type === 'price_changed') {
+    return { subject: e.modelId, field: e.field, from: e.from, to: e.to };
+  }
+  if (e !== null && e.type === 'context_changed') {
+    return {
+      subject: e.modelId,
+      field: 'context_length',
+      from: e.from === null ? null : String(e.from),
+      to: e.to === null ? null : String(e.to),
+    };
+  }
+  return { subject: item.id, field: '', from: null, to: null };
+}
+
+function tapeRowHtml(item: FeedItem): string {
+  const { field, from, to } = tapeCells(item);
+  const { dir, pct } = tapeDelta(from, to);
+  const arrow = dir === '+' ? '&#9650;' : dir === '-' ? '&#9660;' : '&middot;';
+  const cls = dir === '+' ? 'up' : dir === '-' ? 'down' : 'flat';
+  return `<tr class="tape-row tape-${cls}" id="${escapeHtml(feedItemAnchor(item))}">
+<td class="tape-field">${escapeHtml(field)}</td>
+<td class="tape-from">${escapeHtml(from ?? 'absent')}</td>
+<td class="tape-arrow" aria-hidden="true">${arrow}</td>
+<td class="tape-to">${escapeHtml(to ?? 'absent')}</td>
+<td class="tape-pct">${pct === null ? '' : escapeHtml(pct)}</td>
+</tr>`;
+}
+
+/**
+ * The tape, GROUPED BY MODEL.
+ *
+ * The first build gave every row its own model column, which repeated the same
+ * identifier three times running and, because those ids are long, squeezed the
+ * two columns carrying the payload until the numbers themselves ellipsised. A
+ * tape that truncates its numbers has lost the plot.
+ *
+ * Grouping states the true shape of a capture: one model, several of its fields
+ * moved. The id is said once, spanning the width, and the fields sit under it
+ * with room for both values in full.
+ */
+function tapeHtml(items: FeedItem[], depth = 0): string {
+  if (items.length === 0) return '';
+  const { up } = links(depth);
+  const groups = new Map<string, FeedItem[]>();
+  for (const item of items) {
+    const { subject } = tapeCells(item);
+    const bucket = groups.get(subject);
+    if (bucket === undefined) groups.set(subject, [item]);
+    else bucket.push(item);
+  }
+  /*
+   * The model name is a LINK to its thread, and that link is load-bearing.
+   * A tape row shows the fields the sentence is built from rather than the
+   * sentence, so without a route back the full claim would only exist on the
+   * micro-category page. The thread carries the sentence, its permalink and
+   * everything else the archive has recorded about that model.
+   */
+  const body = [...groups]
+    .map(([subject, rows]) => {
+      const thread = rows[0]?.entities.find((e) => e.kind === 'model') ?? null;
+      const label = escapeHtml(subject);
+      const head =
+        thread === null
+          ? label
+          : `<a href="${up}threads/${escapeHtml(entitySlug(thread))}.html">${label}</a>`;
+      return `<tr class="tape-model"><th colspan="5" scope="colgroup">${head}</th></tr>
+${rows.map(tapeRowHtml).join('\n')}`;
+    })
+    .join('\n');
+  return `<div class="tape">
+<table>
+<colgroup><col class="c-field"><col class="c-from"><col class="c-arrow"><col class="c-to"><col class="c-pct"></colgroup>
+<caption>${plural(items.length, 'listed value')} moved across ${plural(groups.size, 'model')} in this capture. Both numbers are the artifact's own; the percentage is this page's arithmetic over them. Each model links to its thread, which carries the full sentence and every other item recorded against it.</caption>
+<thead><tr><th>Field</th><th>From</th><th aria-hidden="true"></th><th>To</th><th>Change</th></tr></thead>
+<tbody>
+${body}
+</tbody>
+</table>
+</div>`;
+}
+
+/**
+ * The claim sentence, escaped, with any quoted https:// run marked so the
+ * stylesheet can set it in mono at reading size.
+ *
+ * THE TEXT IS NOT ALTERED. Escaping happens first and the wrapper goes around
+ * the already-escaped run, so nothing is re-encoded and nothing is dropped: a
+ * reader still sees the whole URL and the copy rule's quotes stay exactly where
+ * the deriver put them. Setting a raw URL in 21px display type was making a
+ * dispatch read as a broken headline.
+ */
+export function claimHtml(sentence: string): string {
+  return escapeHtml(sentence).replace(
+    /&quot;(https?:\/\/[^\s&]*)&quot;/g,
+    (_m, url: string) => `&quot;<span class="url">${url}</span>&quot;`,
+  );
+}
+
+/** A headline-shaped item: display type, room, and the evidence under it. */
+function dispatchHtml(item: FeedItem, depth: number): string {
+  const { up } = links(depth);
+  const permalink = artifactPermalink(item.sha, item.path);
+  const facts = item.event !== null ? eventFactsHtml(item.event) : item.leak !== null ? leakFactsHtml(item.leak) : '';
+  const confirm = item.leak === null ? '' : confirmationHtml(item.leak);
+  const tier =
+    item.tier === null
+      ? ''
+      : ` <span class="badge badge-tier badge-${escapeHtml(item.tier)}">${escapeHtml(item.tier)}</span>`;
+  return `<li class="dispatch" id="${escapeHtml(feedItemAnchor(item))}">
+<a class="badge badge-type" href="${up}${typePagePath(item.type)}">${escapeHtml(item.type)}</a>${tier}
+<p class="dispatch-claim">${claimHtml(item.sentence)}</p>
+<p class="dispatch-meta">${stampHtml(item.stamp)} &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
+${entityChips(item, depth)}
+${facts}
+${confirm}
+</li>`;
+}
+
+/**
+ * One node on the wire. The sha is set at display size in the mono face because
+ * it is the archive's primary key, not a footnote: every claim here is
+ * addressed by it, and printing it small was the page pretending its own
+ * evidence was fine print.
+ */
+function captureHtml(capture: Capture, depth: number, heldBack = 0): string {
+  const { up } = links(depth);
+  const tapeItems = capture.items.filter((i) => TAPE_TYPES.has(i.type));
+  const dispatches = capture.items.filter((i) => !TAPE_TYPES.has(i.type));
+  const stamp = capture.items[0]?.stamp ?? null;
+  return `<li class="capture">
+<div class="capture-head">
+<a class="capture-sha" href="${up}${changePagePath(capture.sha)}">${escapeHtml(capture.sha.slice(0, 7))}</a>
+<a class="capture-source" href="${up}${sourcePagePath(capture.sourceId)}">${escapeHtml(capture.sourceId)}</a>
+<span class="capture-when">${stampHtml(stamp)}</span>
+</div>
+${dispatches.length === 0 ? '' : `<ol class="dispatches">\n${dispatches.map((i) => dispatchHtml(i, depth)).join('\n')}\n</ol>`}
+${tapeHtml(tapeItems, depth)}
+${
+  heldBack === 0
+    ? ''
+    : `<p class="capture-more">${plural(heldBack, 'further item')} from this capture is not shown here. The <a href="${up}${sourcePagePath(capture.sourceId)}">source</a> and the micro-category pages are uncapped.</p>`
+}
+</li>`;
+}
+
+/** A day of the stream, drawn on the wire. */
+function dayHtml(
+  day: string,
+  items: FeedItem[],
+  depth: number,
+  heldBack: ReadonlyMap<string, number> = new Map(),
+): string {
+  const captures = capturesOf(items);
+  return `<section class="day">
+<h2 class="day-mark"><span>${escapeHtml(day)}</span></h2>
+<ol class="wire">
+${captures.map((c) => captureHtml(c, depth, heldBack.get(`${c.sha}\u0000${c.sourceId}`) ?? 0)).join('\n')}
+</ol>
+</section>`;
+}
+
 function headlineStripHtml(feed: readonly FeedItem[]): string {
   const items = headlines(feed);
   if (items.length === 0) return '';
@@ -1404,29 +1651,8 @@ export function renderEverythingPage(
   const shown = spread.slice(0, limit);
   const heldBackTotal = [...heldBack.values()].reduce((n, v) => n + v, 0);
 
-  /** The last item shown from a commit carries the note about its siblings. */
-  const lastOfCommit = new Map<string, string>();
-  for (const item of shown) lastOfCommit.set(`${item.sha}\u0000${item.sourceId}`, item.id);
-
   const days = feedByDay(shown)
-    .map(
-      (g) => `<section class="day">
-<h2>${escapeHtml(g.day)}</h2>
-<ol class="events">
-${g.items
-  .map((i) => {
-    const key = `${i.sha}\u0000${i.sourceId}`;
-    const more = heldBack.get(key) ?? 0;
-    const note =
-      more > 0 && lastOfCommit.get(key) === i.id
-        ? `\n<li class="event note-more"><p class="note">${plural(more, 'further item')} from this same capture of <a href="${sourcePagePath(i.sourceId)}">${escapeHtml(i.sourceId)}</a>, on <a href="${changePagePath(i.sha)}">${escapeHtml(i.sha.slice(0, 7))}</a>. The front page shows at most ${PER_COMMIT_LIMIT} per capture so one busy commit cannot fill it; the micro-category pages are uncapped.</p></li>`
-        : '';
-    return feedItemHtml(i, 0) + note;
-  })
-  .join('\n')}
-</ol>
-</section>`,
-    )
+    .map((g) => dayHtml(g.day, g.items, 0, heldBack))
     .join('\n');
 
   const capped =

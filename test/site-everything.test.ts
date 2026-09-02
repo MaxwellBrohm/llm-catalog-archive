@@ -20,6 +20,9 @@ import {
   capPerCommit,
   PER_COMMIT_LIMIT,
   headlines,
+  capturesOf,
+  tapeDelta,
+  claimHtml,
   renderEverythingPage,
   renderLabPage,
   renderTypePage,
@@ -106,11 +109,11 @@ describe('renderEverythingPage', () => {
   });
 
   it('files each item under the UTC day of the timestamp it shows', () => {
-    expect(renderEverythingPage(FEED, THREADS)).toContain('<h2>2026-08-28</h2>');
+    expect(renderEverythingPage(FEED, THREADS)).toContain('<h2 class="day-mark"><span>2026-08-28</span></h2>');
   });
 
   it('gives an older day its own heading', () => {
-    expect(renderEverythingPage(FEED, THREADS)).toContain('<h2>2026-08-26</h2>');
+    expect(renderEverythingPage(FEED, THREADS)).toContain('<h2 class="day-mark"><span>2026-08-26</span></h2>');
   });
 
   it('puts the newer day above the older one', () => {
@@ -120,7 +123,7 @@ describe('renderEverythingPage', () => {
 
   it('files an item with no timestamp under its own heading rather than a wrong day', () => {
     const feed = buildFeed([event({ stamp: null })], []);
-    expect(renderEverythingPage(feed)).toContain('<h2>no timestamp recorded</h2>');
+    expect(renderEverythingPage(feed)).toContain('<h2 class="day-mark"><span>no timestamp recorded</span></h2>');
   });
 
   it('counts the items it derived from', () => {
@@ -241,7 +244,8 @@ describe('the front page cap', () => {
   );
 
   it('stops at the limit it was given', () => {
-    expect(renderEverythingPage(many, THREADS, 2).match(/class="claim"/g)).toHaveLength(2);
+    // These are model_added events, so on the new stream they are dispatches.
+    expect(renderEverythingPage(many, THREADS, 2).match(/class="dispatch-claim"/g)).toHaveLength(2);
   });
 
   /**
@@ -636,7 +640,7 @@ describe('the day buckets on the front page', () => {
   );
 
   it('gives two items of one day a single heading', () => {
-    expect(renderEverythingPage(sameDay).match(/<h2>2026-08-28<\/h2>/g)).toHaveLength(1);
+    expect(renderEverythingPage(sameDay).match(/<span>2026-08-28<\/span>/g)).toHaveLength(1);
   });
 
   // A bucket that was replaced rather than appended to would print only the
@@ -1109,9 +1113,11 @@ describe('capPerCommit', () => {
 });
 
 describe('the front page after capping', () => {
-  /** 12 price changes from one capture, then one launch from the next. */
+  /** 20 price changes from one capture, past the per-capture cap, then one
+   * launch from the next. 20 rather than 12 because the cap rose when the tape
+   * made density cheap. */
   const many: FeedItem[] = [
-    ...Array.from({ length: 12 }, (_, i) => ({
+    ...Array.from({ length: 20 }, (_, i) => ({
       ...(FEED[0] as FeedItem),
       id: `${SHA}:price_changed:m${i}`,
       // Explicitly a non-headline type: the headline strip repeats
@@ -1221,7 +1227,11 @@ describe('the front page headline strip', () => {
     ];
     const html = renderEverythingPage(feed, THREADS);
     expect(html).toContain('What happened');
-    expect(html.indexOf('What happened')).toBeLessThan(html.indexOf('a price moved'));
+    // The headline strip carries the incident's sentence; the price change is
+    // in the tape below, which shows the fields the sentence is built from
+    // rather than the sentence itself.
+    expect(html.indexOf('What happened')).toBeLessThan(html.indexOf('class="tape'));
+    expect(html.indexOf('an outage happened')).toBeLessThan(html.indexOf('class="tape'));
   });
 
   /** An empty archive and a quiet week must not render the same. */
@@ -1237,5 +1247,97 @@ describe('the front page headline strip', () => {
       { ...(FEED[0] as FeedItem), id: 'x:incident_opened:1', type: 'incident_opened', sentence: 'an outage' },
     ];
     expect(renderEverythingPage(feed, THREADS)).toContain('includes these again');
+  });
+});
+
+/**
+ * THE WIRE AND THE TAPE.
+ *
+ * Below the front door the page was 103 identical cards, and an outage rendered
+ * exactly like the two hundredth price tick of the day. The stream is now drawn
+ * as captures on a conductor, with telemetry collapsed into a tape and the
+ * things a person came to read given display type.
+ */
+describe('capturesOf', () => {
+  const it_ = (sha: string, sourceId: string, id: string) => ({ sha, sourceId, id }) as never;
+
+  it('groups consecutive items sharing a commit and a source', () => {
+    const g = capturesOf([it_('a', 's', '1'), it_('a', 's', '2'), it_('b', 's', '3')]);
+    expect(g.map((c) => c.items.length)).toEqual([2, 1]);
+  });
+
+  /** One commit can change several sources; those are separate captures. */
+  it('splits one commit across two sources', () => {
+    const g = capturesOf([it_('a', 'catalog', '1'), it_('a', 'docs', '2')]);
+    expect(g).toHaveLength(2);
+  });
+
+  /**
+   * Consecutive, not global. The stream is chronological and regrouping it
+   * would reorder the page, so a source that reappears later gets a second node
+   * on the wire, which is what actually happened.
+   */
+  it('gives a source that reappears a second capture rather than merging it', () => {
+    const g = capturesOf([it_('a', 's', '1'), it_('b', 't', '2'), it_('a', 's', '3')]);
+    expect(g).toHaveLength(3);
+  });
+
+  it('returns nothing for an empty stream', () => {
+    expect(capturesOf([])).toEqual([]);
+  });
+});
+
+describe('tapeDelta', () => {
+  it('reads a fall', () => {
+    expect(tapeDelta('0.00000165', '0.00000095')).toEqual({ dir: '-', pct: '42%' });
+  });
+
+  it('reads a rise, including an exact doubling', () => {
+    expect(tapeDelta('0.00000066', '0.00000132')).toEqual({ dir: '+', pct: '100%' });
+  });
+
+  it('works at the very small magnitudes these prices actually use', () => {
+    expect(tapeDelta('0.000000007', '0.000000014')).toEqual({ dir: '+', pct: '100%' });
+  });
+
+  it('reports no direction and no percentage when a value is absent', () => {
+    expect(tapeDelta(null, '0.001')).toEqual({ dir: '=', pct: null });
+    expect(tapeDelta('0.001', null)).toEqual({ dir: '=', pct: null });
+  });
+
+  /** A confident 0% would be a claim the numbers do not support. */
+  it('refuses a percentage rather than dividing by zero', () => {
+    expect(tapeDelta('0', '0.001')).toEqual({ dir: '+', pct: null });
+  });
+
+  it('refuses a percentage on an unparseable value', () => {
+    expect(tapeDelta('not-a-number', '0.001').pct).toBeNull();
+  });
+
+  it('says flat when nothing moved', () => {
+    expect(tapeDelta('0.5', '0.5')).toEqual({ dir: '=', pct: null });
+  });
+
+  it('rounds away a change too small to show rather than printing 0%', () => {
+    expect(tapeDelta('1000', '1000.4').pct).toBeNull();
+  });
+});
+
+describe('claimHtml', () => {
+  it('sets a quoted URL apart without altering the text', () => {
+    const out = claimHtml('The x index listed a URL: "https://a.test/b".');
+    expect(out).toContain('<span class="url">https://a.test/b</span>');
+    // the quotes the deriver put there survive
+    expect(out).toContain('&quot;<span class="url">');
+  });
+
+  it('escapes before wrapping, so a hostile sentence cannot inject markup', () => {
+    const out = claimHtml('a <script>alert(1)</script> b');
+    expect(out).not.toContain('<script>');
+    expect(out).toContain('&lt;script&gt;');
+  });
+
+  it('leaves a sentence with no URL exactly as escaping left it', () => {
+    expect(claimHtml('The catalog id "a/b" entered.')).toBe('The catalog id &quot;a/b&quot; entered.');
   });
 });
