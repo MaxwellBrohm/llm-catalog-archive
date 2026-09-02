@@ -237,6 +237,42 @@ source with measured sub-daily change; O3 resolves it, provisionally via
 | `together-blog-feed` | `https://www.together.ai/blog/rss.xml` | 100 items, RSS 2.0, 60,580 bytes. An INFERENCE PROVIDER's own announcements, which is a different beat from a lab's: routing, pricing and serving changes are what a developer building on a gateway actually feels. Predicate `extracted`/`feedPosts`. Activation gate passed on two fetches four seconds apart, identical `feedPosts` projection. |
 | `google-blog-feed` | `https://blog.google/technology/ai/rss/` | 20 items, RSS 2.0, 32,235 bytes. Google's product announcements, deliberately separate from `deepmind-blog-feed`, which is research. The same organisation publishes both and they are not the same beat. Predicate `extracted`/`feedPosts`. Activation gate passed. |
 | `aws-blog-feed` | `https://aws.amazon.com/blogs/machine-learning/feed/` | 20 items, RSS 2.0, 620,998 bytes. A PLATFORM feed rather than a lab feed: what a hyperscaler makes available is news a developer building on it needs, and its first item on the day it was added was "Introducing Claude Fable 5.1 on AWS". Predicate `extracted`/`feedPosts`. Activation gate passed. |
+| `mistral-news-feed` | `https://mistral.ai/rss.xml` | **A major lab that was missing because its advertised feed URL is wrong.** `mistral.ai/news/rss.xml` returns 404; the root `rss.xml` serves the same content, found by probing rather than by trusting the documented path. 82 items, RSS 2.0, 22,983 bytes, newest 8 days old, 26-day maximum gap. Predicate `extracted`/`feedPosts`. Activation gate passed. |
+| `ollama-blog-feed` | `https://ollama.com/blog/rss.xml` | **Where a model becomes RUNNABLE LOCALLY**, which is a different fact from a model being announced and the one a developer without a budget acts on. 58 items, RSS 2.0, 28,872 bytes, newest 2 days old. Predicate `extracted`/`feedPosts`. Activation gate passed. |
+| `pytorch-blog-feed` | `https://pytorch.org/blog/feed.xml` | The framework almost all of this is trained and served on. 10 items, RSS 2.0, 174,110 bytes, newest 4 days old with a 7-day maximum gap, the tightest cadence of any source here. Predicate `extracted`/`feedPosts`. Activation gate passed. |
+| `gcloud-blog-feed` | `https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/` | **The AI and machine-learning CATEGORY, not the blog root**, for the same reason `aws-blog-feed` uses `/blogs/machine-learning/`: the root carries database and networking posts, and nothing in the derivation filters a feed by topic. 20 items, RSS 2.0, 547,155 bytes, newest same-day, 4-day maximum gap. Predicate `extracted`/`feedPosts`. Activation gate passed. |
+
+**Forty feed URLs were probed on 2026-09-01 and thirty rejected. Recording the
+rejections so nobody spends the hour again.**
+
+*No feed at the advertised path (HTTP 404):* `ai.meta.com/blog/rss/` and
+`/feed/`, `groq.com/feed/` and `/blog/rss.xml`, `reka.ai/feed/`,
+`databricks.com/blog/rss.xml`, `fireworks.ai/blog/feed.xml` and `/rss.xml`,
+`modal.com/blog/feed.xml` and `/rss.xml`, `blog.vllm.ai/feed.xml` and
+`/index.xml`, `cerebras.ai/blog/rss.xml`, `allenai.org/blog/rss.xml`,
+`bfl.ai/blog/rss.xml`, `runwayml.com/blog/rss.xml`,
+`elevenlabs.io/blog/rss.xml`, `assemblyai.com/blog/rss.xml`,
+`deepgram.com/learn/rss.xml`, `nousresearch.com/feed/`, `lmsys.org/blog/index.xml`
+and `/rss.xml`, `z.ai/blog/rss.xml`, `moonshotai.github.io/feed.xml`,
+`azure.microsoft.com/.../artificial-intelligence/feed/`.
+
+*An HTML single-page app served from an `.xml` or `/rss` address, which is worse
+than a 404 because it returns 200:* `cohere.com/blog/rss.xml` and `/rss`,
+`stability.ai/news?format=rss`, `ai21.com/blog/rss.xml`,
+`yiyan.baidu.com/blog/rss.xml`, `blog.langchain.dev/rss/`, `groq.com/blog/feed`,
+`microsoft.com/en-us/research/research-area/artificial-intelligence/feed/`.
+The health check's `expectedRoot` would catch these on the first fetch, but they
+must not be added on a 200 alone.
+
+*Reachable, real, and rejected on CONTENT rather than availability:*
+`azure.microsoft.com/en-us/blog/feed/` is fresh and well formed but is the whole
+Azure blog: its recent items include "Managed PostgreSQL vs. self-hosted" and
+"Azure Multicloud Interconnect for AWS", and nothing in the derivation filters a
+feed by topic, so adding it would publish database comparisons as AI news.
+`microsoft.com/en-us/research/feed/` is fresh but mixes AI research with
+computational chemistry. `blog.eleuther.ai/index.xml` has a 190-day maximum gap
+and `replicate.com/blog/rss` an 84-day one, both past the point where the
+freshness guard cannot tell slow from dead.
 
 **Two feeds were probed, added, and then REMOVED the same day, which is worth
 recording because the reason is a rule and not a preference.** `qwen-blog-feed`

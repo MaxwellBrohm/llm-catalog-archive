@@ -956,6 +956,154 @@
         "maxShrinkPct": 25
       },
       "notes": "A PLATFORM feed rather than a lab feed, 20 items, RSS 2.0, 620,998 bytes. What a hyperscaler makes available is news a developer building on it needs, and its first item on the day it was added was \"Introducing Claude Fable 5.1 on AWS\". Predicate is extracted/feedPosts and not bytes, and at 621 KB the bytes predicate is wrong here more expensively than anywhere else: the channel re-stamps lastBuildDate on every rebuild, so bytes would commit 621 KB on every run for a feed whose posts had not changed, into a history that is never rewritten. Activation gate passed: identical feedPosts projection across two fetches four seconds apart."
+    },
+    {
+      "id": "mistral-news-feed",
+      "url": "https://mistral.ai/rss.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/mistral-news-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 11491,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "mistral.ai",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "A MAJOR LAB that was missing because its advertised feed URL is wrong: mistral.ai/news/rss.xml returns 404 and the root mistral.ai/rss.xml serves the same content, found by probing rather than by trusting the documented path. 82 items, RSS 2.0, 22,983 bytes, newest 8 days old with a 26-day maximum gap. Carries real release notes: Shieldstral, Robostral Navigate, agentic search. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
+    },
+    {
+      "id": "ollama-blog-feed",
+      "url": "https://ollama.com/blog/rss.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/ollama-blog-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 14436,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "ollama.com",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "WHERE A MODEL BECOMES RUNNABLE LOCALLY, which is a different fact from a model being announced and the one a developer without a budget acts on. 58 items, RSS 2.0, 28,872 bytes, newest 2 days old. Its recent posts are exactly the beat this publication claims: Claude Desktop support, NVIDIA Nemotron 3.5 Lightning, Muse Glimmer from Meta Superintelligence Labs. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
+    },
+    {
+      "id": "pytorch-blog-feed",
+      "url": "https://pytorch.org/blog/feed.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/pytorch-blog-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 87055,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "pytorch.org",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The framework almost all of this is trained and served on, 10 items, RSS 2.0, 174,110 bytes, newest 4 days old with a 7-day maximum gap, the tightest cadence of any source here. Currently conference-heavy, which is seasonal rather than structural. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
+    },
+    {
+      "id": "gcloud-blog-feed",
+      "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/gcloud-blog-feed/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "rss",
+      "invariants": {
+        "minBytes": 273577,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "cloudblog.withgoogle.com",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "feed",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "feedPosts"
+      },
+      "timeoutS": 60,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The AI AND MACHINE LEARNING CATEGORY, not the Google Cloud blog root, for the same reason aws-blog-feed uses /blogs/machine-learning/: the root carries database and networking posts that nothing in the derivation would filter out, and publishing those as AI news is the failure this source list exists to avoid. 20 items, RSS 2.0, 547,155 bytes, newest same-day with a 4-day maximum gap. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
     }
   ]
 }

@@ -273,8 +273,8 @@ describe('the shipped meta/sources.json', () => {
   const shipped = (): SourcesFile =>
     (cached ??= loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8'))));
 
-  it('loads and has all 26 sources', () => {
-    expect(shipped().sources).toHaveLength(26);
+  it('loads and has all 30 sources', () => {
+    expect(shipped().sources).toHaveLength(30);
   });
 
   /**
@@ -337,12 +337,12 @@ describe('the shipped meta/sources.json', () => {
     expect(sourcesForTier(shipped(), 'fast').map((s) => s.id)).toEqual(['openrouter-models']);
   });
 
-  it('hands the collector every one of the twenty-six sources', () => {
+  it('hands the collector every one of the thirty sources', () => {
     const fetched = [
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(26);
+    expect(fetched).toHaveLength(30);
   });
 
   // The filter still filters. With nothing pending in the shipped file the
@@ -376,7 +376,7 @@ describe('the shipped meta/sources.json', () => {
       const m = /^\|\s*`([a-z0-9-]+)`\s*\|\s*`([^`]+)`\s*\|/.exec(line);
       if (m) fromSpec.set(m[1]!, m[2]!);
     }
-    expect(fromSpec.size).toBe(26);
+    expect(fromSpec.size).toBe(30);
 
     const fromTable = new Map(shipped().sources.map((s) => [s.id, s.url]));
     expect(Object.fromEntries(fromTable)).toEqual(Object.fromEntries(fromSpec));
@@ -391,12 +391,16 @@ describe('the shipped meta/sources.json', () => {
       'claude-status',
       'deepmind-blog-feed',
       'deepmind-sitemap',
+      'gcloud-blog-feed',
       'google-blog-feed',
       'huggingface-blog-feed',
+      'mistral-news-feed',
+      'ollama-blog-feed',
       'openai-news-feed',
       'openai-sitemap',
       'openai-status',
       'openrouter-sitemap',
+      'pytorch-blog-feed',
       'together-blog-feed',
       'transformers-pulls',
       'vllm-pulls',
@@ -520,6 +524,10 @@ describe('the shipped meta/sources.json', () => {
       'openai-news-feed': 'feed/30',
       'deepmind-blog-feed': 'feed/30',
       'huggingface-blog-feed': 'feed/30',
+      'gcloud-blog-feed': 'feed/30',
+      'mistral-news-feed': 'feed/30',
+      'ollama-blog-feed': 'feed/30',
+      'pytorch-blog-feed': 'feed/30',
       'aws-blog-feed': 'feed/30',
       'google-blog-feed': 'feed/30',
       'together-blog-feed': 'feed/30',
@@ -558,6 +566,10 @@ describe('the shipped meta/sources.json', () => {
       'openai-news-feed': 'rss',
       'deepmind-blog-feed': 'rss',
       'huggingface-blog-feed': 'rss',
+      'gcloud-blog-feed': 'rss',
+      'mistral-news-feed': 'rss',
+      'ollama-blog-feed': 'rss',
+      'pytorch-blog-feed': 'rss',
       'aws-blog-feed': 'rss',
       'google-blog-feed': 'rss',
       'together-blog-feed': 'rss',
