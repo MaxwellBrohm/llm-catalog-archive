@@ -88,6 +88,7 @@ describe('buildSite: the file set', () => {
       'sources/openai-llms-txt.html',
       'robots.txt',
       'sitemap.xml',
+      'favicon.svg',
       'style.css',
       'threads/index.html',
       'type/alias-retargeted.html',
@@ -193,6 +194,7 @@ describe('buildSite: the file set', () => {
     expect(buildSite([]).map((f) => f.path)).toEqual([
       '.nojekyll',
       'style.css',
+      'favicon.svg',
       'wall.js',
       'filter.js',
       'index.html',

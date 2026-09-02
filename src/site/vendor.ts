@@ -36,6 +36,7 @@
 
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { THREE_CORE_PATH, THREE_MODULE_PATH } from './wall.js';
 import type { SiteFile } from './build.js';
@@ -159,5 +160,27 @@ export function fontVendorFiles(resolve: (id: string) => string = defaultResolve
       );
     }
     return { path: `${FONT_DIR}/${file}`, contents: fs.readFileSync(abs) };
+  });
+}
+
+/**
+ * The raster favicons, read off disk beside the generator.
+ *
+ * COMMITTED, unlike three.js and the typefaces. Those come from node_modules
+ * and are regenerated on every deploy; these are 7 KB of project identity with
+ * no package to install them from, and tools/make-favicons.py rebuilds them
+ * from the same geometry as FAVICON_SVG when the mark changes.
+ */
+const ICON_FILES: readonly string[] = ['favicon.ico', 'apple-touch-icon.png'];
+
+export function iconFiles(dir = path.dirname(fileURLToPath(import.meta.url))): SiteFile[] {
+  return ICON_FILES.map((name) => {
+    const abs = path.join(dir, name);
+    if (!fs.existsSync(abs)) {
+      throw new Error(
+        `${name} is missing from ${dir}; refusing to build a site whose head asks for an icon that is not there (run tools/make-favicons.py)`,
+      );
+    }
+    return { path: name, contents: fs.readFileSync(abs) };
   });
 }

@@ -98,6 +98,7 @@ export function buildSite(
   const files: SiteFile[] = [
     { path: '.nojekyll', contents: '' },
     { path: 'style.css', contents: STYLESHEET },
+    { path: 'favicon.svg', contents: FAVICON_SVG },
     // The front door's browser module. Emitted unconditionally, next to the
     // stylesheet, because it is an asset of the same kind: index.html asks for
     // it by a fixed name, and a name that resolves on some builds and 404s on
@@ -287,6 +288,37 @@ function escapeXml(s: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+/**
+ * THE MARK: the wire, with one lit stud on it.
+ *
+ * Taken from the site's own signature rather than from a letter. The stream is
+ * drawn as a conductor with a node per capture, and that shape survives being
+ * shrunk to 16 pixels in a way a monogram of a hyphenated repository name does
+ * not: a bright vertical with one bead on it is legible as an icon at any size,
+ * and it is the thing this publication actually looks like.
+ *
+ * THREE STUDS, NOT ONE. A single bead on a rail reads as a map pin, which is a
+ * mark about a place; this publication is about a sequence. Three, decreasing
+ * in size and heat down the rail, say what the wire actually is: captures on a
+ * conductor, the newest brightest, the older ones receding.
+ *
+ * Hand-written rather than generated, because it is eleven elements and a
+ * generator for it would be more code than the file.
+ */
+export const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="llm-catalog-archive">
+<rect width="32" height="32" rx="7" fill="#050505"/>
+<rect x="14.8" y="2.5" width="2.4" height="27" rx="1.2" fill="#3a1c07"/>
+<rect x="14.8" y="2.5" width="2.4" height="19" rx="1.2" fill="#a8450b"/>
+<circle cx="16" cy="9" r="5.6" fill="#050505"/>
+<circle cx="16" cy="9" r="4.4" fill="#ff6a00"/>
+<circle cx="14.5" cy="7.5" r="1.5" fill="#ffb680"/>
+<circle cx="16" cy="19" r="3.6" fill="#050505"/>
+<circle cx="16" cy="19" r="2.5" fill="#ff6a00"/>
+<circle cx="16" cy="26.5" r="2.6" fill="#050505"/>
+<circle cx="16" cy="26.5" r="1.5" fill="#8a3c0a"/>
+</svg>
+`;
 
 export function writeSite(outDir: string, files: SiteFile[]): void {
   for (const f of files) {

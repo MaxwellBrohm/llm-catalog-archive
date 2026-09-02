@@ -181,6 +181,9 @@ ${canonical === null ? '' : `<link rel="canonical" href="${escapeHtml(canonical)
 ${canonical === null ? '' : `<meta property="og:url" content="${escapeHtml(canonical)}">\n`}<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${escapeHtml(opts.title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
+<link rel="icon" href="${up}favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="${up}favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="${up}apple-touch-icon.png">
 <link rel="stylesheet" href="${up}style.css">
 <link rel="alternate" type="application/rss+xml" title="llm-catalog-archive: everything" href="${up}${EVERYTHING_FEED_PATH}">
 <link rel="alternate" type="application/rss+xml" title="llm-catalog-archive: changelog" href="${up}feed.xml">

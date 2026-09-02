@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { STYLESHEET } from '../src/site/css.js';
-import { fontVendorFiles, fontFilesDir, FONT_DIR } from '../src/site/vendor.js';
-import { textContents } from '../src/site/build.js';
+import { fontVendorFiles, fontFilesDir, FONT_DIR, iconFiles } from '../src/site/vendor.js';
+import { textContents, buildSite, FAVICON_SVG } from '../src/site/build.js';
 
 /**
  * The stylesheet used to open with `@import url('https://fonts.googleapis.com/...')`.
@@ -85,5 +85,57 @@ describe('a missing typeface package fails the build rather than the page', () =
       throw new Error('not installed');
     };
     expect(() => fontFilesDir('@fontsource-variable/space-grotesk', explode)).toThrow(/space-grotesk/);
+  });
+});
+
+/**
+ * THE SITE HAD NO FAVICON AT ALL. favicon.ico and favicon.svg both 404'd on the
+ * live deployment, so every tab showed a browser default.
+ */
+describe('the favicon', () => {
+  const files = buildSite([], undefined, { threads: [], held: [] }, [], [], []);
+  const emitted = new Set(files.map((f) => f.path));
+
+  it('ships the vector mark', () => {
+    expect(emitted.has('favicon.svg')).toBe(true);
+  });
+
+  it('ships the raster fallbacks, which Safari and older browsers need', () => {
+    const icons = iconFiles().map((f) => f.path);
+    expect(icons).toContain('favicon.ico');
+    expect(icons).toContain('apple-touch-icon.png');
+  });
+
+  it('ships them as bytes, so the ico is not corrupted by an encoding', () => {
+    for (const f of iconFiles()) expect(typeof f.contents).not.toBe('string');
+  });
+
+  it('is a real ICO and a real PNG, checked by signature rather than extension', () => {
+    const by = new Map(iconFiles().map((f) => [f.path, f.contents as Uint8Array]));
+    expect([...(by.get('favicon.ico') as Uint8Array).slice(0, 4)]).toEqual([0, 0, 1, 0]);
+    expect([...(by.get('apple-touch-icon.png') as Uint8Array).slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
+  });
+
+  it('links all three from every page head', () => {
+    const page = textContents(files.find((f) => f.path === 'index.html') as never);
+    expect(page).toContain('rel="icon" href="favicon.svg"');
+    expect(page).toContain('favicon.ico');
+    expect(page).toContain('apple-touch-icon.png');
+  });
+
+  /** A page one directory down must not ask for /changelog/favicon.svg. */
+  it('resolves the icon from a nested page too', () => {
+    const nested = textContents(files.find((f) => f.path === 'about.html') as never);
+    expect(nested).toContain('favicon.svg');
+  });
+
+  it('draws the mark in the design language and not in a default blue', () => {
+    expect(FAVICON_SVG).toContain('#ff6a00');
+    expect(FAVICON_SVG).toContain('#050505');
+  });
+
+  /** Three beads, not one: a single bead on a rail reads as a map pin. */
+  it('carries the wire and more than one capture on it', () => {
+    expect((FAVICON_SVG.match(/<circle/g) ?? []).length).toBeGreaterThanOrEqual(6);
   });
 });

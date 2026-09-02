@@ -13,7 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildSite, writeSite } from './site/build.js';
-import { vendorFiles, fontVendorFiles } from './site/vendor.js';
+import { vendorFiles, fontVendorFiles, iconFiles } from './site/vendor.js';
 import { buildApi } from './api/build.js';
 import { readChangeRecords, readContentChanges } from './site/history.js';
 import { SITE_URL } from './site/record.js';
@@ -115,7 +115,7 @@ const apiFiles = buildApi({ feed, threads, refusals, ledger: claims, changes: co
 // it is copied instead of linked, why a missing copy stops the build, and why
 // it takes no cwd: three belongs to this generator, not to the archive the
 // generator is pointed at, and those are only the same directory on the deploy.
-const vendor = [...vendorFiles(), ...fontVendorFiles()];
+const vendor = [...vendorFiles(), ...fontVendorFiles(), ...iconFiles()];
 
 writeSite(outDir, [...files, ...apiFiles, ...vendor]);
 
