@@ -668,7 +668,7 @@ describe('the wire canvas sits behind the page', () => {
  */
 describe('the wall tabs have depth', () => {
   it('extrudes the tab instead of printing it on a plane', () => {
-    expect(WALL_JS).toContain('new THREE.BoxGeometry(1, 1, 0.13)');
+    expect(WALL_JS).toContain('new THREE.BoxGeometry(1, 1, 0.3)');
   });
 
   /** A transparent front face on a solid box shows the inside of the box. */
@@ -740,8 +740,25 @@ describe('the capture graph', () => {
     expect(WALL_JS).toContain('var w = host ? host.clientWidth : 0;');
   });
 
-  it('frames from the content’s bounding box rather than a guessed distance', () => {
-    expect(WALL_JS).toContain('var forWidth = halfW / (Math.tan(vFov / 2) * camera.aspect);');
+  /**
+   * FITTED BY PROJECTING THE CORNERS, not by a closed form. A closed form over
+   * a bounding sphere satisfies both half-angles, so on a field 31 lanes wide
+   * and a dozen deep the narrower one wins: measured, it put the camera at 39.6
+   * units where the horizontal extent needed about 19, and the graph rendered
+   * as a smudge in an empty stage.
+   */
+  it('frames by searching a distance that actually fits the projected corners', () => {
+    expect(WALL_JS).toContain('corners[i].clone().project(camera)');
+    expect(WALL_JS).toContain('if (worstAt(mid) > 0.97) lo = mid;');
+  });
+
+  /** A 5:1 field in a 1.9:1 box leaves half the stage empty whatever the camera does. */
+  it('shapes the stage to the data rather than to the viewport', () => {
+    expect(WALL_JS).toContain('Math.max(240, Math.min(430, w / 3.1))');
+  });
+
+  it('squares the camera to the lanes, so a wide field is not a diagonal band', () => {
+    expect(WALL_JS).toContain('new THREE.Vector3(0, 0.5, 0.866)');
   });
 
   it('puts the tables back if the context is lost', () => {
@@ -761,5 +778,28 @@ describe('the scenes are gated independently', () => {
 
   it('still refuses to mount the wall when the wall is not on the page', () => {
     expect(WALL_JS).toContain('if (hasWall) mount(parts[0]);');
+  });
+});
+
+/**
+ * DEPTH IS ONLY LEGIBLE WHEN SOMETHING MOVES AGAINST SOMETHING ELSE.
+ *
+ * The parallax was 0.34 world units at a camera distance of about fourteen,
+ * which is one degree: technically motion, invisible in practice, and the
+ * reason a reader looking straight at a working 3D scene reported seeing no 3D.
+ */
+describe('the wall moves enough to read as dimensional', () => {
+  it('swings the camera several degrees with the pointer, not one', () => {
+    expect(WALL_JS).toContain('px * 1.5 + Math.sin(t / 5200) * 0.45');
+    expect(WALL_JS).toContain('py * 0.9 + Math.cos(t / 6100) * 0.28');
+  });
+
+  it('drifts on its own, so the depth reads without a pointer at all', () => {
+    expect(WALL_JS).toMatch(/Math\.sin\(t \/ 5200\) \* 0\.4[0-9]/);
+  });
+
+  /** Damped, so a larger swing does not become a snap. */
+  it('still damps the camera toward its target', () => {
+    expect(WALL_JS).toContain('cam.x += dx * 0.05;');
   });
 });

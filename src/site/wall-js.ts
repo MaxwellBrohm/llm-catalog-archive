@@ -422,7 +422,15 @@ function mountGraph(THREE) {
   stage.appendChild(canvas);
 
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(38, 2, 0.1, 400);
+  /*
+   * A WIDE LENS AND FOG, because the point is that these lanes RECEDE. At 38
+   * degrees from far enough away to fit 31 lanes, the projection is nearly
+   * orthographic and the graph reads as a flat scatter plot: correct geometry,
+   * no depth. A wide lens close in gives real convergence, and fog tinted to
+   * the ground makes distance legible rather than merely implied.
+   */
+  var camera = new THREE.PerspectiveCamera(58, 2, 0.1, 400);
+  scene.fog = new THREE.Fog(0x121215, 6, 46);
 
   scene.add(new THREE.AmbientLight(0x20202a, 2.4));
   var key = new THREE.DirectionalLight(0xff8a3a, 2.6);
@@ -484,6 +492,11 @@ function mountGraph(THREE) {
   var mesh = new THREE.InstancedMesh(nodeGeo, nodeMat, nodes.length);
   mesh.frustumCulled = false;
   var dummy = new THREE.Object3D();
+  /* The real extent of what is drawn, so the camera is FITTED rather than
+   * guessed. The first build placed the camera from the lane span with hand
+   * picked multipliers, which centred nothing: at a wide viewport the whole
+   * graph sat in the bottom left with half the stage empty. */
+  var bounds = new THREE.Box3();
   var seen = [];
   for (var q = 0; q < lanes.length; q++) seen.push(0);
   for (var k = 0; k < nodes.length; k++) {
@@ -495,6 +508,7 @@ function mountGraph(THREE) {
     dummy.scale.setScalar(0.55 + 1.5 * t);
     dummy.updateMatrix();
     mesh.setMatrixAt(k, dummy.matrix);
+    bounds.expandByPoint(dummy.position);
   }
   mesh.instanceMatrix.needsUpdate = true;
   scene.add(mesh);
@@ -515,7 +529,16 @@ function mountGraph(THREE) {
      */
     var host = stage.parentElement;
     var w = host ? host.clientWidth : 0;
-    var h = Math.round(Math.max(300, Math.min(520, window.innerHeight * 0.46)));
+    /*
+     * THE STAGE IS SHAPED LIKE THE DATA, not like the viewport. This field is
+     * 31 lanes wide by a dozen captures deep, and viewed from above at 30
+     * degrees the depth foreshortens to roughly a fifth of the width: the
+     * content's natural aspect is about 5 to 1. Forcing that into a 1.9 to 1
+     * box leaves half the stage empty whatever the camera does, which is what a
+     * viewport-height stage was doing. Bounded at both ends so a narrow window
+     * does not produce a letterbox slit and a wide one does not produce a wall.
+     */
+    var h = Math.round(Math.max(240, Math.min(430, w / 3.1)));
     if (!w || !h) return false;
     stage.style.height = h + 'px';
     renderer.setSize(w, h, false);
@@ -529,20 +552,71 @@ function mountGraph(THREE) {
      * dots. Solving the box against both frustum planes fills the frame and
      * keeps the depth legible as depth.
      */
-    var depth = Math.max(deepest - 1, 1) * STEP;
-    var halfW = spanX / 2 + 1.2;
-    var halfD = depth / 2 + 1.2;
-    var vFov = (camera.fov * Math.PI) / 180;
-    /* The camera looks along the lanes from a low angle, so the vertical extent
-     * it must cover is the depth foreshortened, and the horizontal is the span. */
-    var forWidth = halfW / (Math.tan(vFov / 2) * camera.aspect);
-    var forDepth = (halfD * 0.62) / Math.tan(vFov / 2);
-    var dist = Math.max(forWidth, forDepth) * 1.08;
+    /*
+     * FITTED BY PROJECTING THE BOX, NOT BY A CLOSED FORM OVER A SPHERE.
+     *
+     * The content is 31 lanes wide and a dozen captures deep: a wide, shallow,
+     * flat field. A bounding sphere around that is dominated by its width, and
+     * fitting a sphere satisfies BOTH half-angles, so the narrower one wins and
+     * the camera retreats far enough to waste most of the frame. Measured: the
+     * sphere solution put the camera at 39.6 units when the horizontal extent
+     * only needed about 19, and the graph rendered as a smudge in the middle of
+     * an empty stage.
+     *
+     * So the eight corners are actually projected and the distance is searched.
+     * Twenty iterations of a bisection is nothing once per layout, and it is
+     * correct for any box, any view angle and any aspect, which the closed form
+     * was not.
+     */
+    var centre = bounds.getCenter(new THREE.Vector3());
+    /*
+     * STRAIGHT ON AND ABOVE, with no sideways component. An off-axis direction
+     * skews the lane axis across the frame, so a wide shallow field lands as a
+     * diagonal band with two corners of the stage empty. Square to the lanes,
+     * their width maps to the frame width and the depth recedes upward, which
+     * is the arrangement a 16:9 stage is shaped for.
+     */
+    var dir = new THREE.Vector3(0, 0.5, 0.866).normalize();
+    var corners = [];
+    var mins = [bounds.min.x - 0.5, bounds.min.y - 0.5, bounds.min.z - 0.5];
+    var maxs = [bounds.max.x + 0.5, bounds.max.y + 0.5, bounds.max.z + 0.5];
+    for (var cx = 0; cx < 2; cx++) {
+      for (var cy = 0; cy < 2; cy++) {
+        for (var cz = 0; cz < 2; cz++) {
+          corners.push(new THREE.Vector3(cx ? maxs[0] : mins[0], cy ? maxs[1] : mins[1], cz ? maxs[2] : mins[2]));
+        }
+      }
+    }
 
-    var centreZ = -depth / 2;
-    camera.position.set(spanX * 0.1, dist * 0.42, centreZ + dist * 0.86);
-    camera.lookAt(0, 0, centreZ);
-    camera.updateProjectionMatrix();
+    /* The largest |NDC| any corner reaches at this distance. Under 1 fits. */
+    function worstAt(d) {
+      camera.position.copy(centre).addScaledVector(dir, d);
+      camera.lookAt(centre);
+      camera.near = 0.1;
+      camera.far = d * 4 + 40;
+      camera.updateProjectionMatrix();
+      camera.updateMatrixWorld(true);
+      var worst = 0;
+      for (var i = 0; i < corners.length; i++) {
+        var v = corners[i].clone().project(camera);
+        worst = Math.max(worst, Math.abs(v.x), Math.abs(v.y));
+      }
+      return worst;
+    }
+
+    var lo = 1;
+    var hi = 400;
+    for (var it = 0; it < 22; it++) {
+      var mid = (lo + hi) / 2;
+      if (worstAt(mid) > 0.97) lo = mid;
+      else hi = mid;
+    }
+    var dist = hi;
+    worstAt(dist);
+    /* Fog tied to the fitted distance rather than to fixed world units, or it
+     * either does nothing or swallows the whole graph as the box changes. */
+    scene.fog.near = dist * 0.55;
+    scene.fog.far = dist * 1.75;
     return true;
   }
 
@@ -918,8 +992,12 @@ function mount(THREE) {
     rect[i * 4 + 3] = 1 / atlasRows;
   }
 
-  /* 4% of the tab's width, which is a slab rather than a wall. */
-  const geo = new THREE.BoxGeometry(1, 1, 0.13);
+  /*
+   * Deep enough that the turn is visible. At 0.13 the edge was a hairline and
+   * the arc read as slightly skewed cards; the point of putting them on an arc
+   * is that the outer ones show a side.
+   */
+  const geo = new THREE.BoxGeometry(1, 1, 0.3);
   geo.setAttribute('aRect', new THREE.InstancedBufferAttribute(rect, 4));
   const glowAttr = new THREE.InstancedBufferAttribute(glow, 1);
   glowAttr.setUsage(THREE.DynamicDrawUsage);
@@ -1144,11 +1222,20 @@ function mount(THREE) {
     }
     if (moving) glowAttr.needsUpdate = true;
 
-    /* about a degree of parallax, and a drift so the void is not a photograph */
+    /*
+     * ENOUGH PARALLAX TO SEE. This was 0.34 world units at a camera distance of
+     * about fourteen, which is a degree: technically motion, invisible in
+     * practice, and the reason a reader looking straight at a working 3D scene
+     * reported seeing no 3D at all. Depth is only legible when something moves
+     * against something else, so the pointer now swings the camera about four
+     * degrees and the idle drift is large enough to read as drift rather than
+     * as noise. Both still ride the same damping, so nothing snaps, and the
+     * reduced-motion flag keeps the whole loop off entirely.
+     */
     const px = havePointer ? pointer.x : 0;
     const py = havePointer ? pointer.y : 0;
-    const dx = px * 0.34 + Math.sin(t / 5200) * 0.1 - cam.x;
-    const dy = py * 0.2 + Math.cos(t / 6100) * 0.06 - cam.y;
+    const dx = px * 1.5 + Math.sin(t / 5200) * 0.45 - cam.x;
+    const dy = py * 0.9 + Math.cos(t / 6100) * 0.28 - cam.y;
     cam.x += dx * 0.05;
     cam.y += dy * 0.05;
     camera.position.x = cam.x;
