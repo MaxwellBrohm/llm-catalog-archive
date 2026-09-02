@@ -821,7 +821,7 @@
         "minBytes": 125840,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "huggingface.co",
+        "canary": "huggingface.co/blog/",
         "sizeBand": [
           0.5,
           2.0
@@ -844,7 +844,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "The Hugging Face blog, 853 items, RSS 2.0. The only source here that is not a model provider: it is where model releases, quantisation work and inference-stack changes get written up, which is the developer-facing half of AI news the provider feeds do not carry. Predicate is extracted/feedPosts, not bytes, because the channel carries a <pubDate> that re-stamps independently of the posts. Activation gate passed: identical feedPosts projection across two fetches 15 seconds apart."
+      "notes": "The Hugging Face blog, 853 items, RSS 2.0. The only source here that is not a model provider: it is where model releases, quantisation work and inference-stack changes get written up, which is the developer-facing half of AI news the provider feeds do not carry. Predicate is extracted/feedPosts, not bytes, because the channel carries a <pubDate> that re-stamps independently of the posts. Activation gate passed: identical feedPosts projection across two fetches 15 seconds apart. Canary tightened from \"huggingface.co\" to \"huggingface.co/blog/\" on 2026-09-02: the bare host appears twice inside pytorch-blog-feed's own posts, and with a body size inside this source's band that was enough for a PyTorch capture to pass every write gate here. Caught by the cross-origin sweep when PyTorch was added, not by reading the config."
     },
     {
       "id": "together-blog-feed",
@@ -959,7 +959,7 @@
     },
     {
       "id": "mistral-news-feed",
-      "url": "https://mistral.ai/rss.xml",
+      "url": "https://mistral.ai/news/rss",
       "tier": "daily",
       "status": "active",
       "path": "raw/mistral-news-feed/response.xml",
@@ -992,7 +992,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "A MAJOR LAB that was missing because its advertised feed URL is wrong: mistral.ai/news/rss.xml returns 404 and the root mistral.ai/rss.xml serves the same content, found by probing rather than by trusting the documented path. 82 items, RSS 2.0, 22,983 bytes, newest 8 days old with a 26-day maximum gap. Carries real release notes: Shieldstral, Robostral Navigate, agentic search. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
+      "notes": "A MAJOR LAB that was missing because its advertised feed URL is wrong: mistral.ai/news/rss.xml returns 404 and the root mistral.ai/rss.xml serves the same content, found by probing rather than by trusting the documented path. The canonical URL is /news/rss: rss.xml 302s to it, and the health check reported relocated until the config named the destination. 82 items, RSS 2.0, 22,983 bytes, newest 8 days old with a 26-day maximum gap. Carries real release notes: Shieldstral, Robostral Navigate, agentic search. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
     },
     {
       "id": "ollama-blog-feed",
@@ -1033,7 +1033,7 @@
     },
     {
       "id": "pytorch-blog-feed",
-      "url": "https://pytorch.org/blog/feed.xml",
+      "url": "https://pytorch.org/blog/feed/",
       "tier": "daily",
       "status": "active",
       "path": "raw/pytorch-blog-feed/response.xml",
@@ -1066,7 +1066,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "The framework almost all of this is trained and served on, 10 items, RSS 2.0, 174,110 bytes, newest 4 days old with a 7-day maximum gap, the tightest cadence of any source here. Currently conference-heavy, which is seasonal rather than structural. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
+      "notes": "The framework almost all of this is trained and served on, 10 items, RSS 2.0, 174,110 bytes, newest 4 days old with a 7-day maximum gap, the tightest cadence of any source here. Currently conference-heavy, which is seasonal rather than structural. feed.xml 302s to feed/, and the config names the destination so the health check does not sit at relocated forever. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
     },
     {
       "id": "gcloud-blog-feed",
