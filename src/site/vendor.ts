@@ -171,7 +171,7 @@ export function fontVendorFiles(resolve: (id: string) => string = defaultResolve
  * no package to install them from, and tools/make-favicons.py rebuilds them
  * from the same geometry as FAVICON_SVG when the mark changes.
  */
-const ICON_FILES: readonly string[] = ['favicon.ico', 'apple-touch-icon.png'];
+const ICON_FILES: readonly string[] = ['favicon.ico', 'apple-touch-icon.png', 'og.png'];
 
 export function iconFiles(dir = path.dirname(fileURLToPath(import.meta.url))): SiteFile[] {
   return ICON_FILES.map((name) => {

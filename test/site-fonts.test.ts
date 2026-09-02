@@ -139,3 +139,50 @@ describe('the favicon', () => {
     expect((FAVICON_SVG.match(/<circle/g) ?? []).length).toBeGreaterThanOrEqual(6);
   });
 });
+
+/**
+ * NOBODY STUMBLES ACROSS AN ARCHIVE. Every reader arrives through a link
+ * somebody else posted, so the share card is a distribution surface rather than
+ * decoration, and a link with no card is a link nobody clicks. The head used to
+ * carry og:title and og:description with no image and twitter:card set to the
+ * small "summary" form to match.
+ */
+describe('the share card', () => {
+  const files = buildSite([], undefined, { threads: [], held: [] }, [], [], []);
+  const page = textContents(files.find((f) => f.path === 'index.html') as never);
+
+  it('points at an image', () => {
+    expect(page).toContain('property="og:image"');
+  });
+
+  it('declares its dimensions, so a card does not reflow while it loads', () => {
+    expect(page).toContain('content="1200"');
+    expect(page).toContain('content="630"');
+  });
+
+  it('asks for the large card now that there is an image to fill it', () => {
+    expect(page).toContain('name="twitter:card" content="summary_large_image"');
+  });
+
+  it('describes the image for a reader who cannot see it', () => {
+    expect(page).toContain('property="og:image:alt"');
+  });
+
+  /** A card promising an image that 404s is worse than a card without one. */
+  it('ships the file the card points at', () => {
+    expect(iconFiles().map((f) => f.path)).toContain('og.png');
+  });
+
+  it('ships it as a real PNG at the size the tags claim', () => {
+    const png = iconFiles().find((f) => f.path === 'og.png')?.contents as Uint8Array;
+    expect([...png.slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
+    /* IHDR width and height are big-endian at bytes 16..24. */
+    const view = new DataView(png.buffer, png.byteOffset);
+    expect(view.getUint32(16)).toBe(1200);
+    expect(view.getUint32(20)).toBe(630);
+  });
+
+  it('points at an absolute URL, because a card is fetched by someone else’s server', () => {
+    expect(page).toMatch(/property="og:image" content="https:\/\//);
+  });
+});

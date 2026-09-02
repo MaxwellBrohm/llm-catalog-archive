@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildSite, textContents, type SiteFile } from '../src/site/build.js';
 import { pageDescription } from '../src/site/render.js';
 import { artifact, record } from './site-fixtures.js';
+import { iconFiles } from '../src/site/vendor.js';
 
 /**
  * 494 PAGES CARRIED NO DESCRIPTION AND NO SHARE CARD.
@@ -46,8 +47,16 @@ describe('every real page carries share and index metadata', () => {
     expect(descriptions.size).toBeGreaterThan(3);
   });
 
-  it('promises no og:image, because there is no image to point at', () => {
-    for (const f of pages) expect(textContents(f)).not.toContain('og:image');
+  /**
+   * This asserted the ABSENCE of og:image, on the reasoning that a card
+   * promising an image that 404s is worse than a card without one. That was
+   * right while there was no image. There is one now, so the assertion is
+   * inverted and the file it points at is checked rather than assumed.
+   */
+  it('points at a share card, and ships the file it points at', () => {
+    const missing = pages.filter((f) => !textContents(f).includes('property="og:image"')).map((f) => f.path);
+    expect(missing).toEqual([]);
+    expect(iconFiles().map((f) => f.path)).toContain('og.png');
   });
 });
 

@@ -158,8 +158,17 @@ function layout(opts: {
    * reader showed the same six words, so a thread page about one model and the
    * leaks desk were indistinguishable before you clicked.
    *
-   * No og:image. There is no image to point at, and a card promising one that
-   * 404s is worse than a card without one.
+   * THE CARD NOW HAS AN IMAGE. This said "there is no image to point at", which
+   * was true and stopped being true: tools/make-og-image.mjs renders one in the
+   * site's own typefaces on the site's own ground. It matters more than its size
+   * suggests, because nobody stumbles across an archive: every reader arrives
+   * through a link somebody else posted, and a link with no card is a link
+   * nobody clicks.
+   *
+   * ONE CARD FOR EVERY PAGE, deliberately. The per-page specificity is already
+   * in og:title and og:description, which are generated per page; a card per
+   * page would need a browser in the deploy for an asset whose words would be
+   * the same on all 700 of them.
    */
   const description = pageDescription(opts.body, 'A byte-level archive of what model providers publish, with every claim linked to the bytes it came from.');
   const canonical = opts.canonical === undefined ? null : `${SITE_URL}/${opts.canonical}`;
@@ -175,10 +184,14 @@ function layout(opts: {
 <title>${escapeHtml(opts.title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
 ${canonical === null ? '' : `<link rel="canonical" href="${escapeHtml(canonical)}">\n`}<meta property="og:type" content="website">
+<meta property="og:image" content="${SITE_URL}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What providers actually published. Every claim links the exact bytes it came from.">
 <meta property="og:site_name" content="llm-catalog-archive">
 <meta property="og:title" content="${escapeHtml(opts.title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
-${canonical === null ? '' : `<meta property="og:url" content="${escapeHtml(canonical)}">\n`}<meta name="twitter:card" content="summary">
+${canonical === null ? '' : `<meta property="og:url" content="${escapeHtml(canonical)}">\n`}<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(opts.title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
 <link rel="icon" href="${up}favicon.svg" type="image/svg+xml">
