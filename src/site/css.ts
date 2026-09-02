@@ -456,7 +456,41 @@ a.badge-type:hover { border-color: var(--orange); color: var(--orange-hot); text
  */
 .split { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; align-items: start; }
 .split-main { min-width: 0; }
-.split-side { min-width: 0; }
+/*
+ * THE RAIL FOLLOWS THE READER.
+ *
+ * The split grid sets align-items: start, so the 320px column sat at the top and then
+ * stopped. On a 27,000px stream that left roughly 5,000px of dead column beside
+ * the content, which is a fifth of the page's width doing nothing for most of
+ * its height, and it is exactly the emptiness that made the lower page feel
+ * unconsidered.
+ *
+ * Sticky rather than taller: the micro-category counts and the live threads ARE
+ * an index, and an index is more useful travelling with the reader than pinned
+ * to a position they scrolled past. It caps at the viewport and scrolls
+ * internally when the rail is the longer of the two, because a sticky element
+ * taller than the screen otherwise strands its own bottom.
+ */
+.split-side {
+  min-width: 0;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+/* A reader who has asked for less motion still gets the layout, just not the
+ * travelling. Sticky is not animation, but it is unexpected movement, and the
+ * rail is navigation rather than content. */
+@media (prefers-reduced-motion: reduce) {
+  .split-side { position: static; max-height: none; overflow-y: visible; }
+}
+/* One column below the breakpoint, where sticky would pin a 1,000px index over
+ * the article the reader is trying to read. */
+@media (max-width: 900px) {
+  .split-side { position: static; max-height: none; overflow-y: visible; }
+}
 .split-side .panel { padding: 16px; }
 .split-side .panel h2 { font-size: 15px; margin-bottom: 8px; }
 .split-side .note { margin-bottom: 16px; }

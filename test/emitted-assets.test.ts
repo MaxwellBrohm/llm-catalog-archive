@@ -218,3 +218,36 @@ describe('the pages that offer a filter', () => {
     expect(STYLESHEET).toContain('.filter-count');
   });
 });
+
+/**
+ * THE RAIL FOLLOWS THE READER.
+ *
+ * The split grid sets align-items: start, so the 320px column sat at the top of
+ * a 27,000px stream and then stopped, leaving roughly 5,000px of dead column
+ * beside the content. That emptiness is a fifth of the page's width doing
+ * nothing for most of its height, and it is part of why the lower page read as
+ * unconsidered.
+ */
+describe('the side rail', () => {
+  const rule = /\.split-side \{([^}]*)\}/.exec(STYLESHEET)?.[1] ?? '';
+
+  it('travels with the reader instead of stopping at the top', () => {
+    expect(rule).toContain('position: sticky');
+    expect(rule).toContain('top:');
+  });
+
+  /** A sticky element taller than the screen strands its own bottom. */
+  it('caps at the viewport and scrolls internally when it is the longer column', () => {
+    expect(rule).toContain('max-height: calc(100vh');
+    expect(rule).toContain('overflow-y: auto');
+  });
+
+  it('does not travel for a reader who asked for less motion', () => {
+    expect(STYLESHEET).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.split-side \{ position: static/);
+  });
+
+  /** Below the breakpoint sticky would pin a tall index over the article. */
+  it('does not travel in the single-column layout', () => {
+    expect(STYLESHEET).toMatch(/max-width: 900px\)\s*\{\s*\.split-side \{ position: static/);
+  });
+});
