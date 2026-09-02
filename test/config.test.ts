@@ -273,8 +273,8 @@ describe('the shipped meta/sources.json', () => {
   const shipped = (): SourcesFile =>
     (cached ??= loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8'))));
 
-  it('loads and has all 28 sources', () => {
-    expect(shipped().sources).toHaveLength(28);
+  it('loads and has all 26 sources', () => {
+    expect(shipped().sources).toHaveLength(26);
   });
 
   /**
@@ -337,12 +337,12 @@ describe('the shipped meta/sources.json', () => {
     expect(sourcesForTier(shipped(), 'fast').map((s) => s.id)).toEqual(['openrouter-models']);
   });
 
-  it('hands the collector every one of the twenty-eight sources', () => {
+  it('hands the collector every one of the twenty-six sources', () => {
     const fetched = [
       ...activeSourcesForTier(shipped(), 'fast'),
       ...activeSourcesForTier(shipped(), 'daily'),
     ].map((s) => s.id);
-    expect(fetched).toHaveLength(28);
+    expect(fetched).toHaveLength(26);
   });
 
   // The filter still filters. With nothing pending in the shipped file the
@@ -376,7 +376,7 @@ describe('the shipped meta/sources.json', () => {
       const m = /^\|\s*`([a-z0-9-]+)`\s*\|\s*`([^`]+)`\s*\|/.exec(line);
       if (m) fromSpec.set(m[1]!, m[2]!);
     }
-    expect(fromSpec.size).toBe(28);
+    expect(fromSpec.size).toBe(26);
 
     const fromTable = new Map(shipped().sources.map((s) => [s.id, s.url]));
     expect(Object.fromEntries(fromTable)).toEqual(Object.fromEntries(fromSpec));
@@ -393,12 +393,10 @@ describe('the shipped meta/sources.json', () => {
       'deepmind-sitemap',
       'google-blog-feed',
       'huggingface-blog-feed',
-      'nvidia-blog-feed',
       'openai-news-feed',
       'openai-sitemap',
       'openai-status',
       'openrouter-sitemap',
-      'qwen-blog-feed',
       'together-blog-feed',
       'transformers-pulls',
       'vllm-pulls',
@@ -524,8 +522,6 @@ describe('the shipped meta/sources.json', () => {
       'huggingface-blog-feed': 'feed/30',
       'aws-blog-feed': 'feed/30',
       'google-blog-feed': 'feed/30',
-      'nvidia-blog-feed': 'feed/30',
-      'qwen-blog-feed': 'feed/30',
       'together-blog-feed': 'feed/30',
     });
   });
@@ -564,8 +560,6 @@ describe('the shipped meta/sources.json', () => {
       'huggingface-blog-feed': 'rss',
       'aws-blog-feed': 'rss',
       'google-blog-feed': 'rss',
-      'nvidia-blog-feed': 'rss',
-      'qwen-blog-feed': 'rss',
       'together-blog-feed': 'rss',
     });
   });

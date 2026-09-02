@@ -15,7 +15,8 @@
     "build:bin": "tsc -p tsconfig.bin.json && cp build/bin/llmcat.js bin/llmcat.mjs",
     "check:bin": "npm run build:bin && git diff --exit-code -- bin/llmcat.mjs",
     "liveness": "tsx src/liveness-cli.ts",
-    "ledger": "tsx src/ledger-cli.ts"
+    "ledger": "tsx src/ledger-cli.ts",
+    "pretest": "tsc --noEmit"
   },
   "dependencies": {
     "zod": "^4.4.3"

@@ -236,9 +236,29 @@ source with measured sub-daily change; O3 resolves it, provisionally via
 | `huggingface-blog-feed` | `https://huggingface.co/blog/feed.xml` | 853 items, RSS 2.0, 251,352 bytes. The only source here that is not a model provider: it is where model releases, quantisation work and inference-stack changes get written up, which is the developer-facing half of AI news the provider feeds do not carry. Predicate `extracted`/`feedPosts`. |
 | `together-blog-feed` | `https://www.together.ai/blog/rss.xml` | 100 items, RSS 2.0, 60,580 bytes. An INFERENCE PROVIDER's own announcements, which is a different beat from a lab's: routing, pricing and serving changes are what a developer building on a gateway actually feels. Predicate `extracted`/`feedPosts`. Activation gate passed on two fetches four seconds apart, identical `feedPosts` projection. |
 | `google-blog-feed` | `https://blog.google/technology/ai/rss/` | 20 items, RSS 2.0, 32,235 bytes. Google's product announcements, deliberately separate from `deepmind-blog-feed`, which is research. The same organisation publishes both and they are not the same beat. Predicate `extracted`/`feedPosts`. Activation gate passed. |
-| `qwen-blog-feed` | `https://qwenlm.github.io/blog/index.xml` | 44 items, RSS 2.0, 39,149 bytes. The only OPEN-WEIGHTS lab feed here that publishes release notes rather than marketing, which is why it earns a source when several better-known labs did not: their feeds either 404 or are HTML single-page apps wearing an `.xml` URL. Predicate `extracted`/`feedPosts`. Activation gate passed. |
 | `aws-blog-feed` | `https://aws.amazon.com/blogs/machine-learning/feed/` | 20 items, RSS 2.0, 620,998 bytes. A PLATFORM feed rather than a lab feed: what a hyperscaler makes available is news a developer building on it needs, and its first item on the day it was added was "Introducing Claude Fable 5.1 on AWS". Predicate `extracted`/`feedPosts`. Activation gate passed. |
-| `nvidia-blog-feed` | `https://blogs.nvidia.com/blog/category/deep-learning/feed/` | 18 items, RSS 2.0, 201,458 bytes. The hardware side of the same story, scoped to the deep-learning CATEGORY rather than the whole NVIDIA blog, so it carries model and inference work rather than press releases about cars. Predicate `extracted`/`feedPosts`. Activation gate passed. |
+
+**Two feeds were probed, added, and then REMOVED the same day, which is worth
+recording because the reason is a rule and not a preference.** `qwen-blog-feed`
+(`https://qwenlm.github.io/blog/index.xml`) carries 44 items and its newest post
+is dated 2025-09-23, 344 days before it was added: an archive, not a news
+source, and it was chosen on item count without checking recency.
+`nvidia-blog-feed` (`https://blogs.nvidia.com/blog/category/deep-learning/feed/`)
+is on-topic but has a 183-day maximum gap between posts and was 55 days stale
+when measured; the fresher `https://blogs.nvidia.com/feed/` is same-day but
+carries automotive and robotics posts, and nothing in the derivation filters a
+feed by topic, so it would publish car stories as AI news. Raising
+`maxQuietDays` to accommodate either would disable the very guard that caught
+them, because a threshold wide enough for a 183-day gap cannot tell slow from
+dead. A source that contributes two items a year is not worth a number in the
+source count.
+
+Their captured bytes STAY under `raw/`. Removing a source from
+`meta/sources.json` stops it being fetched; it does not license deleting what
+was already archived, because "nothing is deleted" is the promise the whole
+project rests on and a permalink into those bytes must keep resolving. The
+directories are simply no longer written to.
+
 
 ### Baselines
 

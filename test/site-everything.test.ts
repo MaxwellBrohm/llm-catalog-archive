@@ -1117,12 +1117,19 @@ describe('the front page after capping', () => {
       // Explicitly a non-headline type: the headline strip repeats
       // headline-shaped items above the stream, which would double the count
       // this test measures and make it about the strip rather than the cap.
-      type: 'price_changed',
+      type: 'price_changed' as const,
       sentence: `price row ${i}`,
       sha: SHA,
       sourceId: 'openrouter-models',
     })),
-    { ...(FEED[0] as FeedItem), id: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:model_added:x`, sentence: 'a launch', sha: 'b'.repeat(40), sourceId: 'openrouter-models' },
+    {
+      ...(FEED[0] as FeedItem),
+      id: 'b'.repeat(40) + ':model_added:x',
+      type: 'model_added' as const,
+      sentence: 'a launch',
+      sha: 'b'.repeat(40),
+      sourceId: 'openrouter-models',
+    },
   ];
 
   const html = renderEverythingPage(many, THREADS);

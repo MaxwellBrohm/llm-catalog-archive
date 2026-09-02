@@ -921,43 +921,6 @@
       "notes": "Google's own AI PRODUCT announcements, 20 items, RSS 2.0, 32,235 bytes. Deliberately separate from deepmind-blog-feed: the same organisation publishes both and they are not the same beat, one being research and the other being what ships. Predicate is extracted/feedPosts, not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so bytes would commit the whole feed on every run into a history that is never rewritten. Activation gate passed: identical feedPosts projection across two fetches four seconds apart."
     },
     {
-      "id": "qwen-blog-feed",
-      "url": "https://qwenlm.github.io/blog/index.xml",
-      "tier": "daily",
-      "status": "active",
-      "path": "raw/qwen-blog-feed/response.xml",
-      "contentType": "xml",
-      "expectedRoot": "rss",
-      "invariants": {
-        "minBytes": 19574,
-        "requiredKeyPath": null,
-        "minRecords": null,
-        "canary": "qwenlm.github.io",
-        "sizeBand": [
-          0.5,
-          2.0
-        ]
-      },
-      "freshness": {
-        "kind": "feed",
-        "maxQuietDays": 30
-      },
-      "predicate": {
-        "type": "extracted",
-        "extractor": "feedPosts"
-      },
-      "timeoutS": 60,
-      "retries": 2,
-      "maxRedirects": 3,
-      "rateLimit": {
-        "maxAutoEventsPerDay": 8
-      },
-      "magnitudeGuard": {
-        "maxShrinkPct": 25
-      },
-      "notes": "The Qwen family's own release blog, 44 items, RSS 2.0, 39,149 bytes. The only OPEN-WEIGHTS lab feed here that publishes release notes rather than marketing, which is why it earns a source when several better known labs did not: their feeds either 404 or are HTML single-page apps wearing an .xml URL, measured 2026-09-01. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches four seconds apart."
-    },
-    {
       "id": "aws-blog-feed",
       "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
       "tier": "daily",
@@ -993,43 +956,6 @@
         "maxShrinkPct": 25
       },
       "notes": "A PLATFORM feed rather than a lab feed, 20 items, RSS 2.0, 620,998 bytes. What a hyperscaler makes available is news a developer building on it needs, and its first item on the day it was added was \"Introducing Claude Fable 5.1 on AWS\". Predicate is extracted/feedPosts and not bytes, and at 621 KB the bytes predicate is wrong here more expensively than anywhere else: the channel re-stamps lastBuildDate on every rebuild, so bytes would commit 621 KB on every run for a feed whose posts had not changed, into a history that is never rewritten. Activation gate passed: identical feedPosts projection across two fetches four seconds apart."
-    },
-    {
-      "id": "nvidia-blog-feed",
-      "url": "https://blogs.nvidia.com/blog/category/deep-learning/feed/",
-      "tier": "daily",
-      "status": "active",
-      "path": "raw/nvidia-blog-feed/response.xml",
-      "contentType": "xml",
-      "expectedRoot": "rss",
-      "invariants": {
-        "minBytes": 100729,
-        "requiredKeyPath": null,
-        "minRecords": null,
-        "canary": "blogs.nvidia.com",
-        "sizeBand": [
-          0.5,
-          2.0
-        ]
-      },
-      "freshness": {
-        "kind": "feed",
-        "maxQuietDays": 30
-      },
-      "predicate": {
-        "type": "extracted",
-        "extractor": "feedPosts"
-      },
-      "timeoutS": 60,
-      "retries": 2,
-      "maxRedirects": 3,
-      "rateLimit": {
-        "maxAutoEventsPerDay": 8
-      },
-      "magnitudeGuard": {
-        "maxShrinkPct": 25
-      },
-      "notes": "The hardware side of the same story, 18 items, RSS 2.0, 201,458 bytes. Scoped to the deep-learning CATEGORY rather than the whole NVIDIA blog, so it carries model and inference work rather than press releases about cars. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: the channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit 201 KB on every run for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches four seconds apart."
     }
   ]
 }
