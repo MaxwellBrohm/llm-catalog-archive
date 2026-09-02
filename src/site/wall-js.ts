@@ -177,12 +177,35 @@ function mountWire(THREE) {
   rim.position.set(0.9, -0.4, 0.6);
   scene.add(rim);
 
-  var conductorMat = new THREE.MeshStandardMaterial({ color: 0x241608, roughness: 0.34, metalness: 0.85 });
+  /*
+   * METALNESS WITHOUT AN ENVIRONMENT MAP IS A BLACK MATERIAL.
+   *
+   * The first version of this shipped the conductor at metalness 0.85 with no
+   * env map, which kills the diffuse term and leaves only two directional
+   * specular hits on a very dark albedo. Measured on the built page: the
+   * brightest pixel in the conductor's column was (31,7,1) against a (5,5,5)
+   * ground, a contrast ratio of 1.06 to 1, while the CSS conductor it SUPPRESSES
+   * measured (182,79,7). The enhancement was three to seven times dimmer than
+   * the fallback it replaced, which makes it a regression rather than an
+   * enhancement, whatever the geometry underneath is doing.
+   *
+   * So the conductor is mostly dielectric now and carries its own emissive
+   * floor, which is what a lit filament actually is, and it no longer depends
+   * on a reflection that this scene has nothing to reflect.
+   */
+  var conductorMat = new THREE.MeshStandardMaterial({
+    color: 0x963d08,
+    roughness: 0.42,
+    metalness: 0.2,
+    emissive: 0xff6a00,
+    emissiveIntensity: 0.34,
+  });
   var studMat = new THREE.MeshStandardMaterial({
     color: 0xff6a00,
     roughness: 0.28,
-    metalness: 0.55,
-    emissive: 0x3a1300,
+    metalness: 0.25,
+    emissive: 0xff6a00,
+    emissiveIntensity: 0.5,
   });
 
   var group = new THREE.Group();
@@ -297,6 +320,13 @@ function mountWire(THREE) {
 
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', relayout);
+  /*
+   * The wall changes the stage's height on resize, which moves every capture in
+   * the document. Both listeners fire on the same event and the ordering
+   * between them is not guaranteed, so the wall calls this AFTER it has resized
+   * the stage rather than relying on being second.
+   */
+  window.__lcaWireRelayout = relayout;
 
   canvas.addEventListener('webglcontextlost', function (ev) {
     ev.preventDefault();
@@ -703,8 +733,19 @@ function mount(THREE) {
   const STAGE_GUTTER = 16;
 
   function sizeStage() {
-    const top = stage.getBoundingClientRect().top;
-    const available = window.innerHeight - top - STAGE_GUTTER;
+    /*
+     * DOCUMENT-RELATIVE, not viewport-relative. The question is how much room
+     * the stage has where it SITS IN THE PAGE, which does not change when the
+     * reader scrolls. getBoundingClientRect().top is measured from the
+     * viewport, so scrolled 5,000px down it is about -5,000, the available
+     * height came out enormous, and the stage was resized to its maximum
+     * whatever the window was actually doing. Adding the scroll offset back
+     * gives the stage's fixed position in the document, which is the quantity
+     * this wants.
+     */
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const documentTop = stage.getBoundingClientRect().top + scrollY;
+    const available = window.innerHeight - documentTop - STAGE_GUTTER;
     if (available < STAGE_MIN) return 0;
     const height = Math.min(STAGE_MAX, available);
     stage.style.height = height + 'px';
@@ -871,14 +912,48 @@ function mount(THREE) {
     else wake();
   });
 
-  if ('ResizeObserver' in window) {
-    new ResizeObserver(function () {
-      if (fit()) {
-        if (still) draw();
-        else wake();
-      }
-    }).observe(stage);
+  /*
+   * REFIT, AND HONOUR THE REFUSAL.
+   *
+   * Two failures lived here. The ResizeObserver watches the STAGE, whose width
+   * is viewport-driven but whose height this file pins inline, so a HEIGHT-ONLY
+   * viewport change was structurally invisible to it: dragging a window shorter
+   * left a 631px stage sitting 264px below the fold, still mounted, with the
+   * fallback list at opacity 0 underneath. And when the observer did fire into
+   * too little space, fit() returned false and the callback ignored it, so the
+   * browser's already-resized CSS box stretched a stale drawing buffer: a
+   * 1398px buffer squeezed into 966px, with the tabs visibly condensed.
+   *
+   * The code's own comment above fit() says returning false unmounts. It now
+   * does. A window resize listener covers the height-only case the stage
+   * observer cannot see.
+   */
+  function unmount() {
+    sleep();
+    wrap.classList.remove('is-mounted');
+    stage.style.display = '';
+    stage.style.height = '';
   }
+
+  function refit() {
+    if (!wide() || !fit()) {
+      unmount();
+      return;
+    }
+    if (!wrap.classList.contains('is-mounted')) wrap.classList.add('is-mounted');
+    if (still) draw();
+    else wake();
+    /*
+     * The wire measured its studs against the OLD stage height. Resizing moves
+     * every capture in the document by the stage's height delta, so without
+     * this every stud lands on empty space: measured at 206px low after one
+     * 1440x1000 to 1200x700 change, with the capture heading left bare.
+     */
+    if (typeof window.__lcaWireRelayout === 'function') window.__lcaWireRelayout();
+  }
+
+  window.addEventListener('resize', refit);
+  if ('ResizeObserver' in window) new ResizeObserver(refit).observe(stage);
 
   /*
    * A lost context is not a black rectangle. The list comes back and the page

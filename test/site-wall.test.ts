@@ -555,7 +555,17 @@ describe('the wall only claims sizes where a complete wall fits', () => {
 
   it('sizes the stage from the space left below its own top, which CSS cannot know', () => {
     expect(WALL_JS).toContain('getBoundingClientRect().top');
-    expect(WALL_JS).toContain('window.innerHeight - top');
+    expect(WALL_JS).toContain('window.innerHeight - documentTop');
+  });
+
+  /**
+   * Measured from the DOCUMENT, not the viewport. Scrolled 5,000px down,
+   * getBoundingClientRect().top is about -5,000, the available height came out
+   * enormous, and any resize while scrolled snapped the stage to its maximum
+   * whatever the window was doing.
+   */
+  it('adds the scroll offset back, so resizing while scrolled is not measured from nowhere', () => {
+    expect(WALL_JS).toContain('const documentTop = stage.getBoundingClientRect().top + scrollY;');
   });
 
   it('unmounts rather than cropping when that space is too small', () => {

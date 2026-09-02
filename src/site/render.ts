@@ -892,7 +892,7 @@ ${rows.map(threadRowHtml).join('\n')}
 ${sections}
 <section class="day">
 <h2>Held</h2>
-<p class="note">${plural(set.held.length, 'event')} could not be attached to an entity mechanically, and nothing here guesses. Product spec section 4.</p>
+<p class="note">${plural(set.held.length, 'event')} could not be attached to an entity mechanically, and nothing here guesses. They keep their place in the stream and on their micro-category page; what they lack is a thread to accrete onto.</p>
 ${held}
 </section>`;
   return layout({
@@ -1417,6 +1417,29 @@ export function capPerCommit(
  */
 const TAPE_TYPES: ReadonlySet<FeedType> = new Set<FeedType>(['price_changed', 'context_changed']);
 
+/** What a capture really holds, before either cap. */
+export type CaptureTruth = { items: number; tapeValues: number; tapeModels: number };
+
+/** Keyed by sha and source, measured over the UNCAPPED feed. */
+export function captureTruth(feed: readonly FeedItem[]): Map<string, CaptureTruth> {
+  const out = new Map<string, CaptureTruth>();
+  const models = new Map<string, Set<string>>();
+  for (const item of feed) {
+    const key = `${item.sha}\u0000${item.sourceId}`;
+    const row = out.get(key) ?? { items: 0, tapeValues: 0, tapeModels: 0 };
+    row.items += 1;
+    if (TAPE_TYPES.has(item.type)) {
+      row.tapeValues += 1;
+      const seen = models.get(key) ?? new Set<string>();
+      seen.add(tapeCells(item).subject);
+      models.set(key, seen);
+    }
+    out.set(key, row);
+  }
+  for (const [key, row] of out) row.tapeModels = models.get(key)?.size ?? 0;
+  return out;
+}
+
 /** One capture: the items a single commit produced for a single source. */
 type Capture = { sha: string; sourceId: string; items: FeedItem[] };
 
@@ -1501,7 +1524,7 @@ function tapeRowHtml(item: FeedItem): string {
  * moved. The id is said once, spanning the width, and the fields sit under it
  * with room for both values in full.
  */
-function tapeHtml(items: FeedItem[], depth = 0): string {
+function tapeHtml(items: FeedItem[], depth = 0, trueValues = items.length, trueModels = 0): string {
   if (items.length === 0) return '';
   const { up } = links(depth);
   const groups = new Map<string, FeedItem[]>();
@@ -1533,7 +1556,11 @@ ${rows.map(tapeRowHtml).join('\n')}`;
   return `<div class="tape">
 <table>
 <colgroup><col class="c-field"><col class="c-from"><col class="c-arrow"><col class="c-to"><col class="c-pct"></colgroup>
-<caption>${plural(items.length, 'listed value')} moved across ${plural(groups.size, 'model')} in this capture. Both numbers are the artifact's own; the percentage is this page's arithmetic over them. Each model links to its thread, which carries the full sentence and every other item recorded against it.</caption>
+<caption>${
+    trueValues > items.length
+      ? `${plural(items.length, 'listed value')} shown of ${formatInt(trueValues)} that moved across ${plural(Math.max(trueModels, groups.size), 'model')} in this capture`
+      : `${plural(items.length, 'listed value')} moved across ${plural(groups.size, 'model')} in this capture`
+  }. Both numbers are the artifact's own; the percentage is this page's arithmetic over them. Each model links to its thread, which carries the full sentence and every other item recorded against it.</caption>
 <thead><tr><th>Field</th><th>From</th><th aria-hidden="true"></th><th>To</th><th>Change</th></tr></thead>
 <tbody>
 ${body}
@@ -1585,7 +1612,18 @@ ${confirm}
  * addressed by it, and printing it small was the page pretending its own
  * evidence was fine print.
  */
-function captureHtml(capture: Capture, depth: number, heldBack = 0): string {
+/**
+ * THE COUNTS HAVE TO BE THE CAPTURE'S, NOT THE PAGE'S VIEW OF IT.
+ *
+ * The caption said "N listed values moved across M models IN THIS CAPTURE"
+ * while N and M counted only the rows that survived two caps, and the
+ * held-back note counted only the per-commit cap and not the page's overall
+ * slice. On the live page one capture rendered "1 listed value moved across 1
+ * model" and "1 further item is not shown" while the feed held 12 tape values
+ * across 4 models and 11 items were hidden. A sentence that scopes itself to
+ * the capture has to count the capture.
+ */
+function captureHtml(capture: Capture, depth: number, heldBack = 0, truth?: CaptureTruth): string {
   const { up } = links(depth);
   const tapeItems = capture.items.filter((i) => TAPE_TYPES.has(i.type));
   const dispatches = capture.items.filter((i) => !TAPE_TYPES.has(i.type));
@@ -1597,11 +1635,11 @@ function captureHtml(capture: Capture, depth: number, heldBack = 0): string {
 <span class="capture-when">${stampHtml(stamp)}</span>
 </div>
 ${dispatches.length === 0 ? '' : `<ol class="dispatches">\n${dispatches.map((i) => dispatchHtml(i, depth)).join('\n')}\n</ol>`}
-${tapeHtml(tapeItems, depth)}
+${tapeHtml(tapeItems, depth, truth?.tapeValues ?? tapeItems.length, truth?.tapeModels ?? 0)}
 ${
   heldBack === 0
     ? ''
-    : `<p class="capture-more">${plural(heldBack, 'further item')} from this capture is not shown here. The <a href="${up}${sourcePagePath(capture.sourceId)}">source</a> and the micro-category pages are uncapped.</p>`
+    : `<p class="capture-more">${plural(heldBack, 'further item')} from this capture ${heldBack === 1 ? 'is' : 'are'} not shown here. Every one of them is on its <a href="${up}${typePagePath(capture.items[0]?.type ?? 'model_added')}">micro-category page</a>, which is uncapped.</p>`
 }
 </li>`;
 }
@@ -1612,12 +1650,22 @@ function dayHtml(
   items: FeedItem[],
   depth: number,
   heldBack: ReadonlyMap<string, number> = new Map(),
+  truth: ReadonlyMap<string, CaptureTruth> = new Map(),
 ): string {
   const captures = capturesOf(items);
   return `<section class="day">
 <h2 class="day-mark"><span>${escapeHtml(day)}</span></h2>
 <ol class="wire">
-${captures.map((c) => captureHtml(c, depth, heldBack.get(`${c.sha}\u0000${c.sourceId}`) ?? 0)).join('\n')}
+${captures
+  .map((c) => {
+    const key = `${c.sha}\u0000${c.sourceId}`;
+    const real = truth.get(key);
+    // Against what RENDERED, not against the per-commit cap: the page's overall
+    // slice hides items too, and those were in nobody's count.
+    const hidden = real === undefined ? (heldBack.get(key) ?? 0) : Math.max(real.items - c.items.length, 0);
+    return captureHtml(c, depth, hidden, real);
+  })
+  .join('\n')}
 </ol>
 </section>`;
 }
@@ -1648,11 +1696,12 @@ export function renderEverythingPage(
   // Per commit FIRST, then overall, so the overall cap spends its budget on
   // distinct stories rather than on one capture's forty price rows.
   const { shown: spread, heldBack } = capPerCommit(feed);
+  const truth = captureTruth(feed);
   const shown = spread.slice(0, limit);
   const heldBackTotal = [...heldBack.values()].reduce((n, v) => n + v, 0);
 
   const days = feedByDay(shown)
-    .map((g) => dayHtml(g.day, g.items, 0, heldBack))
+    .map((g) => dayHtml(g.day, g.items, 0, heldBack, truth))
     .join('\n');
 
   /*

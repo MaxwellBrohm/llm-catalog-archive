@@ -114,7 +114,7 @@ share of a source's units is held rather than written.
 
 ```bash
 npm ci
-npm test          # 2,324 tests
+npm test          # 2,618 tests
 npm run typecheck
 npm run build:site
 ```

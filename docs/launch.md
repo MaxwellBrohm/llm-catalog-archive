@@ -8,9 +8,9 @@ yourself when you decide to.
 The archive is 6 days old. Every number it publishes gets better with time and
 several of them are currently thin in ways a reader will notice:
 
-- **The leaks desk holds 2 codenames.** `teffa-alpha` and `yangcheng`. That is a
+- **The leaks desk holds 17 items.** Codenames such as `teffa-alpha`, `yangcheng` and `iris`, plus provider incidents and scheduled expirations. That is a
   real signal and it is also two rows. At 20 rows it is a dataset.
-- **`first_seen_in_catalog_at` is null on all 621 models**, because the measured
+- **`first_seen_in_catalog_at` is null on all 421 models**, because the measured
   worst-case error is 348,766 seconds against an 86,400 second gate. That is the
   thesis working, and it is also a column of nulls. It fills in as the capture
   history tightens.
@@ -62,7 +62,7 @@ question a developer has actually wondered about, with evidence.
 > - It refuses to print dates it cannot support. Every `first_seen_in_catalog_at`
 >   is null, because the measured worst-case error for that source is 348,766
 >   seconds against the 86,400 second resolution the field would render at.
->   Publishing 621 nulls instead of 621 plausible dates is the point.
+>   Publishing 421 nulls instead of 421 plausible dates is the point.
 >
 > Keyless JSON API and a CLI, no signup, no rate limit:
 >
