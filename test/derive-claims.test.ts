@@ -272,3 +272,82 @@ describe('the claim rule: an artifact is the subject, never a company', () => {
     ]);
   });
 });
+
+/**
+ * NO CLAIM SENTENCE MAY REPEAT A WORD.
+ *
+ * Source ids end in what they are: `anthropic-sitemap`, `openai-news-feed`,
+ * `claude-status`. A template that then adds the same noun produces "the
+ * anthropic-sitemap sitemap listed" and "the huggingface-blog-feed feed
+ * published". This has now shipped twice, in two different claim forms written
+ * days apart, which makes it a pattern rather than a typo: the id already says
+ * what the artifact is, so the sentence must not say it again.
+ *
+ * Checked over every type's rendered sentence rather than over the templates,
+ * because the doubling only appears once an id is interpolated.
+ */
+describe('claim sentences read as English', () => {
+  /**
+   * Every claim form the module can produce, built from the fixtures this file
+   * already assembles plus the news forms, so a new type added without a
+   * sentence here is visible as a shrinking count rather than silently skipped.
+   */
+  const sentences = [
+    modelAdded,
+    modelRemoved,
+    priceChanged,
+    contextChanged,
+    expirationSet,
+    aliasRetargeted,
+    docAdded,
+    docRemoved,
+    retirementFloor,
+    ...eventsFromChange(
+      change({
+        sourceId: 'anthropic-sitemap',
+        path: 'raw/anthropic-sitemap/response.xml',
+        before: '<urlset></urlset>',
+        after: '<urlset><url><loc>https://www.anthropic.com/news/x</loc></url></urlset>',
+      }),
+    ),
+    ...eventsFromChange(
+      change({
+        sourceId: 'claude-status',
+        path: 'raw/claude-status/response.atom',
+        before: '<feed></feed>',
+        after: '<feed><entry><id>i1</id><link href="https://x/1"/><title>An outage</title></entry></feed>',
+      }),
+    ),
+    ...eventsFromChange(
+      change({
+        sourceId: 'openai-news-feed',
+        path: 'raw/openai-news-feed/response.xml',
+        before: '<rss><channel></channel></rss>',
+        after: '<rss><channel><item><guid>g1</guid><link>https://x/p</link><title>A post</title></item></channel></rss>',
+      }),
+    ),
+  ].map((e) => claimSentence(e));
+
+  it('has a sentence for every event type, so this cannot pass by checking none', () => {
+    expect(sentences.length).toBeGreaterThan(10);
+    for (const s of sentences) expect(s.length).toBeGreaterThan(10);
+  });
+
+  it('repeats no word', () => {
+    const offenders: string[] = [];
+    for (const s of sentences) {
+      // Only outside quoted runs: a third-party title may legitimately repeat a
+      // word, and the copy rule is what puts it in quotes.
+      const outsideQuotes = s.replace(/"[^"]*"/g, '""');
+      const m = /\b(\w+)\s+\1\b/i.exec(outsideQuotes);
+      if (m !== null) offenders.push(`${m[0]} in: ${s.slice(0, 70)}`);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('still permits a repeat inside a quoted third-party value', () => {
+    // The rule is about prose this project composes, not about what it quotes.
+    const quoted = 'The x index listed a URL it had not listed before: "the the".';
+    expect(/\b(\w+)\s+\1\b/i.test(quoted.replace(/"[^"]*"/g, '""'))).toBe(false);
+  });
+});

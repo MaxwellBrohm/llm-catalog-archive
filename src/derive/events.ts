@@ -1015,7 +1015,7 @@ export function claimSentence(event: DerivedEvent): string {
      * every other third-party value, and the subject is still the feed.
      */
     case 'post_published':
-      return `The ${event.sourceId} feed published a post titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
+      return `The ${event.sourceId} published a post titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'incident_opened':
       return `The ${event.sourceId} feed listed an incident titled ${quoteValue(event.title)} at ${quoteValue(event.url)}.`;
     case 'doc_added':

@@ -242,12 +242,20 @@ describe('a post published in an announcement feed', () => {
 
   it('quotes the headline rather than composing prose around it', () => {
     expect(claimSentence(events[0] as DerivedEvent)).toBe(
-      `The openai-news-feed feed published a post titled "${POST.title}" at "${POST.link}".`,
+      `The openai-news-feed published a post titled "${POST.title}" at "${POST.link}".`,
     );
   });
 
-  it('names the feed as the subject, never the company', () => {
-    expect(claimSentence(events[0] as DerivedEvent).startsWith('The openai-news-feed feed')).toBe(true);
+  /**
+   * The id already ends in what the artifact is, so the sentence must not add
+   * the noun again: "The openai-news-feed feed published" repeats a word, and
+   * that has now shipped in two separate claim forms. test/derive-claims.test.ts
+   * guards the whole set against it.
+   */
+  it('names the feed as the subject, never the company, and does not repeat the noun', () => {
+    const sentence = claimSentence(events[0] as DerivedEvent);
+    expect(sentence.startsWith('The openai-news-feed published')).toBe(true);
+    expect(sentence).not.toContain('feed feed');
   });
 
   it('emits nothing when only the channel build stamp moved', () => {
