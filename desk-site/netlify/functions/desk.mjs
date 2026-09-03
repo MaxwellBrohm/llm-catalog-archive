@@ -233,6 +233,48 @@ export default async (request) => {
     return json({ ok: true, [id]: row, ledger });
   }
 
+  /**
+   * Is this desk actually wired up.
+   *
+   * READ-ONLY ON PURPOSE. The obvious way to test a write credential is to
+   * write something, and here that would mean putting a row into a file whose
+   * entire purpose is to record what was really pushed at people. A ledger with
+   * a test row in it is not a ledger. So this proves the token by reading with
+   * it, which fails in all the same ways a bad credential fails: absent,
+   * expired, wrong repository, missing Contents permission.
+   */
+  if (request.method === 'GET' && action === 'health') {
+    const token = process.env.GITHUB_TOKEN;
+    const out = { key: 'accepted', token: Boolean(token), ledger: null, queue: null };
+
+    if (token) {
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${LEDGER_PATH}?ref=${LEDGER_BRANCH}`,
+        { headers: { accept: 'application/vnd.github+json', authorization: `Bearer ${token}`, 'user-agent': 'diffwire-desk' }, cache: 'no-store' },
+      );
+      if (res.ok) {
+        const file = await res.json();
+        const text = Buffer.from(file.content, 'base64').toString('utf8');
+        const rows = text.split('\n').filter((l) => l.trim().length > 0);
+        // The scopes are not readable from a token, so the closest honest
+        // statement is that a read succeeded on the exact path a write targets.
+        out.ledger = { readable: true, rows: rows.length, path: `${LEDGER_BRANCH}:${LEDGER_PATH}` };
+      } else {
+        out.ledger = { readable: false, status: res.status,
+          why: res.status === 401 ? 'the token was rejected'
+            : res.status === 404 ? 'the token cannot see this repository or that path'
+            : 'unexpected' };
+      }
+    }
+
+    const branch = await readQueueBranch();
+    out.queue = branch.missing ? { present: false }
+      : branch.error ? { present: false, status: branch.error }
+      : { present: true, candidates: branch.queue.candidates?.length ?? 0, generated_at: branch.queue.generated_at ?? null, via: branch.via };
+
+    return json(out);
+  }
+
   if (request.method === 'GET' && action === 'decisions') {
     return json((await store.get('decisions', { type: 'json' })) ?? {});
   }

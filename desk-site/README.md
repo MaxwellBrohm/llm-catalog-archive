@@ -39,6 +39,34 @@ The comparison is constant-time because avoiding that costs nothing.
 | `POST /api/seed` | routine writes the day's queue |
 | `POST /api/decide` | page records one decision |
 | `POST /api/clear` | drop settled decisions |
+| `GET /api/health` | is this desk actually wired up |
+
+## Checking it works
+
+    curl -s "$DESK_URL/api/health?k=$DESK_KEY"
+
+Reports whether the token is present, whether it can read
+`main:meta/posted.jsonl` (the exact path a write targets), how many rows the
+ledger holds, and how old the queue is.
+
+**Read-only on purpose.** The obvious way to test a write credential is to write
+something, and here that would mean putting a row into a file whose entire
+purpose is to record what was really pushed at people. A ledger with a test row
+in it is not a ledger.
+
+A read does not prove the token can WRITE: a Contents-read-only PAT passes this
+check. To prove the write without touching the real ledger, point the function
+at a scratch branch, exercise it, and put it back:
+
+    gh api repos/<repo>/git/refs -f ref=refs/heads/ledger-probe -f sha=<main sha>
+    netlify env:set LEDGER_BRANCH ledger-probe --context production
+    netlify deploy --prod --dir public --functions netlify/functions
+    # ... press a button, check the branch ...
+    netlify env:unset LEDGER_BRANCH --context production
+    netlify deploy --prod --dir public --functions netlify/functions
+    gh api repos/<repo>/git/refs/heads/ledger-probe -X DELETE
+
+`LEDGER_BRANCH` exists for exactly this. Production sets nothing and gets main.
 
 ## The ledger write
 
