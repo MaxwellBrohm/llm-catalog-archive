@@ -28,6 +28,10 @@ import { getStore } from '@netlify/blobs';
 import { timingSafeEqual } from 'node:crypto';
 
 const REPO = 'MaxwellBrohm/llm-catalog-archive';
+const LEDGER_PATH = 'meta/posted.jsonl';
+// Overridable so the append can be exercised for real against a scratch branch
+// without writing into the archive. Production sets nothing and gets main.
+const LEDGER_BRANCH = process.env.LEDGER_BRANCH || 'main';
 const API_URL = `https://api.github.com/repos/${REPO}/contents/queue.json?ref=desk`;
 const RAW_URL = `https://raw.githubusercontent.com/${REPO}/desk/queue.json`;
 
@@ -83,6 +87,70 @@ function authorized(request) {
   return timingSafeEqual(a, b);
 }
 
+/**
+ * Append one row to meta/posted.jsonl on main.
+ *
+ * WHY THE FUNCTION AND NOT THE ROUTINE. The routine cannot reach this host, and
+ * this host cannot be reached BY it, so the decision Max makes on his phone has
+ * no path back to the archive except the one thing both ends can talk to, which
+ * is GitHub. The function has the token, so the function writes the row.
+ *
+ * APPEND, LITERALLY. The Contents API replaces a file wholesale, so the current
+ * bytes are read and the row is concatenated onto them. Nothing existing is
+ * parsed, reformatted or rewritten: a line that is already in the ledger comes
+ * back out byte for byte, because the append-only workflow rejects a diff that
+ * touches a written line and it is right to.
+ *
+ * THE SHA IS THE LOCK. A PUT carrying a stale blob sha is refused ("does not
+ * match"), which is exactly the behaviour wanted when the daily collector
+ * commits between our read and our write. Verified against the real API before
+ * this was written, on a scratch branch, including the refusal.
+ */
+export async function appendToLedger(row, token) {
+  const base = `https://api.github.com/repos/${REPO}/contents/${LEDGER_PATH}`;
+  const headers = {
+    accept: 'application/vnd.github+json',
+    authorization: `Bearer ${token}`,
+    'user-agent': 'diffwire-desk',
+    'content-type': 'application/json',
+  };
+
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const read = await fetch(`${base}?ref=${LEDGER_BRANCH}`, { headers, cache: 'no-store' });
+    if (!read.ok) return { ok: false, why: `could not read the ledger (${read.status})` };
+    const file = await read.json();
+    const current = Buffer.from(file.content, 'base64').toString('utf8');
+
+    // Idempotent: the same item and platform never gets a second row, so a
+    // double tap, a retry, or a page reloaded twice cannot inflate the record
+    // of what was actually pushed at people.
+    if (current.includes(`"id":${JSON.stringify(row.id)},"platform":${JSON.stringify(row.platform)}`)) {
+      return { ok: true, already: true };
+    }
+
+    const next = current + (current.length > 0 && !current.endsWith('\n') ? '\n' : '') +
+      JSON.stringify(row) + '\n';
+
+    const write = await fetch(base, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        message: `desk: ${row.platform} <- ${row.id}`,
+        content: Buffer.from(next, 'utf8').toString('base64'),
+        sha: file.sha,
+        branch: LEDGER_BRANCH,
+      }),
+    });
+    if (write.ok) return { ok: true, commit: (await write.json()).commit?.sha ?? null };
+    // 409 is the collector having committed between our read and our write.
+    // Re-read and try again; anything else is not ours to retry.
+    if (write.status !== 409 && write.status !== 422) {
+      return { ok: false, why: `could not write the ledger (${write.status})` };
+    }
+  }
+  return { ok: false, why: 'the ledger kept changing under us; not written' };
+}
+
 export default async (request) => {
   if (!authorized(request)) return json({ error: 'not authorized' }, 401);
 
@@ -125,15 +193,44 @@ export default async (request) => {
   if (request.method === 'POST' && action === 'decide') {
     const { id, status, platform } = await request.json();
     if (typeof id !== 'string' || id.length === 0) return json({ error: 'id is required' }, 400);
+
     const decisions = (await store.get('decisions', { type: 'json' })) ?? {};
     const row = decisions[id] ?? { status: 'pending', posted: {} };
     if (status === 'skipped') row.status = 'skipped';
+
+    let ledger = null;
     if (typeof platform === 'string' && platform.length > 0) {
-      row.posted[platform] = new Date().toISOString();
+      const at = new Date().toISOString();
+      row.posted[platform] = at;
+
+      // The id must be a candidate currently on the desk. The key travels in a
+      // URL and in email, so it is the kind of secret that eventually leaks,
+      // and this bounds what a leaked one can write into a public repository to
+      // rows about items the archive actually produced.
+      const branch = await readQueueBranch();
+      const candidate = branch.queue?.candidates?.find((c) => c.id === id);
+      if (!candidate) {
+        ledger = { ok: false, why: 'that id is not on the current desk; nothing written to the ledger' };
+      } else if (!process.env.GITHUB_TOKEN) {
+        ledger = { ok: false, why: 'no GITHUB_TOKEN configured; the ledger was not written' };
+      } else {
+        ledger = await appendToLedger(
+          {
+            id,
+            platform,
+            entities: candidate.entities ?? [],
+            posted_at: at,
+            permalink: null,
+            via: 'human',
+          },
+          process.env.GITHUB_TOKEN,
+        );
+      }
     }
+
     decisions[id] = row;
     await store.setJSON('decisions', decisions);
-    return json({ ok: true, [id]: row });
+    return json({ ok: true, [id]: row, ledger });
   }
 
   if (request.method === 'GET' && action === 'decisions') {

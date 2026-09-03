@@ -86,3 +86,13 @@ generator uses, writes nothing and posts nothing.
 `meta/posted.jsonl` is the append-only record of what went out and where. It is
 the cooldown's memory and the deduplication key, so the routine is restartable
 on any machine with a clone and cannot double-post because a process died.
+
+It has exactly one writer: the desk's own function, which appends a row through
+the GitHub API when a platform button is pressed. The daily routine never writes
+it, because two writers to an append-only file is how one of them ends up
+clobbering the other, and because by the time the routine clones, the rows are
+already there and the cooldown has already been applied.
+
+The reason the writer is the web function rather than the routine is a wall, not
+a preference: the routine's sandbox cannot reach the desk and the desk cannot
+reach the routine. GitHub is the only thing both can talk to.

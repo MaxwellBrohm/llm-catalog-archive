@@ -38,7 +38,38 @@ The comparison is constant-time because avoiding that costs nothing.
 | `GET /api/decisions` | what has been skipped or posted |
 | `POST /api/seed` | routine writes the day's queue |
 | `POST /api/decide` | page records one decision |
-| `POST /api/clear` | routine drops decisions it has written to the ledger |
+| `POST /api/clear` | drop settled decisions |
+
+## The ledger write
+
+Pressing a platform button appends a row to `meta/posted.jsonl` on `main`
+through the GitHub API. This function is that file's ONLY writer.
+
+It is the writer because of a wall rather than a preference: the daily routine
+runs in a sandbox that cannot reach this host, and this host cannot reach the
+routine. GitHub is the only thing both ends can talk to, and the function is the
+end that can hold a token.
+
+Three properties, each verified against the real API before the code shipped:
+
+- **Append, literally.** The Contents API replaces a file wholesale, so the
+  current bytes are read and the row is concatenated. Nothing existing is
+  parsed or reformatted, because `tools/append-only.sh` rejects a diff that
+  touches a written line.
+- **The blob sha is the lock.** A PUT carrying a stale sha is refused, which is
+  what should happen when the collector commits between the read and the write.
+  A conflict re-reads and retries; four attempts, then it gives up and says so.
+- **Idempotent per item and platform.** A double tap, a retry or a reloaded page
+  cannot add a second row for the same pair, so the record of what was pushed at
+  people cannot inflate.
+
+An id that is not on the current desk is refused before any write is attempted.
+The key travels in URLs and email, so it is the kind of secret that eventually
+leaks, and this bounds what a leaked one can put into a public repository.
+
+`GITHUB_TOKEN` is a fine-grained PAT with **Contents: read and write on this one
+repository**. Without it the desk still works and every decision reports
+`no GITHUB_TOKEN configured` rather than failing silently.
 
 ## Deploy
 

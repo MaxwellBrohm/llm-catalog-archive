@@ -60,48 +60,27 @@ stdout and the output stops being parseable, which costs you a detour into
 stripping lines off the front of your own data. If it fails, stop and report the failure rather than
 seeding a partial desk.
 
-## 2. Read the decisions Max has already made
+## 2. Nothing. The ledger writes itself.
 
-    curl -s "$DESK_URL/api/decisions?k=$DESK_KEY"
+There is no step here any more, and that is the point. When Max taps a platform
+on the desk, the desk's own function appends the row to `meta/posted.jsonl` on
+`main` through the GitHub API, because it holds a token and can reach GitHub
+even though it cannot reach you and you cannot reach it.
 
-An object keyed by candidate id, each `{status, posted}`. `status: "skipped"` or
-a non-empty `posted` means Max has dealt with that item.
+So by the time you clone, the ledger is already current, `npm run desk` has
+already read it, and the cooldown has already been applied to the queue you are
+about to publish. You neither read decisions nor write the ledger. Do not add a
+step that does: two writers to an append-only file is how one of them ends up
+clobbering the other.
 
-**This call is expected to fail right now**, with `connect_rejected` from the
-egress proxy: see the note in step 4. When it does, skip step 3 entirely and go
-straight to seeding. Do not treat it as a reason to stop, and do not try to
-route around the proxy.
+## 3. Nothing here either.
 
-## 3. Write what went out into the ledger
+`meta/posted.jsonl` is append-only and enforced by `tools/append-only.sh`, which
+fails a diff that touches a line already written. It has exactly one writer, the
+desk's function, and it should stay that way.
 
-For every decision whose `posted` object is non-empty, append one line to
-`meta/posted.jsonl` per platform key. Each line is a JSON object with exactly
-these keys:
-
-- `id` — the candidate id the decision is keyed by
-- `platform` — the key from `posted`
-- `entities` — that candidate's `entities` array, from step 1's output
-- `posted_at` — the ISO string that key holds
-- `permalink` — `null`
-- `via` — `"human"`
-
-**Append only.** Never edit, reorder or remove an existing line: that file is
-the record of what this account has pushed at people, and the commit hook
-refuses a diff that touches a written line.
-
-Then commit `meta/posted.jsonl` alone, on a new branch, and open a pull request
-titled `desk: record what went out`. Never push to main. If there was nothing to
-append, open no PR.
-
-Once a decision is in the PR, clear it so it does not accumulate (this also
-needs the desk, so it is skipped whenever step 2 was):
-
-    curl -s -X POST "$DESK_URL/api/clear?k=$DESK_KEY" \
-      -H 'content-type: application/json' -d '{"ids": ["..."]}'
-
-Clear the skipped ones too. They fall off the desk on their own anyway, because
-staleness costs a bit a day and a six-bit item drops under the floor in three,
-but a decision that has been acted on should not linger.
+Skipped items need no cleanup: staleness costs a bit a day, so a six-bit
+candidate falls under the floor in three and stops being offered on its own.
 
 ## 4. Push today's queue to the `desk` branch
 
