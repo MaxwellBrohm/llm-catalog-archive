@@ -57,8 +57,40 @@ describe('scaffold', () => {
     expect(attributeLines()).toContain('backfill/** -text');
   });
 
-  it('ships the corrections ledger, empty', () => {
-    expect(fs.readFileSync('meta/corrections.jsonl', 'utf8')).toBe('');
+  /**
+   * It shipped empty and no longer is, and the day it stopped being empty is
+   * the day it did its job: the desk wrote a row to meta/posted.jsonl when a
+   * submit form was opened, the submission was then refused for having no
+   * flair, and the false claim had to be corrected rather than edited away.
+   *
+   * "Empty" was therefore never the invariant worth pinning. This ledger exists
+   * to be written to, and a test asserting it stays empty asserts that nothing
+   * has ever gone wrong, which is not a property any honest archive can promise.
+   * What must hold is what holds for the other ledgers: the file exists, and
+   * every line in it is a line something can read.
+   */
+  it('ships a corrections ledger whose every line parses', () => {
+    const text = fs.readFileSync('meta/corrections.jsonl', 'utf8');
+    for (const line of text.split('\n')) {
+      if (line.trim().length === 0) continue;
+      expect(() => JSON.parse(line)).not.toThrow();
+    }
+  });
+
+  /**
+   * A correction that does not say what it corrects is a note, not a
+   * correction. Every row names the ledger and the claim it concerns.
+   */
+  it('gives every correction something to correct', () => {
+    const text = fs.readFileSync('meta/corrections.jsonl', 'utf8');
+    for (const line of text.split('\n')) {
+      if (line.trim().length === 0) continue;
+      const row = JSON.parse(line);
+      expect(row.ledger, line).toBeTruthy();
+      expect(row.concerns, line).toBeTruthy();
+      expect(row.correction, line).toBeTruthy();
+      expect(row.why, line).toBeTruthy();
+    }
   });
 
   it('ships the retractions ledger, empty', () => {
