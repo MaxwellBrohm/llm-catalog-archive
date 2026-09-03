@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { isShallow } from '../src/git.js';
 import type { FeedItem, FeedType } from '../src/derive/feed.js';
 import {
   typeBits,
@@ -285,5 +290,42 @@ describe('the posted ledger is the state', () => {
 
   it('records whether a human or the routine submitted it', () => {
     expect(parsePosted(JSON.stringify(rows[1]))[0]!.via).toBe('api');
+  });
+});
+
+describe('a truncated archive is refused, not scored', () => {
+  /**
+   * The scorer reads the distribution of event types over the WHOLE history, so
+   * a shallow clone does not merely miss old items: it changes the probability
+   * of every type and therefore the score of every candidate still present. The
+   * first cloud run of the routine scored over 74 changes where the full clone
+   * holds 427 and ranked a different candidate first. Nothing about that output
+   * looked wrong, which is why the check has to be mechanical.
+   */
+  it('reports a shallow clone as shallow and a full one as not', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shallow-'));
+    const full = path.join(dir, 'full');
+    const shallow = path.join(dir, 'shallow');
+    const run = (args: string[], cwd: string) => execFileSync('git', args, { cwd, stdio: 'pipe' });
+
+    fs.mkdirSync(full);
+    run(['init', '-q', '-b', 'main'], full);
+    run(['config', 'user.email', 't@t'], full);
+    run(['config', 'user.name', 't'], full);
+    for (let i = 0; i < 3; i++) {
+      fs.writeFileSync(path.join(full, 'f.txt'), String(i));
+      run(['add', 'f.txt'], full);
+      run(['commit', '-q', '-m', `c${i}`], full);
+    }
+    expect(isShallow(full)).toBe(false);
+
+    run(['clone', '-q', '--depth', '1', 'file://' + full, shallow], dir);
+    expect(isShallow(shallow)).toBe(true);
+
+    /* The remedy the error message names must actually clear it. */
+    run(['fetch', '-q', '--unshallow'], shallow);
+    expect(isShallow(shallow)).toBe(false);
+
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });

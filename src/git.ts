@@ -82,3 +82,24 @@ export function pushWithRebase(cwd: string, branch: string, attempts = 3): void 
   }
   throw new Error(`push failed after ${attempts} attempts: ${lastErr}`);
 }
+
+/**
+ * Whether this clone is missing history.
+ *
+ * THE ARCHIVE IS THE GIT HISTORY, so a shallow clone is not a faster checkout of
+ * the same data, it is a different and smaller archive. Every derivation here
+ * reads `git log` over raw/, and the posting scorer reads the DISTRIBUTION of
+ * event types across all of it, so a truncated clone does not just miss old
+ * items: it changes the probability of every type and therefore the score of
+ * every candidate still present. That failure is silent and produces a
+ * plausible-looking answer, which is the worst shape a failure can take.
+ *
+ * Measured, not hypothetical: the first cloud run of the desk routine scored
+ * over 74 changes where the full clone holds 427, and ranked a different
+ * candidate first as a result.
+ */
+export function isShallow(cwd: string): boolean {
+  const r = git(['rev-parse', '--is-shallow-repository'], cwd);
+  if (r.status !== 0) return false;
+  return r.stdout.trim() === 'true';
+}

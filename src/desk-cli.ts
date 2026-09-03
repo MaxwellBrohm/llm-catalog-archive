@@ -14,6 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { readContentChanges } from './site/history.js';
+import { isShallow } from './git.js';
 import { SITE_URL } from './site/record.js';
 import { loadSources } from './config.js';
 import { deriveEvents, type Tier } from './derive/events.js';
@@ -32,6 +33,17 @@ const tiers = new Map<string, Tier>(
     ? loadSources(JSON.parse(fs.readFileSync(sourcesPath, 'utf8'))).sources.map((s) => [s.id, s.tier])
     : [],
 );
+// REFUSE A TRUNCATED ARCHIVE. See isShallow: the score of every candidate is
+// computed from the distribution of event types over the whole history, so a
+// shallow clone silently produces a confident ranking of the wrong thing. It is
+// a one-line fix at the call site and an unfindable bug if it is not checked
+// here, because the output looks entirely normal.
+if (isShallow(cwd)) {
+  throw new Error(
+    'this is a shallow clone, so the archive it can see is truncated and every score would be computed over the wrong distribution; run `git fetch --unshallow` first',
+  );
+}
+
 const contentChanges = readContentChanges(cwd, (id: string) => tiers.get(id) ?? 'daily');
 const feed = buildFeed(deriveEvents(contentChanges), deriveLeaks(contentChanges));
 

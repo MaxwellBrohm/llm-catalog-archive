@@ -12,6 +12,23 @@ a trace in the history.
 Your job ends when the desk is filled and Max has been told. Nothing you do is
 visible to anyone outside this account.
 
+## 0. Get the whole archive
+
+The environment clones shallow, and **the archive is the git history**, so a
+shallow clone is not a faster checkout of the same data: it is a smaller
+archive. The score of every candidate comes from the distribution of event types
+across all of it, so a truncated clone does not merely miss old items, it
+changes the probability of every type and confidently ranks the wrong thing.
+
+```
+git rev-parse --is-shallow-repository
+git fetch --unshallow    # only if that printed true
+```
+
+`npm run desk` refuses to run on a shallow clone rather than trusting you to
+remember this, so if you skip it you get an error and not a wrong answer. Do not
+work around that error by editing the check.
+
 ## 1. Build the queue
 
 ```
@@ -80,8 +97,14 @@ prevent.
 
 Email maxwellbrohm@gmail.com if a Gmail connector is attached to this routine.
 Subject: `Diffwire desk: N waiting` (or `nothing today`). Body: the desk link,
-then one line per candidate giving its bits and its sentence. Plain text, no
-marketing voice, and do not restate the sentences in your own words.
+then one line per candidate giving its bits and its sentence, and finally the
+funnel's `seen` count. Plain text, no marketing voice, and do not restate the
+sentences in your own words.
+
+Include `seen` because it is the one number that reveals a truncated archive: it
+should be in the hundreds and growing. If it drops sharply between days,
+something has gone wrong with the clone and the scores that day are not
+trustworthy.
 
 If no Gmail connector is attached, say so plainly in your final message instead
 of pretending the mail went out.
