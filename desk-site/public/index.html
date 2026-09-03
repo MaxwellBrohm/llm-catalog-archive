@@ -318,6 +318,21 @@
       const decisions = d || {};
       rows = (q.candidates || []).map((c) => Object.assign({}, c, decisions[c.id] || { status: 'pending', posted: {} }));
       render(q.funnel && q.funnel.seen);
+
+      /* A queue older than a day means the routine did not run. Say so on the
+         page rather than presenting yesterday's list as today's, which is the
+         exact failure this publication exists to not commit. */
+      if (q.note) {
+        noteEl.hidden = false;
+        noteEl.textContent = q.note + '.';
+      } else if (q.generated_at) {
+        const hours = (Date.now() - Date.parse(q.generated_at)) / 3600000;
+        if (hours > 26) {
+          noteEl.hidden = false;
+          noteEl.textContent = 'This queue was built ' + Math.round(hours / 24) +
+            ' days ago, so the routine has not run since. Treat it as history, not as today.';
+        }
+      }
     } catch (err) {
       noteEl.hidden = false;
       noteEl.textContent = String(err.message) === '401'

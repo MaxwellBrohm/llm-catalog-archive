@@ -27,8 +27,43 @@
 import { getStore } from '@netlify/blobs';
 import { timingSafeEqual } from 'node:crypto';
 
-const QUEUE_URL =
-  'https://raw.githubusercontent.com/MaxwellBrohm/llm-catalog-archive/desk/queue.json';
+const REPO = 'MaxwellBrohm/llm-catalog-archive';
+const API_URL = `https://api.github.com/repos/${REPO}/contents/queue.json?ref=desk`;
+const RAW_URL = `https://raw.githubusercontent.com/${REPO}/desk/queue.json`;
+
+/**
+ * Read the queue branch.
+ *
+ * THE API, NOT raw.githubusercontent, and this was measured. After the `desk`
+ * branch was deleted outright, raw kept answering 200 with the old file while
+ * the API correctly answered 404. A cache that outlives the thing it is caching
+ * turns "the routine did not run today" into "here is yesterday's news,
+ * presented as today's", which is the one failure this whole project exists to
+ * not commit.
+ *
+ * Raw stays as the fallback for the API's 60-requests-an-hour anonymous limit,
+ * because a stale queue beats no queue, and `generated_at` travels to the page
+ * either way so a reader can always see how old the answer is.
+ */
+async function readQueueBranch() {
+  const res = await fetch(API_URL, {
+    headers: { accept: 'application/vnd.github+json', 'user-agent': 'diffwire-desk' },
+    cache: 'no-store',
+  });
+  if (res.status === 404) return { missing: true };
+  if (res.ok) {
+    const body = await res.json();
+    return { queue: JSON.parse(Buffer.from(body.content, 'base64').toString('utf8')), via: 'api' };
+  }
+  // 403 is the anonymous rate limit, which is shared across everything leaving
+  // this function's egress IP and so is not under our control.
+  if (res.status === 403 || res.status === 429) {
+    const raw = await fetch(RAW_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (raw.status === 404) return { missing: true };
+    if (raw.ok) return { queue: await raw.json(), via: 'raw (api rate-limited; may be stale)' };
+  }
+  return { error: res.status };
+}
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -61,15 +96,12 @@ export default async (request) => {
     const seeded = await store.get('queue', { type: 'json' });
     if (seeded) return json({ ...seeded, from: 'seed' });
 
-    // Cache-busted: raw.githubusercontent serves a stale copy for minutes, and
-    // a desk showing yesterday's queue is worse than one showing an error.
-    const res = await fetch(QUEUE_URL + '?t=' + Date.now(), { cache: 'no-store' });
-    if (res.status === 404) {
-      return json({ candidates: [], funnel: null, from: 'branch', note: 'no queue pushed yet' });
+    const out = await readQueueBranch();
+    if (out.missing) {
+      return json({ candidates: [], funnel: null, from: 'branch', note: 'no queue has been pushed yet' });
     }
-    if (!res.ok) return json({ error: 'could not read the queue branch', status: res.status }, 502);
-    const queue = await res.json();
-    return json({ ...queue, from: 'branch' });
+    if (out.error) return json({ error: 'could not read the queue branch', status: out.error }, 502);
+    return json({ ...out.queue, from: out.via });
   }
 
   // Manual override, kept for when the routine cannot run. Replaces the day's
