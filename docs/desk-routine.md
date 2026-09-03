@@ -6,9 +6,19 @@ editable like everything else, and so a change to how the desk is filled leaves
 a trace in the history.
 
 **The desk** is `https://diffwire-desk.netlify.app`, Max's own Netlify site. Its
-API needs the key in `DESK_KEY`, passed as `?k=<key>` on every call; without it
-every endpoint answers 401. Never put the key in a commit, an issue, a PR or the
-body of the email: it belongs only in the link.
+API takes the key as `?k=<key>` on every call; without it every endpoint answers
+401.
+
+`DESK_URL` and `DESK_KEY` are given to you **in the prompt**, not in the
+environment. The routine API accepts an `environment_variables` field and then
+silently drops it, which was measured rather than assumed: a run that echoed
+`env | grep DESK` printed nothing. Export them yourself at the start of the run
+from the values in the prompt.
+
+The key belongs in the desk link and nowhere else. **Never** write it into a
+commit, a branch name, an issue or a pull request: the repository is public. It
+does have to appear in the link you email, because the page cannot read the desk
+without it, and that is the one place it is meant to be.
 
 It deliberately does not live on a Claude preview URL. The desk is opened from a
 phone, most often by someone not signed in to anything, and a console that
