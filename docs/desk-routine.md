@@ -120,12 +120,32 @@ your own version of a claim is the one thing this system exists to prevent.
 ## 5. Tell Max
 
 Email maxwellbrohm@gmail.com if a Gmail connector is attached to this routine.
-Subject: `Diffwire desk: N waiting` (or `nothing today`). Body: the desk link,
-which is `$DESK_URL/?k=$DESK_KEY` (the key has to be in the link or the page
-cannot read anything),
-then one line per candidate giving its bits and its sentence, and finally the
-funnel's `seen` count. Plain text, no marketing voice, and do not restate the
-sentences in your own words.
+Subject: `Diffwire desk: N waiting` (or `nothing today`).
+
+Body, plain text:
+
+1. The desk link, `$DESK_URL/?k=$DESK_KEY`. The key has to be in the link or the
+   page cannot read anything.
+2. One block per candidate:
+
+       [8.0 bits] r/LocalLLaMA
+       The pull request numbered "vllm-project/vllm#54566" records a merged_at
+       of "2026-09-02T18:09:10Z" in the collected search payload.
+
+   **Name the venue.** It is `post.label` on the candidate, and leaving it out
+   is what makes the mail untriageable: the whole question a reader has in an
+   inbox is whether this is worth opening the desk for, and where it would go is
+   most of that answer. A candidate with no `post` says `no venue routed`.
+3. The funnel's `seen` count on its own line.
+
+**NO EM DASHES.** Not in the subject, not in the body, not anywhere. Use a
+comma, a colon, parentheses, or two sentences. This is a standing rule for
+everything written on Max's behalf and the mail had been breaking it daily.
+
+Do not restate a sentence in your own words, and do not add a summary line of
+your own. Copy each sentence exactly as `npm run desk` printed it, for the same
+reason the drafter never rewrites one: this is the point where a claim travels
+furthest from the bytes that support it.
 
 Include `seen` because it is the one number that reveals a truncated archive: it
 should be in the hundreds and growing. If it drops sharply between days,
