@@ -21,7 +21,7 @@ import { deriveEvents, type Tier } from './derive/events.js';
 import { deriveLeaks } from './derive/leaks.js';
 import { buildFeed } from './derive/feed.js';
 import { buildQueue } from './desk/queue.js';
-import { parsePosted } from './desk/ledger.js';
+import { parseCorrections, parsePosted } from './desk/ledger.js';
 import { POST_FLOOR_BITS } from './desk/surprise.js';
 
 const cwd = process.cwd();
@@ -54,8 +54,15 @@ const feed = buildFeed(deriveEvents(contentChanges), deriveLeaks(contentChanges)
 const postedPath = path.join(cwd, 'meta/posted.jsonl');
 const posted = fs.existsSync(postedPath) ? parsePosted(fs.readFileSync(postedPath, 'utf8')) : [];
 
+// The corrections ledger. A row here retracts a posting claim, and reading it
+// is what stops a false row suppressing an item forever: see correctedIds.
+const correctionsPath = path.join(cwd, 'meta/corrections.jsonl');
+const corrections = fs.existsSync(correctionsPath)
+  ? parseCorrections(fs.readFileSync(correctionsPath, 'utf8'))
+  : [];
+
 const floor = Number(process.env['LCA_POST_FLOOR'] ?? POST_FLOOR_BITS);
-const queue = buildQueue(feed, posted, new Date(), siteUrl, floor);
+const queue = buildQueue(feed, posted, new Date(), siteUrl, floor, 5, corrections);
 
 console.log(
   JSON.stringify(

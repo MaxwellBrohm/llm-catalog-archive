@@ -15,8 +15,9 @@
 
 import type { FeedItem } from '../derive/feed.js';
 import { countsByType, scoreItem, entityKey, POST_FLOOR_BITS, POSTABLE_TYPES, type Score } from './surprise.js';
+import { correctedIds } from './ledger.js';
 import { recommend, type Recommendation } from './route.js';
-import { lastPostedByEntity, postedIds, type PostedRow } from './ledger.js';
+import { lastPostedByEntity, postedIds, type CorrectionRow, type PostedRow } from './ledger.js';
 
 export type Candidate = {
   readonly item: FeedItem;
@@ -62,10 +63,15 @@ export function buildQueue(
   siteUrl: string,
   floorBits: number = POST_FLOOR_BITS,
   limit: number = 5,
+  corrections: readonly CorrectionRow[] = [],
 ): Queue {
   const counts = countsByType(feed);
-  const lastByEntity = lastPostedByEntity(posted);
-  const already = postedIds(posted);
+  // The cooldown reads the UNCORRECTED rows on purpose: it asks how recently we
+  // talked about a subject, and a retracted post still means the desk offered
+  // that story lately. Only the hard suppression is corrected, because that is
+  // the one a false row makes permanent.
+  const lastByEntity = lastPostedByEntity(posted.filter((r) => !correctedIds(corrections).has(r.id)));
+  const already = postedIds(posted, corrections);
 
   let postableType = 0;
   let notOnCooldown = 0;

@@ -73,6 +73,56 @@ export function lastPostedByEntity(rows: readonly PostedRow[]): Map<string, stri
 }
 
 /**
+ * A row of meta/corrections.jsonl, insofar as this module needs one.
+ *
+ * Only two fields are read. `ledger` says which record is being corrected, so a
+ * correction about the leaks scorecard cannot silently affect posting, and
+ * `concerns` is the item id. The prose fields are for a reader, and nothing
+ * here parses them: a rule that depended on the wording of an apology would be
+ * a rule that breaks the next time somebody words one differently.
+ */
+export type CorrectionRow = {
+  readonly ledger: string;
+  readonly concerns: string;
+};
+
+export function parseCorrections(text: string): CorrectionRow[] {
+  const rows: CorrectionRow[] = [];
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.length === 0) continue;
+    rows.push(JSON.parse(trimmed) as CorrectionRow);
+  }
+  return rows;
+}
+
+/**
+ * Item ids whose posting record has been corrected.
+ *
+ * A CORRECTION NOBODY READS IS NOT A CORRECTION. Two rows went into
+ * meta/posted.jsonl claiming posts that never happened, both were corrected in
+ * the append-only way this archive requires, and the queue went on suppressing
+ * those items anyway, because the thing that decides what to offer read only
+ * the claim and never the correction. The false rows had become permanent by
+ * being wrong.
+ *
+ * COARSE ON PURPOSE, and the direction of the coarseness is the point. This
+ * retracts EVERY posted row for a corrected id rather than trying to work out
+ * which venue a correction meant, because the alternative is reading intent out
+ * of prose. The failure mode it chooses is re-offering something that was
+ * genuinely posted, which costs a person one press of Skip. The failure mode it
+ * avoids is suppressing something forever on the strength of a claim already
+ * known to be false, which nothing recovers from.
+ */
+export function correctedIds(corrections: readonly CorrectionRow[]): Set<string> {
+  const ids = new Set<string>();
+  for (const row of corrections) {
+    if (row.ledger === 'meta/posted.jsonl') ids.add(row.concerns);
+  }
+  return ids;
+}
+
+/**
  * `<item id>::<venue id>` for everything already sent.
  *
  * KEYED ON VENUE, not platform. An item that went to r/OpenAI has not been to
@@ -80,8 +130,15 @@ export function lastPostedByEntity(rows: readonly PostedRow[]): Map<string, stri
  * after a single post. A row with no venue is keyed on its platform, which is
  * exactly what it meant when it was written.
  */
-export function postedIds(rows: readonly PostedRow[]): Set<string> {
+export function postedIds(
+  rows: readonly PostedRow[],
+  corrections: readonly CorrectionRow[] = [],
+): Set<string> {
+  const corrected = correctedIds(corrections);
   const ids = new Set<string>();
-  for (const row of rows) ids.add(`${row.id}::${row.venue ?? row.platform}`);
+  for (const row of rows) {
+    if (corrected.has(row.id)) continue;
+    ids.add(`${row.id}::${row.venue ?? row.platform}`);
+  }
   return ids;
 }

@@ -18,7 +18,9 @@ import { buildQueue, cooldownKeys } from '../src/desk/queue.js';
 import { recommend } from '../src/desk/route.js';
 import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE } from '../src/desk/venues.js';
 import { ALL_TYPES } from '../src/derive/feed.js';
-import { lastPostedByEntity, parsePosted, postedIds, type PostedRow } from '../src/desk/ledger.js';
+import {
+  lastPostedByEntity, parsePosted, postedIds, parseCorrections, correctedIds, type PostedRow,
+} from '../src/desk/ledger.js';
 
 const SITE = 'https://diffwire.dev';
 
@@ -631,5 +633,54 @@ describe('the ledger probe cannot write to main', () => {
   it('verifies the restore before deleting the branch it wrote to', () => {
     const end = fs.readFileSync(path.resolve('tools/ledger-probe-end.sh'), 'utf8');
     expect(end.indexOf('main:meta/posted.jsonl')).toBeLessThan(end.indexOf('-X DELETE'));
+  });
+});
+
+describe('a correction actually retracts the claim', () => {
+  const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
+  const posted: PostedRow[] = [{
+    id: 's:model_removed:a', platform: 'reddit', venue: 'reddit:LocalLLaMA', entities: [],
+    posted_at: '2026-09-01T00:00:00.000Z', permalink: null, via: 'human',
+  }];
+  const correction = [{ ledger: 'meta/posted.jsonl', concerns: 's:model_removed:a' }];
+  /* The fixture's stamp, so staleness charges nothing and the floor is the
+     only gate under test. A day later and the item drops under floor 0 on its
+     own, which reads as "the correction did nothing" and is not that at all. */
+  const now = new Date('2026-09-02T00:00:00.000Z');
+
+  /**
+   * THE WHOLE INCIDENT IN ONE TEST. Two rows claimed posts that never happened,
+   * both were corrected the append-only way this archive requires, and the
+   * queue kept suppressing those items regardless, because the code deciding
+   * what to offer read the claim and never the correction. Being wrong had made
+   * the rows permanent.
+   */
+  it('offers an item again once its posting claim is corrected', () => {
+    const suppressed = buildQueue([one], posted, now, SITE, 0);
+    expect(suppressed.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+
+    const restored = buildQueue([one], posted, now, SITE, 0, 5, correction);
+    expect(restored.candidates[0]!.route.primary!.venue).toBe('reddit:LocalLLaMA');
+  });
+
+  /** A correction about a different ledger must not touch posting. */
+  it('ignores a correction aimed at another ledger', () => {
+    const elsewhere = [{ ledger: 'meta/leaks-ledger.jsonl', concerns: 's:model_removed:a' }];
+    const q = buildQueue([one], posted, now, SITE, 0, 5, elsewhere);
+    expect(q.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+  });
+
+  it('leaves an uncorrected item suppressed', () => {
+    const other = [{ ledger: 'meta/posted.jsonl', concerns: 'a-different-item' }];
+    const q = buildQueue([one], posted, now, SITE, 0, 5, other);
+    expect(q.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+  });
+
+  it('reads the corrections file this repository actually ships', () => {
+    const rows = parseCorrections(fs.readFileSync(path.resolve('meta/corrections.jsonl'), 'utf8'));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const r of rows) expect(r.ledger).toBeTruthy();
+    /* Both of today's corrections concern the posting ledger. */
+    expect(correctedIds(rows).size).toBe(rows.filter((r) => r.ledger === 'meta/posted.jsonl').length);
   });
 });
