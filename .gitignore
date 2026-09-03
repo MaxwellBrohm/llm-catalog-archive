@@ -11,3 +11,6 @@ build/
 # cannot quietly start committing build output back into the archive.
 docs/site/
 liveness-body.md
+
+# Local Netlify folder
+.netlify

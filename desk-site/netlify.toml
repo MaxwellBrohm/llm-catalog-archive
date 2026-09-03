@@ -1,0 +1,28 @@
+[build]
+  publish = "public"
+  command = "echo no build step"
+
+[functions]
+  node_bundler = "esbuild"
+
+# The desk is one page. Everything under /api is the function; everything else
+# is the page, so a deep link or a refresh lands somewhere real.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/desk/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# The queue is pre-decision editorial. It is not secret in the sense that the
+# claims are already published on diffwire.dev, but which ones are about to be
+# pushed at people is nobody's business, and an open write endpoint would let a
+# stranger empty the queue.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"

@@ -1,0 +1,329 @@
+<title>Diffwire Posting Desk</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  /* Diffwire's own system. Single-world by intent: this is the console for a
+     publication whose identity is a void, and a light variant of it would be a
+     different product. Every colour is painted, so it holds on any host ground. */
+  :root {
+    --void: #050505;
+    --rail: #141110;
+    --rail-2: #1c1817;
+    --wire: #2b2422;
+    --core: #ff6a00;
+    --core-dim: #7a3403;
+    --ink: #f2eeea;
+    --dim: #8d827b;
+    --go: #4ade80;
+    --hold: #5f574f;
+    --pad: clamp(1rem, 4vw, 1.75rem);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--void);
+    color: var(--ink);
+    font: 400 16px/1.55 Inter, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .shell { max-width: 46rem; margin: 0 auto; padding: var(--pad) var(--pad) 5rem; }
+
+  header { padding: 1.5rem 0 1.25rem; border-bottom: 1px solid var(--wire); }
+  .mark {
+    font: 700 0.72rem/1 "JetBrains Mono", ui-monospace, monospace;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--core);
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .mark::after { content: ""; flex: 1; height: 1px; background: var(--wire); }
+  h1 {
+    font: 700 clamp(1.6rem, 6vw, 2.3rem)/1.1 "Space Grotesk", system-ui, sans-serif;
+    margin: 0.7rem 0 0; letter-spacing: -0.02em; text-wrap: balance;
+  }
+  .funnel {
+    margin: 0.6rem 0 0; color: var(--dim); font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .funnel b { color: var(--ink); font-weight: 500; }
+
+  .note {
+    margin-top: 1rem; padding: 0.7rem 0.85rem; border-radius: 3px;
+    border: 1px solid var(--core-dim); background: #1a0f06;
+    color: #ffb37a; font-size: 0.84rem;
+  }
+
+  .card {
+    border: 1px solid var(--wire); background: var(--rail);
+    margin-top: 1.25rem; padding: var(--pad); border-radius: 4px;
+  }
+  .card.is-done { opacity: 0.5; }
+
+  /* THE GAUGE. One tick per bit of information content, with the publish floor
+     marked. This is the only ornament on the page and it is not ornament: the
+     score is literally a count of bits, so a tick-per-bit reads it honestly at
+     a glance and a bar with a percentage would not. */
+  .gauge { display: flex; align-items: baseline; gap: 0.7rem; }
+  .ticks {
+    display: flex; gap: 3px; flex: 1; align-items: flex-end; height: 22px;
+    position: relative; margin-bottom: 0.85rem;
+  }
+  .tick { flex: 1; background: var(--wire); border-radius: 1px; height: 9px; }
+  .tick.on { background: var(--core); height: 22px; }
+  .tick.part { background: var(--core-dim); height: 16px; }
+  /* The publish floor, at its true fraction rather than snapped to a tick. It
+     is the only reference on the gauge that is not data, so it is drawn in the
+     ink colour and never in the accent. */
+  .floor {
+    position: absolute; top: -4px; bottom: -4px; width: 1px;
+    background: var(--ink); opacity: 0.55;
+  }
+  .floor::after {
+    content: "floor"; position: absolute; left: 4px; bottom: -0.85rem;
+    font: 400 0.56rem/1 "JetBrains Mono", ui-monospace, monospace;
+    letter-spacing: 0.06em; color: var(--dim);
+  }
+  .bits {
+    font: 700 0.95rem/1 "JetBrains Mono", ui-monospace, monospace;
+    color: var(--core); font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .bits span { color: var(--dim); font-weight: 400; font-size: 0.76rem; }
+
+  .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0 0; }
+  .chip {
+    font: 400 0.7rem/1 "JetBrains Mono", ui-monospace, monospace;
+    letter-spacing: 0.04em; padding: 0.34rem 0.5rem; border-radius: 2px;
+    border: 1px solid var(--wire); color: var(--dim);
+  }
+  .chip.type { color: var(--core); border-color: var(--core-dim); }
+
+  .claim {
+    font: 500 clamp(1.02rem, 3.4vw, 1.2rem)/1.42 "Space Grotesk", system-ui, sans-serif;
+    margin: 0.85rem 0 0; text-wrap: pretty;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 0.9rem; font-size: 0.8rem; }
+  td {
+    padding: 0.3rem 0.5rem 0.3rem 0; border-top: 1px solid var(--wire);
+    vertical-align: top; font-family: "JetBrains Mono", ui-monospace, monospace;
+  }
+  td:first-child { color: var(--dim); white-space: nowrap; width: 1%; padding-right: 1rem; }
+  td:last-child { word-break: break-word; }
+
+  details { margin-top: 0.8rem; }
+  summary {
+    cursor: pointer; color: var(--dim); font-size: 0.78rem;
+    font-family: "JetBrains Mono", ui-monospace, monospace; list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "+ "; color: var(--core); }
+  details[open] summary::before { content: "- "; }
+  .why { margin: 0.5rem 0 0; padding: 0; list-style: none; }
+  .why li {
+    font: 400 0.78rem/1.7 "JetBrains Mono", ui-monospace, monospace;
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.1rem; }
+  a.post, button {
+    font: 500 0.85rem/1 Inter, system-ui, sans-serif; cursor: pointer;
+    padding: 0.68rem 0.9rem; border-radius: 3px; border: 1px solid var(--wire);
+    background: var(--rail-2); color: var(--ink); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  a.post:hover, button:hover { border-color: var(--core-dim); background: #241a13; }
+  a.post:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--core); outline-offset: 2px;
+  }
+  a.post.sent { border-color: #1e4030; color: var(--go); background: #0d1a13; }
+  a.post.sent::after { content: "sent"; font-size: 0.66rem; color: var(--go); opacity: 0.8; }
+  button.skip { color: var(--dim); margin-left: auto; }
+
+  .blocked {
+    margin-top: 0.7rem; font: 400 0.75rem/1.6 "JetBrains Mono", ui-monospace, monospace;
+    color: var(--dim);
+  }
+  .blocked b { color: var(--ink); font-weight: 400; }
+
+  .empty { margin-top: 2rem; color: var(--dim); }
+  .empty p { max-width: 34rem; }
+  footer {
+    margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--wire);
+    color: var(--hold); font-size: 0.78rem;
+  }
+  footer a { color: var(--dim); }
+  @media (prefers-reduced-motion: no-preference) {
+    .card { animation: rise 0.35s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  }
+</style>
+
+<div class="shell">
+  <header>
+    <div class="mark">diffwire.dev / posting desk</div>
+    <h1>What is worth telling people today</h1>
+    <p class="funnel" id="funnel">Reading the queue&hellip;</p>
+    <div class="note" id="note" hidden></div>
+  </header>
+  <main id="list"></main>
+  <footer>
+    Every card is one capture in the archive, scored by how rare its kind of
+    event is across all of it. Posting opens the platform's own form with the
+    fields filled in, so a person always presses the last button.
+    <a href="https://diffwire.dev">diffwire.dev</a>
+  </footer>
+</div>
+
+<script>
+  const list = document.getElementById('list');
+  const funnelEl = document.getElementById('funnel');
+  const noteEl = document.getElementById('note');
+  const FLOOR = 4.5;
+  const SCALE = 10; /* ticks drawn; a score above this pins at full */
+
+  /* The key travels in the URL because this is a personal console reached from
+     a link in an email, and anything that asked for a password would just mean
+     a password manager on a phone at eight in the morning. Every API call
+     forwards it; the function denies without it. */
+  const KEY = new URLSearchParams(location.search).get('k') || '';
+  const api = (path) => '/api/' + path + '?k=' + encodeURIComponent(KEY);
+
+  let rows = [];
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+  function gauge(bits) {
+    let out = '<div class="ticks">';
+    for (let i = 0; i < SCALE; i++) {
+      const cls = ['tick'];
+      if (i + 1 <= Math.floor(bits)) cls.push('on');
+      else if (i < bits) cls.push('part');
+      out += '<div class="' + cls.join(' ') + '"></div>';
+    }
+    out += '<div class="floor" style="left:' + ((FLOOR / SCALE) * 100).toFixed(2) + '%"></div>';
+    return '<div class="gauge">' + out + '</div><div class="bits">' + bits.toFixed(1) +
+      ' <span>bits</span></div></div>';
+  }
+
+  function card(d) {
+    const posted = d.posted || {};
+    const done = d.status === 'skipped' || Object.keys(posted).length > 0;
+    const el = document.createElement('article');
+    el.className = 'card' + (done ? ' is-done' : '');
+
+    const facts = (d.facts || []).map(
+      (f) => '<tr><td>' + esc(f[0]) + '</td><td>' + esc(f[1]) + '</td></tr>'
+    ).join('');
+
+    const buttons = (d.drafts || []).map((dr) => {
+      const sent = posted[dr.platform];
+      if (!dr.submitUrl) {
+        return '<button data-copy="' + esc(dr.text || dr.title) + '" data-id="' + esc(d.id) +
+          '" data-platform="' + esc(dr.platform) + '">Copy for ' + esc(dr.label || dr.platform) + '</button>';
+      }
+      return '<a class="post' + (sent ? ' sent' : '') + '" target="_blank" rel="noopener"' +
+        ' href="' + esc(dr.submitUrl) + '" data-id="' + esc(d.id) + '" data-platform="' + esc(dr.platform) + '">' +
+        (sent ? '' : 'Post to ') + esc(dr.label || dr.platform) + '</a>';
+    }).join('');
+
+    const blocked = (d.shortfalls || []).length === 0 ? '' :
+      '<p class="blocked">No draft for ' + d.shortfalls.map(
+        (s) => '<b>' + esc(s.platform) + '</b> (' + s.need + ' chars, limit ' + s.limit + ')'
+      ).join(', ') + '. The sentence is never cut to fit, so write your own title there.</p>';
+
+    const stamp = d.stamp_iso || (d.stamp && d.stamp.iso) || '';
+
+    el.innerHTML =
+      gauge(Number(d.bits) || 0) +
+      '<div class="meta"><span class="chip type">' + esc(d.type) + '</span>' +
+        '<span class="chip">' + esc(d.source || 'archive') + '</span>' +
+        (stamp ? '<span class="chip">' + esc(String(stamp).slice(0, 10)) + '</span>' : '') +
+      '</div>' +
+      '<p class="claim">' + esc(d.sentence) + '</p>' +
+      (facts ? '<table>' + facts + '</table>' : '') +
+      '<details><summary>why it scored ' + (Number(d.bits) || 0).toFixed(1) + '</summary><ul class="why">' +
+        (d.why || []).map((w) => '<li>' + esc(w) + '</li>').join('') + '</ul></details>' +
+      blocked +
+      '<div class="actions">' + buttons +
+        '<button class="skip" data-skip="' + esc(d.id) + '">' + (d.status === 'skipped' ? 'Skipped' : 'Skip') + '</button>' +
+      '</div>';
+    return el;
+  }
+
+  function render(seen) {
+    list.textContent = '';
+    if (rows.length === 0) {
+      list.innerHTML = '<div class="empty"><p>Nothing cleared the floor. Most days should look ' +
+        'like this: the archive records a few hundred routine changes for every one worth ' +
+        'interrupting someone about.</p></div>';
+      funnelEl.innerHTML = 'Nothing waiting' + (seen ? ', out of <b>' + seen + '</b> changes in the archive' : '') + '.';
+      return;
+    }
+    const live = rows.filter((r) => r.status !== 'skipped' && Object.keys(r.posted || {}).length === 0);
+    for (const r of rows) list.appendChild(card(r));
+    funnelEl.innerHTML = '<b>' + live.length + '</b> waiting on you, <b>' +
+      (rows.length - live.length) + '</b> cleared' +
+      (seen ? ', out of <b>' + seen + '</b> changes in the archive' : '') + '.';
+  }
+
+  /* Fire and forget. The navigation to the platform must not wait on our own
+     bookkeeping, and a decision that fails to record costs a duplicate offer
+     tomorrow rather than anything worse. */
+  function decide(id, patch) {
+    fetch(api('decide'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id, ...patch }),
+    }).catch(() => {});
+  }
+
+  list.addEventListener('click', async (e) => {
+    const copy = e.target.closest('[data-copy]');
+    if (copy) {
+      try {
+        await navigator.clipboard.writeText(copy.dataset.copy);
+        copy.textContent = 'Copied';
+        decide(copy.dataset.id, { platform: copy.dataset.platform });
+      } catch { copy.textContent = 'Select the text above and copy it'; }
+      return;
+    }
+    const skip = e.target.closest('[data-skip]');
+    if (skip) {
+      skip.textContent = 'Skipped';
+      skip.closest('.card').classList.add('is-done');
+      decide(skip.dataset.skip, { status: 'skipped' });
+      return;
+    }
+    /* The anchor navigates natively; the write rides along and is never awaited
+       first, because awaiting is what gets a new tab eaten by the popup blocker. */
+    const post = e.target.closest('a.post');
+    if (post) {
+      post.classList.add('sent');
+      decide(post.dataset.id, { platform: post.dataset.platform });
+    }
+  });
+
+  (async () => {
+    if (!KEY) {
+      noteEl.hidden = false;
+      noteEl.textContent = 'This link is missing its key, so the desk cannot be read. Open the ' +
+        'link from the daily email rather than typing the address.';
+      funnelEl.textContent = '';
+      return;
+    }
+    try {
+      const [q, d] = await Promise.all([
+        fetch(api('queue')).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+        fetch(api('decisions')).then((r) => (r.ok ? r.json() : {})),
+      ]);
+      const decisions = d || {};
+      rows = (q.candidates || []).map((c) => Object.assign({}, c, decisions[c.id] || { status: 'pending', posted: {} }));
+      render(q.funnel && q.funnel.seen);
+    } catch (err) {
+      noteEl.hidden = false;
+      noteEl.textContent = String(err.message) === '401'
+        ? 'That key was not accepted. Use the link from the most recent email.'
+        : 'The desk could not be read (' + err.message + ').';
+      funnelEl.textContent = '';
+    }
+  })();
+</script>
