@@ -16,7 +16,7 @@ set -euo pipefail
 base="${1:?usage: append-only.sh <base-ref> [repo-dir]}"
 cd "${2:-.}"
 
-LEDGERS="meta/corrections.jsonl meta/retractions.jsonl meta/leaks-ledger.jsonl"
+LEDGERS="meta/corrections.jsonl meta/retractions.jsonl meta/leaks-ledger.jsonl meta/posted.jsonl"
 
 # Existence first, because it needs no diff base and the diff below cannot see
 # this. Deleting a zero-line file produces no '-' content lines at all, so while

@@ -20,7 +20,19 @@ import path from 'node:path';
  * test pinned to one filename passes when the other two are dropped.
  */
 
-const LEDGERS = ['meta/corrections.jsonl', 'meta/retractions.jsonl', 'meta/leaks-ledger.jsonl'] as const;
+/**
+ * meta/posted.jsonl joined this list when the desk began writing to it. Until
+ * then the guard did not cover it while two documents claimed it did, which is
+ * the worst of both: a guarantee described but not enforced. It matters more
+ * than the others if anything, because it is now written by a web endpoint
+ * rather than only by a person at a keyboard.
+ */
+const LEDGERS = [
+  'meta/corrections.jsonl',
+  'meta/retractions.jsonl',
+  'meta/leaks-ledger.jsonl',
+  'meta/posted.jsonl',
+] as const;
 const SCRIPT = path.resolve('tools/append-only.sh');
 
 const temps: string[] = [];
