@@ -1,12 +1,21 @@
 /**
  * The posting desk's state.
  *
- * ONE STORE, THREE VERBS. The routine seeds the day's candidates, the page
- * reads them, and the page records a decision. Netlify Blobs holds it because
- * the alternative that fits this shape is a Postgres that would sit idle six
- * days a week: this is read a few times a day by one person, and a free-tier
- * database that pauses under exactly that access pattern is a worse fit than a
- * key-value store that does not care.
+ * THE QUEUE IS PULLED, NOT PUSHED, and that is not a preference. The routine
+ * that builds it runs in a cloud sandbox whose egress proxy allows package
+ * registries, the Anthropic API and GitHub, and refuses everything else: its
+ * POST to this host came back `connect_rejected (organization policy)`. GitHub
+ * is therefore the only channel between the routine and this site, so the
+ * routine force-pushes a one-commit orphan branch and this function reads it.
+ *
+ * The orphan branch matters. The repository's main history IS the archive, the
+ * product is derived from it by walking it, and a daily housekeeping commit on
+ * main would be writing into the evidence. `desk` is a mailbox, not history.
+ *
+ * DECISIONS STAY HERE, in Netlify Blobs, because they are the one thing written
+ * from a phone rather than from the routine. A free-tier Postgres that pauses
+ * when it is read a few times a day is a worse fit than a key-value store that
+ * does not care.
  *
  * THE KEY IS NOT AUTHENTICATION and is not pretending to be. It is an
  * unguessable path to a personal console, the same posture as an unlisted URL,
@@ -17,6 +26,9 @@
 
 import { getStore } from '@netlify/blobs';
 import { timingSafeEqual } from 'node:crypto';
+
+const QUEUE_URL =
+  'https://raw.githubusercontent.com/MaxwellBrohm/llm-catalog-archive/desk/queue.json';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -44,13 +56,32 @@ export default async (request) => {
   const action = url.pathname.split('/').filter(Boolean).pop();
 
   if (request.method === 'GET' && action === 'queue') {
-    const queue = (await store.get('queue', { type: 'json' })) ?? { candidates: [], funnel: null };
-    return json(queue);
+    // A manual seed wins, so the desk can still be driven by hand when the
+    // routine is broken. Otherwise read the branch the routine pushed.
+    const seeded = await store.get('queue', { type: 'json' });
+    if (seeded) return json({ ...seeded, from: 'seed' });
+
+    // Cache-busted: raw.githubusercontent serves a stale copy for minutes, and
+    // a desk showing yesterday's queue is worse than one showing an error.
+    const res = await fetch(QUEUE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (res.status === 404) {
+      return json({ candidates: [], funnel: null, from: 'branch', note: 'no queue pushed yet' });
+    }
+    if (!res.ok) return json({ error: 'could not read the queue branch', status: res.status }, 502);
+    const queue = await res.json();
+    return json({ ...queue, from: 'branch' });
   }
 
-  // The routine's write. Replaces the day's queue wholesale; decisions live in
-  // a separate key so seeding can never clobber one.
+  // Manual override, kept for when the routine cannot run. Replaces the day's
+  // queue wholesale; decisions live under a separate key so a seed can never
+  // clobber one. POST {"candidates": null} to drop back to the branch.
   if (request.method === 'POST' && action === 'seed') {
+    const peek = request.clone();
+    const maybe = await peek.json().catch(() => null);
+    if (maybe && maybe.candidates === null) {
+      await store.delete('queue');
+      return json({ ok: true, from: 'branch' });
+    }
     const body = await request.json();
     if (!Array.isArray(body?.candidates)) return json({ error: 'candidates must be an array' }, 400);
     await store.setJSON('queue', { ...body, seeded_at: new Date().toISOString() });
