@@ -36,8 +36,11 @@ import type { FeedItem, FeedType } from '../derive/feed.js';
 import { labFromVendor, providerFromSourceId, type Lab } from '../derive/entities.js';
 import type { Platform } from './drafts.js';
 
-/** A venue plus the reason this type belongs at it. */
-export type RoutedVenue = Venue & { readonly why: string };
+/** A venue plus the reason this type belongs at it, and what to flair it. */
+export type RoutedVenue = Venue & {
+  readonly why: string;
+  readonly flair: readonly string[] | null;
+};
 
 export type Venue = {
   /** Stable id. `reddit:LocalLLaMA`, `hn`, `bluesky`. Recorded in the ledger. */
@@ -49,6 +52,12 @@ export type Venue = {
   readonly sub: string | null;
   /** Why this audience, in one line, shown on the desk. */
   readonly fit: string;
+  /**
+   * Whether a submission here is rejected without a flair. Observed on the real
+   * form, not assumed: r/LocalLLaMA refuses one, and "No flair" is not an
+   * answer it accepts. Venues with no flair concept at all are false.
+   */
+  readonly needsFlair: boolean;
 };
 
 export const VENUES: Record<string, Venue> = {
@@ -58,6 +67,7 @@ export const VENUES: Record<string, Venue> = {
     label: 'r/LocalLLaMA',
     sub: 'LocalLLaMA',
     fit: 'the most active technical audience for open-weight and frontier model news, and one that expects evidence rather than a claim',
+    needsFlair: true,
   },
   'reddit:singularity': {
     id: 'reddit:singularity',
@@ -65,6 +75,7 @@ export const VENUES: Record<string, Venue> = {
     label: 'r/singularity',
     sub: 'singularity',
     fit: 'much larger and much less technical: reach at the cost of the comments being about implications rather than about the artifact',
+    needsFlair: true,
   },
   'reddit:OpenAI': {
     id: 'reddit:OpenAI',
@@ -72,6 +83,7 @@ export const VENUES: Record<string, Venue> = {
     label: 'r/OpenAI',
     sub: 'OpenAI',
     fit: 'where the developers who have to act on an OpenAI change actually are',
+    needsFlair: true,
   },
   'reddit:ClaudeAI': {
     id: 'reddit:ClaudeAI',
@@ -79,6 +91,7 @@ export const VENUES: Record<string, Venue> = {
     label: 'r/ClaudeAI',
     sub: 'ClaudeAI',
     fit: 'where the developers who have to act on an Anthropic change actually are',
+    needsFlair: true,
   },
   hn: {
     id: 'hn',
@@ -86,6 +99,7 @@ export const VENUES: Record<string, Venue> = {
     label: 'Hacker News',
     sub: null,
     fit: 'the highest-value audience and the least forgiving: only worth it when the finding stands on its own to a programmer who has never heard of the site',
+    needsFlair: false,
   },
   bluesky: {
     id: 'bluesky',
@@ -93,6 +107,7 @@ export const VENUES: Record<string, Venue> = {
     label: 'Bluesky',
     sub: null,
     fit: 'broadcast rather than discussion, and the only venue whose API permits posting without a person present',
+    needsFlair: false,
   },
   mastodon: {
     id: 'mastodon',
@@ -100,14 +115,16 @@ export const VENUES: Record<string, Venue> = {
     label: 'Mastodon',
     sub: null,
     fit: 'small but technical, and open in the same way this archive is',
+    needsFlair: false,
   },
-  x: { id: 'x', platform: 'x', label: 'X', sub: null, fit: 'reach, with almost no click-through to a page like this one' },
+  x: { id: 'x', platform: 'x', label: 'X', sub: null, needsFlair: false, fit: 'reach, with almost no click-through to a page like this one' },
   linkedin: {
     id: 'linkedin',
     platform: 'linkedin',
     label: 'LinkedIn',
     sub: null,
     fit: 'the wrong audience for a catalogue diff; kept only because it costs nothing to offer',
+    needsFlair: false,
   },
 };
 
@@ -147,7 +164,26 @@ export function labOf(item: FeedItem): Lab | null {
  * newsworthy because it was "an unreleased model sighting". The reason belongs
  * to the pairing, not to either half of it.
  */
-type RouteStep = { readonly id: string; readonly why: string };
+type RouteStep = {
+  readonly id: string;
+  readonly why: string;
+  /**
+   * Flairs to pick on arrival, in preference order, first one present wins.
+   *
+   * NOT COSMETIC. r/LocalLLaMA rejects a submission with no flair set, and
+   * "No flair" is not a selectable answer to that: the post simply will not go
+   * through, which is where this whole routing effort actually stopped the
+   * first time it met a real subreddit. Reddit cannot be reached from inside
+   * this repository, so it cannot be prefilled either: the submit URL takes a
+   * `flair_id` UUID that only an authenticated API call can supply. Naming the
+   * flair is therefore the most the desk can honestly do.
+   *
+   * A list rather than one value because a subreddit's flair set is not visible
+   * from here and does change. Null means the flairs at that venue are unknown,
+   * which the desk says out loud rather than inventing one.
+   */
+  readonly flair?: readonly string[] | null;
+};
 
 /**
  * Venues in preference order for a type, before eligibility is considered.
@@ -162,24 +198,24 @@ const ROUTES: Record<FeedType, readonly RouteStep[]> = {
   // This is r/LocalLLaMA's core subject, and the evidence link is what makes it
   // a post there rather than a rumour.
   codename_unmasked: [
-    { id: 'reddit:LocalLLaMA', why: 'a codename resolving to a real model id is that sub\'s core subject, and the diff is the evidence it asks for' },
+    { id: 'reddit:LocalLLaMA', why: 'a codename resolving to a real model id is that sub\'s core subject, and the diff is the evidence it asks for', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'an unreleased model identified from a vendor\'s own bytes stands on its own to a programmer who has never heard of this site' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
   codename_entered: [
-    { id: 'reddit:LocalLLaMA', why: 'a new codename appearing is a lead that audience actively watches for' },
+    { id: 'reddit:LocalLLaMA', why: 'a new codename appearing is a lead that audience actively watches for', flair: ['News', 'Discussion'] },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
   stealth_listing: [
-    { id: 'reddit:LocalLLaMA', why: 'an unannounced model listed on a public endpoint is that sub\'s core subject' },
+    { id: 'reddit:LocalLLaMA', why: 'an unannounced model listed on a public endpoint is that sub\'s core subject', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'a model shipped before it was announced is a story on its own terms' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
 
   // A model appearing. Whose model decides the room.
   model_added: [
-    { id: 'vendor', why: 'a new model from this lab matters first to the people already building on it' },
-    { id: 'reddit:LocalLLaMA', why: 'the general audience for a model appearing in a catalogue' },
+    { id: 'vendor', why: 'a new model from this lab matters first to the people already building on it', flair: null },
+    { id: 'reddit:LocalLLaMA', why: 'the general audience for a model appearing in a catalogue', flair: ['New Model', 'News', 'Discussion'] },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
 
@@ -187,30 +223,30 @@ const ROUTES: Record<FeedType, readonly RouteStep[]> = {
   // it goes where the people who have to do it are, ahead of where the most
   // people are.
   model_removed: [
-    { id: 'vendor', why: 'a removal is a migration somebody has to perform, so it goes where those people are before it goes where the most people are' },
-    { id: 'reddit:LocalLLaMA', why: 'the general audience for a model disappearing from a catalogue' },
+    { id: 'vendor', why: 'a removal is a migration somebody has to perform, so it goes where those people are before it goes where the most people are', flair: null },
+    { id: 'reddit:LocalLLaMA', why: 'the general audience for a model disappearing from a catalogue', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'worth the front page only when the model was widely depended on' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
   retirement_floor: [
-    { id: 'vendor', why: 'a dated shutdown is a deadline for this lab\'s users specifically, and the date comes from the vendor\'s own bytes' },
-    { id: 'reddit:LocalLLaMA', why: 'the general audience for a retirement date' },
+    { id: 'vendor', why: 'a dated shutdown is a deadline for this lab\'s users specifically, and the date comes from the vendor\'s own bytes', flair: null },
+    { id: 'reddit:LocalLLaMA', why: 'the general audience for a retirement date', flair: ['News', 'Discussion'] },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
 
   // Inference-engine work: that audience is r/LocalLLaMA almost by definition.
   upstream_pr_merged: [
-    { id: 'reddit:LocalLLaMA', why: 'inference-engine work landing is that audience almost by definition: they run these engines' },
+    { id: 'reddit:LocalLLaMA', why: 'inference-engine work landing is that audience almost by definition: they run these engines', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'worth it when the merge implies hardware or an architecture nobody has shipped yet' },
   ],
   upstream_pr_opened: [
-    { id: 'reddit:LocalLLaMA', why: 'a pull request opened against an engine they run is a lead, not yet news' },
+    { id: 'reddit:LocalLLaMA', why: 'a pull request opened against an engine they run is a lead, not yet news', flair: ['News', 'Discussion'] },
   ],
 
   // An outage matters to that vendor's users and to almost nobody else. HN
   // flags status-page submissions, so it is deliberately not offered.
   incident_opened: [
-    { id: 'vendor', why: 'an outage matters to the people whose builds are failing right now and to almost nobody else' },
+    { id: 'vendor', why: 'an outage matters to the people whose builds are failing right now and to almost nobody else', flair: null },
     { id: 'bluesky', why: 'broadcast, once the vendor\'s own audience has it' },
   ],
 
@@ -280,7 +316,7 @@ export function venuesFor(item: FeedItem): RoutedVenue[] {
       throw new Error(`the route for ${item.type} names ${id}, which is not a venue in VENUES`);
     }
     seen.add(id);
-    out.push({ ...venue, why: step.why });
+    out.push({ ...venue, why: step.why, flair: step.flair ?? null });
   }
   return out;
 }

@@ -30,6 +30,17 @@ export type Recommendation = {
   readonly primary: Draft | null;
   /** Why THIS type belongs at THAT venue, from the routing table. */
   readonly why: string | null;
+  /**
+   * What to flair it on arrival, in preference order, or null where that
+   * venue's flairs are not known from here. It cannot be prefilled: Reddit's
+   * submit URL takes a `flair_id` UUID that only an authenticated call can
+   * supply, and reddit.com is unreachable from this repository. Naming it is
+   * the difference between a post that goes through and one that will not
+   * submit at all.
+   */
+  readonly flair: readonly string[] | null;
+  /** True when the venue refuses a submission that has no flair set. */
+  readonly needsFlair: boolean;
   /** The rest, in preference order, for when the recommendation is wrong. */
   readonly others: readonly Draft[];
   /** Venues the sentence could not fit, with the shortfall. */
@@ -52,7 +63,7 @@ export function recommend(
 ): Recommendation {
   const venues = venuesFor(item);
   if (venues.length === 0) {
-    return { primary: null, why: null, others: [], shortfalls: [], blocked: `no venue is routed for ${item.type}` };
+    return { primary: null, why: null, flair: null, needsFlair: false, others: [], shortfalls: [], blocked: `no venue is routed for ${item.type}` };
   }
 
   const eligible: Draft[] = [];
@@ -74,6 +85,8 @@ export function recommend(
     return {
       primary: null,
       why: null,
+      flair: null,
+      needsFlair: false,
       others: [],
       shortfalls,
       blocked:
@@ -84,9 +97,14 @@ export function recommend(
   }
 
   const [primary, ...others] = eligible;
-  return { primary: primary!, why: fitOf(venues, primary!.venue), others, shortfalls, blocked: null };
-}
-
-function fitOf(venues: readonly RoutedVenue[], id: string): string | null {
-  return venues.find((v) => v.id === id)?.why ?? null;
+  const chosen = venues.find((v) => v.id === primary!.venue) ?? null;
+  return {
+    primary: primary!,
+    why: chosen?.why ?? null,
+    flair: chosen?.flair ?? null,
+    needsFlair: chosen?.needsFlair ?? false,
+    others,
+    shortfalls,
+    blocked: null,
+  };
 }

@@ -524,3 +524,55 @@ describe('routing: one place, and the reason', () => {
     expect(ids).not.toContain('MachineLearning');
   });
 });
+
+describe('flair: the part of "where" that stops a post going through', () => {
+  /**
+   * r/LocalLLaMA refuses a submission with no flair set, and "No flair" is not
+   * an answer it accepts, which is where the routing actually stopped the first
+   * time it met a real subreddit. It cannot be prefilled: Reddit's submit URL
+   * takes a flair_id UUID that only an authenticated call can supply, and
+   * reddit.com is unreachable from this repository. Naming it is the most the
+   * desk can honestly do, so it must at least do that.
+   */
+  it('names a flair wherever the venue refuses a post without one', () => {
+    const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
+    expect(r.needsFlair).toBe(true);
+    expect(r.flair).toContain('Discussion');
+  });
+
+  /**
+   * A preference list, not one value, because the sub's flair set is not
+   * visible from here and does change: pick the first that is actually on the
+   * form.
+   */
+  it('offers flairs in preference order', () => {
+    const r = recommend(item({ type: 'model_added', id: 'a:model_added:m', sentence: 'Short.', sourceId: 'groq-llms-full-txt' }), SITE);
+    expect(r.flair![0]).toBe('New Model');
+    expect(r.flair![r.flair!.length - 1]).toBe('Discussion');
+  });
+
+  /**
+   * Never invent one. A wrong flair is a removed post, and the flair sets of
+   * r/OpenAI and r/ClaudeAI have not been seen from here.
+   */
+  it('says the flair is unknown rather than guessing at a vendor sub', () => {
+    const r = recommend(item({ type: 'incident_opened', id: 'a:incident_opened:i', sentence: 'Short.', sourceId: 'claude-status' }), SITE);
+    expect(r.primary!.venue).toBe('reddit:ClaudeAI');
+    expect(r.needsFlair).toBe(true);
+    expect(r.flair).toBeNull();
+  });
+
+  it('asks for no flair where the venue has no such concept', () => {
+    const r = recommend(item({ type: 'codename_entered', id: 'a:codename_entered:k', sentence: 'Short.' }),
+      SITE, new Set(['a:codename_entered:k::reddit:LocalLLaMA']));
+    expect(r.primary!.venue).toBe('bluesky');
+    expect(r.needsFlair).toBe(false);
+  });
+
+  /** Every venue that needs a flair must be reachable by some route. */
+  it('marks every subreddit as needing a flair', () => {
+    for (const v of Object.values(VENUES)) {
+      expect(v.needsFlair, `${v.id}`).toBe(v.platform === 'reddit');
+    }
+  });
+});

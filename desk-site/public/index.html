@@ -142,6 +142,31 @@
     margin: 0.55rem 0 0; color: var(--dim); font-size: 0.82rem; line-height: 1.5;
     max-width: 44rem;
   }
+  /* The flair sits ON the action, not in a footnote. r/LocalLLaMA will not
+     accept a submission without one, so this is a step of the task rather than
+     a remark about it. */
+  .flair {
+    margin: 0.6rem 0 0; display: flex; flex-wrap: wrap; align-items: center;
+    gap: 0.4rem; font: 400 0.78rem/1.4 "JetBrains Mono", ui-monospace, monospace;
+    color: var(--dim);
+  }
+  .flair b {
+    font-weight: 400; color: var(--ink); border: 1px solid var(--core-dim);
+    border-radius: 2px; padding: 0.2rem 0.45rem; background: #1a1008;
+  }
+  .flair .or { color: var(--hold); }
+  .flair.unknown b { border-color: var(--wire); color: var(--dim); background: none; }
+  /* The confirm step. Pressing the button only opens a form; whether the post
+     actually went up is something only a person knows, and the ledger is a
+     public record that should not guess. */
+  .confirm {
+    margin-top: 0.7rem; padding: 0.75rem 0.85rem; border-radius: 3px;
+    border: 1px dashed var(--core-dim); background: #150c05;
+    display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+  }
+  .confirm p { margin: 0; flex: 1 1 12rem; font-size: 0.84rem; color: var(--ink); }
+  .confirm button { padding: 0.55rem 0.8rem; font-size: 0.8rem; }
+  .confirm button.yes { border-color: #1e4030; color: var(--go); }
   .alts { margin-top: 0.9rem; }
   .alts summary { font-size: 0.76rem; }
   .alts .actions { margin-top: 0.6rem; }
@@ -238,6 +263,7 @@
 
     /* `venue` is the address (reddit:LocalLLaMA), not the platform, so posting
        to one subreddit never marks another as done. */
+    const opened = d.opened || {};
     const button = (dr, primary) => {
       const sent = posted[dr.venue];
       if (!dr.submitUrl) {
@@ -250,10 +276,31 @@
         (sent ? 'Posted to ' : 'Post to ') + '<span class="where">' + esc(dr.label) + '</span></a>';
     };
 
+    /* Reddit refuses a post with no flair and "No flair" is not an answer, so
+       this has to be visible before the button, not after it. */
+    const flair = !d.needs_flair ? ''
+      : (d.flair && d.flair.length)
+        ? '<p class="flair">set the flair to ' +
+            d.flair.map((f) => '<b>' + esc(f) + '</b>').join('<span class="or">or</span>') +
+          '</p>'
+        : '<p class="flair unknown">this sub needs a flair and we have not recorded its list. ' +
+          'Pick the closest to <b>News</b> or <b>Discussion</b>.</p>';
+
+    /* Only asked once the form has been opened and not yet confirmed. Nothing
+       reaches the ledger until this is answered. */
+    const awaiting = d.post && opened[d.post.venue] && !posted[d.post.venue]
+      ? '<div class="confirm"><p>Did it actually go up on ' + esc(d.post.label) + '?</p>' +
+          '<button class="yes" data-confirm="' + esc(d.id) + '" data-venue="' + esc(d.post.venue) + '">Yes, it is up</button>' +
+          '<button data-failed="' + esc(d.id) + '" data-venue="' + esc(d.post.venue) + '">No, it did not post</button>' +
+        '</div>'
+      : '';
+
     const primary = d.post
       ? '<div class="actions">' + button(d.post, true) +
           '<button class="skip" data-skip="' + esc(d.id) + '">' +
           (d.status === 'skipped' ? 'Skipped' : 'Skip') + '</button></div>' +
+        flair +
+        awaiting +
         (d.why_here ? '<p class="why">' + esc(d.why_here) + '</p>' : '')
       : '<p class="blocked">No venue is routed for this one.</p>';
 
@@ -326,6 +373,22 @@
       skip.textContent = 'Skipped';
       skip.closest('.card').classList.add('is-done');
       decide(skip.dataset.skip, { status: 'skipped' });
+      return;
+    }
+    /* The only place a ledger row is written. */
+    const yes = e.target.closest('[data-confirm]');
+    if (yes) {
+      const box = yes.closest('.confirm');
+      box.innerHTML = '<p>Recorded in the ledger.</p>';
+      yes.closest('.card').classList.add('is-done');
+      decide(yes.dataset.confirm, { venue: yes.dataset.venue, state: 'confirmed' });
+      return;
+    }
+    const no = e.target.closest('[data-failed]');
+    if (no) {
+      const box = no.closest('.confirm');
+      box.innerHTML = '<p>Left on the desk. Nothing written.</p>';
+      decide(no.dataset.failed, { venue: no.dataset.venue, state: 'failed' });
       return;
     }
     /* The anchor navigates natively; the write rides along and is never awaited

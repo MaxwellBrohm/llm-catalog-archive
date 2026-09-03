@@ -75,6 +75,8 @@ console.log(
         facts: c.item.facts,
         post: c.route.primary,
         why_here: c.route.why,
+        flair: c.route.flair,
+        needs_flair: c.route.needsFlair,
         others: c.route.others,
         shortfalls: c.route.shortfalls,
       })),

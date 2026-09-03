@@ -191,21 +191,52 @@ export default async (request) => {
 
   // A decision from the page. Recorded per item id, merged rather than
   // replaced, so posting to a second platform does not erase the first.
+  /**
+   * OPENING A FORM IS NOT POSTING, and conflating the two put a false line in
+   * an append-only public record within a day of the ledger going live: the
+   * button was pressed, r/LocalLLaMA refused the submission for having no
+   * flair, and meta/posted.jsonl said the post had gone out anyway.
+   *
+   * So a press now records `opened` and writes nothing. The ledger row is
+   * written only when a person comes back and says it actually went up, which
+   * is the only moment anybody knows. One extra tap, on the items that were
+   * really posted, in exchange for a record that means what it says.
+   */
   if (request.method === 'POST' && action === 'decide') {
-    const { id, status, venue } = await request.json();
+    const { id, status, venue, state } = await request.json();
     if (typeof id !== 'string' || id.length === 0) return json({ error: 'id is required' }, 400);
 
     const decisions = (await store.get('decisions', { type: 'json' })) ?? {};
-    const row = decisions[id] ?? { status: 'pending', posted: {} };
+    const row = decisions[id] ?? { status: 'pending', opened: {}, posted: {} };
+    row.opened = row.opened ?? {};
+    row.posted = row.posted ?? {};
     if (status === 'skipped') row.status = 'skipped';
 
     let ledger = null;
     if (typeof venue === 'string' && venue.length > 0) {
       const at = new Date().toISOString();
+
+      // The submit form was opened. An intent, not an outcome.
+      if (state !== 'confirmed' && state !== 'failed') {
+        row.opened[venue] = at;
+        decisions[id] = row;
+        await store.setJSON('decisions', decisions);
+        return json({ ok: true, [id]: row, ledger: { ok: true, pending: 'awaiting confirmation' } });
+      }
+
+      // It did not go up. Forget the attempt so the item is offered again.
+      if (state === 'failed') {
+        delete row.opened[venue];
+        decisions[id] = row;
+        await store.setJSON('decisions', decisions);
+        return json({ ok: true, [id]: row, ledger: { ok: true, cleared: venue } });
+      }
+
       // KEYED ON VENUE, not platform. r/OpenAI and r/LocalLLaMA are two places,
       // and collapsing them to "reddit" would mark a real audience as done
       // after a single post to a different one.
       row.posted[venue] = at;
+      delete row.opened[venue];
 
       // The id AND the venue must both be on the current desk. The key travels
       // in a URL and in email, so it is the kind of secret that eventually
