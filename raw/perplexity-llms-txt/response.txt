@@ -18,7 +18,7 @@
 - [Run code](https://docs.perplexity.ai/docs/agent-api/building-agents/run-code.md): Give the agent a sandbox so it computes exact answers instead of estimating them, runs real code, and returns generated files.
 - [Structure the output](https://docs.perplexity.ai/docs/agent-api/building-agents/shape-output.md): Force the model to return JSON your code can parse instead of prose you have to scrape.
 - [Keep context](https://docs.perplexity.ai/docs/agent-api/building-agents/keep-context.md): Carry a conversation across turns by replaying it in the input array, so a follow-up understands what came before.
-- [Agent API Models](https://docs.perplexity.ai/docs/agent-api/models.md): Compare third-party and Perplexity models available through the Agent API, including token pricing and provider documentation.
+- [Agent API Models](https://docs.perplexity.ai/docs/agent-api/models.md): Compare Agent API models, token pricing, supported service tiers, and provider documentation.
 - [Presets](https://docs.perplexity.ai/docs/agent-api/presets.md): Explore Perplexity's Agent API presets - pre-configured setups optimized for different use cases with specific models, search configs, and tool access.
 - [Profiles](https://docs.perplexity.ai/docs/agent-api/profiles.md): Run an Agent API request with a reusable, versioned configuration that you save and manage.
 - [Model Fallback](https://docs.perplexity.ai/docs/agent-api/model-fallback.md): Specify multiple models in a fallback chain for higher availability and automatic failover.
@@ -71,12 +71,12 @@
 - [AWS Marketplace](https://docs.perplexity.ai/docs/resources/aws-marketplace.md): Subscribe to the Perplexity API Platform through AWS Marketplace for consolidated billing and enterprise procurement.
 - [Perplexity with AG2](https://docs.perplexity.ai/docs/getting-started/integrations/ag2.md): Use the Perplexity Search API as a tool inside AG2 (AutoGen) agents.
 - [Perplexity with Agno](https://docs.perplexity.ai/docs/getting-started/integrations/agno.md): Use Perplexity's Agent API through Agno's OpenAI Responses integration.
-- [Perplexity with Google Antigravity](https://docs.perplexity.ai/docs/getting-started/integrations/antigravity.md): Call Perplexity's Agent API from applications you build or edit inside Google Antigravity.
+- [Perplexity MCP Server for Google Antigravity](https://docs.perplexity.ai/docs/getting-started/integrations/antigravity.md): Connect Google Antigravity to Perplexity's hosted MCP server with bearer API-key authentication.
 - [Perplexity with AnythingLLM](https://docs.perplexity.ai/docs/getting-started/integrations/anythingllm.md): Use Perplexity as the LLM provider in AnythingLLM for grounded, citation-backed chat over your documents and workspaces.
 - [Perplexity with CAMEL-AI](https://docs.perplexity.ai/docs/getting-started/integrations/camel.md): Use the Perplexity Search API as a tool inside CAMEL-AI multi-agent systems.
 - [Perplexity with Claude Code](https://docs.perplexity.ai/docs/getting-started/integrations/claude-code.md): Use Perplexity inside Claude Code — call the API from project code with the official TypeScript SDK, use the OpenAI-compatible base URL, or wire up the hosted Perplexity Docs MCP for in-editor documentation lookup.
 - [Perplexity with Composio](https://docs.perplexity.ai/docs/getting-started/integrations/composio.md): Expose Perplexity's Agent, Search, and Embeddings APIs as MCP tools or direct API actions for any AI agent framework via Composio.
-- [Perplexity with Cursor](https://docs.perplexity.ai/docs/getting-started/integrations/cursor.md): Use Perplexity inside Cursor — call the API from project code with the official TypeScript SDK, use the OpenAI-compatible base URL, or wire up the hosted Perplexity Docs MCP for in-editor documentation lookup.
+- [Perplexity with Cursor](https://docs.perplexity.ai/docs/getting-started/integrations/cursor.md): Use Perplexity with Cursor by calling the Agent API from project code with the Perplexity or OpenAI SDK, or by adding a Perplexity MCP server.
 - [Perplexity with Haystack](https://docs.perplexity.ai/docs/getting-started/integrations/haystack.md): Use Perplexity's Agent API, Embeddings API, and grounded Search API in Haystack pipelines.
 - [Perplexity with LangChain](https://docs.perplexity.ai/docs/getting-started/integrations/langchain.md): Use Perplexity's Agent API from LangChain and LangGraph.
 - [Perplexity with LiteLLM](https://docs.perplexity.ai/docs/getting-started/integrations/litellm.md): Use Perplexity's Agent API and presets through LiteLLM's unified interface — Python SDK and Proxy.
@@ -86,6 +86,7 @@
 - [Perplexity with OpenClaw](https://docs.perplexity.ai/docs/getting-started/integrations/openclaw.md): Use Perplexity as an LLM provider and web search provider in OpenClaw.
 - [Perplexity with OpenCode](https://docs.perplexity.ai/docs/getting-started/integrations/opencode.md): Use the Perplexity Agent API inside the OpenCode AI coding agent — one endpoint, every frontier model, one API key.
 - [Perplexity with Pipedream](https://docs.perplexity.ai/docs/getting-started/integrations/pipedream.md): Wire Perplexity into Pipedream workflows alongside 3,000+ other apps — automate research, summarization, and grounded responses with code and no-code steps.
+- [Perplexity on Stripe Projects](https://docs.perplexity.ai/docs/getting-started/integrations/stripe-projects.md): Provision a Perplexity API project, API key, and credits from your terminal or coding agent with the Stripe Projects CLI.
 - [Perplexity with SuperPlane](https://docs.perplexity.ai/docs/getting-started/integrations/superplane.md): Run Perplexity agents inside SuperPlane workflows — research, synthesis, and analysis steps with web search, URL fetching, and source citations.
 - [Perplexity with the Vercel AI SDK](https://docs.perplexity.ai/docs/getting-started/integrations/vercel-ai-sdk.md): Use Perplexity's Agent API from Vercel AI SDK (Next.js) apps through the @ai-sdk/open-responses provider.
 - [API Roadmap](https://docs.perplexity.ai/docs/resources/feature-roadmap.md): Upcoming and in-progress features for the Perplexity API.
