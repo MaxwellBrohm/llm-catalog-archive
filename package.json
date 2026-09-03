@@ -16,7 +16,8 @@
     "check:bin": "npm run build:bin && git diff --exit-code -- bin/llmcat.mjs",
     "liveness": "tsx src/liveness-cli.ts",
     "ledger": "tsx src/ledger-cli.ts",
-    "pretest": "tsc --noEmit"
+    "pretest": "tsc --noEmit",
+    "desk": "tsx src/desk-cli.ts"
   },
   "dependencies": {
     "zod": "^4.4.3"
