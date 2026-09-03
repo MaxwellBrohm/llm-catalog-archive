@@ -5,6 +5,7 @@
 - [Principles](https://openrouter.ai/docs/guides/overview/principles.md): Core principles and values of OpenRouter
 - [Models](https://openrouter.ai/docs/guides/overview/models.md): One API for hundreds of models
 - [MCP](https://openrouter.ai/docs/guides/overview/mcp-server.md): Connect your AI coding tools to OpenRouter over MCP
+- [Terraform Provider](https://openrouter.ai/docs/guides/overview/terraform.md): Manage OpenRouter resources as infrastructure-as-code with Terraform
 - [Multimodal Capabilities](https://openrouter.ai/docs/guides/overview/multimodal/overview.md): Send images, PDFs, audio, and video to OpenRouter models, generate speech from text, or transcribe audio to text
 - [Image Generation](https://openrouter.ai/docs/guides/overview/multimodal/image-generation.md): How to generate images with OpenRouter's dedicated Image API
 - [Video Generation](https://openrouter.ai/docs/guides/overview/multimodal/video-generation.md): How to generate videos with OpenRouter models
@@ -15,6 +16,7 @@
 - [Image Inputs](https://openrouter.ai/docs/guides/overview/multimodal/image-understanding.md): How to send images to OpenRouter models
 - [Video Inputs](https://openrouter.ai/docs/guides/overview/multimodal/videos.md): How to send video files to OpenRouter models
 - [OAuth PKCE](https://openrouter.ai/docs/guides/overview/auth/oauth.md): Connect your users to OpenRouter
+- [Workload Identity Federation](https://openrouter.ai/docs/guides/overview/auth/workload-identity-federation.md): Call OpenRouter from workloads signed in with your own identity provider, without long-lived API keys
 - [Management API Keys](https://openrouter.ai/docs/guides/overview/auth/management-api-keys.md): Manage API keys programmatically
 - [BYOK](https://openrouter.ai/docs/guides/overview/auth/byok.md): Bring your own provider API keys
 - [Stripe Projects](https://openrouter.ai/docs/guides/overview/stripe-projects.md): Add OpenRouter to your app with the Stripe Projects CLI
@@ -76,6 +78,7 @@
 - [Sensitive Info Guardrail](https://openrouter.ai/docs/guides/features/guardrails/sensitive-info.md): Automatically detect and handle sensitive information in API requests
 - [Detected Secret Formats](https://openrouter.ai/docs/guides/features/guardrails/secret-formats.md): Full list of API key and credential formats detected by the Secrets guardrail preset
 - [Service Tiers](https://openrouter.ai/docs/guides/features/service-tiers.md): Control cost and latency tradeoffs with service tier selection
+- [In-Region Routing](https://openrouter.ai/docs/guides/features/in-region-routing.md): Keep prompts and completions inside the EU or the US
 - [Sovereign AI](https://openrouter.ai/docs/guides/features/sovereign-ai.md): Keep AI workloads within national and regional boundaries
 - [Router Metadata](https://openrouter.ai/docs/guides/features/router-metadata.md): Surface routing decisions on every response with a single opt-in header
 - [Input & Output Logging](https://openrouter.ai/docs/guides/features/input-output-logging.md): Privately store and review your prompts and completions
@@ -150,6 +153,8 @@
 - [Create transcription](https://openrouter.ai/docs/api/api-reference/stt/create-transcription.md): Transcribes audio into text. Accepts base64-encoded audio input as JSON or an OpenAI-style multipart/form-data file upload, and returns the transcribed text.
 - [Exchange authorization code for API key](https://openrouter.ai/docs/api/api-reference/oauth/exchange-authorization-code-for-api-key.md): Exchange an authorization code from the PKCE flow for a user-controlled API key
 - [Create authorization code](https://openrouter.ai/docs/api/api-reference/oauth/create-authorization-code.md): Create an authorization code for the PKCE flow to generate a user-controlled API key
+- [OpenRouter access token signing keys](https://openrouter.ai/docs/api/api-reference/oauth/openrouter-access-token-signing-keys.md): RFC 7517 JWK Set containing the public keys OpenRouter signs access tokens with.
+- [Exchange a workload identity token](https://openrouter.ai/docs/api/api-reference/oauth/exchange-a-workload-identity-token.md): RFC 8693 token exchange. Presents a JWT from an issuer your organization trusts (Settings → Workload identity) and receives a short-lived OpenRouter access token that acts as the API key the matching federation policy targets.
 - [List Benchmarks](https://openrouter.ai/docs/api/api-reference/benchmarks/list-benchmarks.md): Unified benchmark endpoint that aggregates scores from multiple benchmark sources (Artificial Analysis, Design Arena, and OpenRouter's own tau-bench, GPQA, and web-search evals). Filter by source to reproduce the exact shapes from the legacy per-source endpoints, or use task_type to find models suit…
 - [List BYOK provider credentials](https://openrouter.ai/docs/api/api-reference/byok/list-byok-provider-credentials.md): List the bring-your-own-key (BYOK) provider credentials for the authenticated entity's default workspace. Use the `workspace_id` query parameter to scope the result to a different workspace, or the `provider` query parameter to filter by upstream provider. [Management key](/docs/guides/overview/auth…
 - [Create a BYOK provider credential](https://openrouter.ai/docs/api/api-reference/byok/create-a-byok-provider-credential.md): Create a new bring-your-own-key (BYOK) provider credential. The raw key is encrypted at rest and never returned in API responses. When `workspace_id` is omitted, the credential is created in the default workspace; if that default has been deleted, the request returns a 400 and you must pass `workspa…
@@ -197,10 +202,10 @@
 - [List endpoints for an image model](https://openrouter.ai/docs/api/api-reference/images/list-endpoints-for-an-image-model.md): Returns the full per-endpoint records for an image model: each endpoint's definitive supported parameters, pricing, and passthrough allowlist.
 - [Get current API key](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key.md): Get information on the API key associated with the current authentication session
 - [List API keys](https://openrouter.ai/docs/api/api-reference/api-keys/list-api-keys.md): List all API keys for the authenticated user. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Create a new API key](https://openrouter.ai/docs/api/api-reference/api-keys/create-a-new-api-key.md): Create a new API key for the authenticated user. The plaintext `key` is returned only in this response. Treat it as a write-only, sensitive value; it cannot be retrieved later. Authenticate with a [management key](/docs/guides/overview/auth/management-api-keys), or with a Connect client secret. `ext…
+- [Create a new API key](https://openrouter.ai/docs/api/api-reference/api-keys/create-a-new-api-key.md): Create a new API key for the authenticated user. The plaintext `key` is returned only in this response. Treat it as a write-only, sensitive value; it cannot be retrieved later. Authenticate with a [management key](/docs/guides/overview/auth/management-api-keys). The optional `external` object associ…
 - [Get a single API key](https://openrouter.ai/docs/api/api-reference/api-keys/get-a-single-api-key.md): Get a single API key by hash. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Delete an API key](https://openrouter.ai/docs/api/api-reference/api-keys/delete-an-api-key.md): Delete an existing API key. Authenticate with a [management key](/docs/guides/overview/auth/management-api-keys), or with a Connect client secret. A client secret reaches only the keys that same client created; any other key responds as if it does not exist.
-- [Update an API key](https://openrouter.ai/docs/api/api-reference/api-keys/update-an-api-key.md): Update an existing API key. Authenticate with a [management key](/docs/guides/overview/auth/management-api-keys), or with a Connect client secret. A client secret reaches only the keys that same client created; any other key responds as if it does not exist.
+- [Delete an API key](https://openrouter.ai/docs/api/api-reference/api-keys/delete-an-api-key.md): Delete an existing API key. Authenticate with a [management key](/docs/guides/overview/auth/management-api-keys).
+- [Update an API key](https://openrouter.ai/docs/api/api-reference/api-keys/update-an-api-key.md): Update an existing API key. Authenticate with a [management key](/docs/guides/overview/auth/management-api-keys).
 - [Create a message](https://openrouter.ai/docs/api/api-reference/anthropic-messages/create-a-message.md): Creates a message using the Anthropic Messages API format. Supports text, images, PDFs, tools, and extended thinking.
 - [Get a model by its slug](https://openrouter.ai/docs/api/api-reference/models/get-a-model-by-its-slug.md): Returns full details for a single model identified by its author and slug (e.g. openai/gpt-4). Supports variant suffixes (e.g. openai/gpt-4:free) and resolves known slug aliases.
 - [List all models and their properties](https://openrouter.ai/docs/api/api-reference/models/list-all-models-and-their-properties.md)
@@ -223,7 +228,7 @@
 - [Submit a rerank request](https://openrouter.ai/docs/api/api-reference/rerank/submit-a-rerank-request.md): Submits a rerank request to the rerank router
 - [Create a response](https://openrouter.ai/docs/api/api-reference/responses/create-a-response.md): Creates a streaming or non-streaming response using OpenResponses API format
 - [List SCIM group mappings](https://openrouter.ai/docs/api/api-reference/scim/list-scim-group-mappings.md): List SCIM group-to-workspace mappings for the organization. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Create a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/create-a-scim-group-mapping.md): Create a SCIM group-to-workspace role mapping. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Create a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/create-a-scim-group-mapping.md): Create a SCIM group-to-workspace role mapping. Creating a mapping that already exists with the same role succeeds and re-applies the mapping to the group members. Requesting a different role for an existing mapping returns 409. [Management key](/docs/guides/overview/auth/management-api-keys) require…
 - [Get a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/get-a-scim-group-mapping.md): Get a SCIM group-to-workspace mapping. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Delete a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/delete-a-scim-group-mapping.md): Delete a SCIM group-to-workspace mapping. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Update a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/update-a-scim-group-mapping.md): Update a SCIM group mapping role. [Management key](/docs/guides/overview/auth/management-api-keys) required.
@@ -408,5 +413,4 @@
 ## OpenAPI Specs
 
 - [provider-monitor-schema-v2.openapi](/docs/assets/provider-monitor-schema-v2.openapi.json)
-- [openapi](/docs/openapi/openapi.yaml)
 - [openapi](/docs/openapi/openapi.yaml)
