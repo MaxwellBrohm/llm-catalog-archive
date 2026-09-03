@@ -576,3 +576,60 @@ describe('flair: the part of "where" that stops a post going through', () => {
     }
   });
 });
+
+describe('the ledger probe cannot write to main', () => {
+  /**
+   * The guard is a script rather than a habit because the habit failed. Testing
+   * the ledger write by hand meant setting LEDGER_BRANCH, redeploying, and
+   * checking the deployed function had picked it up. That worked once; the
+   * second time the env set did not apply, its output was suppressed, the
+   * health check was skipped because it had passed before, and a false row went
+   * into a public append-only ledger claiming a post that never happened.
+   */
+  const probe = fs.readFileSync(path.resolve('tools/ledger-probe.sh'), 'utf8');
+
+  it('refuses outright when asked to probe main', () => {
+    expect(probe).toContain('if [ "$branch" = "main" ]');
+    expect(probe).toContain('refusing: the whole point is to not write to main');
+  });
+
+  /**
+   * The assertion has to come BEFORE anything is written, and it has to compare
+   * against what the DEPLOYED function reports rather than against what was
+   * asked for. Those are the two things that differed on the run that went
+   * wrong: the request succeeded locally and the deployment never changed.
+   */
+  it('asserts the deployed desk agrees before anything is written', () => {
+    expect(probe).toContain('/api/health?k=');
+    expect(probe).toContain('if [ "$seen" != "$branch:meta/posted.jsonl" ]');
+    expect(probe).toContain('exit 1');
+    expect(probe.indexOf('/api/health')).toBeLessThan(probe.indexOf('Exercise the desk now'));
+  });
+
+  /**
+   * The line that was hidden must never be hidden again.
+   *
+   * COMMENT LINES ARE EXCLUDED, and that is not fussiness: the first version of
+   * this test took the first line mentioning `netlify env:set`, which is the
+   * comment above explaining the incident, and a comment never contains
+   * /dev/null. It passed while the real command was suppressed. Same shape as
+   * the routing bug an hour earlier: an assertion that reads the wrong thing
+   * cannot fail.
+   */
+  it('never suppresses the output of the command that sets the override', () => {
+    const commands = probe
+      .split('\n')
+      .filter((l) => !l.trimStart().startsWith('#'))
+      .filter((l) => l.includes('netlify env:set'));
+    expect(commands.length).toBeGreaterThan(0);
+    for (const line of commands) {
+      expect(line, line).not.toContain('/dev/null');
+      expect(line, line).not.toMatch(/2>&1\s*$/);
+    }
+  });
+
+  it('verifies the restore before deleting the branch it wrote to', () => {
+    const end = fs.readFileSync(path.resolve('tools/ledger-probe-end.sh'), 'utf8');
+    expect(end.indexOf('main:meta/posted.jsonl')).toBeLessThan(end.indexOf('-X DELETE'));
+  });
+});
