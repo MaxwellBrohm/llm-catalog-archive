@@ -33,11 +33,15 @@ work around that error by editing the check.
 
 ```
 npm ci
-npm run desk
+npm run desk --silent > queue.json
 ```
 
-Prints JSON: a `funnel` object and a `candidates` array. Read-only, writes
-nothing, posts nothing. If it fails, stop and report the failure rather than
+Prints JSON and nothing else: a `funnel` object and a `candidates` array.
+Read-only, writes nothing, posts nothing.
+
+`--silent` is not optional. Without it npm prepends its own two-line banner to
+stdout and the output stops being parseable, which costs you a detour into
+stripping lines off the front of your own data. If it fails, stop and report the failure rather than
 seeding a partial desk.
 
 ## 2. Read the current desk
