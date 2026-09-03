@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "diffwire-desk",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  // The ledger append base64-encodes with Buffer. nodejs_compat gives it to us
+  // rather than hand-rolling base64 over UTF-8, which is exactly the kind of
+  // code that is fine until a sentence contains a character outside Latin-1.
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "directory": "./public",
+    // NOT single-page-application. That serves index.html for any unmatched
+    // path, which would answer every /api/ call with the page instead of
+    // letting the Worker run, and the failure looks like a JSON parse error
+    // rather than like a routing mistake.
+    "not_found_handling": "none"
+  },
+
+  "kv_namespaces": [
+    { "binding": "DESK", "id": "03ffaaf3d43f41b98b7fb7af8e712faa" }
+  ],
+
+  "observability": { "enabled": true }
+}

@@ -5,7 +5,7 @@ inside the routine's configuration so that it is reviewable, diffable and
 editable like everything else, and so a change to how the desk is filled leaves
 a trace in the history.
 
-**The desk** is `https://diffwire-desk.netlify.app`, Max's own Netlify site. Its
+**The desk** is `https://diffwire-desk.maxwellbrohm.workers.dev`, a Cloudflare Worker. Its
 API takes the key as `?k=<key>` on every call; without it every endpoint answers
 401.
 
@@ -23,6 +23,13 @@ without it, and that is the one place it is meant to be.
 It deliberately does not live on a Claude preview URL. The desk is opened from a
 phone, most often by someone not signed in to anything, and a console that
 depends on a second login is a console that does not get used.
+
+It moved off Netlify on 2026-09-03 for a reason worth remembering: a day of
+deploys and function testing for THIS project consumed a monthly credit
+allowance shared with three live UA Design Group sites, and Netlify's own
+warning said published sites would be suspended next. A side project must not
+share a blast radius with a business. Cloudflare's free tier is 100,000 requests
+a day with no credit pool to exhaust, and this Worker is alone on it.
 
 **You never post anything to any platform.** Read `docs/posting.md` for why.
 Your job ends when the desk is filled and Max has been told. Nothing you do is
