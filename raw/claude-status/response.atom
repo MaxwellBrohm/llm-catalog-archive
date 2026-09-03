@@ -4,10 +4,18 @@
   <link rel="alternate" type="text/html" href="https://status.claude.com"/>
   <link rel="self" type="application/atom+xml" href="https://status.claude.com/history.atom"/>
   <title>Claude Status - Incident History</title>
-  <updated>2026-09-02T01:24:22Z</updated>
+  <updated>2026-09-03T04:29:39Z</updated>
   <author>
     <name>Claude</name>
   </author>
+  <entry>
+    <id>tag:status.claude.com,2005:Incident/31338486</id>
+    <published>2026-09-02T21:44:28Z</published>
+    <updated>2026-09-02T21:44:28Z</updated>
+    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/ls6bn1x81m0w"/>
+    <title>Elevated errors for Claude Sonnet 5</title>
+    <content type="html">&lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt; 2&lt;/var&gt;, &lt;var data-var='time'&gt;21:44&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue affecting Claude Sonnet 5 has been resolved. Impact occurred from 2:05pm PT / 21:05 UTC to 2:19pm PT / 21:19 UTC. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt; 2&lt;/var&gt;, &lt;var data-var='time'&gt;21:17&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Sonnet 5. We will provide an update as soon as possible. &lt;/p&gt;</content>
+  </entry>
   <entry>
     <id>tag:status.claude.com,2005:Incident/31331143</id>
     <published>2026-09-02T01:24:22Z</published>
@@ -199,13 +207,5 @@
     <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/bdr3fq2rkchr"/>
     <title>Elevated errors across many models</title>
     <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 4&lt;/var&gt;, &lt;var data-var='time'&gt;21:59&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - This issue has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 4&lt;/var&gt;, &lt;var data-var='time'&gt;21:04&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Update&lt;/strong&gt; - We have identified an issue which resulted in some users experiencing issues when attempting to log into Anthropic services, including Claude.ai and Claude Code via oAuth. Additionally, some users saw errors when making requests to models. At this time, we have seen success rates recover and are monitoring closely to ensure there are no further issues. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 4&lt;/var&gt;, &lt;var data-var='time'&gt;20:48&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are currently investigating this issue. &lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <id>tag:status.claude.com,2005:Incident/31087834</id>
-    <published>2026-08-04T11:52:10Z</published>
-    <updated>2026-08-14T10:28:22Z</updated>
-    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/nlg5hjdfphmb"/>
-    <title>Elevated errors on Claude Sonnet 5</title>
-    <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 4&lt;/var&gt;, &lt;var data-var='time'&gt;11:52&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - This incident has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 4&lt;/var&gt;, &lt;var data-var='time'&gt;11:37&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Monitoring&lt;/strong&gt; - A fix has been implemented and we are monitoring the results. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 4&lt;/var&gt;, &lt;var data-var='time'&gt;11:27&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are currently investigating this issue. &lt;/p&gt;</content>
   </entry>
 </feed>
