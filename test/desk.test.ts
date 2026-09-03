@@ -15,6 +15,9 @@ import {
 } from '../src/desk/surprise.js';
 import { draftFor, draftsFor, PLATFORMS, changeUrl } from '../src/desk/drafts.js';
 import { buildQueue, cooldownKeys } from '../src/desk/queue.js';
+import { recommend } from '../src/desk/route.js';
+import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE } from '../src/desk/venues.js';
+import { ALL_TYPES } from '../src/derive/feed.js';
 import { lastPostedByEntity, parsePosted, postedIds, type PostedRow } from '../src/desk/ledger.js';
 
 const SITE = 'https://diffwire.dev';
@@ -165,7 +168,7 @@ describe('drafts never rewrite a claim', () => {
     const sentence = 'y'.repeat(100);
     const hn = PLATFORMS.find((p) => p.id === 'hn')!;
     const out = draftFor(item({ type: 'model_added', id: 'a:model_added:m', sentence }), hn, SITE);
-    expect(out).toEqual({ platform: 'hn', need: 100, limit: 80 });
+    expect(out).toEqual({ platform: 'hn', venue: 'hn', need: 100, limit: 80 });
   });
 
   /**
@@ -233,19 +236,33 @@ describe('the queue', () => {
     expect(q.candidates.map((c) => c.entities[0])).toEqual(['model:m', 'model:other']);
   });
 
-  it('does not re-offer an item to a platform it already went to', () => {
+  /**
+   * The desk hands back a decision, not a menu, so the assertion is about which
+   * ONE venue leads. A model_removed with no known vendor sub falls through to
+   * r/LocalLLaMA, which is the route's own named fallback.
+   */
+  it('offers one venue, not every platform', () => {
     const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
-    const posted: PostedRow[] = PLATFORMS.filter((p) => p.id !== 'hn').map((p) => ({
-      id: 's:model_removed:a', platform: p.id, entities: [], posted_at: '2020-01-01T00:00:00.000Z', permalink: null, via: 'human',
-    }));
-    const q = buildQueue([one], posted, new Date('2026-09-02T00:00:00.000Z'), SITE, 0);
-    expect(q.candidates[0]!.drafts.map((d) => d.platform)).toEqual(['hn']);
+    const q = buildQueue([one], [], new Date('2026-09-02T00:00:00.000Z'), SITE, 0);
+    expect(q.candidates[0]!.route.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(q.candidates[0]!.route.why).toBeTruthy();
   });
 
-  it('drops a candidate once every platform has had it', () => {
+  it('falls through to the next venue once the first has had it', () => {
     const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
-    const posted: PostedRow[] = PLATFORMS.map((p) => ({
-      id: 's:model_removed:a', platform: p.id, entities: [], posted_at: '2020-01-01T00:00:00.000Z', permalink: null, via: 'human',
+    const posted: PostedRow[] = [{
+      id: 's:model_removed:a', platform: 'reddit', venue: 'reddit:LocalLLaMA', entities: [],
+      posted_at: '2020-01-01T00:00:00.000Z', permalink: null, via: 'human',
+    }];
+    const q = buildQueue([one], posted, new Date('2026-09-02T00:00:00.000Z'), SITE, 0);
+    expect(q.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+  });
+
+  it('drops a candidate once every routed venue has had it', () => {
+    const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
+    const posted: PostedRow[] = ['reddit:LocalLLaMA', 'hn', 'bluesky'].map((venue) => ({
+      id: 's:model_removed:a', platform: 'reddit' as const, venue, entities: [],
+      posted_at: '2020-01-01T00:00:00.000Z', permalink: null, via: 'human',
     }));
     expect(buildQueue([one], posted, new Date('2026-09-02T00:00:00.000Z'), SITE, 0).candidates).toEqual([]);
   });
@@ -327,5 +344,183 @@ describe('a truncated archive is refused, not scored', () => {
     expect(isShallow(shallow)).toBe(false);
 
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe('routing: one place, and the reason', () => {
+  /**
+   * The point of the whole file. A menu of six platforms is not a
+   * recommendation, and the temptation it creates is to press all of them,
+   * which is what a community reads as spam and what actually costs an account.
+   */
+  it('recommends exactly one venue and names why', () => {
+    const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:kiana', sentence: 'Short.' }), SITE);
+    expect(r.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(r.why).toContain('codename');
+    expect(r.blocked).toBeNull();
+  });
+
+  /**
+   * A subreddit is the address, not a preference. Reddit's bare /submit lands a
+   * person on a chooser, and the choice is the part that decides whether a post
+   * survives the hour, so the link must carry the sub.
+   */
+  it('addresses a Reddit draft at the subreddit, not at reddit.com', () => {
+    const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
+    expect(r.primary!.submitUrl).toContain('/r/LocalLLaMA/submit?');
+    expect(r.primary!.label).toBe('r/LocalLLaMA');
+  });
+
+  /**
+   * A migration someone has to perform goes where the people who have to
+   * perform it are, ahead of where the most people are. The lab is read off the
+   * source id when the event carries no lab entity, which is the usual case for
+   * the deprecations and status feeds.
+   */
+  it('sends an OpenAI retirement to r/OpenAI, not to the generic sub', () => {
+    const r = recommend(
+      item({ type: 'retirement_floor', id: 'a:retirement_floor:m', sentence: 'Short.', sourceId: 'openai-deprecations' }),
+      SITE,
+    );
+    expect(r.primary!.venue).toBe('reddit:OpenAI');
+  });
+
+  it('sends an Anthropic incident to r/ClaudeAI', () => {
+    const r = recommend(
+      item({ type: 'incident_opened', id: 'a:incident_opened:i', sentence: 'Short.', sourceId: 'claude-status' }),
+      SITE,
+    );
+    expect(r.primary!.venue).toBe('reddit:ClaudeAI');
+  });
+
+  /** No known vendor sub must fall through to a real audience, never vanish. */
+  it('falls back to a named venue when the lab has no sub of its own', () => {
+    const r = recommend(
+      item({ type: 'model_removed', id: 'a:model_removed:m', sentence: 'Short.', sourceId: 'groq-llms-full-txt' }),
+      SITE,
+    );
+    expect(r.primary!.venue).toBe('reddit:LocalLLaMA');
+  });
+
+  /**
+   * HN's 80 character title limit against 150 character sentences is why the
+   * routing must fall THROUGH rather than offer a button that cannot be
+   * pressed. upstream_pr_merged routes to LocalLLaMA then HN, so a sentence too
+   * long for HN still leaves one venue and a recorded shortfall.
+   */
+  it('drops a venue the sentence cannot fit and keeps going', () => {
+    const long = 'x'.repeat(150);
+    const r = recommend(item({ type: 'upstream_pr_merged', id: 'a:upstream_pr_merged:p', sentence: long }), SITE);
+    expect(r.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(r.shortfalls.map((s) => s.venue)).toEqual(['hn']);
+  });
+
+  it('says which gate emptied the route rather than returning a bare null', () => {
+    const r = recommend(item({ type: 'price_changed', id: 'a:price_changed:m', sentence: 'Short.' }), SITE);
+    expect(r.primary).toBeNull();
+    expect(r.blocked).toContain('no venue is routed');
+  });
+
+  it('reports being posted out rather than looking like a routing failure', () => {
+    const one = item({ type: 'codename_entered', id: 'a:codename_entered:k', sentence: 'Short.' });
+    const posted = new Set(['a:codename_entered:k::reddit:LocalLLaMA', 'a:codename_entered:k::bluesky']);
+    const r = recommend(one, SITE, posted);
+    expect(r.primary).toBeNull();
+    expect(r.blocked).toBe('already posted everywhere it was routed');
+  });
+
+  /**
+   * The venue key is the whole reason the ledger gained a venue field. Keyed on
+   * platform, one post to r/OpenAI would retire r/LocalLLaMA too.
+   */
+  it('treats two subreddits as two places', () => {
+    const one = item({ type: 'model_removed', id: 'a:model_removed:m', sentence: 'Short.', sourceId: 'openai-deprecations' });
+    const posted = new Set(['a:model_removed:m::reddit:OpenAI']);
+    expect(recommend(one, SITE, posted).primary!.venue).toBe('reddit:LocalLLaMA');
+  });
+
+  /** A row written before venues existed must not start claiming a subreddit. */
+  it('reads a venue-less ledger row as the bare platform it was', () => {
+    const rows: PostedRow[] = [{
+      id: 'x', platform: 'reddit', entities: [], posted_at: '2026-01-01T00:00:00.000Z', permalink: null, via: 'human',
+    }];
+    const ids = postedIds(rows);
+    expect(ids.has('x::reddit')).toBe(true);
+    expect(ids.has('x::reddit:LocalLLaMA')).toBe(false);
+  });
+
+  /**
+   * CHECKS THE TABLE, NOT THE OUTPUT, and that distinction is the whole test.
+   * The first version walked venuesFor's results, which could never fail:
+   * venuesFor skipped an id it could not resolve, so the filter hid the bug
+   * from the only test looking for it, and a route pointing at
+   * `reddit:DoesNotExist` stayed green through 42 tests. venuesFor now throws,
+   * and this reads the ids straight out of the routing table.
+   */
+  it('routes only to venues that exist', () => {
+    for (const id of allRoutedVenueIds()) {
+      expect(VENUES[id], `route names ${id}, which is not in VENUES`).toBeDefined();
+    }
+  });
+
+  it('gives every venue a label and a stated fit', () => {
+    for (const v of Object.values(VENUES)) {
+      expect(v.label.length).toBeGreaterThan(0);
+      expect(v.fit.length).toBeGreaterThan(0);
+      expect(v.id).toBeTruthy();
+    }
+  });
+
+  /** Positive control: the check above must actually fire on a bad id. */
+  it('refuses a route naming a venue that does not exist', () => {
+    const table = ROUTE_TABLE as unknown as Record<string, readonly { id: string; why: string }[]>;
+    const saved = table['codename_entered'];
+    try {
+      table['codename_entered'] = [{ id: 'reddit:DoesNotExist', why: 'nowhere' }];
+      expect(() => venuesFor(item({ type: 'codename_entered', id: 'a:codename_entered:k' })))
+        .toThrow(/not a venue in VENUES/);
+    } finally {
+      table['codename_entered'] = saved!;
+    }
+  });
+
+  /**
+   * The defect that moved `why` off the venue and onto the pairing: the desk
+   * told a reader a merged vLLM pull request mattered because it was "an
+   * unreleased model sighting", which was r/LocalLLaMA's own blurb reused for a
+   * route it does not describe. Two types sharing a venue must not share a
+   * reason.
+   */
+  it('explains the pairing, not the venue', () => {
+    const pr = recommend(item({ type: 'upstream_pr_merged', id: 'a:upstream_pr_merged:p', sentence: 'Short.' }), SITE);
+    const code = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
+    expect(pr.primary!.venue).toBe(code.primary!.venue);
+    expect(pr.why).not.toBe(code.why);
+    expect(pr.why).toContain('inference-engine');
+    expect(code.why).toContain('codename');
+  });
+
+  it('states a reason for every routed step', () => {
+    for (const [type, steps] of Object.entries(ROUTE_TABLE)) {
+      for (const step of steps) {
+        expect(step.why.length, `${type} -> ${step.id} has no reason`).toBeGreaterThan(20);
+      }
+    }
+  });
+
+  /**
+   * `others` is the fallback list, so it must not repeat the button already
+   * shown. A mutation duplicating the whole menu into it stayed green.
+   */
+  it('keeps the primary out of the alternatives', () => {
+    const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
+    expect(r.others.length).toBeGreaterThan(0);
+    expect(r.others.map((d) => d.venue)).not.toContain(r.primary!.venue);
+  });
+
+  /** r/MachineLearning removes this material. Sending it there earns a strike. */
+  it('never routes to a venue that would remove the post', () => {
+    const ids = Object.keys(VENUES).join(' ');
+    expect(ids).not.toContain('MachineLearning');
   });
 });

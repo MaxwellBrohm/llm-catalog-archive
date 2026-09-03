@@ -124,7 +124,8 @@ export async function appendToLedger(row, token) {
     // Idempotent: the same item and platform never gets a second row, so a
     // double tap, a retry, or a page reloaded twice cannot inflate the record
     // of what was actually pushed at people.
-    if (current.includes(`"id":${JSON.stringify(row.id)},"platform":${JSON.stringify(row.platform)}`)) {
+    // Idempotent on the pair actually posted to, which is item and VENUE.
+    if (current.includes(`"id":${JSON.stringify(row.id)},"platform":${JSON.stringify(row.platform)},"venue":${JSON.stringify(row.venue)}`)) {
       return { ok: true, already: true };
     }
 
@@ -135,7 +136,7 @@ export async function appendToLedger(row, token) {
       method: 'PUT',
       headers,
       body: JSON.stringify({
-        message: `desk: ${row.platform} <- ${row.id}`,
+        message: `desk: ${row.venue} <- ${row.id}`,
         content: Buffer.from(next, 'utf8').toString('base64'),
         sha: file.sha,
         branch: LEDGER_BRANCH,
@@ -191,7 +192,7 @@ export default async (request) => {
   // A decision from the page. Recorded per item id, merged rather than
   // replaced, so posting to a second platform does not erase the first.
   if (request.method === 'POST' && action === 'decide') {
-    const { id, status, platform } = await request.json();
+    const { id, status, venue } = await request.json();
     if (typeof id !== 'string' || id.length === 0) return json({ error: 'id is required' }, 400);
 
     const decisions = (await store.get('decisions', { type: 'json' })) ?? {};
@@ -199,25 +200,35 @@ export default async (request) => {
     if (status === 'skipped') row.status = 'skipped';
 
     let ledger = null;
-    if (typeof platform === 'string' && platform.length > 0) {
+    if (typeof venue === 'string' && venue.length > 0) {
       const at = new Date().toISOString();
-      row.posted[platform] = at;
+      // KEYED ON VENUE, not platform. r/OpenAI and r/LocalLLaMA are two places,
+      // and collapsing them to "reddit" would mark a real audience as done
+      // after a single post to a different one.
+      row.posted[venue] = at;
 
-      // The id must be a candidate currently on the desk. The key travels in a
-      // URL and in email, so it is the kind of secret that eventually leaks,
-      // and this bounds what a leaked one can write into a public repository to
-      // rows about items the archive actually produced.
+      // The id AND the venue must both be on the current desk. The key travels
+      // in a URL and in email, so it is the kind of secret that eventually
+      // leaks, and this bounds what a leaked one can write into a public
+      // repository to rows the archive actually produced and routed.
       const branch = await readQueueBranch();
       const candidate = branch.queue?.candidates?.find((c) => c.id === id);
+      const draft = candidate
+        ? [candidate.post, ...(candidate.others ?? [])].find((d) => d && d.venue === venue)
+        : null;
+
       if (!candidate) {
         ledger = { ok: false, why: 'that id is not on the current desk; nothing written to the ledger' };
+      } else if (!draft) {
+        ledger = { ok: false, why: `${venue} is not a venue routed for that item; nothing written to the ledger` };
       } else if (!process.env.GITHUB_TOKEN) {
         ledger = { ok: false, why: 'no GITHUB_TOKEN configured; the ledger was not written' };
       } else {
         ledger = await appendToLedger(
           {
             id,
-            platform,
+            platform: draft.platform,
+            venue,
             entities: candidate.entities ?? [],
             posted_at: at,
             permalink: null,

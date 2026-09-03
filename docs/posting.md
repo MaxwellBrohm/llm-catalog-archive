@@ -27,6 +27,40 @@ system failing to find news, it is the archive being honest that a few hundred
 catalogue changes contained nothing a developer needs to be told about. A
 routine that posted every day would have to lower the floor until it did.
 
+## One place, not six
+
+The desk recommends a single venue per finding and puts the rest behind a
+disclosure. That is not tidiness. Six equal buttons is not a recommendation, it
+is a menu, and the thing a menu invites is pressing all of it, which is what a
+community reads as spam and what actually costs the account. It also puts the
+decision back on whoever is holding the phone at eight in the morning, at the
+moment they have the least information.
+
+**A venue is a place, not a platform.** Reddit is not a destination; r/LocalLLaMA
+is. The subreddit is the difference between a post that lands and one that is
+removed within the hour, so it is part of the address in `src/desk/venues.ts`
+rather than left to the person pressing the button. Reddit's bare `/submit` is a
+chooser, and routing that ends at a chooser has not routed anything.
+
+The reason shown under the button belongs to the PAIRING of type and venue, not
+to the venue. Two types share r/LocalLLaMA for different reasons, and reusing
+one venue's description for both produced a desk that told the reader a merged
+vLLM pull request mattered because it was "an unreleased model sighting".
+
+**These are editorial judgements and nothing in the repository can verify them.**
+No code here can read a subreddit's current rules, so every route is a claim
+about an audience that can be wrong. What keeps them correctable rather than
+folklore is `meta/posted.jsonl`: it records the venue each item actually went
+to, so after a few dozen posts there is evidence, and the table should be
+revised against that rather than against anyone's intuition.
+
+Deliberate omissions matter as much as the inclusions. r/MachineLearning removes
+news and product posts, so sending a catalogue diff there wastes the item and
+earns a strike. Vendor subreddits beyond r/OpenAI and r/ClaudeAI are left out
+rather than guessed at, because a subreddit that has been renamed swallows the
+post silently; those items fall through to r/LocalLLaMA, which is a real
+audience for them.
+
 ## The split
 
 | Platform | How it goes out | Why |

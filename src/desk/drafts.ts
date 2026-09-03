@@ -52,6 +52,10 @@ export const PLATFORMS: readonly PlatformSpec[] = [
 
 export type Draft = {
   readonly platform: Platform;
+  /** The venue this draft is addressed to. `reddit:LocalLLaMA`, `hn`. */
+  readonly venue: string;
+  /** What the button says: the place, not the platform. */
+  readonly label: string;
   /** The headline field, where the platform has one. Always the sentence. */
   readonly title: string | null;
   /** The body actually submitted, where the link rides inside the text. */
@@ -61,8 +65,13 @@ export type Draft = {
   readonly submitUrl: string | null;
 };
 
-/** Why a platform got no draft, in the form a human can act on. */
-export type Shortfall = { readonly platform: Platform; readonly need: number; readonly limit: number };
+/** Why a venue got no draft, in the form a human can act on. */
+export type Shortfall = {
+  readonly platform: Platform;
+  readonly venue: string;
+  readonly need: number;
+  readonly limit: number;
+};
 
 export function changeUrl(item: FeedItem, siteUrl: string): string {
   return `${siteUrl.replace(/\/+$/, '')}/${changePagePath(item.sha)}`;
@@ -77,22 +86,43 @@ function body(sentence: string, url: string): string {
   return `${sentence}\n\n${url}`;
 }
 
-export function draftFor(item: FeedItem, spec: PlatformSpec, siteUrl: string): Draft | Shortfall {
+/**
+ * `venue` and `label` address the draft at a PLACE. `sub` is the subreddit,
+ * which is what makes a Reddit draft postable at all: Reddit's bare /submit
+ * lands a person on a chooser, and the choice is the part that decides whether
+ * the post survives the hour, so it is settled here rather than there.
+ */
+export function draftFor(
+  item: FeedItem,
+  spec: PlatformSpec,
+  siteUrl: string,
+  venue: string = spec.id,
+  label: string = spec.name,
+  sub: string | null = null,
+): Draft | Shortfall {
   const url = changeUrl(item, siteUrl);
   const sentence = item.sentence;
 
   if (spec.titleLimit !== null) {
     if (sentence.length > spec.titleLimit) {
-      return { platform: spec.id, need: sentence.length, limit: spec.titleLimit };
+      return { platform: spec.id, venue, need: sentence.length, limit: spec.titleLimit };
     }
-    return { platform: spec.id, title: sentence, text: null, url, submitUrl: submitUrl(spec.id, sentence, url) };
+    return {
+      platform: spec.id, venue, label,
+      title: sentence, text: null, url,
+      submitUrl: submitUrl(spec.id, sentence, url, sub),
+    };
   }
 
   const text = body(sentence, url);
   if (spec.total !== null && text.length > spec.total) {
-    return { platform: spec.id, need: text.length, limit: spec.total };
+    return { platform: spec.id, venue, need: text.length, limit: spec.total };
   }
-  return { platform: spec.id, title: null, text, url, submitUrl: submitUrl(spec.id, text, url) };
+  return {
+    platform: spec.id, venue, label,
+    title: null, text, url,
+    submitUrl: submitUrl(spec.id, text, url, sub),
+  };
 }
 
 /**
@@ -101,14 +131,18 @@ export function draftFor(item: FeedItem, spec: PlatformSpec, siteUrl: string): D
  * behind a login: the human lands on a submit form and presses the button.
  * Mastodon has no host-independent intent URL, so it gets none.
  */
-export function submitUrl(platform: Platform, text: string, url: string): string | null {
+export function submitUrl(platform: Platform, text: string, url: string, sub: string | null = null): string | null {
   const t = encodeURIComponent(text);
   const u = encodeURIComponent(url);
   switch (platform) {
     case 'hn':
       return `https://news.ycombinator.com/submitlink?u=${u}&t=${t}`;
     case 'reddit':
-      return `https://www.reddit.com/submit?url=${u}&title=${t}`;
+      // Without the subreddit this is a chooser, not a submission. The whole
+      // value of routing is lost at the last step if the link is generic.
+      return sub === null
+        ? `https://www.reddit.com/submit?url=${u}&title=${t}`
+        : `https://www.reddit.com/r/${encodeURIComponent(sub)}/submit?url=${u}&title=${t}`;
     case 'x':
       return `https://x.com/intent/post?text=${t}`;
     case 'bluesky':
@@ -132,3 +166,7 @@ export function draftsFor(item: FeedItem, siteUrl: string): DraftSet {
   }
   return { drafts, shortfalls };
 }
+
+export const PLATFORM_BY_ID: Record<Platform, PlatformSpec> = Object.fromEntries(
+  PLATFORMS.map((p) => [p.id, p]),
+) as Record<Platform, PlatformSpec>;

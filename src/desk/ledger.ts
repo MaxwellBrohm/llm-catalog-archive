@@ -20,6 +20,13 @@ export type PostedRow = {
   /** The FeedItem id. `<sha>:<type>:<subject>`, unique per build. */
   readonly id: string;
   readonly platform: Platform;
+  /**
+   * WHERE it went: `reddit:LocalLLaMA`, not `reddit`. Absent on rows written
+   * before the desk routed to venues, which is why every reader below treats a
+   * missing venue as the bare platform rather than as a gap to fill in. An old
+   * row must not start claiming a subreddit it was never posted to.
+   */
+  readonly venue?: string;
   /** Entity keys the post was about, for the cooldown. */
   readonly entities: readonly string[];
   readonly posted_at: string;
@@ -65,9 +72,16 @@ export function lastPostedByEntity(rows: readonly PostedRow[]): Map<string, stri
   return last;
 }
 
-/** Item ids already sent to a given platform, so a rerun cannot repeat one. */
+/**
+ * `<item id>::<venue id>` for everything already sent.
+ *
+ * KEYED ON VENUE, not platform. An item that went to r/OpenAI has not been to
+ * r/LocalLLaMA, and collapsing those to `reddit` would retire a real audience
+ * after a single post. A row with no venue is keyed on its platform, which is
+ * exactly what it meant when it was written.
+ */
 export function postedIds(rows: readonly PostedRow[]): Set<string> {
   const ids = new Set<string>();
-  for (const row of rows) ids.add(`${row.id}::${row.platform}`);
+  for (const row of rows) ids.add(`${row.id}::${row.venue ?? row.platform}`);
   return ids;
 }

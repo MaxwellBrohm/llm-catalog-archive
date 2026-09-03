@@ -15,14 +15,14 @@
 
 import type { FeedItem } from '../derive/feed.js';
 import { countsByType, scoreItem, entityKey, POST_FLOOR_BITS, POSTABLE_TYPES, type Score } from './surprise.js';
-import { draftsFor, type Draft, type Shortfall } from './drafts.js';
+import { recommend, type Recommendation } from './route.js';
 import { lastPostedByEntity, postedIds, type PostedRow } from './ledger.js';
 
 export type Candidate = {
   readonly item: FeedItem;
   readonly score: Score;
-  readonly drafts: readonly Draft[];
-  readonly shortfalls: readonly Shortfall[];
+  /** One venue to press, the reason, and the rest behind it. */
+  readonly route: Recommendation;
   readonly entities: readonly string[];
 };
 
@@ -82,19 +82,13 @@ export function buildQueue(
 
     if (score.bits < floorBits) continue;
 
-    const { drafts, shortfalls } = draftsFor(item, siteUrl);
-    // A candidate nothing can carry is not a candidate. This is reachable: a
-    // long sentence fails every title limit and every total at once.
-    const open = drafts.filter((d) => !already.has(`${item.id}::${d.platform}`));
-    if (open.length === 0) continue;
+    // A candidate with nowhere left to go is not a candidate. Reachable two
+    // ways: a sentence too long for every venue its type routes to, and an item
+    // that has already been to all of them.
+    const route = recommend(item, siteUrl, already);
+    if (route.primary === null) continue;
 
-    scored.push({
-      item,
-      score,
-      drafts: open,
-      shortfalls,
-      entities: keys,
-    });
+    scored.push({ item, score, route, entities: keys });
   }
 
   scored.sort((a, b) => b.score.bits - a.score.bits || (a.item.id < b.item.id ? -1 : 1));
