@@ -60,10 +60,23 @@ export function recommend(
   item: FeedItem,
   siteUrl: string,
   posted: ReadonlySet<string> = new Set(),
+  blockedVenues: ReadonlySet<string> = new Set(),
 ): Recommendation {
-  const venues = venuesFor(item);
+  const venues = venuesFor(item, blockedVenues);
+  // How many venues this type has, ignoring access. The difference between the
+  // two is the part a reader needs: "the sentence is too long" and "you are
+  // locked out of the room this belongs in" are different problems with
+  // different fixes, and only one of them is about the sentence.
+  const routed = venuesFor(item);
+  const lockedOut = routed.filter((v) => blockedVenues.has(v.id)).map((v) => v.label);
+
   if (venues.length === 0) {
-    return { primary: null, why: null, flair: null, needsFlair: false, others: [], shortfalls: [], blocked: `no venue is routed for ${item.type}` };
+    return {
+      primary: null, why: null, flair: null, needsFlair: false, others: [], shortfalls: [],
+      blocked: routed.length > 0
+        ? `every venue routed for this is one this account cannot post to yet (${lockedOut.join(', ')})`
+        : `no venue is routed for ${item.type}`,
+    };
   }
 
   const eligible: Draft[] = [];
@@ -92,7 +105,9 @@ export function recommend(
       blocked:
         sent === venues.length
           ? 'already posted everywhere it was routed'
-          : 'the sentence fits none of the venues routed for this type',
+          : lockedOut.length > 0
+            ? `locked out of ${lockedOut.join(', ')}, and the sentence fits none of the venues that are left`
+            : 'the sentence fits none of the venues routed for this type',
     };
   }
 

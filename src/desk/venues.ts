@@ -294,6 +294,31 @@ export function allRoutedVenueIds(): string[] {
 }
 
 /**
+ * Venues this account cannot currently post to.
+ *
+ * A GATE IS NOT A PREFERENCE. r/LocalLLaMA removes a post from an account under
+ * five comment karma, automatically and within seconds, which is the first
+ * thing that happened when this desk sent a real one. Routing to a venue that
+ * will refuse the post does not merely waste the item: it teaches that
+ * subreddit's spam tooling that diffwire.dev arrives from an account which
+ * cannot post, which is the opposite of what the exercise is for.
+ *
+ * THE FIX FOR THE GATE ITSELF IS NOT CODE. The rule exists because a new
+ * account whose first action is posting links to its own domain IS the spam
+ * pattern, and this account currently is that pattern. Earning the karma is
+ * participation, and the standing it buys is what makes later posts land at
+ * all. Nothing here should ever try to route around it: no second account, no
+ * karma farming, no waiting out a filter. This list exists only so the desk
+ * stops offering a door that is locked, and every entry is meant to be deleted
+ * the day it opens.
+ */
+export type VenueAccess = { readonly blocked?: Readonly<Record<string, unknown>> };
+
+export function blockedVenueIds(access: VenueAccess | null): Set<string> {
+  return new Set(access === null ? [] : Object.keys(access.blocked ?? {}));
+}
+
+/**
  * Ordered, concrete venues for an item, vendor placeholders resolved.
  *
  * THROWS on a route naming a venue that is not in VENUES, rather than skipping
@@ -303,7 +328,7 @@ export function allRoutedVenueIds(): string[] {
  * bitten by twice, once when a source suffix went unlisted and once when a
  * camera swap did not apply. Loud is cheaper.
  */
-export function venuesFor(item: FeedItem): RoutedVenue[] {
+export function venuesFor(item: FeedItem, blocked: ReadonlySet<string> = new Set()): RoutedVenue[] {
   const route = ROUTES[item.type] ?? [];
   const lab = labOf(item);
   const out: RoutedVenue[] = [];
@@ -311,6 +336,9 @@ export function venuesFor(item: FeedItem): RoutedVenue[] {
   for (const step of route) {
     const id = step.id === 'vendor' ? (lab === null ? null : LAB_SUB[lab] ?? null) : step.id;
     if (id === null || seen.has(id)) continue;
+    // Skipped BEFORE the VENUES lookup would throw, and before a draft is
+    // built, so a blocked venue costs nothing and appears nowhere.
+    if (blocked.has(id)) { seen.add(id); continue; }
     const venue = VENUES[id];
     if (venue === undefined) {
       throw new Error(`the route for ${item.type} names ${id}, which is not a venue in VENUES`);

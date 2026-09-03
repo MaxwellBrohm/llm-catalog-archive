@@ -64,6 +64,7 @@ export function buildQueue(
   floorBits: number = POST_FLOOR_BITS,
   limit: number = 5,
   corrections: readonly CorrectionRow[] = [],
+  blockedVenues: ReadonlySet<string> = new Set(),
 ): Queue {
   const counts = countsByType(feed);
   // The cooldown reads the UNCORRECTED rows on purpose: it asks how recently we
@@ -91,7 +92,7 @@ export function buildQueue(
     // A candidate with nowhere left to go is not a candidate. Reachable two
     // ways: a sentence too long for every venue its type routes to, and an item
     // that has already been to all of them.
-    const route = recommend(item, siteUrl, already);
+    const route = recommend(item, siteUrl, already, blockedVenues);
     if (route.primary === null) continue;
 
     scored.push({ item, score, route, entities: keys });

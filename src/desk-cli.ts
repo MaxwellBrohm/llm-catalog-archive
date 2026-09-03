@@ -23,6 +23,7 @@ import { buildFeed } from './derive/feed.js';
 import { buildQueue } from './desk/queue.js';
 import { parseCorrections, parsePosted } from './desk/ledger.js';
 import { POST_FLOOR_BITS } from './desk/surprise.js';
+import { blockedVenueIds } from './desk/venues.js';
 
 const cwd = process.cwd();
 const siteUrl = process.env['LCA_SITE_URL'] ?? SITE_URL;
@@ -61,8 +62,16 @@ const corrections = fs.existsSync(correctionsPath)
   ? parseCorrections(fs.readFileSync(correctionsPath, 'utf8'))
   : [];
 
+// Venues this account cannot post to yet. A gate, not a preference: routing to
+// one wastes the item and teaches that subreddit's spam tooling that this
+// domain arrives from an account which cannot post.
+const accessPath = path.join(cwd, 'meta/venue-access.json');
+const blockedVenues = blockedVenueIds(
+  fs.existsSync(accessPath) ? JSON.parse(fs.readFileSync(accessPath, 'utf8')) : null,
+);
+
 const floor = Number(process.env['LCA_POST_FLOOR'] ?? POST_FLOOR_BITS);
-const queue = buildQueue(feed, posted, new Date(), siteUrl, floor, 5, corrections);
+const queue = buildQueue(feed, posted, new Date(), siteUrl, floor, 5, corrections, blockedVenues);
 
 console.log(
   JSON.stringify(

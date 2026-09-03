@@ -16,7 +16,7 @@ import {
 import { draftFor, draftsFor, PLATFORMS, changeUrl } from '../src/desk/drafts.js';
 import { buildQueue, cooldownKeys } from '../src/desk/queue.js';
 import { recommend } from '../src/desk/route.js';
-import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE } from '../src/desk/venues.js';
+import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE, blockedVenueIds } from '../src/desk/venues.js';
 import { ALL_TYPES } from '../src/derive/feed.js';
 import {
   lastPostedByEntity, parsePosted, postedIds, parseCorrections, correctedIds, type PostedRow,
@@ -682,5 +682,62 @@ describe('a correction actually retracts the claim', () => {
     for (const r of rows) expect(r.ledger).toBeTruthy();
     /* Both of today's corrections concern the posting ledger. */
     expect(correctedIds(rows).size).toBe(rows.filter((r) => r.ledger === 'meta/posted.jsonl').length);
+  });
+});
+
+describe('a venue this account cannot post to is not offered', () => {
+  const blocked = new Set(['reddit:LocalLLaMA']);
+
+  /**
+   * The first real post this desk produced was removed within seconds by
+   * automod, for the account being under r/LocalLLaMA's five comment karma
+   * minimum. Continuing to offer that button does not merely waste the item: it
+   * teaches that subreddit's spam tooling that diffwire.dev arrives from an
+   * account which cannot post.
+   */
+  it('falls through to the next venue rather than offering a locked one', () => {
+    const one = item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' });
+    expect(recommend(one, SITE).primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(recommend(one, SITE, new Set(), blocked).primary!.venue).not.toBe('reddit:LocalLLaMA');
+  });
+
+  it('keeps a locked venue out of the alternatives too', () => {
+    const one = item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' });
+    const r = recommend(one, SITE, new Set(), blocked);
+    expect([r.primary!.venue, ...r.others.map((o) => o.venue)]).not.toContain('reddit:LocalLLaMA');
+  });
+
+  /**
+   * The honest outcome, and the one worth surfacing rather than hiding: with
+   * r/LocalLLaMA locked, a merged inference-engine pull request routes only to
+   * Hacker News, whose 80 character title limit its sentence cannot meet. The
+   * highest-scoring item in the archive has nowhere to go, and the desk says so
+   * instead of quietly dropping it.
+   */
+  it('distinguishes "locked out" from "nothing routed"', () => {
+    const pr = item({ type: 'upstream_pr_merged', id: 'a:upstream_pr_merged:p', sentence: 'x'.repeat(150) });
+    const r = recommend(pr, SITE, new Set(), blocked);
+    expect(r.primary).toBeNull();
+    expect(r.blocked).toContain('locked out of r/LocalLLaMA');
+
+    const nothing = recommend(item({ type: 'price_changed', id: 'a:price_changed:m', sentence: 'Short.' }), SITE);
+    expect(nothing.blocked).toContain('no venue is routed');
+  });
+
+  it('reads the access file this repository ships', () => {
+    const access = JSON.parse(fs.readFileSync(path.resolve('meta/venue-access.json'), 'utf8'));
+    const ids = blockedVenueIds(access);
+    expect(ids.has('reddit:LocalLLaMA')).toBe(true);
+    /* Every blocked id must be a real venue, or it silently blocks nothing. */
+    for (const id of ids) expect(VENUES[id], `${id} is not a venue`).toBeDefined();
+    /* And every entry must say what would clear it, so it can be deleted. */
+    for (const id of ids) {
+      expect(access.blocked[id].why, id).toBeTruthy();
+      expect(access.blocked[id].clears_when, id).toBeTruthy();
+    }
+  });
+
+  it('blocks nothing when there is no access file', () => {
+    expect(blockedVenueIds(null).size).toBe(0);
   });
 });

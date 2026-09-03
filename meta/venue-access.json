@@ -1,0 +1,10 @@
+{
+  "_comment": "Where this account is currently ALLOWED to post. Not a preference: a venue listed here refuses the post outright, so routing to it wastes the item and teaches the subreddit's spam filter that this domain arrives from an account that cannot post. Delete an entry the day the gate is cleared.",
+  "blocked": {
+    "reddit:LocalLLaMA": {
+      "why": "automod removes posts from accounts under 5 comment karma, in response to spam volume",
+      "observed": "2026-09-03, on the first real post",
+      "clears_when": "the account has 5 comment karma on that subreddit"
+    }
+  }
+}
