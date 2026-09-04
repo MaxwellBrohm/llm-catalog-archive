@@ -7,6 +7,30 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>NeoMME: an efficient Multimodal-native and Multilingual Encoder</title>
+   <pubDate>Thu, 03 Sep 2026 13:13:48 GMT</pubDate>
+   <link>https://huggingface.co/blog/Hcompany/neomme</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/Hcompany/neomme</guid>
+  </item>
+  <item>
+   <title>Fine-tuning a 350M Model for Better Structured Outputs in 100 GRPO Steps</title>
+   <pubDate>Thu, 03 Sep 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/grpo-with-trl-ifstruct</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/grpo-with-trl-ifstruct</guid>
+  </item>
+  <item>
+   <title>Give Your Coding Agents a Memory You Own</title>
+   <pubDate>Thu, 03 Sep 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/funes</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/funes</guid>
+  </item>
+  <item>
+   <title>Training a coding model to paint watercolours with TRL and OpenEnv</title>
+   <pubDate>Thu, 03 Sep 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/train-to-paint-with-code</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/train-to-paint-with-code</guid>
+  </item>
+  <item>
    <title>Real-Time Intelligence with IBM Time Series Models on Confluent </title>
    <pubDate>Wed, 02 Sep 2026 13:49:14 GMT</pubDate>
    <link>https://huggingface.co/blog/ibm-research/real-time-intelligence</link>
