@@ -1,0 +1,260 @@
+{
+  "generated_at": "2026-09-05T12:07:21.651Z",
+  "floor_bits": 4.5,
+  "funnel": {
+    "seen": 727,
+    "postableType": 197,
+    "notOnCooldown": 197,
+    "aboveFloor": 10
+  },
+  "candidates": [
+    {
+      "id": "cff327152fa12d79838789492670a4c2b7efc02b:codename_unmasked:eren-v2",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the publicName \"eren-v2\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard",
+      "stamp": {
+        "iso": "2026-09-05T00:53:09.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.95,
+      "why": [
+        "codename_unmasked is rare in the archive: +5.95 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:eren-v2"
+      ],
+      "facts": [
+        [
+          "publicName",
+          "eren-v2"
+        ],
+        [
+          "displayName before",
+          "eren-v2"
+        ],
+        [
+          "displayName after",
+          "mai-image-2.6 (image-edit)"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "text": "The displayName recorded beside the publicName \"eren-v2\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/cff327152fa12d79838789492670a4c2b7efc02b.html",
+        "url": "https://diffwire.dev/changes/cff327152fa12d79838789492670a4c2b7efc02b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20publicName%20%22eren-v2%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fcff327152fa12d79838789492670a4c2b7efc02b.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": [
+        {
+          "platform": "hn",
+          "venue": "hn",
+          "need": 152,
+          "limit": 80
+        }
+      ]
+    },
+    {
+      "id": "cff327152fa12d79838789492670a4c2b7efc02b:codename_unmasked:lo-bah-png",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the publicName \"lo-bah-png\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard",
+      "stamp": {
+        "iso": "2026-09-05T00:53:09.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.95,
+      "why": [
+        "codename_unmasked is rare in the archive: +5.95 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:lo-bah-png"
+      ],
+      "facts": [
+        [
+          "publicName",
+          "lo-bah-png"
+        ],
+        [
+          "displayName before",
+          "mai-image-2.6-preview (t2i)"
+        ],
+        [
+          "displayName after",
+          "mai-image-2.6 (t2i)"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "text": "The displayName recorded beside the publicName \"lo-bah-png\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/cff327152fa12d79838789492670a4c2b7efc02b.html",
+        "url": "https://diffwire.dev/changes/cff327152fa12d79838789492670a4c2b7efc02b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20publicName%20%22lo-bah-png%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fcff327152fa12d79838789492670a4c2b7efc02b.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": [
+        {
+          "platform": "hn",
+          "venue": "hn",
+          "need": 155,
+          "limit": 80
+        }
+      ]
+    },
+    {
+      "id": "cff327152fa12d79838789492670a4c2b7efc02b:codename_unmasked:vega",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the publicName \"vega\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard",
+      "stamp": {
+        "iso": "2026-09-05T00:53:09.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.95,
+      "why": [
+        "codename_unmasked is rare in the archive: +5.95 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:vega"
+      ],
+      "facts": [
+        [
+          "publicName",
+          "vega"
+        ],
+        [
+          "displayName before",
+          "vega"
+        ],
+        [
+          "displayName after",
+          "wan3.0"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "text": "The displayName recorded beside the publicName \"vega\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/cff327152fa12d79838789492670a4c2b7efc02b.html",
+        "url": "https://diffwire.dev/changes/cff327152fa12d79838789492670a4c2b7efc02b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20publicName%20%22vega%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fcff327152fa12d79838789492670a4c2b7efc02b.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": [
+        {
+          "platform": "hn",
+          "venue": "hn",
+          "need": 149,
+          "limit": 80
+        }
+      ]
+    },
+    {
+      "id": "a9fbb5ff69066b018e0e8f530e93418cea7ab31d:incident_opened:https://status.openai.com//incidents/01M1NKFZH5EEYEREC54HNAHY35",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Users in APAC region may face increased error in ChatGPT, Work, image generation, file upload, Voice, and Codex Cloud\" at \"https://status.openai.com//incidents/01M1NKFZH5EEYEREC54HNAHY35\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-05T04:28:20.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.63,
+      "why": [
+        "incident_opened is rare in the archive: +5.63 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M1NKFZH5EEYEREC54HNAHY35"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "reddit",
+        "venue": "reddit:OpenAI",
+        "label": "r/OpenAI",
+        "title": "The openai-status feed listed an incident titled \"Users in APAC region may face increased error in ChatGPT, Work, image generation, file upload, Voice, and Codex Cloud\" at \"https://status.openai.com//incidents/01M1NKFZH5EEYEREC54HNAHY35\".",
+        "text": null,
+        "url": "https://diffwire.dev/changes/a9fbb5ff69066b018e0e8f530e93418cea7ab31d.html",
+        "submitUrl": "https://www.reddit.com/r/OpenAI/submit?url=https%3A%2F%2Fdiffwire.dev%2Fchanges%2Fa9fbb5ff69066b018e0e8f530e93418cea7ab31d.html&title=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Users%20in%20APAC%20region%20may%20face%20increased%20error%20in%20ChatGPT%2C%20Work%2C%20image%20generation%2C%20file%20upload%2C%20Voice%2C%20and%20Codex%20Cloud%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M1NKFZH5EEYEREC54HNAHY35%22."
+      },
+      "why_here": "an outage matters to the people whose builds are failing right now and to almost nobody else",
+      "flair": null,
+      "needs_flair": true,
+      "others": [],
+      "shortfalls": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "need": 314,
+          "limit": 300
+        }
+      ]
+    },
+    {
+      "id": "d78e888b9cf06072b0843f5c842c2c5c57054aaa:codename_unmasked:c5s25-webdev",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the publicName \"c5s25-webdev\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard",
+      "stamp": {
+        "iso": "2026-09-04T01:19:36.000Z",
+        "kind": "origin"
+      },
+      "bits": 4.5,
+      "why": [
+        "codename_unmasked is rare in the archive: +5.95 bits",
+        "1.4 days old: -1.45 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:c5s25-webdev"
+      ],
+      "facts": [
+        [
+          "publicName",
+          "c5s25-webdev"
+        ],
+        [
+          "displayName before",
+          "c5s25-webdev"
+        ],
+        [
+          "displayName after",
+          "sprinter"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "text": "The displayName recorded beside the publicName \"c5s25-webdev\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/d78e888b9cf06072b0843f5c842c2c5c57054aaa.html",
+        "url": "https://diffwire.dev/changes/d78e888b9cf06072b0843f5c842c2c5c57054aaa.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20publicName%20%22c5s25-webdev%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fd78e888b9cf06072b0843f5c842c2c5c57054aaa.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": [
+        {
+          "platform": "hn",
+          "venue": "hn",
+          "need": 157,
+          "limit": 80
+        }
+      ]
+    }
+  ]
+}
