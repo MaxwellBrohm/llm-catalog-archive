@@ -105,6 +105,7 @@
 - [Ori Eval](https://openrouter.ai/docs/guides/ori/eval.md): Find the best model for your project by testing your agent on real prompts, with one harness and one model for each run
 - [Ori Harness](https://openrouter.ai/docs/guides/ori/harness.md): Run your existing agent CLI on OpenRouter with any model, organization guardrails, and one bill
 - [Where Ori writes files](https://openrouter.ai/docs/guides/ori/files.md): Find the files and directories that Ori creates during a run
+- [Ori configuration](https://openrouter.ai/docs/guides/ori/configuration.md): How to configure Ori, from a single shell to a managed fleet, plus every setting it reads
 - [Changelog](https://openrouter.ai/docs/guides/ori/changelog.md): Curated release notes for the Ori CLI, with version history and changes across releases.
 - [Data Collection](https://openrouter.ai/docs/guides/privacy/data-collection.md): What data OpenRouter collects
 - [Provider Logging](https://openrouter.ai/docs/guides/privacy/provider-logging.md): Provider logging and data retention policies
@@ -233,6 +234,8 @@
 - [Delete a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/delete-a-scim-group-mapping.md): Delete a SCIM group-to-workspace mapping. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Update a SCIM group mapping](https://openrouter.ai/docs/api/api-reference/scim/update-a-scim-group-mapping.md): Update a SCIM group mapping role. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [List SCIM groups](https://openrouter.ai/docs/api/api-reference/scim/list-scim-groups.md): List SCIM groups for the organization. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Start a SCIM directory sync](https://openrouter.ai/docs/api/api-reference/scim/start-a-scim-directory-sync.md): Start a SCIM directory sync. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Get SCIM directory sync status](https://openrouter.ai/docs/api/api-reference/scim/get-scim-directory-sync-status.md): Get SCIM directory sync status. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Submit a video generation request](https://openrouter.ai/docs/api/api-reference/video-generation/submit-a-video-generation-request.md): Submits a video generation request and returns a polling URL to check status
 - [Poll video generation status](https://openrouter.ai/docs/api/api-reference/video-generation/poll-video-generation-status.md): Returns job status and content URLs when completed
 - [Download generated video content](https://openrouter.ai/docs/api/api-reference/video-generation/download-generated-video-content.md): Streams the generated video content from the upstream provider
@@ -396,6 +399,7 @@
 - [Claude 5 Sonnet Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/sonnet-5.md): Migrate to Claude 5 Sonnet — sampling parameters removed, adaptive-only thinking, and the new xhigh effort level
 - [Claude 4.7 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-7.md): Migrate to Claude 4.7 Opus — sampling parameters removed, adaptive-only thinking, and new xhigh effort level
 - [Claude 4.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-6.md): Migrate to Claude 4.6 with adaptive thinking and max effort level
+- [GPT-6 Astra Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-6-astra.md): Adopt mid-conversation reasoning effort changes with configuration_update for GPT-6 Astra
 - [GPT-5.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-6.md): Adopt reasoning.mode, reasoning.context, and explicit prompt caching for the GPT-5.6 model family
 - [GPT-5.4 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-4.md): Support the phase field for GPT-5.3 Codex, GPT-5.4, GPT-5.4 Pro, GPT-5.5, and GPT-5.5 Pro
 - [RAG with Embeddings & Rerank](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/rag.md): Build retrieval-augmented generation pipelines using OpenRouter's embeddings and rerank APIs
