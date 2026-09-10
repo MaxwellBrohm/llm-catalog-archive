@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Tue, 08 Sep 2026 01:14:31 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 10 Sep 2026 00:01:29 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,156 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>PyTorch Conference China 2026: Advancing the Open Source AI Stack</title>
+		<link>https://pytorch.org/blog/pytorch-conference-china-2026-advancing-the-open-source-ai-stack/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 10 Sep 2026 00:01:29 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=164643</guid>
+
+					<description><![CDATA[PyTorch Conference China 2026 brought the PyTorch community together in Shanghai on September 8–9 alongside KubeCon + CloudNativeCon and OpenInfra Summit, following sponsor-hosted co-located events on September 7. Technical discussions...]]></description>
+										<content:encoded><![CDATA[<p>PyTorch Conference China 2026 brought the PyTorch community together in Shanghai on September 8–9 alongside <a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/">KubeCon + CloudNativeCon and OpenInfra Summit</a>, following sponsor-hosted co-located events on September 7. Technical discussions spanned models, frameworks, distributed training, inference, hardware, cloud native infrastructure, and agents.</p>
+<p>“Open Source for the AI Era” framed work across those layers. Across co-located sessions, keynotes, technical demonstrations, a PyTorch Foundation press conference, community meetings, and conversations at the PyTorch booth, the program covered hardware adaptation, training and serving, open infrastructure, accelerator integration, and collaboration across open source communities.</p>
+<p><a href="https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/">PyTorch Foundation welcomed Alibaba Cloud, Ant Group, and Cambricon</a> as new members, joining Huawei and other existing Foundation members.</p>
+<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-164785 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-164782 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN1626-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN1626-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN1626-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN1626-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /><br />
+<img decoding="async" class="aligncenter wp-image-165091 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-scaled.jpeg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-scaled.jpeg 2560w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-1024x768.jpeg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<h2>Building Frontier Intelligence in the Open</h2>
+<p><strong>Speaker:</strong> Mark Collier, Executive Director, PyTorch Foundation</p>
+<p>Mark’s September 8 keynote focused on an open ecosystem where researchers, developers, model builders, and hardware companies can work together across an expanding landscape of models and compute. The session connected PyTorch with the path from experimentation to production, new accelerator architectures, and the infrastructure that ultimately runs AI workloads.</p>
+<p><img decoding="async" class="aligncenter wp-image-164736 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-scaled.jpg" alt="cambricon mark" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<h2>Additional Keynotes Across the Open Source AI Stack</h2>
+<p>The keynote program brought together speakers working across models, PyTorch, cloud native infrastructure, accelerators, serving, and agents.</p>
+<h3>Day 1</h3>
+<p><strong>From Open Source Adoption to Open Source Innovation: China’s Next Chapter</strong><br />
+<strong>Speaker:</strong> Professor Lu Shouqun<br />
+<strong>Organization:</strong> China OSS</p>
+<p><strong>Open Source for the AI Era</strong><br />
+<strong>Speakers:</strong> Jonathan Bryce and Horace Li<br />
+<strong>Organization:</strong> The Linux Foundation</p>
+<p><strong>Beyond Multimodal: Building Full-Modal AGI via Open-Weight</strong><br />
+<strong>Speaker:</strong> Ryan Lee<br />
+<strong>Organization:</strong> MiniMax</p>
+<p><strong>Operating Frontier Intelligence at Scale</strong><br />
+<strong>Speakers:</strong> Chris Aniszczyk and Xiao Zhang<br />
+<strong>Organizations:</strong> The Linux Foundation and Dynamia.ai</p>
+<p><strong>Tidal Auto-scaling for Training and Inference Based on Kubernetes + KEDA</strong><br />
+<strong>Speakers:</strong> Jun Zheng and Tan Pei Xiang<br />
+<strong>Organization:</strong> China Merchants Bank</p>
+<p><strong>Ascend &amp; PyTorch: Pioneer New AI Open Ecosystem</strong><br />
+<strong>Speaker:</strong> Liang Zhang<br />
+<strong>Organization:</strong> Huawei</p>
+<p><strong>Towards Device-agnostic PyTorch: Building Unified Infrastructure for a Multi-Backend Ecosystem</strong><br />
+<strong>Speaker:</strong> Wei Li<br />
+<strong>Organization:</strong> Cambricon</p>
+<p><strong>Inside vLLM: Production Best Practices, Model Integration and Road Map</strong><br />
+<strong>Speaker:</strong> Kaichao You<br />
+<strong>Organization:</strong> Inferact Inc.</p>
+<p><strong>PD Disaggregation vLLM Deployment on Alternative AI Accelerators Using llm-d</strong><br />
+<strong>Speakers:</strong> 纪飞 王 and Mengxuan Li<br />
+<strong>Organizations:</strong> Dynamia and Dynamia.ai</p>
+<p><strong>Building an Agent Runtime with Open Infrastructure</strong><br />
+<strong>Speakers:</strong> Yaya Xia and Xu Wang<br />
+<strong>Organization:</strong> Ant Group</p>
+<p><strong>What AI Agents Need from Open Infrastructure</strong><br />
+<strong>Speaker:</strong> Yaya Xia<br />
+<strong>Organization:</strong> Ant Group</p>
+<h3>Day 2</h3>
+<p><strong>Welcome Back + Opening Remarks</strong><br />
+<strong>Speakers:</strong> Jonathan Bryce and Horace Li<br />
+<strong>Organization:</strong> The Linux Foundation</p>
+<p><strong>What Powers Frontier Intelligence</strong><br />
+<strong>Speaker:</strong> Thierry Carrez<br />
+<strong>Organization:</strong> OpenInfra Foundation</p>
+<p><strong>Road from Kata Containers to Confidential Containers + GPUs: From First Commit to CNCF Incubation</strong><br />
+<strong>Speaker:</strong> Zvonko Kaiser<br />
+<strong>Organization:</strong> NVIDIA</p>
+<p><strong>HyperParallel: A SuperPoD-Aware Distributed Acceleration Library</strong><br />
+<strong>Speakers:</strong> Teng Su and Shendi Wang<br />
+<strong>Organization:</strong> Huawei</p>
+<p><strong>Build a Unified Heterogeneous AI Computing Ecosystem for PyTorch</strong><br />
+<strong>Speaker:</strong> Zesheng Zong<br />
+<strong>Organization:</strong> Huawei</p>
+<p><strong>Serving Qwen at Scale: Multi-Cluster AI Infrastructure on Karmada</strong><br />
+<strong>Speaker:</strong> Jionghang Cai<br />
+<strong>Organization:</strong> Alibaba Cloud</p>
+<p><strong>Meet the Community Behind the Open Source AI Stack</strong><br />
+<strong>Speakers:</strong> Jane Lyu; Fupan Li; Zesheng Zong; Hiu Yeung, Sunny Chan<br />
+<strong>Organizations:</strong> The Linux Foundation; Ant Group; Huawei; TCC Consulting Limited</p>
+<p><strong>Building Frontier AI Infra: SGLang and Miles</strong><br />
+<strong>Speaker:</strong> Ke Bao<br />
+<strong>Organization:</strong> RadixArk</p>
+<p><strong>A Cloud Native Stack from Bare Metal to Tokens for Large-Scale AI Inference</strong><br />
+<strong>Speaker:</strong> Trong Vinh Nguyen<br />
+<strong>Organization:</strong> Viettel</p>
+<p><img decoding="async" class="aligncenter wp-image-164737 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN0671-scaled.jpg" alt="keynote crowd" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN0671-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN0671-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN0671-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<h2>Alibaba Cloud, Ant Group, and Cambricon Join PyTorch Foundation</h2>
+<p>PyTorch Foundation announced three new members in Shanghai on September 8.</p>
+<p><strong>Alibaba Cloud</strong> joined as a <strong>Platinum Member</strong>, with work spanning cloud infrastructure and the Qwen model family.</p>
+<p><strong>Ant Group</strong> joined as a <strong>Gold Member</strong>, bringing experience with production AI at financial-services scale.</p>
+<p><strong>Cambricon</strong> joined as a <strong>Platinum Member</strong>. Cambricon develops MLU accelerators and follows an “Upstream First” approach to its PyTorch contributions. Its contributions span torch.compile, Eager Operators, Device Runtime, Distributed Computing, AMP, Dataloader, and Profiler.</p>
+<p>Representatives from Alibaba Cloud, Ant Group, Cambricon, and Huawei took the keynote stage to speak about the open AI stack across <strong>hardware, models, and infrastructure</strong>.</p>
+<p><strong>ANY MODEL · ANY CHIP · ANY CLOUD · ANY AGENT</strong></p>
+<p><img decoding="async" class="aligncenter wp-image-164730 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-15.png" alt="3 new members" width="960" height="540" srcset="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-15.png 960w, https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-15-300x169.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></p>
+<p><a href="https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/">Read the full membership announcement.</a></p>
+<p><a href="https://pytorch.org/blog/cambricon-joins-the-pytorch-foundation-as-a-platinum-member/">Read more about Cambricon joining PyTorch Foundation as a Platinum Member.</a></p>
+<h2>One Open Source AI Stack</h2>
+<p>At the September 8 press conference, PyTorch Foundation outlined an open source AI stack spanning applications and agents, building and delivering intelligence, running and scaling AI workloads, infrastructure and isolation, and heterogeneous compute.</p>
+<p>PyTorch, vLLM, and Ray represented the layer focused on building and delivering intelligence. Kubernetes, KServe, Kueue, OpenTelemetry, and llm-d represented the layer focused on running and scaling AI workloads. OpenStack and Kata Containers represented infrastructure and isolation. Those software layers run across NPUs, CPUs, GPUs, and other accelerators.</p>
+<p>PyTorch Foundation members work across four areas:</p>
+<ul>
+<li><strong>Any Model:</strong> AI labs and builders</li>
+<li><strong>Any Chip:</strong> silicon and systems</li>
+<li><strong>Any Cloud:</strong> clouds and platforms</li>
+<li><strong>Any Agent:</strong> production and services</li>
+</ul>
+<p>Many members work across more than one layer. The Foundation summarized the model directly: <strong>“No single organization builds the whole system. Together, our members span it.”</strong></p>
+<p><img decoding="async" class="aligncenter wp-image-164729 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-16.png" alt="members building and serving intelligence" width="960" height="540" srcset="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-16.png 960w, https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-16-300x169.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></p>
+<h2>China in the Stack</h2>
+<p><img decoding="async" class="aligncenter wp-image-164754 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-18.png" alt="" width="960" height="540" srcset="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-18.png 960w, https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-18-300x169.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></p>
+<p><strong>100+ China-based developers contribute to PyTorch across 40+ affiliated organizations.</strong></p>
+<p>PyTorch Foundation members represented in the China-focused overview included <strong>Alibaba Cloud, Cambricon, and Huawei</strong> as Platinum Members, <strong>Ant Group</strong> as a Gold Member, and <strong>Beijing Academy of Artificial Intelligence (BAAI)</strong> as an Associate Member.</p>
+<p>The September 8 membership announcement also noted that <strong>more than 250 organizations across China contribute to PyTorch Foundation projects</strong>, including DeepSpeed, Helion, PyTorch, Ray, Safetensors, and vLLM.</p>
+<p>The conference also highlighted open model development and optimization through the open software layer.</p>
+<p>For <strong>DeepSeek-R1</strong>, one case study covered optimization through kernels, routing, parallelism, and serving on the same GB300 hardware six months later. In the configuration presented, the optimized system delivered <strong>2.77x throughput</strong> and <strong>60% lower token cost</strong>. The source cited in the conference material was NVIDIA, 2026.</p>
+<p>A second example showed the share of <strong>OpenRouter token traffic served by open-weight models developed in China</strong> increasing from <strong>2% in late 2024 to 45% in April 2026</strong>. The source cited in the conference material was Mozilla.</p>
+<h2>Join the PyTorch TAC Accelerator Integration Working Group</h2>
+<p>AI computing hardware faces heterogeneity challenges with high adaptation costs and a lack of unified standards.</p>
+<p>The <strong>PyTorch TAC Accelerator Integration Working Group</strong>, co-chaired by Huawei and Intel, delivers standardized hardware onboarding guidelines, a cross-repo CI testing mechanism, generalized device-aware test suites, and platform incubation workflows.</p>
+<p>Zesheng Zong shared the Accelerator Integration Working Group’s achievements and future roadmap during PyTorch Conference China, including <strong>refined device-agnostic APIs</strong> and an <strong>expanded multi-backend test matrix</strong>.</p>
+<p>Hardware vendors and developers interested in co-building an open, efficient heterogeneous computing ecosystem for PyTorch can participate in the Accelerator Integration Working Group.</p>
+<p><a href="https://pytorch.org/working-groups/">Join a PyTorch Foundation Working Group.</a></p>
+<h2>Community in Shanghai</h2>
+<p>PyTorch Foundation Technical Advisory Council members met in Shanghai during Day 1 of PyTorch Conference China 2026.</p>
+<p>At the PyTorch booth, developers, contributors, hardware vendors, and attendees discussed work across the open source AI ecosystem.</p>
+<p><img decoding="async" class="aligncenter wp-image-164778 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-scaled.jpeg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-scaled.jpeg 2560w, https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-1024x768.jpeg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-164781 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-scaled.jpg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-1024x768.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<h2>September 7: Starting with Diverse Hardware</h2>
+<p>Two September 7 co-located events highlighted the challenges created by increasingly heterogeneous AI hardware and the software work required to support it.</p>
+<h3>Open Computing: Building Open Software for Diverse Hardware</h3>
+<p><strong>Speaker:</strong> Mark Collier, Executive Director, PyTorch Foundation<br />
+<strong>Host:</strong> FlagOS</p>
+<p>Mark Collier joined experts from Beijing Academy of Artificial Intelligence (BAAI), Shanghai AI Laboratory, vLLM, SGLang, NVIDIA, and others in a technical discussion about open system software for diverse hardware.</p>
+<p>AI chip diversification creates repeated integration work across operators, compilers, training and inference frameworks, communications, and other parts of the software stack. Talks focused on technical roadmaps and collaboration models for a multi-chip AI system software stack, including hardware-software co-optimization across emerging chip architectures.</p>
+<p><img decoding="async" class="aligncenter wp-image-164700 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo.jpeg" alt="" width="1280" height="960" srcset="https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo.jpeg 1280w, https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo-1024x768.jpeg 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
+<h3>Hardware-Aware AI: Building PyTorch Workloads Across Accelerators</h3>
+<p><strong>Opening remarks:</strong> Mark Collier, Executive Director, PyTorch Foundation<br />
+<strong>Host:</strong> Huawei</p>
+<p>Huawei’s co-located session focused on PyTorch workloads across GPUs, NPUs, and XPUs, including framework adaptation, operators, compiler co-optimization, workload migration, and performance tuning.</p>
+<p><img decoding="async" class="aligncenter wp-image-164699 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/hardware-aware-ai.jpeg" alt="" width="800" height="600" srcset="https://pytorch.org/wp-content/uploads/2026/09/hardware-aware-ai.jpeg 800w, https://pytorch.org/wp-content/uploads/2026/09/hardware-aware-ai-300x225.jpeg 300w" sizes="(max-width: 800px) 100vw, 800px" /></p>
+<h2>Register for PyTorch Conference North America 2026</h2>
+<p>If you couldn’t join us in Shanghai, PyTorch Conference North America 2026 is the next chance to hear directly from maintainers, researchers, developers, and AI engineers working across the open source AI stack.</p>
+<p>PyTorch conferences are the open source AI community’s town square, where what’s next gets decided.</p>
+<p>PyTorch Conference North America comes to San Jose October 20–21, with maintainers from PyTorch, vLLM, DeepSpeed, and Ray among the speakers.</p>
+<p><a href="https://hubs.la/Q04x03FW0">Register for PyTorch Conference North America 2026.</a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Alibaba Cloud, Ant Group, Cambricon and Huawei Come Together in Shanghai to Advance the Open Source AI Stack at PyTorch Conference China</title>
 		<link>https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/</link>
 		
@@ -98,7 +248,7 @@
 		<guid isPermaLink="false">https://pytorch.org/?p=162761</guid>
 
 					<description><![CDATA[The PyTorch Foundation, a community-driven hub for open source AI under the Linux Foundation, is announcing today that Cambricon has joined as a Platinum member. Founded in 2016, Cambricon is...]]></description>
-										<content:encoded><![CDATA[<p><img fetchpriority="high" decoding="async" class="alignnone size-large wp-image-162764" src="https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-1024x576.png" alt="Cambricon PyTorch Foundation Member" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-1024x576.png 1024w, https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member.png 1600w" sizes="(max-width: 1024px) 100vw, 1024px" /></p>
+										<content:encoded><![CDATA[<p><img decoding="async" class="alignnone size-large wp-image-162764" src="https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-1024x576.png" alt="Cambricon PyTorch Foundation Member" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-1024x576.png 1024w, https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member.png 1600w" sizes="(max-width: 1024px) 100vw, 1024px" /></p>
 <p>The PyTorch Foundation, a community-driven hub for open source AI under the Linux Foundation, is announcing today that Cambricon has joined as a Platinum member.</p>
 <p>Founded in 2016, Cambricon is an early pioneer in AI chips, dedicated to the research and development of AI chip products and software. Through a decade of continuous iteration, Cambricon has built a mature, high-performance hardware-software product portfolio that is developer-friendly and highly scalable.</p>
 <p>With its cutting-edge chip technologies and comprehensive foundational software ecosystem, Cambricon enables efficient training and inference of large language models at scale. Beyond that, it has helped turn AI computing into a commercial reality across industries. Its products have achieved broad commercial adoption across a range of core AI applications, including conversational AI, agentic AI, search, advertising and recommendation, audio and video generation, and other multimodal applications, earning broad recognition across the industry.</p>
@@ -1373,45 +1523,7 @@
 		
 		
 			</item>
-		<item>
-		<title>PyTorch Conference North America 2026 Keynote Speaker Sessions Announced</title>
-		<link>https://pytorch.org/blog/pytorch-conference-north-america-2026-keynote-speaker-sessions-announced/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Thu, 20 Aug 2026 20:56:13 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=157323</guid>
-
-					<description><![CDATA[The keynote lineup is set for PyTorch Conference North America 2026, taking place October 20–21 in San Jose, California. The program includes sessions on PyTorch updates, native PyTorch on Trainium,...]]></description>
-										<content:encoded><![CDATA[<p><img decoding="async" class="aligncenter wp-image-119439 size-full" src="https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026.png" alt="PyTorch Conference North America 2026" width="1200" height="630" srcset="https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026.png 1200w, https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026-300x158.png 300w, https://pytorch.org/wp-content/uploads/2025/12/PyTorch-Conference-North-America-2026-1024x538.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
-<p>The keynote lineup is set for <strong>PyTorch Conference North America 2026</strong>, taking place October 20–21 in San Jose, California. The program includes sessions on PyTorch updates, native PyTorch on Trainium, agent workloads, model customization, open science, and more.</p>
-<p>Featured keynote speakers and their scheduled sessions include:</p>
-<ul>
-<li><strong>Mark Collier, PyTorch Foundation</strong>: <em>Welcome to PyTorch Conference North America</em> and <em>Welcome Back</em></li>
-<li><strong>Alban Desmaison and Edward Yang, Meta</strong>: <em>PyTorch Updates</em></li>
-<li><strong>Maen Suleiman, Amazon Web Services</strong>: <em>Sponsored Keynote: Trainium’s Journey to Native PyTorch</em></li>
-<li><strong>Sara Hooker, Adaption</strong>: <em>Beyond Brute Force: The Era of Adaptive Intelligence.</em></li>
-<li><strong>Jana van Greunen, Meta</strong>: <em>Sponsored Keynote: PyTorch at Meta &#8211; From Internal Workloads to Multi-Silicon Ecosystem</em></li>
-<li><strong>Simon Mo, Inferact</strong>: <em>Keynote: Simon Mo, Inferact</em></li>
-<li><strong>Brian Stevens, Red Hat</strong>: <em>Keynote: Brian Stevens, SVP and AI CTO, Red Hat</em></li>
-<li><strong>Ujval Kapasi, NVIDIA</strong>: <em>Keynote: Ujval Kapasi, VP, AI &amp; HPC Frameworks and Libraries, NVIDIA</em></li>
-<li><strong>Mazin Gilbert, Agentic AI Foundation</strong>: <em>Keynote: Mazin Gilbert, Executive Director, Agentic AI Foundation</em></li>
-<li><strong>Bill Jia, Google Cloud</strong>: <em>Workload Fungibility in the Age of Agents</em></li>
-<li><strong>Chris Lattner, Qualcomm</strong>: <em>Sponsored Keynote: Chris Lattner, EVP of Advanced AI Software and Platforms, Qualcomm</em></li>
-<li><strong>Joelle Pineau, Cohere</strong>: <em>Open Science and AI Foundation Models: Allies in the Pursuit of Knowledge</em></li>
-<li><strong>Yiwei Song, Crusoe</strong>: <em>Sponsored Keynote: AI Model Customization Platform</em></li>
-<li><strong>Mark Saroufim, Core Automation</strong>: <em>Linear Algebra for the Age of Research</em></li>
-</ul>
-<p>Stay tuned for more.</p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?utm_campaign=49768803-26Q3_PyTorch%20Conference%20North%20America&amp;utm_source=PyTorch.blog%20%28schedule%29"><strong>View the full schedule</strong></a></p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/register/?utm_campaign=49768803-26Q3_PyTorch%20Conference%20North%20America&amp;utm_source=Pytorch.org%20blog#register-now"><strong>Register for PyTorch Conference North America</strong></a></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=3937 metric#misses=30 metric#hit-ratio=99.2 metric#bytes=1250735 metric#prefetches=149 metric#store-reads=49 metric#store-writes=8 metric#store-hits=191 metric#store-misses=14 metric#sql-queries=12 metric#ms-total=553.61 metric#ms-cache=26.63 metric#ms-cache-avg=0.4756 metric#ms-cache-ratio=4.8 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4074 metric#misses=31 metric#hit-ratio=99.2 metric#bytes=1303030 metric#prefetches=205 metric#store-reads=36 metric#store-writes=7 metric#store-hits=214 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=605.45 metric#ms-cache=24.68 metric#ms-cache-avg=0.5877 metric#ms-cache-ratio=4.1 sample#redis-hits=638848439 sample#redis-misses=152335265 sample#redis-hit-ratio=80.8 sample#redis-ops-per-sec=98 sample#redis-evicted-keys=507938 sample#redis-used-memory=964355480 sample#redis-used-memory-rss=1019084800 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=2 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=917707 -->
