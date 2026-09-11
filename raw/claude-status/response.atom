@@ -4,10 +4,26 @@
   <link rel="alternate" type="text/html" href="https://status.claude.com"/>
   <link rel="self" type="application/atom+xml" href="https://status.claude.com/history.atom"/>
   <title>Claude Status - Incident History</title>
-  <updated>2026-09-04T04:18:22Z</updated>
+  <updated>2026-09-11T03:54:26Z</updated>
   <author>
     <name>Claude</name>
   </author>
+  <entry>
+    <id>tag:status.claude.com,2005:Incident/31403268</id>
+    <published>2026-09-10T23:24:22Z</published>
+    <updated>2026-09-10T23:24:22Z</updated>
+    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/2pt83vlkk7x7"/>
+    <title>Elevated latency on the Claude API for some users</title>
+    <content type="html">&lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt;10&lt;/var&gt;, &lt;var data-var='time'&gt;23:24&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue affecting Claude services has been mitigated. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt;10&lt;/var&gt;, &lt;var data-var='time'&gt;21:43&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Identified&lt;/strong&gt; - We are experiencing slower than normal response times on the Claude API for some customers whose traffic enters through the US Midwest. Users may experience elevated latency and some request timeouts. &lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <id>tag:status.claude.com,2005:Incident/31400563</id>
+    <published>2026-09-10T17:20:39Z</published>
+    <updated>2026-09-10T17:20:39Z</updated>
+    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/r1pqn1kb4hvk"/>
+    <title>Degraded functionality for Claude Cowork on Windows</title>
+    <content type="html">&lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt;10&lt;/var&gt;, &lt;var data-var='time'&gt;15:54&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Identified&lt;/strong&gt; - A Windows update released September 8 has left Claude Cowork on Windows unable to run local commands, because its workspace can no longer reach your computer's drive. For most users, chat and file reading and editing still work. There's no in-app workaround yet, and restarting or reinstalling won't help. Microsoft has developed a fix and is working to release it. We'll post an update when we have more to share. &lt;/p&gt;</content>
+  </entry>
   <entry>
     <id>tag:status.claude.com,2005:Incident/31343579</id>
     <published>2026-09-03T16:23:12Z</published>
@@ -191,21 +207,5 @@
     <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/j160kkjmm2n1"/>
     <title>Elevated errors for Claude Mythos 5, Claude Fable 5, and Claude Sonnet 5</title>
     <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;13&lt;/var&gt;, &lt;var data-var='time'&gt;16:08&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue affecting Claude Mythos 5 and Claude Fable 5 has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;13&lt;/var&gt;, &lt;var data-var='time'&gt;15:44&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Update&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Mythos 5 and Claude Fable 5. We will provide an update as soon as possible. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;13&lt;/var&gt;, &lt;var data-var='time'&gt;14:33&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Mythos 5, Claude Fable 5, and Claude Sonnet 5. We will provide an update as soon as possible. &lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <id>tag:status.claude.com,2005:Incident/31155403</id>
-    <published>2026-08-12T18:07:11Z</published>
-    <updated>2026-08-14T10:28:22Z</updated>
-    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/rk6gkg2gwfny"/>
-    <title>Degraded performance for multiple models</title>
-    <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;12&lt;/var&gt;, &lt;var data-var='time'&gt;18:07&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - This issue has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;12&lt;/var&gt;, &lt;var data-var='time'&gt;17:28&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Update&lt;/strong&gt; - We are continuing to work to resolve an issue resulting in slightly elevated errors on requests to Claude Fable 5. We will provide an update as soon as possible. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;12&lt;/var&gt;, &lt;var data-var='time'&gt;16:10&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Identified&lt;/strong&gt; - We have identified an issue which resulted in errors across multiple models. At this time, errors are primarily impacting Claude Fable 5 and we are working to fully resolve these issues. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;12&lt;/var&gt;, &lt;var data-var='time'&gt;13:50&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating elevated errors on requests to multiple models. We will provide an update as soon as possible. &lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <id>tag:status.claude.com,2005:Incident/31098038</id>
-    <published>2026-08-05T14:34:15Z</published>
-    <updated>2026-08-14T10:28:22Z</updated>
-    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/mgp99sn4ynd4"/>
-    <title>Degraded performance for Claude Opus 5</title>
-    <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 5&lt;/var&gt;, &lt;var data-var='time'&gt;14:34&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - This incident has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt; 5&lt;/var&gt;, &lt;var data-var='time'&gt;13:51&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Identified&lt;/strong&gt; - We have identified the cause of elevated errors on requests to Claude Opus 5 and are working on a fix. We will provide an update as soon as possible. &lt;/p&gt;</content>
   </entry>
 </feed>
