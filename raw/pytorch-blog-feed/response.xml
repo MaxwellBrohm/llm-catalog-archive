@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Thu, 10 Sep 2026 00:01:29 +0000</lastBuildDate>
+	<lastBuildDate>Fri, 11 Sep 2026 13:04:23 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,208 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Helion x 🤗 HF Kernels: Building and Shipping Out-of-the-box Performant Kernels</title>
+		<link>https://pytorch.org/blog/helion-x-%f0%9f%a4%97-hf-kernels-building-and-shipping-out-of-the-box-performant-kernels/</link>
+		
+		<dc:creator><![CDATA[Sayak Paul (Hugging Face), Dunfan Lu (Meta), Tarindu Jayatilaka (Meta), Jongsok Choi (Meta)]]></dc:creator>
+		<pubDate>Fri, 11 Sep 2026 17:45:57 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=165024</guid>
+
+					<description><![CDATA[TL;DR The HuggingFace Kernels project now has Helion support. This blog walks through how to build, autotune, and ship performant and portable Helion kernels via the Hugging Face Kernels project,...]]></description>
+										<content:encoded><![CDATA[<h3>TL;DR</h3>
+<p>The HuggingFace Kernels project now has Helion support. This blog walks through how to build, autotune, and ship performant and portable Helion kernels via the Hugging Face Kernels project, allowing users to consume these kernels seamlessly.</p>
+<h2>Introduction</h2>
+<p><a href="https://github.com/pytorch/helion">Helion</a> is a high-level DSL for writing high-performance, portable kernels for machine learning. The <a href="https://huggingface.co/docs/kernels/en/index"><img src="https://s.w.org/images/core/emoji/17.0.2/72x72/1f917.png" alt="🤗" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Kernels</a> project lets kernel developers package and distribute their kernels on the Hugging Face Hub platform in a consistent and reproducible manner. It also lets kernel users consume these kernels seamlessly without managing dependency hell.</p>
+<p>In this post, we will discuss how Helion is supported within the Kernels project, how users can benefit from first-class autotuning support in Helion, and how to ship pre-tuned kernel configs to reduce cold-start times. We will also show examples of Helion kernels and how tuning them for specific problem sizes can yield performance benefits.</p>
+<p>P.S.: Throughout the rest of the post, we will refer to the <strong>Kernels</strong> project with “k” in capital letters to distinguish it from actual “kernels”.</p>
+<h2>Intro: Helion</h2>
+<p>Helion is a tiled DSL for writing performant ML kernels. The programming model is often described as &#8220;PyTorch with tiles” – the kernel operates on PyTorch tensors, and tile-level operations are specified via ordinary PyTorch tensor operators. As a quick example, the following function shows a tiled matmul implemented in Helion:</p>
+<pre><code class="language-python">import torch, helion, helion.language as hl
+
+@helion.kernel()
+def matmul(x: torch.Tensor, y: torch.Tensor) -&gt; torch.Tensor:
+    m, k = x.size()
+    k, n = y.size()
+    out = torch.empty([m, n], dtype=x.dtype, device=x.device)
+
+    for tile_m, tile_n in hl.tile([m, n]):
+        acc = hl.zeros([tile_m, tile_n], dtype=torch.float32)
+        for tile_k in hl.tile(k):
+            acc = torch.addmm(acc, x[tile_m, tile_k], y[tile_k, tile_n])
+        out[tile_m, tile_n] = acc
+
+    return out
+</code></pre>
+<p>What makes Helion desirable is not just its concise syntax but what it leaves deliberately unspecified. When you write <span style="font-weight: 400;"><code>hl.tile</code></span>, you say only that the iteration space should be tiled &#8211; not how large the tiles are, or how their data is fetched from memory. Helion turns these decisions into a search space to be autotuned over. Crucially, the autotuner does not merely sweep numerical parameters like tile sizes, it also searches over lowering strategies &#8211; the actual implementation of the kernel: which memory-access pattern to use (pointer arithmetic, block pointers, TMA), how to order and flatten nested loops, whether a reduction should be persistent or looped, and more. In Triton or CUDA, switching between these choices means rewriting the kernel entirely; in Helion the optimal choice is found algorithmically.</p>
+<p>This autotuning process is why a Helion kernel can often outperform a hand-written kernel in a lower-level language, when benchmarked on a large set of shapes. With that said, autotuning is sometimes a lengthy process, so it is beneficial to have an established approach for shipping a kernel bundled with pre-tuned configs. This is where the Kernels project comes in.</p>
+<h2>Intro: Kernels</h2>
+<p>The current landscape of kernel packaging and distribution is fragmented, characterized by inconsistent source structures, disparate tooling, and limited compatibility support. Consequently, users often face arduous build times, even when pre-built wheels are available.</p>
+<p>The Kernels project addresses these challenges by establishing a standardized, unified packaging and build process for both AoT and JIT kernels. The project is divided into two primary components:</p>
+<ul>
+<li><span style="font-weight: 400;"><strong><code>kernel-builder</code></strong>: </span> A tool for developers to reliably package and distribute kernels across different framework versions and system configurations. It enforces standards to ensure predictable source structures, build reproducibility, native PyTorch compatibility, and easy community sharing.</li>
+<li><span style="font-weight: 400;"><b><code>kernels</code></b>: </span>A consumer-facing Python library that allows users to effortlessly load ready-to-use kernels without dependency management issues via a simple command like <code>get_kernel("org/name", version=1)</code>, much like pulling a model or dataset from the Hugging Face Hub.</li>
+</ul>
+<p>For kernel users, we want to provide a seamless experience of loading kernels and getting them ready to use right away. Let’s take a look at an example of how one could load the popular Flash-Attention 3 kernel:</p>
+<pre><code class="language-python">from kernels import get_kernel
+
+kernel_module = get_kernel("kernels-community/flash-attn3", version=1)
+flash_attn_func = kernel_module.flash_attn_func
+
+flash_attn_func(...)
+</code></pre>
+<p>We provide prebuilt binaries for a comprehensive compatibility matrix of ahead-of-time kernels, such as Flash Attention 3. This is quite beneficial to end users, particularly when the kernel&#8217;s upstream repository may not have a specific build available.</p>
+<p>Users can browse a wide variety of kernels on the Hugging Face Hub platform: <a href="http://hf.co/kernels">hf.co/kernels</a>:</p>
+<p><img fetchpriority="high" decoding="async" class="alignleft wp-image-164983 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png" alt="" width="1280" height="774" srcset="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png 1280w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-300x181.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-1024x619.png 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
+<p>We refer to this collection of kernels as the <strong>Kernels Hub</strong>.</p>
+<h2>Packaging and using Helion in Kernels</h2>
+<p>Helion kernels are plain Python. They compile themselves the first time you call them, so there is nothing for <span style="font-weight: 400;"><code>kernel-builder</code> </span>to compile ahead of time. Helion provides utilities to tune these kernels for specific workloads and hardware (more on that in a bit) so that users can tune once and reuse later. Helion kernels are also <em><span style="font-weight: 400;">noarch</span> </em>kernels: you ship the source, and Helion does the rest on the user&#8217;s machine.</p>
+<p>In this section, we discuss how to scaffold and structure a Helion kernel for building with <span style="font-weight: 400;"><code>kernel-builder</code></span><span style="font-weight: 400;">. </span></p>
+<h3>Start from the scaffold</h3>
+<p><code>kernel-builder init</code> gives you a working kernel project to edit:</p>
+<pre><code class="language-bash">kernel-builder init --name myorg/vector-add-helion --backends cuda rocm xpu -- vector-add-helion
+cd vector-add-helion
+</code></pre>
+<p>Note the <span style="font-weight: 400;"><code>--</code></span><span style="font-weight: 400;"> </span>before the directory name. <span style="font-weight: 400;"><code>--backends</code></span> takes any number of values, so without the separator the directory name is read as another backend.</p>
+<p>The scaffold assumes a compiled kernel, so delete the parts you don&#8217;t need:</p>
+<pre><code class="language-bash">rm -rf vector_add_helion_cuda vector_add_helion_xpu torch-ext/torch_binding.{cpp,h}
+</code></pre>
+<p>That leaves three files to edit.</p>
+<h3><code>build.toml</code></h3>
+<pre><code class="language-toml">[general]
+name = "vector-add-helion"
+license = "Apache-2.0"
+backends = ["cuda", "rocm", "xpu"]
+version = 1
+edition = 5
+
+python-depends = ["helion"]
+
+[general.hub]
+repo-id = "myorg/vector-add-helion"
+
+[torch-noarch]
+</code></pre>
+<p>Two things worth paying heed to:</p>
+<ul>
+<li><span style="font-weight: 400;"><code>python-depends = ["helion"]</code> records that the kernel needs Helion at runtime. When someone loads the kernel, <code>kernels</code> checks that Helion is importable and gives a clear error if it isn&#8217;t. </span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;"><code>[torch-noarch]</code> says there is no ahead-of-time compilation. </span></li>
+</ul>
+<h3><strong><code>torch-ext/vector_add_helion/__init__.py</code></strong></h3>
+<pre><code class="language-python">import helion
+import helion.language as hl
+import torch
+
+
+@helion.kernel(config=helion.Config(block_sizes=[1024], num_warps=4))
+def vector_add(x: torch.Tensor, y: torch.Tensor) -&gt; torch.Tensor:
+    out = torch.empty_like(x)
+    for tile in hl.tile(x.size(0)):
+        out[tile] = x[tile] + y[tile]
+    return out
+
+
+__all__ = ["vector_add"]
+</code></pre>
+<p>This example here uses a hardcoded config, pinned via <span style="font-weight: 400;"><code>config=</code></span>. In a later section we&#8217;ll go into details on pre-tuning and shipping a decision tree of configs covering a large set of shapes.</p>
+<h3><strong><code>flake.nix</code></strong></h3>
+<p>The scaffolded one needs no changes:</p>
+<pre><code class="language-nix">{
+  inputs.kernel-builder.url = "github:huggingface/kernels";
+  outputs = { self, kernel-builder, ... }:
+    kernel-builder.lib.genKernelFlakeOutputs { inherit self; path = ./.; };
+}
+</code></pre>
+<h3>Build and publish</h3>
+<pre><code class="language-bash">kernel-builder check-config .
+kernel-builder build-and-copy .
+</code></pre>
+<p>Build and publish the builds to the Hub:</p>
+<pre><code class="language-bash">kernel-builder build-and-upload .
+</code></pre>
+<p>The build produces one directory per backend, each holding your <span style="font-weight: 400;"><code>__init__.py</code> </span>alongside a generated<span style="font-weight: 400;"> <code>metadata.json</code></span> that carries the Helion dependency forward:</p>
+<pre><code class="language-json">{
+  "name": "vector-add-helion",
+  "python-depends": ["helion"],
+  "backend": { "type": "cuda" }
+}
+</code></pre>
+<p>Below is an example of the published kernel on the Hub: <a href="https://huggingface.co/kernels/sayakpaul/vector-add-helion">sayakpaul/vector-add-helion</a>.</p>
+<h3>Using the kernel</h3>
+<pre><code class="language-python">from kernels import get_kernel
+
+kernel = get_kernel("myorg/vector-add-helion", version=1, trust_remote_code=True)
+out = kernel.vector_add(x, y)
+</code></pre>
+<p>Users would need Helion installed (<span style="font-weight: 400;"><code>pip install helion</code></span><span style="font-weight: 400;">) </span>and a version of <span style="font-weight: 400;"><code>kernels</code></span> that knows about it. Older releases reject the dependency outright with <span style="font-weight: 400;"><code>unsupported kernel dependency: helion</code></span><span style="font-weight: 400;">.</span></p>
+<h2>Pre-tuning and Shipping Pre-tuned configs</h2>
+<p>To ensure the shipped Helion kernel performs well on different input problem shapes and different GPU generations, it’s often beneficial to pre-tune them. The workflow has three steps:</p>
+<ul>
+<li>tune the kernel across a representative set of shapes,</li>
+<li>let Helion build a decision tree that maps each shape to its best config</li>
+<li>ship that tree beside your kernel.</li>
+</ul>
+<p>At load time, Helion reads the tree (stored as a plain python file next to the kernel source file) and picks a config per call &#8211; no tuning on the user&#8217;s machine. To do this, the first kernel source change is a decorator:</p>
+<pre><code class="language-python">--- @helion.kernel(config=...) 
++++ @helion.aot_kernel(static_shapes=True) 
+</code></pre>
+<p>Write a small script that calls the kernel on every shape you want covered during pre-tuning:</p>
+<pre><code class="language-python"># bench.py
+import torch
+from vector_add_helion.vector_add import vector_add
+
+for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
+    x = torch.randn(n, device="cuda")
+    y = torch.randn(n, device="cuda")
+    vector_add(x, y)
+</code></pre>
+<p>Then hand that script to Helion’s AOT runner:</p>
+<pre><code class="language-bash">python -m helion.autotuner.aot_runner \
+    --phase all --goal max_slowdown --threshold 1.01 --max-configs 8 \
+    -- python bench.py
+</code></pre>
+<p>The runner drives <span style="font-weight: 400;"><code>bench.py</code></span>, accomplishing three phases:</p>
+<p><strong>Collect:</strong> autotunes each shape independently,<br />
+<strong>Measure:</strong> re-benchmarks every discovered config on every shape<br />
+<strong>Build:</strong> selects the smallest set of configs that keeps each shape within &#8211;threshold of its own best (1.01 = within 1%), up to &#8211;max-configs. If one config satisfies every shape, that&#8217;s all you ship; if shapes diverge, you get a tree of several.</p>
+<p>The runner produces a plain-Python file next to your kernel source, named <span style="font-weight: 400;"><code>_helion_aot_&lt;source-module&gt;_&lt;device&gt;_&lt;compute&gt;.py</code></span>, which can be shipped together with the kernel source file alongside other files in the build on the Hub. So the resulting file structure may look like this:</p>
+<pre><code class="language-text">vector-add-helion/
+├── build.toml
+├── flake.nix
+└── torch-ext/vector_add_helion/
+    ├── __init__.py
+    ├── vector_add.py                          # @helion.aot_kernel
+    ├── _helion_aot_vector_add_cuda_sm90.py    # H100 configs
+    └── _helion_aot_vector_add_cuda_sm100.py   # B200 configs
+</code></pre>
+<p>When a consumer uses <span style="font-weight: 400;"><code>get_kernel</code></span> to access this kernel and call it on a tensor, Helion will use the decision tree to identify a pre-tuned config that fits the runtime input shape.</p>
+<h2>Examples</h2>
+<h3>Attention</h3>
+<p>In <a href="https://huggingface.co/kernels/HelionDSL/attention">HelionDSL/attention</a>, we show an example of a pre-tuned Helion attention kernel, shipped via Kernels. It includes pre-tuned configs for NVIDIA H100s, created using the workflow and structure described above. We measured the performance of these pre-tuned configs, comparing against the FLASH backend of PyTorch’s <span style="font-weight: 400;"><code>scaled_dot_product_attention</code> </span>implementation on an H100. This shipped kernel outperforms SDPA on 19 out of 19 of the pre-tuned shapes, with a geomean speed-up of <strong>1.20</strong>. On held-out shapes not seen during tuning, the kernel outperforms SDPA on 9 out of 10 shapes, with a geomean speed-up of <strong>1.17</strong>.</p>
+<h3><img decoding="async" class="alignnone wp-image-164397 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical.png" alt="" width="2000" height="1250" srcset="https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical.png 2000w, https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical-300x188.png 300w, https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical-1024x640.png 1024w" sizes="(max-width: 2000px) 100vw, 2000px" /></h3>
+<h3><img decoding="async" class="alignleft wp-image-164402 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical.png" alt="" width="1700" height="1250" srcset="https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical.png 1700w, https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical-300x221.png 300w, https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical-1024x753.png 1024w" sizes="(max-width: 1700px) 100vw, 1700px" /></h3>
+<h3>Linear Attention</h3>
+<p>In <a href="https://huggingface.co/kernels/HelionDSL/linear-attention">HelionDSL/linear-attention</a> we ship seven pre-tuned linear-attention kernels: linear attention, simple GLA, retention, GLA, delta rule, gated delta rule, and KDA. It includes pre-tuned configs for NVIDIA B200s. We <a href="https://gist.github.com/tarinduj/4e1178840ffea453c5c72ce9e33cc5f2">measured the performance</a> of these pre-tuned configs against FLA. Across the six pre-tuned shapes the shipped kernels are faster than flash-linear-attention on all seven variants, with a geomean speed-up of <strong>1.41</strong> on device time (CUDA-graph replay) and <strong>1.33</strong> end to end (including CPU dispatch). On six held-out shapes not seen during tuning, the geomean speed-up is <strong>1.35</strong> on device time and <strong>1.31</strong> end to end. Forward and backward together give a geomean speed-up of <strong>1.55</strong> on the pre-tuned shapes.</p>
+<h2><img decoding="async" class="alignleft wp-image-164403 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical.png" alt="" width="1450" height="1100" srcset="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical.png 1450w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical-300x228.png 300w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical-1024x777.png 1024w" sizes="(max-width: 1450px) 100vw, 1450px" /></h2>
+<h2></h2>
+<h2></h2>
+<h2></h2>
+<h2></h2>
+<h2></h2>
+<h2></h2>
+<h2></h2>
+<h2></h2>
+<p><img decoding="async" class="alignleft wp-image-164404 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical.png" alt="" width="1450" height="1100" srcset="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical.png 1450w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical-300x228.png 300w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical-1024x777.png 1024w" sizes="(max-width: 1450px) 100vw, 1450px" /></p>
+<p>&nbsp;</p>
+<h2><strong>Conclusion</strong></h2>
+<p>In this post, we discussed the Helion, a high-level DSL from Meta, and the Kernels project from Hugging Face. We also showed how the two projects complement each other to ease the process of how compute-optimized kernels are developed, distributed, and used. We welcome you to try out Helion and publish your cool Helion kernel on the Hub <img src="https://s.w.org/images/core/emoji/17.0.2/72x72/1f917.png" alt="🤗" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
+<p><em><strong>Acknowledgments:</strong> Thanks to Daniël de Kok and Lysandre Debut for reviewing the post.</em></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>PyTorch Conference China 2026: Advancing the Open Source AI Stack</title>
 		<link>https://pytorch.org/blog/pytorch-conference-china-2026-advancing-the-open-source-ai-stack/</link>
 		
@@ -41,7 +243,7 @@
 										<content:encoded><![CDATA[<p>PyTorch Conference China 2026 brought the PyTorch community together in Shanghai on September 8–9 alongside <a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/">KubeCon + CloudNativeCon and OpenInfra Summit</a>, following sponsor-hosted co-located events on September 7. Technical discussions spanned models, frameworks, distributed training, inference, hardware, cloud native infrastructure, and agents.</p>
 <p>“Open Source for the AI Era” framed work across those layers. Across co-located sessions, keynotes, technical demonstrations, a PyTorch Foundation press conference, community meetings, and conversations at the PyTorch booth, the program covered hardware adaptation, training and serving, open infrastructure, accelerator integration, and collaboration across open source communities.</p>
 <p><a href="https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/">PyTorch Foundation welcomed Alibaba Cloud, Ant Group, and Cambricon</a> as new members, joining Huawei and other existing Foundation members.</p>
-<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-164785 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-164785 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
 <p><img decoding="async" class="aligncenter wp-image-164782 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN1626-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN1626-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN1626-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN1626-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /><br />
 <img decoding="async" class="aligncenter wp-image-165091 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-scaled.jpeg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-scaled.jpeg 2560w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-1024x768.jpeg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
 <h2>Building Frontier Intelligence in the Open</h2>
@@ -1459,71 +1661,7 @@
 		
 		
 			</item>
-		<item>
-		<title>PyTorch Ecosystem Landscape Welcomes Perforated, AReaL, TorchJD, RLinf, Miles, SMG, FiftyOne, TokenSpeed, VisualTorch, and TorchSurv</title>
-		<link>https://pytorch.org/blog/pytorch-ecosystem-landscape-q3-update/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Wed, 26 Aug 2026 20:53:37 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=159483</guid>
-
-					<description><![CDATA[The PyTorch Ecosystem Working Group is happy to welcome 10 new projects to the PyTorch Ecosystem Landscape including Perforated, AReaL, TorchJD, RLinf, Miles, SMG, FiftyOne, TokenSpeed, VisualTorch, and TorchSurv. The...]]></description>
-										<content:encoded><![CDATA[<p><span style="font-weight: 400;">The PyTorch Ecosystem Working Group is happy to welcome 10 new projects to the PyTorch Ecosystem Landscape including Perforated, AReaL, TorchJD, RLinf, Miles, SMG, FiftyOne, TokenSpeed, VisualTorch, and TorchSurv. The </span><a href="https://landscape.pytorch.org/"><span style="font-weight: 400;">PyTorch Ecosystem Landscape</span></a><span style="font-weight: 400;"> is a map of the innovative open source AI projects that extend, integrate with, or build upon PyTorch. Welcome to the newest PyTorch Ecosystem Landscape projects!</span></p>
-<h2><span style="font-weight: 400;">New Additions to the PyTorch Ecosystem</span></h2>
-<h3><span style="font-weight: 400;">Perforated</span></h3>
-<p><span style="font-weight: 400;">Perforated is a data-efficiency library for PyTorch that improves model performance by adding neuron-specific reinforcement learning signals during training. Originally inspired by a breakthrough in neuroscience research, Perforated applies a lightweight modification to backpropagation. This library helps models extract more value from available training data, enabling ML teams to reach target performance with fewer labeled examples and no changes to core model architecture. While broadly applicable across machine learning, Perforated has been most extensively validated on edge AI and computer vision workloads. ML teams that have adopted Perforated reduced error by 70% with existing data, meeting deployment criteria while truncating painful data collection and labeling.</span></p>
-<p><span style="font-weight: 400;">Implemented entirely in Python using standard PyTorch functionality, Perforated is proud to be officially welcomed to the PyTorch ecosystem. Teams can evaluate Perforated against their current models and benchmarks with minimal integration effort, making it easy to assess the impact of improved data efficiency within established development pipelines. We look forward to working with the PyTorch community to advance practical approaches for training higher-performing models.</span></p>
-<p><span style="font-weight: 400;">Learn more at </span><a href="http://perforatedai.com"><span style="font-weight: 400;">perforatedai.com</span></a><span style="font-weight: 400;">. Find us on </span><a href="https://github.com/PerforatedAI/PerforatedAI"><span style="font-weight: 400;">Github</span></a><span style="font-weight: 400;">. Join the </span><a href="https://join.slack.com/t/perforatedcommunity/shared_invite/zt-469gt412a-rDFGRW1H5eo0mwAf5rrl8Q"><span style="font-weight: 400;">Perforated Community Slack</span></a></p>
-<h3><span style="font-weight: 400;">AReaL</span></h3>
-<p><span style="font-weight: 400;">AReaL is an open source, modular RL infrastructure that bridges foundation model training with modern LLM/VLM-based agent applications. Built on a fully asynchronous RL training paradigm, AReaL enables seamless building, deployment, evaluation, and fine tuning of agents through standardized data and execution interfaces. Black-box or online agentic systems can be incorporated into the full RL training loop with minimal integration overhead and no intrusive code changes.</span></p>
-<p><span style="font-weight: 400;">AReaL decomposes RL into independent, composable services, enabling flexible scaling, fault tolerance, and independent optimization of system components. This design also allows broad integration with diverse training and inference backends, including vLLM, SGLang, custom PyTorch-native 5D parallel engines, and other projects within the PyTorch ecosystem. Rather than introducing new components, AReaL focuses on connecting existing ecosystem pieces into a practical, end-to-end loop that supports the full lifecycle of an agentic system &#8211; from development to continuous evolution.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/inclusionAI/AReaL"><span style="font-weight: 400;">AReaL</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">TorchJD</span></h3>
-<p><span style="font-weight: 400;">TorchJD is a library to train neural networks with multiple losses. Two main classes of methods are supported:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">scalarization: combine the losses into a single scalar loss, and minimize it with a gradient-based optimizer.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Jacobian Descent (JD): compute the Jacobian of the vector of losses (one gradient per loss), and aggregate it into a common update direction to feed to the optimizer.</span></li>
-</ul>
-<p><span style="font-weight: 400;">There is a key advantage to Jacobian descent: with the proper aggregation method, the parameter update will decrease all losses simultaneously. In some cases though (e.g. very aligned gradients), scalarization may be enough. Our goal is to provide a comprehensive collection of gradient-based multi-objective optimization methods, making it easy both for experts to compare approaches and for newcomers to start solving multi-loss problems without requiring deep expertise in the field.</span></p>
-<p><span style="font-weight: 400;">We&#8217;re joining the PyTorch ecosystem in the hope of gathering a larger community of users and contributors. We have many ideas for the future of TorchJD, and we&#8217;re looking forward to building them together with the community as we continue working toward making TorchJD the ideal library for training models with multiple losses.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/SimplexLab/TorchJD"><span style="font-weight: 400;">TorchJD</span></a><span style="font-weight: 400;"> or join the </span><a href="https://discord.com/invite/76KkRnb3nk"><span style="font-weight: 400;">Discord community</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">RLinf</span></h3>
-<p><span style="font-weight: 400;">RLinf is an open source reinforcement learning framework for embodied and agentic AI, built for a world where models are increasingly trained through complex real-world interactions across robots and sensors, simulators, tools, web environments, code, and multi-agent workflows. RLinf connects these interactive feedback loops with scalable training, offering standard and reusable building blocks for rollout, reward computation, environment execution, and learning, without revealing the intricate details of managing heterogeneous hardware and complex environments. Together with push-button recipes for reproducing state-of-the-art RL algorithms, RLinf helps accelerate the advancement of reinforcement learning in embodied and agentic systems.</span></p>
-<p><span style="font-weight: 400;">As part of the PyTorch ecosystem, RLinf brings a real-world perspective to scalable RL: PyTorch users can prototype with familiar model code while RLinf handles the coordination between learning, acting, sensing, evaluating, and scaling across heterogeneous hardware. By making robots and GPUs first-class citizens in the same workflow, RLinf aims to help the ecosystem push post-training beyond isolated model loops toward reproducible, extensible systems that learn through interaction. Learn more at </span><a href="http://github.com/RLinf/RLinf"><span style="font-weight: 400;">RLinf</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">Miles</span></h3>
-<p><span style="font-weight: 400;">Miles is an open source post-training framework for large-scale models, built and maintained by RadixArk. It targets the scale at which post-training actually runs: frontier scale open MoEs, multi-node clusters, and long-running jobs that have to stay up. Miles has deep SGLang integration and first-class support for new model architectures and hardware platforms as they land, along with production capabilities including LoRA, TITO, and low-precision training. It is customizable rather than prescriptive, so teams can modify the training loop, swap components, and adapt algorithms to their own recipes instead of working around the framework.</span></p>
-<p><span style="font-weight: 400;">Miles is already used by research labs and industry teams to post-train open models at that scale. RL post-training is where PyTorch-native training meets high-throughput inference, and Miles is built to connect the two. We are joining the PyTorch Ecosystem Landscape to develop that path in the open, alongside the rest of the PyTorch community.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/radixark/miles"><span style="font-weight: 400;">Miles</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">SMG</span></h3>
-<p><span style="font-weight: 400;">SMG (Shepherd Model Gateway) is an engine-agnostic, high-performance model-routing gateway for large-scale LLM deployments. Written in Rust, SMG sits in front of self-hosted inference engines — vLLM, TensorRT-LLM, TokenSpeed, SGLang, MLX — and cloud providers, unifying them behind a single OpenAI-compatible endpoint. Its cache-aware routing tracks each worker&#8217;s KV-cache state in radix trees to maximize prefix reuse and GPU utilization, while a native streaming gRPC pipeline supports prefill/decode disaggregation and data-parallel-aware routing. SMG adds enterprise-grade controls — priority admission scheduling, multi-tenancy, API-key auth with OIDC, WebAssembly plugins, and self-hosted chat history — along with 90+ Prometheus metrics and OpenTelemetry tracing. We&#8217;re excited to join the PyTorch Ecosystem and to keep building the serving layer for open source models alongside the community.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://lightseek.org/smg/"><span style="font-weight: 400;">SMG</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">FiftyOne</span></h3>
-<p>FiftyOne is the multimodal data platform for physical AI. It helps developers build better models by indexing multimodal data for search, curation, annotation, and model evaluation.That data spans images, video, and sensor streams like LiDAR and radar. FiftyOne gives ML teams the tools to find the failure modes, data quality issues, and edge cases that improve model performance, from initial dataset exploration through production model debugging.</p>
-<p>FiftyOne integrates natively with PyTorch across the full development loop. Teams can load pre-trained models directly from PyTorch Hub for inference, embeddings, and evaluation, and they can use FiftyOne datasets inside PyTorch training pipelines without maintaining separate dataset definitions. Thousands of teams already work this way: they train models in PyTorch and use FiftyOne to understand, curate, and improve the data those models learn from. Joining the PyTorch ecosystem allows us to make that workflow even better. As physical AI moves from research to production, we look forward to collaborating with the PyTorch community on the data tooling those systems depend on.</p>
-<p>Learn more about <a href="https://voxel51.com/fiftyone">FiftyOne</a>.</p>
-<h3><span style="font-weight: 400;">TokenSpeed</span></h3>
-<p><span style="font-weight: 400;">TokenSpeed is an open source LLM inference engine and the first to separate the control plane from the execution plane. The control plane is implemented in C++ as a finite-state machine, using the type system to enforce safe resource management, including request lifecycles and KV cache state, at compile time rather than runtime. The execution plane is implemented in Python, enabling fast iteration and lowering the cognitive load for researchers and engineers. This architecture combines strong correctness guarantees in the core scheduling system with the development velocity of a high-level execution layer.</span></p>
-<p><span style="font-weight: 400;">TokenSpeed also treats kernels as a first-class, modular subsystem, separating them from the core engine through a portable public API, centralized registry and selection model, and an extensible plugin mechanism for heterogeneous accelerators. We’re joining the PyTorch Ecosystem to work with the broader community on building high-performance, extensible inference infrastructure for open source models. By making both the scheduler and kernel layers modular and extensible, TokenSpeed aims to make it easier to support new models, hardware platforms, and optimizations in production inference systems.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://github.com/lightseekorg/tokenspeed"><span style="font-weight: 400;">TokenSpeed</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">VisualTorch</span></h3>
-<p><span style="font-weight: 400;">VisualTorch is an open source PyTorch model visualization library designed to help researchers and engineers create publication-ready diagrams of neural network architectures. It traces an actual forward pass, so branching architectures and custom forward logic are all captured automatically. It renders in multiple visual styles, including animated GIF reveals that build a model&#8217;s structure up layer by layer.</span></p>
-<p><span style="font-weight: 400;">VisualTorch has already been used in published research, including work in Nature, IEEE, Elsevier, and MDPI journals. Joining the PyTorch Ecosystem Landscape puts VisualTorch in front of more PyTorch researchers and engineers who need a reliable way to visualize and communicate their models, and connects the project more directly with the broader PyTorch community as it continues to grow.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://visualtorch.readthedocs.io/en/latest/"><span style="font-weight: 400;">VisualTorch</span></a><span style="font-weight: 400;">.</span></p>
-<h3><span style="font-weight: 400;">TorchSurv</span></h3>
-<p><span style="font-weight: 400;">TorchSurv is a lightweight, PyTorch-native toolkit developed through a cross-institution research collaboration spanning industry, regulatory science, and academia, with a simple goal: bring survival analysis modeling directly into PyTorch. By keeping the package focused, lightweight, and well-tested, TorchSurv gives researchers a reliable tool they need to build, evaluate, and extend deep survival models without introducing a separate framework.</span></p>
-<p><span style="font-weight: 400;">TorchSurv provides fully differentiable survival losses, including Cox proportional hazards and Weibull AFT, alongside evaluation tools such as the concordance index, time-dependent AUC, and Brier score, all designed to work with standard PyTorch training loops and arbitrary neural network architectures.</span></p>
-<p><span style="font-weight: 400;">Since its release, TorchSurv has gained traction across the research community, with its use in published studies spanning oncology, medical imaging, and multimodal AI, including work presented at NeurIPS and published in Nature npj Digital Medicine. TorchSurv has also been published in the Journal of Open Source Software and is included in the</span><a href="https://cdrh-rst.fda.gov/torchsurv-deep-learning-tools-survival-analysis"><span style="font-weight: 400;"> FDA’s Regulatory Science Tools Catalog</span></a><span style="font-weight: 400;">.</span></p>
-<p><span style="font-weight: 400;">Learn more about </span><a href="https://opensource.nibr.com/torchsurv/index.html"><span style="font-weight: 400;">TorchSurv.</span></a></p>
-<h2><span style="font-weight: 400;">How to Join the PyTorch Ecosystem Landscape</span></h2>
-<p><span style="font-weight: 400;">If you’re developing a project that supports the PyTorch community, you’re welcome to </span><a href="https://pytorch.org/join-ecosystem/"><span style="font-weight: 400;">apply for inclusion in the Ecosystem Landscape</span></a><span style="font-weight: 400;">. Please review the </span><a href="https://github.com/pytorch-fdn/tac/blob/main/docs/governance/PyTorch_Ecosystem_Process.md"><span style="font-weight: 400;">PyTorch Ecosystem Landscape Review Process</span></a><span style="font-weight: 400;"> to ensure that you meet the minimum expectations before applying.</span></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4074 metric#misses=31 metric#hit-ratio=99.2 metric#bytes=1303030 metric#prefetches=205 metric#store-reads=36 metric#store-writes=7 metric#store-hits=214 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=605.45 metric#ms-cache=24.68 metric#ms-cache-avg=0.5877 metric#ms-cache-ratio=4.1 sample#redis-hits=638848439 sample#redis-misses=152335265 sample#redis-hit-ratio=80.8 sample#redis-ops-per-sec=98 sample#redis-evicted-keys=507938 sample#redis-used-memory=964355480 sample#redis-used-memory-rss=1019084800 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=2 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=917707 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4050 metric#misses=30 metric#hit-ratio=99.3 metric#bytes=1330685 metric#prefetches=149 metric#store-reads=52 metric#store-writes=6 metric#store-hits=224 metric#store-misses=14 metric#sql-queries=9 metric#ms-total=625.40 metric#ms-cache=38.68 metric#ms-cache-avg=0.6787 metric#ms-cache-ratio=6.2 -->
