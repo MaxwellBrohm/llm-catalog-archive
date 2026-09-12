@@ -1,0 +1,232 @@
+{
+  "generated_at": "2026-09-12T12:06:06.647Z",
+  "floor_bits": 4.5,
+  "funnel": {
+    "seen": 1695,
+    "postableType": 272,
+    "notOnCooldown": 272,
+    "aboveFloor": 16
+  },
+  "candidates": [
+    {
+      "id": "8559e926913695592fdf457bf945351d20b04c52:incident_opened:https://status.openai.com//incidents/01M27Q9GH7WVKNA61ZR3RDMSY5",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Elevated errors for ChatGPT users in Europe\" at \"https://status.openai.com//incidents/01M27Q9GH7WVKNA61ZR3RDMSY5\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-12T04:34:39.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.93,
+      "why": [
+        "incident_opened is rare in the archive: +5.93 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M27Q9GH7WVKNA61ZR3RDMSY5"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "reddit",
+        "venue": "reddit:OpenAI",
+        "label": "r/OpenAI",
+        "title": "The openai-status feed listed an incident titled \"Elevated errors for ChatGPT users in Europe\" at \"https://status.openai.com//incidents/01M27Q9GH7WVKNA61ZR3RDMSY5\".",
+        "text": null,
+        "url": "https://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+        "submitUrl": "https://www.reddit.com/r/OpenAI/submit?url=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F8559e926913695592fdf457bf945351d20b04c52.html&title=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20ChatGPT%20users%20in%20Europe%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M27Q9GH7WVKNA61ZR3RDMSY5%22."
+      },
+      "why_here": "an outage matters to the people whose builds are failing right now and to almost nobody else",
+      "flair": null,
+      "needs_flair": true,
+      "others": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "text": "The openai-status feed listed an incident titled \"Elevated errors for ChatGPT users in Europe\" at \"https://status.openai.com//incidents/01M27Q9GH7WVKNA61ZR3RDMSY5\".\n\nhttps://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+          "url": "https://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20ChatGPT%20users%20in%20Europe%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M27Q9GH7WVKNA61ZR3RDMSY5%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F8559e926913695592fdf457bf945351d20b04c52.html"
+        }
+      ],
+      "shortfalls": []
+    },
+    {
+      "id": "8559e926913695592fdf457bf945351d20b04c52:incident_opened:https://status.openai.com//incidents/01M27VK1VN54RQJGJEHB5JTQJJ",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Elevated errors for GPT-5.6 Sol on the API\" at \"https://status.openai.com//incidents/01M27VK1VN54RQJGJEHB5JTQJJ\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-12T04:34:39.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.93,
+      "why": [
+        "incident_opened is rare in the archive: +5.93 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M27VK1VN54RQJGJEHB5JTQJJ"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "reddit",
+        "venue": "reddit:OpenAI",
+        "label": "r/OpenAI",
+        "title": "The openai-status feed listed an incident titled \"Elevated errors for GPT-5.6 Sol on the API\" at \"https://status.openai.com//incidents/01M27VK1VN54RQJGJEHB5JTQJJ\".",
+        "text": null,
+        "url": "https://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+        "submitUrl": "https://www.reddit.com/r/OpenAI/submit?url=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F8559e926913695592fdf457bf945351d20b04c52.html&title=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20GPT-5.6%20Sol%20on%20the%20API%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M27VK1VN54RQJGJEHB5JTQJJ%22."
+      },
+      "why_here": "an outage matters to the people whose builds are failing right now and to almost nobody else",
+      "flair": null,
+      "needs_flair": true,
+      "others": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "text": "The openai-status feed listed an incident titled \"Elevated errors for GPT-5.6 Sol on the API\" at \"https://status.openai.com//incidents/01M27VK1VN54RQJGJEHB5JTQJJ\".\n\nhttps://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+          "url": "https://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20GPT-5.6%20Sol%20on%20the%20API%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M27VK1VN54RQJGJEHB5JTQJJ%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F8559e926913695592fdf457bf945351d20b04c52.html"
+        }
+      ],
+      "shortfalls": []
+    },
+    {
+      "id": "8559e926913695592fdf457bf945351d20b04c52:incident_opened:https://status.openai.com//incidents/01M28MEQWTQJDRCRPFD9FWQ0H3",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"1% of ChatGPT Work (mobile/web) turns are failing for existing threads\" at \"https://status.openai.com//incidents/01M28MEQWTQJDRCRPFD9FWQ0H3\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-12T04:34:39.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.93,
+      "why": [
+        "incident_opened is rare in the archive: +5.93 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M28MEQWTQJDRCRPFD9FWQ0H3"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "reddit",
+        "venue": "reddit:OpenAI",
+        "label": "r/OpenAI",
+        "title": "The openai-status feed listed an incident titled \"1% of ChatGPT Work (mobile/web) turns are failing for existing threads\" at \"https://status.openai.com//incidents/01M28MEQWTQJDRCRPFD9FWQ0H3\".",
+        "text": null,
+        "url": "https://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+        "submitUrl": "https://www.reddit.com/r/OpenAI/submit?url=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F8559e926913695592fdf457bf945351d20b04c52.html&title=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%221%25%20of%20ChatGPT%20Work%20(mobile%2Fweb)%20turns%20are%20failing%20for%20existing%20threads%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M28MEQWTQJDRCRPFD9FWQ0H3%22."
+      },
+      "why_here": "an outage matters to the people whose builds are failing right now and to almost nobody else",
+      "flair": null,
+      "needs_flair": true,
+      "others": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "text": "The openai-status feed listed an incident titled \"1% of ChatGPT Work (mobile/web) turns are failing for existing threads\" at \"https://status.openai.com//incidents/01M28MEQWTQJDRCRPFD9FWQ0H3\".\n\nhttps://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+          "url": "https://diffwire.dev/changes/8559e926913695592fdf457bf945351d20b04c52.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%221%25%20of%20ChatGPT%20Work%20(mobile%2Fweb)%20turns%20are%20failing%20for%20existing%20threads%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M28MEQWTQJDRCRPFD9FWQ0H3%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F8559e926913695592fdf457bf945351d20b04c52.html"
+        }
+      ],
+      "shortfalls": []
+    },
+    {
+      "id": "aa9928df5a45b2608820fcd710b85a17b74b5a53:incident_opened:tag:status.claude.com,2005:Incident/31409403",
+      "type": "incident_opened",
+      "sentence": "The claude-status feed listed an incident titled \"Elevated errors for Claude Mythos 5.1 and Claude Fable 5.1\" at \"https://status.claude.com/incidents/t33dncr5ydvl\".",
+      "source": "claude-status",
+      "stamp": {
+        "iso": "2026-09-12T04:34:37.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.93,
+      "why": [
+        "incident_opened is rare in the archive: +5.93 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:tag:status.claude.com,2005:Incident/31409403"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "reddit",
+        "venue": "reddit:ClaudeAI",
+        "label": "r/ClaudeAI",
+        "title": "The claude-status feed listed an incident titled \"Elevated errors for Claude Mythos 5.1 and Claude Fable 5.1\" at \"https://status.claude.com/incidents/t33dncr5ydvl\".",
+        "text": null,
+        "url": "https://diffwire.dev/changes/aa9928df5a45b2608820fcd710b85a17b74b5a53.html",
+        "submitUrl": "https://www.reddit.com/r/ClaudeAI/submit?url=https%3A%2F%2Fdiffwire.dev%2Fchanges%2Faa9928df5a45b2608820fcd710b85a17b74b5a53.html&title=The%20claude-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20Claude%20Mythos%205.1%20and%20Claude%20Fable%205.1%22%20at%20%22https%3A%2F%2Fstatus.claude.com%2Fincidents%2Ft33dncr5ydvl%22."
+      },
+      "why_here": "an outage matters to the people whose builds are failing right now and to almost nobody else",
+      "flair": null,
+      "needs_flair": true,
+      "others": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "text": "The claude-status feed listed an incident titled \"Elevated errors for Claude Mythos 5.1 and Claude Fable 5.1\" at \"https://status.claude.com/incidents/t33dncr5ydvl\".\n\nhttps://diffwire.dev/changes/aa9928df5a45b2608820fcd710b85a17b74b5a53.html",
+          "url": "https://diffwire.dev/changes/aa9928df5a45b2608820fcd710b85a17b74b5a53.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20claude-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20Claude%20Mythos%205.1%20and%20Claude%20Fable%205.1%22%20at%20%22https%3A%2F%2Fstatus.claude.com%2Fincidents%2Ft33dncr5ydvl%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Faa9928df5a45b2608820fcd710b85a17b74b5a53.html"
+        }
+      ],
+      "shortfalls": []
+    },
+    {
+      "id": "31efb2522bf6bbef32b7b6369e62cec1222d4737:model_removed:~openai/gpt-latest",
+      "type": "model_removed",
+      "sentence": "The catalog id \"~openai/gpt-latest\" left OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-09-11T17:52:55.000Z",
+        "kind": "origin"
+      },
+      "bits": 4.81,
+      "why": [
+        "model_removed is rare in the archive: +4.81 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:~openai/gpt-latest",
+        "lab:lab/openai"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "reddit",
+        "venue": "reddit:OpenAI",
+        "label": "r/OpenAI",
+        "title": "The catalog id \"~openai/gpt-latest\" left OpenRouter's catalog.",
+        "text": null,
+        "url": "https://diffwire.dev/changes/31efb2522bf6bbef32b7b6369e62cec1222d4737.html",
+        "submitUrl": "https://www.reddit.com/r/OpenAI/submit?url=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F31efb2522bf6bbef32b7b6369e62cec1222d4737.html&title=The%20catalog%20id%20%22~openai%2Fgpt-latest%22%20left%20OpenRouter's%20catalog."
+      },
+      "why_here": "a removal is a migration somebody has to perform, so it goes where those people are before it goes where the most people are",
+      "flair": null,
+      "needs_flair": true,
+      "others": [
+        {
+          "platform": "hn",
+          "venue": "hn",
+          "label": "Hacker News",
+          "title": "The catalog id \"~openai/gpt-latest\" left OpenRouter's catalog.",
+          "text": null,
+          "url": "https://diffwire.dev/changes/31efb2522bf6bbef32b7b6369e62cec1222d4737.html",
+          "submitUrl": "https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F31efb2522bf6bbef32b7b6369e62cec1222d4737.html&t=The%20catalog%20id%20%22~openai%2Fgpt-latest%22%20left%20OpenRouter's%20catalog."
+        },
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "text": "The catalog id \"~openai/gpt-latest\" left OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/31efb2522bf6bbef32b7b6369e62cec1222d4737.html",
+          "url": "https://diffwire.dev/changes/31efb2522bf6bbef32b7b6369e62cec1222d4737.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22~openai%2Fgpt-latest%22%20left%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F31efb2522bf6bbef32b7b6369e62cec1222d4737.html"
+        }
+      ],
+      "shortfalls": []
+    }
+  ]
+}
