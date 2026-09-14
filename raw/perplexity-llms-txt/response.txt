@@ -29,7 +29,7 @@
 - [Finance Search](https://docs.perplexity.ai/docs/agent-api/tools/finance-search.md): Retrieve structured financial and market data in the Agent API.
 - [People Search](https://docs.perplexity.ai/docs/agent-api/tools/people-search.md): Search for professionals, employees, and people using People Search in the Agent API
 - [MCP](https://docs.perplexity.ai/docs/agent-api/tools/mcp.md): Connect a remote Model Context Protocol (MCP) server to an Agent API request so the model can call your server's tools.
-- [Connectors](https://docs.perplexity.ai/docs/agent-api/tools/connectors.md): Use a managed connector from your API Group in an Agent API request.
+- [Connectors](https://docs.perplexity.ai/docs/agent-api/tools/connectors.md): Connect services or bring your own MCP server to your Project, then use them by connector ID in Agent API requests.
 - [Custom Functions](https://docs.perplexity.ai/docs/agent-api/tools/custom-functions.md): Define a custom function, execute model-requested calls in your code, and return each result to the Agent API.
 - [Output Control](https://docs.perplexity.ai/docs/agent-api/output-control.md): Streaming and structured outputs for the Agent API
 - [Conversation state](https://docs.perplexity.ai/docs/agent-api/conversation-state.md): Continue an Agent API conversation across turns, either by replaying input yourself or by pointing at a completed prior response.
@@ -94,7 +94,7 @@
 - [Privacy & Security](https://docs.perplexity.ai/docs/resources/privacy-security.md): Learn about Perplexity's data privacy, retention policies, and security certifications for API users
 - [Frequently Asked Questions](https://docs.perplexity.ai/docs/resources/faq.md): Answers to common questions about the Perplexity API, covering models, output and capabilities, search behavior, billing and limits, errors, data privacy, and support.
 - [System Status](https://docs.perplexity.ai/docs/resources/status.md)
-- [Changelog](https://docs.perplexity.ai/docs/resources/changelog.md)
+- [Changelog](https://docs.perplexity.ai/docs/resources/changelog.md): Updates to the Perplexity API platform.
 - [Get in Touch](https://docs.perplexity.ai/docs/resources/discussions.md)
 - [Perplexity Crawlers](https://docs.perplexity.ai/docs/resources/perplexity-crawlers.md): We strive to improve our service every day by delivering the best search experience possible. To achieve this, we collect data using web crawlers ("robots") and user agents that gather and index information from the internet, operating either automatically or in response to user requests. Webmasters…
 - [Sonar API](https://docs.perplexity.ai/docs/sonar/quickstart.md): Get started with Perplexity's Sonar API for web-grounded AI responses. Make your first API call in minutes.
@@ -181,6 +181,13 @@
 - [Download Agent Response File](https://docs.perplexity.ai/api-reference/agent-file-content-get.md): Download the raw bytes of a file the response delivered with the `share_file` tool. The `file_id` comes from the file list endpoint and is distinct from the response `id`. The response streams raw bytes, not JSON, with a `Content-Type` matching the file and a `Content-Disposition: attachment` header…
 - [Cancel Agent Response](https://docs.perplexity.ai/api-reference/agent-cancel-post.md): Requests cancellation of response `{id}`. Acts on durable state, so it works for background runs that outlive the client connection. Cancellation is asynchronous: a `200` acknowledges the request (`status: cancelling`) and the run stops shortly after - poll `GET /v1/agent/{id}` for its terminal stat…
 - [List Models](https://docs.perplexity.ai/api-reference/models-get.md): List the models available for the Agent API. Returns model identifiers that can be used with the `POST /v1/agent` endpoint. The response follows the OpenAI List Models format for compatibility with third-party tools.
+- [Create a skill](https://docs.perplexity.ai/api-reference/skills-create-post.md): Creates a skill from a zip bundle. The bundle must contain a `SKILL.md` that provides the skill name and description; those fields are read from the bundle, not from the request.
+- [List skills](https://docs.perplexity.ai/api-reference/skills-list-get.md): Lists the skills in your Project, newest first.
+- [Get a skill](https://docs.perplexity.ai/api-reference/skills-get.md): Returns a skill. Without `revision`, returns the active revision.
+- [Add a skill revision](https://docs.perplexity.ai/api-reference/skills-update-put.md): Uploads a new zip bundle as a new revision of an existing skill. Pass the revision you expect to replace as the required `expected_revision`; the request fails with `409` if the skill has already moved past it, so the update cannot race a concurrent write. Name and description are re-read from the n…
+- [List skill revisions](https://docs.perplexity.ai/api-reference/skills-revisions-get.md): Lists the revisions of a skill, newest first.
+- [Get a skill download URL](https://docs.perplexity.ai/api-reference/skills-download-get.md): Returns a short-lived URL to download the skill bundle as a zip. Without `revision`, returns the active revision.
+- [Delete a skill](https://docs.perplexity.ai/api-reference/skills-delete.md): Deletes a skill. Pass the current revision as `expected_revision`; the delete fails with `409` if the skill has a newer revision, so a delete never races a concurrent update.
 - [Search the Web](https://docs.perplexity.ai/api-reference/search-post.md): Search the web and retrieve relevant web page contents.
 - [Create Embeddings](https://docs.perplexity.ai/api-reference/embeddings-post.md): Generate embeddings for a list of texts. Use these embeddings for semantic search, clustering, and other machine learning applications.
 - [Create Contextualized Embeddings](https://docs.perplexity.ai/api-reference/contextualized-embeddings-post.md): Generate contextualized embeddings for document chunks. Chunks from the same document share context awareness, improving retrieval quality for document-based applications.
