@@ -26,6 +26,7 @@
 - [Provider Routing](https://openrouter.ai/docs/guides/routing/provider-selection.md): Route requests to the best provider
 - [Auto Exacto](https://openrouter.ai/docs/guides/routing/auto-exacto.md): Automatic tool-calling provider optimization
 - [Private Models](https://openrouter.ai/docs/guides/routing/private-models.md): Bring your own model to OpenRouter, scoped to approved users and organizations
+- [Model Variants](https://openrouter.ai/docs/guides/routing/model-variants/overview.md): How variant suffixes relate to the models catalog and how clients should resolve them
 - [Free Variant](https://openrouter.ai/docs/guides/routing/model-variants/free.md): Access free models with the :free variant
 - [Extended Variant](https://openrouter.ai/docs/guides/routing/model-variants/extended.md): Extended context windows with :extended
 - [Exacto Variant](https://openrouter.ai/docs/guides/routing/model-variants/exacto.md): Route requests with quality-first provider sorting
