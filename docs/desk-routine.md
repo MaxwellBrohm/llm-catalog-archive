@@ -124,6 +124,11 @@ never merge it, never branch from it, and never add a second file to it.
 draft for a platform is correct and already explained by `shortfalls`. Writing
 your own version of a claim is the one thing this system exists to prevent.
 
+You will see `title` and `titleBy: "template"` on Hacker News drafts. That title
+was composed by `src/desk/titles.ts` from the event's own typed fields, every
+value verbatim, and it is part of the CLI output you copy through untouched. Do
+not edit it, improve it, or write one where the CLI produced none.
+
 ## 5. Tell Max
 
 Email maxwellbrohm@gmail.com if a Gmail connector is attached to this routine.

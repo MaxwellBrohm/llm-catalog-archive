@@ -24,6 +24,7 @@
 
 import type { FeedItem } from '../derive/feed.js';
 import { changePagePath } from '../site/record.js';
+import { hnTitle } from './titles.js';
 
 export type Platform = 'hn' | 'reddit' | 'bluesky' | 'mastodon' | 'x' | 'linkedin';
 
@@ -56,8 +57,19 @@ export type Draft = {
   readonly venue: string;
   /** What the button says: the place, not the platform. */
   readonly label: string;
-  /** The headline field, where the platform has one. Always the sentence. */
+  /**
+   * The headline field, where the platform has one. The sentence when it fits;
+   * otherwise a title composed from the event's own fields (see titles.ts),
+   * never a shortened sentence.
+   */
   readonly title: string | null;
+  /**
+   * Who wrote the title. `sentence` means it IS the derived sentence, byte for
+   * byte. `template` means it was composed from the event's typed fields with
+   * every value verbatim and only the connective words supplied. Recorded so
+   * the desk can say which, and so nobody later mistakes one for the other.
+   */
+  readonly titleBy: 'sentence' | 'template' | null;
   /** The body actually submitted, where the link rides inside the text. */
   readonly text: string | null;
   readonly url: string;
@@ -104,23 +116,32 @@ export function draftFor(
   const sentence = item.sentence;
 
   if (spec.titleLimit !== null) {
-    if (sentence.length > spec.titleLimit) {
+    if (sentence.length <= spec.titleLimit) {
+      return {
+        platform: spec.id, venue, label,
+        title: sentence, titleBy: 'sentence', text: null, url,
+        submitUrl: submitUrl(spec.id, sentence, url, sub),
+      };
+    }
+    // The sentence does not fit. A composed title may, and it is the ONLY
+    // alternative to asking a person: the sentence is never cut to fit.
+    const composed = hnTitle(item, spec.titleLimit);
+    if (composed === null) {
       return { platform: spec.id, venue, need: sentence.length, limit: spec.titleLimit };
     }
     return {
       platform: spec.id, venue, label,
-      title: sentence, text: null, url,
-      submitUrl: submitUrl(spec.id, sentence, url, sub),
+      title: composed.text, titleBy: composed.by, text: null, url,
+      submitUrl: submitUrl(spec.id, composed.text, url, sub),
     };
   }
-
   const text = body(sentence, url);
   if (spec.total !== null && text.length > spec.total) {
     return { platform: spec.id, venue, need: text.length, limit: spec.total };
   }
   return {
     platform: spec.id, venue, label,
-    title: null, text, url,
+    title: null, titleBy: null, text, url,
     submitUrl: submitUrl(spec.id, text, url, sub),
   };
 }

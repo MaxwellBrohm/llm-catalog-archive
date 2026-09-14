@@ -130,3 +130,42 @@ already there and the cooldown has already been applied.
 The reason the writer is the web function rather than the routine is a wall, not
 a preference: the routine's sandbox cannot reach the desk and the desk cannot
 reach the routine. GitHub is the only thing both can talk to.
+
+### Titles, and why they are not a paraphrase
+
+Hacker News caps a title at 80 characters and the derived sentences run 130 to
+190, so for the first week the desk refused HN every day and a person wrote the
+title by hand for the one venue that matters most. That lasted a week.
+
+A title is now composed from the event's own typed fields: `Arena codename
+"kiana" resolves to qwen3.8-max-0902`, `vllm merges DeepSeek-V4-Flash-Vision-Exp
+support`. This is not the rule eroding, and the difference is exact:
+
+- every VALUE in the title (a codename, a model id, a repository, a date) is
+  copied byte for byte from the event; the template supplies only the connective
+  words between them. A test asserts this as a property over every template.
+- it is a template, not a language model, so it cannot decide that
+  "DeepSeek-V4-Flash-Vision-Exp" reads better as "DeepSeek V4". That freedom is
+  the whole hazard, and a template does not have it.
+- it is never truncated. A filled template over 80 characters returns nothing
+  and the desk asks a person, as before.
+- the draft records `titleBy: "template"` so nobody later mistakes a composed
+  title for the derived sentence. The sentence itself is still never rewritten.
+
+The HN form is prefilled with the composed title and can be edited there before
+submitting, which is the right place to edit it: on the platform, by the person
+pressing the button.
+
+### Reddit is retired, and Hacker News is capped at two a day
+
+Every real Reddit post this desk produced was removed within seconds. The
+subreddits gate on karma, and an account whose entire history is links to one
+domain is the exact pattern those gates exist for, so they keep firing after the
+karma is earned. Reddit is routed nowhere as of 2026-09-14; it comes back the
+day the account has a history there that is not this site.
+
+Hacker News gets at most two candidates a day, the two highest-scoring. The
+number is HN's: a new account is rate-limited past about two submissions in ten
+minutes, and one that keeps submitting a single domain is flagged regardless of
+pace. A desk offering five HN buttons also trains a person to press all five,
+which is the behaviour that gets an account marked as a spammer.

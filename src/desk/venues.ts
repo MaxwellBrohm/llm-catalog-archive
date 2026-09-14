@@ -198,24 +198,19 @@ const ROUTES: Record<FeedType, readonly RouteStep[]> = {
   // This is r/LocalLLaMA's core subject, and the evidence link is what makes it
   // a post there rather than a rumour.
   codename_unmasked: [
-    { id: 'reddit:LocalLLaMA', why: 'a codename resolving to a real model id is that sub\'s core subject, and the diff is the evidence it asks for', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'an unreleased model identified from a vendor\'s own bytes stands on its own to a programmer who has never heard of this site' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
   codename_entered: [
-    { id: 'reddit:LocalLLaMA', why: 'a new codename appearing is a lead that audience actively watches for', flair: ['News', 'Discussion'] },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
   stealth_listing: [
-    { id: 'reddit:LocalLLaMA', why: 'an unannounced model listed on a public endpoint is that sub\'s core subject', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'a model shipped before it was announced is a story on its own terms' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
 
   // A model appearing. Whose model decides the room.
   model_added: [
-    { id: 'vendor', why: 'a new model from this lab matters first to the people already building on it', flair: null },
-    { id: 'reddit:LocalLLaMA', why: 'the general audience for a model appearing in a catalogue', flair: ['New Model', 'News', 'Discussion'] },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
 
@@ -223,30 +218,24 @@ const ROUTES: Record<FeedType, readonly RouteStep[]> = {
   // it goes where the people who have to do it are, ahead of where the most
   // people are.
   model_removed: [
-    { id: 'vendor', why: 'a removal is a migration somebody has to perform, so it goes where those people are before it goes where the most people are', flair: null },
-    { id: 'reddit:LocalLLaMA', why: 'the general audience for a model disappearing from a catalogue', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'worth the front page only when the model was widely depended on' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
   retirement_floor: [
-    { id: 'vendor', why: 'a dated shutdown is a deadline for this lab\'s users specifically, and the date comes from the vendor\'s own bytes', flair: null },
-    { id: 'reddit:LocalLLaMA', why: 'the general audience for a retirement date', flair: ['News', 'Discussion'] },
+    { id: 'hn', why: 'a vendor putting a date on a model shutdown is a deadline for every developer on it, and the date comes from the vendor\'s own bytes' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
   ],
 
   // Inference-engine work: that audience is r/LocalLLaMA almost by definition.
   upstream_pr_merged: [
-    { id: 'reddit:LocalLLaMA', why: 'inference-engine work landing is that audience almost by definition: they run these engines', flair: ['News', 'Discussion'] },
     { id: 'hn', why: 'worth it when the merge implies hardware or an architecture nobody has shipped yet' },
   ],
   upstream_pr_opened: [
-    { id: 'reddit:LocalLLaMA', why: 'a pull request opened against an engine they run is a lead, not yet news', flair: ['News', 'Discussion'] },
   ],
 
   // An outage matters to that vendor's users and to almost nobody else. HN
   // flags status-page submissions, so it is deliberately not offered.
   incident_opened: [
-    { id: 'vendor', why: 'an outage matters to the people whose builds are failing right now and to almost nobody else', flair: null },
     { id: 'bluesky', why: 'broadcast, once the vendor\'s own audience has it' },
   ],
 

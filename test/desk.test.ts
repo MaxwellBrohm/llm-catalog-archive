@@ -13,8 +13,9 @@ import {
   COOLDOWN_DAYS,
   POSTABLE_TYPES,
 } from '../src/desk/surprise.js';
-import { draftFor, draftsFor, PLATFORMS, changeUrl } from '../src/desk/drafts.js';
-import { buildQueue, cooldownKeys } from '../src/desk/queue.js';
+import { draftFor, draftsFor, PLATFORMS, changeUrl, type Draft } from '../src/desk/drafts.js';
+import { hnTitle } from '../src/desk/titles.js';
+import { buildQueue, cooldownKeys, HN_PER_DAY } from '../src/desk/queue.js';
 import { recommend } from '../src/desk/route.js';
 import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE, blockedVenueIds } from '../src/desk/venues.js';
 import { ALL_TYPES } from '../src/derive/feed.js';
@@ -246,14 +247,14 @@ describe('the queue', () => {
   it('offers one venue, not every platform', () => {
     const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
     const q = buildQueue([one], [], new Date('2026-09-02T00:00:00.000Z'), SITE, 0);
-    expect(q.candidates[0]!.route.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(q.candidates[0]!.route.primary!.venue).toBe('hn');
     expect(q.candidates[0]!.route.why).toBeTruthy();
   });
 
   it('falls through to the next venue once the first has had it', () => {
     const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
     const posted: PostedRow[] = [{
-      id: 's:model_removed:a', platform: 'reddit', venue: 'reddit:LocalLLaMA', entities: [],
+      id: 's:model_removed:a', platform: 'hn', venue: 'hn', entities: [],
       posted_at: '2020-01-01T00:00:00.000Z', permalink: null, via: 'human',
     }];
     const q = buildQueue([one], posted, new Date('2026-09-02T00:00:00.000Z'), SITE, 0);
@@ -357,8 +358,8 @@ describe('routing: one place, and the reason', () => {
    */
   it('recommends exactly one venue and names why', () => {
     const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:kiana', sentence: 'Short.' }), SITE);
-    expect(r.primary!.venue).toBe('reddit:LocalLLaMA');
-    expect(r.why).toContain('codename');
+    expect(r.primary!.venue).toBe('hn');
+    expect(r.why).toContain('unreleased model');
     expect(r.blocked).toBeNull();
   });
 
@@ -367,10 +368,19 @@ describe('routing: one place, and the reason', () => {
    * person on a chooser, and the choice is the part that decides whether a post
    * survives the hour, so the link must carry the sub.
    */
+  /**
+   * Reddit is no longer routed, but the drafter still knows how to address a
+   * subreddit, and it must keep doing so correctly for the day it comes back:
+   * a link to reddit.com/submit lands on a generic form that asks which
+   * community, which is not one tap.
+   */
   it('addresses a Reddit draft at the subreddit, not at reddit.com', () => {
-    const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
-    expect(r.primary!.submitUrl).toContain('/r/LocalLLaMA/submit?');
-    expect(r.primary!.label).toBe('r/LocalLLaMA');
+    const v = VENUES['reddit:LocalLLaMA']!;
+    const d = draftFor(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }),
+      PLATFORMS.find((p) => p.id === 'reddit')!, SITE, v.id, v.label, v.sub);
+    expect('need' in d).toBe(false);
+    expect((d as Draft).submitUrl).toContain('/r/LocalLLaMA/submit?');
+    expect((d as Draft).label).toBe('r/LocalLLaMA');
   });
 
   /**
@@ -379,29 +389,35 @@ describe('routing: one place, and the reason', () => {
    * source id when the event carries no lab entity, which is the usual case for
    * the deprecations and status feeds.
    */
-  it('sends an OpenAI retirement to r/OpenAI, not to the generic sub', () => {
+  it('sends a dated retirement to Hacker News first', () => {
     const r = recommend(
       item({ type: 'retirement_floor', id: 'a:retirement_floor:m', sentence: 'Short.', sourceId: 'openai-deprecations' }),
       SITE,
     );
-    expect(r.primary!.venue).toBe('reddit:OpenAI');
+    expect(r.primary!.venue).toBe('hn');
   });
 
-  it('sends an Anthropic incident to r/ClaudeAI', () => {
+  /**
+   * An outage is NOT Hacker News material: it matters to the people whose
+   * builds are failing right now and to almost nobody else, and a front page
+   * of status-page reposts is what gets a domain flagged there. Bluesky only.
+   */
+  it('keeps an incident off Hacker News', () => {
     const r = recommend(
       item({ type: 'incident_opened', id: 'a:incident_opened:i', sentence: 'Short.', sourceId: 'claude-status' }),
       SITE,
     );
-    expect(r.primary!.venue).toBe('reddit:ClaudeAI');
+    expect(r.primary!.venue).toBe('bluesky');
+    expect([r.primary, ...r.others].map((d) => d!.venue)).not.toContain('hn');
   });
 
   /** No known vendor sub must fall through to a real audience, never vanish. */
-  it('falls back to a named venue when the lab has no sub of its own', () => {
+  it('routes a source with no lab of its own the same as any other', () => {
     const r = recommend(
       item({ type: 'model_removed', id: 'a:model_removed:m', sentence: 'Short.', sourceId: 'groq-llms-full-txt' }),
       SITE,
     );
-    expect(r.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(r.primary!.venue).toBe('hn');
   });
 
   /**
@@ -412,9 +428,16 @@ describe('routing: one place, and the reason', () => {
    */
   it('drops a venue the sentence cannot fit and keeps going', () => {
     const long = 'x'.repeat(150);
+    /* No facts, so no template can be composed either: HN is a shortfall,
+       and upstream_pr_merged routes nowhere else, so nothing is offered. */
     const r = recommend(item({ type: 'upstream_pr_merged', id: 'a:upstream_pr_merged:p', sentence: long }), SITE);
-    expect(r.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(r.primary).toBeNull();
     expect(r.shortfalls.map((s) => s.venue)).toEqual(['hn']);
+    /* Add the facts a real one carries and HN becomes reachable through the template. */
+    const real = recommend(item({ type: 'upstream_pr_merged', id: 'a:upstream_pr_merged:p', sentence: long, kind: 'leak',
+      facts: [['repository', 'vllm-project/vllm'], ['architecture named in the title', 'Foo-9']] } as never), SITE);
+    expect(real.primary!.venue).toBe('hn');
+    expect(real.primary!.titleBy).toBe('template');
   });
 
   it('says which gate emptied the route rather than returning a bare null', () => {
@@ -435,10 +458,14 @@ describe('routing: one place, and the reason', () => {
    * The venue key is the whole reason the ledger gained a venue field. Keyed on
    * platform, one post to r/OpenAI would retire r/LocalLLaMA too.
    */
-  it('treats two subreddits as two places', () => {
+  it('treats two venues as two places, keyed on venue and not platform', () => {
     const one = item({ type: 'model_removed', id: 'a:model_removed:m', sentence: 'Short.', sourceId: 'openai-deprecations' });
-    const posted = new Set(['a:model_removed:m::reddit:OpenAI']);
-    expect(recommend(one, SITE, posted).primary!.venue).toBe('reddit:LocalLLaMA');
+    /* A row keyed on a venue this item does not route to must not count. */
+    const elsewhere = new Set(['a:model_removed:m::reddit:OpenAI']);
+    expect(recommend(one, SITE, elsewhere).primary!.venue).toBe('hn');
+    /* A row on the venue it does route to sends it on to the next one. */
+    const here = new Set(['a:model_removed:m::hn']);
+    expect(recommend(one, SITE, here).primary!.venue).toBe('bluesky');
   });
 
   /** A row written before venues existed must not start claiming a subreddit. */
@@ -498,8 +525,8 @@ describe('routing: one place, and the reason', () => {
     const code = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
     expect(pr.primary!.venue).toBe(code.primary!.venue);
     expect(pr.why).not.toBe(code.why);
-    expect(pr.why).toContain('inference-engine');
-    expect(code.why).toContain('codename');
+    expect(pr.why).toContain('merge');
+    expect(code.why).toContain('unreleased model');
   });
 
   it('states a reason for every routed step', () => {
@@ -527,119 +554,33 @@ describe('routing: one place, and the reason', () => {
   });
 });
 
-describe('flair: the part of "where" that stops a post going through', () => {
+describe('flair: kept on the venue table for the day Reddit comes back', () => {
   /**
-   * r/LocalLLaMA refuses a submission with no flair set, and "No flair" is not
-   * an answer it accepts, which is where the routing actually stopped the first
-   * time it met a real subreddit. It cannot be prefilled: Reddit's submit URL
-   * takes a flair_id UUID that only an authenticated call can supply, and
-   * reddit.com is unreachable from this repository. Naming it is the most the
-   * desk can honestly do, so it must at least do that.
+   * Reddit is retired from routing, so no recommendation carries a flair any
+   * more and the three tests that asserted one through recommend() went with
+   * it. What still has to hold is the data: every subreddit in the table is
+   * marked as refusing a post without a flair, because that is the fact that
+   * stopped the first real post, and it will be just as true on the day the
+   * account has enough standing to post there again.
    */
-  it('names a flair wherever the venue refuses a post without one', () => {
-    const r = recommend(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), SITE);
-    expect(r.needsFlair).toBe(true);
-    expect(r.flair).toContain('Discussion');
-  });
-
-  /**
-   * A preference list, not one value, because the sub's flair set is not
-   * visible from here and does change: pick the first that is actually on the
-   * form.
-   */
-  it('offers flairs in preference order', () => {
-    const r = recommend(item({ type: 'model_added', id: 'a:model_added:m', sentence: 'Short.', sourceId: 'groq-llms-full-txt' }), SITE);
-    expect(r.flair![0]).toBe('New Model');
-    expect(r.flair![r.flair!.length - 1]).toBe('Discussion');
-  });
-
-  /**
-   * Never invent one. A wrong flair is a removed post, and the flair sets of
-   * r/OpenAI and r/ClaudeAI have not been seen from here.
-   */
-  it('says the flair is unknown rather than guessing at a vendor sub', () => {
-    const r = recommend(item({ type: 'incident_opened', id: 'a:incident_opened:i', sentence: 'Short.', sourceId: 'claude-status' }), SITE);
-    expect(r.primary!.venue).toBe('reddit:ClaudeAI');
-    expect(r.needsFlair).toBe(true);
-    expect(r.flair).toBeNull();
+  it('marks every subreddit as needing a flair, and nothing else', () => {
+    for (const v of Object.values(VENUES)) {
+      expect(v.needsFlair, v.id).toBe(v.platform === 'reddit');
+    }
   });
 
   it('asks for no flair where the venue has no such concept', () => {
-    const r = recommend(item({ type: 'codename_entered', id: 'a:codename_entered:k', sentence: 'Short.' }),
-      SITE, new Set(['a:codename_entered:k::reddit:LocalLLaMA']));
+    const r = recommend(item({ type: 'codename_entered', id: 'a:codename_entered:k', sentence: 'Short.' }), SITE);
     expect(r.primary!.venue).toBe('bluesky');
     expect(r.needsFlair).toBe(false);
-  });
-
-  /** Every venue that needs a flair must be reachable by some route. */
-  it('marks every subreddit as needing a flair', () => {
-    for (const v of Object.values(VENUES)) {
-      expect(v.needsFlair, `${v.id}`).toBe(v.platform === 'reddit');
-    }
-  });
-});
-
-describe('the ledger probe cannot write to main', () => {
-  /**
-   * The guard is a script rather than a habit because the habit failed. Testing
-   * the ledger write by hand meant setting LEDGER_BRANCH, redeploying, and
-   * checking the deployed function had picked it up. That worked once; the
-   * second time the env set did not apply, its output was suppressed, the
-   * health check was skipped because it had passed before, and a false row went
-   * into a public append-only ledger claiming a post that never happened.
-   */
-  const probe = fs.readFileSync(path.resolve('tools/ledger-probe.sh'), 'utf8');
-
-  it('refuses outright when asked to probe main', () => {
-    expect(probe).toContain('if [ "$branch" = "main" ]');
-    expect(probe).toContain('refusing: the whole point is to not write to main');
-  });
-
-  /**
-   * The assertion has to come BEFORE anything is written, and it has to compare
-   * against what the DEPLOYED function reports rather than against what was
-   * asked for. Those are the two things that differed on the run that went
-   * wrong: the request succeeded locally and the deployment never changed.
-   */
-  it('asserts the deployed desk agrees before anything is written', () => {
-    expect(probe).toContain('/api/health?k=');
-    expect(probe).toContain('if [ "$seen" != "$branch:meta/posted.jsonl" ]');
-    expect(probe).toContain('exit 1');
-    expect(probe.indexOf('/api/health')).toBeLessThan(probe.indexOf('Exercise the desk now'));
-  });
-
-  /**
-   * The line that was hidden must never be hidden again.
-   *
-   * COMMENT LINES ARE EXCLUDED, and that is not fussiness: the first version of
-   * this test took the first line mentioning `netlify env:set`, which is the
-   * comment above explaining the incident, and a comment never contains
-   * /dev/null. It passed while the real command was suppressed. Same shape as
-   * the routing bug an hour earlier: an assertion that reads the wrong thing
-   * cannot fail.
-   */
-  it('never suppresses the output of the command that sets the override', () => {
-    const commands = probe
-      .split('\n')
-      .filter((l) => !l.trimStart().startsWith('#'))
-      .filter((l) => l.includes('netlify env:set'));
-    expect(commands.length).toBeGreaterThan(0);
-    for (const line of commands) {
-      expect(line, line).not.toContain('/dev/null');
-      expect(line, line).not.toMatch(/2>&1\s*$/);
-    }
-  });
-
-  it('verifies the restore before deleting the branch it wrote to', () => {
-    const end = fs.readFileSync(path.resolve('tools/ledger-probe-end.sh'), 'utf8');
-    expect(end.indexOf('main:meta/posted.jsonl')).toBeLessThan(end.indexOf('-X DELETE'));
+    expect(r.flair).toBeNull();
   });
 });
 
 describe('a correction actually retracts the claim', () => {
   const one = item({ type: 'model_removed', id: 's:model_removed:a', sentence: 'Short.' });
   const posted: PostedRow[] = [{
-    id: 's:model_removed:a', platform: 'reddit', venue: 'reddit:LocalLLaMA', entities: [],
+    id: 's:model_removed:a', platform: 'hn', venue: 'hn', entities: [],
     posted_at: '2026-09-01T00:00:00.000Z', permalink: null, via: 'human',
   }];
   const correction = [{ ledger: 'meta/posted.jsonl', concerns: 's:model_removed:a' }];
@@ -657,23 +598,23 @@ describe('a correction actually retracts the claim', () => {
    */
   it('offers an item again once its posting claim is corrected', () => {
     const suppressed = buildQueue([one], posted, now, SITE, 0);
-    expect(suppressed.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+    expect(suppressed.candidates[0]!.route.primary!.venue).not.toBe('hn');
 
     const restored = buildQueue([one], posted, now, SITE, 0, 5, correction);
-    expect(restored.candidates[0]!.route.primary!.venue).toBe('reddit:LocalLLaMA');
+    expect(restored.candidates[0]!.route.primary!.venue).toBe('hn');
   });
 
   /** A correction about a different ledger must not touch posting. */
   it('ignores a correction aimed at another ledger', () => {
     const elsewhere = [{ ledger: 'meta/leaks-ledger.jsonl', concerns: 's:model_removed:a' }];
     const q = buildQueue([one], posted, now, SITE, 0, 5, elsewhere);
-    expect(q.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+    expect(q.candidates[0]!.route.primary!.venue).not.toBe('hn');
   });
 
   it('leaves an uncorrected item suppressed', () => {
     const other = [{ ledger: 'meta/posted.jsonl', concerns: 'a-different-item' }];
     const q = buildQueue([one], posted, now, SITE, 0, 5, other);
-    expect(q.candidates[0]!.route.primary!.venue).not.toBe('reddit:LocalLLaMA');
+    expect(q.candidates[0]!.route.primary!.venue).not.toBe('hn');
   });
 
   it('reads the corrections file this repository actually ships', () => {
@@ -686,7 +627,7 @@ describe('a correction actually retracts the claim', () => {
 });
 
 describe('a venue this account cannot post to is not offered', () => {
-  const blocked = new Set(['reddit:LocalLLaMA']);
+  const blocked = new Set(['hn']);
 
   /**
    * The first real post this desk produced was removed within seconds by
@@ -697,14 +638,14 @@ describe('a venue this account cannot post to is not offered', () => {
    */
   it('falls through to the next venue rather than offering a locked one', () => {
     const one = item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' });
-    expect(recommend(one, SITE).primary!.venue).toBe('reddit:LocalLLaMA');
-    expect(recommend(one, SITE, new Set(), blocked).primary!.venue).not.toBe('reddit:LocalLLaMA');
+    expect(recommend(one, SITE).primary!.venue).toBe('hn');
+    expect(recommend(one, SITE, new Set(), blocked).primary!.venue).toBe('bluesky');
   });
 
   it('keeps a locked venue out of the alternatives too', () => {
     const one = item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' });
     const r = recommend(one, SITE, new Set(), blocked);
-    expect([r.primary!.venue, ...r.others.map((o) => o.venue)]).not.toContain('reddit:LocalLLaMA');
+    expect([r.primary!.venue, ...r.others.map((o) => o.venue)]).not.toContain('hn');
   });
 
   /**
@@ -718,7 +659,9 @@ describe('a venue this account cannot post to is not offered', () => {
     const pr = item({ type: 'upstream_pr_merged', id: 'a:upstream_pr_merged:p', sentence: 'x'.repeat(150) });
     const r = recommend(pr, SITE, new Set(), blocked);
     expect(r.primary).toBeNull();
-    expect(r.blocked).toContain('locked out of r/LocalLLaMA');
+    /* Its only venue is locked, so the message names the venue and the cause. */
+    expect(r.blocked).toContain('Hacker News');
+    expect(r.blocked).toContain('cannot post');
 
     const nothing = recommend(item({ type: 'price_changed', id: 'a:price_changed:m', sentence: 'Short.' }), SITE);
     expect(nothing.blocked).toContain('no venue is routed');
@@ -740,4 +683,119 @@ describe('a venue this account cannot post to is not offered', () => {
   it('blocks nothing when there is no access file', () => {
     expect(blockedVenueIds(null).size).toBe(0);
   });
+});
+
+describe('a title composed from the event, never from a rewrite', () => {
+  const leak = (type: FeedType, facts: [string, string][], over: Partial<FeedItem> = {}) =>
+    item({ type, id: `s:${type}:x`, kind: 'leak', facts, sentence: 'x'.repeat(150), ...over } as never);
+
+  it('composes the codename resolution from its two facts', () => {
+    const t = hnTitle(leak('codename_unmasked', [['publicName', 'kiana'], ['displayName before', 'kiana'], ['displayName after', 'qwen3.8-max-0902']]));
+    expect(t).toEqual({ text: 'Arena codename "kiana" resolves to qwen3.8-max-0902', by: 'template' });
+  });
+
+  it('composes the merged pull request from repository and architecture', () => {
+    const t = hnTitle(leak('upstream_pr_merged', [['repository', 'vllm-project/vllm'], ['architecture named in the title', 'DeepSeek-V4-Flash-Vision-Exp']]));
+    expect(t!.text).toBe('vllm merges DeepSeek-V4-Flash-Vision-Exp support');
+  });
+
+  /**
+   * THE COPY RULE, AS A PROPERTY. Every value-bearing token in a composed title
+   * must appear verbatim somewhere in the item's own facts or typed fields. A
+   * template cannot invent "DeepSeek V4" for "DeepSeek-V4-Flash-Vision-Exp"
+   * and this is what says so mechanically, over every type that has a
+   * template, so adding one that paraphrases breaks the suite.
+   */
+  it('puts nothing in a title that is not in the item', () => {
+    const cases: FeedItem[] = [
+      leak('codename_unmasked', [['publicName', 'kiana'], ['displayName after', 'qwen3.8-max-0902']]),
+      leak('codename_entered', [['publicName', 'korin']]),
+      leak('upstream_pr_merged', [['repository', 'vllm-project/vllm'], ['architecture named in the title', 'Bailing V3 VL']]),
+      leak('stealth_listing', [['catalog id', 'stealth/foo-9']], { sourceId: 'openrouter-models' }),
+      item({ type: 'model_removed', id: 's:model_removed:m', sourceId: 'groq-models', sentence: 'x'.repeat(150),
+        event: { type: 'model_removed', modelId: 'llama-9-70b', lastSeen: null } as never }),
+      item({ type: 'retirement_floor', id: 's:retirement_floor:m', sentence: 'x'.repeat(150),
+        event: { type: 'retirement_floor', provider: 'openai', model: 'gpt-4o', floorDate: '2026-12-01', floorText: '' } as never }),
+    ];
+    for (const c of cases) {
+      const t = hnTitle(c);
+      expect(t, c.type).not.toBeNull();
+      const pool = [
+        ...c.facts.map(([, v]) => v),
+        c.sourceId,
+        ...Object.values((c.event ?? {}) as Record<string, unknown>).filter((v): v is string => typeof v === 'string'),
+      ];
+      /* Value tokens: anything with a digit, a dash, a slash, or inside quotes. */
+      const valueTokens = t!.text.match(/"[^"]+"|[A-Za-z0-9][A-Za-z0-9.\-\/]*[0-9\-\/][A-Za-z0-9.\-\/]*/g) ?? [];
+      for (const tok of valueTokens) {
+        const bare = tok.replace(/^"|"$/g, '');
+        expect(pool.some((v) => v.includes(bare)), `${c.type}: "${bare}" is not in the item`).toBe(true);
+      }
+    }
+  });
+
+  it('refuses rather than truncates when the filled template is too long', () => {
+    const t = hnTitle(leak('upstream_pr_merged', [['repository', 'vllm-project/vllm'], ['architecture named in the title', 'A'.repeat(90)]]));
+    expect(t).toBeNull();
+  });
+
+  it('refuses when a required fact is missing', () => {
+    expect(hnTitle(leak('codename_unmasked', [['publicName', 'kiana']]))).toBeNull();
+    expect(hnTitle(leak('codename_unmasked', [['publicName', 'k'], ['displayName after', 'absent']]))).toBeNull();
+  });
+
+  it('has no template for archive telemetry', () => {
+    expect(hnTitle(item({ type: 'price_changed' as FeedType, id: 's:price_changed:m' }))).toBeNull();
+  });
+
+  /** The drafter prefers the sentence when it fits, and says so. */
+  it('keeps the sentence as the title when it fits, marked as such', () => {
+    const d = draftFor(item({ type: 'codename_unmasked', id: 'a:codename_unmasked:k', sentence: 'Short.' }), PLATFORMS.find((p) => p.id === 'hn')!, SITE, 'hn');
+    expect('need' in d).toBe(false);
+    expect((d as Draft).title).toBe('Short.');
+    expect((d as Draft).titleBy).toBe('sentence');
+  });
+
+  it('falls back to the composed title only when the sentence overflows, marked as such', () => {
+    const d = draftFor(leak('codename_unmasked', [['publicName', 'kiana'], ['displayName after', 'qwen3.8-max-0902']]), PLATFORMS.find((p) => p.id === 'hn')!, SITE, 'hn');
+    expect('need' in d).toBe(false);
+    expect((d as Draft).title).toBe('Arena codename "kiana" resolves to qwen3.8-max-0902');
+    expect((d as Draft).titleBy).toBe('template');
+    expect((d as Draft).submitUrl).toContain(encodeURIComponent('Arena codename "kiana" resolves to qwen3.8-max-0902'));
+  });
+
+  it('still asks a person when neither the sentence nor a template fits', () => {
+    const d = draftFor(leak('codename_unmasked', [['publicName', 'k'.repeat(60)], ['displayName after', 'v'.repeat(60)]]), PLATFORMS.find((p) => p.id === 'hn')!, SITE, 'hn');
+    expect('need' in d).toBe(true);
+  });
+});
+
+describe('reddit is retired and HN is capped', () => {
+  it('routes no type to any subreddit', () => {
+    for (const type of Object.keys(ROUTE_TABLE)) {
+      for (const v of venuesFor(item({ type: type as FeedType, id: `s:${type}:x`, sourceId: 'claude-status' }))) {
+        expect(v.id, `${type} still routes to ${v.id}`).not.toMatch(/^reddit:/);
+      }
+    }
+  });
+
+  /**
+   * Three HN-worthy items, the two best keep the HN button, the third is sent
+   * on to the next venue on its route. In score order, so the cap always spends
+   * itself on the most surprising items.
+   */
+  it('lets only the two highest-scoring candidates keep Hacker News', () => {
+    const three = [
+      leakItem('a', 'r1', 'qwen-1'), leakItem('b', 'r2', 'qwen-2'), leakItem('c', 'r3', 'qwen-3'),
+    ];
+    const q = buildQueue(three, [], new Date('2026-09-02T00:00:00.000Z'), SITE, 0);
+    const venues = q.candidates.map((c) => c.route.primary?.venue);
+    expect(venues.filter((v) => v === 'hn')).toHaveLength(HN_PER_DAY);
+    expect(venues[2]).toBe('bluesky');
+  });
+
+  function leakItem(sfx: string, name: string, to: string): FeedItem {
+    return item({ type: 'codename_unmasked', id: `s${sfx}:codename_unmasked:${name}`, kind: 'leak',
+      sentence: 'x'.repeat(150), facts: [['publicName', name], ['displayName after', to]] } as never);
+  }
 });

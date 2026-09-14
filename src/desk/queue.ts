@@ -27,6 +27,19 @@ export type Candidate = {
   readonly entities: readonly string[];
 };
 
+/**
+ * How many candidates may be routed to Hacker News in one day's queue.
+ *
+ * TWO, and the number is Hacker News's, not ours. A new account submitting
+ * more than about two links in ten minutes is rate-limited, and one that keeps
+ * submitting a single domain is flagged regardless of pace. Beyond that, a
+ * desk offering five HN buttons trains the person to fire all five, which is
+ * the exact behaviour that gets an account marked as a spammer. The two that
+ * survive are the two highest-scoring, and the rest fall through to whatever
+ * venue is next on their route, or to nothing.
+ */
+export const HN_PER_DAY = 2;
+
 export type Queue = {
   readonly candidates: readonly Candidate[];
   /** Counts at each gate, so a silent day is explainable rather than suspicious. */
@@ -99,6 +112,18 @@ export function buildQueue(
   }
 
   scored.sort((a, b) => b.score.bits - a.score.bits || (a.item.id < b.item.id ? -1 : 1));
+
+  // The HN cap. Applied in score order, so the two best keep it; anyone below
+  // that is re-routed with HN treated as unavailable, which is the same code
+  // path as a venue the account is locked out of and so needs no new one.
+  let hnUsed = 0;
+  for (let i = 0; i < scored.length; i++) {
+    const c = scored[i]!;
+    if (c.route.primary?.venue !== 'hn') continue;
+    if (hnUsed < HN_PER_DAY) { hnUsed += 1; continue; }
+    const without = new Set(blockedVenues); without.add('hn');
+    scored[i] = { ...c, route: recommend(c.item, siteUrl, already, without) };
+  }
 
   // One per entity per run. Without this a capture that retires four models in
   // one family fills the desk with four near-identical posts, and approving all
