@@ -7,6 +7,12 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>Async GRPO with LoRA across HF Jobs: a bucket, a proxy, and no NCCL</title>
+   <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/asyncgrpo-lora-hfjobs</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/asyncgrpo-lora-hfjobs</guid>
+  </item>
+  <item>
    <title>Rebuilding AUTOMATIC1111 with Gradio Workflow</title>
    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/gradio-workflow-1111</link>
