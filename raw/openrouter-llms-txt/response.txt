@@ -246,13 +246,13 @@
 - [Get a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/get-a-workspace.md): Get a single workspace by ID or slug. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Delete a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/delete-a-workspace.md): Delete an existing workspace. Workspaces with active API keys cannot be deleted; remove the keys first. Deleting the default workspace requires confirm_default_workspace_deletion=true. Deleting any workspace permanently deletes its budgets and guardrails and disables its classifiers and broadcast de…
 - [Update a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/update-a-workspace.md): Update an existing workspace by ID or slug. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [List workspace members](https://openrouter.ai/docs/api/api-reference/workspaces/list-workspace-members.md): List all members of a workspace. Returns paginated results. For the default workspace, returns all organization members (implicit membership). [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Bulk add members to a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/bulk-add-members-to-a-workspace.md): Add multiple organization members to a workspace. Members are assigned the same role they hold in the organization. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Bulk remove members from a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/bulk-remove-members-from-a-workspace.md): Remove multiple members from a workspace. Members with active API keys in the workspace cannot be removed. SCIM-managed members cannot be removed; changes must be made in your identity provider. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [List workspace budgets](https://openrouter.ai/docs/api/api-reference/workspaces/list-workspace-budgets.md): List all budgets configured for a workspace. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Get a workspace budget](https://openrouter.ai/docs/api/api-reference/workspaces/get-a-workspace-budget.md): Retrieve the budget for a given interval. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Create or update a workspace budget](https://openrouter.ai/docs/api/api-reference/workspaces/create-or-update-a-workspace-budget.md): Create or update the budget for a given interval. Budget limits must strictly decrease as the interval narrows (lifetime > monthly > weekly > daily). The optional `include_byok_in_budgets` flag is a workspace-wide setting: when provided it applies to every budget interval for the workspace, not just…
 - [Delete a workspace budget](https://openrouter.ai/docs/api/api-reference/workspaces/delete-a-workspace-budget.md): Remove the budget for a given interval. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [List workspace members](https://openrouter.ai/docs/api/api-reference/workspaces/list-workspace-members.md): List all members of a workspace. Returns paginated results. For the default workspace, returns all organization members (implicit membership). [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Bulk add members to a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/bulk-add-members-to-a-workspace.md): Add multiple organization members to a workspace. Members are assigned the same role they hold in the organization. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Bulk remove members from a workspace](https://openrouter.ai/docs/api/api-reference/workspaces/bulk-remove-members-from-a-workspace.md): Remove multiple members from a workspace. Members with active API keys in the workspace cannot be removed. SCIM-managed members cannot be removed; changes must be made in your identity provider. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Client SDKs](https://openrouter.ai/docs/client-sdks/overview.md): Lightweight, type-safe clients for the OpenRouter API
 - [Usage for Agents](https://openrouter.ai/docs/client-sdks/usage-for-agents.md): Add OpenRouter Client SDKs skills to your AI coding assistant
 - [OpenRouter TypeScript SDK](https://openrouter.ai/docs/client-sdks/typescript/overview.md): Type-safe TypeScript toolkit for building AI features against 400+ models through OpenRouter.
@@ -308,7 +308,7 @@
 - [Providers](https://openrouter.ai/docs/client-sdks/python/sdks/providers/README.md): Provider information endpoints
 - [Rerank](https://openrouter.ai/docs/client-sdks/python/sdks/rerank/README.md): Rerank endpoints
 - [Responses](https://openrouter.ai/docs/client-sdks/python/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
-- [Scim](https://openrouter.ai/docs/client-sdks/python/sdks/scim/README.md): SCIM endpoints
+- [Scim](https://openrouter.ai/docs/client-sdks/python/sdks/scim/README.md): Management endpoints for SCIM group-to-workspace mappings, authenticated with a management key. These are not the SCIM 2.0 connector endpoints for your identity provider. In your identity provider, enter the SCIM endpoint URL shown when you enable provisioning under Settings > Members > SCIM Mapping…
 - [STT](https://openrouter.ai/docs/client-sdks/python/sdks/stt/README.md): Speech-to-text endpoints
 - [TTS](https://openrouter.ai/docs/client-sdks/python/sdks/tts/README.md): Text-to-speech endpoints
 - [VideoGeneration](https://openrouter.ai/docs/client-sdks/python/sdks/videogeneration/README.md): Video Generation endpoints
@@ -338,7 +338,7 @@
 - [Providers](https://openrouter.ai/docs/client-sdks/go/sdks/providers/README.md): Provider information endpoints
 - [Rerank](https://openrouter.ai/docs/client-sdks/go/sdks/rerank/README.md): Rerank endpoints
 - [Responses](https://openrouter.ai/docs/client-sdks/go/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
-- [Scim](https://openrouter.ai/docs/client-sdks/go/sdks/scim/README.md): SCIM endpoints
+- [Scim](https://openrouter.ai/docs/client-sdks/go/sdks/scim/README.md): Management endpoints for SCIM group-to-workspace mappings, authenticated with a management key. These are not the SCIM 2.0 connector endpoints for your identity provider. In your identity provider, enter the SCIM endpoint URL shown when you enable provisioning under Settings > Members > SCIM Mapping…
 - [STT](https://openrouter.ai/docs/client-sdks/go/sdks/stt/README.md): Speech-to-text endpoints
 - [TTS](https://openrouter.ai/docs/client-sdks/go/sdks/tts/README.md): Text-to-speech endpoints
 - [VideoGeneration](https://openrouter.ai/docs/client-sdks/go/sdks/videogeneration/README.md): Video Generation endpoints
@@ -401,7 +401,7 @@
 - [Claude 5 Sonnet Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/sonnet-5.md): Migrate to Claude 5 Sonnet — sampling parameters removed, adaptive-only thinking, and the new xhigh effort level
 - [Claude 4.7 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-7.md): Migrate to Claude 4.7 Opus — sampling parameters removed, adaptive-only thinking, and new xhigh effort level
 - [Claude 4.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-6.md): Migrate to Claude 4.6 with adaptive thinking and max effort level
-- [GPT-6 Astra Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-6-astra.md): Adopt mid-conversation reasoning effort changes with configuration_update for GPT-6 Astra
+- [GPT-6 Astra Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-6-astra.md): Adopt async tool calling and mid-conversation reasoning effort changes with configuration_update for GPT-6 Astra
 - [GPT-5.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-6.md): Adopt reasoning.mode, reasoning.context, and explicit prompt caching for the GPT-5.6 model family
 - [GPT-5.4 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-4.md): Support the phase field for GPT-5.3 Codex, GPT-5.4, GPT-5.4 Pro, GPT-5.5, and GPT-5.5 Pro
 - [RAG with Embeddings & Rerank](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/rag.md): Build retrieval-augmented generation pipelines using OpenRouter's embeddings and rerank APIs
