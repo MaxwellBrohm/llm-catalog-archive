@@ -77,7 +77,7 @@
 - [Queue API](https://docs.together.ai/docs/deployments-queue.md): Submit, monitor, and manage asynchronous jobs for your Dedicated Container deployments.
 - [Sprocket SDK reference](https://docs.together.ai/reference/dci-reference-sprocket.md): API reference for Sprocket classes, functions, and configuration.
 - [Overview](https://docs.together.ai/docs/gpu-clusters-overview.md): High-performance GPU clusters for training, fine-tuning, and large-scale AI workloads.
-- [Quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Get started with GPU Clusters in minutes.
+- [Quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Create a reserved or on-demand GPU cluster and connect to it.
 - [Cluster management](https://docs.together.ai/docs/gpu-clusters-management.md): Manage, scale, and operate your GPU clusters.
 - [Preemptible compute](https://docs.together.ai/docs/preemptible-compute.md): Run interruptible workloads on discounted preemptible GPU nodes in your cluster.
 - [Health checks](https://docs.together.ai/docs/health-checks.md): Monitor GPU node health with active diagnostic tests and continuous passive monitoring.
@@ -108,7 +108,7 @@
 - [Early stopping](https://docs.together.ai/docs/fine-tuning/early-stopping.md): Halt a fine-tuning job when validation loss stops improving.
 - [Troubleshooting fine-tuning jobs](https://docs.together.ai/docs/fine-tuning/troubleshooting.md): Diagnose failed or cancelled fine-tuning jobs, understand job timing, and resolve common errors.
 - [Deploy a fine-tuned model](https://docs.together.ai/docs/fine-tuning/deployment.md): Serve your fine-tuned model on a dedicated endpoint or download it for local inference.
-- [Code interpreter](https://docs.together.ai/docs/together-code-interpreter.md): Execute LLM-generated code seamlessly with a simple API call.
+- [Code interpreter](https://docs.together.ai/docs/together-code-interpreter.md): Execute LLM-generated code in a sandboxed environment.
 - [Code sandbox](https://docs.together.ai/docs/together-code-sandbox.md): Run generative code tooling in fast, secure sandboxes at scale.
 - [Manage your account](https://docs.together.ai/docs/account-management.md): Sign up for Together AI, get your API key, and manage your account settings.
 - [Authentication](https://docs.together.ai/docs/api-keys-authentication.md): Create, manage, and authenticate with project-scoped API keys.
@@ -148,7 +148,7 @@
 - [Build a CSV data analysis app with the code interpreter](https://docs.together.ai/docs/csv-data-analysis-with-code-interpreter.md): Build a full-stack Next.js app that answers questions about CSV data with AI-generated Python code.
 - [Build a resume-to-website app with structured outputs](https://docs.together.ai/docs/pdf-to-website-with-structured-outputs.md): Build an AI-powered site builder that turns PDF resumes into personal websites with structured outputs.
 - [Build an AI data analyst](https://docs.together.ai/docs/data-analyst-agent.md): Build an AI data analyst with code interpreter, E2B, and Together AI.
-- [Build a real-time image generator with Flux and Together AI](https://docs.together.ai/external-link-02.md)
+- [Build a real-time image generator with Flux](https://docs.together.ai/docs/how-to-build-a-real-time-image-generator.md): Build a real-time text-to-image app with Juggernaut Lightning Flux, Next.js, and Together AI.
 - [Build an open source NotebookLM](https://docs.together.ai/docs/open-notebooklm-pdf-to-podcast.md): Build an open source NotebookLM that turns a PDF into a podcast.
 - [Build an interactive AI tutor](https://docs.together.ai/docs/ai-tutor.md): Create LlamaTutor from scratch, an open source AI tutor with 90k users.
 - [Build an audio transcription app with Whisper](https://docs.together.ai/docs/how-to-build-real-time-audio-transcription-app.md): Build a real-time AI audio transcription app with Whisper, Next.js, and Together AI.
