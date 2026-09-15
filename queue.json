@@ -1,0 +1,214 @@
+{
+  "generated_at": "2026-09-15T12:06:55.492Z",
+  "floor_bits": 4.5,
+  "funnel": {
+    "seen": 1926,
+    "postableType": 284,
+    "notOnCooldown": 284,
+    "aboveFloor": 10
+  },
+  "candidates": [
+    {
+      "id": "0a2d3423984ba58fbf9fff2b922a54e6c2e3c597:incident_opened:https://status.openai.com//incidents/01M2GA8XTS6VB3QCDEGZ0HNAQ5",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Elevated errors affecting Work Mode in ChatGPT\" at \"https://status.openai.com//incidents/01M2GA8XTS6VB3QCDEGZ0HNAQ5\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-15T04:54:45.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.88,
+      "why": [
+        "incident_opened is rare in the archive: +5.88 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M2GA8XTS6VB3QCDEGZ0HNAQ5"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Elevated errors affecting Work Mode in ChatGPT\" at \"https://status.openai.com//incidents/01M2GA8XTS6VB3QCDEGZ0HNAQ5\".\n\nhttps://diffwire.dev/changes/0a2d3423984ba58fbf9fff2b922a54e6c2e3c597.html",
+        "url": "https://diffwire.dev/changes/0a2d3423984ba58fbf9fff2b922a54e6c2e3c597.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20affecting%20Work%20Mode%20in%20ChatGPT%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M2GA8XTS6VB3QCDEGZ0HNAQ5%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F0a2d3423984ba58fbf9fff2b922a54e6c2e3c597.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "0a2d3423984ba58fbf9fff2b922a54e6c2e3c597:incident_opened:https://status.openai.com//incidents/01M2H3J1D6Y7RHAP49GRWGJAY0",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Degraded Performance affecting Agents API\" at \"https://status.openai.com//incidents/01M2H3J1D6Y7RHAP49GRWGJAY0\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-15T04:54:45.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.88,
+      "why": [
+        "incident_opened is rare in the archive: +5.88 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M2H3J1D6Y7RHAP49GRWGJAY0"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Degraded Performance affecting Agents API\" at \"https://status.openai.com//incidents/01M2H3J1D6Y7RHAP49GRWGJAY0\".\n\nhttps://diffwire.dev/changes/0a2d3423984ba58fbf9fff2b922a54e6c2e3c597.html",
+        "url": "https://diffwire.dev/changes/0a2d3423984ba58fbf9fff2b922a54e6c2e3c597.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Degraded%20Performance%20affecting%20Agents%20API%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M2H3J1D6Y7RHAP49GRWGJAY0%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F0a2d3423984ba58fbf9fff2b922a54e6c2e3c597.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "720074c77902250739e837032d0a41556f4ff0b3:model_removed:google/gemini-2.5-pro-preview-05-06",
+      "type": "model_removed",
+      "sentence": "The catalog id \"google/gemini-2.5-pro-preview-05-06\" left OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-09-14T23:14:50.000Z",
+        "kind": "origin"
+      },
+      "bits": 4.95,
+      "why": [
+        "model_removed is rare in the archive: +4.95 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:google/gemini-2.5-pro-preview-05-06",
+        "lab:lab/google"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "hn",
+        "venue": "hn",
+        "label": "Hacker News",
+        "title": "The catalog id \"google/gemini-2.5-pro-preview-05-06\" left OpenRouter's catalog.",
+        "titleBy": "sentence",
+        "text": null,
+        "url": "https://diffwire.dev/changes/720074c77902250739e837032d0a41556f4ff0b3.html",
+        "submitUrl": "https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F720074c77902250739e837032d0a41556f4ff0b3.html&t=The%20catalog%20id%20%22google%2Fgemini-2.5-pro-preview-05-06%22%20left%20OpenRouter's%20catalog."
+      },
+      "why_here": "worth the front page only when the model was widely depended on",
+      "flair": null,
+      "needs_flair": false,
+      "others": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "titleBy": null,
+          "text": "The catalog id \"google/gemini-2.5-pro-preview-05-06\" left OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/720074c77902250739e837032d0a41556f4ff0b3.html",
+          "url": "https://diffwire.dev/changes/720074c77902250739e837032d0a41556f4ff0b3.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22google%2Fgemini-2.5-pro-preview-05-06%22%20left%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F720074c77902250739e837032d0a41556f4ff0b3.html"
+        }
+      ],
+      "shortfalls": []
+    },
+    {
+      "id": "720074c77902250739e837032d0a41556f4ff0b3:model_removed:openai/gpt-4-turbo-preview",
+      "type": "model_removed",
+      "sentence": "The catalog id \"openai/gpt-4-turbo-preview\" left OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-09-14T23:14:50.000Z",
+        "kind": "origin"
+      },
+      "bits": 4.95,
+      "why": [
+        "model_removed is rare in the archive: +4.95 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:openai/gpt-4-turbo-preview",
+        "lab:lab/openai"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "hn",
+        "venue": "hn",
+        "label": "Hacker News",
+        "title": "The catalog id \"openai/gpt-4-turbo-preview\" left OpenRouter's catalog.",
+        "titleBy": "sentence",
+        "text": null,
+        "url": "https://diffwire.dev/changes/720074c77902250739e837032d0a41556f4ff0b3.html",
+        "submitUrl": "https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fdiffwire.dev%2Fchanges%2F720074c77902250739e837032d0a41556f4ff0b3.html&t=The%20catalog%20id%20%22openai%2Fgpt-4-turbo-preview%22%20left%20OpenRouter's%20catalog."
+      },
+      "why_here": "worth the front page only when the model was widely depended on",
+      "flair": null,
+      "needs_flair": false,
+      "others": [
+        {
+          "platform": "bluesky",
+          "venue": "bluesky",
+          "label": "Bluesky",
+          "title": null,
+          "titleBy": null,
+          "text": "The catalog id \"openai/gpt-4-turbo-preview\" left OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/720074c77902250739e837032d0a41556f4ff0b3.html",
+          "url": "https://diffwire.dev/changes/720074c77902250739e837032d0a41556f4ff0b3.html",
+          "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22openai%2Fgpt-4-turbo-preview%22%20left%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F720074c77902250739e837032d0a41556f4ff0b3.html"
+        }
+      ],
+      "shortfalls": []
+    },
+    {
+      "id": "58b0c128d0c5bc2fa857c36f867379cbfe5851c1:codename_entered:deepseek-v4-flash-max",
+      "type": "codename_entered",
+      "sentence": "A model named \"deepseek-v4-flash-max\" appears in arena.ai's leaderboard payload.",
+      "source": "arena-leaderboard",
+      "stamp": {
+        "iso": "2026-09-15T00:44:58.000Z",
+        "kind": "origin"
+      },
+      "bits": 4.92,
+      "why": [
+        "codename_entered is rare in the archive: +4.92 bits"
+      ],
+      "entities": [
+        "subject:codename_entered:deepseek-v4-flash-max"
+      ],
+      "facts": [
+        [
+          "publicName",
+          "deepseek-v4-flash-max"
+        ],
+        [
+          "displayName",
+          "deepseek-v4.1-flash-max"
+        ],
+        [
+          "classification",
+          "label variant: the two names share an identity token"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "A model named \"deepseek-v4-flash-max\" appears in arena.ai's leaderboard payload.\n\nhttps://diffwire.dev/changes/58b0c128d0c5bc2fa857c36f867379cbfe5851c1.html",
+        "url": "https://diffwire.dev/changes/58b0c128d0c5bc2fa857c36f867379cbfe5851c1.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=A%20model%20named%20%22deepseek-v4-flash-max%22%20appears%20in%20arena.ai's%20leaderboard%20payload.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F58b0c128d0c5bc2fa857c36f867379cbfe5851c1.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ]
+}
