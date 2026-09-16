@@ -65,6 +65,8 @@
 - [Migrate from v1](https://docs.together.ai/docs/dedicated-endpoints/migrate-from-v1.md): Move a dedicated endpoint from the v1 API to the v2 dedicated model inference resource model.
 - [Overview](https://docs.together.ai/docs/dedicated-endpoints/route-traffic.md): Route traffic to a deployment, and explore strategies that change how traffic moves over time.
 - [Split traffic across deployments](https://docs.together.ai/docs/dedicated-endpoints/split-traffic.md): Run multiple deployments on one endpoint and split requests between them by weight.
+- [Start a rollout](https://docs.together.ai/docs/dedicated-endpoints/rollouts.md): Shift traffic to a new deployment on the same endpoint.
+- [Gate rollouts with metrics](https://docs.together.ai/docs/dedicated-endpoints/rollout-metric-gates.md): Pause a canary rollout automatically when the new deployment regresses.
 - [Run an A/B test](https://docs.together.ai/docs/dedicated-endpoints/ab-tests.md): Compare a candidate deployment against a baseline on live traffic.
 - [Run a shadow experiment](https://docs.together.ai/docs/dedicated-endpoints/shadow-experiments.md): Mirror a sampled fraction of endpoint traffic to a target deployment without affecting the client response.
 - [Send requests](https://docs.together.ai/docs/dedicated-endpoints/requests.md): After deploying a model, send requests using the shared inference API.
@@ -319,6 +321,15 @@
 - [Get a shadow experiment target](https://docs.together.ai/reference/dmi/shadow-experiment-targets-get.md): Retrieves one target configured to receive mirrored requests from a shadow experiment.
 - [Update a shadow experiment target](https://docs.together.ai/reference/dmi/shadow-experiment-targets-update.md): Updates a shadow target's name, deployment, or description. `updateMask` is required and must select at least one mutable field.
 - [Delete a shadow experiment target](https://docs.together.ai/reference/dmi/shadow-experiment-targets-delete.md): Removes a target from a shadow experiment without deleting the underlying deployment.
+- [List endpoint rollouts](https://docs.together.ai/reference/dmi/rollouts-list.md): Lists rollout histories for an endpoint. Use `filter=ROLLOUT_FILTER_ACTIVE` to return only the active rollout, if one exists.
+- [Create a rollout](https://docs.together.ai/reference/dmi/rollouts-create.md): Creates a rollout in the pending state without shifting traffic. Start the rollout in a separate request after reviewing its strategy and metric gates.
+- [Get a rollout](https://docs.together.ai/reference/dmi/rollouts-get.md): Retrieves a rollout's strategy, lifecycle state, current traffic percentage, step history, and metric-gate results.
+- [Delete a rollout](https://docs.together.ai/reference/dmi/rollouts-delete.md): Deletes a rollout record. An active rollout must be aborted or completed before it can be deleted.
+- [Start a rollout](https://docs.together.ai/reference/dmi/rollouts-start.md): Starts a pending rollout and begins its configured traffic-shifting workflow.
+- [Pause a rollout](https://docs.together.ai/reference/dmi/rollouts-pause.md): Requests a running or stabilizing rollout to pause and records an optional reason. The response returns the PAUSING snapshot; poll GetRollout until state is PAUSED to confirm the executor has parked.
+- [Resume a rollout](https://docs.together.ai/reference/dmi/rollouts-resume.md): Resumes a pausing, paused, or system-paused rollout from its current step and traffic split.
+- [Promote a rollout](https://docs.together.ai/reference/dmi/rollouts-promote.md): Completes a running or paused rollout immediately by sending all live traffic to the target deployment.
+- [Cancel a rollout](https://docs.together.ai/reference/dmi/rollouts-cancel.md): Cancels a running, pausing, paused, system-paused, or stabilizing rollout by freezing the current traffic split into standing weights. Revert is removed and rejected; after canceling, start another canary rollout in either direction or rebalance the traffic split. The response is the accepted rollou…
 - [List supported models](https://docs.together.ai/reference/dmi/supported-models-list.md): Lists Together-hosted base models that can be deployed for dedicated inference, together with their capabilities and certified deployment profiles.
 - [Get a supported model](https://docs.together.ai/reference/dmi/supported-models-get.md): Retrieves a Together-hosted base model and the certified model, configuration, hardware, and performance profiles available for deployment.
 - [List project models](https://docs.together.ai/reference/dmi/models-list.md): Lists custom model resources owned by the specified project. Use the organization endpoint to list models shared across projects or the supported-model catalog to discover Together-hosted base models.
