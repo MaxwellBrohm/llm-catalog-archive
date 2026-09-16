@@ -7,6 +7,12 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>Your Agent Aced the Task. Will It Do It Again?</title>
+   <pubDate>Tue, 15 Sep 2026 16:00:44 GMT</pubDate>
+   <link>https://huggingface.co/blog/ibm-research/altk-evolve-consistency</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/altk-evolve-consistency</guid>
+  </item>
+  <item>
    <title>Async GRPO with LoRA across HF Jobs: a bucket, a proxy, and no NCCL</title>
    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/asyncgrpo-lora-hfjobs</link>
@@ -17,12 +23,6 @@
    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/gradio-workflow-1111</link>
    <guid isPermaLink="true">https://huggingface.co/blog/gradio-workflow-1111</guid>
-  </item>
-  <item>
-   <title>IBM releases SOTA Granite Time Series PatchTST-FM-r2 model with commercial-friendly license</title>
-   <pubDate>Wed, 09 Sep 2026 15:36:24 GMT</pubDate>
-   <link>https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series</guid>
   </item>
   <item>
    <title>Safety for Whom? Refusing the Right Subset of a Topic, Not the Whole Topic</title>
