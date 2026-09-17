@@ -4,10 +4,18 @@
   <link rel="alternate" type="text/html" href="https://status.claude.com"/>
   <link rel="self" type="application/atom+xml" href="https://status.claude.com/history.atom"/>
   <title>Claude Status - Incident History</title>
-  <updated>2026-09-16T03:09:25Z</updated>
+  <updated>2026-09-17T04:15:50Z</updated>
   <author>
     <name>Claude</name>
   </author>
+  <entry>
+    <id>tag:status.claude.com,2005:Incident/31450077</id>
+    <published>2026-09-16T16:51:09Z</published>
+    <updated>2026-09-16T16:51:09Z</updated>
+    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/t8fpw9vcshl9"/>
+    <title>Issues with Google Play subscriptions</title>
+    <content type="html">&lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt;16&lt;/var&gt;, &lt;var data-var='time'&gt;16:51&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - This issue has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Sep &lt;var data-var='date'&gt;16&lt;/var&gt;, &lt;var data-var='time'&gt;16:18&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Identified&lt;/strong&gt; - We are aware of an issue affecting users interacting with subscriptions via Google Play, such as when creating a new subscription on Android devices. Google has confirmed an issue with Google Play, and we are awaiting their further updates. &lt;/p&gt;</content>
+  </entry>
   <entry>
     <id>tag:status.claude.com,2005:Incident/31437539</id>
     <published>2026-09-15T11:14:44Z</published>
@@ -199,13 +207,5 @@
     <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/005ym4vzrq2w"/>
     <title>Service disruption on Claude services</title>
     <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;14&lt;/var&gt;, &lt;var data-var='time'&gt;21:58&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue affecting the Claude API, Claude Code, and Claude Cowork has been resolved. Impact occurred from 20:14 to 20:38 UTC. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;14&lt;/var&gt;, &lt;var data-var='time'&gt;20:44&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Monitoring&lt;/strong&gt; - A fix has been deployed for the issue affecting the Claude API, Claude Code, and Claude Cowork and we are monitoring for recovery. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;14&lt;/var&gt;, &lt;var data-var='time'&gt;20:44&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Identified&lt;/strong&gt; - We have identified the cause of the issue affecting the Claude API, Claude Code, and Claude Cowork and are working on a fix. We will provide an update as soon as possible. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;14&lt;/var&gt;, &lt;var data-var='time'&gt;20:30&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating reports of degraded performance affecting the Claude API, Claude Code, and Claude Cowork. We will provide an update as soon as possible. &lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <id>tag:status.claude.com,2005:Incident/31170448</id>
-    <published>2026-08-14T10:53:22Z</published>
-    <updated>2026-08-14T10:53:22Z</updated>
-    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/kmbpgrsszf72"/>
-    <title>Issues reaching status.claude.com</title>
-    <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;14&lt;/var&gt;, &lt;var data-var='time'&gt;10:53&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue resulting in users being unable to reach status.claude.com has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;14&lt;/var&gt;, &lt;var data-var='time'&gt;07:58&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are aware of issues with reaching status.claude.com, specifically regarding an invalid certificate issues. We are working to resolve these issues as soon as possible. &lt;/p&gt;</content>
   </entry>
 </feed>
