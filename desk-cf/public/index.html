@@ -311,6 +311,9 @@
 
     /* Reddit refuses a post with no flair and "No flair" is not an answer, so
        this has to be visible before the button, not after it. */
+    const titleNote = d.post && d.post.titleBy === 'template'
+      ? '<p class="flair">title composed from the event: <b>' + esc(d.post.title) + '</b> (edit it on the form if you like)</p>'
+      : '';
     const flair = !d.needs_flair ? ''
       : (d.flair && d.flair.length)
         ? '<p class="flair">set the flair to ' +
@@ -333,6 +336,7 @@
           '<button class="skip" data-skip="' + esc(d.id) + '">' +
           (d.status === 'skipped' ? 'Skipped' : 'Skip') + '</button></div>' +
         flair +
+        titleNote +
         awaiting +
         (d.why_here ? '<p class="why">' + esc(d.why_here) + '</p>' : '')
       : '<p class="blocked">No venue is routed for this one.</p>';
