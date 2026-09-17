@@ -1,16 +1,16 @@
 {
-  "fetchedAt": "2026-09-17T09:34:31.541Z",
+  "fetchedAt": "2026-09-17T14:26:44.478Z",
   "finalUrl": "https://openrouter.ai/api/v1/models",
   "userAgent": "llm-catalog-archive/1.0 (+https://github.com/MaxwellBrohm/llm-catalog-archive)",
   "status": 200,
   "etag": null,
   "lastModified": null,
-  "date": "Thu, 17 Sep 2026 09:34:31 GMT",
-  "age": null,
+  "date": "Thu, 17 Sep 2026 14:26:44 GMT",
+  "age": "102",
   "cacheControl": "public, max-age=120, stale-while-revalidate=3600, stale-if-error=3600",
-  "cfCacheStatus": "BYPASS",
+  "cfCacheStatus": "HIT",
   "contentEncoding": "gzip",
   "contentLength": null,
-  "observed_at": "2026-09-17T09:34:31.541Z",
-  "origin_date": null
+  "observed_at": "2026-09-17T14:26:44.478Z",
+  "origin_date": "2026-09-17T14:25:02.000Z"
 }
