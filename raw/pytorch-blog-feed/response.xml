@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Fri, 11 Sep 2026 13:04:23 +0000</lastBuildDate>
+	<lastBuildDate>Wed, 16 Sep 2026 22:48:18 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,692 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Open Research, Tooling &#038; Optimization at PyTorch Conference North America 2026</title>
+		<link>https://pytorch.org/blog/open-research-tooling-optimization-at-pytorch-conference-north-america-2026/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Wed, 16 Sep 2026 19:00:47 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=167741</guid>
+
+					<description><![CDATA[TL;DR Taking place October 20 to 21 in San Jose, California, PyTorch Conference North America 2026 highlights open research, tooling, and performance optimization across compiler architecture, cross-hardware kernel domain-specific languages,...]]></description>
+										<content:encoded><![CDATA[<h2>TL;DR</h2>
+<p><span style="font-weight: 400;">Taking place October 20 to 21 in San Jose, California, PyTorch Conference North America 2026 highlights open research, tooling, and performance optimization across compiler architecture, cross-hardware kernel domain-specific languages, exascale distributed training, and low-precision quantization. Read this blog to learn more.</span></p>
+<h2><span style="font-weight: 400;">Introduction</span></h2>
+<p><span style="font-weight: 400;">Every year, the beating heart of PyTorch Conference is the work that happens <em>underneath</em> the flashy headlines- the compilers, kernels, autotuners, distributed runtimes, profilers, and open-source libraries that make the rest of the ecosystem possible. At PyTorch Conference North America 2026, taking place October 20–21 in San Jose, California, this theme &#8211; </span><b>Open Research, Tooling &amp; Optimization</b><span style="font-weight: 400;"> &#8211; runs through dozens of sessions across the Core PyTorch, Kernel Engineering, Training, and Inference tracks.</span></p>
+<p><span style="font-weight: 400;">This is where you&#8217;ll find the engineers rewriting torch.compile&#8217;s internals for speed, the teams building DSLs (Helion, CuteDSL, FlyDSL) that let a single kernel target NVIDIA, AMD, Intel, and TPU silicon, the researchers pushing quantization down to FP4 and NVFP4 without losing accuracy, and the maintainers open-sourcing tools like TinyTorch, Pyrefly, LMCache, and OpenEnv so the whole community can build on their work. It&#8217;s also where PyTorch&#8217;s own maintainers are candidly discussing how AI agents are reshaping how the framework itself gets built, reviewed, and released.</span></p>
+<p><span style="font-weight: 400;">In this blog we have picked out the sessions that fall into this theme &#8211; open source tooling, systems research, and hard-won performance optimization.</span></p>
+<p><a href="https://hubs.ly/Q04tDx8f0">View the full conference schedule</a></p>
+<p><a href="https://hubs.ly/Q04tDx8f0">Register for PyTorch Conference North America 2026</a></p>
+<h2><span style="font-weight: 400;">Compilers, Graph Capture &amp; Dynamic Shapes</span></h2>
+<p><span style="font-weight: 400;">Everything to do with torch.compile, Dynamo, and the machinery that turns eager PyTorch code into a graph format that can be optimized at runtime, or used to generate artifacts for later execution</span></p>
+<p><strong>Beyond Size and Stride: Unleash Performance with Device-Aware Tensor Layouts</strong><br />
+Olivier Tardieu; Matthew Arnold (IBM)<br />
+Tue 20 Oct, 16:20–16:30, LL20AB</p>
+<p>A lightweight tensor layout extension that lets torch.compile (Inductor) automatically adapt tiling and NUMA-aware placement to the target device, without changing existing PyTorch model code.</p>
+<p><b>Nested Graph Breaks: Reducing the Cost of Graph Breaks in torch.compile</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">William Wen (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:35–16:45, LL20AB </span></p>
+<p><span style="font-weight: 400;">New Dynamo support reduces the cost of a graph break nested O(N) layers deep from O(N) duplicate breaks and O(N²) frame traces down to O(1) duplicate breaks and O(N) frame traces &#8211; yielding larger captured graphs, fewer breaks, and faster, more debuggable compilation.</span></p>
+<p><b>Static Tensor Shape Checking for PyTorch with Pyrefly</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Steven Troxler; Avik Chaudhuri (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:55, LL20AB </span></p>
+<p><span style="font-weight: 400;">Shape mismatches cause roughly 45% of deep learning program failures and drive slow torch.compile recompilations. Pyrefly brings static, near-instant tensor shape checking to the type checker itself, evaluated across 28 real LLM, vision, recommender, and RL models.</span></p>
+<p><b>Parametrized Dynamic Shape CUDA Graphs</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Elias Ellison (Meta); Daniel Galvez (NVIDIA) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 11:45–12:10, LL21ABC </span></p>
+<p><span style="font-weight: 400;">Building on parametrized CUDA Graphs and torch.compile&#8217;s symbolic tracing and guard infrastructure, this work captures and re-parametrizes a single CUDA Graph across dynamic shapes, eliminating the need for whole-model rewrites, padding, or re-recording across every possible shape.</span></p>
+<p><b>From Backed to Unbacked: Sound, Predictable, and Controllable Dynamic Shapes in PyTorch</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Laith Sakka (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:20–16:45, LL21ABC </span></p>
+<p><span style="font-weight: 400;">This session explains why explicit graph-capture workflows (vLLM, export, pre-compilation) need unbacked dynamic shapes, which disallow implicit guards and force the compiler to prove general validity. </span></p>
+<p><b>Speeding Up torch.compile: A New FakeTensor</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Angel Li (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:05, LL21ABC </span></p>
+<p><span style="font-weight: 400;">FakeTensor propagation eats roughly 20% of Dynamo&#8217;s tracing time. This talk introduces a new C++ FakeTensor implementation that delivers a 30x speedup on operations like </span><span style="font-weight: 400;">aten.mm</span><span style="font-weight: 400;">, meaningfully cutting torch.compile&#8217;s notorious cold-start compilation time.</span></p>
+<p><b>Lightweight FX Tracing in PyTorch</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Richard Zou; Yidi Wu (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 17:10–17:20, LL21ABC </span></p>
+<p><span style="font-weight: 400;">A new FX tracer based on </span><span style="font-weight: 400;">make_fx</span><span style="font-weight: 400;">, targeting functionally pure PyTorch code instead of trying to capture full Python semantics like Dynamo. This means trading flexibility for a much simpler, more learnable, JAX-style tracing programming model for users who need a full graph.</span></p>
+<p><b>Unlocking the Full Potential of TorchDynamo: Accelerating, Comparing, and Debugging ML Systems</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Yi Pan (UC Berkeley); Megan Frisella (University of Washington); Stephanie Wang (Paul Allen School, University of Washington) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55, LL21ABC </span></p>
+<p><span style="font-weight: 400;">Research using TorchDynamo&#8217;s graph-interception capability well beyond torch.compile itself. DynaFlow and Piper for transparent parallelism acceleration, Magneton for automatically comparing equivalent operations across competing systems, and numerical debugging via matched-subgraph tensor comparison.</span></p>
+<h2><span style="font-weight: 400;">Kernel Engineering &amp; Domain-Specific Languages</span></h2>
+<p><span style="font-weight: 400;">The DSLs, autotuners, and hand- and agent-written kernels that squeeze more performance out of every GPU cycle, spanning Triton, Helion, CUTLASS, FlyDSL, and the agentic pipelines now writing and optimizing kernels themselves.</span></p>
+<p><b>Extending TorchInductor with FlyDSL: A New MLIR-Native Backend for High-Performance GEMMs</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Liz Li (AMD) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 11:10–11:35,  210BF </span></p>
+<p><span style="font-weight: 400;">AMD&#8217;s FlyDSL, a Python-native, MLIR-based GPU kernel DSL, gets integrated into TorchInductor&#8217;s GEMM compilation pipeline. The talk covers how FlyDSL plugs into autotuning, coexists with existing backends, and delivers measured speedups over Triton on AMD Instinct GPUs.</span></p>
+<p><b>Helion: CuteDSL and TPU Backends for Heterogeneous Hardware, and Why It Suits Agents</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Oguz Ulgen, Dunfan Lu, Jason Ansel (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 11:45–12:10, 210BF </span></p>
+<p><span style="font-weight: 400;">Helion, PyTorch&#8217;s high-level kernel-authoring DSL, gains two new compiler backends &#8211; CuteDSL for recent NVIDIA GPUs and Pallas for TPUs &#8211; letting one kernel source target very different hardware. The second half explores why Helion&#8217;s abstraction level is particularly well suited to LLM-agent-generated kernel code.</span></p>
+<p><b>Practical GPU Programming with Triton for PyTorch Developers</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Suman Debnath, JanakiRam Goteti (Crusoe AI) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 11:45–12:10,  LL20CD</span></p>
+<p><span style="font-weight: 400;">A friendly, from-scratch introduction to writing GPU kernels in Triton &#8211; no CUDA or C++ required.  Building from a simple vector-add up to a small matrix multiplication, with an emphasis on reading and understanding what PyTorch already generates for you.</span></p>
+<p><b>High-Velocity GPU Kernel Authoring with CUTLASS Python</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Michael Goldfarb, Guray Ozen (NVIDIA) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 12:20–12:45, 210BF </span></p>
+<p><span style="font-weight: 400;">New Python-first capabilities in CUTLASS&#8217;s CuTe DSL &#8211; high-level building blocks, low-level hardware-instruction primitives, and a zero-cost Resource and Task Scheduler &#8211; that reduce boilerplate for kernel authors while keeping the DSL&#8217;s zero-cost abstractions intact.</span></p>
+<p><b>Smarter Autotuning for Kernels: From Bayesian Optimization to LLM-Guided Search in Helion DSL</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Jongsok Choi; Ethan Che (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 14:15–14:40,  210BF </span></p>
+<p><span style="font-weight: 400;">Two leaps in Helion&#8217;s autotuning: Likelihood-Free Bayesian Optimization (LFBO), which cuts tuning time by 36.5% via an on-the-fly Random Forest filter, and LLM-guided autotuning, which proposes strong kernel configurations in seconds &#8211; up to 10x faster tuning on NVIDIA B200.</span></p>
+<p><b>KernelAgent: Hardware-Guided GPU Kernel Optimization via Multi-Agent Orchestration</b><br />
+<span style="font-weight: 400;">Kaiming Cheng; Laura Wang (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 14:15–14:40, LL21DEF </span></p>
+<p><span style="font-weight: 400;">Building on KernelAgent&#8217;s 100% correctness across all KernelBench L1/L2/L3 tasks, this talk adds a hardware-guided optimization layer that feeds GPU performance signals into a closed-loop multi-agent workflow, achieving 1.56x speedup over default torch.compile and 89% of H100 roofline efficiency.</span></p>
+<p><b>From Weeks to Overnight: Autonomous Day-0 Kernel Bring-Up with Agent Pipelines</b><br />
+<span style="font-weight: 400;">Xiaogang Gu; Qun Yang (Intel) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:40, 210BF </span></p>
+<p><span style="font-weight: 400;">A pipeline-driven autonomous system that encodes GPU kernel optimization (Profile, Analyze, CodeGen, Verify, Fix, Benchmark, Evaluate) as a deterministic workflow with specialized agents per stage and long-term memory, cutting kernel bring-up cycles from weeks to unattended overnight runs.</span></p>
+<p><b>Beyond the Brrr: Building a Unified Ecosystem for Optimized Kernels</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Sayak Paul (Hugging Face) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, 210BF </span></p>
+<p><span style="font-weight: 400;">Generic operators often use only 20–30% of available GPU performance. This talk introduces Hugging Face&#8217;s Kernels library, which makes discovering and swapping in optimized custom kernels as simple as loading a model checkpoint &#8211; already delivering 2–5x speedups in production Transformers workloads.</span></p>
+<p><b>Making vLLM Faster on Intel GPUs with Triton Kernels</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Whitney Tsang, Artur Fierka (Intel) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 12:20–12:30, 210BF </span></p>
+<p><span style="font-weight: 400;">Treats Intel GPU architectures like Arc as first-class optimization targets rather than portability afterthoughts, covering Triton kernel strategies for unified attention, fused and batched MoE, and fusion opportunities like QK-norm+RoPE that outperform hand-written SYCL on key vLLM serving paths.</span></p>
+<p><b>FlexGEMM: Flexible PyTorch Epilogues</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Driss Guessous (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 12:35–12:45,  210BF </span></p>
+<p><span style="font-weight: 400;">A proposed PyTorch frontend for writing GEMM epilogues &#8211; bias, activation, residual adds, fp8 scaling, SwiGLU-style gating &#8211; as ordinary PyTorch functions, giving the compiler a clear, fail-closed contract for fusing them directly into the GEMM store path.</span></p>
+<p><b>Native DSL Operators in PyTorch Core</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Simon Layton (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 14:50–15:15, LL21ABC </span></p>
+<p><span style="font-weight: 400;">DSL-authored kernels (as used in FlashAttention) have stayed outside PyTorch&#8217;s core dispatch system. This talk presents ongoing work to make DSL operators first-class citizens, tied into dispatch and testing, enabling new operators and targeted performance fixes.</span></p>
+<p><b>Portable Paged Attention: From Triton to Helion</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Burkhard Ringlein (IBM Research) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 15:25–15:50, 210BF </span></p>
+<p><span style="font-weight: 400;">Building on the state-of-the-art portable Triton attention backend in vLLM, this team wrote an experimental Helion attention backend for Paged Attention &#8211; vLLM&#8217;s core kernel &#8211; reporting up to 50% lower latency and 10% higher end-to-end throughput than the optimized Triton version.</span></p>
+<h2><span style="font-weight: 400;">Distributed Training, Parallelism &amp; Systems</span></h2>
+<p><span style="font-weight: 400;">Systems and abstractions for training at scale — sharding, single-GPU-to-cluster developer experience, and the frameworks that decide how a model gets split across thousands of devices.</span></p>
+<p><b>Monarch &#8211; Single-Machine DevX at Distributed Scale</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Marius Eriksen (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 11:10–11:35, LL20CD </span></p>
+<p><span style="font-weight: 400;">Monarch lets developers program an entire cluster as if it were a single machine, using actor-based IPC and RDMA so remote logs, filesystems, and debugging behave like they&#8217;re local. The talk demos how it speeds up building large-scale post-training frameworks.</span></p>
+<p><b>FlexShard: Pluggable Sharding Placements for Matrix Optimizers and Block-wise Quantization</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Wei Feng; Anshul Sinha; Ailing Zhang (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, LL20CD </span></p>
+<p><span style="font-weight: 400;">A prototype PyTorch abstraction that decouples parameter sharding from FSDP&#8217;s runtime machinery via a small Placement contract, enabling optimizer-aware sharding for matrix optimizers like Muon and quantization-aligned sharding for block-wise FP8 all-gather.</span></p>
+<p><b>DeepSpeed Is Not Just ZeRO: Tensor, Sequence, and Expert Parallelism with ZeRO-Level Usability</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Masahiro Tanaka (Anyscale) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, LL21DEF </span></p>
+<p><span style="font-weight: 400;">DeepSpeed&#8217;s AutoTP, AutoSP, and AutoEP bring tensor, sequence, and expert parallelism to existing model implementations, including many Hugging Face models, without rewriting code, and can be combined with ZeRO for large dense models, long-context training, and MoE workloads.</span></p>
+<p><b>Precompile for Training</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Bob Ren; Aaron Orenstein (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 12:00–12:10, LL20CD </span></p>
+<p><span style="font-weight: 400;">A new abstraction for compiling distributed SPMD training programs once and reusing the artifact across every rank, eliminating redundant per-rank compilation, preventing divergent compiler decisions that cause NCCL hangs, and guaranteeing identical kernel selection across the cluster.</span></p>
+<p><b>From Full DTensor to spmd_types: Making Parallelism Explicit in TorchTitan</b><br />
+<span style="font-weight: 400;">Chien-Chin Huang, Pian Pawakapan (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 14:15–14:40, LL21DEF </span></p>
+<p><span style="font-weight: 400;">The evolution from an all-DTensor approach to spmd_types, a lightweight, zero-runtime-overhead type system where sharding is part of a tensor&#8217;s type, collectives are explicit, and backward gradient sharding follows predictably from forward, covering both global and local SPMD modes.</span></p>
+<p><b>AutoParallel: Automatic Discovery of Distributed Training Strategies in PyTorch</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Sanket Jayant Purandare, Francisco Massa (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 15:25–15:50, LL21DEF </span></p>
+<p><span style="font-weight: 400;">Given only a device mesh, memory budget, and sample batch, AutoParallel searches for an optimal parallelization strategy directly on the model graph &#8211; no manual FSDP/TP/SP/EP placement &#8211; matching a strong hand-tuned baseline on Llama-3 8B at 12% less memory, fully open source under meta-pytorch.</span></p>
+<h2><span style="font-weight: 400;">Communication &amp; Collective Libraries</span></h2>
+<p><span style="font-weight: 400;">The collective-communication layer underneath distributed training and inference: symmetric memory, NCCL extensions, and fault-tolerant libraries built to survive failures at exascale.</span></p>
+<p><b>EP-Overlap: Hiding Expert-Parallel Communication in MoE Training</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Sanket Jayant Purandare (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 15:25–15:35,  LL21DEF </span></p>
+<p><span style="font-weight: 400;">A general technique for hiding expert-parallel all-to-all communication behind any available compute,  not just DualPipe pipeline schedules, implemented as graph passes in TorchTitan&#8217;s GraphTrainer, hiding 76–86% of EP communication on DeepSeek-V3 for a ~1.3x throughput gain.</span></p>
+<p><b>Future of Distributed Communication in PyTorch: New APIs for Fault Tolerance, RDMA and Extensibility</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Tristan Rice, Kapil Sharma (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:20–16:45, LL21ABC</span></p>
+<p><span style="font-weight: 400;">New torch.distributed APIs incubated in TorchComms and now upstreaming directly. Live process-group reconfiguration after rank failures, one-sided RDMA put/get windows, composable collective hooks, and pip-installable backend extensibility &#8211; all with zero migration cost for existing users.</span></p>
+<p><b>rocSHMEM Symmetric Memory in PyTorch for AMD GPUs</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Prachi Gupta (AMD) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:35–16:45, LL21DEF </span></p>
+<p><span style="font-weight: 400;">Extends PyTorch&#8217;s symmetric memory, previously NVIDIA/NVSHMEM-only, to AMD GPUs via rocSHMEM, exposing one-sided put/get and signal/wait primitives as Triton-callable ops so a single Triton kernel can run MoE all-to-all dispatch and combine on either vendor&#8217;s hardware.</span></p>
+<p><b>XCCL: Scaling PyTorch Collectives to Exascale on Intel GPUs with TorchComms</b><br />
+<span style="font-weight: 400;">Panagiotis Kourdis, Tanima Dey (Intel) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 17:10–17:20, LL21ABC </span></p>
+<p><span style="font-weight: 400;">XCCL extends TorchComms with native Intel GPU support built on oneCCL, validated on Argonne&#8217;s Aurora exascale supercomputer with over 90% scaling efficiency across thousands of nodes, plus a stream-ordered async execution model that overlaps computation and communication.</span></p>
+<p><b>Beyond Collectives: Building Fused Compute-Communication Kernels with PyTorch Symmetric Memory</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Ke Wen (NVIDIA), Natalia Gimelshein, Kapil Sharma (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 11:45–12:10, 210BF </span></p>
+<p><span style="font-weight: 400;">PyTorch Symmetric Memory gives every rank a direct window into peers&#8217; GPU memory, letting communication happen inline inside a kernel rather than as a black-box collective. This covers compute–communication fusion, CuTe-DSL bindings for NCCL device primitives, and new profiling and CUDA Graph support.</span></p>
+<p><b>Introducing NCCL Extensions: Communication Patterns for Modern AI</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Sreeram Potluri, Artem Polyakov (NVIDIA)</span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:20, 210AE </span></p>
+<p><span style="font-weight: 400;">Debuts NCCL-EP, bringing tuned MoE dispatch/combine natively into NCCL with GPU-initiated RDMA and NVLink, and NCCL-M2N, enabling zero-copy resharding between disjoint device meshes for RL weight rollout. Both are built on NCCL&#8217;s new Device APIs for custom, fused communication patterns.</span></p>
+<p><b>MCCL: Fault-Tolerant Collective Communication for Large-Scale GPU Training</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Ben Carver (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55, 210AE </span></p>
+<p><span style="font-weight: 400;">The Meta Collective Communication Library (MCCL) treats hardware failure as a first-class design principle at tens-of-thousands-of-GPU scale, enabling dynamic communicator reconfiguration, shrinking and growing as ranks fail or recover, without full job restarts, integrated with TorchComms.</span></p>
+<p><span style="font-weight: 400;">Quantization &amp; Low-Precision Training</span></p>
+<p><span style="font-weight: 400;">Pushing training and inference into 4- and 8-bit formats — NVFP4, HiFloat, and the recipes that close the accuracy gap with BF16 while unlocking large throughput gains.</span></p>
+<p><b>HiFloat: Democratizing Ultra-Low Precision Training and Inference in PyTorch Ecosystems</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Yun Zhao, Haonan Zhang (Huawei) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 14:50–15:00, LL20AB </span></p>
+<p><span style="font-weight: 400;">HiFloat8 and HiFloat4 are tapered-precision formats designed to match neural network weight and gradient distributions without complex delayed scaling, achieving FP16 loss parity with a 1.5x–1.7x GEMM speedup, integrated via PyTorch custom ops, Triton kernels, and torch.compile.</span></p>
+<p><b>Efficient Pretraining of LLMs in NVFP4</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Anjulie Agrusa, Ryan Spring, Bruce Zitelli (NVIDIA) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 15:25–15:50, LL20AB </span></p>
+<p><span style="font-weight: 400;">NVFP4 GEMMs offer 2x–3x higher peak throughput than FP8 on GB200/GB300, but quality gaps persist versus BF16 at smaller model sizes. This talk presents recipe improvements that close that gap, upstreamed into TorchAO and TorchTitan for native PyTorch NVFP4 pretraining.</span></p>
+<h2><span style="font-weight: 400;">Optimizers &amp; Multi-Loss Training</span></h2>
+<p><span style="font-weight: 400;">New training algorithms and loss-aggregation techniques moving beyond AdamW and single-loss optimization.</span></p>
+<p><b>Beyond AdamW: A Practical PyTorch Walkthrough of Muon, Dion, and Orthogonalized Optimizer Variants</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Jennifer Wei (Bird of Paradise AI) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 14:50–15:15, LL21DEF </span></p>
+<p><span style="font-weight: 400;">A hands-on walkthrough of Muon&#8217;s matrix-orthogonalization approach to hidden-layer updates &#8211; momentum, Newton-Schulz iteration, parameter grouping, AdamW compatibility &#8211; bridging from single-GPU implementation to distributed training and touching on newer Dion/Dion2 developments.</span></p>
+<p><b>TorchJD: Training PyTorch Models with Multiple Losses</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Valérian Rey, Khush Patel (SimplexLab) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 15:05–15:15, LL20AB </span></p>
+<p><span style="font-weight: 400;">Now part of the PyTorch ecosystem, TorchJD implements Jacobian descent, aggregating the per-loss gradient Jacobian so parameter updates benefit every objective, with applications spanning multitask learning, machine unlearning, federated learning, and adversarial fairness.</span></p>
+<p><span style="font-weight: 400;">Reinforcement Learning Systems</span></p>
+<p><span style="font-weight: 400;">Open frameworks and infrastructure for agentic and multi-turn RL — from standardized environments to the training frameworks and numerical-consistency fixes that keep large-scale RL stable.</span></p>
+<p><b>Open Source Reinforcement Learning with Agent Harnesses</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Ben Burtenshaw (Hugging Face) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:55, 210AE </span></p>
+<p><span style="font-weight: 400;">OpenEnv is an interoperability layer, co-owned by Hugging Face, Meta, Unsloth, Prime Intellect, Modal, NVIDIA, and Mercor,  that standardizes how RL environments are published, deployed, and consumed via a consistent HTTP/WebSocket/MCP API, decoupling environments from harness and trainer choice.</span></p>
+<p><b>Torchtitan RL: A Unified and Extensible Training Framework for Agentic Tasks</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Felipe Mello, Jiani Wang (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:20–16:45, LL21DEF </span></p>
+<p><span style="font-weight: 400;">Addresses the two core instabilities in frontier-scale asynchronous RL &#8211; numerical mismatch between training and generation, and infrastructure complexity. This is done through a single shared model definition for both roles and a hackable, forkable stack built on TorchTitan&#8217;s large-scale trainer.</span></p>
+<p><b>When Rollout and Training Disagree: Lessons from Building a Mismatch-Free RL Engine</b><span style="font-weight: 400;"> Neiwen Ling (ByteDance), Tianle Zhong (University of Virginia) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:05, LL21DEF </span></p>
+<p><span style="font-weight: 400;">Introduces VeXact, an open-source rollout backend that aligns rollout log-probabilities with the training path in verl-based RL systems, showing that small token-level numerical disagreements between inference and training stacks can independently destabilize PPO/GRPO objectives.</span></p>
+<p><span style="font-weight: 400;">Inference &amp; Serving Optimization</span></p>
+<p><span style="font-weight: 400;">Tools that make LLM serving faster and cheaper to operate, from checkpoint loading to prompt caching.</span></p>
+<p><b>Faster LLM Serving Startup with fastsafetensors</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Takeshi Yoshimura (IBM) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 15:25–15:35, LL20CD </span></p>
+<p><span style="font-weight: 400;">fastsafetensors treats checkpoint loading as a data-movement problem, removing per-tensor copies and host staging to deliver 4.8x–7.5x faster model loading and up to 28 GB/s of NVMe throughput, now a portable, cross-vendor library with ROCm and Windows DirectStorage support.</span></p>
+<p><b>LMCache: A Cluster-Wide Open-Source Solution for LLM Prompt Caching</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Kuntai Du (Tensormesh, Inc.) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 15:40–15:50, LL20CD </span></p>
+<p><span style="font-weight: 400;">LMCache is one of the most widely adopted open-source prompt-caching solutions, spanning vLLM, SGLang, and TensorRT-LLM inference engines and storage backends from Mooncake to Redis to S3. This talk includes a quick tutorial for deploying it on Kubernetes.</span></p>
+<h2><span style="font-weight: 400;">Hardware Portability &amp; Accelerator Backends</span></h2>
+<p><span style="font-weight: 400;">The backends and compilers bringing native PyTorch support to TPUs, Trainium, Spyre, dataflow accelerators, Intel XPUs, and edge hardware — the work that keeps PyTorch truly hardware-agnostic.</span></p>
+<p><b>Unlocking PyTorch for Dataflow Accelerators: An Open-Source Kernel Tile IR and Dataflow Scheduler</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Prasanth Chatarasi, Bardia Mahjour, Viji Srinivasan (IBM) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, 210BF </span></p>
+<p><span style="font-weight: 400;">KTIR, an open-source MLIR-based tile IR, extends data-parallel abstractions with distributed scratchpads and inter-tile communication, paired with an architecture-agnostic dataflow scheduler. Both are open sourced and integrated with PyTorch via TorchInductor to power IBM&#8217;s Spyre accelerator.</span></p>
+<p><b>Portable PyTorch Across AI Accelerators: A Triton Operator Stack from Eager Mode to vLLM</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Yonghua Lin (Beijing Academy of Artificial Intelligence) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, LL20CD </span></p>
+<p><span style="font-weight: 400;">FlagOS is an open source Triton-based operator, compiler, and runtime stack (FlagGems, FlagTree, vllm-plugin-fl) tested on 20+ chips and architectures, enabling Day-0 support for frontier open models across NVIDIA GPUs, non-CUDA accelerators, and ARM CPUs.</span></p>
+<p><b>Integrating the IBM Spyre Accelerator</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">David Grove, Antoni Viros Martin, Avery Blanchard (IBM) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, LL21DEF </span></p>
+<p><span style="font-weight: 400;">Torch-Spyre, an open source PyTorch PrivateUse1 device with an Inductor backend for IBM&#8217;s 32-core Spyre accelerator, now runs thousands of Hugging Face and vLLM models. This talk covers device-specific tensor layouts, scratchpad tiling, and the upstream contributions that made it possible.</span></p>
+<p><b>TorchNeuron: Native PyTorch on AWS Trainium — From Research to Production Without Compromise</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Yahav Biran (Annapurna Labs) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:40, LL21ABC</span></p>
+<p><span style="font-weight: 400;">An open-source native PyTorch backend for Trainium via PrivateUse1 — change </span><span style="font-weight: 400;">.to(&#8216;cuda&#8217;)</span><span style="font-weight: 400;"> to </span><span style="font-weight: 400;">.to(&#8216;neuron&#8217;)</span><span style="font-weight: 400;"> and keep unmodified code &#8211; covering adaptive eager execution, native FSDP/DDP/TP+SP distributed support, and custom NKI kernels integrated into compiled graphs.</span></p>
+<p><b>TorchTPU: Running PyTorch Natively on Google TPUs</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Claudio Basile (Google) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, LL21ABC </span></p>
+<p><span style="font-weight: 400;">TorchTPU brings native, high-performance PyTorch to TPUs (previously JAX-only) through an ATen-to-StableHLO lowering path and &#8220;DeferAndFuse&#8221; execution for automated op fusion, integrating with vLLM for serving and TorchTitan for training, and moving to a public open-source release.</span></p>
+<p><b>Integrating TorchTPU into TorchTitan and Optimizing Models for TPUs</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Aleksey Vlasenko (Google), Will Constable (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 17:10–17:20, LL21DEF </span></p>
+<p><span style="font-weight: 400;">A concise look at the process of adding TorchTPU support into TorchTitan and optimizing selected models to run on TPU, with a direct performance comparison against GPU.</span></p>
+<p><b>From PyTorch to the Edge: Agentic Synthesis of Inference Runtimes for Heterogeneous Hardware</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Thomas Cottenier (Arm) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55, LL20AB </span></p>
+<p><span style="font-weight: 400;">An agentic harness that synthesizes bespoke inference runtimes per edge target, routing through torch.export, ExecuTorch backends, torchao quantization, or direct kernel generation as needed. This is then validated on Apple silicon against llama.cpp and MLX, then extended to Arm hardware with no existing baseline.</span></p>
+<p><b>Scaling PyTorch on Intel XPU: Field Notes from AI for Science on Aurora</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Sam Foreman (Argonne National Laboratory), Panagiotis Kourdis, Tanima Dey (Intel) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55,  LL20CD </span></p>
+<p><span style="font-weight: 400;">Field notes from training scientific foundation models in production on 63,000+ Intel XPUs on Argonne&#8217;s Aurora system, covering the migration from Megatron-DeepSpeed to torchtitan + DTensor + FSDP2, and the operational machinery (silent-hang detection, bad-node failover) that long-running jobs demand.</span></p>
+<h2><span style="font-weight: 400;">Profiling, Observability &amp; Performance Diagnostics</span></h2>
+<p><span style="font-weight: 400;">Tools and techniques for actually seeing what your PyTorch code is doing on the hardware &#8211; reading traces, diagnosing bottlenecks, and estimating memory and runtime before you touch a cluster.</span></p>
+<p><b>What You Cannot Profile, You Cannot Optimize: Learning to Read PyTorch Traces</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Aritra Roy Gosthipaty, Suvaditya Mukherjee (Hugging Face) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 14:50–15:15, LL20AB </span></p>
+<p><span style="font-weight: 400;">A Socratic, no-prerequisites walkthrough of PyTorch profiler traces, from a simple matmul-plus-bias workload up to a real GeGLU MLP, teaching durable mental models for overhead-bound vs. compute-bound execution and the CPU→ATen→cuBLAS→GPU dispatch chain.</span></p>
+<p><b>Observability Tooling for Cudagraph Workloads</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Natalia Gimelshein, Driss Guessous (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:20–16:30, LL21DEF </span></p>
+<p><span style="font-weight: 400;">CUDA graphs help solve CPU overhead on Blackwell-class hardware but make profiles harder to read. This talk covers new PyTorch utilities that make cudagraph profiling and memory monitoring information-rich with near-zero overhead, by cross-referencing capture-time and replay-time data.</span></p>
+<p><b>Five Bottlenecks, Five Fixes: Systematic Performance Diagnosis for PyTorch Distributed Training</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Paulo Aragao (Amazon Web Services) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, 210AE </span></p>
+<p><span style="font-weight: 400;">Five real case studies &#8211; from an 83x DataLoader speedup to a 6.8x end-to-end gain on an autonomous-driving model &#8211; mapped to a repeatable diagnostic framework for classifying distributed training bottlenecks as compute-, memory-, communication-, or I/O-bound.</span></p>
+<p><b>TorchInsights: Zero-GPU Memory &amp; Runtime Estimation for Distributed Training and Agentic Research</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Sanket Jayant Purandare, Aditya Venkataraman (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 17:45–17:55, LL21ABC </span></p>
+<p><span style="font-weight: 400;">Using fake tensors and simulated multi-stream GPU execution, TorchInsights predicts peak memory and runtime across FSDP/TP/EP/CP/PP configurations before touching a real cluster, published at ICML 2025 as TorchSim and fully open source under meta-pytorch.</span></p>
+<h2><span style="font-weight: 400;">Data Loading, Storage &amp; Media Pipelines</span></h2>
+<p><span style="font-weight: 400;">Feeding hungry GPUs &#8211; high-speed storage protocols, dataloader scaling, and efficient image/video/audio preprocessing.</span></p>
+<p><b>Keeping GPUs Busy: High-Speed Storage for PyTorch via fsspec</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Ankita Luthra, Trinadh Kotturu (Google) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 15:40–15:50, LL21DEF </span></p>
+<p><span style="font-weight: 400;">&#8220;Rapid Storage&#8221; brings Google&#8217;s Colossus stateful protocol to PyTorch through the fsspec interface, bypassing REST APIs via persistent gRPC streams to achieve sub-1ms random I/O latency and 6 TB/s aggregate throughput for training and checkpointing.</span></p>
+<p><b>From Bytes to Tensors: Efficient Media Processing with PyTorch in 2026</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Nicolas Hug, Scott Schneider (Meta) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:20–16:45, 210BF </span></p>
+<p><span style="font-weight: 400;">A tour of how TorchVision, TorchCodec, and TorchAudio together form an efficient end-to-end media preprocessing pipeline, plus techniques from the past year &#8211; CUDA-accelerated decoding, SIMD-optimized transforms, pre-computed frame indices &#8211; that eliminate preprocessing bottlenecks starving the GPU.</span></p>
+<p><b>Scaling PyTorch Dataloaders 10x: A Case Study</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Ian Stenbit, Christine Cheng, Dylan Doblar (NVIDIA) </span></p>
+<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:20, 210BF</span></p>
+<p><span style="font-weight: 400;">Over two years, NVIDIA&#8217;s autonomous vehicles team scaled a research dataloader to full production across thousands of GPUs, sharing lessons on profiling with Nsight and cprofiler, distributed filesystems, CUDA pipelining, and scaling video decoding to hit a 10x throughput improvement.</span></p>
+<h2><span style="font-weight: 400;">AI Agents, Open-Source Community &amp; Release Engineering</span></h2>
+<p><span style="font-weight: 400;">How AI agents are reshaping PyTorch&#8217;s own development process, plus the open-source education and release-engineering tooling that keeps the ecosystem healthy.</span></p>
+<p><b>Contributing to PyTorch with AI Agents</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Edward Yang (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 10:35–11:05, Community Expo (Birds of a Feather) </span></p>
+<p><span style="font-weight: 400;">A community discussion on how AI agents can be used productively to contribute to PyTorch itself &#8211; how to get a PR reviewed, what maintainers want to see, and lessons from the project&#8217;s own devlog on AI coding practices.</span></p>
+<p><b>Relay and Reuse: The Dual Engine Behind PyTorch Out-of-Tree Release Readiness</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Jiahao Chen, Jiahao Tan (Huawei) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 11:10–11:35, LL21DEF </span></p>
+<p><span style="font-weight: 400;">How device-agnostic test reuse and a Cross-Repo CI Relay (CRCR) let out-of-tree hardware backends ship high-quality releases within 30 days of each PyTorch update, turning 580K+ community tests into a shared safety net.</span></p>
+<p><b>Scaling PyTorch&#8217;s Compatibility Promise: A Tiered Cross-Repository CI Relay for Out-of-Tree Backends</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Subin George, Jewel K M (Red Hat) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 12:00–12:10, LL21DEF </span></p>
+<p><span style="font-weight: 400;">A deeper technical dive into CRCR&#8217;s four-tier trust model (event dispatch through blocking merge prerequisites), its DynamoDB/ClickHouse ingestion pipeline, and how it cut breakage detection for out-of-tree backends like Ascend NPU and RISC-V from days to minutes.</span></p>
+<p><b>Fighting Agents with Agents — Bringing Claude to PyTorch CI, Triage, and PR Review</b><br />
+<span style="font-weight: 400;">Driss Guessous (Meta) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 12:35–12:45, LL21DEF </span></p>
+<p><span style="font-weight: 400;">How the PyTorch project brought Claude into its own infrastructure: </span><span style="font-weight: 400;">@claude</span><span style="font-weight: 400;"> on issues and PRs, automatic issue triage, reusable onboarding skills, and CI/autorevert investigation &#8211; plus the Bedrock/OIDC setup and adoption trends behind it.</span></p>
+<p><b>From Scratch to PyTorch: Demystifying ML Frameworks by Building Your Own</b><span style="font-weight: 400;"> </span><br />
+<span style="font-weight: 400;">Andrea Mattia Garavagno (University of Genoa), Vijay Janapa Reddi (Harvard University) </span></p>
+<p><span style="font-weight: 400;">Tue 20 Oct, 14:15–14:40, LL20AB </span></p>
+<p><span style="font-weight: 400;">TinyTorch is an open-source CLI teaching tool which guides developers through rebuilding PyTorch&#8217;s foundational components &#8211; tensors, autograd, optimizers, transformers &#8211; in pure Python, closing the gap between using a framework and understanding it.</span></p>
+<h2><span style="font-weight: 400;">Conclusion</span></h2>
+<p><span style="font-weight: 400;">Taken together, these sessions tell a consistent story: the PyTorch ecosystem&#8217;s edge doesn&#8217;t just come from bigger models &#8211; it comes from relentless, open, collaborative work on the tools underneath them. Whether it&#8217;s a new DSL that lets one kernel run on five different chips, a profiler that finally makes CUDA graphs legible, or an autotuner that shaves days off a training run, this is the research and tooling that quietly makes everything else in AI possible. And because so much of it ships as open source &#8211; Helion, TinyTorch, Pyrefly, LMCache, OpenEnv, TorchJD, and dozens more &#8211; every session here is also an invitation to go build with it yourself.</span></p>
+<p><span style="font-weight: 400;">If you work anywhere near performance, compilers, distributed systems, or open-source ML infrastructure, this track alone is worth the trip. </span><a href="https://hubs.ly/Q04tDx8f0"><b>Register now for PyTorch Conference North America 2026</b></a><span style="font-weight: 400;">, taking place October 20–21 in San Jose, California, and get direct access to the people building the tools that power the next generation of open AI. Seats fill up fast for the technical breakout sessions &#8211; secure yours today.</span></p>
+<p><i>PyTorch Conference is the open source AI community&#8217;s town square. Where what&#8217;s next gets decided.</i></p>
+<p>&nbsp;</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Low Precision Flash Attention 4: End-to-End Block-Scaled Attention for Blackwell</title>
+		<link>https://pytorch.org/blog/low-precision-flash-attention-4-end-to-end-block-scaled-attention-for-blackwell/</link>
+		
+		<dc:creator><![CDATA[Dev (Devashish) Shankar, Darren Liu, Chunzhi Yang, Jackie (Jiaqi) Xu,Markus Hoehnerbach, Jason Xie, Santosh Mohan, Han Xu, Rich Zhu, Josh Fromm, Hongtao Yu, Max Leung, and John Bocharov]]></dc:creator>
+		<pubDate>Wed, 16 Sep 2026 18:55:21 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=159902</guid>
+
+					<description><![CDATA[TL;DR We extend FlashAttention-4 [1] with MXFP8 forward and backward, reaching 2.85 PF/s forward and 2 PF/s backward on LLM shapes. On our internal shapes, FA4 MX8 reaches 2.54 PF/s...]]></description>
+										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
+<p><span style="font-weight: 400;">We extend FlashAttention-4 [1] with MXFP8 forward and backward, reaching 2.85 PF/s forward and 2 PF/s backward on LLM shapes. On our internal shapes, FA4 MX8 reaches 2.54 PF/s forward and 1.58 PF/s backward, delivering up to 1.6× and 1.52× gains over BF16. We fuse quantization into the surrounding producers and develop an end-to-end zero-gather jagged module in which most activations and compute remain in FP8. This module is used internally at Meta for </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">GEM training</span></a><span style="font-weight: 400;"> [2]. To our knowledge, this is one of the first SoTA implementations of MXFP8 FA4 forward and backward being used in production training workloads. We have open sourced the code in <a class="decorated-link cursor-pointer" href="https://github.com/facebookresearch/ads_model_kernel_library/tree/main/lp_fa4" target="_new" rel="noopener" data-start="783" data-end="861">https://github.com/facebookresearch/ads_model_kernel_library/tree/main/lp_fa4</a></span></p>
+<h2><span style="font-weight: 400;">1. Introduction</span></h2>
+<p><span style="font-weight: 400;">Blackwell&#8217;s tensor cores introduce block-scaled MMA instructions (tcgen05.mma.block_scale) that operate natively on microscaling formats &#8212; MXFP8, MXFP6, MXFP4 &amp; NVFP4 &#8212; delivering 2-4x the throughput of BF16 MMA [4,5]. However, exploiting this in real training workloads requires more than just swapping the attention kernel&#8217;s data type. Scale factors must be managed in the already-saturated TMEM, quantization along the GEMM K-dimension must be handled for every operand (including online-computed intermediates like P and dS), and the overhead of converting between precisions must be overlapped so MMA can continue to execute at full speed.</span></p>
+<p><span style="font-weight: 400;">In this work, we extend the FA4 attention kernel with end-to-end MXFP8 support for both forward and backward passes, and integrate it into a cross-attention module for Ads training with fused producer and output epilogues. The key contributions are: (1) TMEM allocation strategies that fit scale factors into fully-utilized 512-column TMEM with minimal new barriers, (2) online transpose invariant square block scale quantization of dS using Blackwell&#8217;s redux.sync.max.abs.f32 warp-wide reduction, (3) fused RMSNorm+Quantize and GEMM+Quantize kernels that eliminate quantization overhead by producing FP8 output with dual scale factor layouts in a single pass, and (4) a zero-gather jagged module where FP8 data stays at unpadded positions and only the much smaller scale factors are scattered, padded, and permuted to tensor-core friendly 128-aligned addresses for TMA.</span></p>
+<h2><span style="font-weight: 400;">2. Implementation Details</span></h2>
+<h3><span style="font-weight: 400;">2.1 Attention Forward</span></h3>
+<p><span style="font-weight: 400;">Attention forward consists of the following primary operations:</span></p>
+<p><span style="font-weight: 400;">S = Q @ K.T</span></p>
+<p><span style="font-weight: 400;">P = Softmax(S)</span></p>
+<p><span style="font-weight: 400;">O = P @ V</span></p>
+<p><span style="font-weight: 400;">To enable blockscaled MMA, we follow existing CuTe DSL examples from Quack GEMM kernels and CUTLASS C++ examples [5,6]. We use TMA loads to fetch scale factors from GMEM to SMEM, and copy SFs from SMEM to TMEM before triggering the UMMA. The primary challenge here is TMEM contention, which is explained in later.</span></p>
+<p><span style="font-weight: 400;">Currently, in the softmax warp, softmax computation happens in FP32, and then the results are converted to BF16 before the PV multiplication. We convert P to MXFP8 while also computing the scales. We deep dive into the PTX optimizations done to achieve this efficiently later.</span></p>
+<p><span style="font-weight: 400;">One subtle thing to note is that for P.V blockscaled MMA to work, the scales need to be computed along the MMA K-dim. For Q and K, this is the embedding dimension (D) of attention, but for V, the scales and quantization need to be computed along the sequence dimension (N). </span></p>
+<h4><span style="font-weight: 400;">2.1.1 TMEM Allocation and barrier synchronization</span></h4>
+<p><span style="font-weight: 400;">Blackwell architecture has a fixed TMEM size of 512 column, which is completely utilized for MMA operands and accumulators in existing Blackwell FA kernels. This makes it challenging to add block scaled MMA, since scales also need to be in TMEM.</span></p>
+<p><span style="font-weight: 400;">FA4 forward uses a ping-pong computation between two Q tiles. We load  two Q tiles, Q0 &amp; Q1 of size [128, 128], and loop over K/V tiles (N dimension). The order of GEMMs is:</span></p>
+<table style="border-collapse: collapse; width: 100%; max-width: 520px; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; background: #ffffff;">
+<tbody>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>GEMM</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>Prologue</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 @ K0</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 @ K0</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>Mainloop</strong> (for n in 0 .. N-1)</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_n * V_n</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 * K_{n+1}</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_n * V_n</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 * K_{n+1}</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>Epilogue</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_N * V_N</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_N * V_N</td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-weight: 400;">This is the TMEM Alloc:</span><img fetchpriority="high" decoding="async" class="aligncenter wp-image-159911 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/1.png" alt="" width="1788" height="426" srcset="https://pytorch.org/wp-content/uploads/2026/08/1.png 1788w, https://pytorch.org/wp-content/uploads/2026/08/1-300x71.png 300w, https://pytorch.org/wp-content/uploads/2026/08/1-1024x244.png 1024w" sizes="(max-width: 1788px) 100vw, 1788px" /><span style="font-weight: 400;">As you can see, TMEM is fully utilized with no spare room for SFs. Note that we cannot overlap input SFs with the accumulator TMEM. To solve this problem, we overlap the SF’s in the following way:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">For the prologue S(i) GEMMs, we can use O(i) for S(i) SFs, as O(i) hasn’t started yet</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SFs for O(i) can live overlapped with S(i) &#8211; this is the same strategy used by regular FA which overlaps P(i) with S(i). Thus, there already exists a barrier which ensures that S(i) TMEM is consumed, before we copy O(i) SFs. We just need to choose a region in S(i) distinct from P(i). Note that for FP8, P(i) is 32 columns, vs S(i) being F32 is 128 columns. </span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SFs for S(i) live overlap with S(1-i). This requires an additional barrier between the MMA and Softmax warps, since MMA is executed asynchronously, it is possible that there is a write-write conflict between S(1-i) accumulator and S(i) SFs. Hence, we add a barrier in MMA warp which waits before copying S(i) SFs, and arrives when S(1-i)’s accumulator is read by the softmax warp. Note that this barrier doesn’t usually add any extra cost, since there is an O(i) GEMM to overlap the TMEM-&gt;reg reads that need to precede the barrier. Typically, the GEMM takes longer than TMEM-&gt;reg read.</span></li>
+</ul>
+<p><span style="font-weight: 400;">Concretely, the GEMM execution order with SF placement is shown below:</span></p>
+<table style="border-collapse: collapse; width: 100%; max-width: 1040px; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; background: #ffffff;">
+<colgroup>
+<col style="width: 50%;" />
+<col style="width: 50%;" /> </colgroup>
+<tbody>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>GEMM</strong></td>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>SF TMEM Region</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;" colspan="2"><strong>Prologue</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 @ K0</td>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;">O0 (free, not started)</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 @ K0</td>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;">O1 (free, not started)</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; height: 62px; padding: 0;" colspan="2"></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;" colspan="2"><strong>Mainloop</strong> (for n in 0 .. N-1)</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_n * V_n</td>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;">S0 (S consumed, P distinct)</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 * K_{n+1}</td>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><span style="color: #366fbc;">S1</span><br />
+<strong style="color: #c92a2a;"> (new barrier!)</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_n * V_n</td>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;">O0 (existing barrier)</td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 * K_{n+1}</td>
+<td style="border: 2px solid #111111; padding: 14px 12px;"><span style="color: #366fbc;">S0</span><br />
+<strong style="color: #c92a2a;"> (new barrier!)</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; height: 62px; padding: 0;" colspan="2"></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px;" colspan="2"><strong>Epilogue</strong></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_N * V_N</td>
+<td style="border: 2px solid #111111; padding: 14px 12px;"></td>
+</tr>
+<tr>
+<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_N * V_N</td>
+<td style="border: 2px solid #111111; padding: 14px 12px;"></td>
+</tr>
+</tbody>
+</table>
+<h4> <span style="font-weight: 400;">2.1.2 Improved unroll-KV </span></h4>
+<p><span style="font-weight: 400;">As we move to lower precision, MMA throughput increases (2x for MXFP8, 4x for MXFP4 vs BF16), the softmax warp&#8217;s SFU-bound computation stays the same. This shifts the bottleneck: softmax bubbles that were hidden behind slow BF16 MMA now become exposed.</span></p>
+<p><span style="font-weight: 400;">In the persistent kernel, the tile boundary is particularly problematic. Without unroll-KV, the last two GEMMs of a tile are both PV, followed by both QK of the next tile. Softmax for the next tile&#8217;s Q0 can&#8217;t start until QK0 completes — but QK0 can&#8217;t start until all of tile(n)&#8217;s PV GEMMs finish. This creates a bubble at every tile boundary. </span><b>Unroll-KV</b><span style="font-weight: 400;"> (inspired by </span><a href="https://pytorch.org/blog/generalized-dot-product-attention-tackling-real-world-challenges-in-gpu-training-kernels/"><span style="font-weight: 400;">GDPA</span></a><span style="font-weight: 400;">) [3] interleaves the last PV of the current tile with the first QK of the next tile:</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159927 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/2.png" alt="" width="1696" height="778" srcset="https://pytorch.org/wp-content/uploads/2026/08/2.png 1696w, https://pytorch.org/wp-content/uploads/2026/08/2-300x138.png 300w, https://pytorch.org/wp-content/uploads/2026/08/2-1024x470.png 1024w" sizes="(max-width: 1696px) 100vw, 1696px" /></p>
+<p><span style="font-weight: 400;">Now softmax for Q0 triggers one GEMM earlier, hiding the tile boundary latency behind the PV pipeline.</span></p>
+<p><span style="font-weight: 400;">However, enabling this for BF16 caused a regression: the correction warp (which processes both stages sequentially) was delayed because PV1 was pushed later, which cascaded through the softmax_corr_empty barrier into the next softmax. We fixed this by moving the barrier wait to after the row-sum computation (which has no dependency on the barrier), decoupling the correction pipeline from the critical path.</span></p>
+<h4><span style="font-weight: 400;">2.1.3 Optimized Online MXFP8 conversion</span></h4>
+<p><span style="font-weight: 400;">Since we want to do both QK and PV GEMMs using block-scaled attention, this necessitates an online conversion of the post-softmax output (P) from FP32 to MXFP8, instead of BF16. Applying blockscaling is a 3-step process. For a block x consisting of 32 elements:</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159928 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/3.png" alt="" width="606" height="150" srcset="https://pytorch.org/wp-content/uploads/2026/08/3.png 606w, https://pytorch.org/wp-content/uploads/2026/08/3-300x74.png 300w" sizes="(max-width: 606px) 100vw, 606px" /></p>
+<p><span style="font-weight: 400;">Here, a is the amax for the block, and sigma is the scaling factor. In order to do this optimally in Blackwell, we make use of 3-instruction max, and fmul2 instructions (exposed in CuteDSL nvvm) for step (1) and (3) &#8211; which happen for every element. For computing the scale factor (Step 2) &#8211; we use an optimized PTX sequence which avoids log2 and division by extracting FP32 exponent and mantissa bits.</span></p>
+<p><span style="font-weight: 400;">Additionally, we notice that computation of softmax already involves calculating row maxes for the 128 elements before the exponentiation. Since exp is a monotonically increasing function, we can re-use the max computed for softmax, thus preventing additional max operations while adding 1 exp operation per 32 elements. We find this approach to yield better performance.</span></p>
+<p><span style="font-weight: 400;">Our recent experiments indicate that performance can be further enhanced via constant scaling for P; this remains numerically robust given that the softmax operator naturally constrains outputs within the [0, 1] interval.</span></p>
+<h4><span style="font-weight: 400;">2.1.4 Handling variable sequence length tensors with TMA</span></h4>
+<p><span style="font-weight: 400;">Handling jagged data is important in Ads models, but it is especially challenging with MXFP8. Blackwell block-scaled MMA uses a </span><a href="https://docs.nvidia.com/cutlass/latest/media/docs/cpp/blackwell_functionality.html#scale-factor-layouts"><span style="font-weight: 400;">swizzled 512-byte scale-factor atom</span></a><span style="font-weight: 400;">, corresponding to the scale factors for a 128&#215;128 data tile [5]. Because jagged sequence lengths are arbitrary and often not multiples of 128, their natural offsets do not satisfy this layout requirement. Padding the full data tensors would work, but adds costly memory traffic and storage overhead. Instead, we use split addressing: only the much smaller scale-factor tensors are padded to 128-aligned positions, while the FP8 data remains compact. In the consuming GEMM or attention kernel, TMA loads use padded offsets for the scale factors and the original jagged offsets for the data. We use lightweight scatter and layout-transformation kernels to move scale factors from compact jagged layouts into the padded, swizzled layouts expected by downstream TMA loads. More generally, these kernels rearrange scale-factor bytes without changing their values, allowing each subsequent GEMM or attention kernel to consume scales directly in its preferred layout.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159929 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/4.png" alt="" width="2048" height="1090" srcset="https://pytorch.org/wp-content/uploads/2026/08/4.png 2048w, https://pytorch.org/wp-content/uploads/2026/08/4-300x160.png 300w, https://pytorch.org/wp-content/uploads/2026/08/4-1024x545.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<h3><span style="font-weight: 400;">2.2 Attention Backward</span></h3>
+<p><span style="font-weight: 400;">Attention backward consists of the following key operations:</span></p>
+<p><span style="font-weight: 400;">GEMMs:</span></p>
+<p><span style="font-weight: 400;"> S  = K   @ Q.T    </span></p>
+<p><span style="font-weight: 400;"> dP = V   @ dO.T   </span></p>
+<p><span style="font-weight: 400;"> dV = P.T @ dO     </span></p>
+<p><span style="font-weight: 400;"> dK = dS.T @ Q      </span></p>
+<p><span style="font-weight: 400;"> dQ = dS  @ K      </span></p>
+<p><span style="font-weight: 400;">Compute:</span></p>
+<p><span style="font-weight: 400;">P = softmax(S)</span></p>
+<p><span style="font-weight: 400;">dS = dsoftmax(dP, P)</span></p>
+<p><span style="font-weight: 400;">Notice that in the backward pass, several GEMMs are transposed. For instance, consider:</span></p>
+<p><span style="font-weight: 400;"> dP = V   @ dO.T </span></p>
+<p><span style="font-weight: 400;"> dV = P.T @ dO</span></p>
+<p><span style="font-weight: 400;">For the dP MMA, the dO quantization needs to be along the D (Embedding dimension), however, for the dV MMA, the quantization needs to be along the M (Sequence dimension). This is similar to what we saw with the P.V MMA in forward, where V needs to be quantized along the M-dim. However, in backward, we have GEMMs that require quantization along both axes. Note that this is a limitation of using block-scaled MMA, as quantization needs to be along the GEMM K-dim.</span></p>
+<p><span style="font-weight: 400;">To solve this problem, we quantize Q, K, and dO using square [32,32] blocks, making the E4M3 payload transpose-invariant. Both GEMMs can therefore reuse one quantized representation instead of storing separate versions. The much smaller E8M0 scales are still laid out and loaded separately for each GEMM’s required Tensor Core scale layout. dS presents a related transpose challenge. The square quantization scheme produces one representation that both dK and dQ can consume.</span></p>
+<h4><span style="font-weight: 400;">2.2.1 TMEM Allocation</span></h4>
+<p><span style="font-weight: 400;">[Note: This scheme describes the 1-CTA path. We currently are using the 1-CTA path for MX8, as it is performing better currently]</span></p>
+<p><span style="font-weight: 400;">While the forward has 2 GEMMs (S and O) with 2-stage Q pipelining across 4 accumulators, the backward has 5 GEMMs that all need TMEM space for accumulators and scale factors. The TMEM layout packs all 512 columns:</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159930 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/5.png" alt="" width="1782" height="296" srcset="https://pytorch.org/wp-content/uploads/2026/08/5.png 1782w, https://pytorch.org/wp-content/uploads/2026/08/5-300x50.png 300w, https://pytorch.org/wp-content/uploads/2026/08/5-1024x170.png 1024w" sizes="(max-width: 1782px) 100vw, 1782px" /></p>
+<p><span style="font-weight: 400;">The core constraint: dK and dV are persistent accumulators &#8212; they accumulate across the entire M-loop, so their TMEM regions are occupied for the kernel&#8217;s entire lifetime. This means SF placement can only use the S and dP regions. We use the dP region for the first 2 GEMMs (S &amp; dK), and the S region for the next 3 GEMMs. We only needed to add one additional barrier before the S GEMM, which should not add any additional cost. The TMEM allocation scheme is detailed below:</span></p>
+<table>
+<tbody>
+<tr>
+<td><b>Name</b></td>
+<td><b>GEMM SFs</b></td>
+<td><b>SF TMEM Region</b></td>
+<td><b>Why safe?</b></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Prologue</span></td>
+<td><span style="font-weight: 400;">SFK, SFQ, SFV, SFDO</span></td>
+<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;dK&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">dK</span></td>
+<td><span style="font-weight: 400;">dK free during prologue</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">S (K@Q.T)</span></td>
+<td><span style="font-weight: 400;">SFK, SFQ</span></td>
+<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;dP&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">dP</span></td>
+<td><span style="font-weight: 400;">pipeline_dP_drain.empty.wait ensures the previous dP value has been drained. In cluster-one this aliases  the existing pipeline_dP barrier.</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">dK (dS.T@Q)</span></td>
+<td><span style="font-weight: 400;">SFDS, SFQ_dK</span></td>
+<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;dP&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">dP</span></td>
+<td><span style="font-weight: 400;">Since dS is the input to the dK GEMM, existing barriers ensure the region is free to use. Note that dS only takes 32 columns as it is FP8, so we have 96 columns free.</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">dQ (dS@K)</span></td>
+<td><span style="font-weight: 400;">SFDS_dQ, SFK_dQ</span></td>
+<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;S&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">S</span></td>
+<td><span style="font-weight: 400;">pipeline_S_drain.empty.wait ensures S has been read before its TMEM region is reused.</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">dP (V@dO.T)</span></td>
+<td><span style="font-weight: 400;">SFV, SFDO</span></td>
+<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;S&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">S</span></td>
+<td><span style="font-weight: 400;">Implicit ordering</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">dV (P.T@dO)</span></td>
+<td><span style="font-weight: 400;">SFP, SFDO_dV</span></td>
+<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;S&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">S</span></td>
+<td><span style="font-weight: 400;">pipeline_S_P.empty.wait (already needed for P readiness)</span></td>
+</tr>
+</tbody>
+</table>
+<h4><span style="font-weight: 400;">2.2.2 Online square dS quantization</span></h4>
+<p><span style="font-weight: 400;">In backward, dS is computed in FP32 and consumed by two GEMMs:</span></p>
+<p><span style="font-weight: 400;">dK = dSᵀ @ Q,    dQ = dS @ K.</span></p>
+<p><span style="font-weight: 400;">We quantize each 32×32 block of dS once. Each warp lane owns 32 values and computes a thread-local absolute maximum. Blackwell’s redux.sync.max.abs.f32 instruction then reduces these 32 partial maxima across the warp to obtain the AMAX for the full block. Because the scaling region is square, it remains valid when dS is transposed. The same scale and payload can therefore feed both GEMMs.</span></p>
+<p><span style="font-weight: 400;">Quantizing dS once avoids an additional E8M0 conversion, inverse-scale multiplication, E4M3 conversion, and payload fragment. The dK and dQ MMAs still copy the shared scale into their respective hardware layouts. We find the [32, 32] square quantization to be numerically acceptable in our training workloads.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159931 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/6.png" alt="" width="1567" height="1034" srcset="https://pytorch.org/wp-content/uploads/2026/08/6.png 1567w, https://pytorch.org/wp-content/uploads/2026/08/6-300x198.png 300w, https://pytorch.org/wp-content/uploads/2026/08/6-1024x676.png 1024w" sizes="(max-width: 1567px) 100vw, 1567px" /></p>
+<h4><span style="font-weight: 400;">2.2.3 FP16 dQ Reduction</span></h4>
+<p><span style="font-weight: 400;">Through ablation studies, we identified dQ reduction as a critical throughput bottleneck. Because dQ necessitates writing a 128&#215;128 tile to GMEM during every inner-loop iteration, it substantially increases global memory bandwidth consumption. To mitigate this, we evaluated both BF16 and FP16 dQ reduction strategies, finding that FP16 dQ with static scaling yields optimal performance. Given that dQ values remain consistently small in our production workloads, this FP16 approach paired with large scale factors maintains acceptable numerical accuracy. We provide a detailed performance comparison between FP32 and FP16 dQ reduction in the results section to quantify the speedup.</span></p>
+<h3><span style="font-weight: 400;">2.3 Hiding the Q/K/V Quantization overhead</span></h3>
+<p><span style="font-weight: 400;">While we obtain good speedups for the core attention kernel, one of the key challenges is quantization overhead, especially for smaller sequence lengths. To eliminate the quantization overhead, we fuse the MXFP8 quantization into the epilogue of the preceding kernel. On our shapes, it also speeds up the preceding kernel for several shapes by reducing the data read/write or compute.</span></p>
+<p><span style="font-weight: 400;">Another challenge for the backward pass is the transpose quantization, the fact that we need to quantize Q, dO and K tensors along both axes for the backward pass. Traditional block-scaling is not transpose invariant. Initially, we tried fusing dual quantization [32, 1], [1, 32]  in the epilogue, but we found this to be slow. Our current solution uses [32, 32] square quantization, similar to SFDS_dQ. This makes the quantization transpose invariant and we just need to quantize once.</span></p>
+<h4><span style="font-weight: 400;">2.3.1 RMSNorm+Quantize</span></h4>
+<p><span style="font-weight: 400;">In the forward pass, the RMSNorm output feeds into Wq and Wk projection MXFP8 GEMMs. Rather than writing BF16 to GMEM and running a separate quantize kernel, we fuse RMSNorm + [32,32] MXFP8 quantization into a single CuTe DSL kernel.</span></p>
+<p><span style="font-weight: 400;">The kernel uses a </span><b>two-phase persistent design</b><span style="font-weight: 400;">: each CTA processes 4 tiles of 8 rows (= 32 rows, matching the [32,32] block height). Phase 1 computes RMSNorm, stores BF16 to SMEM, and accumulates per-K-block AMAX into a running max. Phase 2 reduces AMAX across all 32 rows, then reads BF16 from SMEM, scales, and converts to FP8. The two-phase split is necessary because the [32,32] AMAX requires seeing all 32 rows before quantizing, but each tile only processes 8.</span></p>
+<p><span style="font-weight: 400;">For the backward pass, we fuse two additional operations into the existing Quack RMSNorm backward kernel at </span><b>zero additional memory cost</b><span style="font-weight: 400;">: (1) x_norm = x </span><i><span style="font-weight: 400;"> </span></i><span style="font-weight: 400;">* rstd *</span> <span style="font-weight: 400;"> w reconstruction (x_hat and weight are already in registers), eliminating a separate reconstruct kernel, and (2) inline FP8 dV dequantization &#8212; dV from FA4 backward is dequantized per-iteration using scalar SF indexing and added directly to dout.</span></p>
+<h4><span style="font-weight: 400;">2.3.2 GEMM+Quantize</span></h4>
+<p><span style="font-weight: 400;">For projection GEMMs (e.g., Wq, Wk, Wv), we fuse MXFP8 quantization into the GEMM epilogue. The key idea: after MMA accumulator values move from TMEM to registers (FP32), the conversion to FP8 happens entirely in registers before writing to GMEM. The BF16 intermediate never touches global memory.</span></p>
+<p><span style="font-weight: 400;">Vectorized 128/256-bit stores and batched FP8 conversion were needed for speedups. At compute-bound shapes, the fused FP8 kernel is faster than a BF16 GEMM because FP8 MMA has 2x the throughput.</span></p>
+<p><span style="font-weight: 400;">The [32,32] variant writes FP8 data once and outputs E8M0 scales in two cuBLAS blocked layouts (K-block for FA4 forward, M-block for backward) from a single warp-wide AMAX reduction (redux.sync.max.abs.f32).</span></p>
+<h4><span style="font-weight: 400;">2.3.3 Jagged GEMM-Norm backward</span></h4>
+<p><span style="font-weight: 400;">The attention output gradient is consumed by two projection-backward GEMMs with different contraction dimensions. For self-attention, (dX = dZ @ W^T) requires scales along the feature dimension, while (dW = X^T @ dZ) requires scales along the token dimension. We therefore treat its 1.76 PFLOP/s result as performance-only, not as an accuracy-qualified comparison, and thus emit it from the above charts. We plan to open an issue in CuDNN github to investigate the issue. The PMA path follows the same principle: FA4 emits FP8 dK and dV with sequence-local [32,32] scales, from which we construct both the row-wise layout used by (dX = dK @ W) and the transposed layout used by (dW = dK^T @ X).</span></p>
+<p><span style="font-weight: 400;">The weight-gradient GEMM is especially challenging for jagged inputs because transposition makes the variable-length token dimension the GEMM K dimension. We extended the downstream Quack GEMM [6] to read FP8 values directly from compact jagged storage while addressing their scales in a separate, padded logical K space. The kernel processes each sequence as an independent K segment and reduces the resulting partial weight gradients, preventing quantization groups from crossing sequence boundaries without padding the activation tensors. Finally, the compact dX output flows directly into the norm backward; in PMA, FP8 dV dequantization and addition are also fused into that norm kernel, avoiding another materialized intermediate.</span></p>
+<h3><span style="font-weight: 400;">2.4 E2E Module</span></h3>
+<p><span style="font-weight: 400;">A primary bottleneck in optimizing Ads models stems from their relatively small tensor shapes and embedding dimensions compared to LLM workloads, which makes the models more bandwidth bound. Traditional approaches utilizing separate quantization kernels incur memory bandwidth overhead due to redundant global memory traffic, which severely degrades our MFU. To address these constraints, we adopted a specialized module design strategy, developing a suite of high-performance fused kernels and customized modules specifically optimized for the unique requirements of the GEM architecture.</span></p>
+<p><span style="font-weight: 400;">For this work, our focus was on a cross-attention module, that is common in many recommendation modules across Meta. The end-to-end execution flow is illustrated in the following diagram:</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159934 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/7.png" alt="" width="2048" height="1376" srcset="https://pytorch.org/wp-content/uploads/2026/08/7.png 2048w, https://pytorch.org/wp-content/uploads/2026/08/7-300x202.png 300w, https://pytorch.org/wp-content/uploads/2026/08/7-1024x688.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<h2><span style="font-weight: 400;">3. Results</span></h2>
+<h3><span style="font-weight: 400;">3.1 Kernel Performance</span></h3>
+<h4><span style="font-weight: 400;">3.1.1 FA4 </span></h4>
+<p><span style="font-weight: 400;">In this section we compare the OSS FA4 kernel, CuDNN 9.24, vs our forked FA4 kernel on common LLM Shapes, as well as our internal workload. Our internal workload shapes are somewhat different from the shapes used in FA4 paper, namely: 1) higher batch size, 2) Fewer heads, 3) Lower query lengths, 4) Highly jagged seq len distributions.</span></p>
+<p><span style="font-weight: 400;">We report kernel-level performance using Tensor Core throughput (TFLOP/s) and speedup relative to baseline implementations.  The benchmarks are done on Meta internal Recsys GB300 GPUs. We evaluate the following implementations:</span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><b>OSS FA4 BF16:</b><span style="font-weight: 400;"> A snapshot of the open-source FA4 implementation as of August 2, 2026.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Internal FA4 BF16:</b><span style="font-weight: 400;"> Our internal FA4 implementation, which adds persistent execution and improved variable-length scheduling.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Internal FA4 MX8:</b><span style="font-weight: 400;"> The MXFP8 extension of our internal FA4 implementation.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>cuDNN 9.24:</b><span style="font-weight: 400;"> The cuDNN BF16 baseline for forward and backward, with the MXFP8 baseline included where reported.</span></li>
+</ol>
+<p><b>LLM Shapes</b></p>
+<p><img decoding="async" class="aligncenter wp-image-159935 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/8.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/8.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/8-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/8-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">On the forward pass, FA4 MX8 reaches 2.85 PF/s, comparable to cuDNN 9.24 MX8 at 2.82 PF/s, and delivers a 1.43× gain over FA4 Internal BF16 at 2.00 PF/s.</span></li>
+</ul>
+<p><img decoding="async" class="aligncenter wp-image-159938 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/9.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/9.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/9-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/9-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">On the backward pass, FA4 MX8 reaches 1.82 PF/s with FP32 dQ accumulation and 1.98 PF/s with FP16 dQ accumulation—1.21× and 1.32× faster, respectively, than cuDNN BF16 at 1.50 PF/s. </span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">In our tests with cuDNN Frontend 1.26 and cuDNN 9.24, MXFP8 backward with nonuniform E8M0 V scales did not match the reference for dQ and dK; uniform V scales removed the discrepancy. We therefore treat its 1.76 PFLOP/s result as performance-only, not as an accuracy-qualified comparison. This backward caveat does not apply to the cuDNN MXFP8 forward results. Another notable difference is that CuDNN returns BF16 dK/dV gradients, while we return quantized gradients.</span></li>
+</ul>
+<p><b>Internal Shapes</b></p>
+<p><span style="font-weight: 400;">Forward results are shown for both jagged K (sparsity = 0.5) and uniform K (sparsity = 1.0). For shared-Q shapes, the OSS FA4 and cuDNN references use the closest supported independent-Q executions with matched attention arithmetic; the figure legends use presentation names for readability.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-159939 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/10.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/10.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/10-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/10-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-159940 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/11.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/11.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/11-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/11-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">For jagged K (sparsity = 0.5) at K max = 16384, FA4 Internal MX8 reaches 2.54 PF/s &#8212; 1.59× faster than FA4 Internal BF16 at 1.60 PF/s and within 4% of cuDNN MX8 at 2.64 PF/s.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">For uniform K (sparsity = 1.0) at K max = 16384, FA4 Internal MX8 reaches 2.59 PF/s &#8212; 1.51× faster than FA4 Internal BF16 at 1.71 PF/s and within 4% of cuDNN MX8 at 2.68 PF/s.</span></li>
+</ul>
+<p><img decoding="async" class="aligncenter wp-image-159941 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/12.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/12.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/12-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/12-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">On the backward pass, FA4 Internal MX8 reaches 1.42 PF/s with FP32 dQ accumulation and 1.58 PF/s with FP16 dQ accumulation, corresponding to 1.37× and 1.52× gains over FA4 Internal BF16 at 1.04 PF/s.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">OSS FA4 lacks some scheduler and small-Q optimizations we have done in our fork, which is why it is significantly slower on our internal shapes</span></li>
+</ul>
+<h4><span style="font-weight: 400;">3.1.2 GEMM+Quantize </span></h4>
+<p><img decoding="async" class="aligncenter wp-image-159942 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/13.png" alt="" width="1200" height="742" srcset="https://pytorch.org/wp-content/uploads/2026/08/13.png 1200w, https://pytorch.org/wp-content/uploads/2026/08/13-300x186.png 300w, https://pytorch.org/wp-content/uploads/2026/08/13-1024x633.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-159945 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/14.png" alt="" width="1200" height="742" srcset="https://pytorch.org/wp-content/uploads/2026/08/14.png 1200w, https://pytorch.org/wp-content/uploads/2026/08/14-300x186.png 300w, https://pytorch.org/wp-content/uploads/2026/08/14-1024x633.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
+<p><span style="font-weight: 400;">On B200 module shapes, fusing quantization into the GEMM epilogue raises throughput from approximately 0.20 PF/s for separate GEMM and quantization to 0.91–0.98 PF/s, a 4.4–4.7× speedup.</span></p>
+<h4><span style="font-weight: 400;">3.1.3 Fused RMSNorm+Quantize </span></h4>
+<p><img decoding="async" class="aligncenter wp-image-159946 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/15.png" alt="" width="1200" height="742" srcset="https://pytorch.org/wp-content/uploads/2026/08/15.png 1200w, https://pytorch.org/wp-content/uploads/2026/08/15-300x186.png 300w, https://pytorch.org/wp-content/uploads/2026/08/15-1024x633.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
+<p><span style="font-weight: 400;">On B200 shapes with N=512, fusing RMSNorm and MXFP8 quantization raises effective bandwidth from 0.75–0.87 TB/s to 2.6–4.0 TB/s, reaching up to a 4.7× speedup.</span></p>
+<h3><span style="font-weight: 400;">3.2 Module Performance</span></h3>
+<p><span style="font-weight: 400;">Benchmarked on a single GB300 GPU with B=768, Q=512 seed queries, D=384, and H=3; values are median compiled forward + backward latency for the PMA module, measured over 1,000 iterations after 200 warmup iterations.</span></p>
+<table>
+<thead>
+<tr>
+<th><b>KV tokens</b></th>
+<th><b>BF16 FA4 median latency (ms)</b></th>
+<th><b>MXFP8 median latency (ms)</b></th>
+<th><b>Speedup</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span style="font-weight: 400;">4,096</span></td>
+<td><span style="font-weight: 400;">10.327</span></td>
+<td><span style="font-weight: 400;">10.281</span></td>
+<td><span style="font-weight: 400;">1.00×</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">8,192</span></td>
+<td><span style="font-weight: 400;">17.348</span></td>
+<td><span style="font-weight: 400;">14.663</span></td>
+<td><span style="font-weight: 400;">1.18×</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">16,384</span></td>
+<td><span style="font-weight: 400;">31.705</span></td>
+<td><span style="font-weight: 400;">24.479</span></td>
+<td><span style="font-weight: 400;">1.30×</span></td>
+</tr>
+</tbody>
+</table>
+<h3><span style="font-weight: 400;">3.3 Numerics</span></h3>
+<p><span style="font-weight: 400;">Here we report SQNR (signal-to-quantization-noise ratio), the SNR variant where the “noise” is the difference between the MXFP8 result and the BF16 reference. Higher is better; a 10 dB increase means 10× lower error power relative to the signal. We use SQNR because activation and gradient magnitudes differ widely across tensors. </span></p>
+<p><span style="font-weight: 400;">The following table shares the numbers on production-shape synthetic run (B=768, 5,856,019 total KV tokens, maximum K=14,980, D=384, H=3, and Q=512):</span></p>
+<table>
+<thead>
+<tr>
+<th><b>Numerical row</b></th>
+<th><b>FP32 dQ</b></th>
+<th><b>FP16 dQ, 2^9</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span style="font-weight: 400;">forward_output</span></td>
+<td><span style="font-weight: 400;">18.84</span></td>
+<td><span style="font-weight: 400;">18.84</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">event_embs.grad</span></td>
+<td><span style="font-weight: 400;">26.55</span></td>
+<td><span style="font-weight: 400;">26.55</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">seed_embs grad</span></td>
+<td><span style="font-weight: 400;">27.68</span></td>
+<td><span style="font-weight: 400;">25.65</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">query_norm.weight grad</span></td>
+<td><span style="font-weight: 400;">28.02</span></td>
+<td><span style="font-weight: 400;">26.02</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">query_proj.weight grad</span></td>
+<td><span style="font-weight: 400;">27.69</span></td>
+<td><span style="font-weight: 400;">25.66</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">key_proj.weight grad</span></td>
+<td><span style="font-weight: 400;">25.15</span></td>
+<td><span style="font-weight: 400;">25.15</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Strict summary</span></td>
+<td><span style="font-weight: 400;">23 / 1 / 0</span></td>
+<td><span style="font-weight: 400;">23 / 1 / 0</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-weight: 400;">While productionizing this module for GEM training, we found MXFP8 attention to have neutral NE. Achieving numerical stability required techniques inspired by SageAttention3 [7] and Qiu et al. [8].</span></p>
+<h2><span style="font-weight: 400;">4. Conclusion</span></h2>
+<p><span style="font-weight: 400;">Block-scaled attention on Blackwell is an end-to-end systems problem, not simply a datatype substitution. We extended FA4 with MXFP8 forward and backward by co-designing TMEM allocation, pipeline scheduling, online quantization of P and dS, and lower-bandwidth dQ reduction. We then fused quantization into RMSNorm and GEMM producers and kept jagged FP8 data compact by rearranging only scale metadata, avoiding separate quantization passes and full-tensor gathers.</span></p>
+<p>&nbsp;</p>
+<p><span style="font-weight: 400;">Together, these techniques turn Blackwell’s block-scaled MMA throughput into a practical training stack for both LLM and recommendation workloads. We plan to open-source Low Precision FA4 and its supporting components in the </span><a href="https://github.com/facebookresearch/ads_model_kernel_library"><span style="font-weight: 400;">Ads Model Kernel Library</span></a><span style="font-weight: 400;"> so these techniques can be reused and extended for other low-precision attention workloads.</span></p>
+<h2><span style="font-weight: 400;">Acknowledgements</span></h2>
+<p><span style="font-weight: 400;">We are thankful to Tri Dao, Markus Hoehnerbach, Jay Shah, Ted Zadouri and Vijay Thakkar for open sourcing FlashAttention-4 [1]. We would like to thank Ying Zhang whose initial work on FP8 attention served as the foundation for this work.</span></p>
+<h2><span style="font-weight: 400;">References</span></h2>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">T. Zadouri, M. Hoehnerbach, J. Shah, T. Liu, V. Thakkar, and T. Dao. </span><a href="https://arxiv.org/abs/2603.05451"><span style="font-weight: 400;">FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling</span></a><span style="font-weight: 400;">. arXiv:2603.05451, 2026.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Meta Engineering. </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">Training GEM at LLM Scale: Meta Ads Recommendation Foundation Model</span></a><span style="font-weight: 400;">. 2026.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">PyTorch. </span><a href="https://pytorch.org/blog/generalized-dot-product-attention-tackling-real-world-challenges-in-gpu-training-kernels/"><span style="font-weight: 400;">Generalized Dot-Product Attention: Tackling Real-World Challenges in GPU Training Kernels</span></a><span style="font-weight: 400;">.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">B. D. Rouhani et al. </span><a href="https://arxiv.org/abs/2310.10537"><span style="font-weight: 400;">Microscaling Data Formats for Deep Learning</span></a><span style="font-weight: 400;">. arXiv:2310.10537, 2023.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">NVIDIA. </span><a href="https://docs.nvidia.com/cutlass/latest/media/docs/cpp/blackwell_functionality.html#scale-factor-layouts"><span style="font-weight: 400;">CUTLASS Blackwell Functionality: Scale-Factor Layouts</span></a><span style="font-weight: 400;">.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Dao-AILab. </span><a href="https://github.com/Dao-AILab/quack"><span style="font-weight: 400;">Quack: A Quirky Assortment of CuTe Kernels</span></a><span style="font-weight: 400;">.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">J. Zhang et al. </span><a href="https://arxiv.org/abs/2505.11594"><span style="font-weight: 400;">SageAttention3: Microscaling FP4 Attention for Inference and An Exploration of 8-Bit Training</span></a><span style="font-weight: 400;">. arXiv:2505.11594, 2025.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">H. Qiu and Q. Yao. </span><a href="https://arxiv.org/abs/2510.04212"><span style="font-weight: 400;">Why Low-Precision Transformer Training Fails: An Analysis on Flash Attention</span></a><span style="font-weight: 400;">. arXiv:2510.04212, 2025.</span></li>
+</ol>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Helion x 🤗 HF Kernels: Building and Shipping Out-of-the-box Performant Kernels</title>
 		<link>https://pytorch.org/blog/helion-x-%f0%9f%a4%97-hf-kernels-building-and-shipping-out-of-the-box-performant-kernels/</link>
 		
@@ -37,7 +723,8 @@
 		<guid isPermaLink="false">https://pytorch.org/?p=165024</guid>
 
 					<description><![CDATA[TL;DR The HuggingFace Kernels project now has Helion support. This blog walks through how to build, autotune, and ship performant and portable Helion kernels via the Hugging Face Kernels project,...]]></description>
-										<content:encoded><![CDATA[<h3>TL;DR</h3>
+										<content:encoded><![CDATA[<h3><img decoding="async" class="alignnone wp-image-164371 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21.png" alt="" width="1920" height="1080" srcset="https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21.png 1920w, https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21-1024x576.png 1024w" sizes="(max-width: 1920px) 100vw, 1920px" /></h3>
+<h3>TL;DR</h3>
 <p>The HuggingFace Kernels project now has Helion support. This blog walks through how to build, autotune, and ship performant and portable Helion kernels via the Hugging Face Kernels project, allowing users to consume these kernels seamlessly.</p>
 <h2>Introduction</h2>
 <p><a href="https://github.com/pytorch/helion">Helion</a> is a high-level DSL for writing high-performance, portable kernels for machine learning. The <a href="https://huggingface.co/docs/kernels/en/index"><img src="https://s.w.org/images/core/emoji/17.0.2/72x72/1f917.png" alt="🤗" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Kernels</a> project lets kernel developers package and distribute their kernels on the Hugging Face Hub platform in a consistent and reproducible manner. It also lets kernel users consume these kernels seamlessly without managing dependency hell.</p>
@@ -80,7 +767,7 @@ flash_attn_func(...)
 </code></pre>
 <p>We provide prebuilt binaries for a comprehensive compatibility matrix of ahead-of-time kernels, such as Flash Attention 3. This is quite beneficial to end users, particularly when the kernel&#8217;s upstream repository may not have a specific build available.</p>
 <p>Users can browse a wide variety of kernels on the Hugging Face Hub platform: <a href="http://hf.co/kernels">hf.co/kernels</a>:</p>
-<p><img fetchpriority="high" decoding="async" class="alignleft wp-image-164983 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png" alt="" width="1280" height="774" srcset="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png 1280w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-300x181.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-1024x619.png 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
+<p><img decoding="async" class="alignleft wp-image-164983 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png" alt="" width="1280" height="774" srcset="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png 1280w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-300x181.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-1024x619.png 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
 <p>We refer to this collection of kernels as the <strong>Kernels Hub</strong>.</p>
 <h2>Packaging and using Helion in Kernels</h2>
 <p>Helion kernels are plain Python. They compile themselves the first time you call them, so there is nothing for <span style="font-weight: 400;"><code>kernel-builder</code> </span>to compile ahead of time. Helion provides utilities to tune these kernels for specific workloads and hardware (more on that in a bit) so that users can tune once and reuse later. Helion kernels are also <em><span style="font-weight: 400;">noarch</span> </em>kernels: you ship the source, and Helion does the rest on the user&#8217;s machine.</p>
@@ -790,12 +1477,13 @@ for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
 		<guid isPermaLink="false">https://pytorch.org/?p=161911</guid>
 
 					<description><![CDATA[We are excited to announce the release of PyTorch® 2.14 (release notes)! The PyTorch 2.14 release features the following changes: NVGEMM brings CuTeDSL-generated CUTLASS kernels to Inductor, with epilogue fusion,...]]></description>
-										<content:encoded><![CDATA[<p><span style="font-weight: 400;">We are excited to announce the release of PyTorch® 2.14 (</span><a href="https://github.com/pytorch/pytorch/releases/tag/v2.14.0"><span style="font-weight: 400;">release notes</span></a><span style="font-weight: 400;">)!</span><span style="font-weight: 400;"><br />
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img decoding="async" class="alignnone wp-image-161929 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-Release-Highlights-Graphic-3.png" alt="" width="1200" height="628" srcset="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-Release-Highlights-Graphic-3.png 1200w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-Release-Highlights-Graphic-3-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-Release-Highlights-Graphic-3-1024x536.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></span></p>
+<p><span style="font-weight: 400;">We are excited to announce the release of PyTorch® 2.14 (</span><a href="https://github.com/pytorch/pytorch/releases/tag/v2.14.0"><span style="font-weight: 400;">release notes</span></a><span style="font-weight: 400;">)!</span><span style="font-weight: 400;"><br />
 </span></p>
 <p><span style="font-weight: 400;">The PyTorch 2.14 release features the following changes:</span></p>
 <ul>
 <li style="font-weight: 400;" aria-level="1"><b>NVGEMM brings CuTeDSL-generated CUTLASS kernels to Inductor,</b><span style="font-weight: 400;"> with epilogue fusion, scaled and NVFP4 GEMM, and grouped-reduction epilogues autotuned alongside Triton and ATen</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>A new nccl2 backend for PyTorch Distributed,</b><span style="font-weight: 400;"> ported from torchcomms, implementing the full collective contract with nonblocking communicators and eager communicator splitting</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>A preview of our rewritten NCCL backend for PyTorch,</b><span style="font-weight: 400;"> ported from torchcomms, implementing the full collective contract with nonblocking communicators and </span><b>advanced features such as fault tolerance and windows designed as a drop-in replacement of existing NCCL c10d backend</b></li>
 <li style="font-weight: 400;" aria-level="1"><b>Fault tolerance becomes a first-class c10d concept,</b><span style="font-weight: 400;"> with in-place process-group reconfiguration, one-sided RMA windows, and a Flight Recorder that works for any backend rather than only NCCL</span></li>
 <li style="font-weight: 400;" aria-level="1"><b>Apple Silicon gains native linear algebra,</b><span style="font-weight: 400;"> including Jacobi-kernel SVD, eigh, QR and Cholesky, alongside a five-part reduction rewrite and a further MPSGraph to Metal kernel migration</span></li>
 <li style="font-weight: 400;" aria-level="1"><b>torch.switch generalizes torch.cond to multi-way branching,</b><span style="font-weight: 400;"> and torch.while_loop can now be captured in a CUDA graph</span></li>
@@ -808,8 +1496,8 @@ for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
 </span><span style="font-weight: 400;">Bring any questions you may have about this release to our Q&amp;A Webinar. It will be on Thursday, September 17, 2026 and will feature Andrey Talman (Meta), Natalia Gimelshein (Meta), Joe Spisak (Reflection AI), and Chris Gottbrath (Gottbrath Tech, moderator) who will share an overview of the 2.14 release and provide answers to community questions about PyTorch and the new capabilities in this release. </span><a href="https://pytorch.org/event/pytorch-2-14-release-live-qa/"><span style="font-weight: 400;">Register today</span></a><span style="font-weight: 400;">.</span></p>
 <p><span style="font-weight: 400;">Connect with the global PyTorch community at the upcoming </span><a href="https://hubs.la/Q04vXWRN0"><span style="font-weight: 400;">PyTorch Conference North America</span></a><span style="font-weight: 400;"> October 20-21, 2026, in San Jose, CA. Explore what’s new with PyTorch framework with sessions spanning compiler and runtime work, distributed communication, device portability, release engineering, CI, observability, accelerator integration, contributor infrastructure, and much more. PyTorch Conference is the place for engineers, researchers and maintainers solving real problems in training, inference, kernels, applications and responsible AI to convene.</span></p>
 <p><span style="font-weight: 400;">Throughout the 2.x series, PyTorch has been evolving from a research-first framework into a unified, hardware-agnostic platform for production training and inference at scale. </span><a href="https://pytorch.org/blog/pytorch-2-12-release-blog/"><span style="font-weight: 400;">PyTorch 2.12</span></a><span style="font-weight: 400;"> added a device-agnostic </span><span style="font-weight: 400;"><code>torch.accelerator.Graph</code></span><span style="font-weight: 400;"> API and Microscaling quantization export support. </span><a href="https://pytorch.org/blog/pytorch-2-13-release-blog/"><span style="font-weight: 400;">PyTorch 2.13</span></a><span style="font-weight: 400;"> landed FlexAttention on Apple Silicon, gave Inductor a CuTeDSL code path, and introduced torchcomms for large-cluster training.</span></p>
-<p><span style="font-weight: 400;">PyTorch 2.14 builds directly on those threads. The CuTeDSL path matures into NVGEMM, a full GEMM backend with epilogue fusion and low-precision support. torchcomms lands in-tree as the nccl2 backend, with fault-tolerant reconfiguration and one-sided RMA windows raising fault tolerance from a backend detail to a c10d concept. Apple Silicon moves from attention kernels to native linear algebra, and dynamic shapes become declarative through a spec that travels across compile, export and tracing.</span></p>
-<p><span style="font-weight: 400;">PyTorch 2.14 delivers meaningful improvements across performance, reliability, and hardware support. The release introduces NVGEMM, a new GPU math backend that automatically selects the fastest kernel for matrix operations — including support for lower-precision formats that reduce memory use during training and inference. For teams training across many machines, a redesigned distributed communication backend (nccl2) offers better scalability, while new fault-tolerance features allow training jobs to recover from node failures without restarting from scratch. </span></p>
+<p><span style="font-weight: 400;">PyTorch 2.14 builds directly on those threads. The CuTeDSL path matures into NVGEMM, a full GEMM backend with epilogue fusion and low-precision support. torchcomms lands in-tree as </span><b>a preview of the rewritten NCCL backend</b><span style="font-weight: 400;">, with fault-tolerant reconfiguration and one-sided RMA windows raising fault tolerance from a backend detail to a c10d concept. Apple Silicon moves from attention kernels to native linear algebra, and dynamic shapes become declarative through a spec that travels across compile, export and tracing.</span></p>
+<p><span style="font-weight: 400;">PyTorch 2.14 delivers meaningful improvements across performance, reliability, and hardware support. The release introduces NVGEMM, a new GPU math backend that automatically selects the fastest kernel for matrix operations — including support for lower-precision formats that reduce memory use during training and inference. For teams training across many machines, </span><b>a preview of the rewritten NCCL backend</b><span style="font-weight: 400;"> offers better scalability, while new fault-tolerance features allow training jobs to recover from node failures without restarting from scratch.</span></p>
 <p><span style="font-weight: 400;">Apple Silicon users benefit from native linear-algebra routines (SVD, QR, Cholesky, and more) and a broad migration to hand-tuned Metal kernels that cut overhead on Mac GPUs. On the compiler side, new control-flow primitives (torch.switch, torch.while_loop) give model authors more flexibility when writing dynamic logic that still compiles efficiently, and a new @dynamic_spec decorator provides a single, clean way to declare which tensor dimensions can change at runtime — simplifying workflows across compilation, export, and tracing. </span></p>
 <p><span style="font-weight: 400;">Platform support expands to AMD ROCm 7.14, Intel XPU native graph capture, and NVIDIA&#8217;s next-generation Rubin architecture. Under the hood, the compiler now overlaps communication with computation by default, batches small GPU kernels more intelligently, and reduces per-call overhead — all of which add up to faster end-to-end model execution without any code changes from users.</span></p>
 <h2><span style="font-weight: 400;">Performance Improvements</span></h2>
@@ -901,16 +1589,16 @@ for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
 <p><span style="font-weight: 400;">Python 3.15 support in 2.14 is eager-only. Calling torch.compile under Python 3.15 raises a RuntimeError rather than falling back silently, so the limitation surfaces immediately rather than as a silent performance loss. If your workload depends on torch.compile, stay on Python 3.14 or earlier for now.</span></p>
 <p><span style="font-weight: 400;">Dynamo support for 3.15 is in active development, with bytecode and symbolic-conversion handling already landed for the new interpreter. Progress is tracked in </span><a href="https://github.com/pytorch/pytorch/issues/184352"><span style="font-weight: 400;">pytorch/pytorch#184352</span></a><span style="font-weight: 400;">.</span></p>
 <h2><span style="font-weight: 400;">Distributed Training</span></h2>
-<h3><span style="font-weight: 400;">nccl2 Backend</span></h3>
-<p>torchcomms arrived in 2.13 as a communications backend integrated into PyTorch Distributed&#8217;s CI and device-mesh paths. In 2.14 the APIs landed in-tree with a new <code>nccl2</code> c10d backend, gated behind <code>USE_C10D_NCCL</code>, implementing the full <code>Work</code> contract on top of a reusable <code>NcclApi</code> abstraction. The backend is eager only with new features such as one-sided windows, fault-tolerance, suspend and resume memory offload, and a greatly cleaned up implementation. A compatibility <code>nccl-lazy</code> wrapper builds per-peer P2P communicators on demand for workloads that require the old lazy initialization behavior.</p>
+<h3>Modern NCCL Backend</h3>
+<p><span style="font-weight: 400;">torchcomms arrived in 2.13 as a communications backend integrated into PyTorch Distributed&#8217;s CI and device-mesh paths. In 2.14, the APIs landed in-tree </span><b>as a drop-in replacement &#8220;</b><b>nccl2&#8243;</b><b> c10d backend, and will be default from pytorch 2.15+. </b>The backend is eager only with new features such as one-sided windows, fault-tolerance, suspend and resume memory offload, and a greatly cleaned up implementation. A compatibility <code>nccl-lazy</code> wrapper builds per-peer P2P communicators on demand for workloads that require the old lazy initialization behavior.</p>
 <p>API Unstable</p>
 <p><span style="font-weight: 400;">(PR </span><a href="https://github.com/pytorch/pytorch/pull/188582"><span style="font-weight: 400;">#188582</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/pytorch/pull/189359"><span style="font-weight: 400;">#189359</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/pytorch/pull/190943"><span style="font-weight: 400;">#190943</span></a><span style="font-weight: 400;"> and </span><a href="https://github.com/pytorch/pytorch/pull/191272"><span style="font-weight: 400;">#191272</span></a><span style="font-weight: 400;"> by Tristan Rice, Meta, </span><a href="https://github.com/pytorch/pytorch/pull/191528"><span style="font-weight: 400;">#191528</span></a><span style="font-weight: 400;"> and </span><a href="https://github.com/pytorch/pytorch/pull/192105"><span style="font-weight: 400;">#192105</span></a><span style="font-weight: 400;"> by Tushar Jain, Meta)</span></p>
 <h3><span style="font-weight: 400;">Fault-Tolerant Collectives in c10d</span></h3>
-<p><span style="font-weight: 400;">When a rank fails in a large job, the usual recovery is to tear down the process group and restart, which discards warm state across the whole cluster. </span><span style="font-weight: 400;"><code>Backend</code></span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;"><code>ProcessGroup</code></span><span style="font-weight: 400;"> now expose reconfiguration interfaces so a group can be rebuilt in place, with abort hooks and pre and post collective hooks wired through the same path. Gloo gains fault-tolerance support alongside nccl2, and the reconfigure APIs are documented.</span></p>
+<p><span style="font-weight: 400;">When a rank fails in a large job, the usual recovery is to tear down the process group and restart, which discards warm state across the whole cluster. </span><span style="font-weight: 400;">Backend</span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;">ProcessGroup</span><span style="font-weight: 400;"> now expose reconfiguration interfaces so a group can be rebuilt in place, with abort hooks and pre and post collective hooks wired through the same path. Gloo gains fault-tolerance support alongside </span><b>the rewritten NCCL backend</b><span style="font-weight: 400;">, and the reconfigure APIs are documented.</span></p>
 <p><span style="font-weight: 400;">API Unstable</span></p>
 <p><span style="font-weight: 400;">(PR </span><a href="https://github.com/pytorch/pytorch/pull/186298"><span style="font-weight: 400;">#186298</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/pytorch/pull/186300"><span style="font-weight: 400;">#186300</span></a><span style="font-weight: 400;">, </span><a href="https://github.com/pytorch/pytorch/pull/187381"><span style="font-weight: 400;">#187381</span></a><span style="font-weight: 400;"> and </span><a href="https://github.com/pytorch/pytorch/pull/191384"><span style="font-weight: 400;">#191384</span></a><span style="font-weight: 400;"> by Tristan Rice, Meta)</span></p>
 <h3><span style="font-weight: 400;">One-Sided (RMA) Window APIs</span></h3>
-<p><span style="font-weight: 400;"><code>Backend</code> and <code>ProcessGroup</code></span><span style="font-weight: 400;"> gain one-sided window interfaces, giving remote-memory-access semantics alongside the existing two-sided collectives. One-sided operations let a rank read or write peer memory without the peer posting a matching call, which suits irregular access patterns such as embedding lookups, weight transfer and expert routing. This exposes the new ncclGet and ncclPut APIs via the nccl2 backend.</span></p>
+<p><span style="font-weight: 400;">Backend</span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;">ProcessGroup</span><span style="font-weight: 400;"> gain one-sided window interfaces, giving remote-memory-access semantics alongside the existing two-sided collectives. One-sided operations let a rank read or write peer memory without the peer posting a matching call, which suits irregular access patterns such as embedding lookups, weight transfer and expert routing. This exposes the new ncclGet and ncclPut APIs via </span><b>the rewritten NCCL backend</b><span style="font-weight: 400;">.</span></p>
 <p><span style="font-weight: 400;">API Unstable</span></p>
 <p><span style="font-weight: 400;">(PR </span><a href="https://github.com/pytorch/pytorch/pull/186299"><span style="font-weight: 400;">#186299</span></a><span style="font-weight: 400;"> and </span><a href="https://github.com/pytorch/pytorch/pull/189360"><span style="font-weight: 400;">#189360</span></a><span style="font-weight: 400;"> by Tristan Rice, Meta)</span></p>
 <h3><span style="font-weight: 400;">Backend-Agnostic Flight Recorder</span></h3>
@@ -1318,350 +2006,7 @@ for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
 		
 		
 			</item>
-		<item>
-		<title>vLLM Sessions at PyTorch Conference North America 2026</title>
-		<link>https://pytorch.org/blog/vllm-sessions-at-pytorch-conference-north-america-2026/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Fri, 28 Aug 2026 21:30:18 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<category><![CDATA[PyTorch Conference]]></category>
-		<category><![CDATA[PyTorch Conference North America]]></category>
-		<category><![CDATA[vLLM]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=160393</guid>
-
-					<description><![CDATA[TL;DR PyTorch Conference North America 2026 features vLLM across sessions on KV cache management and disaggregated serving, hardware portability, kernel optimization, PyTorch integration, Mixture-of-Experts inference, attention, and production serving. vLLM...]]></description>
-										<content:encoded><![CDATA[<h3><b>TL;DR</b></h3>
-<p>PyTorch Conference North America 2026 features vLLM across sessions on KV cache management and disaggregated serving, hardware portability, kernel optimization, PyTorch integration, Mixture-of-Experts inference, attention, and production serving.</p>
-<h3><b>vLLM at #PyTorchCon NA</b></h3>
-<p><span style="font-weight: 400;">PyTorch Conference North America 2026 comes to San Jose, CA, October 20–21, with technical talks, live demos, lightning talks, sponsored sessions, a keynote, and a Birds of a Feather discussion featuring vLLM.</span></p>
-<p>Across the program, vLLM appears in sessions on serving architecture and KV cache work, hardware portability, kernel and performance optimization, and PyTorch integration. Additional sessions cover Mixture-of-Experts inference, attention, production deployment, broader application stacks, and open source contribution.</p>
-<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
-<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026</span></a></p>
-<h3><strong data-start="1641" data-end="1701">Serving Architecture, KV Cache, and Production Inference</strong></h3>
-<h4><b>A Developer’s Guide to Attention in vLLM</b></h4>
-<p><b>Lucas Wilkinson, Red Hat; Matthew Bonanni, Red Hat</b><b><br />
-</b><b>October 20, 11:45 a.m.–12:10 p.m. | LL20AB | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session explains how vLLM represents, serves, and optimizes attention as models adopt approaches including sliding windows, sparsity, compression, linear variants, and hybrid attention.</span></p>
-<p><span style="font-weight: 400;">The speakers cover attention backends, KV-cache connectors, and the hybrid memory allocator, along with a recent overhaul of vLLM’s attention abstractions, what changed, and how the new design makes emerging architectures easier and cleaner to support.</span></p>
-<h4><b>State-of-the-Art KV Transfer for Disaggregated LLM Serving in vLLM</b></h4>
-<p><b>Nicolò Lucchesi, Mistral AI; Sunita Nadampalli, Amazon; Zhanqiu Hu, Red Hat</b><b><br />
-</b><b>October 20, 2:15–2:40 p.m. | LL20CD | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session covers developments in vLLM’s disaggregated serving stack for transferring KV cache between prefill and decode. Topics include hybrid-model transfer with heterogeneous tensor parallelism, bidirectional KV transfer, the KV Push connector, and KV cache leases for reliability.</span></p>
-<p><span style="font-weight: 400;">The speakers report that KV Push reduces time to first token and that, on Nemotron, disaggregated prefill/decode Pareto-dominates co-located serving across concurrency levels.</span></p>
-<h4><b>Native Tiered KV Cache Offloading in vLLM: From Storage Offloading to Disaggregated Serving</b></h4>
-<p><b>Or Ozeri, IBM</b><b><br />
-</b><b>October 20, 2:50–3:15 p.m. | LL20CD | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This talk presents vLLM’s native tiered KV cache offloading framework, newly integrated upstream with no external dependencies.</span></p>
-<p><span style="font-weight: 400;">The framework routes transfers through CPU memory as a universal transport hub. The design minimizes GPU transfer overhead, consolidates I/O through a CPU buffer, avoids specialized transfer APIs, and remains independent of KV cache memory layout across hardware, attention backends, parallelism schemes, and model architectures.</span></p>
-<h4><b>LMCache: a cluster-wide open source solution for LLM prompt caching</b></h4>
-<p><b>Kuntai Du, Tensormesh, Inc.</b><b><br />
-</b><b>October 20, 3:40–3:50 p.m. | LL20CD | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">LMCache provides prompt caching across inference engines including vLLM, SGLang, and TensorRT-LLM and storage systems including Mooncake, Redis, and AWS S3.</span></p>
-<p><span style="font-weight: 400;">The session includes a tutorial on deploying LMCache in Kubernetes along with the techniques and research behind its prompt-caching approach.</span></p>
-<h4><b>vLLM KV Cache Management for Model-Specific Requirements</b></h4>
-<p><b>Mengqing Cao, Huawei</b><b><br />
-</b><b>October 20, 5:30–5:40 p.m. | LL20CD | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This session addresses KV cache requirements that vary across model architectures including MLA, SWA, Eagle, and DeepSeek-V4.</span></p>
-<p><span style="font-weight: 400;">It proposes a model-customized KV Cache Planner built around a default planner plus model-specific planners for requirements such as spec grouping, block-size derivation, cache tensor creation, and </span><span style="font-weight: 400;">max_model_len</span><span style="font-weight: 400;"> adjustment.</span></p>
-<h4><b>Elastic Expert Parallelism in vLLM</b></h4>
-<p><b>Itay Alroy, NVIDIA</b><b><br />
-</b><b>October 21, 2:50–3:15 p.m. | LL20CD | Breakout Session</b></p>
-<p><span style="font-weight: 400;">Elastic Expert Parallelism enables vLLM deployments to add or remove workers at runtime and redistribute experts across the updated worker set with minimal interruption to serving.</span></p>
-<p><span style="font-weight: 400;">The session covers communication reconfiguration, CUDA Graph recapture, expert rebalancing through the EP Load Balancer, weight transfer to new GPUs, and coordination with model forward execution. It also covers how NIXL EP enables grow and shrink operations under live traffic, fault detection, reporting, and recovery.</span></p>
-<h4><b>Prefix Caching for Autoregressive Stages in Multi-Stage Pipelines</b></h4>
-<p><b>Ricardo Noriega, Red Hat; Alex Brooks, Red Hat</b><b><br />
-</b><b>October 21, 4:20–4:45 p.m. | LL20AB | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This talk explores Automatic Prefix Caching for Stage Outputs in vLLM-Omni, an approach for extending vLLM’s prefix caching to multi-stage models while minimizing GPU memory cost.</span></p>
-<p><span style="font-weight: 400;">The approach aligns external CPU tensor caches with vLLM’s native block management. The speakers also describe how vLLM-Omni dynamically discovers cacheable tensors without requiring manual configuration.</span></p>
-<h3><b>Hardware Portability and Accelerator Backends</b></h3>
-<h4><b>Sponsored: Unifying Open Source LLM Serving on Google Cloud TPUs with TorchTPU</b></h4>
-<p><b>Rob Mulla, Google</b><b><br />
-</b><b>October 20, 10:40–10:50 a.m. | Community Expo | Demo Theater</b></p>
-<p><span style="font-weight: 400;">This 10-minute demo shows TorchTPU’s native, high-performance compilation path for PyTorch models on Cloud TPUs.</span></p>
-<p><span style="font-weight: 400;">The demo highlights TorchTPU as a unified backend for inference engines including vLLM and SGLang, enabling model deployment through those serving engines with minimal code modifications.</span></p>
-<h4><b>Sponsored: PyTorch Ecosystem Running Natively on Trainium</b></h4>
-<p><b>Maen Suleiman, Amazon Web Services</b><b><br />
-</b><b>October 20, 10:55–11:05 a.m. | Community Expo | Demo Theater</b></p>
-<p><span style="font-weight: 400;">This live demo covers PyTorch workflows on Trainium through TorchNeuron, including training with TorchTitan or Hugging Face Transformers v5, serving with vLLM-Neuron, profiling with Neuron Explorer, and adding NKI kernels directly to PyTorch code.</span></p>
-<p><span style="font-weight: 400;">The session also demonstrates Neuron Agentic Development, AI-assisted tooling for kernel authoring and optimization.</span></p>
-<h4><b>One Model Definition, Many Accelerators: Scaling vLLM Across Hardware Without Forks</b></h4>
-<p><b>Thomas Parnell, IBM; Richard Zou, Meta</b><b><br />
-</b><b>October 20, 4:20–4:45 p.m. | LL20CD | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This talk presents hardware-agnostic model definitions for vLLM, an approach that separates model logic from hardware execution paths so the same model definition can run across accelerators without forks or per-platform maintenance.</span></p>
-<p><span style="font-weight: 400;">The design relies on compatibility with </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;">, well-defined extensibility hooks, and isolation from hardware-specific paths. The speakers show how the approach supports Intel Gaudi/HPU and IBM Spyre without hardware-specific modeling code.</span></p>
-<h4><b>Portable PyTorch Across AI Accelerators: A Triton Operator Stack from Eager Mode to vLLM</b></h4>
-<p><b>Yonghua Lin, Beijing Academy of Artificial Intelligence</b><b><br />
-</b><b>October 20, 4:55–5:20 p.m. | LL20CD | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session presents FlagOS, an open source system stack using a Triton-based operator, compiler, and runtime layer for PyTorch.</span></p>
-<p><span style="font-weight: 400;">FlagGems implements PyTorch eager-mode operators and LLM-critical kernels in Triton, while the same operator layer connects to vLLM through the </span><span style="font-weight: 400;">vllm-plugin-fl</span><span style="font-weight: 400;"> multi-backend plugin.</span></p>
-<p>The speakers report testing FlagOS on 20+ AI chips and architectures and say it has enabled Day-0 adaptation of models including Qwen3.5, MiniMax-M3, MiniCPM-5, and DeepSeek-V4. They report 5–40% inference performance improvement over original vendor adaptation.</p>
-<h4><b>Efficient MoE LLM Inference on Arm with vLLM and OpenVINO</b></h4>
-<p><b>Abhishek Jain, Fujitsu Research of India; N Maajid Khan, Fujitsu Research of India</b><b><br />
-</b><b>October 20, 4:55–5:05 p.m. | LL21ABC | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk presents a vLLM and OpenVINO inference stack optimized for Arm CPUs, including SVE-optimized SDPA and Paged Attention, U8 KV-cache quantization, operator fusion, KleidiAI integration, and optimized threading for 8-bit and 4-bit inference.</span></p>
-<p><span style="font-weight: 400;">For Mixture-of-Experts models, the speakers introduce a NUMA-aware GatherMatMul operator that combines dynamic token and expert selection with matrix multiplication. Benchmarks on AWS Graviton3e show approximately 2x throughput on GPTOSS/Llama models.</span></p>
-<h4><b>Integrating the IBM Spyre Accelerator</b></h4>
-<p><b>David Grove, IBM; Antoni Viros i Martin, IBM Research; Avery Blanchard, IBM Research</b><b><br />
-</b><b>October 20, 4:55–5:20 p.m. | LL21DEF | Breakout Session</b></p>
-<p><span style="font-weight: 400;">Torch-Spyre is an open source project that provides a PyTorch PrivateUse1 device with OpenReg, including an Inductor backend, for the IBM Spyre Accelerator.</span></p>
-<p><span style="font-weight: 400;">The speakers report that the IBM Spyre Accelerator can now run thousands of models from Hugging Face and vLLM through its PyTorch integration. The session covers the state of Torch-Spyre, functional enablement and performance improvements made in 2026, contributions back to PyTorch, device-specific tensor layouts, and scratchpad-optimized tiling.</span></p>
-<h4><b>Keynote: Workload Fungibility in the Age of Agents</b></h4>
-<p><b>Bill Jia, Google Cloud</b><b><br />
-</b><b>October 21, 9:15–9:25 a.m. | Grand Ballroom | Keynote</b></p>
-<p><span style="font-weight: 400;">This keynote uses TorchTPU to show PyTorch workflows across model development, training, and serving, including serving through vLLM and SGLang.</span></p>
-<p><span style="font-weight: 400;">The session also demonstrates agentic workflows for moving model workloads from GPUs to TPUs and explores their use for performance optimization tasks including quantization, custom kernel generation, and sharding strategies.</span></p>
-<h4><b>PyTorch-Native LLM Serving on TPU: SGLang and vLLM</b></h4>
-<p><b>Colin Taylor, Meta; Qi Zhou, Google; Angela Yi, Meta</b><b><br />
-</b><b>October 21, 2:15–2:40 p.m. | LL20CD | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session presents SGLang and vLLM running on TPUs through a new PyTorch-native TPU backend while preserving the serving engines’ schedulers, batching systems, OpenAI-compatible APIs, and </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;"> workflows.</span></p>
-<p><span style="font-weight: 400;">The speakers cover </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;"> lowering to TPU, Pallas attention, tensor and expert parallelism, Mixture-of-Experts execution, FP8 for large MoE models including Qwen3-Coder-480B, multimodal encoders, prefill/decode disaggregation, and speculative decoding. The speakers say both platforms will be open sourced as of the talk.</span></p>
-<h3>Kernel and Performance Optimization</h3>
-<h4><b>High-Velocity GPU Kernel Authoring with CUTLASS Python</b></h4>
-<p><b>Michael Goldfarb, NVIDIA; Guray Ozen, NVIDIA</b><b><br />
-</b><b>October 20, 12:20–12:45 p.m. | 210BF | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This talk presents new Python-first capabilities for CUTLASS CuTe DSL, which the speakers report has delivered high-performance GPU kernels in projects including FlashAttention 4, TRT-LLM, vLLM, and FlashInfer.</span></p>
-<p><span style="font-weight: 400;">The session introduces CuTe DSL extensions, CUTLASS Python Primitives for direct access to low-level hardware instructions, and the Resource and Task Scheduler, a zero-cost metaprogramming framework for static verification of asynchronous primitives.</span></p>
-<h4><b>Faster LLM Serving Startup with fastsafetensors</b></h4>
-<p><b>Takeshi Yoshimura, IBM</b><b><br />
-</b><b>October 20, 3:25–3:35 p.m. | LL20CD | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk presents fastsafetensors, an open source library for accelerating safetensors checkpoint loading in PyTorch inference systems including vLLM.</span></p>
-<p><span style="font-weight: 400;">fastsafetensors removes per-tensor copies, coalesces fragmented I/O, and skips host staging. The speakers report 4.8x to 7.5x faster model loading and up to 28 GB/s of NVMe read throughput.</span></p>
-<p><span style="font-weight: 400;">The session also covers contributions including parallel loading, 3FS integration, ROCm support, a universal wheel with runtime CUDA/ROCm detection, Windows DirectStorage exploration, and unified-memory support.</span></p>
-<h4><b>Sponsored: Quantization Showdown: PyTorch Inference Optimization</b></h4>
-<p><b>Markell Rawls, Red Hat</b><b><br />
-</b><b>October 20, 4:10–4:20 p.m. | Community Expo | Demo Theater</b></p>
-<p><span style="font-weight: 400;">This live demo examines quantization and speculative decoding using tools including LLM Compressor and vLLM.</span></p>
-<p><span style="font-weight: 400;">The session stress-tests the techniques under load to examine the performance, cost, and quality tradeoffs involved in production deployments.</span></p>
-<h4><b>From Weeks to Overnight: Autonomous Day-0 Kernel Bring-Up with Agent Pipelines</b></h4>
-<p><b>Xiaogang Gu, Intel; Qun Yang, Intel</b><b><br />
-</b><b>October 20, 5:30–5:40 p.m. | 210BF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This session presents a pipeline-driven autonomous system for GPU kernel optimization, with specialized agents handling profiling, analysis, code generation, verification, fixes, benchmarking, and evaluation in isolated contexts.</span></p>
-<p><span style="font-weight: 400;">Using real vLLM inference workloads, the speakers report reducing kernel bring-up and optimization cycles from weeks to overnight unattended runs.</span></p>
-<h4><b>Making vLLM Faster on Intel GPUs with Triton Kernels</b></h4>
-<p><b>Whitney Tsang, Intel; Artur Fierka, Intel</b><b><br />
-</b><b>October 21, 12:20–12:30 p.m. | 210BF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk examines Triton kernels for vLLM on Intel GPUs and where Triton can outperform SYCL on inference workloads.</span></p>
-<p><span style="font-weight: 400;">The speakers focus on unified attention, fused MoE, batched MoE, autotuning, tensor-descriptor-oriented kernel structure, and fusion opportunities. They also discuss where these choices improve end-to-end vLLM throughput and latency and where SYCL remains competitive.</span></p>
-<h4><b>HiFloat: Democratizing Ultra-Low Precision Training and Inference in PyTorch Ecosystems</b></h4>
-<p><b>Yun Zhao, Huawei; Haonan Zhang, Huawei</b><b><br />
-</b><b>October 21, 2:50–3:00 p.m. | LL20AB | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This session introduces HiFloat8 and HiFloat4 and demonstrates HiFloat-accelerated LLM workflows within DeepSpeed and vLLM.</span></p>
-<p><span style="font-weight: 400;">The implementation uses PyTorch custom ops, Triton-based kernels, and </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;">. In the benchmarks presented, the speakers report that HiF8 achieves final-loss parity with FP16 while delivering a 1.5x–1.7x GEMM speedup.</span></p>
-<h4><b>Portable Paged Attention: From Triton to Helion</b></h4>
-<p><b>Burkhard Ringlein, IBM Research</b><b><br />
-</b><b>October 21, 3:25–3:50 p.m. | 210BF | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session compares Triton and Helion implementations of Paged Attention and presents an experimental Helion attention backend for vLLM.</span></p>
-<p><span style="font-weight: 400;">The speaker covers differences between the two implementations, algorithm changes needed to achieve matching performance, and optimizations enabled by Helion. Early results indicate that the experimental Helion backend can reduce latency by up to 50% and improve end-to-end throughput versus Triton by up to 10%.</span></p>
-<h3>PyTorch Integration and Compatibility</h3>
-<h4><b>Shipping PyTorch and Its Ecosystem: A Modern Release Story</b></h4>
-<p><b>Andrey Talman, Meta</b><b><br />
-</b><b>October 20, 11:45–11:55 a.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk covers changes to PyTorch release engineering, including continuous validation of Triton and vLLM against PyTorch nightlies so ecosystem breakage can surface upstream before the release branch is cut.</span></p>
-<p><span style="font-weight: 400;">The session also covers a faster, more predictable release process and the use of AI agents to triage CI, separate noise from regressions, and draft fixes, while leaving final decisions with people.</span></p>
-<h4><b>Sponsored: Making Enterprise Agentic Inference Production-Ready with PyTorch and vLLM</b></h4>
-<p><b>Joseph Groenenboom, Red Hat; Tyler Michael Smith, Red Hat</b><b><br />
-</b><b>October 20, 3:25–3:50 p.m. | LL21ABC | Sponsored Session</b></p>
-<p><span style="font-weight: 400;">This session examines reliability, observability, KV cache management, and concurrency requirements for enterprise inference systems.</span></p>
-<p><span style="font-weight: 400;">The speakers cover a sample of upstream work across PyTorch, vLLM, other Foundation projects, and the broader ecosystem, from core PyTorch build infrastructure to model-serving improvements for tool calling and long-context, multi-turn chat.</span></p>
-<h4><b>Clearing the Path Towards an ABI Stable PyTorch C++ Extension Ecosystem</b></h4>
-<p><b>Sean McGovern, Red Hat; Chris Leonard, Red Hat; Jane Xu, Meta</b><b><br />
-</b><b>October 21, 2:15–2:40 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">PyTorch’s stable ABI provides a binary-compatible C interface that extensions can target across PyTorch versions without recompilation.</span></p>
-<p><span style="font-weight: 400;">This session presents tools for identifying and inventorying unstable API usage and applying source-to-source conversion with LLM-assisted follow-up. The speakers demonstrate the process on libraries including vLLM and SGLang.</span></p>
-<h4><b>From Backed to Unbacked: Sound, Predictable, and Controllable Dynamic Shapes in PyTorch</b></h4>
-<p><b>Laith Sakka, Meta</b><b><br />
-</b><b>October 21, 4:20–4:45 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This talk covers unbacked dynamic shapes for explicit graph-capture workflows including vLLM, export, and pre-compilation, as well as JIT deployments where dynamic-shape recompilation is not acceptable.</span></p>
-<p><span style="font-weight: 400;">The session covers data-dependent errors and branching, work to close the performance gap with backed shapes across TorchBench and vLLM, and APIs for shape constraints and dispatch across compiled artifacts.</span></p>
-<h3><b>vLLM in Broader Applications and Infrastructure</b></h3>
-<h4><b>Understanding Modern Vision Language Models</b></h4>
-<p><b>Aastha Jhunjhunwala, NVIDIA; Mark Moyou, NVIDIA</b><b><br />
-</b><b>October 20, 12:20–12:45 p.m. | LL20AB | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session deconstructs five open source vision-language model architectures, covering image tokenization, vision-language fusion, differences between training and inference, fine-tuning, and multi-GPU training.</span></p>
-<p><span style="font-weight: 400;">For production serving, the speakers cover image-token growth, KV-cache pressure, throughput, and where tools including vLLM fit.</span></p>
-<h4><b>Sponsored: Hardware-Aware AI: Building Agentic Systems from Cloud to Edge with PyTorch, ExecuTorch</b></h4>
-<p><b>Kavya Sri Chennoju, Arm</b><b><br />
-</b><b>October 20, 12:20–12:45 p.m. | LL20CD | Sponsored Session</b></p>
-<p><span style="font-weight: 400;">This session presents a cloud-to-edge workflow combining PyTorch for model development, ExecuTorch for on-device inference, vLLM for scalable LLM serving, and Arm Device Connect for interaction with heterogeneous hardware.</span></p>
-<p><span style="font-weight: 400;">The live workflow shows foundation models reasoning about tasks, invoking edge models, retrieving live sensor data, and coordinating physical devices.</span></p>
-<h4><b>Keeping GPUs Busy: High-Speed Storage for PyTorch via fsspec</b></h4>
-<p><b>Ankita Luthra, Google; Trinadh Kotturu, Google</b><b><br />
-</b><b>October 20, 3:40–3:50 p.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk presents Rapid Storage, which brings Google’s Colossus stateful protocol to PyTorch through </span><span style="font-weight: 400;">fsspec</span><span style="font-weight: 400;"> and uses persistent gRPC streams to the storage layer.</span></p>
-<p><span style="font-weight: 400;">The speakers report less than 1 ms random read/write latency, 20x faster data access, 6 TB/s of aggregate throughput, and 10x lower tail latency for random I/O. The integration extends through </span><span style="font-weight: 400;">gcsfs</span><span style="font-weight: 400;"> and the broader </span><span style="font-weight: 400;">fsspec</span><span style="font-weight: 400;"> ecosystem, including vLLM alongside other data and AI frameworks.</span></p>
-<h4><b>Sponsored: From Prompt to Physical Action: A Live Hardware-Aware AI Demo with PyTorch, ExecuTorch</b></h4>
-<p><b>Kavya Sri Chennoju, Arm</b><b><br />
-</b><b>October 20, 3:55–4:05 p.m. | Community Expo | Demo Theater</b></p>
-<p><span style="font-weight: 400;">This live demonstration combines PyTorch, ExecuTorch, vLLM, and Arm Device Connect in a workflow spanning cloud, edge, and embedded devices.</span></p>
-<p><span style="font-weight: 400;">Starting with a natural-language request, a large language model reasons about the task, discovers available devices, invokes edge AI models, retrieves live sensor data, and coordinates hardware through a unified programming model.</span></p>
-<h4><b>From PyTorch to Production: Serving a Physics-Constrained Generative Model with ONNX, Ray, and vLLM</b></h4>
-<p><b>Arun Sharma, University of Minnesota</b><b><br />
-</b><b>October 21, 2:50–3:15 p.m. | 210AE | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session follows a physics-constrained generative downscaling model from PyTorch training into a served stack.</span></p>
-<p><span style="font-weight: 400;">The talk covers model export through </span><span style="font-weight: 400;">torch.onnx</span><span style="font-weight: 400;"> and AOTInductor, rectified-flow sampling, physics constraints at inference, and a Ray Train recipe for scaling. The serving path combines ONNX Runtime in Rust, Temporal in Go, and a vLLM agent that calls the downscaler as a tool.</span></p>
-<h3><b>vLLM Community and Contribution</b></h3>
-<h4><b>Contributing to Inference OSS That Won’t Stand Still: A BoF on vLLM, llm-d, and the Moving Target</b></h4>
-<p><b>Maroon Ayoub, Red Hat; Nili Guy, IBM</b><b><br />
-</b><b>October 21, 10:35–11:05 a.m. | Community Expo | Birds of a Feather</b></p>
-<p><span style="font-weight: 400;">This Birds of a Feather session focuses on contributing to fast-moving inference projects including vLLM and llm-d.</span></p>
-<p><span style="font-weight: 400;">Contributors, maintainers, and prospective contributors will compare approaches to landing a first pull request, onboarding contributors, following technical decisions across project channels, and participating in cross-company open source development.</span></p>
-<h3><b>Explore the Full Program</b></h3>
-<p><span style="font-weight: 400;">These sessions include both talks centered directly on vLLM and broader sessions where vLLM is part of the serving stack, implementation, hardware integration, optimization work, or application workflow.</span></p>
-<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
-<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026</span></a></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Core PyTorch Sessions at PyTorch Conference North America 2026</title>
-		<link>https://pytorch.org/blog/core-pytorch-sessions-at-pytorch-conference-north-america-2026/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Thu, 27 Aug 2026 20:49:08 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<category><![CDATA[PyTorch Conference]]></category>
-		<category><![CDATA[PyTorch Conference North America]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=159992</guid>
-
-					<description><![CDATA[TL;DR PyTorch Conference North America 2026 features Core PyTorch sessions spanning compiler and runtime work, distributed communication, device portability, release engineering, CI, observability, accelerator integration, and contributor infrastructure. Core PyTorch...]]></description>
-										<content:encoded><![CDATA[<h2><b>TL;DR</b></h2>
-<p><span style="font-weight: 400;">PyTorch Conference North America 2026 features Core PyTorch sessions spanning compiler and runtime work, distributed communication, device portability, release engineering, CI, observability, accelerator integration, and contributor infrastructure.</span></p>
-<h3><b>Core PyTorch at #PyTorchCon NA:</b></h3>
-<p><span style="font-weight: 400;">PyTorch Conference North America 2026 comes to San Jose, CA, October 20–21, with two days of technical talks, workshops, and discussions across the open source AI stack.</span></p>
-<p><span style="font-weight: 400;">Our Core PyTorch program gets into the machinery of the framework: compiler and runtime internals, distributed communication, device abstractions, hardware integration, release engineering, CI, profiling, and compatibility. The sessions below cover the APIs, implementation work, performance results, and engineering approaches shaping how PyTorch is built and extended.</span></p>
-<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
-<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026 by September 4 to save on your ticket</span></a></p>
-<h3><b>Release Engineering, Compatibility, and Contributor Infrastructure</b></h3>
-<h4><b>Relay and Reuse: The Dual Engine Behind PyTorch Out-of-Tree Release Readiness</b></h4>
-<p><b>Jiahao Chen, Huawei; Jiahao Tan, Huawei</b><b><br />
-</b><b>October 20, 11:10–11:35 a.m. | LL21DEF | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session explains how an out-of-tree accelerator backend uses device-agnostic test reuse and cross-repository CI to keep pace with PyTorch releases. The speakers say </span><span style="font-weight: 400;">instantiate_device_type_tests</span><span style="font-weight: 400;"> and dynamic skipping make 580K+ community test cases reusable out of the box, while the Cross-Repo CI Relay validates PyTorch PRs against accelerator code before merge.</span></p>
-<p><span style="font-weight: 400;">Together, the approach supports stable out-of-tree backend releases within 30 days of each upstream update.</span></p>
-<h4><b>Shipping PyTorch and Its Ecosystem: A Modern Release Story</b></h4>
-<p><b>Andrey Talman, Meta</b><b><br />
-</b><b>October 20, 11:45–11:55 a.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk covers changes to PyTorch release engineering across three areas: a faster and more predictable release process; continuous validation of Triton and vLLM against PyTorch nightlies so breakage surfaces upstream early; and AI agents that triage CI, separate noise from regressions, and draft fixes.</span></p>
-<p><span style="font-weight: 400;">The session also examines where agents accelerate release work and where humans still make the call.</span></p>
-<h4><b>Scaling PyTorch&#8217;s Compatibility Promise: A Tiered Cross-Repository CI Relay for Out-of-Tree Backends</b></h4>
-<p><b>Subin George, Red Hat LLC; Jewel K M, Red Hat</b><b><br />
-</b><b>October 20, 12:00–12:10 p.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk presents the Cross-Repository CI Relay, or CRCR, which forwards PyTorch PR and push events to downstream repositories in real time for compatibility validation before merge. It covers a four-tier trust model ranging from event dispatch through blocking merge prerequisites, along with the relay, ingestion, visualization, and security architecture.</span></p>
-<p><span style="font-weight: 400;">The speakers report that deployment with Ascend NPU and RISC-V backends reduces breakage detection from days to minutes.</span></p>
-<h4><b>Fighting Agents with Agents Bringing Claude to PyTorch CI, triage, and PR review</b></h4>
-<p><b>Driss Guessous, Meta</b><b><br />
-</b><b>October 20, 12:35–12:45 p.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">PyTorch maintainers are reviewing an increasing number of PRs written by AI agents. This talk covers how Claude was added to PyTorch infrastructure through </span><span style="font-weight: 400;">@claude</span><span style="font-weight: 400;"> on issues and PRs, automatic issue triage, reusable onboarding for </span><span style="font-weight: 400;">pytorch</span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;">meta-pytorch</span><span style="font-weight: 400;"> repositories, PR review skills, and CI and autorevert investigation.</span></p>
-<p><span style="font-weight: 400;">The session also covers Bedrock/OIDC setup, two-stage GitHub Actions, tool allowlists, and repository-specific skills, with the stated goal of supporting maintainers rather than replacing them.</span></p>
-<h4><b>Clearing the Path Towards an ABI Stable PyTorch C++ Extension Ecosystem</b></h4>
-<p><b>Sean McGovern, Red Hat; Chris Leonard, Red Hat; Jane Xu, Meta</b><b><br />
-</b><b>October 21, 2:15–2:40 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">PyTorch&#8217;s stable ABI provides a binary-compatible C interface that extensions can target across PyTorch versions without recompilation. This session presents tools for identifying and inventorying unstable API usage and applying source-to-source conversion, with LLM-assisted follow-up for migration work.</span></p>
-<p><span style="font-weight: 400;">The speakers demonstrate the process on libraries including vLLM and SGLang.</span></p>
-<h3><b>Compiler, Runtime, Tensor, and Observability Work</b></h3>
-<h4><b>Beyond Size and Stride: Unleash Performance with Device-Aware Tensor Layouts</b></h4>
-<p><b>Olivier Tardieu, IBM; Matthew Arnold, IBM Research</b><b><br />
-</b><b>October 20, 4:20–4:30 p.m. | LL20AB | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">PyTorch tensors encode size, stride, and storage offset, but the speakers argue that these fields are insufficient to capture hardware layouts required by modern accelerators. This session introduces a tensor layout extension for device-aware specialization, including tiling and NUMA-aware placement, while preserving standard PyTorch tensor semantics.</span></p>
-<p><span style="font-weight: 400;">The speakers also demonstrate how torch.compile and Inductor can use these controls to adapt layouts to the target device and adjust computations.</span></p>
-<h4><b>Observability Tooling for Cudagraph Workloads</b></h4>
-<p><b>Natalia Gimelshein, Meta; Driss Guessous, Meta</b><b><br />
-</b><b>October 20, 4:20–4:30 p.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">Cudagraph workloads can make profiling, stream visualization, and memory tracking difficult. This talk covers PyTorch utilities for using information captured during graph capture to enrich runtime information collected during replay.</span></p>
-<p><span style="font-weight: 400;">The goal is more information-rich performance and memory monitoring at low overhead, including nearly zero-overhead always-on monitoring.</span></p>
-<h4><b>Nested Graph Breaks: Reducing the Cost of Graph Breaks in torch.compile</b></h4>
-<p><b>William Wen, Meta</b><b><br />
-</b><b>October 20, 4:35–4:45 p.m. | LL20AB | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">A nested graph break previously caused O(N) duplicate graph breaks, O(N) graphs to be traced, and O(N²) frame traces for a function call O(N) layers deep.</span></p>
-<p><span style="font-weight: 400;">This session presents nested graph break support in Dynamo, reducing those costs to O(1) duplicate graph breaks, O(1) graphs traced, and O(N) frame traces. The speakers report larger captured graphs, fewer graph breaks, reduced Dynamo trace time, and improved debuggability.</span></p>
-<h4><b>Static Tensor Shape Checking for PyTorch with Pyrefly</b></h4>
-<p><b>Steven Troxler, Meta Platforms; Avik Chaudhuri, Meta</b><b><br />
-</b><b>October 20, 5:30–5:55 p.m. | LL20AB | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session presents static tensor shape checking in the Pyrefly type checker, including inline tensor-shape hints and detection of mismatches before execution.</span></p>
-<p><span style="font-weight: 400;">The speakers cover symbolic integers, </span><span style="font-weight: 400;">Tensor</span><span style="font-weight: 400;"> and </span><span style="font-weight: 400;">Dim</span><span style="font-weight: 400;"> types, a shape-transform DSL, evaluation across 28 models spanning LLMs, vision, recommenders, and reinforcement learning, and AI-assisted annotations using a Claude skill.</span></p>
-<h4><b>TorchInsights: Zero-GPU Memory &amp; Runtime Estimation for Distributed Training and Agentic Research</b></h4>
-<p><b>Sanket Jayant Purandare, Meta; Aditya Venkataraman, Meta</b><b><br />
-</b><b>October 20, 5:45–5:55 p.m. | LL21ABC | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">TorchInsights estimates memory use and runtime for distributed training without running workloads on GPUs. Using fake tensors and fake execution, it can break down peak memory, sweep training configurations, rank parallelism plans, and simulate multi-stream GPU execution with Perfetto traces.</span></p>
-<p><span style="font-weight: 400;">The tool uses pluggable cost models and is also presented as a lower-cost evaluation loop for AI-agent auto-research before spending real GPU time.</span></p>
-<h4><b>Parametrized Dynamic Shape CUDA Graphs</b></h4>
-<p><b>Elias Ellison, Meta; Daniel Galvez, NVIDIA</b><b><br />
-</b><b>October 21, 11:45 a.m.–12:10 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">Dynamic workloads can require padding, on-device shapes, repeated recordings, or larger model changes to use CUDA Graphs. This session combines parametrized CUDA Graphs with torch.compile&#8217;s symbolic tracing and guard infrastructure to capture and re-parametrize a single CUDA Graph across dynamic shapes.</span></p>
-<p><span style="font-weight: 400;">The speakers report performance wins and reduced cold-start times for inference serving.</span></p>
-<h4><b>Native DSL Operators in PyTorch Core</b></h4>
-<p><b>Simon Layton, Meta</b><b><br />
-</b><b>October 21, 2:50–3:15 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">DSL-authored kernels have largely remained outside PyTorch core. This talk presents work toward adding DSL-authored operators as first-class citizens of PyTorch core, tying them into dispatch and testing.</span></p>
-<p><span style="font-weight: 400;">The work is intended to support new operators, highly optimized implementations, and targeted fixes for specialized performance cliffs.</span></p>
-<h4><b>From Backed to Unbacked: Sound, Predictable, and Controllable Dynamic Shapes in PyTorch</b></h4>
-<p><b>Laith Sakka, Meta</b><b><br />
-</b><b>October 21, 4:20–4:45 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">Backed dynamic shapes use symbolic sizes together with example-input hints and guards, which can allow recompilation. For workflows including vLLM, export, pre-compilation, and JIT deployments where dynamic-shape recompilation is not acceptable, this talk presents unbacked shapes, which disallow implicit guards on dynamic shapes.</span></p>
-<p><span style="font-weight: 400;">The session covers data-dependent errors and branching, work to close the performance gap with backed shapes across TorchBench and vLLM, and APIs for shape constraints and dispatch across compiled artifacts.</span></p>
-<h4 class="PDq2pG_selectionAnchorContainer" data-start="0" data-end="52"><span role="text"><strong data-start="5" data-end="52">Speeding Up torch.compile: A New FakeTensor</strong></span></h4>
-<p data-start="54" data-end="132"><strong data-start="54" data-end="72">Angel Li, Meta</strong><br data-start="72" data-end="75" /><strong data-start="75" data-end="132">October 21, 4:55–5:05 p.m. | LL21ABC | Lightning Talk</strong></p>
-<p data-start="134" data-end="308">FakeTensor is a lightweight substitute for regular tensors used by Dynamo and Inductor when building FX graphs, but its propagation contributes to torch.compile tracing time.</p>
-<p data-start="310" data-end="666">The speaker reports that one FakeTensor propagation takes around 20% of total Dynamo tracing time and that <code data-start="417" data-end="426">aten.mm</code> takes around 225 microseconds with a Python FakeTensor, while a C++ FakeTensor shows a 30x speedup for that operation. The talk covers key changes, design decisions, performance benchmarks, and integration with the torch.compile ecosystem.</p>
-<h4><b>Lightweight FX Tracing in PyTorch</b></h4>
-<p><b>Richard Zou, Meta; Yidi Wu, Meta Inc.</b><b><br />
-</b><b>October 21, 5:10–5:20 p.m. | LL21ABC | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">Dynamo traces Python bytecode and can fall back to graph breaks, but the speakers say they have received feedback that Dynamo is too heavy for use cases where users require a full graph.</span></p>
-<p><span style="font-weight: 400;">This talk presents a lightweight FX tracer based on </span><span style="font-weight: 400;">make_fx</span><span style="font-weight: 400;"> for functionally pure PyTorch code. It covers the API, its guarantees, how it differs from Dynamo, and how it interacts with other APIs.</span></p>
-<h3><b>Distributed Communication and Device Portability</b></h3>
-<h4><b>PyTorch Generalization: A Journey Toward Write Once, Run Anywhere</b></h4>
-<p><b>Yu Guangye, Intel; Eikan Wang, Intel</b><b><br />
-</b><b>October 20, 12:20–12:30 p.m. | LL21DEF | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">This talk covers ongoing work to make PyTorch APIs, runtime interfaces, and testing infrastructure less backend-specific. The speakers focus on model-level API unification across Autocast, Inductor, and graph capture and replay; </span><span style="font-weight: 400;">torch.accelerator</span><span style="font-weight: 400;"> for device, stream, event, RNG, and memory management; and test infrastructure spanning Distributed, Dynamo, Inductor, ATen operators, and more.</span></p>
-<p><span style="font-weight: 400;">The stated goal is a consistent user and developer experience across in-tree and out-of-tree backends.</span></p>
-<h4><b>Future of Distributed Communication in PyTorch: New APIs for Fault Tolerance, RDMA and Extensibility</b></h4>
-<p><b>Tristan Rice, Meta; Kapil Sharma, Meta</b><b><br />
-</b><b>October 20, 4:20–4:45 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This talk presents new APIs for fault tolerance, one-sided RDMA, collective hooks, backend extensibility, and backend interfaces. Examples include </span><span style="font-weight: 400;">torch.distributed.reconfigure()</span><span style="font-weight: 400;"> for live process-group reconfiguration after rank failures, Window APIs for one-sided put/get, composable hooks for collectives, and pip-installable backends registered through </span><span style="font-weight: 400;">entry_points</span><span style="font-weight: 400;">.</span></p>
-<p><span style="font-weight: 400;">The speakers say these features were incubated in TorchComms and are now being upstreamed into </span><span style="font-weight: 400;">torch.distributed</span><span style="font-weight: 400;">.</span></p>
-<h4 class="PDq2pG_selectionAnchorContainer" data-start="668" data-end="726"><span role="text"><strong data-start="673" data-end="726">rocSHMEM Symmetric Memory in PyTorch for AMD GPUs</strong></span></h4>
-<p data-start="728" data-end="809"><strong data-start="728" data-end="749">Prachi Gupta, AMD</strong><br data-start="749" data-end="752" /><strong data-start="752" data-end="809">October 20, 4:35–4:45 p.m. | LL21DEF | Lightning Talk</strong></p>
-<p data-start="811" data-end="1062">PyTorch symmetric memory issues communication from within device kernels, including Triton, allowing communication to overlap with computation. This talk covers extending that capability to AMD GPUs through rocSHMEM, now available in upstream PyTorch.</p>
-<p data-start="1064" data-end="1380">The session covers rocSHMEM device-side OpenSHMEM primitives exposed as Triton-callable operations, AMD-specific device-bitcode linking and HIP-module initialization behind a backend-agnostic layer shared with NVSHMEM, and a comparison with RCCL host-driven all-to-all on representative Mixture-of-Experts workloads.</p>
-<h4><b>XCCL: Scaling PyTorch Collectives to Exascale on Intel GPUs with TorchComms</b></h4>
-<p><b>Panagiotis Kourdis, Intel; Tanima Dey, Intel Corporation</b><b><br />
-</b><b>October 20, 5:10–5:20 p.m. | LL21ABC | Lightning Talk</b></p>
-<p><span style="font-weight: 400;">XCCL adds native Intel GPU support to TorchComms through an in-tree backend built on Intel&#8217;s oneCCL library.</span></p>
-<p><span style="font-weight: 400;">The speakers report over 90% scaling efficiency across thousands of nodes on Argonne National Laboratory&#8217;s Aurora system while running TorchTitan and other AI workloads. The talk also covers a stream-ordered asynchronous execution model, differences between PyTorch collective semantics and oneCCL, CI, testing on Intel hardware, and comparisons with NCCL and RCCL.</span></p>
-<h4><b>Introducing NCCL Extensions: Communication Patterns for Modern AI</b></h4>
-<p><b>Sreeram Potluri, NVIDIA; Artem Polyakov, NVIDIA</b><b><br />
-</b><b>October 21, 4:55–5:20 p.m. | 210AE | Breakout Session</b></p>
-<p><span style="font-weight: 400;">NCCL domain extensions are specialized libraries built on NCCL Device APIs for emerging communication patterns. This session introduces NCCL-EP for Mixture-of-Experts dispatch and combine and NCCL-M2N for zero-copy resharding between disjoint device meshes.</span></p>
-<p><span style="font-weight: 400;">The speakers cover their design rationale, APIs, and performance results, including the use of NCCL-M2N to move weight snapshots from trainers to inference replicas for reinforcement learning rollout without CPU staging.</span></p>
-<h3><b>Accelerator Integration and Hardware-Aware Tooling</b></h3>
-<h4><b>Integrating the IBM Spyre Accelerator</b></h4>
-<p><b>David Grove, IBM; Antoni Viros Martin, IBM Research; Avery Blanchard, IBM Research</b><b><br />
-</b><b>October 20, 4:55–5:20 p.m. | LL21DEF | Breakout Session</b></p>
-<p><span style="font-weight: 400;">Torch-Spyre is an open source project that provides a PyTorch PrivateUse1 device with OpenReg, including an Inductor backend, for the IBM Spyre Accelerator.</span></p>
-<p><span style="font-weight: 400;">The talk covers the state of Torch-Spyre, functional enablement and performance improvements made in 2026, and contributions made back to PyTorch. It also discusses device-specific tensor layouts and scratchpad-optimized tiling, with an emphasis on integration with upstream PyTorch.</span></p>
-<h4 class="PDq2pG_selectionAnchorContainer" data-start="1382" data-end="1440"><span role="text"><strong data-start="1387" data-end="1440">TorchTPU: Running PyTorch Natively on Google TPUs</strong></span></h4>
-<p class="" data-start="1442" data-end="1532"><strong data-start="1442" data-end="1468">Claudio Basile, Google</strong><br data-start="1468" data-end="1471" /><strong data-start="1471" data-end="1532">October 21, 11:10–11:35 a.m. | LL21ABC | Breakout Session</strong></p>
-<p data-start="1534" data-end="1850">This session presents TorchTPU as a high-performance, native PyTorch backend for Google TPUs. It covers an eager-first stack with ATen-to-StableHLO lowering and &#8220;DeferAndFuse&#8221; execution, an XLA stack that uses SparseCore for compute-communication overlap, bounded dynamism, and integrations with vLLM and TorchTitan.</p>
-<p data-start="1852" data-end="2045" data-is-last-node="" data-is-only-node="">The speaker reports production-scale engagements with private preview partners and describes TorchTPU as transitioning to an open source model, with a public GitHub repository release upcoming.</p>
-<h4><b>From torch.profiler to Hardware Cycles: A Practical Profiling Playbook for AWS Trainium</b></h4>
-<p><b>Esha Lakhotia, AWS Annapurna Labs; Pinak Panigrahi, Amazon</b><b><br />
-</b><b>October 21, 12:20–12:45 p.m. | LL21ABC | Breakout Session</b></p>
-<p><span style="font-weight: 400;">This session shows how the </span><span style="font-weight: 400;">torch.profiler</span><span style="font-weight: 400;"> API can be used on AWS Trainium without code changes or separate tooling, from CPU dispatch and runtime orchestration down to on-device hardware execution.</span></p>
-<p><span style="font-weight: 400;">The speakers walk through tracing slow model components to compiled operations and Python source, using cycle-level device timelines to identify bottlenecks, and AI-assisted analysis that identifies performance bottlenecks and suggests potential fixes.</span></p>
-<h3><b>Explore the Full Program</b></h3>
-<p><span style="font-weight: 400;">These sessions represent part of our Core PyTorch program across October 20 and 21. Explore the full PyTorch Conference North America program for additional sessions across training, inference, applications, kernel engineering, responsible AI, and more.</span></p>
-<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the full conference schedule</span></a></p>
-<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America 2026</span></a></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4050 metric#misses=30 metric#hit-ratio=99.3 metric#bytes=1330685 metric#prefetches=149 metric#store-reads=52 metric#store-writes=6 metric#store-hits=224 metric#store-misses=14 metric#sql-queries=9 metric#ms-total=625.40 metric#ms-cache=38.68 metric#ms-cache-avg=0.6787 metric#ms-cache-ratio=6.2 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4251 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1446047 metric#prefetches=248 metric#store-reads=36 metric#store-writes=8 metric#store-hits=257 metric#store-misses=15 metric#sql-queries=12 metric#ms-total=582.89 metric#ms-cache=22.80 metric#ms-cache-avg=0.5302 metric#ms-cache-ratio=3.9 -->
