@@ -31,6 +31,36 @@ function fact(item: FeedItem, key: string): string | null {
   return row === undefined ? null : row[1];
 }
 
+/**
+ * The catalogue's name, from the source id.
+ *
+ * `openrouter-models` is a machine key for a file on disk; the thing a reader
+ * knows is called OpenRouter. This cost the archive its single most newsworthy
+ * item: the first stealth listing it ever recorded scored 10.1 bits and was
+ * routed to Bluesky, because "in the openrouter-models catalogue" pushed the
+ * composed title to 82 characters against HN's 80. Two characters, on the story
+ * this site exists to break.
+ *
+ * NOT A PARAPHRASE. The mapping is from a source id (ours, not the vendor's)
+ * to the vendor's own name for itself, and the model id in the same title stays
+ * byte for byte. An unmapped source falls back to the raw id rather than to a
+ * guess, so a new source never gets a name it did not earn.
+ */
+const CATALOGUE_NAME: Readonly<Record<string, string>> = {
+  'openrouter-models': 'OpenRouter',
+  'groq-llms-full-txt': 'Groq',
+  'together-llms-txt': 'Together',
+  'mistral-llms-txt': 'Mistral',
+  'xai-llms-txt': 'xAI',
+  'openai-llms-txt': 'OpenAI',
+  'claude-llms-txt': 'Anthropic',
+  'perplexity-llms-txt': 'Perplexity',
+};
+
+function catalogueName(sourceId: string): string {
+  return CATALOGUE_NAME[sourceId] ?? sourceId;
+}
+
 /** `vllm-project/vllm` -> `vllm`. The repo's own short name, casing untouched. */
 function repoShort(full: string): string {
   const slash = full.lastIndexOf('/');
@@ -79,14 +109,14 @@ function compose(item: FeedItem): string | null {
     case 'stealth_listing': {
       const id = fact(item, 'catalog id');
       if (id === null) return null;
-      return `Unannounced model "${id}" appears in the ${item.sourceId} catalogue`;
+      return `Unannounced model "${id}" listed on ${catalogueName(item.sourceId)}`;
     }
     case 'model_added':
       if (ev === null || ev.type !== 'model_added') return null;
-      return `${ev.modelId} added to the ${item.sourceId} catalogue`;
+      return `${ev.modelId} added to the ${catalogueName(item.sourceId)} catalogue`;
     case 'model_removed':
       if (ev === null || ev.type !== 'model_removed') return null;
-      return `${ev.modelId} removed from the ${item.sourceId} catalogue`;
+      return `${ev.modelId} removed from the ${catalogueName(item.sourceId)} catalogue`;
     case 'retirement_floor':
       if (ev === null || ev.type !== 'retirement_floor' || ev.floorDate === null) return null;
       return `${ev.provider} sets ${ev.model} retirement for ${ev.floorDate}`;

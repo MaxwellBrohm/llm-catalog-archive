@@ -700,22 +700,44 @@ describe('a title composed from the event, never from a rewrite', () => {
   });
 
   /**
-   * THE COPY RULE, AS A PROPERTY. Every value-bearing token in a composed title
-   * must appear verbatim somewhere in the item's own facts or typed fields. A
-   * template cannot invent "DeepSeek V4" for "DeepSeek-V4-Flash-Vision-Exp"
-   * and this is what says so mechanically, over every type that has a
-   * template, so adding one that paraphrases breaks the suite.
+   * THE COPY RULE, AS A PROPERTY. Every word of a composed title is either a
+   * value copied from the item, or a connective word from the closed vocabulary
+   * below. Nothing else is permitted, and the vocabulary is the complete list
+   * of words the templates may supply, so adding a template that paraphrases
+   * ("DeepSeek V4" for "DeepSeek-V4-Flash-Vision-Exp") or that quietly editorialises
+   * ("major", "surprise") breaks the suite by name.
+   *
+   * THE FIRST VERSION OF THIS TEST WAS VACUOUS. It checked only tokens that
+   * contained a digit, a dash or a slash, on the theory that those were the
+   * "value-bearing" ones, and so it would have passed a title that inserted
+   * any plain word at all. It was caught when a catalogue name was added to a
+   * template and the test stayed green when it should have gone red. The
+   * closed-vocabulary form cannot have that hole: an unlisted word fails.
    */
-  it('puts nothing in a title that is not in the item', () => {
+  const TEMPLATE_WORDS = new Set([
+    /* connectives */ 'to', 'on', 'in', 'the', 'for', 'sets', 'adds', 'added', 'removed',
+    'from', 'merges', 'support', 'proposed', 'resolves', 'appears', 'listed', 'new',
+    'catalogue', 'codename', 'leaderboard', 'status', 'retirement', 'unannounced', 'model',
+    /* the arena's own name, from the source id arena-leaderboard */ 'arena', 'arena.ai',
+    /* catalogue names: each is the vendor's name for itself, mapped from OUR source id */
+    'openrouter', 'groq', 'together', 'mistral', 'xai', 'openai', 'anthropic', 'perplexity',
+  ]);
+
+  it('puts nothing in a title that is not in the item or the template vocabulary', () => {
     const cases: FeedItem[] = [
       leak('codename_unmasked', [['publicName', 'kiana'], ['displayName after', 'qwen3.8-max-0902']]),
       leak('codename_entered', [['publicName', 'korin']]),
       leak('upstream_pr_merged', [['repository', 'vllm-project/vllm'], ['architecture named in the title', 'Bailing V3 VL']]),
-      leak('stealth_listing', [['catalog id', 'stealth/foo-9']], { sourceId: 'openrouter-models' }),
-      item({ type: 'model_removed', id: 's:model_removed:m', sourceId: 'groq-models', sentence: 'x'.repeat(150),
+      leak('upstream_pr_opened', [['repository', 'vllm-project/vllm'], ['architecture named in the title', 'Foo-2']]),
+      leak('stealth_listing', [['catalog id', 'stealth/union-alpha']], { sourceId: 'openrouter-models' }),
+      item({ type: 'model_added', id: 's:model_added:m', sourceId: 'groq-llms-full-txt', sentence: 'x'.repeat(150),
+        event: { type: 'model_added', modelId: 'llama-9-70b', created: null, precisionSeconds: 0 } as never }),
+      item({ type: 'model_removed', id: 's:model_removed:m', sourceId: 'unmapped-source', sentence: 'x'.repeat(150),
         event: { type: 'model_removed', modelId: 'llama-9-70b', lastSeen: null } as never }),
       item({ type: 'retirement_floor', id: 's:retirement_floor:m', sentence: 'x'.repeat(150),
         event: { type: 'retirement_floor', provider: 'openai', model: 'gpt-4o', floorDate: '2026-12-01', floorText: '' } as never }),
+      item({ type: 'incident_opened', id: 's:incident_opened:i', sentence: 'x'.repeat(150),
+        event: { type: 'incident_opened', provider: 'openai', title: 'Elevated errors', url: 'https://x', published: null } as never }),
     ];
     for (const c of cases) {
       const t = hnTitle(c);
@@ -724,14 +746,30 @@ describe('a title composed from the event, never from a rewrite', () => {
         ...c.facts.map(([, v]) => v),
         c.sourceId,
         ...Object.values((c.event ?? {}) as Record<string, unknown>).filter((v): v is string => typeof v === 'string'),
-      ];
-      /* Value tokens: anything with a digit, a dash, a slash, or inside quotes. */
-      const valueTokens = t!.text.match(/"[^"]+"|[A-Za-z0-9][A-Za-z0-9.\-\/]*[0-9\-\/][A-Za-z0-9.\-\/]*/g) ?? [];
-      for (const tok of valueTokens) {
-        const bare = tok.replace(/^"|"$/g, '');
-        expect(pool.some((v) => v.includes(bare)), `${c.type}: "${bare}" is not in the item`).toBe(true);
+      ].join('\n');
+      /* Quoted spans are one value each; everything else splits on spaces. */
+      const spans = t!.text.match(/"[^"]+"|\S+/g) ?? [];
+      for (const span of spans) {
+        const bare = span.replace(/^"|"$/g, '').replace(/[.,:]$/, '');
+        const inItem = pool.includes(bare);
+        const inVocab = TEMPLATE_WORDS.has(bare.toLowerCase());
+        expect(inItem || inVocab, `${c.type}: "${bare}" is neither in the item nor in the template vocabulary`).toBe(true);
       }
     }
+  });
+
+  /** The catalogue name is a mapping from OUR id to the vendor's name; an id it does not know is left as-is, never guessed. */
+  it('leaves an unmapped source id alone rather than inventing a name', () => {
+    const t = hnTitle(item({ type: 'model_removed', id: 's:model_removed:m', sourceId: 'unmapped-source', sentence: 'x'.repeat(150),
+      event: { type: 'model_removed', modelId: 'm-1', lastSeen: null } as never }));
+    expect(t!.text).toContain('unmapped-source');
+  });
+
+  /** The 10.1-bit case, exactly as it happened, must now reach Hacker News. */
+  it('composes the first stealth listing to fit, where the raw source id did not', () => {
+    const t = hnTitle(leak('stealth_listing', [['catalog id', 'stealth/union-alpha']], { sourceId: 'openrouter-models' }));
+    expect(t).toEqual({ text: 'Unannounced model "stealth/union-alpha" listed on OpenRouter', by: 'template' });
+    expect(t!.text.length).toBeLessThanOrEqual(80);
   });
 
   it('refuses rather than truncates when the filled template is too long', () => {
