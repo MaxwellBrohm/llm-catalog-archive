@@ -1,11 +1,8 @@
 # OpenRouter | Documentation
 
 - [Quickstart](https://openrouter.ai/docs/quickstart.md): Get started with OpenRouter
-- [Batch API Quickstart](https://openrouter.ai/docs/batch-quickstart.md): Submit and retrieve asynchronous batches of inference requests
 - [Principles](https://openrouter.ai/docs/guides/overview/principles.md): Core principles and values of OpenRouter
 - [Models](https://openrouter.ai/docs/guides/overview/models.md): One API for hundreds of models
-- [MCP](https://openrouter.ai/docs/guides/overview/mcp-server.md): Connect your AI coding tools to OpenRouter over MCP
-- [Terraform Provider](https://openrouter.ai/docs/guides/overview/terraform.md): Manage OpenRouter resources as infrastructure-as-code with Terraform
 - [Multimodal Capabilities](https://openrouter.ai/docs/guides/overview/multimodal/overview.md): Send images, PDFs, audio, and video to OpenRouter models, generate speech from text, or transcribe audio to text
 - [Image Generation](https://openrouter.ai/docs/guides/overview/multimodal/image-generation.md): How to generate images with OpenRouter's dedicated Image API
 - [Video Generation](https://openrouter.ai/docs/guides/overview/multimodal/video-generation.md): How to generate videos with OpenRouter models
@@ -15,11 +12,6 @@
 - [PDF Inputs](https://openrouter.ai/docs/guides/overview/multimodal/pdfs.md): How to send PDFs to OpenRouter models
 - [Image Inputs](https://openrouter.ai/docs/guides/overview/multimodal/image-understanding.md): How to send images to OpenRouter models
 - [Video Inputs](https://openrouter.ai/docs/guides/overview/multimodal/videos.md): How to send video files to OpenRouter models
-- [OAuth PKCE](https://openrouter.ai/docs/guides/overview/auth/oauth.md): Connect your users to OpenRouter
-- [Workload Identity Federation](https://openrouter.ai/docs/guides/overview/auth/workload-identity-federation.md): Call OpenRouter from workloads signed in with your own identity provider, without long-lived API keys
-- [Management API Keys](https://openrouter.ai/docs/guides/overview/auth/management-api-keys.md): Manage API keys programmatically
-- [BYOK](https://openrouter.ai/docs/guides/overview/auth/byok.md): Bring your own provider API keys
-- [Stripe Projects](https://openrouter.ai/docs/guides/overview/stripe-projects.md): Add OpenRouter to your app with the Stripe Projects CLI
 - [Frequently Asked Questions](https://openrouter.ai/docs/faq.md): Common questions about OpenRouter
 - [Report Feedback](https://openrouter.ai/docs/guides/overview/report-feedback.md)
 - [Model Fallbacks](https://openrouter.ai/docs/guides/routing/model-fallbacks.md): Automatic failover between models
@@ -61,8 +53,6 @@
 - [Workspace Budgets](https://openrouter.ai/docs/guides/features/workspaces/workspace-budgets.md): Set spending limits per workspace with automatic enforcement
 - [Switching Workspaces](https://openrouter.ai/docs/guides/features/workspaces/switching.md): Change which workspace your Chat and Fusion requests run in.
 - [Notifications](https://openrouter.ai/docs/guides/features/notifications.md): Choose which OpenRouter alerts you receive and where they are delivered
-- [Single Sign-On (SSO)](https://openrouter.ai/docs/guides/features/sso.md): Let your team sign in to OpenRouter through your identity provider
-- [SCIM Group Mappings](https://openrouter.ai/docs/guides/features/scim-mappings.md): Automatically provision workspace access from your identity provider groups
 - [Files API](https://openrouter.ai/docs/guides/features/files-api.md): Upload files to your workspace and use them in requests
 - [Containers](https://openrouter.ai/docs/guides/features/containers.md): How sandbox containers work for the shell and bash server tools
 - [Presets](https://openrouter.ai/docs/guides/features/presets.md): Manage your LLM configurations
@@ -99,12 +89,23 @@
 - [Snowflake](https://openrouter.ai/docs/guides/features/broadcast/snowflake.md): Send traces to Snowflake
 - [W&B Weave](https://openrouter.ai/docs/guides/features/broadcast/weave.md): Send traces to W&B Weave
 - [Webhook](https://openrouter.ai/docs/guides/features/broadcast/webhook.md): Send traces to any HTTP endpoint
+- [OAuth PKCE](https://openrouter.ai/docs/guides/overview/auth/oauth.md): Connect your users to OpenRouter
+- [Workload Identity Federation](https://openrouter.ai/docs/guides/overview/auth/workload-identity-federation.md): Call OpenRouter from workloads signed in with your own identity provider, without long-lived API keys
+- [Management API Keys](https://openrouter.ai/docs/guides/overview/auth/management-api-keys.md): Manage API keys programmatically
+- [BYOK](https://openrouter.ai/docs/guides/overview/auth/byok.md): Bring your own provider API keys
+- [Single Sign-On (SSO)](https://openrouter.ai/docs/guides/features/sso.md): Let your team sign in to OpenRouter through your identity provider
+- [SCIM Group Mappings](https://openrouter.ai/docs/guides/features/scim-mappings.md): Automatically provision workspace access from your identity provider groups
 - [Ori Eval](https://openrouter.ai/docs/guides/ori/eval.md): Find the best model for your project by testing your agent on real prompts, with one harness and one model for each run
 - [Ori Harness](https://openrouter.ai/docs/guides/ori/harness.md): Run your existing agent CLI on OpenRouter with any model, organization guardrails, and one bill
-- [Where Ori writes files](https://openrouter.ai/docs/guides/ori/files.md): Find the files and directories that Ori creates during a run
-- [Ori configuration](https://openrouter.ai/docs/guides/ori/configuration.md): How to configure Ori, from a single shell to a managed fleet, plus every setting it reads
-- [Vault secrets for interns](https://openrouter.ai/docs/guides/ori/vault.md): Store host-bound secrets for a workspace or an intern with the Vault API
+- [File Writing](https://openrouter.ai/docs/guides/ori/files.md): Find the files and directories that Ori creates during a run
+- [Ori Configuration](https://openrouter.ai/docs/guides/ori/configuration.md): How to configure Ori, from a single shell to a managed fleet, plus every setting it reads
+- [Chatting with Interns](https://openrouter.ai/docs/guides/ori/intern-chat.md): Stream a chat completion from one of your interns with an API key, and answer its questions and permission requests in a second request
+- [Vault Secrets for Interns](https://openrouter.ai/docs/guides/ori/vault.md): Store host-bound secrets for a workspace or an intern with the Vault API
 - [Changelog](https://openrouter.ai/docs/guides/ori/changelog.md): Curated release notes for the Ori CLI, with version history and changes across releases.
+- [MCP](https://openrouter.ai/docs/guides/overview/mcp-server.md): Connect your AI coding tools to OpenRouter over MCP
+- [Terraform Provider](https://openrouter.ai/docs/guides/overview/terraform.md): Manage OpenRouter resources as infrastructure-as-code with Terraform
+- [Stripe Projects](https://openrouter.ai/docs/guides/overview/stripe-projects.md): Add OpenRouter to your app with the Stripe Projects CLI
+- [Batch API Quickstart](https://openrouter.ai/docs/batch-quickstart.md): Submit and retrieve asynchronous batches of inference requests
 - [Data Collection](https://openrouter.ai/docs/guides/privacy/data-collection.md): What data OpenRouter collects
 - [Provider Logging](https://openrouter.ai/docs/guides/privacy/provider-logging.md): Provider logging and data retention policies
 - [Zero Data Retention](https://openrouter.ai/docs/guides/features/zdr.md): How OpenRouter gives you control over your data
@@ -208,6 +209,7 @@
 - [Get an intern](https://openrouter.ai/docs/api/api-reference/interns/get-an-intern.md): Returns the public lifecycle state and settings for one visible intern. The API key selects the caller, workspace and visible interns. There is no default workspace fallback. Requests on regional hostnames such as `eu.openrouter.ai` are refused. [API key](/docs/api-reference/authentication) required…
 - [Delete an intern](https://openrouter.ai/docs/api/api-reference/interns/delete-an-intern.md): Starts safe teardown of the intern, its runtime and its private vault. The API key selects the caller, workspace and visible interns. There is no default workspace fallback. Requests on regional hostnames such as `eu.openrouter.ai` are refused. [API key](/docs/api-reference/authentication) required.
 - [Update an intern](https://openrouter.ai/docs/api/api-reference/interns/update-an-intern.md): Changes the intern name, description, instructions or model. Omitted fields stay unchanged. The request body is capped at 1048576 bytes and a larger body is refused with 413. The API key selects the caller, workspace and visible interns. There is no default workspace fallback. Requests on regional h…
+- [Stream a chat completion with an intern](https://openrouter.ai/docs/api/api-reference/interns/stream-a-chat-completion-with-an-intern.md): Sends a prompt to one of your interns and streams the reply as OpenAI-compatible server-sent events ending with `[DONE]`. The run executes on the intern, which may pause to ask you something. It then streams one `openrouter.provide_input` tool call and finishes with `finish_reason: "tool_calls"`, an…
 - [Provision an intern](https://openrouter.ai/docs/api/api-reference/interns/provision-an-intern.md): Starts the first boot, or resumes an intern after suspension. The API key selects the caller, workspace and visible interns. There is no default workspace fallback. Requests on regional hostnames such as `eu.openrouter.ai` are refused. [API key](/docs/api-reference/authentication) required.
 - [Suspend an intern](https://openrouter.ai/docs/api/api-reference/interns/suspend-an-intern.md): Stops the intern runtime while keeping its disk and configuration for a later provision call. The API key selects the caller, workspace and visible interns. There is no default workspace fallback. Requests on regional hostnames such as `eu.openrouter.ai` are refused. [API key](/docs/api-reference/au…
 - [Get current API key](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key.md): Get information on the API key associated with the current authentication session
@@ -278,14 +280,17 @@
 - [BYOK](https://openrouter.ai/docs/client-sdks/typescript/sdks/byok/README.md): BYOK endpoints
 - [Chat](https://openrouter.ai/docs/client-sdks/typescript/sdks/chat/README.md)
 - [Classifications](https://openrouter.ai/docs/client-sdks/typescript/sdks/classifications/README.md): Task classification market-share endpoints
+- [Containers](https://openrouter.ai/docs/client-sdks/typescript/sdks/containers/README.md): Containers endpoints
 - [Credits](https://openrouter.ai/docs/client-sdks/typescript/sdks/credits/README.md): Credit management endpoints
 - [Datasets](https://openrouter.ai/docs/client-sdks/typescript/sdks/datasets/README.md): Public OpenRouter usage datasets. Data returned by these endpoints is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): reuse and republish it, including commercially, with attribution to OpenRouter.
+- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README.md): Alpha feature endpoints for Decisions (questions and answers) requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/typescript/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/typescript/sdks/endpoints/README.md): Endpoint information
 - [Files](https://openrouter.ai/docs/client-sdks/typescript/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/typescript/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/typescript/sdks/guardrails/README.md): Guardrails endpoints
 - [Images](https://openrouter.ai/docs/client-sdks/typescript/sdks/images/README.md): Images endpoints
+- [Interns](https://openrouter.ai/docs/client-sdks/typescript/sdks/interns/README.md): Create, inspect, update, provision, suspend and delete OpenRouter interns through an API key, and talk to them: the chat route streams OpenAI-compatible completions from one intern, pausing as an `openrouter.provide_input` tool call when the intern needs your permission or an answer. Available to in…
 - [Models](https://openrouter.ai/docs/client-sdks/typescript/sdks/models/README.md): Model information endpoints
 - [OAuth](https://openrouter.ai/docs/client-sdks/typescript/sdks/oauth/README.md): OAuth authentication endpoints
 - [Observability](https://openrouter.ai/docs/client-sdks/typescript/sdks/observability/README.md): Observability endpoints
@@ -294,8 +299,10 @@
 - [Providers](https://openrouter.ai/docs/client-sdks/typescript/sdks/providers/README.md): Provider information endpoints
 - [Rerank](https://openrouter.ai/docs/client-sdks/typescript/sdks/rerank/README.md): Rerank endpoints
 - [Responses](https://openrouter.ai/docs/client-sdks/typescript/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
+- [Scim](https://openrouter.ai/docs/client-sdks/typescript/sdks/scim/README.md): Management endpoints for SCIM group-to-workspace mappings, authenticated with a management key. These are not the SCIM 2.0 connector endpoints for your identity provider. In your identity provider, enter the SCIM endpoint URL shown when you enable provisioning under Settings > Members > SCIM Mapping…
 - [STT](https://openrouter.ai/docs/client-sdks/typescript/sdks/stt/README.md): Speech-to-text endpoints
 - [TTS](https://openrouter.ai/docs/client-sdks/typescript/sdks/tts/README.md): Text-to-speech endpoints
+- [Vault](https://openrouter.ai/docs/client-sdks/typescript/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
 - [VideoGeneration](https://openrouter.ai/docs/client-sdks/typescript/sdks/videogeneration/README.md): Video Generation endpoints
 - [Workspaces](https://openrouter.ai/docs/client-sdks/typescript/sdks/workspaces/README.md): Workspaces endpoints
 - [OpenRouter Python SDK](https://openrouter.ai/docs/client-sdks/python/overview.md): Python SDK for building AI features against 400+ models through OpenRouter.
@@ -309,13 +316,14 @@
 - [Containers](https://openrouter.ai/docs/client-sdks/python/sdks/containers/README.md): Containers endpoints
 - [Credits](https://openrouter.ai/docs/client-sdks/python/sdks/credits/README.md): Credit management endpoints
 - [Datasets](https://openrouter.ai/docs/client-sdks/python/sdks/datasets/README.md): Public OpenRouter usage datasets. Data returned by these endpoints is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): reuse and republish it, including commercially, with attribution to OpenRouter.
+- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/python/sdks/decisions/README.md): Alpha feature endpoints for Decisions (questions and answers) requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/python/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/python/sdks/endpoints/README.md): Endpoint information
 - [Files](https://openrouter.ai/docs/client-sdks/python/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/python/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/python/sdks/guardrails/README.md): Guardrails endpoints
 - [Images](https://openrouter.ai/docs/client-sdks/python/sdks/images/README.md): Images endpoints
-- [Interns](https://openrouter.ai/docs/client-sdks/python/sdks/interns/README.md): Create, inspect, update, provision, suspend and delete OpenRouter interns through an API key.
+- [Interns](https://openrouter.ai/docs/client-sdks/python/sdks/interns/README.md): Create, inspect, update, provision, suspend and delete OpenRouter interns through an API key, and talk to them: the chat route streams OpenAI-compatible completions from one intern, pausing as an `openrouter.provide_input` tool call when the intern needs your permission or an answer. Available to in…
 - [Models](https://openrouter.ai/docs/client-sdks/python/sdks/models/README.md): Model information endpoints
 - [OAuth](https://openrouter.ai/docs/client-sdks/python/sdks/oauth/README.md): OAuth authentication endpoints
 - [Observability](https://openrouter.ai/docs/client-sdks/python/sdks/observability/README.md): Observability endpoints
@@ -341,13 +349,14 @@
 - [Containers](https://openrouter.ai/docs/client-sdks/go/sdks/containers/README.md): Containers endpoints
 - [Credits](https://openrouter.ai/docs/client-sdks/go/sdks/credits/README.md): Credit management endpoints
 - [Datasets](https://openrouter.ai/docs/client-sdks/go/sdks/datasets/README.md): Public OpenRouter usage datasets. Data returned by these endpoints is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): reuse and republish it, including commercially, with attribution to OpenRouter.
+- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/go/sdks/decisions/README.md): Alpha feature endpoints for Decisions (questions and answers) requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/go/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/go/sdks/endpoints/README.md): Endpoint information
 - [Files](https://openrouter.ai/docs/client-sdks/go/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/go/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/go/sdks/guardrails/README.md): Guardrails endpoints
 - [Images](https://openrouter.ai/docs/client-sdks/go/sdks/images/README.md): Images endpoints
-- [Interns](https://openrouter.ai/docs/client-sdks/go/sdks/interns/README.md): Create, inspect, update, provision, suspend and delete OpenRouter interns through an API key.
+- [Interns](https://openrouter.ai/docs/client-sdks/go/sdks/interns/README.md): Create, inspect, update, provision, suspend and delete OpenRouter interns through an API key, and talk to them: the chat route streams OpenAI-compatible completions from one intern, pausing as an `openrouter.provide_input` tool call when the intern needs your permission or an answer. Available to in…
 - [Models](https://openrouter.ai/docs/client-sdks/go/sdks/models/README.md): Model information endpoints
 - [OAuth](https://openrouter.ai/docs/client-sdks/go/sdks/oauth/README.md): OAuth authentication endpoints
 - [Observability](https://openrouter.ai/docs/client-sdks/go/sdks/observability/README.md): Observability endpoints
