@@ -1,0 +1,186 @@
+{
+  "generated_at": "2026-09-19T12:06:40.069Z",
+  "floor_bits": 4.5,
+  "funnel": {
+    "seen": 2478,
+    "postableType": 329,
+    "notOnCooldown": 326,
+    "aboveFloor": 11
+  },
+  "candidates": [
+    {
+      "id": "9fe0de6c33c9b863d9b4b19ec626edac636267f3:retirement_floor::-------------------------",
+      "type": "retirement_floor",
+      "sentence": "The anthropic-deprecations table records the tentative retirement date for \":-------------------------\" as \":---------------------------------\".",
+      "source": "anthropic-deprecations",
+      "stamp": {
+        "iso": "2026-09-19T04:37:58.964Z",
+        "kind": "observed"
+      },
+      "bits": 6.83,
+      "why": [
+        "retirement_floor is rare in the archive: +6.83 bits"
+      ],
+      "entities": [
+        "model:model/anthropic-api::-------------------------",
+        "lab:lab/anthropic"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The anthropic-deprecations table records the tentative retirement date for \":-------------------------\" as \":---------------------------------\".\n\nhttps://diffwire.dev/changes/9fe0de6c33c9b863d9b4b19ec626edac636267f3.html",
+        "url": "https://diffwire.dev/changes/9fe0de6c33c9b863d9b4b19ec626edac636267f3.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20anthropic-deprecations%20table%20records%20the%20tentative%20retirement%20date%20for%20%22%3A-------------------------%22%20as%20%22%3A---------------------------------%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F9fe0de6c33c9b863d9b4b19ec626edac636267f3.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": [
+        {
+          "platform": "hn",
+          "venue": "hn",
+          "need": 144,
+          "limit": 80
+        }
+      ]
+    },
+    {
+      "id": "5b6762905cd5fc959690fb6a0f244c17ccc8936f:incident_opened:https://status.openai.com//incidents/01M2V76GEPJB0HQGRA0QERRZ3T",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Delayed support responses\" at \"https://status.openai.com//incidents/01M2V76GEPJB0HQGRA0QERRZ3T\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-19T04:37:33.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.83,
+      "why": [
+        "incident_opened is rare in the archive: +5.83 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M2V76GEPJB0HQGRA0QERRZ3T"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Delayed support responses\" at \"https://status.openai.com//incidents/01M2V76GEPJB0HQGRA0QERRZ3T\".\n\nhttps://diffwire.dev/changes/5b6762905cd5fc959690fb6a0f244c17ccc8936f.html",
+        "url": "https://diffwire.dev/changes/5b6762905cd5fc959690fb6a0f244c17ccc8936f.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Delayed%20support%20responses%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M2V76GEPJB0HQGRA0QERRZ3T%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F5b6762905cd5fc959690fb6a0f244c17ccc8936f.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "5b6762905cd5fc959690fb6a0f244c17ccc8936f:incident_opened:https://status.openai.com//incidents/01M2VA7X37P1ASADSNZ1CG4N4D",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Overbilling for OpenAI-hosted containers in the Agent API\" at \"https://status.openai.com//incidents/01M2VA7X37P1ASADSNZ1CG4N4D\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-19T04:37:33.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.83,
+      "why": [
+        "incident_opened is rare in the archive: +5.83 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M2VA7X37P1ASADSNZ1CG4N4D"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Overbilling for OpenAI-hosted containers in the Agent API\" at \"https://status.openai.com//incidents/01M2VA7X37P1ASADSNZ1CG4N4D\".\n\nhttps://diffwire.dev/changes/5b6762905cd5fc959690fb6a0f244c17ccc8936f.html",
+        "url": "https://diffwire.dev/changes/5b6762905cd5fc959690fb6a0f244c17ccc8936f.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Overbilling%20for%20OpenAI-hosted%20containers%20in%20the%20Agent%20API%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M2VA7X37P1ASADSNZ1CG4N4D%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F5b6762905cd5fc959690fb6a0f244c17ccc8936f.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "5b6762905cd5fc959690fb6a0f244c17ccc8936f:incident_opened:https://status.openai.com//incidents/01M2VBZB1RYSMXHZNRA25ZJ36X",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"SSO sign-in and SCIM provisioning issues\" at \"https://status.openai.com//incidents/01M2VBZB1RYSMXHZNRA25ZJ36X\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-09-19T04:37:33.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.83,
+      "why": [
+        "incident_opened is rare in the archive: +5.83 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M2VBZB1RYSMXHZNRA25ZJ36X"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"SSO sign-in and SCIM provisioning issues\" at \"https://status.openai.com//incidents/01M2VBZB1RYSMXHZNRA25ZJ36X\".\n\nhttps://diffwire.dev/changes/5b6762905cd5fc959690fb6a0f244c17ccc8936f.html",
+        "url": "https://diffwire.dev/changes/5b6762905cd5fc959690fb6a0f244c17ccc8936f.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22SSO%20sign-in%20and%20SCIM%20provisioning%20issues%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M2VBZB1RYSMXHZNRA25ZJ36X%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F5b6762905cd5fc959690fb6a0f244c17ccc8936f.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "211218db34eb295c5f470ea81c995a89d3a482cc:model_added:z-ai/glm-5.3-flashx",
+      "type": "model_added",
+      "sentence": "The catalog id \"z-ai/glm-5.3-flashx\" entered OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-09-19T06:08:33.000Z",
+        "kind": "origin"
+      },
+      "bits": 4.66,
+      "why": [
+        "model_added is rare in the archive: +4.66 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:z-ai/glm-5.3-flashx",
+        "lab:lab/zai"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The catalog id \"z-ai/glm-5.3-flashx\" entered OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/211218db34eb295c5f470ea81c995a89d3a482cc.html",
+        "url": "https://diffwire.dev/changes/211218db34eb295c5f470ea81c995a89d3a482cc.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22z-ai%2Fglm-5.3-flashx%22%20entered%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F211218db34eb295c5f470ea81c995a89d3a482cc.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ]
+}
