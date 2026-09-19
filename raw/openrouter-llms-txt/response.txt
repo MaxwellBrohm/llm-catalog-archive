@@ -62,6 +62,7 @@
 - [Message Transforms](https://openrouter.ai/docs/guides/features/message-transforms.md): Transform prompt messages
 - [Zero Completion Insurance](https://openrouter.ai/docs/guides/features/zero-completion-insurance.md): OpenRouter will not charge you for zero token responses
 - [App Attribution](https://openrouter.ai/docs/app-attribution.md): Get your app featured in OpenRouter rankings and analytics
+- [Batch API Quickstart](https://openrouter.ai/docs/batch-quickstart.md): Submit and retrieve asynchronous batches of inference requests
 - [Guardrails](https://openrouter.ai/docs/guides/features/guardrails.md): Control spending and model access for your organization
 - [Prompt Injection Detection](https://openrouter.ai/docs/guides/features/guardrails/prompt-injection.md): Regex-based prompt injection guardrail patterns
 - [Allowlist](https://openrouter.ai/docs/guides/features/guardrails/prompt-injection/allowlist.md): Exclude known-safe phrases from prompt injection detection
@@ -105,7 +106,6 @@
 - [MCP](https://openrouter.ai/docs/guides/overview/mcp-server.md): Connect your AI coding tools to OpenRouter over MCP
 - [Terraform Provider](https://openrouter.ai/docs/guides/overview/terraform.md): Manage OpenRouter resources as infrastructure-as-code with Terraform
 - [Stripe Projects](https://openrouter.ai/docs/guides/overview/stripe-projects.md): Add OpenRouter to your app with the Stripe Projects CLI
-- [Batch API Quickstart](https://openrouter.ai/docs/batch-quickstart.md): Submit and retrieve asynchronous batches of inference requests
 - [Data Collection](https://openrouter.ai/docs/guides/privacy/data-collection.md): What data OpenRouter collects
 - [Provider Logging](https://openrouter.ai/docs/guides/privacy/provider-logging.md): Provider logging and data retention policies
 - [Zero Data Retention](https://openrouter.ai/docs/guides/features/zdr.md): How OpenRouter gives you control over your data
@@ -153,6 +153,7 @@
 - [Get user activity grouped by endpoint](https://openrouter.ai/docs/api/api-reference/analytics/get-user-activity-grouped-by-endpoint.md): Returns user activity data grouped by endpoint for the last 30 (completed) UTC days. Pass `workspace_id` to scope the response to a single workspace. Pass `group_by=workspace` to split each row per workspace and include `workspace_id` on every item; by default rows are aggregated across workspaces a…
 - [Get available analytics metrics and dimensions](https://openrouter.ai/docs/api/api-reference/analytics/get-available-analytics-metrics-and-dimensions.md): Returns the available metrics, dimensions, filter operators, and granularities for the analytics query endpoint. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Query analytics data](https://openrouter.ai/docs/api/api-reference/analytics/query-analytics-data.md): Execute an analytics query with specified metrics, dimensions, filters, and time range. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Submit a Decisions (questions and answers) request](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-questions-and-answers-request.md): Submits a Decisions request to the Decisions router
 - [Create speech](https://openrouter.ai/docs/api/api-reference/tts/create-speech.md): Synthesizes audio from the input text. Returns a raw audio bytestream in the requested format (e.g. mp3, pcm, wav).
 - [Create transcription](https://openrouter.ai/docs/api/api-reference/stt/create-transcription.md): Transcribes audio into text. Accepts base64-encoded audio input as JSON or an OpenAI-style multipart/form-data file upload, and returns the transcribed text.
 - [Exchange authorization code for API key](https://openrouter.ai/docs/api/api-reference/oauth/exchange-authorization-code-for-api-key.md): Exchange an authorization code from the PKCE flow for a user-controlled API key
@@ -411,6 +412,7 @@
 - [OpenClaw 🦞](https://openrouter.ai/docs/cookbook/coding-agents/openclaw-integration.md): Use OpenClaw (formerly Moltbot, formerly Clawdbot) with OpenRouter
 - [OpenCode](https://openrouter.ai/docs/cookbook/coding-agents/opencode-integration.md): Use OpenCode with OpenRouter
 - [Add Human-in-the-Loop Controls to an Agent SDK Agent](https://openrouter.ai/docs/cookbook/building-agents/hitl-tools.md): Add HITL to an existing Agent SDK agent so it can pause high-stakes tool calls for human input
+- [Gate Agent Tool Calls with Jev](https://openrouter.ai/docs/cookbook/building-agents/gate-tool-calls-with-jev.md): Check each risky tool call against the ticket with Jev so safe calls run, unsupported calls are refused, and only ambiguous calls pause for a human
 - [Build a Long-Horizon Agent](https://openrouter.ai/docs/cookbook/building-agents/long-horizon-agents.md): Run multi-hour agent loops with cost ceilings, resumable state, and voice input
 - [Build a Token-Efficient Review Agent](https://openrouter.ai/docs/cookbook/building-agents/advisor-server-tool.md): Use a cheap executor model for routine work and call Advisor only for compact uncertainty checks
 - [Delegate Routine Work to Cheaper Models](https://openrouter.ai/docs/cookbook/building-agents/subagent-server-tool.md): Use an orchestrator for planning and a cheap subagent worker for each subtask
@@ -433,6 +435,7 @@
 - [GPT-5.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-6.md): Adopt reasoning.mode, reasoning.context, and explicit prompt caching for the GPT-5.6 model family
 - [GPT-5.4 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-4.md): Support the phase field for GPT-5.3 Codex, GPT-5.4, GPT-5.4 Pro, GPT-5.5, and GPT-5.5 Pro
 - [RAG with Embeddings & Rerank](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/rag.md): Build retrieval-augmented generation pipelines using OpenRouter's embeddings and rerank APIs
+- [Cut LLM Cost with a Jev-Verified Cascade](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/jev-verified-cascade.md): Verify cheap-model answers against retrieved context, then escalate only when the answer isn't supported by that context.
 - [Red Teaming](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/red-teaming.md): Policy for red teaming and adversarial testing on OpenRouter
 - [Activity Export](https://openrouter.ai/docs/cookbook/administration/activity-export.md)
 - [API Key Rotation](https://openrouter.ai/docs/cookbook/administration/api-key-rotation.md): Securely rotate your OpenRouter API keys
