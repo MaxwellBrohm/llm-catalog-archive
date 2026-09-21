@@ -303,6 +303,7 @@
 - [Responses](https://openrouter.ai/docs/client-sdks/typescript/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
 - [Scim](https://openrouter.ai/docs/client-sdks/typescript/sdks/scim/README.md): Management endpoints for SCIM group-to-workspace mappings, authenticated with a management key. These are not the SCIM 2.0 connector endpoints for your identity provider. In your identity provider, enter the SCIM endpoint URL shown when you enable provisioning under Settings > Members > SCIM Mapping…
 - [STT](https://openrouter.ai/docs/client-sdks/typescript/sdks/stt/README.md): Speech-to-text endpoints
+- [SystemOne](https://openrouter.ai/docs/client-sdks/typescript/sdks/systemone/README.md): System One endpoints for models such as Jev, compatible with the TypeSafe SDKs. See https://openrouter.ai/docs/guides/community/typesafe-sdk.
 - [TTS](https://openrouter.ai/docs/client-sdks/typescript/sdks/tts/README.md): Text-to-speech endpoints
 - [Vault](https://openrouter.ai/docs/client-sdks/typescript/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
 - [VideoGeneration](https://openrouter.ai/docs/client-sdks/typescript/sdks/videogeneration/README.md): Video Generation endpoints
@@ -336,6 +337,7 @@
 - [Responses](https://openrouter.ai/docs/client-sdks/python/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
 - [Scim](https://openrouter.ai/docs/client-sdks/python/sdks/scim/README.md): Management endpoints for SCIM group-to-workspace mappings, authenticated with a management key. These are not the SCIM 2.0 connector endpoints for your identity provider. In your identity provider, enter the SCIM endpoint URL shown when you enable provisioning under Settings > Members > SCIM Mapping…
 - [STT](https://openrouter.ai/docs/client-sdks/python/sdks/stt/README.md): Speech-to-text endpoints
+- [SystemOne](https://openrouter.ai/docs/client-sdks/python/sdks/systemone/README.md): System One endpoints for models such as Jev, compatible with the TypeSafe SDKs. See https://openrouter.ai/docs/guides/community/typesafe-sdk.
 - [TTS](https://openrouter.ai/docs/client-sdks/python/sdks/tts/README.md): Text-to-speech endpoints
 - [Vault](https://openrouter.ai/docs/client-sdks/python/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
 - [VideoGeneration](https://openrouter.ai/docs/client-sdks/python/sdks/videogeneration/README.md): Video Generation endpoints
@@ -369,6 +371,7 @@
 - [Responses](https://openrouter.ai/docs/client-sdks/go/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
 - [Scim](https://openrouter.ai/docs/client-sdks/go/sdks/scim/README.md): Management endpoints for SCIM group-to-workspace mappings, authenticated with a management key. These are not the SCIM 2.0 connector endpoints for your identity provider. In your identity provider, enter the SCIM endpoint URL shown when you enable provisioning under Settings > Members > SCIM Mapping…
 - [STT](https://openrouter.ai/docs/client-sdks/go/sdks/stt/README.md): Speech-to-text endpoints
+- [SystemOne](https://openrouter.ai/docs/client-sdks/go/sdks/systemone/README.md): System One endpoints for models such as Jev, compatible with the TypeSafe SDKs. See https://openrouter.ai/docs/guides/community/typesafe-sdk.
 - [TTS](https://openrouter.ai/docs/client-sdks/go/sdks/tts/README.md): Text-to-speech endpoints
 - [Vault](https://openrouter.ai/docs/client-sdks/go/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
 - [VideoGeneration](https://openrouter.ai/docs/client-sdks/go/sdks/videogeneration/README.md): Video Generation endpoints
