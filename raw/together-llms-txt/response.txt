@@ -59,7 +59,7 @@
 - [Upload a LoRA adapter](https://docs.together.ai/docs/dedicated-endpoints/adapter.md): Serve a custom LoRA adapter uploaded from Hugging Face or S3.
 - [Choose a deployment profile](https://docs.together.ai/docs/dedicated-endpoints/configs.md): Pick the hardware deployment profile that your model runs on.
 - [Manage endpoints and deployments](https://docs.together.ai/docs/dedicated-endpoints/manage.md): Create, update, and delete resources for dedicated model inference.
-- [Configure autoscaling](https://docs.together.ai/docs/dedicated-endpoints/scaling.md): Autoscale a deployment between replica bounds, pick the right scaling metric, and understand the cost tradeoff.
+- [Configure autoscaling](https://docs.together.ai/docs/dedicated-endpoints/scaling.md): Autoscale a deployment between replica bounds, pick the right scaling metric, and stop idle deployments automatically.
 - [Migrate from v1](https://docs.together.ai/docs/dedicated-endpoints/migrate-from-v1.md): Move a dedicated endpoint from the v1 API to the v2 dedicated model inference resource model.
 - [Overview](https://docs.together.ai/docs/dedicated-endpoints/route-traffic.md): Route traffic to a deployment, and explore strategies that change how traffic moves over time.
 - [Split traffic across deployments](https://docs.together.ai/docs/dedicated-endpoints/split-traffic.md): Run multiple deployments on one endpoint and split requests between them by weight.
@@ -171,7 +171,7 @@
 - [Agno](https://docs.together.ai/docs/agno.md): Use Agno with Together AI to build multimodal agents.
 - [AutoGen(AG2)](https://docs.together.ai/docs/autogen.md): Use AutoGen (AG2) to build and orchestrate AI agents with Together AI models.
 - [Composio](https://docs.together.ai/docs/composio.md): Use Composio with Together AI.
-- [Configure Claude Code, Codex, and ChatGPT with Together AI models](https://docs.together.ai/docs/how-to-use-togetherlink.md): Use TogetherLink to run Claude Code, Codex CLI, ChatGPT Desktop, Pi Code, and OpenCode with models hosted by Together AI.
+- [How to use togetherlink](https://docs.together.ai/docs/how-to-use-togetherlink.md)
 - [Power Claude Code with LiteLLM and Together AI](https://docs.together.ai/docs/using-together-with-litellm.md): Run Claude Code on Together coding models through a local LiteLLM proxy.
 - [Configure Kimi Code with Together AI models](https://docs.together.ai/docs/how-to-use-kimi-code.md): Power Moonshot AI's coding agent with Together AI-hosted models.
 - [Configure Cline with Together AI models](https://docs.together.ai/docs/how-to-use-cline.md): Power Cline, an AI coding agent, with Together AI models.
