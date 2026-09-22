@@ -7,6 +7,18 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>Pruning LLMs Like a Physicist: Block Removal as an Ising Optimization Problem</title>
+   <pubDate>Mon, 21 Sep 2026 13:44:34 GMT</pubDate>
+   <link>https://huggingface.co/blog/MultiverseComputingCAI/pruning-llms-like-a-physicist-block-removal-as-an</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/MultiverseComputingCAI/pruning-llms-like-a-physicist-block-removal-as-an</guid>
+  </item>
+  <item>
+   <title>tokenizers v1: encode, decode and scaling, measured</title>
+   <pubDate>Mon, 21 Sep 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/tokenizers-v1</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/tokenizers-v1</guid>
+  </item>
+  <item>
    <title>Your Agent Aced the Task. Will It Do It Again?</title>
    <pubDate>Tue, 15 Sep 2026 16:00:44 GMT</pubDate>
    <link>https://huggingface.co/blog/ibm-research/altk-evolve-consistency</link>
@@ -23,12 +35,6 @@
    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/gradio-workflow-1111</link>
    <guid isPermaLink="true">https://huggingface.co/blog/gradio-workflow-1111</guid>
-  </item>
-  <item>
-   <title>Safety for Whom? Refusing the Right Subset of a Topic, Not the Whole Topic</title>
-   <pubDate>Tue, 08 Sep 2026 14:23:07 GMT</pubDate>
-   <link>https://huggingface.co/blog/MultiverseComputingCAI/safety-for-whom</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/MultiverseComputingCAI/safety-for-whom</guid>
   </item>
   <item>
    <title>NeoMME: an efficient Multimodal-native and Multilingual Encoder</title>
