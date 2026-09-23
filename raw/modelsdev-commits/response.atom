@@ -4,483 +4,428 @@
   <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commits/dev"/>
   <link type="application/atom+xml" rel="self" href="https://github.com/anomalyco/models.dev/commits/dev.atom"/>
   <title>Recent Commits to models.dev:dev</title>
-  <updated>2026-09-22T04:30:38Z</updated>
+  <updated>2026-09-23T04:31:48Z</updated>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/848a1b9ea6ba0fe4f568b2b38b4e694645a0230e</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/848a1b9ea6ba0fe4f568b2b38b4e694645a0230e"/>
+    <id>tag:github.com,2008:Grit::Commit/7d87c4fc34b195d8d5fd449903054f666fbb3d24</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/7d87c4fc34b195d8d5fd449903054f666fbb3d24"/>
     <title>
-        chore(sync): update Kilo model catalog (#7709)
+        chore(sync): update CrossModel model catalog (#7841)
     </title>
-    <updated>2026-09-22T04:30:38Z</updated>
+    <updated>2026-09-23T04:31:48Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#7709)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update CrossModel model catalog (#7841)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/9c941701896ebe52f7a368c54a6df79471d97737</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9c941701896ebe52f7a368c54a6df79471d97737"/>
+    <id>tag:github.com,2008:Grit::Commit/59eda218803092a288b792a51e5e1ce081480f3c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/59eda218803092a288b792a51e5e1ce081480f3c"/>
     <title>
-        chore(sync): update NanoGPT model catalog (#7708)
+        chore(sync): update Kilo model catalog (#7838)
     </title>
-    <updated>2026-09-22T04:30:30Z</updated>
+    <updated>2026-09-23T04:31:35Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#7708)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#7838)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/ee0566f601c9036ae67782a8f2e16f4b67a12123</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ee0566f601c9036ae67782a8f2e16f4b67a12123"/>
+    <id>tag:github.com,2008:Grit::Commit/e4eb305bc0faa591cbf275f65001629e85e0211a</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/e4eb305bc0faa591cbf275f65001629e85e0211a"/>
     <title>
-        chore(sync): update OpenRouter model catalog (#7706)
+        chore(sync): update EmpirioLabs AI model catalog (#7837)
     </title>
-    <updated>2026-09-22T04:30:22Z</updated>
+    <updated>2026-09-23T04:31:32Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#7706)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update EmpirioLabs AI model catalog (#7837)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/f3fe9e21d073c676dc712961bb3c8470d0c42739</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f3fe9e21d073c676dc712961bb3c8470d0c42739"/>
+    <id>tag:github.com,2008:Grit::Commit/7d4b261ad404a5211432478df74e9e1a01a917e4</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/7d4b261ad404a5211432478df74e9e1a01a917e4"/>
     <title>
-        feat(xiaomi) : 增加 MiMo V2.6 原生与订阅模型 (#7700)
+        chore(sync): update OpenRouter model catalog (#7840)
     </title>
-    <updated>2026-09-22T04:09:36Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/38725104?s=30&amp;v=4"/>
-    <author>
-      <name>ponponon</name>
-      <uri>https://github.com/ponponon</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(xiaomi) : 增加 MiMo V2.6 原生与订阅模型 (#7700)
-
-edit by gpt-5&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/a483df9c693998f16f3042fcbdd66a9e43bbe840</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a483df9c693998f16f3042fcbdd66a9e43bbe840"/>
-    <title>
-        chore(sync): update Pioneer model catalog (#7704)
-    </title>
-    <updated>2026-09-22T04:09:23Z</updated>
+    <updated>2026-09-23T04:31:24Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Pioneer model catalog (#7704)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#7840)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/f02d68065194a8fcb2e39b035ef7d4e5460d91bf</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f02d68065194a8fcb2e39b035ef7d4e5460d91bf"/>
+    <id>tag:github.com,2008:Grit::Commit/76689e21b85fc1b87fe6fbcac0a5d4aeb61b0c23</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/76689e21b85fc1b87fe6fbcac0a5d4aeb61b0c23"/>
     <title>
-        fix(sync): safely refresh Workers AI reasoning from search (#7453)
+        chore(sync): update NanoGPT model catalog (#7839)
     </title>
-    <updated>2026-09-22T03:50:47Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/13607221?s=30&amp;v=4"/>
-    <author>
-      <name>KastanDay</name>
-      <uri>https://github.com/KastanDay</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(sync): safely refresh Workers AI reasoning from search (#7453)
-
-Co-authored-by: opencode-agent &amp;lt;opencode-agent@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/409f66dc1588624d781ef566b44e34a10f83bc97</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/409f66dc1588624d781ef566b44e34a10f83bc97"/>
-    <title>
-        fix(workflows): pass OpenCode variant separately (#7705)
-    </title>
-    <updated>2026-09-22T03:38:19Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
-    <author>
-      <name>rekram1-node</name>
-      <uri>https://github.com/rekram1-node</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(workflows): pass OpenCode variant separately (#7705)
-
-Co-authored-by: opencode-agent &amp;lt;opencode-agent@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/76aceeb8f429801d5cb278f81ab1e9ec56cc00a2</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/76aceeb8f429801d5cb278f81ab1e9ec56cc00a2"/>
-    <title>
-        chore(sync): update OpenRouter model catalog (#7703)
-    </title>
-    <updated>2026-09-22T03:31:27Z</updated>
+    <updated>2026-09-23T04:31:20Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#7703)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#7839)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/d5bed5aa97cd45fd2221e1f86342f9f33e3775ca</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/d5bed5aa97cd45fd2221e1f86342f9f33e3775ca"/>
+    <id>tag:github.com,2008:Grit::Commit/07fb48aae70f62ae6d63b7a7121347aa88171380</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/07fb48aae70f62ae6d63b7a7121347aa88171380"/>
     <title>
-        chore(sync): update Kilo model catalog (#7702)
+        fix: ClinePass thinking-effort levels are wrong for all models: regis…
     </title>
-    <updated>2026-09-22T03:31:21Z</updated>
+    <updated>2026-09-23T04:13:28Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
+    <author>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: ClinePass thinking-effort levels are wrong for all models: registry shows none/low/medium/high/xhigh, but DeepSeek V4.1 Flash officially supports off/low/high/max (#7534)
+
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/1222d431c02455357c5b2cd31e613e41e0f06a9f</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/1222d431c02455357c5b2cd31e613e41e0f06a9f"/>
+    <title>
+        fix: add supported Kimi K3 Bedrock profiles (#7795)
+    </title>
+    <updated>2026-09-23T04:09:32Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#7702)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: add supported Kimi K3 Bedrock profiles (#7795)
+
+Co-authored-by: Aiden Cline &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/552f3b99c6595cd6dc579be2a19e5faef9be5e57</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/552f3b99c6595cd6dc579be2a19e5faef9be5e57"/>
+    <title>
+        feat(stepfun): add step-5-preview to StepFun providers (#7535)
+    </title>
+    <updated>2026-09-23T04:03:44Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/51225681?s=30&amp;v=4"/>
+    <author>
+      <name>lit26</name>
+      <uri>https://github.com/lit26</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(stepfun): add step-5-preview to StepFun providers (#7535)
+
+Adds the Step 5 Preview lab entry and serves it from all four StepFun
+hosts: StepFun (China), StepFun (Global), and both Step Plan channels.
+
+Specs from the official model page: 1M context / input / output, text +
+image + video input, text output, tool calling, JSON Mode + JSON Schema,
+prompt caching, and low/medium/high reasoning effort via Chat
+`reasoning_effort`, Messages `output_config.effort`, and Responses
+`reasoning.effort`.
+
+Pricing: China converts the CNY list price (7 / 20 / 0.35 per 1M) at the
+same 7.2973 CNY/USD rate the other StepFun entries use; Global uses the
+published USD price (1.00 / 2.70 / 0.05) directly, so that entry is a
+real file rather than a symlink into providers/stepfun.
+
+Step Plan entries carry no cost block, matching their siblings — that
+channel bills against plan credit, not per token.
+
+Provider comments also updated: step-5-preview added to the effort
+matrix, and the Responses API now serves step-5-preview alongside
+step-3.7-flash.
+
+Sources:
+https://platform.stepfun.com/docs/zh/guides/models/step-5-preview
+https://platform.stepfun.ai/docs/en/guides/models/step-5-preview
+https://platform.stepfun.com/docs/zh/guides/pricing/details
+https://platform.stepfun.ai/docs/en/guides/pricing/details
+https://platform.stepfun.com/docs/zh/step-plan/integrations/reasoning-api
+
+Co-authored-by: Tianning Li &amp;lt;litianning@stepfun.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/83ca66bff6a341b30720836510d4b905b8bc766c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/83ca66bff6a341b30720836510d4b905b8bc766c"/>
+    <title>
+        cline-pass: add missing mimo-v2.6-flash, mimo-v2.6-pro, muse-spark-1.…
+    </title>
+    <updated>2026-09-23T04:02:01Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/423078?s=30&amp;v=4"/>
+    <author>
+      <name>munim</name>
+      <uri>https://github.com/munim</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;cline-pass: add missing mimo-v2.6-flash, mimo-v2.6-pro, muse-spark-1.3-contributor (#7729)
+
+* feat(cline-pass): add mimo-v2.6 and muse-spark-1.3 models
+
+Live clinePass catalog lists 14 models; three slugs were absent from
+providers/cline-pass/models/cline-pass/. All three serve requests on
+api.cline.bot (probe-verified 2026-09-22); nonexistent slugs 404.
+muse-spark-1.3-contributor carries Meta reference rates because Cline
+publishes no ClinePass rate for it.
+
+* fix(cline-pass): follow review — wire-cited effort, drop muse cost
+
+mimo-v2.6-* reasoning_options now list exactly the seven levels the
+ClinePass endpoint accepts (probe 2026-09-22: seven levels -&amp;gt; 200,
+unknown level -&amp;gt; 500), cited in a leading wire comment.
+muse-spark-1.3-contributor drops [cost]: Cline publishes no
+ClinePass rate for the slug.
+
+* fix(cline-pass): revert mimo effort to same-host peer set
+
+Effect probe (reasoning_tokens, 3 trials/level) shows minimal/max
+do not differentiate on this host, so declare the mimo-v2.5* peer
+set per review; wire comment keeps the full acceptance evidence.&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/975556366c20f5980a197a7a7da84e781314dd53</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/975556366c20f5980a197a7a7da84e781314dd53"/>
+    <title>
+        chore(sync): update Cloudflare Workers AI model catalog (#7707)
+    </title>
+    <updated>2026-09-23T04:01:55Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Cloudflare Workers AI model catalog (#7707)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/a38ec312a02a31f9b111bea47856ad8a994d4b25</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a38ec312a02a31f9b111bea47856ad8a994d4b25"/>
+    <id>tag:github.com,2008:Grit::Commit/1c243c995f740d9b9c7c17608d678edb2367ef6e</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/1c243c995f740d9b9c7c17608d678edb2367ef6e"/>
     <title>
-        Add Tempr&#39;s Google Gemini and Gemma models (#7674)
+        fix(xiaomi): MiMo V2.6 open weights and input modalities (#7719)
     </title>
-    <updated>2026-09-22T02:37:44Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/46411187?s=30&amp;v=4"/>
+    <updated>2026-09-23T04:01:03Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/209727656?s=30&amp;v=4"/>
     <author>
-      <name>chrissalomon</name>
-      <uri>https://github.com/chrissalomon</uri>
+      <name>yanyihan-xiaomi</name>
+      <uri>https://github.com/yanyihan-xiaomi</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;Add Tempr&amp;#39;s Google Gemini and Gemma models (#7674)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(xiaomi): MiMo V2.6 open weights and input modalities (#7719)
 
-* Add Tempr&amp;#39;s Google Gemini models
+* fix(xiaomi): mark MiMo V2.6 Flash/Pro open-weight and drop unsupported pdf input
 
-16 models Google currently serves that Tempr&amp;#39;s Gateway can reach: 14
-chat models and the 2 embedding models, base_model-ing the lab entries
-with Google&amp;#39;s own pricing. gemini-embedding-2 is text-only on Tempr&amp;#39;s
-/v1/embeddings, so its entry says so.
+UltraSpeed remains closed-weight. Align input modalities to text/image/audio/video.
 
-Co-Authored-By: Claude Opus 5 &amp;lt;noreply@anthropic.com&amp;gt;
+* docs(xiaomi): link MiMo V2.6 Flash/Pro Hugging Face weights
 
-* tempr: drop the Gemini 2.5 models Google no longer serves to new users
+* fix(xiaomi): mark MiMo V2.6 Pro-UltraSpeed open-weight with Pro-RL weights
 
-gemini-2.5-flash, gemini-2.5-flash-lite and gemini-2.5-pro are still in
-Google&amp;#39;s model list, but a call answers 404 &amp;quot;This model ... is no longer
-available to new users&amp;quot; (checked 2026-09-21), so a new Tempr customer
-can&amp;#39;t reach them. Their successors (gemini-3.6-flash,
-gemini-3.5-flash-lite, gemini-3.1-pro-preview) are already listed.
+Same parameters as Pro; link the shared Hugging Face release.
 
-Co-Authored-By: Claude Opus 5 &amp;lt;noreply@anthropic.com&amp;gt;
+* fix(xiaomi): drop incorrect MiMo V2.6 knowledge cutoff
 
-* tempr: add the Gemma 4 models (gemma-4-31b-it, gemma-4-26b-a4b-it)
-
-The two Gemma 4 models the Gemini API serves, on the same Google key as
-the Gemini entries: base_model points at models/google/gemma-4-*, no
-[cost] (same as providers/google), and the thinking toggle Tempr&amp;#39;s
-GET /v1/models reports. Tempr switches it with thinkingLevel
-&amp;quot;minimal&amp;quot;/&amp;quot;high&amp;quot;, the only two levels Gemma 4 takes (live 2026-09-21).
-
-Co-Authored-By: Claude Opus 5 &amp;lt;noreply@anthropic.com&amp;gt;
-
----------
-
-Co-authored-by: Claude Opus 5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+The 2026-09-22 value was the release date, not a knowledge cutoff. Omit until a real cutoff is known.&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/fd3dedfe12242774c50647a1fdfd928269e32292</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/fd3dedfe12242774c50647a1fdfd928269e32292"/>
+    <id>tag:github.com,2008:Grit::Commit/3487ff2546c77c2ed30bfa677a8cbb72708aee7c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/3487ff2546c77c2ed30bfa677a8cbb72708aee7c"/>
     <title>
-        chore: use Muse Spark in workflows (#7696)
+        chore(sync): update DigitalOcean model catalog (#7789)
     </title>
-    <updated>2026-09-22T02:37:18Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
-    <author>
-      <name>rekram1-node</name>
-      <uri>https://github.com/rekram1-node</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore: use Muse Spark in workflows (#7696)
-
-Co-authored-by: opencode-agent &amp;lt;opencode-agent@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/9ef10005b290d2dbbd8edcf5eb0ba198e72cef50</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9ef10005b290d2dbbd8edcf5eb0ba198e72cef50"/>
-    <title>
-        chore(sync): update Kilo model catalog (#7695)
-    </title>
-    <updated>2026-09-22T02:35:48Z</updated>
+    <updated>2026-09-23T03:59:25Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#7695)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update DigitalOcean model catalog (#7789)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/f909dbf12263e28a5e28517967bf28f7d00b3912</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f909dbf12263e28a5e28517967bf28f7d00b3912"/>
+    <id>tag:github.com,2008:Grit::Commit/80f9e2b41a4fde3e7bc39315ade9c53a75138793</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/80f9e2b41a4fde3e7bc39315ade9c53a75138793"/>
     <title>
-        chore(sync): update EmpirioLabs AI model catalog (#7694)
+        fix: [missing-model] ofox: openai/gpt-6-sol (#7803)
     </title>
-    <updated>2026-09-22T02:35:08Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:59:18Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
     <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update EmpirioLabs AI model catalog (#7694)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: [missing-model] ofox: openai/gpt-6-sol (#7803)
 
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/ec4b93ddb6b1f6b9607c099259db651fd62c4a6f</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ec4b93ddb6b1f6b9607c099259db651fd62c4a6f"/>
+    <id>tag:github.com,2008:Grit::Commit/1ec5c576bb1c1a375a5ec4819c696cdb95afb6b2</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/1ec5c576bb1c1a375a5ec4819c696cdb95afb6b2"/>
     <title>
-        chore(sync): update OpenRouter model catalog (#7693)
+        fix: [missing-model] github-copilot: claude-opus-5.5 (#7815)
     </title>
-    <updated>2026-09-22T02:35:03Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:58:45Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
     <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#7693)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: [missing-model] github-copilot: claude-opus-5.5 (#7815)
 
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/8a0fe46cc5e854bea2668da39a9a5faf267b3482</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/8a0fe46cc5e854bea2668da39a9a5faf267b3482"/>
+    <id>tag:github.com,2008:Grit::Commit/cc75f6ae0a9d7a5f26c79676201e1d1cb8f0e9ef</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/cc75f6ae0a9d7a5f26c79676201e1d1cb8f0e9ef"/>
     <title>
-        fix(alibaba-cn): correct Qwen context pricing (#7692)
+        feat(kenari): add deepseek-v4-1-flash (#7755)
     </title>
-    <updated>2026-09-22T02:34:42Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:58:28Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/20943576?s=30&amp;v=4"/>
     <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
+      <name>davidstrouk</name>
+      <uri>https://github.com/davidstrouk</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(alibaba-cn): correct Qwen context pricing (#7692)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(kenari): add deepseek-v4-1-flash (#7755)
 
-Use Alibaba’s published Beijing USD tiers and align qwen3-max with the current 2026-01-23 alias metadata.
+Live on https://kenari.id/v1/models as deepseek-v4-1-flash
+(context 1M, input text+image, reasoning low/high/max, tool_call).
+Uses base_model deepseek/deepseek-v4.1-flash, cost 0/0 per Kenari
+subscription convention.
 
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;
-Co-authored-by: tbourrillon &amp;lt;7868998+tbourrillon@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: davidstrouk &amp;lt;david@davidstrouk.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/15d02bdb540bc047ef8943d41bf59214477a14e8</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/15d02bdb540bc047ef8943d41bf59214477a14e8"/>
+    <id>tag:github.com,2008:Grit::Commit/d53018c0bf6f9464dcfeb98eae2e948ae781a836</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/d53018c0bf6f9464dcfeb98eae2e948ae781a836"/>
     <title>
-        fix(sync): preserve Workers AI pricing overrides (#7651)
+        feat(amazon-bedrock): add GPT-6 Sol and Luna inference profiles (#7805)
     </title>
-    <updated>2026-09-22T02:30:37Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:58:22Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/106471410?s=30&amp;v=4"/>
     <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
+      <name>yazan-albaiz</name>
+      <uri>https://github.com/yazan-albaiz</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(sync): preserve Workers AI pricing overrides (#7651)
-
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(amazon-bedrock): add GPT-6 Sol and Luna inference profiles (#7805)&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/226a53f287a2ca8e18803398f321bc14b9b95866</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/226a53f287a2ca8e18803398f321bc14b9b95866"/>
+    <id>tag:github.com,2008:Grit::Commit/7d4d66712d3208d832bd61f3b7b94b4ffc6eb775</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/7d4d66712d3208d832bd61f3b7b94b4ffc6eb775"/>
     <title>
-        chore(sync): update Vercel AI Gateway model catalog (#7678)
+        fix: [missing-model] ofox: openai/gpt-6-luna (#7804)
     </title>
-    <updated>2026-09-22T02:29:23Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:57:50Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
     <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Vercel AI Gateway model catalog (#7678)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: [missing-model] ofox: openai/gpt-6-luna (#7804)
 
-* chore(sync): update Vercel AI Gateway model catalog
-
-* fix(vercel): normalize MiMo V2.6 models
-
-* fix(vercel): add MiMo V2.6 reasoning efforts
-
----------
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;
-Co-authored-by: rekram1-node &amp;lt;rekram1-node@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/c6db867cb5b2b2d601b29a32d5705ab9e78d9685</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/c6db867cb5b2b2d601b29a32d5705ab9e78d9685"/>
+    <id>tag:github.com,2008:Grit::Commit/3960b9bf712feb58b553e8045edfdfcd0a92efdb</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/3960b9bf712feb58b553e8045edfdfcd0a92efdb"/>
     <title>
-        feat(aihubmix): add gemini-3.6-flash (#7430)
+        fix: [missing-model] pioneer: fastino/gliguard-PII-multi (#7780)
     </title>
-    <updated>2026-09-22T02:26:28Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/17203886?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:57:41Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
     <author>
-      <name>0genlab</name>
-      <uri>https://github.com/0genlab</uri>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(aihubmix): add gemini-3.6-flash (#7430)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: [missing-model] pioneer: fastino/gliguard-PII-multi (#7780)
 
-AIHubMix serves this route but the catalog carried no aihubmix entry for
-it. Cost comes from the provider&amp;#39;s public model listing and the reasoning
-controls from its published model-data index; limit, modalities,
-attachment and tool_call inherit from models/google/gemini-3.6-flash.toml rather than being
-repeated here.
-
-Co-authored-by: chenxue &amp;lt;DDU1222@users.noreply.github.com&amp;gt;
-Co-authored-by: Claude Opus 5 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/7fb291189f66de31dd1edb34dbc3d25597995d38</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/7fb291189f66de31dd1edb34dbc3d25597995d38"/>
+    <id>tag:github.com,2008:Grit::Commit/c3fd2c89b4485817795b54c63c4859e8290374af</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/c3fd2c89b4485817795b54c63c4859e8290374af"/>
     <title>
-        coralbricks: retire Kimi K3, add DeepSeek V4.1 Flash, publish cache-w…
+        fix: [missing-model] ofox: x-ai/grok-4.7 (#7792)
     </title>
-    <updated>2026-09-22T02:25:26Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/4976197?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:57:32Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
     <author>
-      <name>divyvasal</name>
-      <uri>https://github.com/divyvasal</uri>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;coralbricks: retire Kimi K3, add DeepSeek V4.1 Flash, publish cache-write rates (#7599)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: [missing-model] ofox: x-ai/grok-4.7 (#7792)
 
-* remove(coralbricks): retire Kimi K3
-
-Issue: CoralBricks retired kimi-k3 on 2026-09-20 with a hard 404.
-Fix: delete the stale provider model entry.
-
-* add(coralbricks): DeepSeek V4.1 Flash (deepseek-v4.1-flash-fast-fp4)
-
-Public on inference.coralbricks.ai since 2026-09-21: 1M context, $0.22 in /
-$0.66 out per 1M tokens, cached input free, cache writes $0.07 (0.3x input),
-text only, served as an MXFP4 checkpoint.
-
-* coralbricks: DeepSeek V4.1 Flash at $0.30 / $1.20, declare reasoning options
-
-CoralBricks set the published rate for deepseek-v4.1-flash-fast-fp4 to
-$0.30 input / $1.20 output per 1M tokens, with cache writes at $0.09.
-
-The entry inherits reasoning = true from the lab baseline but declared no
-reasoning_options, which failed validate. Declare the thinking toggle and
-low / high / max effort, each verified against the CoralBricks endpoint.
-
-Co-Authored-By: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;
-
-* coralbricks: DeepSeek V4.1 Flash reasoning via reasoning_effort, with sources
-
-On the CoralBricks endpoint reasoning is off unless reasoning_effort is
-set, and thinking.type has no effect, so the control is effort
-none | low | high | max rather than a toggle. Adds a header with the
-pricing sources and the verified wire path.
-
-Co-Authored-By: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;
-
-* coralbricks: DeepSeek V4.1 Flash interleaved reasoning, no attachments
-
-Reasoning comes back in reasoning_content, as on the other CoralBricks
-reasoners, so interleaved = true. The endpoint serves this model
-text-only and rejects image parts with a 400, so attachment = false
-rather than the base model&amp;#39;s true.
-
-Co-Authored-By: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;
-
-* coralbricks: publish cache-write rates for every model
-
-https://www.coralbricks.ai/pricing bills the novel tokens of a request at
-the cache-write rate, 1.5x input: GLM 5.3 $1.68, GLM 5.3 Flash $0.23,
-GPT-OSS 120B $0.18 per 1M. Add cache_write to those three entries.
-DeepSeek V4.1 Flash already carries its $0.09. Its header now states the
-effort field only, without claims about the default state.
-
-Co-Authored-By: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;
-
-* coralbricks: DeepSeek V4.1 Flash reasoning is opt-in; add medium effort
-
-Reasoning on this endpoint is opt-in by design: with no reasoning_effort,
-or none, the model answers without reasoning; low, medium, high and max
-turn it on. State that in the header and declare medium, which the
-endpoint accepts.
-
-Co-Authored-By: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;
-
-* coralbricks: DeepSeek V4.1 Flash effort ladder back to low / high / max
-
-The endpoint accepts medium, but acceptance is not a distinct depth; keep
-the lab ladder plus the host&amp;#39;s none (off).
-
-Co-Authored-By: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;
-
----------
-
-Co-authored-by: Claude Opus 5 (1M context) &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/63b9be07808ebb2da0f0c158456d892d56663e6e</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/63b9be07808ebb2da0f0c158456d892d56663e6e"/>
+    <id>tag:github.com,2008:Grit::Commit/c7e9597dc37fadc4a4398123b107539b03d818c3</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/c7e9597dc37fadc4a4398123b107539b03d818c3"/>
     <title>
-        chore(sync): update CoreWeave model catalog (#7643)
+        fix: [missing-model] pioneer: fastino/gliner2.5-multi-v1 (#7793)
     </title>
-    <updated>2026-09-22T02:24:58Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <updated>2026-09-23T03:57:25Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/15368?s=30&amp;v=4"/>
     <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
+      <name>github-actions</name>
+      <uri>https://github.com/github-actions</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update CoreWeave model catalog (#7643)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: [missing-model] pioneer: fastino/gliner2.5-multi-v1 (#7793)
 
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: github-actions[bot] &amp;lt;41898282+github-actions[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
 </feed>
