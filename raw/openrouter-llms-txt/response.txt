@@ -133,7 +133,9 @@
 - [Render](https://openrouter.ai/docs/guides/community/render.md): Using OpenRouter with Render Workflows
 - [Replit](https://openrouter.ai/docs/guides/community/replit.md): Using OpenRouter with Replit Agent and Replit Apps
 - [TanStack AI](https://openrouter.ai/docs/guides/community/tanstack-ai.md): Using OpenRouter with TanStack AI
-- [TypeSafe SDK](https://openrouter.ai/docs/guides/community/typesafe-sdk.md): Using the TypeSafe SDK with OpenRouter
+- [Jev Documentation: Using the TypeSafe Decision Model on OpenRouter](https://openrouter.ai/docs/guides/community/jev.md): The OpenRouter hub for Jev, the TypeSafe decision model. What Jev is, how to get access, the Decisions API, TypeScript and Python SDKs, cookbooks, pricing, and demos
+- [Jev Tutorial: Make Your First Decision Call on OpenRouter](https://openrouter.ai/docs/guides/community/jev-tutorial.md): Step-by-step Jev tutorial. Send a typed decision request to the TypeSafe model on OpenRouter with curl, TypeScript, or Python and read the probabilities it returns
+- [Jev SDK for TypeScript and Python (TypeSafe SDK)](https://openrouter.ai/docs/guides/community/typesafe-sdk.md): Point the official TypeSafe JavaScript or Python SDK at OpenRouter to call Jev with your OpenRouter API key
 - [Vercel AI SDK](https://openrouter.ai/docs/guides/community/vercel-ai-sdk.md): Using OpenRouter with Vercel AI SDK
 - [Xcode](https://openrouter.ai/docs/guides/community/xcode.md): Using OpenRouter with Apple Intelligence in Xcode
 - [Zapier](https://openrouter.ai/docs/guides/community/zapier.md): Build AI automations with OpenRouter & Zapier
@@ -156,7 +158,7 @@
 - [Get user activity grouped by endpoint](https://openrouter.ai/docs/api/api-reference/analytics/get-user-activity-grouped-by-endpoint.md): Returns user activity data grouped by endpoint for the last 30 (completed) UTC days. Pass `workspace_id` to scope the response to a single workspace. Pass `group_by=workspace` to split each row per workspace and include `workspace_id` on every item; by default rows are aggregated across workspaces a…
 - [Get available analytics metrics and dimensions](https://openrouter.ai/docs/api/api-reference/analytics/get-available-analytics-metrics-and-dimensions.md): Returns the available metrics, dimensions, filter operators, and granularities for the analytics query endpoint. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Query analytics data](https://openrouter.ai/docs/api/api-reference/analytics/query-analytics-data.md): Execute an analytics query with specified metrics, dimensions, filters, and time range. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Submit a Decisions (questions and answers) request](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-questions-and-answers-request.md): Submits a Decisions request to the Decisions router
+- [Submit a Decisions request](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request.md): Submits a Decisions request to the Decisions router
 - [Create speech](https://openrouter.ai/docs/api/api-reference/tts/create-speech.md): Synthesizes audio from the input text. Returns a raw audio bytestream in the requested format (e.g. mp3, pcm, wav).
 - [Create transcription](https://openrouter.ai/docs/api/api-reference/stt/create-transcription.md): Transcribes audio into text. Accepts base64-encoded audio input as JSON or an OpenAI-style multipart/form-data file upload, and returns the transcribed text.
 - [Exchange authorization code for API key](https://openrouter.ai/docs/api/api-reference/oauth/exchange-authorization-code-for-api-key.md): Exchange an authorization code from the PKCE flow for a user-controlled API key
@@ -288,7 +290,7 @@
 - [Containers](https://openrouter.ai/docs/client-sdks/typescript/sdks/containers/README.md): Containers endpoints
 - [Credits](https://openrouter.ai/docs/client-sdks/typescript/sdks/credits/README.md): Credit management endpoints
 - [Datasets](https://openrouter.ai/docs/client-sdks/typescript/sdks/datasets/README.md): Public OpenRouter usage datasets. Data returned by these endpoints is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): reuse and republish it, including commercially, with attribution to OpenRouter.
-- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README.md): Alpha feature endpoints for Decisions (questions and answers) requests
+- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/typescript/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/typescript/sdks/endpoints/README.md): Endpoint information
 - [Files](https://openrouter.ai/docs/client-sdks/typescript/sdks/files/README.md): Files endpoints
@@ -322,7 +324,7 @@
 - [Containers](https://openrouter.ai/docs/client-sdks/python/sdks/containers/README.md): Containers endpoints
 - [Credits](https://openrouter.ai/docs/client-sdks/python/sdks/credits/README.md): Credit management endpoints
 - [Datasets](https://openrouter.ai/docs/client-sdks/python/sdks/datasets/README.md): Public OpenRouter usage datasets. Data returned by these endpoints is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): reuse and republish it, including commercially, with attribution to OpenRouter.
-- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/python/sdks/decisions/README.md): Alpha feature endpoints for Decisions (questions and answers) requests
+- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/python/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/python/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/python/sdks/endpoints/README.md): Endpoint information
 - [Files](https://openrouter.ai/docs/client-sdks/python/sdks/files/README.md): Files endpoints
@@ -356,7 +358,7 @@
 - [Containers](https://openrouter.ai/docs/client-sdks/go/sdks/containers/README.md): Containers endpoints
 - [Credits](https://openrouter.ai/docs/client-sdks/go/sdks/credits/README.md): Credit management endpoints
 - [Datasets](https://openrouter.ai/docs/client-sdks/go/sdks/datasets/README.md): Public OpenRouter usage datasets. Data returned by these endpoints is licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): reuse and republish it, including commercially, with attribution to OpenRouter.
-- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/go/sdks/decisions/README.md): Alpha feature endpoints for Decisions (questions and answers) requests
+- [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/go/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/go/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/go/sdks/endpoints/README.md): Endpoint information
 - [Files](https://openrouter.ai/docs/client-sdks/go/sdks/files/README.md): Files endpoints
@@ -407,6 +409,7 @@
 - [Enterprise Onboarding Journey](https://openrouter.ai/docs/cookbook/get-started/enterprise-onboarding-journey.md): What to expect from signature to production, and what we need from you at each step
 - [Enterprise Quickstart](https://openrouter.ai/docs/cookbook/get-started/enterprise-quickstart.md): Get your organization up and running with OpenRouter
 - [Free Models Router](https://openrouter.ai/docs/cookbook/get-started/free-models-router-playground.md): Get started with free AI inference using the OpenRouter Chat Playground
+- [Auto-Approve Coding Agent Permission Prompts with Jev](https://openrouter.ai/docs/cookbook/coding-agents/auto-approve-permission-prompts-with-jev.md): Auto-approve routine permission prompts in OpenCode, Claude Code, Codex CLI, and Cursor with Jev, keep risky commands on a static rule, and send unclear ones to you
 - [Automatic Code Review](https://openrouter.ai/docs/cookbook/coding-agents/automatic-code-review.md): Automatic code review for Claude Code using hooks and OpenRouter — async, non-blocking reviews from a second model while you keep working
 - [Claude Code](https://openrouter.ai/docs/cookbook/coding-agents/claude-code-integration.md): Use Claude Code with OpenRouter
 - [Claude Desktop](https://openrouter.ai/docs/cookbook/coding-agents/claude-desktop-integration.md): Use Claude Desktop with OpenRouter
@@ -433,16 +436,19 @@
 - [Use Provider-Specific Video Options](https://openrouter.ai/docs/cookbook/video-generation/provider-specific-video-options.md): Inspect allowed passthrough parameters and send provider-specific video controls safely
 - [Enhance Image Generation with Presets](https://openrouter.ai/docs/cookbook/image-generation/preset-enhanced-images.md): Pair a text model with the image generation server tool so every request gets a refined prompt automatically
 - [Distillation](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/distillation.md): Ensure compliance with provider and model creator policies for distillation
+- [Claude Opus 5.5 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/opus-5-5.md): Migrate from Claude Opus 5 to Claude Opus 5.5. Adaptive-only thinking with effort as the main control, forced tool use retired, mid-thinking display updates, preserved thinking, and 20% lower pricing
 - [Claude Fable 5.1 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/fable-5-1.md): Migrate to Claude Fable 5.1 — ephemeral system messages, per-turn effort, forced tool use rejected, mid-thinking display updates, and prefix-locked thinking
 - [Claude Opus 5 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/opus-5.md): Migrate to Claude Opus 5 — reasoning on by default, effort restrictions when disabling reasoning, and mid-conversation tool changes
 - [Claude 5 Sonnet Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/sonnet-5.md): Migrate to Claude 5 Sonnet — sampling parameters removed, adaptive-only thinking, and the new xhigh effort level
 - [Claude 4.7 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-7.md): Migrate to Claude 4.7 Opus — sampling parameters removed, adaptive-only thinking, and new xhigh effort level
 - [Claude 4.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-4-6.md): Migrate to Claude 4.6 with adaptive thinking and max effort level
-- [GPT-6 Astra Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-6-astra.md): Adopt async tool calling and mid-conversation reasoning effort changes with configuration_update for GPT-6 Astra
+- [GPT-6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-6.md): Adopt async tool calling and mid-conversation reasoning effort changes with configuration_update for the GPT-6 model family
 - [GPT-5.6 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-6.md): Adopt reasoning.mode, reasoning.context, and explicit prompt caching for the GPT-5.6 model family
 - [GPT-5.4 Migration Guide](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/gpt-5-4.md): Support the phase field for GPT-5.3 Codex, GPT-5.4, GPT-5.4 Pro, GPT-5.5, and GPT-5.5 Pro
 - [RAG with Embeddings & Rerank](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/rag.md): Build retrieval-augmented generation pipelines using OpenRouter's embeddings and rerank APIs
 - [Cut LLM Cost with a Jev-Verified Cascade](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/jev-verified-cascade.md): Verify cheap-model answers against retrieved context, then escalate only when the answer isn't supported by that context.
+- [Classify Reddit and YouTube Comments with Jev and ScrapeCreators](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/classify-reddit-comments-with-jev.md): Classify Reddit and YouTube comments with Jev: fetch via the ScrapeCreators API, score relevance and sentiment, and route each to record, review, or ignore.
+- [Classify and Tag Text at Scale with Jev](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/jev-classification.md): Run Jev text classification in batches with Choice for exclusive categories and one Noul per tag, pick thresholds from a labeled sample, and compute cost per 1,000 items from real usage.
 - [Red Teaming](https://openrouter.ai/docs/cookbook/evaluate-and-optimize/red-teaming.md): Policy for red teaming and adversarial testing on OpenRouter
 - [Activity Export](https://openrouter.ai/docs/cookbook/administration/activity-export.md)
 - [API Key Rotation](https://openrouter.ai/docs/cookbook/administration/api-key-rotation.md): Securely rotate your OpenRouter API keys
