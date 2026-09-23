@@ -72,6 +72,9 @@
 - [Visualize endpoint metrics in Grafana](https://docs.together.ai/docs/dedicated-endpoints/grafana.md): Scrape the metrics endpoint with Prometheus and import the example Grafana dashboard for dedicated endpoints.
 - [Overview](https://docs.together.ai/docs/dedicated-container-inference.md): Deploy custom containers on Together's managed GPU infrastructure with automatic scaling, job queues, and built-in observability.
 - [Quickstart](https://docs.together.ai/docs/containers-quickstart.md): Deploy your first container in 20 minutes.
+- [Image generation with Flux2](https://docs.together.ai/docs/dedicated-containers-image.md): Deploy a Flux2 image generation model on Together's managed GPU infrastructure using dedicated containers.
+- [Video generation with Wan 2.1](https://docs.together.ai/docs/dedicated-containers-video.md): Deploy a multi-GPU video generation model on Together's managed GPU infrastructure using dedicated containers.
+- [Serve an OpenAI-compatible endpoint](https://docs.together.ai/docs/dedicated-containers-openai.md): Deploy a custom model behind an OpenAI-compatible endpoint using dedicated containers.
 - [Architecture](https://docs.together.ai/docs/together-deployments.md): Architecture, deployment lifecycle, and core concepts for dedicated container inference.
 - [Jig CLI](https://docs.together.ai/docs/deployments-jig.md): Build, push, and deploy containers to Together's managed GPU infrastructure.
 - [Sprocket SDK](https://docs.together.ai/docs/deployments-sprocket.md): A Python SDK for building inference workers that support both synchronous and asynchronous requests via Together's platform.
@@ -136,12 +139,10 @@
 - [Serve multiple LoRA adapters on one endpoint](https://docs.together.ai/docs/dedicated-endpoints/v1/lora-adapter.md): Attach, list, and remove LoRA adapters on a running dedicated endpoint to serve several adapters from one deployment.
 - [Overview](https://docs.together.ai/docs/guides.md): Quickstarts and step-by-step guides for building with Together AI.
 - [Kimi K3 quickstart](https://docs.together.ai/docs/kimi-k3-quickstart.md): Call Kimi K3 on Together for long-horizon coding, vision-in-the-loop work, and deep reasoning.
-- [GLM-5.2 quickstart](https://docs.together.ai/docs/glm-5.2-quickstart.md): Get the most out of GLM-5.2 for long-horizon coding and agentic tasks.
+- [GLM-5.3 quickstart](https://docs.together.ai/docs/glm-5.3-quickstart.md): Call GLM-5.3 and GLM-5.3 Flash on Together for long-horizon coding and agentic work.
 - [DeepSeek V4 Pro quickstart](https://docs.together.ai/docs/deepseek-v4-quickstart.md): Call DeepSeek V4 Pro on Together for hybrid reasoning, long-context, and tool-using workloads.
-- [Kimi K2.6 quickstart](https://docs.together.ai/docs/kimi-k2.6-quickstart.md): Get the most out of Moonshot AI's Kimi K2.6 multimodal model for vision, reasoning, and agentic tool use.
-- [GPT-OSS quickstart](https://docs.together.ai/docs/gpt-oss.md): Get started with GPT-OSS, OpenAI's open-weight reasoning model.
-- [FLUX.2 quickstart](https://docs.together.ai/docs/quickstart-flux.md): Use FLUX.2, the next generation image model with advanced prompting capabilities.
-- [FLUX Kontext quickstart](https://docs.together.ai/docs/quickstart-flux-kontext.md): Use FLUX Kontext for in-context image generation.
+- [GPT-OSS quickstart](https://docs.together.ai/docs/gpt-oss.md): Call OpenAI's GPT-OSS 120B open-weight reasoning model on Together.
+- [FLUX quickstart](https://docs.together.ai/docs/quickstart-flux.md): Generate and edit images with the FLUX model family, including FLUX.2 and FLUX.1 Kontext.
 - [Wan 2.7 quickstart](https://docs.together.ai/docs/wan2.7-quickstart.md): Generate videos from text, images, and reference materials with the Wan 2.7 model family.
 - [Seedance 2.5 quickstart](https://docs.together.ai/docs/seedance2.5-quickstart.md): Generate multi-shot videos with synchronized audio from text, image, video, and audio inputs.
 - [Build a phone voice agent with Together AI](https://docs.together.ai/docs/how-to-build-phone-voice-agent.md): Create a real-time phone voice agent from scratch with Twilio Media Streams, Together AI realtime STT, chat completions, realtime TTS, and local voice activity detection.
@@ -149,8 +150,7 @@
 - [Build a CSV data analysis app with the code interpreter](https://docs.together.ai/docs/csv-data-analysis-with-code-interpreter.md): Build a full-stack Next.js app that answers questions about CSV data with AI-generated Python code.
 - [Build a resume-to-website app with structured outputs](https://docs.together.ai/docs/pdf-to-website-with-structured-outputs.md): Build an AI-powered site builder that turns PDF resumes into personal websites with structured outputs.
 - [OCR quickstart](https://docs.together.ai/docs/quickstart-how-to-do-ocr.md): Run OCR on documents with Together AI vision models and structured outputs.
-- [Build an AI data analyst](https://docs.together.ai/docs/data-analyst-agent.md): Build an AI data analyst with code interpreter, E2B, and Together AI.
-- [Build a real-time image generator with Flux](https://docs.together.ai/docs/how-to-build-a-real-time-image-generator.md): Build a real-time text-to-image app with Juggernaut Lightning Flux, Next.js, and Together AI.
+- [Build a real-time image generator with Flux](https://docs.together.ai/docs/how-to-build-a-real-time-image-generator.md): Create a real-time text-to-image app with Juggernaut Lightning Flux, Next.js, and Together AI.
 - [Build an open source NotebookLM](https://docs.together.ai/docs/open-notebooklm-pdf-to-podcast.md): Build an open source NotebookLM that turns a PDF into a podcast.
 - [Build an interactive AI tutor](https://docs.together.ai/docs/ai-tutor.md): Create LlamaTutor from scratch, an open source AI tutor with 90k users.
 - [Build an audio transcription app with Whisper](https://docs.together.ai/docs/how-to-build-real-time-audio-transcription-app.md): Build a real-time AI audio transcription app with Whisper, Next.js, and Together AI.
@@ -171,20 +171,17 @@
 - [Agno](https://docs.together.ai/docs/agno.md): Use Agno with Together AI to build multimodal agents.
 - [AutoGen(AG2)](https://docs.together.ai/docs/autogen.md): Use AutoGen (AG2) to build and orchestrate AI agents with Together AI models.
 - [Composio](https://docs.together.ai/docs/composio.md): Use Composio with Together AI.
-- [How to use togetherlink](https://docs.together.ai/docs/how-to-use-togetherlink.md)
+- [Configure Claude Code, Claude Desktop, Codex, and ChatGPT with Together AI models](https://docs.together.ai/docs/how-to-use-togetherlink.md): Use TogetherLink to run Claude Code, Claude Desktop and Cowork, Codex CLI, and ChatGPT Desktop with models hosted by Together AI.
 - [Power Claude Code with LiteLLM and Together AI](https://docs.together.ai/docs/using-together-with-litellm.md): Run Claude Code on Together coding models through a local LiteLLM proxy.
 - [Configure Kimi Code with Together AI models](https://docs.together.ai/docs/how-to-use-kimi-code.md): Power Moonshot AI's coding agent with Together AI-hosted models.
 - [Configure Cline with Together AI models](https://docs.together.ai/docs/how-to-use-cline.md): Power Cline, an AI coding agent, with Together AI models.
 - [Configure OpenCode with Together AI models](https://docs.together.ai/docs/how-to-use-opencode.md): Power OpenCode, a terminal-based AI coding agent, with Together AI models.
 - [Configure Qwen Code with Together AI models](https://docs.together.ai/docs/how-to-use-qwen-code.md): Power Qwen Code with Together AI models.
 - [Configure OpenClaw with Together AI models](https://docs.together.ai/docs/how-to-use-openclaw.md): Power OpenClaw, an autonomous agent, with Together AI models.
-- [Hugging Face inference quickstart](https://docs.together.ai/docs/quickstart-using-hugging-face-inference.md): Use Together models with Hugging Face inference.
-- [Vercel AI SDK quickstart](https://docs.together.ai/docs/using-together-with-vercels-ai-sdk.md): Use Together models with the Vercel AI SDK.
-- [Mastra quickstart](https://docs.together.ai/docs/using-together-with-mastra.md): Use Together models with Mastra.
+- [Hugging Face inference quickstart](https://docs.together.ai/docs/quickstart-using-hugging-face-inference.md): Call Together models from Hugging Face Inference clients.
+- [Vercel AI SDK quickstart](https://docs.together.ai/docs/using-together-with-vercels-ai-sdk.md): Call Together models from TypeScript, React, or Next.js with the Vercel AI SDK.
+- [Mastra quickstart](https://docs.together.ai/docs/using-together-with-mastra.md): Install Mastra, point an agent at Together AI, and generate a response from a serverless model.
 - [Next.js quickstart](https://docs.together.ai/docs/nextjs-chat-quickstart.md): Build an app that can ask a single question or chat with an LLM using Next.js and Together AI.
-- [Image generation with Flux2](https://docs.together.ai/docs/dedicated_containers_image.md): Deploy a Flux2 image generation model on Together's managed GPU infrastructure using dedicated containers.
-- [Video generation with Wan 2.1](https://docs.together.ai/docs/dedicated_containers_video.md): Deploy a multi-GPU video generation model on Together's managed GPU infrastructure using dedicated containers.
-- [Serve an OpenAI-compatible endpoint](https://docs.together.ai/docs/dedicated_containers_openai.md): Deploy a custom model behind an OpenAI-compatible endpoint using dedicated containers.
 - [Introduction](https://docs.together.ai/learn/index.md): Explore the fundamental concepts of the Together AI platform: Tokens, context windows, when to use serverless vs. dedicated inference, and how the stack works in practice.
 - [How LLMs work](https://docs.together.ai/learn/how-llms-work.md): How a large language model produces text from a prompt, one token at a time.
 - [Tokens & tokenization](https://docs.together.ai/learn/tokens-and-tokenization.md): How tokenization works, what the model reads, and why tokens drive cost and context usage.
@@ -343,7 +340,7 @@
 - [Get a model configuration](https://docs.together.ai/reference/dmi/configs-get.md): Retrieves a model configuration revision by ID, including its runtime selectors and certifications.
 - [Python Library](https://docs.together.ai/python-library.md)
 - [TypeScript Library](https://docs.together.ai/typescript-library.md)
-- [Python v2 SDK migration guide](https://docs.together.ai/docs/pythonv2-migration-guide.md): Migrate from Together Python v1 to v2 - the new Together AI Python SDK with improved type safety and modern architecture.
+- [Python SDK v2 migration](https://docs.together.ai/docs/pythonv2-migration-guide.md): Migrate code written against the Together Python SDK v1 to the v2 SDK.
 - [Error codes](https://docs.together.ai/docs/error-codes.md): An overview on error status codes, causes, and quick fix solutions.
 - [List all endpoints](https://docs.together.ai/reference/listendpoints.md): Returns a list of all endpoints associated with your account. You can filter the results by type (dedicated or serverless).
 - [List available hardware configurations](https://docs.together.ai/reference/listhardware.md): Returns a list of available hardware configurations for deploying models. When a model parameter is provided, it returns only hardware configurations compatible with that model, including their current availability status.
