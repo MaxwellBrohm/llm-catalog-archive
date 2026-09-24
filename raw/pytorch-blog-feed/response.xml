@@ -12,13 +12,13 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Tue, 22 Sep 2026 14:59:09 +0000</lastBuildDate>
+	<lastBuildDate>Wed, 23 Sep 2026 22:43:50 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=7.1.1</generator>
+	<generator>https://wordpress.org/?v=7.1.2</generator>
 
 <image>
 	<url>https://pytorch.org/wp-content/uploads/2024/10/cropped-favicon-32x32.webp</url>
@@ -28,6 +28,141 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>From Research Project to Open Source Ecosystem: Bring Your Academic PyTorch Project to PyTorchCon NA</title>
+		<link>https://pytorch.org/blog/from-research-project-to-open-source-ecosystem-bring-your-academic-pytorch-project-to-pytorchcon-na/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Wed, 23 Sep 2026 20:18:34 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=170102</guid>
+
+					<description><![CDATA[Some of the most interesting work being built with PyTorch starts in universities, research labs, student groups, and academic institutions. A new model architecture. A library created to support a...]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img fetchpriority="high" decoding="async" class="aligncenter wp-image-170129 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png" alt="" width="1983" height="793" srcset="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png 1983w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-300x120.png 300w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-1024x409.png 1024w" sizes="(max-width: 1983px) 100vw, 1983px" /></span></p>
+<p><span style="font-weight: 400;">Some of the most interesting work being built with PyTorch starts in universities, research labs, student groups, and academic institutions.</span></p>
+<p><span style="font-weight: 400;">A new model architecture. A library created to support a paper. A benchmarking framework. A research tool that solves a problem no existing project addresses. An educational toolkit developed for a university course. A system that begins with three graduate students and unexpectedly finds users around the world.</span></p>
+<p><b>What happens after the research project works?</b></p>
+<p><span style="font-weight: 400;">The paper may be published. Students graduate. Grants end. Research priorities move on. And a project with genuine value to the broader PyTorch community can struggle to make the transition from </span><b>research artifact</b><span style="font-weight: 400;"> to </span><b>sustainable open source project</b><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">The PyTorch Foundation </span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><b>OSPO &amp; Academic Outreach Working Group</b></a><span style="font-weight: 400;"> wants to help bridge that gap.</span></p>
+<p><span style="font-weight: 400;">As part of Day 0 programming ahead of </span><a href="https://pytorch.org/event/pytorch-conference-2026/"><b>PyTorch Conference North America 2026</b></a><span style="font-weight: 400;">, we are hosting an </span><b>Academic Workshop focused on Education &amp; Community Adoption</b><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">And we are inviting academic projects worth highlighting across a range of domains to submit using the </span><code>“PyTorch Projects: From Academia to Adoption”</code> <span style="font-weight: 400;">GH template in the OSPO and Academic Outreach </span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><span style="font-weight: 400;">Repository</span></a><span style="font-weight: 400;">.</span></p>
+<h2><b>Call for Academic PyTorch Projects</b></h2>
+<p><span style="font-weight: 400;">We invite students, researchers, faculty, research engineers, university labs, Academic OSPOs, and research institutions to submit open source projects created within academia, substantially developed by academic contributors, or emerging</span><b> from academic research using PyTorch, DeepSpeed, Helion, Ray, Safetensors, and vLLM.</b></p>
+<p><span style="font-weight: 400;">Eight (8)  selected projects will be invited to present short lightning talks, five (5) mins each, during the workshop. Presenters must be able to attend in-person to present their projects.</span></p>
+<p><span style="font-weight: 400;">Following the talks, project teams and other meetup attendees will join a hands-on workshop and mentor office hours with maintainers, open source program managers and professionals working in industry and research organizations, open source contributors, and members of the broader PyTorch community.</span></p>
+<p><span style="font-weight: 400;">The goal is simple:</span></p>
+<p><b>Help promising academic projects take their next step toward becoming sustainable community projects.</b></p>
+<h2><b>What Kind of Projects Are We Looking For?</b></h2>
+<p><span style="font-weight: 400;">We are particularly interested in projects where the work has demonstrated </span><b>technical value beyond a single experiment or paper</b><span style="font-weight: 400;"> and could be useful to a wider community. Your project needs to use PyTorch or one of the other PyTorch Foundation hosted projects and might be:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a library or developer tool;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a research framework that extends one of these projects for a particular domain;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a compiler, runtime, profiling, distributed training, inference, or optimization project;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">work in computer vision, NLP, robotics, scientific computing, healthcare, responsible AI, accessibility, or another research area;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">an evaluation or benchmarking framework;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a reproducibility toolkit or research infrastructure project;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">an educational tool that makes these projects easier to teach or learn;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">an open source implementation accompanying significant academic research;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a project connecting these projects with other parts of the open source AI stack;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">or something we have not thought of yet.</span></li>
+</ul>
+<h2><b>You Don&#8217;t Need to Have Everything Figured Out</b></h2>
+<p><span style="font-weight: 400;">Research software vs. sustainable, community-driven open source projects are often developed under very different conditions.</span></p>
+<p><span style="font-weight: 400;">Academic teams often optimize for experimentation, publication, reproducibility, and research velocity. Sustainable open source projects additionally need to think about documentation, releases, governance, security, contributor onboarding, testing, licensing, maintainer succession, and community operations.</span></p>
+<p><span style="font-weight: 400;">Those gaps should not prevent good academic work from reaching a wider community.</span></p>
+<p><span style="font-weight: 400;">The OSPO &amp; Academic Outreach Working Group was created in part to help academic projects navigate exactly this transition.</span></p>
+<p><span style="font-weight: 400;">So perhaps your project has excellent research behind it, but:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">the documentation needs work;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">new contributors find the repository difficult to navigate;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">only one person understands the release process;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">the original student maintainer is graduating;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">governance exists informally but is not documented;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">CI or packaging needs improvement;</span></li>
+<li aria-level="1"><span style="font-weight: 400;">there is no <code>CONTRIBUTING.md</code>, <code>SECURITY.md</code> , </span><span style="font-weight: 400;">or maintainer policy;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">you are unsure how to build a contributor community;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">users are appearing, but you do not know how to turn users into contributors;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">or you simply do not know what would be required to eventually become a PyTorch Ecosystem project.</span></li>
+</ul>
+<p><span style="font-weight: 400;">The workshop is designed to help identify those gaps and turn them into an actionable roadmap.</span></p>
+<h2><b>Workshop Program Overview</b></h2>
+<h3><b>1. Academic Project Showcases</b></h3>
+<p><span style="font-weight: 400;">Selected projects will present short lightning talks covering:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The problem they are solving,</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How they use or extend PyTorch Foundation hosted projects,</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The research or academic context behind the work,</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Who is using the project today,</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Why the project could matter to the broader community,</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;"> What support, resources, or changes could help the project reach its next stage</span></li>
+</ul>
+<h3><b>2. Maintainer &amp; Industry Open Source AI Leader Office Hours</b></h3>
+<p><span style="font-weight: 400;">After the lightning talks, we move from </span><b>show-and-tell to show-and-build</b><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">Project teams will work with maintainers, PyTorch ecosystem contributors, professionals who lead and support open source ecosystems within companies and other organizations, and community members around actual repositories.</span></p>
+<p><span style="font-weight: 400;">Depending on the project, conversations may cover:</span></p>
+<p><b>Open source readiness:</b><span style="font-weight: 400;"> Is it obvious what the project does? Can someone install it, run it, test it, and understand how to contribute?</span></p>
+<p><b>Governance:</b><span style="font-weight: 400;"> Who makes decisions? Who can merge changes? What happens when the original academic maintainers move on?</span></p>
+<p><b>Reproducibility:</b><span style="font-weight: 400;"> Can another researcher reproduce the results? Are datasets, benchmarks, evaluation methodology, dependencies, and artifacts clearly documented?</span></p>
+<p><b>Community:</b><span style="font-weight: 400;"> How does a new user become a contributor? Where are decisions discussed? Are issues approachable by people outside the original lab?</span></p>
+<p><b>Security and maintenance:</b><span style="font-weight: 400;"> How are dependencies, vulnerabilities, releases, and supported PyTorch versions handled?</span></p>
+<p><b>Ecosystem positioning:</b><span style="font-weight: 400;"> What is the project&#8217;s relationship with PyTorch? What unique problem does it solve? What would need to change before a future PyTorch Ecosystem application made sense?</span></p>
+<p><span style="font-weight: 400;">Our ambition is that teams leave the workshop with </span><b>a prioritized set of next steps for making their project easier to use, contribute to, maintain, and grow.</b></p>
+<h2><b>Who Should Submit?</b></h2>
+<p><span style="font-weight: 400;">We encourage submissions from:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">university students and graduate researchers;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">professors and academic educators;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">research labs and institutes;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">research software engineers;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Academic OSPOs;</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">maintainers of research-originated open source projects; and</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">academic communities building tools around the PyTorch Foundation hosted projects.</span></li>
+</ul>
+<p><span style="font-weight: 400;">Projects can come from anywhere in the world.</span></p>
+<p><span style="font-weight: 400;">You do not need to represent a large institution, have thousands of users, or already have a mature open source organization behind you.</span></p>
+<p><span style="font-weight: 400;">We care about the </span><b>idea, its usefulness, its relationship with PyTorch and the other PyTorch Foundation hosted projects, the work already happening around it, and its potential to grow beyond its original academic environment.</b></p>
+<h3><b>Evaluation Criteria</b></h3>
+<p><span style="font-weight: 400;">Projects will be evaluated based on:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Academic relevance: The project originated in, is substantially developed by, or supports academic research</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Ecosystem relevance: The project uses, extends, or integrates with PyTorch or another PyTorch Foundation-hosted project</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Open source readiness: The project has a public repository, an open source license, and enough documentation for mentors to review it</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Potential impact: The project addresses a meaningful problem and could benefit users beyond its original research team.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Team commitment: At least one maintainer can participate in the event and continue working on the agreed next steps afterward.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Cohort diversity: The final selection should represent a range of institutions, research areas, project stages, and geographic regions</span></li>
+</ul>
+<h2><b>What to Include in Your Submission</b></h2>
+<p><span style="font-weight: 400;">Tell us:</span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><b>What is the project?</b><b><br />
+</b><span style="font-weight: 400;">Give us the repository and a short description.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Where did it come from?</b><b><br />
+</b><span style="font-weight: 400;">Tell us about the university, lab, research group, course, or academic collaboration behind it.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>How does it use or extend PyTorch or its ecosystem?</b></li>
+<li style="font-weight: 400;" aria-level="1"><b>Who is it useful to?</b><b><br />
+</b><span style="font-weight: 400;">Researchers? Students? ML engineers? A particular scientific community?</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>What exists today?</b><b><br />
+</b><span style="font-weight: 400;">Users, contributors, releases, papers, deployments, courses, benchmarks, or other evidence of adoption are all useful context.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Where are you stuck?</b><b><br />
+</b><span style="font-weight: 400;">Documentation? Governance? Packaging? Testing? Contributors? Maintainers? Visibility? Reproducibility? Ecosystem readiness?</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>What would you like this workshop to help you achieve?</b></li>
+</ol>
+<p><span style="font-weight: 400;">We are not looking for perfectly polished applications.</span></p>
+<p><span style="font-weight: 400;">We are looking for projects worth helping.</span></p>
+<h2><b>Bring Us the Projects Academia Shouldn&#8217;t Lose</b></h2>
+<p><span style="font-weight: 400;">There is extraordinary open source AI work being created inside universities and research institutions.</span></p>
+<p><span style="font-weight: 400;">If you have built something with PyTorch that deserves a life beyond the paper, thesis, course, grant, or research group that created it, </span><b>submit it to the PTCNA Day 0 Academic Workshop.</b></p>
+<p><b>Submit your academic PyTorch project → PyTorch OSPO and Academic WG Issues (New Issues→ </b><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach/issues"><b>PyTorch Project : Academia to Adoption </b></a></p>
+<p><b>Submission deadline:</b><span style="font-weight: 400;"> September 30th 2026, midnight PT</span></p>
+<p><span style="font-weight: 400;">Registration for this event is separate from the PyTorch Conference and will be open later this week. </span></p>
+<p><span style="font-weight: 400;">Learn more about the </span><b>PyTorch Foundation OSPO &amp; Academic Outreach Working Group</b><span style="font-weight: 400;">:</span><span style="font-weight: 400;"><br />
+</span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><span style="font-weight: 400;">https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach</span></a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Hardware-Agnostic Models in vLLM</title>
 		<link>https://pytorch.org/blog/hardware-agnostic-models-in-vllm/</link>
 		
@@ -56,7 +191,7 @@
 </ol>
 <p>A high-level sketch of the current state is shown below.</p>
 <p><!-- IMAGE PLACEHOLDER: 'untitled image' - download from the Google Doc and upload to the WP media library, then replace this comment with the real <img> or WP image block --></p>
-<p><em><strong><img fetchpriority="high" decoding="async" class="alignleft wp-image-169762 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-scaled.png" alt="" width="2560" height="1430" srcset="https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-300x168.png 300w, https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-1024x572.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></strong></em></p>
+<p><em><strong><img decoding="async" class="alignleft wp-image-169762 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-scaled.png" alt="" width="2560" height="1430" srcset="https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-300x168.png 300w, https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-1024x572.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></strong></em></p>
 <p><em><strong>Figure 1</strong>: The current state of model definitions in vLLM. All three flavours resolve to a single implementation of each common layer, shown here for RowParallelLinear. SpyreRowParallelLinear is an out-of-tree plugin overriding that layer on one accelerator.</em></p>
 <p>While the modeling logic may live in different places, most models are composed of common layers like attention, mixture-of-experts, linear projections, norms and activations. It is important to understand that, in all 3 cases above, these common layers are still implemented in a single place. In case (1) and (2) these layers are explicitly imported from <code>vllm/model_executor/layers</code>. In case (3), the transformers model gets automatically fused and re-wired to use the vLLM layers. Thus, wherever the model definition is coming from, we are still using a common implementation of the majority of the layers that underpin it.</p>
 <p>vLLM&#8217;s layer implementations have evolved over several years and offer two important features that we will now discuss in more detail: (a) torch compile support, and (b) OOT extensibility.</p>
@@ -615,7 +750,7 @@ Tue 20 Oct, 16:20–16:30, LL20AB</p>
 		<title>Low Precision Flash Attention 4: End-to-End Block-Scaled Attention for Blackwell</title>
 		<link>https://pytorch.org/blog/low-precision-flash-attention-4-end-to-end-block-scaled-attention-for-blackwell/</link>
 		
-		<dc:creator><![CDATA[Dev (Devashish) Shankar, Darren Liu, Chunzhi Yang, Jackie (Jiaqi) Xu,Markus Hoehnerbach, Jason Xie, Santosh Mohan, Han Xu, Rich Zhu, Josh Fromm, Hongtao Yu, Max Leung, and John Bocharov]]></dc:creator>
+		<dc:creator><![CDATA[Dev (Devashish) Shankar, Darren Liu, Chunzhi Yang, Jackie (Jiaqi) Xu,Markus Hoehnerbach, Jason Xie, Santosh Mohan, Han Xu, Rich Zhu, Josh Fromm, Hongtao Yu, Max Leung, John Bocharov, Alan Purvis]]></dc:creator>
 		<pubDate>Wed, 16 Sep 2026 18:55:21 +0000</pubDate>
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=159902</guid>
@@ -1411,39 +1546,7 @@ for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
 		
 		
 			</item>
-		<item>
-		<title>Cambricon Joins the PyTorch Foundation as a Platinum Member</title>
-		<link>https://pytorch.org/blog/cambricon-joins-the-pytorch-foundation-as-a-platinum-member/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Tue, 08 Sep 2026 00:59:13 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=162761</guid>
-
-					<description><![CDATA[The PyTorch Foundation, a community-driven hub for open source AI under the Linux Foundation, is announcing today that Cambricon has joined as a Platinum member. Founded in 2016, Cambricon is...]]></description>
-										<content:encoded><![CDATA[<p><img decoding="async" class="alignnone size-large wp-image-162764" src="https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-1024x576.png" alt="Cambricon PyTorch Foundation Member" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-1024x576.png 1024w, https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Cambricon-PyTorch-Foundation-Member.png 1600w" sizes="(max-width: 1024px) 100vw, 1024px" /></p>
-<p>The PyTorch Foundation, a community-driven hub for open source AI under the Linux Foundation, is announcing today that Cambricon has joined as a Platinum member.</p>
-<p>Founded in 2016, Cambricon is an early pioneer in AI chips, dedicated to the research and development of AI chip products and software. Through a decade of continuous iteration, Cambricon has built a mature, high-performance hardware-software product portfolio that is developer-friendly and highly scalable.</p>
-<p>With its cutting-edge chip technologies and comprehensive foundational software ecosystem, Cambricon enables efficient training and inference of large language models at scale. Beyond that, it has helped turn AI computing into a commercial reality across industries. Its products have achieved broad commercial adoption across a range of core AI applications, including conversational AI, agentic AI, search, advertising and recommendation, audio and video generation, and other multimodal applications, earning broad recognition across the industry.</p>
-<p>“We believe that the full potential of AI computing can only be realized through tight software-hardware co-optimization and a thriving open ecosystem,” said Elton Gong, Vice President of Software Engineering at Cambricon, “For us, PyTorch is not just a framework, it is the core of our software ecosystem. For developers, a unified framework interface means lower migration costs, a consistent toolchain, and better developer experience. For PyTorch, a more general device abstraction means fewer downstream forks and easier maintenance. Therefore, our goal is not simply to integrate Cambricon products with PyTorch. We want to work closely with the PyTorch community, and to help PyTorch broaden its support for diverse backends, strengthen extensibility, and deliver unified device support ability. Through the collective efforts of the community, our shared goal is to help PyTorch deliver a native, out-of-the-box developer experience across a broader range of hardware platforms. This is the main reason for our joining the PyTorch Foundation. We hope to put our years of experience in large-scale deployment to work for the global developer community through sustained contributions, helping build a more open and diverse AI infrastructure.”</p>
-<p>Cambricon follows an “Upstream First” approach and has consistently contributed to the open-source software ecosystem as a long-standing PyTorch contributor. Over recent years, Cambricon’s contributions to PyTorch have spanned several core areas, including torch.compile, Eager Operators, Device Runtime, Distributed Computing, AMP, Dataloader and Profiler.</p>
-<p>In the meantime, Cambricon has worked closely with the vLLM community to enable Day 0 support for leading open-source large language models, including DeepSeek -V4 and GLM-5.</p>
-<p>Looking ahead, Cambricon will increase its investment in the open-source ecosystem, deepening its collaboration with the PyTorch Foundation in areas such as compile infrastructure enhancement, CI/CD enhancement, device-agnostic support for PyTorch domain-specific libraries. This reflects a more sustained and systematic commitment to participating in the PyTorch ecosystem. Cambricon is evolving from a long-standing PyTorch contributor into a global partner in building AI infrastructure, working with the PyTorch Foundation and global industry partners to foster a more open and diverse AI ecosystem.</p>
-<p>“For any AI accelerator to succeed at scale, it has to meet developers across the AI lifecycle, from building and optimizing models with PyTorch to serving them efficiently with vLLM,” said Mark Collier, Executive Director of the PyTorch Foundation. “Cambricon’s sustained upstream contributions to PyTorch, together with its work enabling vLLM on Cambricon hardware, demonstrate the kind of open source commitment that moves the entire ecosystem forward. Welcoming Cambricon to the PyTorch Foundation strengthens our shared mission to keep AI infrastructure open, portable, and competitive across diverse hardware.”</p>
-<p>As a platinum member, Cambricon is granted one seat to the PyTorch Foundation Governing Board. The Board sets policy through our bylaws, mission and vision statements, describing the overarching scope of foundation initiatives, technical vision, and direction.</p>
-<p>We’re happy to welcome Jin Wang, Senior Director of AI Frameworks and Infrastructure at Cambricon, to our board. Jin Wang leads Cambricon’s AI frameworks and software stack, with his team focused on providing software support for efficient inference and large-scale model training. The team’s work spans a wide range of application areas, including large language models, search, advertising and recommendation, and reinforcement learning, serving customers across industries such as internet and financial services.</p>
-<p>Under Wang’s leadership, the team has been a long-standing contributor to open-source projects, enabling the integration of Cambricon’s products with mainstream AI frameworks and optimizing them for different workloads.</p>
-<p>We&#8217;re also pleased to welcome Jing Zhu, Lead Maintainer at Cambricon working on PyTorch, to the PyTorch Foundation&#8217;s Technical Advisory Council (TAC). Jing Zhu serves as a lead maintainer on Cambricon’s PyTorch team, focusing on integrating Cambricon’s products with the PyTorch ecosystem. He works on Torch-MLU extension based on PyTorch’s backend integration mechanism (PrivateUse1), covering operator support, Inductor integration, CNCL (Cambricon Communications Library)-based distributed training, mixed-precision and graph-mode acceleration, as well as a comprehensive profiling and performance optimization toolchain. His work enables users to develop with PyTorch on Cambricon products with a native PyTorch experience.</p>
-<p>To learn more about how your organization can join the PyTorch Foundation, visit our <a href="https://pytorch.org/join/">website</a>.</p>
-<h3>About PyTorch Foundation</h3>
-<p>The PyTorch Foundation is the vendor-neutral home for the open source intelligence layer developers use for training, optimizing, serving, orchestrating, and running models on any chip in any cloud for any agent. As a community-driven hub hosted by the Linux Foundation, the PyTorch Foundation supports the core PyTorch framework alongside a growing portfolio of innovative projects including vLLM, DeepSpeed, Ray, Helion, and Safetensors. Through open governance, strategic support, and a global contributor community, the PyTorch Foundation empowers developers, researchers, and enterprises to build and deploy AI at scale. Learn more at <a href="https://pytorch.org/foundation">https://pytorch.org/foundation.</a></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4349 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1355731 metric#prefetches=273 metric#store-reads=36 metric#store-writes=12 metric#store-hits=282 metric#store-misses=15 metric#sql-queries=16 metric#ms-total=655.78 metric#ms-cache=28.38 metric#ms-cache-avg=0.6038 metric#ms-cache-ratio=4.3 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4349 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1375301 metric#prefetches=273 metric#store-reads=36 metric#store-writes=6 metric#store-hits=282 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=507.63 metric#ms-cache=22.01 metric#ms-cache-avg=0.5369 metric#ms-cache-ratio=4.3 -->
