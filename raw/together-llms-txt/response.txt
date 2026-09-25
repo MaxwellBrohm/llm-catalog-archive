@@ -5,6 +5,7 @@
 - [Overview](https://docs.together.ai/intro.md): Run, train, and serve open-source AI models on Together AI.
 - [Quickstart](https://docs.together.ai/docs/quickstart.md): Make your first request to Together AI in a few minutes.
 - [Coding agent setup](https://docs.together.ai/docs/agent-skills.md): Make your AI coding agent Together-AI-aware with ready-made skills for code generation and an MCP server for live docs lookup.
+- [Configure Claude Code, Claude Desktop, Codex, and ChatGPT with Together AI models](https://docs.together.ai/docs/togetherlink.md): Use TogetherLink to run Claude Code, Claude Desktop and Cowork, Codex CLI, and ChatGPT Desktop with models hosted by Together AI.
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
 - [Available models](https://docs.together.ai/docs/serverless/models.md): Browse the catalog of available models for instant inference.
@@ -171,7 +172,6 @@
 - [Agno](https://docs.together.ai/docs/agno.md): Use Agno with Together AI to build multimodal agents.
 - [AutoGen(AG2)](https://docs.together.ai/docs/autogen.md): Use AutoGen (AG2) to build and orchestrate AI agents with Together AI models.
 - [Composio](https://docs.together.ai/docs/composio.md): Use Composio with Together AI.
-- [Configure Claude Code, Claude Desktop, Codex, and ChatGPT with Together AI models](https://docs.together.ai/docs/how-to-use-togetherlink.md): Use TogetherLink to run Claude Code, Claude Desktop and Cowork, Codex CLI, and ChatGPT Desktop with models hosted by Together AI.
 - [Power Claude Code with LiteLLM and Together AI](https://docs.together.ai/docs/using-together-with-litellm.md): Run Claude Code on Together coding models through a local LiteLLM proxy.
 - [Configure Kimi Code with Together AI models](https://docs.together.ai/docs/how-to-use-kimi-code.md): Power Moonshot AI's coding agent with Together AI-hosted models.
 - [Configure Cline with Together AI models](https://docs.together.ai/docs/how-to-use-cline.md): Power Cline, an AI coding agent, with Together AI models.
