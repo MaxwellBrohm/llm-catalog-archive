@@ -44,6 +44,7 @@
 - [Agent API vs Sonar benchmarks](https://docs.perplexity.ai/docs/agent-api/migrate-from-sonar/benchmarks.md): How Agent API presets perform against Sonar across the benchmarks we run, and which preset to use in place of each Sonar model.
 - [Prompt Guide](https://docs.perplexity.ai/docs/agent-api/prompt-guide.md): How to write effective prompts for the Agent API.
 - [Perplexity Search API](https://docs.perplexity.ai/docs/search/quickstart.md): Access real-time web search results with Perplexity's Search API. Get ranked results, domain filtering, multi-query search, and content extraction for developers.
+- [Fast Search](https://docs.perplexity.ai/docs/search/fast-search.md): Use search_type fast on the Search API for lower-latency, lower-cost web results.
 - [Best Practices](https://docs.perplexity.ai/docs/search/best-practices.md): Learn best practices for optimizing search queries and implementing efficient async patterns with Perplexity's Search API.
 - [Use Search API with the Anthropic SDK](https://docs.perplexity.ai/docs/search/agent-sdks/anthropic.md): Register Perplexity's Search API as a tool inside the Anthropic Messages API and run the standard tool-use loop with Claude.
 - [Use Search API with the OpenAI SDK](https://docs.perplexity.ai/docs/search/agent-sdks/openai.md): Register Perplexity's Search API as a function tool inside the OpenAI Responses API and run the standard tool-call loop with GPT models.
@@ -78,7 +79,7 @@
 - [Perplexity with Composio](https://docs.perplexity.ai/docs/getting-started/integrations/composio.md): Expose Perplexity's Agent, Search, and Embeddings APIs as MCP tools or direct API actions for any AI agent framework via Composio.
 - [Perplexity with Cursor](https://docs.perplexity.ai/docs/getting-started/integrations/cursor.md): Use Perplexity with Cursor by calling the Agent API from project code with the Perplexity or OpenAI SDK, or by adding a Perplexity MCP server.
 - [Perplexity with Haystack](https://docs.perplexity.ai/docs/getting-started/integrations/haystack.md): Use Perplexity's Agent API, Embeddings API, and grounded Search API in Haystack pipelines.
-- [Perplexity web search in Hermes](https://docs.perplexity.ai/docs/getting-started/integrations/hermes.md): Configure Hermes Agent to use Perplexity for web search and page extraction, verify the connection, and complete a source-grounded research workflow.
+- [Perplexity web search in Hermes](https://docs.perplexity.ai/docs/getting-started/integrations/hermes.md): Use free Fast Search by default in Hermes Agent, or configure standard Perplexity web search and page extraction with your API key.
 - [Perplexity with LangChain](https://docs.perplexity.ai/docs/getting-started/integrations/langchain.md): Use Perplexity's Agent API from LangChain and LangGraph.
 - [Perplexity with LiteLLM](https://docs.perplexity.ai/docs/getting-started/integrations/litellm.md): Use Perplexity's Agent API and presets through LiteLLM's unified interface — Python SDK and Proxy.
 - [Perplexity with LiveKit Agents](https://docs.perplexity.ai/docs/getting-started/integrations/livekit.md): Use Perplexity's Agent API as the LLM brain of a LiveKit voice agent.
