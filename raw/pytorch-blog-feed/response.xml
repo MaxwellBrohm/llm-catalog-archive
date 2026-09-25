@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Wed, 23 Sep 2026 22:43:50 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 24 Sep 2026 21:06:09 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,73 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Accelerate Your AI Journey with new Introduction Track at PyTorch Conference NA 2026 and PyTorch Associate Training</title>
+		<link>https://pytorch.org/blog/accelerate-your-ai-journey-with-new-introduction-track-at-pytorch-conference-na-2026-and-pytorch-associate-training/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 24 Sep 2026 21:06:09 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=170295</guid>
+
+					<description><![CDATA[As deep learning models move rapidly from research prototypes into core enterprise infrastructure, the demand for practical, end-to-end PyTorch expertise has never been higher. Building robust neural networks requires more...]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;">As deep learning models move rapidly from research prototypes into core enterprise infrastructure, the demand for practical, end-to-end PyTorch expertise has never been higher. Building robust neural networks requires more than just high-level understanding. It demands hands-on experience in training, optimizing, and deploying models effectively.</span></p>
+<p><span style="font-weight: 400;">To support developers, researchers, and engineers looking to deepen their technical skills, the PyTorch Foundation is running a dedicated </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?topic=introduction"><b>Introduction Track</b></a><span style="font-weight: 400;"> during the PyTorch Conference North America, as well as an official, full-day </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/training/?utm_campaign=41307495-PyTorch%20Conference%202026%20-%20North%20America&amp;utm_source=Training"><b>PyTorch Associate Training</b></a><span style="font-weight: 400;"> session on </span><b>Monday, October 19, 2026</b><span style="font-weight: 400;">, 9am &#8211; 5pm in San Jose, California.</span></p>
+<p><span style="font-weight: 400;">In this blog we share what developers can expect from the technical sessions and training. </span></p>
+<h2><span style="font-weight: 400;">What to Expect from the Introduction Track</span></h2>
+<p><span style="font-weight: 400;">All attendees, from students, first time attendees all the way to seasoned AI engineers that want to learn about new areas are invited to check out the brand new Introduction Track at PyTorch Conference NA. Learn about areas of the PyTorch library, PyTorch ecosystem or AI stack that you are not familiar with. Explore foundational concepts, common workflows, project orientation, and approachable ways to begin building with the PyTorch ecosystem. Sessions include:</span></p>
+<p><b>From Math Panic to PyTorch Confidence </b><br />
+<span style="font-weight: 400;">Yashasvi Misra, 3:25 PM PDT, Room LL20AB </span></p>
+<p><span style="font-weight: 400;">Designed for Python developers, students, and educators new to machine learning, this session uses visual explanations and interactive exercises to demystify tensors, gradients, and dynamic computation graphs. Attendees will build intuitive mental models before implementing a foundational neural network and training loop in PyTorch.</span></p>
+<p><b>Practical GPU Programming with Triton for PyTorch Developers</b><br />
+<span style="font-weight: 400;">Suman Debnath, JanakiRam Goteti, 11:45 AM PDT, Room LL20CD</span></p>
+<p><span style="font-weight: 400;">PyTorch developers rely on tools like </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;"> to generate GPU kernels, but writing custom kernels can feel daunting. This session introduces Triton, an open-source Python-embedded programming model for authoring high-performance GPU code without CUDA or C++. Attendees will learn GPU memory movement fundamentals, explore thread parallelization, and write custom vector addition and matrix multiplication kernels.</span></p>
+<p><b>What You Cannot Profile, You Cannot Optimize: Learning to Read PyTorch Traces </b><br />
+<span style="font-weight: 400;">Aritra Roy Gosthipaty, Suvaditya Mukherjee, 2:50 PM PDT, Room LL20AB</span></p>
+<p><span style="font-weight: 400;">Modern profiling tools generate complex traces that can be difficult to interpret. This talk builds practical mental models around CPU-to-GPU dispatch chains, compute-bound versus overhead-bound workloads, and kernel timing variations. Attendees will evaluate workloads using </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;">, fused Triton kernels, and Liger kernels to make accurate performance comparisons.</span></p>
+<p><b>From Scratch to PyTorch: Demystifying ML Frameworks by Building Your Own </b><br />
+<span style="font-weight: 400;">Andrea Mattia Garavagno, Vijay Janapa Reddi,  2:15 PM PDT, Room LL20AB</span></p>
+<p><span style="font-weight: 400;">Understanding framework internals is critical for debugging complex logic, optimizing hardware, and contributing to backend infrastructure. This session introduces TinyTorch, an open-source CLI project that guides developers through rebuilding core framework components, including tensors, autograd, optimizers, and transformers, in pure Python.</span></p>
+<p><b>Understanding Modern Vision Language Models</b><br />
+<span style="font-weight: 400;">Aastha Jhunjhunwala, Mark Moyou, 12:20 PM PDT, Room LL20AB</span></p>
+<p><span style="font-weight: 400;">Vision-language models (VLMs) present unique serving and scaling challenges. Deconstructing five open source architectures, this talk examines image-to-token encoding, vision-language fusion strategies, multi-GPU fine-tuning, and production serving overheads such as KV-cache pressure and image-token expansion.</span></p>
+<p><b>A Developer&#8217;s Guide to Attention in vLLM </b><br />
+<span style="font-weight: 400;">Lucas Wilkinson, Matthew Bonanni, 11:45 AM PDT, Room LL20AB</span></p>
+<p><span style="font-weight: 400;">Modern state-of-the-art models rely on hybrid, sliding-window, sparse, and linear attention mechanisms to manage KV-cache memory over long context windows. This talk details how the vLLM engine represents and optimizes these diverse patterns through attention backends, KV-cache connectors, and hybrid memory allocators.</span></p>
+<h2><span style="font-weight: 400;">Elevate your AI Skills: PyTorch Associate Training </span></h2>
+<p><span style="font-weight: 400;">The PyTorch Foundation is excited to host an official, full-day, instructor-led </span><b>PyTorch Associate Training</b><span style="font-weight: 400;"> on </span><b>Monday, October 19, 2026</b><span style="font-weight: 400;">. </span></p>
+<h2><span style="font-weight: 400;">What to expect from the training</span></h2>
+<p><span style="font-weight: 400;">The PyTorch Associate Training is an in-person, instructor-led program, designed to equip participants with foundational and practical skills identified across the key domains of the PyTorch Certified Associate exam. Delivered through a structured series of sequential modules, the curriculum bridges the gap between core concepts and production-ready implementation.</span></p>
+<p><span style="font-weight: 400;">Participants in this full-day workshop will work with:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>Interactive Lectures &amp; Live Demos:</b><span style="font-weight: 400;"> Gain clear technical insights directly from experienced instructors as they demonstrate real-time model construction and training.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Guided Jupyter Notebook Labs:</b><span style="font-weight: 400;"> Build, train, and optimize deep learning models from scratch in interactive lab environments.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Comprehension Checkpoints:</b><span style="font-weight: 400;"> Solidify your understanding of key PyTorch ecosystem components through structured quizzes and reviews.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Practical Industry Projects:</b><span style="font-weight: 400;"> Work on real-world use cases that mirror production scenarios and deployment challenges.</span></li>
+</ul>
+<p><span style="font-weight: 400;">By learning alongside peers in an interactive setting, attendees receive direct feedback and real-time guidance from instructors.</span></p>
+<h2><span style="font-weight: 400;">To get the most out of this hands-on course, attendees should have:</span></h2>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Proficiency in Python programming</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Familiarity with Jupyter Notebooks and basic Google Colab environment workflows</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">A basic understanding of machine learning concepts</span></li>
+<li style="font-weight: 400;" aria-level="1">An active Google Account for accessing practical exercises</li>
+</ul>
+<h2><span style="font-weight: 400;">Meet your Instructor</span></h2>
+<p><span style="font-weight: 400;"><img decoding="async" class="alignleft wp-image-170296 size-thumbnail" src="https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot-150x150.png" alt="" width="150" height="150" srcset="https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot-150x150.png 150w, https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot-300x297.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot.png 646w" sizes="(max-width: 150px) 100vw, 150px" />Faradawn Yang is an engineer on the AI platform software team at NVIDIA, where he focuses on AI inference products. Faradawn holds a master’s degree in computer science and a bachelor’s degree in mathematics and computer science from the University of Chicago. Before joining NVIDIA, he worked as a data engineer at a marketing measurement company.</span></p>
+<h2></h2>
+<h2></h2>
+<h2><span style="font-weight: 400;">Receive a Certification Voucher</span></h2>
+<p><span style="font-weight: 400;">To support your long-term professional development, every attendee who completes the training will receive a voucher (valued at $250) for the official </span><b>PyTorch Certified Associate (PTCA)</b><span style="font-weight: 400;"> certification exam. Taking the PTCA exam provides a clear, industry-recognized credential to validate your practical skills in deep learning workflows using PyTorch.</span></p>
+<h2><span style="font-weight: 400;">Register now to elevate your AI skills</span></h2>
+<p><span style="font-weight: 400;">Pre-registration is required to secure your seat in the classroom, as space is limited to maintain an optimal student-to-instructor ratio.You can add the </span><b>PyTorch Associate Training</b><span style="font-weight: 400;"> directly to your PyTorch Conference North America registration through </span><b>Tuesday, October 13th</b><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">Learn more and register for the </span><a href="https://hubs.la/Q04y8msv0"><span style="font-weight: 400;">PyTorch Associate Training at PyTorch Conference NA</span></a><span style="font-weight: 400;">.</span></p>
+<p>&nbsp;</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>From Research Project to Open Source Ecosystem: Bring Your Academic PyTorch Project to PyTorchCon NA</title>
 		<link>https://pytorch.org/blog/from-research-project-to-open-source-ecosystem-bring-your-academic-pytorch-project-to-pytorchcon-na/</link>
 		
@@ -44,7 +111,7 @@
 <p><b>What happens after the research project works?</b></p>
 <p><span style="font-weight: 400;">The paper may be published. Students graduate. Grants end. Research priorities move on. And a project with genuine value to the broader PyTorch community can struggle to make the transition from </span><b>research artifact</b><span style="font-weight: 400;"> to </span><b>sustainable open source project</b><span style="font-weight: 400;">.</span></p>
 <p><span style="font-weight: 400;">The PyTorch Foundation </span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><b>OSPO &amp; Academic Outreach Working Group</b></a><span style="font-weight: 400;"> wants to help bridge that gap.</span></p>
-<p><span style="font-weight: 400;">As part of Day 0 programming ahead of </span><a href="https://pytorch.org/event/pytorch-conference-2026/"><b>PyTorch Conference North America 2026</b></a><span style="font-weight: 400;">, we are hosting an </span><b>Academic Workshop focused on Education &amp; Community Adoption</b><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">As part of Day 0 programming ahead of </span><a href="https://pytorch.org/event/pytorch-conference-2026/"><b>PyTorch Conference North America 2026</b></a><span style="font-weight: 400;">, we are hosting an </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/co-located-events/#from-academia-to-adoption-workshop"><b>Academic Workshop focused on Education &amp; Community Adoption</b><span style="font-weight: 400;">.</span></a></p>
 <p><span style="font-weight: 400;">And we are inviting academic projects worth highlighting across a range of domains to submit using the </span><code>“PyTorch Projects: From Academia to Adoption”</code> <span style="font-weight: 400;">GH template in the OSPO and Academic Outreach </span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><span style="font-weight: 400;">Repository</span></a><span style="font-weight: 400;">.</span></p>
 <h2><b>Call for Academic PyTorch Projects</b></h2>
 <p><span style="font-weight: 400;">We invite students, researchers, faculty, research engineers, university labs, Academic OSPOs, and research institutions to submit open source projects created within academia, substantially developed by academic contributors, or emerging</span><b> from academic research using PyTorch, DeepSpeed, Helion, Ray, Safetensors, and vLLM.</b></p>
@@ -154,9 +221,8 @@
 <p><span style="font-weight: 400;">If you have built something with PyTorch that deserves a life beyond the paper, thesis, course, grant, or research group that created it, </span><b>submit it to the PTCNA Day 0 Academic Workshop.</b></p>
 <p><b>Submit your academic PyTorch project → PyTorch OSPO and Academic WG Issues (New Issues→ </b><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach/issues"><b>PyTorch Project : Academia to Adoption </b></a></p>
 <p><b>Submission deadline:</b><span style="font-weight: 400;"> September 30th 2026, midnight PT</span></p>
-<p><span style="font-weight: 400;">Registration for this event is separate from the PyTorch Conference and will be open later this week. </span></p>
-<p><span style="font-weight: 400;">Learn more about the </span><b>PyTorch Foundation OSPO &amp; Academic Outreach Working Group</b><span style="font-weight: 400;">:</span><span style="font-weight: 400;"><br />
-</span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><span style="font-weight: 400;">https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach</span></a></p>
+<p><span style="font-weight: 400;">Registration for this event is separate from the PyTorch Conference and you can <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/co-located-events/#from-academia-to-adoption-workshop">learn more here</a>. </span></p>
+<p><span style="font-weight: 400;">Learn more about the </span><b>PyTorch Foundation <a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach">OSPO &amp; Academic Outreach Working Group.</a></b></p>
 ]]></content:encoded>
 					
 		
@@ -1486,67 +1552,7 @@ for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
 		
 		
 			</item>
-		<item>
-		<title>Alibaba Cloud, Ant Group, Cambricon and Huawei Come Together in Shanghai to Advance the Open Source AI Stack at PyTorch Conference China</title>
-		<link>https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Tue, 08 Sep 2026 01:00:02 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<category><![CDATA[Press Release]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=162723</guid>
-
-					<description><![CDATA[China&#8217;s leading AI technology companies Alibaba Cloud, Cambricon and Ant Group join the PyTorch Foundation as members Summary Alibaba Cloud and Cambricon joined the PyTorch Foundation as Platinum members, and...]]></description>
-										<content:encoded><![CDATA[<p><i><span style="font-weight: 400;">China&#8217;s leading AI technology companies Alibaba Cloud, Cambricon and Ant Group join the PyTorch Foundation as members</span></i></p>
-<p><b>Summary</b></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Alibaba Cloud and Cambricon joined the PyTorch Foundation as Platinum members, and Ant Group joined as a Gold member.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The foundation announced the new memberships Sept. 8 at the PyTorch Conference China 2026 in Shanghai. Together these organizations are mapping the future of the PyTorch ecosystem.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Representatives from the three new member companies and Huawei are delivering keynotes on advancing the open AI stack, covering hardware, models, and infrastructure.</span></li>
-</ul>
-<p><b>SHANGHAI – KubeCon + CloudNativeCon + OpenInfra Summit + PyTorch Conference China 2026  – September 8, 2026 – </b><a href="https://hubs.la/Q03PC0k70"><span style="font-weight: 400;">The PyTorch Foundation</span></a><span style="font-weight: 400;">, a community-driven hub for open source AI under the </span><a href="https://hubs.la/Q044kxsW0"><span style="font-weight: 400;">Linux Foundation</span></a><span style="font-weight: 400;">, today announced that </span><a href="https://www.alibabacloud.com/en?_p_lc=1"><span style="font-weight: 400;">Alibaba Cloud</span> </a><span style="font-weight: 400;">and </span><a href="https://www.cambricon.com/"><span style="font-weight: 400;">Cambricon</span></a><span style="font-weight: 400;"> have joined the Foundation as Platinum members, and </span><a href="https://www.antgroup.com/en"><span style="font-weight: 400;">Ant Group</span></a><span style="font-weight: 400;"> has joined as a Gold member. Representatives from Alibaba Cloud, Ant Group, Cambricon, and Huawei are coming together in Shanghai this week, taking the keynote stage at the first-ever </span><a href="https://hubs.la/Q049GBK60"><span style="font-weight: 400;">KubeCon + CloudNativeCon + OpenInfra Summit + PyTorch Conference China 2026</span></a><span style="font-weight: 400;"> to speak about the open AI stack — the chips and accelerators, open-weight models, frameworks, and infrastructure that carry AI into production.</span></p>
-<p><span style="font-weight: 400;">Together these organizations are mapping the future of the PyTorch ecosystem. During the conference keynotes, </span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1317079"><span style="font-weight: 400;">Alibaba Cloud</span></a><span style="font-weight: 400;">&#8216;s Qwen infrastructure team opens that arc at the platform level, walking through how they serve Qwen at massive scale. </span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1317073"><span style="font-weight: 400;">Huawei</span></a><span style="font-weight: 400;"> will explore hardware-software co-design and the interoperability needed between Chinese and global AI technology stacks – a foundational question as more accelerators enter production. </span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1313965"><span style="font-weight: 400;">Cambricon</span></a><span style="font-weight: 400;"> picks up that thread at the chip level, detailing how the company is hardening PyTorch&#8217;s device-agnostic foundation so any backend can offer broader reach and richer native capabilities. Ant Group turns to the application layer, showing through two linked talks how existing </span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1308539"><span style="font-weight: 400;">cloud native</span></a><span style="font-weight: 400;"> building blocks like Kubernetes Agent Sandbox and Kata Containers can be assembled into a secure, on-demand </span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1309274"><span style="font-weight: 400;">runtime</span></a><span style="font-weight: 400;"> for AI agents. Taken together, these keynotes move from silicon to software to deployment, giving conference attendees a full-stack view of how open source is being built into every layer of AI in China.</span></p>
-<p><span style="font-weight: 400;">“Open source has become the default way the world builds AI, and the PyTorch Foundation is a leading hub for this innovation,” said Mark Collier, Executive Director of the PyTorch Foundation. “Welcoming Alibaba Cloud, Cambricon, and Ant Group as members alongside Huawei further strengthens the global open source AI ecosystem and community building the open source intelligence layer developers rely on for training, optimizing, serving, distributing, and running models. PyTorch Conference China brings that community together in Shanghai to continue learning from one another.”</span></p>
-<p><span style="font-weight: 400;">The keynotes coincide with today&#8217;s announcement that the PyTorch Foundation has welcomed Alibaba Cloud and Cambricon as Platinum members and Ant Group as a Gold member — joining Huawei, a long-standing supporter and contributor to the PyTorch ecosystem. More than 250 organizations across China contribute PyTorch Foundation projects including DeepSpeed, Helion, PyTorch, Ray, Safetensors, and vLLM.</span></p>
-<p><span style="font-weight: 400;">Alibaba Cloud is a global leader in full-stack AI services, offering state-of-the-art intelligent capabilities and a worldwide AI cloud computing network. Qwen, the family of large language and multimodal AI models developed by Alibaba Cloud, has become one of the most influential and widely adopted open-weight model series since its debut in 2023. </span></p>
-<p><span style="font-weight: 400;">Cambricon is a China-based designer of AI chips and accelerators supporting large-scale model training and inference. Cambricon hosts many open source toolkits, drivers, and machine learning pipelines for its Machine Learning Unit (MLU) hardware ecosystem, supporting open development of AI. As Platinum members, Alibaba Cloud and Cambricon are granted one seat on the PyTorch Foundation Governing Board and one seat on the Technical Advisory Council. Both companies will work with the community to strengthen support for hardware and accelerators across the PyTorch ecosystem.</span></p>
-<p><span style="font-weight: 400;">Ant Group is a global digital technology company driving innovation in AI and digital services, actively contributing to open-source ecosystems across cloud-native and AI frameworks. As a Gold member, Ant Group joins the Foundation’s efforts to advance production-grade platforms for AI workloads and deepen collaboration with the broader PyTorch community.</span></p>
-<p><b>Member Keynotes at PyTorch Conference China include:</b></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">“</span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1317079"><span style="font-weight: 400;">Serving Qwen at Scale: Multi-Cluster AI Infrastructure on Karmada</span></a><span style="font-weight: 400;">” deli</span><span style="font-weight: 400;">vered by Jionghang Cai, Senior Technical Expert, AI Infrastructure, </span><b>Alibaba Cloud</b></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">“</span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1308539"><span style="font-weight: 400;">What AI Agents Need from Open Infrastructure</span></a><span style="font-weight: 400;">” delivered by Yaya Xia, Open Source Analyst, </span><b>Ant Group</b></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">“</span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1309274"><span style="font-weight: 400;">Building an Agent Runtime with Open Infrastructure</span></a><span style="font-weight: 400;">” delivered by Yaya Xia, Open Source Analyst, and Xu Wang, Vice Chair, Open Source Technology Committee, </span><b>Ant Group</b></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">“</span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1313965"><span style="font-weight: 400;">Towards Device-agnostic PyTorch: Building Unified Infrastructure for a Multi-Backend Ecosystem</span></a><span style="font-weight: 400;">” delivered by Wei Li, Principal Software Engineer, </span><b>Cambricon</b></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">“</span><a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/program/schedule/?id=1317073"><span style="font-weight: 400;">Ascend &amp; PyTorch: Pioneer New AI Open Ecosystem</span></a><span style="font-weight: 400;">” delivered by Liang Zhang, Vice President of Huawei Ascend Computing Product Line, </span><b>Huawei</b></li>
-</ul>
-<p><span style="font-weight: 400;">Developers and contributors interested in participating in the PyTorch Foundation project ecosystem are encouraged to join the community onsite at </span><a href="https://hubs.la/Q049GBK60"><span style="font-weight: 400;">KubeCon + CloudNativeCon + OpenInfra Summit + PyTorch Conference China 2026</span></a><span style="font-weight: 400;"> (Shanghai, September 7-9). Registration for the upcoming </span><a href="https://hubs.la/Q049GBKl0"><span style="font-weight: 400;">PyTorch Conference North America</span></a><span style="font-weight: 400;"> (San Jose, October 20-21) is now open – register </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/"><span style="font-weight: 400;">here</span></a><span style="font-weight: 400;">. </span></p>
-<p><b>Supporting Quotes</b></p>
-<p><span style="font-weight: 400;">“We believe the future of AI is built on open, production-proven infrastructure — and PyTorch sits at the heart of that future. Joining the PyTorch Foundation is a natural step given our years of running PyTorch at scale across heterogeneous hardware on Alibaba Cloud. We look forward to working alongside the PyTorch Foundation to raise the bar for AI infrastructure and help developers build the next generation of models with confidence.”</span></p>
-<p><b>– Dr. Feifei Li, Chief Technology Officer, Alibaba Cloud</b></p>
-<p><span style="font-weight: 400;">&#8220;AI proves its value through real tasks and real users. We want more people to be able to build with AI and afford to use it. Joining the PyTorch Foundation is another step in Ant Group&#8217;s long-term participation in global open-source collaboration. We look forward to working with the community to lower the barriers to AI development and adoption through open models, infrastructure and agent technologies.&#8221;</span></p>
-<p><b>– Zhengyu He, Chief Technology Officer, Ant Group</b></p>
-<p><span style="font-weight: 400;">“We believe that realizing the full potential of AI computing requires both software-hardware co-optimization and a thriving open ecosystem. Joining the PyTorch Foundation gives us an opportunity to contribute our experience from large-scale AI deployments. We want to work closely with the community to help PyTorch deliver a native, out-of-the-box developer experience across a broader range of backends. We are excited to collaborate with global developers and industry partners to build a truly open and unified AI infrastructure.”</span></p>
-<p><b>– Elton Gong, Vice President of Software Engineering, Cambricon</b></p>
-<p><span style="font-weight: 400;">&#8220;When Huawei joined the PyTorch Foundation in 2023, we came with a goal we still hold today: to help make diverse computing power ubiquitous, and to do that work upstream first. That is what led us to help start the Accelerator Integration Working Group, and what carried Ascend NPU through to becoming the first additional platform in PyTorch. It is a goal that gets easier the more of us are pursuing it, so I&#8217;m glad to welcome Alibaba Cloud, Ant Group and Cambricon to the Foundation. We will keep working toward native support for Ascend — native development, native release, native distribution — so that developers get the same PyTorch experience whichever accelerator they reach for.&#8221;</span></p>
-<p><b>— Fred Li, Head of Computing Open Source Development Team, Huawei</b></p>
-<p><span style="font-weight: 400;">++++</span></p>
-<h3><b>About the PyTorch Foundation</b></h3>
-<p><span style="font-weight: 400;">The PyTorch Foundation is the vendor-neutral home for the open source intelligence layer developers use for training, optimizing, serving, orchestrating, and running models on any chip in any cloud for any agent. As a community-driven hub hosted by the Linux Foundation, the PyTorch Foundation supports the core PyTorch framework alongside a growing portfolio of innovative projects including vLLM, DeepSpeed, Ray, Helion, and Safetensors. Through open governance, strategic support, and a global contributor community, the PyTorch Foundation empowers developers, researchers, and enterprises to build and deploy AI at scale. Learn more at </span><a href="https://pytorch.org/foundation"><span style="font-weight: 400;">https://pytorch.org/foundation</span></a><span style="font-weight: 400;">. </span></p>
-<h3><b>About the Linux Foundation</b></h3>
-<p><span style="font-weight: 400;">The Linux Foundation is the world’s leading home for collaboration on open source software, hardware, standards, and data. Linux Foundation projects, including Linux, Kubernetes, Model Context Protocol (MCP), OpenChain, OpenSearch, OpenSSF, OpenStack, PyTorch, Ray, RISC-V, SPDX and Zephyr, provide the foundation for global infrastructure. The Linux Foundation is focused on leveraging best practices and addressing the needs of contributors, users, and solution providers to create sustainable models for open collaboration. For more information, please visit us at</span><a href="https://linuxfoundation.org"> <span style="font-weight: 400;">linuxfoundation.org</span></a><span style="font-weight: 400;">.</span></p>
-<p><i><span style="font-weight: 400;">The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of the Linux Foundation, please see its trademark usage page: www.linuxfoundation.org/trademark-usage. Linux is a registered trademark of Linus Torvalds.</span></i></p>
-<p>&nbsp;</p>
-<p><b>Media Contact</b></p>
-<p><span style="font-weight: 400;">Grace Lucier</span><span style="font-weight: 400;"><br />
-</span><span style="font-weight: 400;">The Linux Foundation</span><span style="font-weight: 400;"><br />
-</span><a href="mailto:pr@linuxfoundation.org"><span style="font-weight: 400;">pr@linuxfoundation.org</span></a><span style="font-weight: 400;">  </span></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4349 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1375301 metric#prefetches=273 metric#store-reads=36 metric#store-writes=6 metric#store-hits=282 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=507.63 metric#ms-cache=22.01 metric#ms-cache-avg=0.5369 metric#ms-cache-ratio=4.3 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4222 metric#misses=30 metric#hit-ratio=99.3 metric#bytes=1400487 metric#prefetches=149 metric#store-reads=65 metric#store-writes=8 metric#store-hits=289 metric#store-misses=14 metric#sql-queries=12 metric#ms-total=347.20 metric#ms-cache=30.72 metric#ms-cache-avg=0.4267 metric#ms-cache-ratio=8.9 -->
