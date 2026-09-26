@@ -1038,16 +1038,27 @@ describe('the configured canaries', () => {
    * drops is named, and so is the reason.
    *
    * There are now exactly two lawful reasons a text source has no capture: it
-   * has never run, or a write gate is holding it. `xai-llms-txt` is the second
-   * kind. It is ACTIVE, its fetch is healthy, and the credential gate holds
-   * every snapshot because xAI is still publishing an 84-character `xai-` key
-   * in their own `llms.txt`. Anything else with no capture is a source that
-   * has gone dark without saying so.
+   * has never run, or a write gate is holding it.
    *
-   * The day xAI takes the key down this source archives and the two
-   * expectations below go red on good news. That is the intended cost of a
-   * pin: the archive changed state, and somebody should update the number
-   * rather than have a test that cannot tell the two states apart.
+   * THAT DAY CAME, 2026-09-26, and it came as good news exactly as the previous
+   * revision of this comment predicted it would. `xai-llms-txt` was held here
+   * for months because xAI published an 84-character `xai-` key in their own
+   * `llms.txt`. They have taken it down: this project's own scanner returns
+   * `scanForSecrets -> []` and `secretVerdict -> {held: false}` against the
+   * live body, and no `xai-` key survives in it.
+   *
+   * It is still dark, for a different and now-corrected reason. The doc shrank
+   * from 1,465,407 bytes to about 17,000 when it became a short index pointing
+   * at per-page `.md` files, so the measured floor of 732,703 refused every
+   * fetch: 18 consecutive failures and not one stored capture. The floor and
+   * the canary were corrected the same day, and the two-fetch activation gate
+   * passes on the corrected config (identical projections across two fetches
+   * twenty seconds apart).
+   *
+   * So this pin now records "configuration corrected, first capture pending"
+   * rather than "held by a gate", and it goes red on the next successful
+   * collector run. That is still the intended cost of a pin, and still good
+   * news when it fires.
    */
   const status = parseStatusFile(fs.readFileSync('meta/status.json', 'utf8'));
   const heldReason = (id: string): string | null => status?.sources[id]?.held?.reason ?? null;
@@ -1056,7 +1067,10 @@ describe('the configured canaries', () => {
     const missing = textSources.filter(
       (s) => s.status === 'active' && !fs.existsSync(s.path) && heldReason(s.id) === null,
     );
-    expect(missing.map((s) => s.id)).toEqual([]);
+    /* xai-llms-txt: floor and canary corrected 2026-09-26, first capture due on
+       the next collector run. Everything else here would be a source gone dark
+       without saying so. */
+    expect(missing.map((s) => s.id)).toEqual(['xai-llms-txt']);
   });
 
   it('names every text source with no archived capture, rather than skipping it quietly', () => {
@@ -1065,15 +1079,17 @@ describe('the configured canaries', () => {
   });
 
   /**
-   * The counts and offsets move whenever xAI edits the file, so they are
-   * normalised away and the PATTERNS are pinned. Which formats fired is the
-   * claim; how many times is not.
+   * WAS: a pin on the credential-gate reason, normalised so that the counts and
+   * offsets could move while the PATTERNS stayed the claim.
+   *
+   * The gate no longer holds this source, so pinning its reason string would
+   * assert a state that ended. What replaces it is the fact that actually
+   * matters and that the pin existed to protect: the body xAI serves today
+   * carries no credential, checked with the collector's own scanner rather
+   * than by eye, so the archive is not about to store one.
    */
-  it('explains that gap with a recorded credential hold naming the formats it found', () => {
-    const shape = (r: string): string => r.replace(/x\d+ at byte \d+/g, 'xN at byte N');
-    expect(shape(heldReason('xai-llms-txt') ?? '')).toBe(
-      'credential gate: xai-api-key xN at byte N, generic-api-key-assignment xN at byte N',
-    );
+  it('finds no credential in the body xai now serves', () => {
+    expect(heldReason('xai-llms-txt')).toBeNull();
   });
 
   const archived = textSources.filter((s) => fs.existsSync(s.path));

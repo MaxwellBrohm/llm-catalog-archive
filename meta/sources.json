@@ -43,7 +43,7 @@
       "id": "arena-leaderboard",
       "url": "https://arena.ai/leaderboard",
       "tier": "daily",
-      "status": "active",
+      "status": "pending",
       "path": "raw/arena-leaderboard/response.html",
       "contentType": "html",
       "expectedRoot": "html",
@@ -74,7 +74,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "ACTIVE since 2026-08-31, and what changed is the denylist rather than the extractor. This source sat pending while its extractor was already verified against two live 5.2 MB captures minutes apart: 1,846 projected record tuples, byte-unequal bodies, equal projections. It was blocked upstream of the predicate, at the health check, because the live leaderboard carries window.__CF$cv$params and that string was on the shared interstitial denylist. THAT MARKER WAS WRONG. It is set by Cloudflare's challenge-platform beacon, which loads on ordinary proxied 200s wherever JS Detections or Bot Fight Mode is enabled, so it marked \"this site is behind Cloudflare\" rather than \"this response is a challenge\", and every Cloudflare-fronted source was a potential false positive. Three live captures on 2026-08-31 settle the direction of the error: a real Cloudflare managed challenge (test/fixtures/trap-cf-challenge-udemy.html) carries NO __CF$cv$params at all, while three ordinary 200s that are not challenges (this leaderboard, crunchbase.com, and the neuron homepage in test/fixtures/trap-interstitial.html) each carry exactly one. It is replaced by cf_chl_opt and /cdn-cgi/challenge-platform/h/, which appear in all three live challenge captures, in zero archived captures and in zero of the non-challenge pages; test/health.test.ts sweeps every marker against every stored capture so the next one added has to clear the same bar. Predicate is extracted, not bytes, because two reviewers measured three per-request volatile regions independently and hours apart: a provisional userId UUIDv7 whose embedded ms timestamp decodes to the fetch instant, a 37 to 41 key posthogFlags map that re-rolls because the visitor is anonymous, and the __CF$cv$params blob itself, which carries the response's own cf-ray and clock and so changes on every response by construction. Masking only the first leaves the bodies unequal, so the predicate would fire every run and commit 5.2 MB forever into a history that is never rewritten, and a mask keyed on flag names rots as arena ships experiments. The projection is the (publicName, displayName, rating, votes) tuples behind a 500-record floor, because the payload is an undocumented framework shape and a silent drop to zero would report no change for ever. Size is per-request volatile (5,266,753 and 5,266,756 observed on 2026-08-31), so minBytes is half the smaller 2026-08-26 observation and no fixed size is asserted. Freshness content/30 rather than the usual 90: codename reveals are the entire point, so a quiet month means the extractor broke rather than that the industry stopped shipping. timeoutS 120 for a 5.2 MB body. Activated after a double dry run in which the second consecutive run committed nothing."
+      "notes": "ACTIVE since 2026-08-31, and what changed is the denylist rather than the extractor. This source sat pending while its extractor was already verified against two live 5.2 MB captures minutes apart: 1,846 projected record tuples, byte-unequal bodies, equal projections. It was blocked upstream of the predicate, at the health check, because the live leaderboard carries window.__CF$cv$params and that string was on the shared interstitial denylist. THAT MARKER WAS WRONG. It is set by Cloudflare's challenge-platform beacon, which loads on ordinary proxied 200s wherever JS Detections or Bot Fight Mode is enabled, so it marked \"this site is behind Cloudflare\" rather than \"this response is a challenge\", and every Cloudflare-fronted source was a potential false positive. Three live captures on 2026-08-31 settle the direction of the error: a real Cloudflare managed challenge (test/fixtures/trap-cf-challenge-udemy.html) carries NO __CF$cv$params at all, while three ordinary 200s that are not challenges (this leaderboard, crunchbase.com, and the neuron homepage in test/fixtures/trap-interstitial.html) each carry exactly one. It is replaced by cf_chl_opt and /cdn-cgi/challenge-platform/h/, which appear in all three live challenge captures, in zero archived captures and in zero of the non-challenge pages; test/health.test.ts sweeps every marker against every stored capture so the next one added has to clear the same bar. Predicate is extracted, not bytes, because two reviewers measured three per-request volatile regions independently and hours apart: a provisional userId UUIDv7 whose embedded ms timestamp decodes to the fetch instant, a 37 to 41 key posthogFlags map that re-rolls because the visitor is anonymous, and the __CF$cv$params blob itself, which carries the response's own cf-ray and clock and so changes on every response by construction. Masking only the first leaves the bodies unequal, so the predicate would fire every run and commit 5.2 MB forever into a history that is never rewritten, and a mask keyed on flag names rots as arena ships experiments. The projection is the (publicName, displayName, rating, votes) tuples behind a 500-record floor, because the payload is an undocumented framework shape and a silent drop to zero would report no change for ever. Size is per-request volatile (5,266,753 and 5,266,756 observed on 2026-08-31), so minBytes is half the smaller 2026-08-26 observation and no fixed size is asserted. Freshness content/30 rather than the usual 90: codename reveals are the entire point, so a quiet month means the extractor broke rather than that the industry stopped shipping. timeoutS 120 for a 5.2 MB body. Activated after a double dry run in which the second consecutive run committed nothing. PARKED 2026-09-26, superseded by arena-leaderboard-rsc. arena.ai stopped embedding the leaderboard as a 5.2 MB payload keyed on publicName and now streams a 773 KB React Server Components payload keyed on modelKey. Measured on the live page that day: 0 occurrences of publicName against 89 in the last stored capture, and a size ratio of 0.153 against a band of [0.5, 2.0]. The floor and the band were both RIGHT to refuse it: a page that no longer carries the field the extractor reads is exactly what they exist to keep out of the archive, and lowering either would have stored a body from which 86 codename pairs had silently vanished. A payload replaced by a differently encoded one is a new artifact, so it gets a new id and a clean baseline rather than a widened guard."
     },
     {
       "id": "anthropic-sitemap",
@@ -225,7 +225,7 @@
       "id": "openrouter-sitemap",
       "url": "https://openrouter.ai/sitemap.xml",
       "tier": "daily",
-      "status": "active",
+      "status": "pending",
       "path": "raw/openrouter-sitemap/response.xml",
       "contentType": "xml",
       "expectedRoot": "urlset",
@@ -256,7 +256,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "Predicate is extracted over sitemapLoc, the loc set only. This sitemap is not static: cache-control is public, max-age=0, must-revalidate and cf-cache-status is DYNAMIC. It is rebuilt several times a day, rewriting about 100 lastmod values per rebuild independent of any content change, so a bytes predicate would commit 617 KB of build noise every run into a history that is never rewritten. This is the same treatment already given to platform.claude.com/sitemap.xml. Unlike anthropic-sitemap the loc set is the whole signal here, because the per-URL lastmod is rewritten wholesale rather than per edit, so there is no edit signal in it to preserve. retries 3 rather than the usual 2 because a curl (35) connection reset was observed against this host. Activated 2026-08-31 after a double dry run in which the second consecutive run committed nothing; the two probe bodies were in fact byte-identical, 4,973 locs each."
+      "notes": "Predicate is extracted over sitemapLoc, the loc set only. This sitemap is not static: cache-control is public, max-age=0, must-revalidate and cf-cache-status is DYNAMIC. It is rebuilt several times a day, rewriting about 100 lastmod values per rebuild independent of any content change, so a bytes predicate would commit 617 KB of build noise every run into a history that is never rewritten. This is the same treatment already given to platform.claude.com/sitemap.xml. Unlike anthropic-sitemap the loc set is the whole signal here, because the per-URL lastmod is rewritten wholesale rather than per edit, so there is no edit signal in it to preserve. retries 3 rather than the usual 2 because a curl (35) connection reset was observed against this host. Activated 2026-08-31 after a double dry run in which the second consecutive run committed nothing; the two probe bodies were in fact byte-identical, 4,973 locs each. PARKED 2026-09-26 (status pending, which is this project's only \"keep the record, stop fetching\" state; there is no \"retired\"). openrouter.ai/sitemap.xml now returns a 1,124-byte <sitemapindex> pointing at per-section sub-sitemaps; it is no longer the <urlset> of 5,242 locations this source was built on, and expectedRoot 'urlset' can never match it again. Superseded by openrouter-models-sitemap, which is a NEW id on purpose: a different document at a different address is a different source, so its first capture is a baseline and rule 2 bars events from it. Re-pointing this id in place would have derived '5,242 URLs vanished' from a reorganisation."
     },
     {
       "id": "openai-llms-txt",
@@ -378,10 +378,10 @@
         "minBytes": 7329,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "# MistralAI",
+        "canary": "docs.mistral.ai",
         "sizeBand": [
           0.5,
-          2.0
+          4.5
         ]
       },
       "freshness": {
@@ -400,7 +400,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "14,658 bytes on 2026-08-26, so minBytes is half that. The smallest of the eight llms.txt files, which is why an absolute floor matters here more than elsewhere."
+      "notes": "14,658 bytes on 2026-08-26, so minBytes is half that. The smallest of the eight llms.txt files, which is why an absolute floor matters here more than elsewhere. Band widened from [0.5, 2.0] to [0.5, 4.5] on 2026-09-26, and the reason is measured rather than assumed. The live doc is 55,752 bytes against a stored 14,658 from 2026-08-26: ratio 3.804. The content was fetched and read before this change and is genuine Mistral documentation, naming Le Chat, Vibe and Mistral AI Studio, which is a month of real product launches rather than a swapped payload. The band is a ratio against the LAST ACCEPTED capture, so a source that only changes monthly drifts further per capture than a daily one, and [0.5, 2.0] was mis-specified for this cadence. 4.5 sits just above the observed 3.804, so a 5x replacement is still refused. TWO faults, not one: the canary '# MistralAI' also appears ZERO times in the live doc, whose first line is '# Mistral AI' with a space. The size failure was reported first and hid it, so fixing only the band would have moved the failure one check down and looked like a new problem. The first replacement tried, 'mistral.ai', was WRONG and the cross-origin suite caught it: that string also occurs in mistral-news-feed, so a feed body would have been accepted and archived as this source. A canary has to identify the document, not the vendor. 'docs.mistral.ai' occurs 287 times here and zero times in the feed."
     },
     {
       "id": "groq-llms-full-txt",
@@ -447,10 +447,10 @@
       "contentType": "text",
       "expectedRoot": null,
       "invariants": {
-        "minBytes": 732703,
+        "minBytes": 8500,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "https://api.x.ai/v1",
+        "canary": "https://docs.x.ai",
         "sizeBand": [
           0.5,
           2.0
@@ -473,7 +473,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "ACTIVE since 2026-08-31. THE WRITE-TIME CREDENTIAL GATE IN src/secrets.ts IS THE PROTECTION HERE, NOT DARKNESS. On 2026-08-31 this file carried an 84-character xai- credential, three times, as \"apiKey\": \"xai-...\", in xAI's own published llms.txt. GitHub push protection classified it as a live xAI API Key and refused the push, which is the only reason it never reached the archive. Push protection is not a control we get to rely on: it recognises only the formats it has partnered on, the next provider may use one it has never seen, and it fires after the bytes are already in a local commit. The gate runs between the change decision and the write, so a body carrying a credential is not written, not committed, and recorded as a hold while the run exits zero. A hold is deliberately not a failure: the source is healthy, the fetch worked, the predicate saw a real change, and the provider made the mistake, so a daily failure email about it would only teach an operator to mute the channel. Never resolve this with the push-protection bypass link. Re-measured 2026-08-31: the credential is still published, so this source is expected to sit HELD on every run until xAI takes it down, and meta/status.json names the hold with the pattern, the count and the byte offset and never with the credential itself. On the predicate: bytes is wrong here because the file's markdown table rows re-permute per request, so it would commit 1.46 MB of pure permutation daily forever, and mask cannot express it because a reordering is not a maskable substring. The extracted predicate sorts within table blocks only, never the whole file, which would hide a legitimate section reorder; header and delimiter rows keep their positions, so a renamed column is still a change. The sorted md5 b92fafe614002915ea5a5b5e5be3060b reproduced across three independent captures hours apart while every raw md5 differed."
+      "notes": "ACTIVE since 2026-08-31. THE WRITE-TIME CREDENTIAL GATE IN src/secrets.ts IS THE PROTECTION HERE, NOT DARKNESS. On 2026-08-31 this file carried an 84-character xai- credential, three times, as \"apiKey\": \"xai-...\", in xAI's own published llms.txt. GitHub push protection classified it as a live xAI API Key and refused the push, which is the only reason it never reached the archive. Push protection is not a control we get to rely on: it recognises only the formats it has partnered on, the next provider may use one it has never seen, and it fires after the bytes are already in a local commit. The gate runs between the change decision and the write, so a body carrying a credential is not written, not committed, and recorded as a hold while the run exits zero. A hold is deliberately not a failure: the source is healthy, the fetch worked, the predicate saw a real change, and the provider made the mistake, so a daily failure email about it would only teach an operator to mute the channel. Never resolve this with the push-protection bypass link. Re-measured 2026-08-31: the credential is still published, so this source is expected to sit HELD on every run until xAI takes it down, and meta/status.json names the hold with the pattern, the count and the byte offset and never with the credential itself. On the predicate: bytes is wrong here because the file's markdown table rows re-permute per request, so it would commit 1.46 MB of pure permutation daily forever, and mask cannot express it because a reordering is not a maskable substring. The extracted predicate sorts within table blocks only, never the whole file, which would hide a legitimate section reorder; header and delimiter rows keep their positions, so a renamed column is still a change. The sorted md5 b92fafe614002915ea5a5b5e5be3060b reproduced across three independent captures hours apart while every raw md5 differed. Re-measured 2026-09-26. The old floor (732,703) and canary ('https://api.x.ai/v1') were taken from a doc that no longer exists: docs.x.ai now serves a 17,023-byte index whose body points at per-page .md files, and the old canary string appears zero times in it. 18 consecutive failures and NOT ONE stored capture, so there is no baseline to protect and correcting this in place cannot produce a false event: the first accepted capture is a baseline and rule 2 bars events from it. New canary 'https://docs.x.ai' occurs 176 times and is 17 characters, clearing the ten-character floor that a bare 'docs.x.ai' would have failed; 'https://api.x.ai' occurs twice and was rejected as too near the string that already broke. Floor is half of 17,023."
     },
     {
       "id": "modelsdev-commits",
@@ -821,7 +821,7 @@
         "minBytes": 125840,
         "requiredKeyPath": null,
         "minRecords": null,
-        "canary": "huggingface.co/blog/",
+        "canary": "huggingface.co/blog/feed.xml",
         "sizeBand": [
           0.5,
           2.0
@@ -844,7 +844,7 @@
       "magnitudeGuard": {
         "maxShrinkPct": 25
       },
-      "notes": "The Hugging Face blog, 853 items, RSS 2.0. The only source here that is not a model provider: it is where model releases, quantisation work and inference-stack changes get written up, which is the developer-facing half of AI news the provider feeds do not carry. Predicate is extracted/feedPosts, not bytes, because the channel carries a <pubDate> that re-stamps independently of the posts. Activation gate passed: identical feedPosts projection across two fetches 15 seconds apart. Canary tightened from \"huggingface.co\" to \"huggingface.co/blog/\" on 2026-09-02: the bare host appears twice inside pytorch-blog-feed's own posts, and with a body size inside this source's band that was enough for a PyTorch capture to pass every write gate here. Caught by the cross-origin sweep when PyTorch was added, not by reading the config."
+      "notes": "The Hugging Face blog, 853 items, RSS 2.0. The only source here that is not a model provider: it is where model releases, quantisation work and inference-stack changes get written up, which is the developer-facing half of AI news the provider feeds do not carry. Predicate is extracted/feedPosts, not bytes, because the channel carries a <pubDate> that re-stamps independently of the posts. Activation gate passed: identical feedPosts projection across two fetches 15 seconds apart. Canary tightened from \"huggingface.co\" to \"huggingface.co/blog/\" on 2026-09-02: the bare host appears twice inside pytorch-blog-feed's own posts, and with a body size inside this source's band that was enough for a PyTorch capture to pass every write gate here. Caught by the cross-origin sweep when PyTorch was added, not by reading the config. Canary corrected 2026-09-26 from 'huggingface.co/blog/', which the cross-origin suite showed matching inside pytorch-blog-feed's stored body: PyTorch linked to a Hugging Face post, so a PyTorch body would archive under this id. A canary has to identify the DOCUMENT and not a URL anything may link to. 'huggingface.co/blog/feed.xml' is the feed's own atom:link rel=self, which appears once here and zero times in every other stored capture."
     },
     {
       "id": "together-blog-feed",
@@ -1104,6 +1104,80 @@
         "maxShrinkPct": 25
       },
       "notes": "The AI AND MACHINE LEARNING CATEGORY, not the Google Cloud blog root, for the same reason aws-blog-feed uses /blogs/machine-learning/: the root carries database and networking posts that nothing in the derivation would filter out, and publishing those as AI news is the failure this source list exists to avoid. 20 items, RSS 2.0, 547,155 bytes, newest same-day with a 4-day maximum gap. Predicate is extracted/feedPosts and not bytes, for the reason openai-news-feed gives: an RSS channel re-stamps lastBuildDate on every rebuild, so a bytes predicate would commit the whole feed on every run into a history that is never rewritten, for a feed whose posts had not changed. Activation gate passed: identical feedPosts projection across two fetches five seconds apart."
+    },
+    {
+      "id": "openrouter-models-sitemap",
+      "url": "https://openrouter.ai/sitemaps/models.xml",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/openrouter-models-sitemap/response.xml",
+      "contentType": "xml",
+      "expectedRoot": "urlset",
+      "invariants": {
+        "minBytes": 62000,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "openrouter.ai",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "content",
+        "maxQuietDays": 90
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "sitemapLoc"
+      },
+      "timeoutS": 60,
+      "retries": 3,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The model half of OpenRouter's sitemap, which split into an index plus sub-sitemaps some time before 2026-09-26. Measured live that day at 124,911 bytes of <urlset>, so the floor is half of it. This is the section that carries model page URLs, which is the only part the sitemapLoc predicate was ever reading; the other sub-sitemaps (static, authors, providers, collections, rankings, compare) are navigation. Replaces openrouter-sitemap, which is retired rather than re-pointed so that this first capture is a baseline. The predicate is extracted over sitemapLoc and not bytes for the reason the parked openrouter-sitemap recorded: the file is rebuilt several times a day and rewrites lastmod values independently of any content change, so bytes would fire on every rebuild. Keying on the loc set alone reports only a URL actually appearing or disappearing."
+    },
+    {
+      "id": "arena-leaderboard-rsc",
+      "url": "https://arena.ai/leaderboard",
+      "tier": "daily",
+      "status": "active",
+      "path": "raw/arena-leaderboard-rsc/response.html",
+      "contentType": "html",
+      "expectedRoot": "html",
+      "invariants": {
+        "minBytes": 386000,
+        "requiredKeyPath": null,
+        "minRecords": null,
+        "canary": "modelDisplayName",
+        "sizeBand": [
+          0.5,
+          2.0
+        ]
+      },
+      "freshness": {
+        "kind": "content",
+        "maxQuietDays": 30
+      },
+      "predicate": {
+        "type": "extracted",
+        "extractor": "arena"
+      },
+      "timeoutS": 120,
+      "retries": 2,
+      "maxRedirects": 3,
+      "rateLimit": {
+        "maxAutoEventsPerDay": 8
+      },
+      "magnitudeGuard": {
+        "maxShrinkPct": 25
+      },
+      "notes": "The arena leaderboard in its React Server Components form, measured live on 2026-09-26 at 773,495 bytes. Floor is half of that, matching how the parked arena-leaderboard set its own. The predicate is unchanged and still passes: arenaRows in 'any' mode reads modelKey as well as publicName, and the live page yields 552 records against the 500-record floor, all 552 carrying a rating AND a vote count where the old 5.2 MB page left 89 of 942 rows with both fields empty. The new payload is smaller and STRICTLY BETTER for every signal this source feeds. Codename detection needed one change to follow it: arenaCodenameMap keyed on publicName alone and so read zero rows here, which the 400-record collapse guard correctly refused rather than reporting a thousand false entries; it now reads the same rows the predicate does. 44 distinct live reveals were measured on the first capture, including kivine-wxzc-agent -> Kimi K3 (Max) and paisley-n9x0 -> Qwen3.8 Max. Those 44 are BASELINE state and rule 2 bars events from them: the archive cannot say when a name it is seeing for the first time changed. The predicate is extracted rather than bytes for the reason the parked arena-leaderboard recorded and which has not changed: the payload carries per-request volatile regions (a provisional userId UUIDv7, an anonymous posthogFlags map, and a Cloudflare params blob carrying the response cf-ray and clock), so a bytes predicate would fire every run and commit the whole body forever into a history that is never rewritten. Given a canary where the parked source stood on structure alone: modelDisplayName, which occurs 552 times in the live payload. The parked source had none, so when arena renamed its key the health check reported \"below min_bytes\", which is true and sends a reader to the wrong problem. A canary on the field whose disappearance IS the schema change makes the next one say so in one line."
     }
   ]
 }

@@ -273,8 +273,8 @@ describe('the shipped meta/sources.json', () => {
   const shipped = (): SourcesFile =>
     (cached ??= loadSources(JSON.parse(fs.readFileSync('meta/sources.json', 'utf8'))));
 
-  it('loads and has all 30 sources', () => {
-    expect(shipped().sources).toHaveLength(30);
+  it('loads and has all 32 sources', () => {
+    expect(shipped().sources).toHaveLength(32);
   });
 
   /**
@@ -292,8 +292,31 @@ describe('the shipped meta/sources.json', () => {
    * in it, and the write-time credential gate in `src/secrets.ts` is now what
    * protects the archive from that rather than the darkness.
    */
-  it('ships no pending source at all', () => {
-    expect(shipped().sources.filter((s) => s.status === 'pending').map((s) => s.id)).toEqual([]);
+  /**
+   * ONCE EMPTY, NOW A NAMED LIST, and the list is the assertion.
+   *
+   * `pending` is this project's only "keep the record, stop fetching" state, so
+   * it is where a source goes when the thing it pointed at stops existing in
+   * the shape it was built for. Two went there on 2026-09-26, each superseded
+   * by a new id rather than re-pointed in place, so that the replacement's
+   * first capture is a baseline and rule 2 bars events from a reorganisation.
+   *
+   * Asserting the exact list rather than a count, because the failure worth
+   * catching is a source going quiet by accident, and a count cannot tell that
+   * apart from a deliberate parking.
+   */
+  it('parks only the two sources whose upstream changed shape', () => {
+    expect(shipped().sources.filter((s) => s.status === 'pending').map((s) => s.id))
+      .toEqual(['arena-leaderboard', 'openrouter-sitemap']);
+  });
+
+  /** A parked source must name its successor, or the archive just loses a signal. */
+  it('names a successor for every parked source', () => {
+    const ids = new Set(shipped().sources.map((s) => s.id));
+    for (const s of shipped().sources.filter((x) => x.status === 'pending')) {
+      const named = [...ids].filter((id) => id !== s.id && s.notes.includes(id));
+      expect(named.length, `${s.id} names no successor in its notes`).toBeGreaterThan(0);
+    }
   });
 
   // The half of the story a status field cannot say. Flipping the status
@@ -376,7 +399,7 @@ describe('the shipped meta/sources.json', () => {
       const m = /^\|\s*`([a-z0-9-]+)`\s*\|\s*`([^`]+)`\s*\|/.exec(line);
       if (m) fromSpec.set(m[1]!, m[2]!);
     }
-    expect(fromSpec.size).toBe(30);
+    expect(fromSpec.size).toBe(32);
 
     const fromTable = new Map(shipped().sources.map((s) => [s.id, s.url]));
     expect(Object.fromEntries(fromTable)).toEqual(Object.fromEntries(fromSpec));
@@ -387,6 +410,7 @@ describe('the shipped meta/sources.json', () => {
     expect(exceptional.map((s) => s.id).sort()).toEqual([
       'anthropic-sitemap',
       'arena-leaderboard',
+      'arena-leaderboard-rsc',
       'aws-blog-feed',
       'claude-status',
       'deepmind-blog-feed',
@@ -399,6 +423,7 @@ describe('the shipped meta/sources.json', () => {
       'openai-news-feed',
       'openai-sitemap',
       'openai-status',
+      'openrouter-models-sitemap',
       'openrouter-sitemap',
       'pytorch-blog-feed',
       'together-blog-feed',
@@ -466,17 +491,22 @@ describe('the shipped meta/sources.json', () => {
     const recorded: Record<string, number> = {
       'openrouter-models': 687878,
       'arena-leaderboard': 5235684,
+      'arena-leaderboard-rsc': 773495,
       'anthropic-sitemap': 67354,
       'anthropic-deprecations': 13410,
       'claude-llms-txt': 63970,
       'openrouter-llms-txt': 66545,
       'openrouter-sitemap': 616687,
+      'openrouter-models-sitemap': 124911,
       'openai-llms-txt': 34432,
       'together-llms-txt': 61720,
       'perplexity-llms-txt': 43329,
       'mistral-llms-txt': 14658,
       'groq-llms-full-txt': 797252,
-      'xai-llms-txt': 1465407,
+      // RE-MEASURED 2026-09-26. docs.x.ai/llms.txt is now a short index pointing
+      // at per-page .md files, not the 1.4 MB document the spec recorded. The
+      // old floor produced 18 consecutive failures and not one stored capture.
+      'xai-llms-txt': 17023,
       'modelsdev-commits': 20239,
       'transformers-pulls': 483237,
       'vllm-pulls': 657623,
@@ -498,11 +528,13 @@ describe('the shipped meta/sources.json', () => {
     expect(actual).toEqual({
       'openrouter-models': 'none/null',
       'arena-leaderboard': 'content/30',
+      'arena-leaderboard-rsc': 'content/30',
       'anthropic-sitemap': 'content/90',
       'anthropic-deprecations': 'content/90',
       'claude-llms-txt': 'content/90',
       'openrouter-llms-txt': 'content/90',
       'openrouter-sitemap': 'content/90',
+      'openrouter-models-sitemap': 'content/90',
       'openai-llms-txt': 'content/90',
       'together-llms-txt': 'content/90',
       'perplexity-llms-txt': 'content/90',
@@ -549,8 +581,10 @@ describe('the shipped meta/sources.json', () => {
     );
     expect(declared).toEqual({
       'arena-leaderboard': 'html',
+      'arena-leaderboard-rsc': 'html',
       'anthropic-sitemap': 'urlset',
       'openrouter-sitemap': 'urlset',
+      'openrouter-models-sitemap': 'urlset',
       'modelsdev-commits': 'feed',
       'claude-status': 'feed',
       'openai-status': 'feed',

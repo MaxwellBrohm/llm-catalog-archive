@@ -153,6 +153,13 @@ const SOURCE_SUFFIXES = [
   'llms-full-txt',
   'llms-txt',
   'deprecations',
+  // LONGEST FIRST, and this pair is why the ordering is not incidental. The
+  // loop returns on the first suffix that matches, so 'sitemap' placed above
+  // 'models-sitemap' would slice `openrouter-models-sitemap` down to the
+  // provider `openrouter-models`, which is a different source in this very
+  // file and not a provider at all. `llms-full-txt` sits above `llms-txt` for
+  // exactly the same reason.
+  'models-sitemap',
   'sitemap',
   'status',
   'news-feed',

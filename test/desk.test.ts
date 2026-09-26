@@ -15,6 +15,8 @@ import {
 } from '../src/desk/surprise.js';
 import { draftFor, draftsFor, PLATFORMS, changeUrl, type Draft } from '../src/desk/drafts.js';
 import { hnTitle } from '../src/desk/titles.js';
+import { arenaRows } from '../src/predicate.js';
+import { arenaCodenameMap, ARENA_CODENAME_FLOOR, isCodenameReveal } from '../src/derive/leaks.js';
 import { buildQueue, cooldownKeys, HN_PER_DAY } from '../src/desk/queue.js';
 import { recommend } from '../src/desk/route.js';
 import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE, blockedVenueIds } from '../src/desk/venues.js';
@@ -836,4 +838,73 @@ describe('reddit is retired and HN is capped', () => {
     return item({ type: 'codename_unmasked', id: `s${sfx}:codename_unmasked:${name}`, kind: 'leak',
       sentence: 'x'.repeat(150), facts: [['publicName', name], ['displayName after', to]] } as never);
   }
+});
+
+describe('arena moved to a React Server Components payload', () => {
+  /**
+   * WHAT HAPPENED. arena.ai stopped embedding the leaderboard as a 5.2 MB
+   * payload keyed on `publicName` and began streaming a 773 KB RSC payload
+   * keyed on `modelKey`. The predicate always read both spellings and kept
+   * working. `arenaCodenameMap` read `publicName` alone, so it went to zero,
+   * the collapse guard correctly refused every comparison rather than
+   * reporting a thousand false entries, and the leaks desk went quiet for two
+   * days while 44 live reveals sat unread in the payload.
+   *
+   * The fixture is a real slice of the live page, not a hand-written shape.
+   */
+  const rsc = fs.readFileSync(path.resolve('test/fixtures/arena-rsc-slice.html'), 'utf8');
+
+  /**
+   * The rule is chosen PER CAPTURE. Derivations are recomputed from history on
+   * every build, so switching globally would re-read every stored capture of
+   * the old shape with the new rule and silently change what this site has
+   * already published about past changes: that body's map goes 86 -> 664.
+   */
+  it('still reads an old-shape capture exactly as it always did', () => {
+    const old = String.raw`{\"publicName\":\"cold_brew\",\"displayName\":\"muse-video\"}` +
+      String.raw`{\"modelKey\":\"gpt-5\",\"modelDisplayName\":\"GPT-5\"}`;
+    const m = arenaCodenameMap(old);
+    expect(m.get('cold_brew')).toBe('muse-video');
+    expect(m.has('gpt-5'), 'a leaderboard row must not be filed as a picker pair').toBe(false);
+  });
+
+  it('reads rows the old publicName-only keying could not see', () => {
+    expect(arenaRows(rsc, 'publicName')).toHaveLength(0);
+    expect(arenaRows(rsc).length).toBeGreaterThan(100);
+  });
+
+  it('builds a codename map from the new keying', () => {
+    expect(arenaCodenameMap(rsc).size).toBeGreaterThan(100);
+  });
+
+  /**
+   * The floor has to sit UNDER the healthy live value or the guard can never
+   * pass, which is an outage with a comment rather than a guard. It also has to
+   * sit far above the 1 record a picker collapse produces.
+   */
+  it('keeps a floor the healthy payload can clear', () => {
+    expect(ARENA_CODENAME_FLOOR).toBeLessThan(360);
+    expect(ARENA_CODENAME_FLOOR).toBeGreaterThan(100);
+  });
+
+  it('refuses a collapsed payload', () => {
+    expect(arenaCodenameMap('{"modelKey":"only-one","displayName":"Only One"}').size)
+      .toBeLessThan(ARENA_CODENAME_FLOOR);
+  });
+
+  /**
+   * The contenders/ prefix the new payload adds must NOT manufacture reveals:
+   * isLabelVariant matches on a shared identity token, and the prefixed key
+   * shares its base name with the display string.
+   */
+  it('does not read the contenders/ prefix as a reveal', () => {
+    expect(isCodenameReveal('contenders/inkling-small', 'Inkling Small')).toBe(false);
+    expect(isCodenameReveal('contenders/mistral-medium-3.5-v2-agent', 'Mistral Medium 3.5')).toBe(false);
+  });
+
+  /** And a genuine reveal in the new payload still reads as one. */
+  it('still finds a real reveal in the new shape', () => {
+    expect(isCodenameReveal('kivine-wxzc-agent', 'Kimi K3 (Max)')).toBe(true);
+    expect(isCodenameReveal('paisley-n9x0', 'Qwen3.8 Max')).toBe(true);
+  });
 });

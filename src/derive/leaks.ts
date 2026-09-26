@@ -218,15 +218,52 @@ export function isCodenameReveal(publicName: string, displayName: string): boole
  * 400 is well under the 1,029 observed live and far above the 1 a collapse
  * produces.
  */
-export const ARENA_CODENAME_FLOOR = 400;
+export const ARENA_CODENAME_FLOOR = 250;
+
+/*
+ * RE-MEASURED 2026-09-26, from 400.
+ *
+ * 400 was chosen against 1,029 publicName rows in the payload arena served
+ * until then. The React Server Components payload that replaced it yields 360
+ * DISTINCT names out of 552 rows, because the same model appears once bare and
+ * once under a contenders/ prefix, so the old floor sits ABOVE the healthy
+ * live value and would refuse every comparison forever. A guard that can never
+ * pass is not a guard, it is an outage with a comment.
+ *
+ * 250 keeps the property the number exists for: far enough under the 360
+ * observed live to survive ordinary churn in the board, and 250 times the 1
+ * record a picker collapse produces. It is deliberately not derived from 360
+ * by a ratio, because one observation is not a distribution.
+ */
 
 export function arenaCodenameMap(text: string): Map<string, string> {
   const out = new Map<string, string>();
-  for (const row of arenaRows(text, 'publicName')) {
+  // PER-CAPTURE, NOT GLOBAL, and that is the whole point of this branch.
+  //
+  // Until some time before 2026-09-26 the payload carried TWO kinds of record:
+  // publicName/displayName picker pairs, where codenames lived, and
+  // modelKey/modelDisplayName leaderboard rows, which are ordinary models. This
+  // map read publicName alone so that a leaderboard row could not be filed as a
+  // picker pair, and that is still correct for every capture of that shape.
+  //
+  // The React Server Components payload that replaced it has NO picker records
+  // at all: 552 modelKey rows, zero publicName, measured live. The anonymous
+  // contenders moved INTO the board, so the codename now IS the key of a
+  // leaderboard row, and reading publicName alone finds nothing at all.
+  //
+  // Choosing by what the capture contains, rather than switching the rule
+  // globally, is what keeps the archive honest. Derivations are recomputed from
+  // history on every build, so a global switch would have re-read every stored
+  // capture of the old shape with the wrong rule: that body's map goes from 86
+  // names to 664, silently changing what this site says about changes it
+  // already published.
+  const keyed = /\\?"publicName\\?":/.test(text) ? 'publicName' : 'any';
+  for (const row of arenaRows(text, keyed)) {
     if (row.name !== '') out.set(row.name, row.display);
   }
   return out;
 }
+
 
 function arenaLeaks(change: ContentChange, before: string, after: string): LeakResult {
   const prev = arenaCodenameMap(before);

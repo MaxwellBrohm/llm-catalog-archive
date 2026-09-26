@@ -321,9 +321,34 @@ describe('arenaCodenameMap', () => {
   // The predicate splits on modelKey too, because it is deciding whether ANY
   // record moved. The codename map must not, or a leaderboard row would be
   // filed as a picker pair.
-  it('ignores a modelKey record', () => {
-    const doc = `{\\"modelKey\\":\\"gpt-5\\",\\"modelDisplayName\\":\\"GPT-5\\"}`;
-    expect(arenaCodenameMap(doc).size).toBe(0);
+  //
+  // THE FIXTURE NOW CARRIES A PICKER RECORD TOO, and that is the point rather
+  // than noise. arena's payload changed before 2026-09-26 to one with NO picker
+  // records at all: 552 modelKey rows and zero publicName, where the anonymous
+  // contenders moved into the board and the codename IS a leaderboard key. So a
+  // document holding nothing but a modelKey row is no longer unambiguous, and
+  // this test's original doc had become a fixture for the new shape while
+  // claiming to test the old one. Read publicName-only against the new payload
+  // and the map is empty, the collapse guard refuses every comparison, and the
+  // leaks desk goes quiet with live reveals sitting unread in the bytes.
+  //
+  // The rule is therefore chosen per capture, and the invariant this test was
+  // written to protect is unchanged: WHERE A PICKER EXISTS, a leaderboard row
+  // is not a picker pair.
+  it('ignores a modelKey record when the capture also has picker records', () => {
+    const doc =
+      `{\\"publicName\\":\\"cold_brew\\",\\"displayName\\":\\"muse-video\\"}` +
+      `{\\"modelKey\\":\\"gpt-5\\",\\"modelDisplayName\\":\\"GPT-5\\"}`;
+    const map = arenaCodenameMap(doc);
+    expect(map.get('cold_brew')).toBe('muse-video');
+    expect(map.has('gpt-5')).toBe(false);
+  });
+
+  // And the converse, which is the new payload: with no picker records present,
+  // the modelKey rows are the only place a codename can be.
+  it('reads modelKey records when the capture has no picker records', () => {
+    const doc = `{\\"modelKey\\":\\"paisley-n9x0\\",\\"modelDisplayName\\":\\"Qwen3.8 Max\\"}`;
+    expect(arenaCodenameMap(doc).get('paisley-n9x0')).toBe('Qwen3.8 Max');
   });
 });
 

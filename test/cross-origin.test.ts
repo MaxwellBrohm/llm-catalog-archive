@@ -113,7 +113,13 @@ describe('canary coverage', () => {
    * why it cannot be relied on as sources arrive.
    */
   it('names the sources standing on structure alone, so the list is deliberate', () => {
-    expect(withoutCanary.map((s) => s.id).sort()).toEqual(['arena-leaderboard', 'openrouter-models'].sort());
+    // arena-leaderboard-rsc left this list on 2026-09-26: the parked
+    // arena-leaderboard stood on structure alone, and when arena renamed
+    // publicName to modelKey the health check could only report "below
+    // min_bytes", which is true and points at the wrong problem. Its
+    // replacement carries modelDisplayName as a canary, so the next schema
+    // change names itself.
+    expect(withoutCanary.map((s) => s.id).sort()).toEqual(['openrouter-models']);
   });
 
   it('gives every source that has a same-shaped sibling a canary', () => {
@@ -125,7 +131,7 @@ describe('canary coverage', () => {
       );
       if (siblings.length > 0 && s.invariants.canary === null) {
         expect(
-          ['arena-leaderboard', 'openrouter-models'],
+          ['openrouter-models'],
           `${s.id} shares its shape with ${siblings.map((x) => x.id).join(', ')} but has no canary`,
         ).toContain(s.id);
       }
@@ -177,7 +183,7 @@ describe('every configured source resolves to a provider', () => {
    * shows up here as an unexpected NAME rather than as a quiet week.
    */
   const NO_PROVIDER_BY_DESIGN = [
-    'arena-leaderboard',
+    'arena-leaderboard-rsc',
     'modelsdev-commits',
     'openrouter-models',
     'transformers-pulls',
