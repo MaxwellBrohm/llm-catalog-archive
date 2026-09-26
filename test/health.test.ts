@@ -1055,10 +1055,10 @@ describe('the configured canaries', () => {
    * passes on the corrected config (identical projections across two fetches
    * twenty seconds apart).
    *
-   * So this pin now records "configuration corrected, first capture pending"
-   * rather than "held by a gate", and it goes red on the next successful
-   * collector run. That is still the intended cost of a pin, and still good
-   * news when it fires.
+   * IT CAPTURED. The corrected configuration was proved by a real collector
+   * run on 2026-09-26 that stored 17,023 bytes under this id, the first ever.
+   * So every active text source now has a capture and both lists below are
+   * empty, which is the state this file always wanted to be able to assert.
    */
   const status = parseStatusFile(fs.readFileSync('meta/status.json', 'utf8'));
   const heldReason = (id: string): string | null => status?.sources[id]?.held?.reason ?? null;
@@ -1067,15 +1067,14 @@ describe('the configured canaries', () => {
     const missing = textSources.filter(
       (s) => s.status === 'active' && !fs.existsSync(s.path) && heldReason(s.id) === null,
     );
-    /* xai-llms-txt: floor and canary corrected 2026-09-26, first capture due on
-       the next collector run. Everything else here would be a source gone dark
-       without saying so. */
-    expect(missing.map((s) => s.id)).toEqual(['xai-llms-txt']);
+    expect(missing.map((s) => s.id)).toEqual([]);
   });
 
   it('names every text source with no archived capture, rather than skipping it quietly', () => {
     const dark = textSources.filter((s) => !fs.existsSync(s.path)).map((s) => s.id).sort();
-    expect(dark).toEqual(['xai-llms-txt']);
+    /* Empty since 2026-09-26. Every active text source has a stored capture,
+       so anything appearing here is a source that has gone dark. */
+    expect(dark).toEqual([]);
   });
 
   /**

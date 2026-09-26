@@ -180,3 +180,44 @@ describe('the defaults', () => {
     expect(DEFAULT_THRESHOLDS.quietHours).toBeGreaterThan(24);
   });
 });
+
+describe('a source that is no longer fetched', () => {
+  /**
+   * STATUS ENTRIES OUTLIVE THE FETCHING. Parking a source as `pending` stops
+   * the collector touching it, but leaves whatever counters it had in
+   * meta/status.json. `openrouter-sitemap` was parked on 2026-09-26 after its
+   * URL started returning a sitemap index instead of a urlset, and went on
+   * reporting "2 consecutive failures, health failed" as a CRITICAL afterwards,
+   * which would have held the liveness issue open for ever with nothing left to
+   * fix. An alarm that cannot be cleared by fixing the thing is how an alerting
+   * channel gets muted, which is the one failure this file exists to prevent.
+   */
+  const parked = statusAt(NOW, {
+    live: healthy(),
+    parked: healthy({ failing: true, consecutiveFailures: 2, health: 'failed' }),
+  });
+
+  it('still shouts when nothing says which sources are active', () => {
+    const r = assessLiveness(input({ status: parked }));
+    expect(r.ok).toBe(false);
+    expect(r.problems.map((p) => p.message).join(' ')).toContain('parked');
+  });
+
+  it('is silent once the active list says it is not fetched', () => {
+    const r = assessLiveness(input({ status: parked, activeIds: ['live'] }));
+    expect(r.ok).toBe(true);
+    expect(r.problems).toEqual([]);
+  });
+
+  /** And an active source that IS failing must still shout, or this is a mute. */
+  it('still shouts for a failing source that is on the active list', () => {
+    const r = assessLiveness(input({ status: parked, activeIds: ['live', 'parked'] }));
+    expect(r.ok).toBe(false);
+    expect(r.problems.map((p) => p.message).join(' ')).toContain('parked');
+  });
+
+  /** An empty active list must not be read as "judge everything". */
+  it('treats an empty active list as nothing to judge, not as everything', () => {
+    expect(assessLiveness(input({ status: parked, activeIds: [] })).problems).toEqual([]);
+  });
+});

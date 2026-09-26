@@ -51,6 +51,21 @@ export type LivenessInput = {
   status: StatusFile | null;
   /** The newest commit instant touching raw/, ISO. Null when there is none. */
   lastCaptureAt: string | null;
+  /**
+   * The ids the collector is currently fetching, meaning status `active` in
+   * meta/sources.json. Absent means "judge every id in the status file", which
+   * is what this did before and is kept so a caller without the config is not
+   * forced to invent one.
+   *
+   * IT IS NEEDED BECAUSE STATUS ENTRIES OUTLIVE THE FETCHING. A source parked
+   * as `pending` keeps whatever counters it had when it stopped, so
+   * `openrouter-sitemap` went on reporting "2 consecutive failures" after it
+   * had been deliberately retired and replaced, and would have done so every
+   * day for ever. An alarm that cannot be switched off by fixing the thing is
+   * how an alerting channel gets muted, which is the failure this whole file
+   * exists to prevent.
+   */
+  activeIds?: readonly string[];
   thresholds?: Thresholds;
 };
 
@@ -148,7 +163,10 @@ export function assessLiveness(input: LivenessInput): LivenessReport {
     });
   }
 
+  const active = input.activeIds === undefined ? null : new Set(input.activeIds);
   for (const [id, s] of Object.entries(input.status.sources).sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+    // A status entry for something no longer fetched is history, not a fault.
+    if (active !== null && !active.has(id)) continue;
     if (s.failing) {
       critical.push({
         severity: 'critical',

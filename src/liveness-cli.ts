@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseStatusFile } from './status.js';
+import { loadSources } from './config.js';
 import { lastCommitInstant } from './git.js';
 import { assessLiveness, renderLiveness } from './liveness.js';
 
@@ -30,10 +31,30 @@ function readStatus(): ReturnType<typeof parseStatusFile> {
   }
 }
 
+/**
+ * The ids the collector actually fetches. Read here rather than defaulted
+ * inside assessLiveness, so that a missing or unreadable sources file falls
+ * back to judging everything in the status file rather than judging nothing:
+ * an alarm that goes quiet because its config failed to load is worse than one
+ * that shouts about a source it should have skipped.
+ */
+function activeIds(): string[] | undefined {
+  const p = path.join(cwd, 'meta/sources.json');
+  if (!fs.existsSync(p)) return undefined;
+  try {
+    return loadSources(JSON.parse(fs.readFileSync(p, 'utf8')))
+      .sources.filter((s) => s.status === 'active')
+      .map((s) => s.id);
+  } catch {
+    return undefined;
+  }
+}
+
 const report = assessLiveness({
   now: new Date().toISOString(),
   status: readStatus(),
   lastCaptureAt: lastCommitInstant(cwd, 'raw'),
+  activeIds: activeIds(),
 });
 
 const body = renderLiveness(report);
