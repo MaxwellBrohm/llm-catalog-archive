@@ -42,6 +42,11 @@ export type LeakType =
   | 'codename_entered'
   /** A `publicName` whose `displayName` stopped matching it. */
   | 'codename_unmasked'
+  /**
+   * A codename and the name standing beside it in a capture, with no claim
+   * about when they were paired. The baseline counterpart of the one above.
+   */
+  | 'codename_standing'
   /** A model-support pull request that was not in the previous capture. */
   | 'upstream_pr_opened'
   /** That pull request's `merged_at` going from absent to a date. */
@@ -94,6 +99,30 @@ export type LeakResult = { items: LeakItem[]; refusals: LeakRefusal[] };
 // ---------------------------------------------------------------------------
 
 export const ARENA_SOURCE_ID = 'arena-leaderboard';
+
+/**
+ * EVERY id the arena leaderboard has been captured under, not just the current
+ * one, and the reason is that this deriver walks the WHOLE history.
+ *
+ * arena-leaderboard was parked on 2026-09-26 when arena replaced its payload,
+ * and arena-leaderboard-rsc took over. Matching a single id would have done one
+ * of two things depending on which one it held: the old id derives nothing from
+ * anything captured from now on, and the new id silently stops deriving the
+ * years of captures already in the archive. Both look exactly like a quiet
+ * week, which is the failure mode this repository has already been bitten by
+ * twice in src/derive/entities.ts.
+ *
+ * A PARKED SOURCE STAYS IN THIS SET FOREVER. Its captures do not leave the
+ * history, so the deriver must keep reading them.
+ */
+export const ARENA_SOURCE_IDS: ReadonlySet<string> = new Set([
+  'arena-leaderboard',
+  'arena-leaderboard-rsc',
+]);
+
+export function isArenaSource(sourceId: string): boolean {
+  return ARENA_SOURCE_IDS.has(sourceId);
+}
 
 /**
  * Words that are a release channel rather than an identity.
@@ -264,6 +293,92 @@ export function arenaCodenameMap(text: string): Map<string, string> {
   return out;
 }
 
+
+/**
+ * The reveals standing in a BASELINE capture, with no claim about timing.
+ *
+ * ONLY THE REVEALS, not every pair. The map holds hundreds of rows and almost
+ * all of them are a model beside its own label, which is not a finding. A
+ * standing item is worth publishing exactly when the two names share no
+ * identity token, because that is a codename sitting beside the thing it hides.
+ * isCodenameReveal is the same filter the change path uses, so the two cannot
+ * drift apart on what counts.
+ *
+ * The collapse floor applies here too, and for a sharper reason than on a diff:
+ * a baseline has no `before` to disagree with, so a payload whose picker has
+ * collapsed to a handful of rows would publish that handful as though they were
+ * the whole board.
+ */
+function arenaStanding(change: ContentChange, after: string): LeakResult {
+  const map = arenaCodenameMap(after);
+  if (map.size < ARENA_CODENAME_FLOOR) {
+    return {
+      items: [],
+      refusals: [
+        {
+          sourceId: change.sourceId,
+          sha: change.sha,
+          path: change.path,
+          stamp: change.stamp,
+          reason:
+            `the codename map holds ${map.size} records in this baseline capture and the floor is ` +
+            `${ARENA_CODENAME_FLOOR}. Nothing is derived from a baseline below it, because there is no ` +
+            'previous capture to show that the payload is merely small rather than broken.',
+        },
+      ],
+    };
+  }
+
+  /*
+   * ONE FINDING PER CODENAME, not one per row.
+   *
+   * The RSC payload lists the same contender up to eight times across flight
+   * chunks and in three spellings: bare (`kivine-wxzc` beside `kimi-k3-max`),
+   * with an evaluation-mode suffix (`kivine-wxzc-agent` beside `Kimi K3
+   * (Max)`), and with both that suffix and a `contenders/` prefix. Measured on
+   * the first RSC capture: 88 reveal rows, 58 distinct names, 48 distinct
+   * codenames. Publishing per name would have put the same reveal on the page
+   * three times with three different displays, which reads as three findings
+   * and is one.
+   *
+   * The BARE spelling wins where the payload carries it, because `kimi-k3-max`
+   * is the vendor's own identifier and `Kimi K3 (Max)` is a label made for a
+   * leaderboard cell. Where it does not, the shortest name is taken, which is
+   * the least decorated form present. The exact modelKey that produced the
+   * item is kept in the facts either way, so a reader checking the artifact
+   * finds the string this row was actually read from.
+   */
+  const byStem = new Map<string, { name: string; display: string }[]>();
+  for (const [name, display] of map) {
+    if (!isCodenameReveal(name, display)) continue;
+    const stem = name.replace(/^contenders\//, '').replace(/-agent$/, '');
+    byStem.set(stem, [...(byStem.get(stem) ?? []), { name, display }]);
+  }
+
+  const out: LeakItem[] = [];
+  for (const [stem, rows] of byStem) {
+    const chosen =
+      rows.find((r) => r.name === stem) ??
+      [...rows].sort((a, b) => a.name.length - b.name.length || (a.name < b.name ? -1 : 1))[0]!;
+    out.push({
+      id: `${change.sha}:codename_standing:${stem}`,
+      type: 'codename_standing',
+      tier: 'confirmed-artifact',
+      sha: change.sha,
+      sourceId: change.sourceId,
+      path: change.path,
+      stamp: change.stamp,
+      subject: stem,
+      facts: [
+        ['modelKey', chosen.name],
+        ['displayName', chosen.display],
+        ['rows carrying this codename', String(rows.length)],
+        ['classification', 'reveal: the two names share no identity token'],
+      ],
+    });
+  }
+  return { items: out, refusals: [] };
+}
 
 function arenaLeaks(change: ContentChange, before: string, after: string): LeakResult {
   const prev = arenaCodenameMap(before);
@@ -722,11 +837,36 @@ function catalogLeaks(change: ContentChange, before: string, after: string): Lea
  */
 export function leakResult(change: ContentChange): LeakResult {
   const none: LeakResult = { items: [], refusals: [] };
-  if (change.kind === 'added') return none;
+  if (change.kind === 'added') {
+    /*
+     * THE SECOND EXCEPTION TO RULE 2, ON THE SAME REASONING AS THE FIRST.
+     *
+     * src/derive/events.ts already carves out retirement floors, because their
+     * sentence reports what a vendor's own table RECORDS rather than when we
+     * saw it change, so it is as well supported by the first capture as the
+     * hundredth. The comment there also records what it cost to not have it:
+     * sixteen dated floors, the most useful thing the archive held, rendering
+     * as zero items on the publication.
+     *
+     * A codename PAIRING is the same kind of claim. "The payload records the
+     * modelKey X beside the displayName Y" reads two values out of arena's own
+     * bytes and asserts nothing about when they were put there. What it is NOT
+     * is codename_unmasked, whose sentence says the displayName CHANGED and
+     * the names NO LONGER match: that one inherits its date from our
+     * observation and stays barred from a baseline, correctly.
+     *
+     * The cost of not having this was measured on 2026-09-26, when arena
+     * changed payload shape and the replacement source's first capture held
+     * 51 standing reveals, kivine-wxzc-agent beside Kimi K3 (Max) among them,
+     * every one of which would have been archived and never published.
+     */
+    if (isArenaSource(change.sourceId)) return arenaStanding(change, change.after);
+    return none;
+  }
   const before = change.before;
   if (before === null) return none;
 
-  if (change.sourceId === ARENA_SOURCE_ID) return arenaLeaks(change, before, change.after);
+  if (isArenaSource(change.sourceId)) return arenaLeaks(change, before, change.after);
   if (change.sourceId === CATALOG_SOURCE_ID) return { items: catalogLeaks(change, before, change.after), refusals: [] };
   const repo = PULL_REPOS[change.sourceId];
   if (repo !== undefined) return { items: pullLeaks(change, repo, before, change.after), refusals: [] };
@@ -819,6 +959,15 @@ export function leakSentence(item: LeakItem): string {
       return `A model named ${quote(item.subject)} appears in arena.ai's leaderboard payload.`;
     case 'codename_unmasked':
       return `The displayName recorded beside the publicName ${quote(item.subject)} in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.`;
+    /*
+     * NO VERB OF CHANGE IN THIS ONE, and that is the whole difference between
+     * it and the case above. "records" is a statement about the bytes this
+     * archive holds; "changed" and "no longer" would be statements about when,
+     * which a baseline cannot support. The sentence must stay readable as true
+     * of a single capture on its own.
+     */
+    case 'codename_standing':
+      return `arena.ai's leaderboard payload records the modelKey ${quote(factOf(item, 'modelKey'))} beside the displayName ${quote(factOf(item, 'displayName'))}, and the two names share no identity token.`;
     case 'upstream_pr_opened':
       return `A pull request numbered ${quote(item.subject)} is titled ${quote(factOf(item, 'title'))} in the collected search payload.`;
     case 'upstream_pr_merged':

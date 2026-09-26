@@ -18,7 +18,7 @@ import { hnTitle } from '../src/desk/titles.js';
 import { ALERT_FLOOR_BITS, ALERT_MEMORY, alertable, nextAlertState, parseAlertState, type AlertState } from '../src/desk/alert.js';
 import type { Candidate } from '../src/desk/queue.js';
 import { arenaRows } from '../src/predicate.js';
-import { arenaCodenameMap, ARENA_CODENAME_FLOOR, isCodenameReveal } from '../src/derive/leaks.js';
+import { arenaCodenameMap, ARENA_CODENAME_FLOOR, isCodenameReveal, leaksFromChange, leakSentence } from '../src/derive/leaks.js';
 import { buildQueue, cooldownKeys, HN_PER_DAY } from '../src/desk/queue.js';
 import { recommend } from '../src/desk/route.js';
 import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE, blockedVenueIds } from '../src/desk/venues.js';
@@ -971,5 +971,85 @@ describe('the interrupt path beside the digest', () => {
     expect(parseAlertState('{}').alerted).toEqual([]);
     expect(parseAlertState('{"alerted":null}').alerted).toEqual([]);
     expect(parseAlertState('{"alerted":["a",7,"b"]}').alerted).toEqual(['a', 'b']);
+  });
+});
+
+describe('reveals standing in a baseline capture', () => {
+  /**
+   * THE 51 THAT WOULD HAVE BEEN LOST. When arena changed payload shape the
+   * replacement source's first capture was a baseline, and rule 2 bars a
+   * baseline from every CHANGE claim. The bytes were archived and nothing was
+   * ever published from them.
+   *
+   * A pairing is not a change claim. "The payload records X beside Y" reads
+   * two values out of the vendor's own bytes and asserts nothing about when
+   * they were put there, which is the same reasoning src/derive/events.ts
+   * already uses to let retirement floors through a baseline.
+   */
+  /*
+   * A DOCUMENT BUILT TO CLEAR THE COLLAPSE FLOOR, because the real fixture
+   * slice holds fewer than 250 distinct names and is correctly refused by it.
+   * The filler pairs each name with itself, so they count toward the floor and
+   * are not reveals, and the three real spellings of one codename are taken
+   * verbatim from the live payload so the dedupe is exercised on arena's own
+   * shape rather than on an invented one.
+   */
+  const row = (k: string, d: string) => String.raw`{\"modelKey\":\"${k}\",\"modelDisplayName\":\"${d}\"}`;
+  const filler = Array.from({ length: 300 }, (_, i) => row(`filler-${i}`, `filler-${i}`)).join('');
+  const rsc = filler +
+    row('kivine-wxzc', 'kimi-k3-max') +
+    row('kivine-wxzc-agent', 'Kimi K3 (Max)') +
+    row('contenders/kivine-wxzc-agent', 'Kimi K3 (Max)') +
+    row('paisley-n9x0', 'Qwen3.8 Max') +
+    row('contenders/paisley-n9x0', 'Qwen3.8 Max');
+  const baseline = {
+    kind: 'added', sourceId: 'arena-leaderboard-rsc', path: 'raw/arena-leaderboard-rsc/response.html',
+    sha: 'a'.repeat(40), before: null, after: rsc,
+    stamp: { iso: '2026-09-26T05:00:00.000Z', kind: 'observed' },
+  } as never;
+
+  it('publishes the reveals a baseline holds', () => {
+    const items = leaksFromChange(baseline).filter((i) => i.type === 'codename_standing');
+    /* Two codenames in five reveal rows: the filler is not a reveal. */
+    expect(items.map((i) => i.subject).sort()).toEqual(['kivine-wxzc', 'paisley-n9x0']);
+  });
+
+  /** One finding per codename, however many rows the payload spends on it. */
+  it('collapses the three spellings of one codename into one item', () => {
+    const subjects = leaksFromChange(baseline)
+      .filter((i) => i.type === 'codename_standing').map((i) => i.subject);
+    expect(new Set(subjects).size).toBe(subjects.length);
+    for (const s of subjects) {
+      expect(s.startsWith('contenders/'), `${s} kept its prefix`).toBe(false);
+      expect(s.endsWith('-agent'), `${s} kept its mode suffix`).toBe(false);
+    }
+  });
+
+  /**
+   * THE SENTENCE MAY NOT CLAIM TIMING. That is the whole basis on which a
+   * baseline is allowed to say anything at all, so it is asserted on the words
+   * rather than trusted to the comment above the function.
+   */
+  it('says what the payload records, never that anything changed', () => {
+    const item = leaksFromChange(baseline).find((i) => i.type === 'codename_standing')!;
+    const sentence = leakSentence(item);
+    expect(sentence).toContain('records the modelKey');
+    for (const banned of ['changed', 'no longer', 'entered', 'became', 'now ']) {
+      expect(sentence.toLowerCase(), `"${banned}" is a timing claim`).not.toContain(banned);
+    }
+  });
+
+  /** Every value in the sentence is read out of the item's own facts. */
+  it('puts nothing in the sentence that is not in the facts', () => {
+    const item = leaksFromChange(baseline).find((i) => i.type === 'codename_standing')!;
+    const sentence = leakSentence(item);
+    expect(sentence).toContain(item.facts.find((f) => f[0] === 'modelKey')![1]);
+    expect(sentence).toContain(item.facts.find((f) => f[0] === 'displayName')![1]);
+  });
+
+  /** A collapsed baseline has no previous capture to prove it is merely small. */
+  it('refuses a baseline below the collapse floor', () => {
+    const tiny = { ...(baseline as Record<string, unknown>), after: row('x-1', 'Some Model') } as never;
+    expect(leaksFromChange(tiny)).toEqual([]);
   });
 });

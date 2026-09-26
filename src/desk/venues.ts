@@ -197,6 +197,16 @@ const ROUTES: Record<FeedType, readonly RouteStep[]> = {
   // An unreleased model spotted under a codename, with the bytes to prove it.
   // This is r/LocalLLaMA's core subject, and the evidence link is what makes it
   // a post there rather than a rumour.
+  /*
+   * The same route as codename_unmasked, because it is the same finding to a
+   * reader: a codename sitting beside the model it hides. What differs is only
+   * whether the archive also knows WHEN the pairing appeared, which changes
+   * what the sentence may claim and not who wants to read it.
+   */
+  codename_standing: [
+    { id: 'hn', why: 'an unreleased model identified from a vendor\'s own bytes stands on its own to a programmer who has never heard of this site' },
+    { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },
+  ],
   codename_unmasked: [
     { id: 'hn', why: 'an unreleased model identified from a vendor\'s own bytes stands on its own to a programmer who has never heard of this site' },
     { id: 'bluesky', why: 'broadcast, once the discussion venues have had it' },

@@ -705,16 +705,47 @@ describe('catalog leaks', () => {
 // ---------------------------------------------------------------------------
 
 describe('leaksFromChange', () => {
-  // The same refusal src/derive/events.ts makes: with no before, reporting
-  // 1,029 codenames as having entered testing today would be 1,029 false
-  // claims with honest artifact links attached.
-  // `before` is deliberately NON-null here, so the only thing that can stop
-  // this is the kind check. With `before: null` as well, the second guard
-  // catches it and the kind check goes untested, which is what mutation
-  // testing found: the kind arm survived replacement.
-  it('emits nothing at all for a baseline capture, even when a before is present', () => {
-    const baseline = { ...arenaChange([['a', 'a']], [['cold_brew', 'muse-video']]), kind: 'added' as const };
-    expect(leaksFromChange(baseline)).toEqual([]);
+  /*
+   * WHAT A BASELINE MAY AND MAY NOT SAY.
+   *
+   * It may not make a CHANGE claim. Reporting 1,029 codenames as having entered
+   * testing today would be 1,029 false claims with honest artifact links
+   * attached, which is the same refusal src/derive/events.ts makes.
+   *
+   * It MAY report a pairing standing in the capture, on the reasoning that file
+   * already uses for retirement floors: "the payload records X beside Y" reads
+   * two values out of the vendor's own bytes and asserts nothing about when
+   * they were put there. Arena changed payload shape on 2026-09-26 and the
+   * replacement source's first capture held 51 such reveals; under the old
+   * blanket rule every one would have been archived and never published.
+   *
+   * `before` is deliberately NON-null here, so the only thing that can route
+   * this is the kind check. With `before: null` as well, the second guard
+   * catches it and the kind arm goes untested, which is what mutation testing
+   * found once already: that arm survived replacement.
+   */
+  const baseline = { ...arenaChange([['a', 'a']], [['cold_brew', 'muse-video']]), kind: 'added' as const };
+
+  it('makes no change claim on a baseline capture, even when a before is present', () => {
+    const types = leaksFromChange(baseline).map((i) => i.type);
+    expect(types).not.toContain('codename_entered');
+    expect(types).not.toContain('codename_unmasked');
+  });
+
+  it('reports the pairing standing in that same baseline', () => {
+    const items = leaksFromChange(baseline).filter((i) => i.type === 'codename_standing');
+    expect(items.map((i) => i.subject)).toEqual(['cold_brew']);
+  });
+
+  /**
+   * The kind arm still has to be load bearing. The SAME two documents read as a
+   * modification produce the change claims, so an implementation that ignored
+   * `kind` would emit those on a baseline and this goes red.
+   */
+  it('reads the same two documents as a change when the kind says so', () => {
+    const types = leaksFromChange({ ...baseline, kind: 'modified' as const }).map((i) => i.type);
+    expect(types).toContain('codename_entered');
+    expect(types).not.toContain('codename_standing');
   });
 
   it('emits nothing for a modified change that carries no before', () => {

@@ -424,6 +424,7 @@ const MAGNITUDE_LABEL: Partial<Record<FeedType, string>> = {
   doc_removed: 'docs delisted',
   codename_entered: 'codenames',
   codename_unmasked: 'codenames revealed',
+  codename_standing: 'codenames standing in a capture',
 };
 
 export function changeMagnitude(sha: string, sourceId: string, feed: readonly FeedItem[]): string | null {
@@ -1028,6 +1029,7 @@ function confirmationHtml(item: LeakItem): string {
 const SIGNAL_LABEL: Record<string, string> = {
   codename_entered: 'Arena codename map: a name entered the payload',
   codename_unmasked: 'Arena codename map: a name was unmasked',
+  codename_standing: 'Arena codename map: a name standing beside the model it hides',
   upstream_pr_opened: 'Upstream runtime: a model-support pull request appeared',
   upstream_pr_merged: 'Upstream runtime: a model-support pull request merged',
   stealth_listing: 'OpenRouter: an id under the stealth/ namespace',
@@ -1205,6 +1207,7 @@ export const TYPE_LABEL: Record<FeedType, string> = {
   doc_removed: 'A documentation index lost an entry',
   codename_entered: 'A name entered the arena payload',
   codename_unmasked: 'A name in the arena payload was unmasked',
+  codename_standing: 'A codename stands beside a real model name in the arena payload',
   upstream_pr_opened: 'A model-support pull request appeared',
   upstream_pr_merged: 'A model-support pull request merged',
   stealth_listing: 'An id under the stealth/ namespace',
