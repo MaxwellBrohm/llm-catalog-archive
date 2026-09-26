@@ -5,7 +5,7 @@
 - [Overview](https://docs.together.ai/intro.md): Run, train, and serve open-source AI models on Together AI.
 - [Quickstart](https://docs.together.ai/docs/quickstart.md): Make your first request to Together AI in a few minutes.
 - [Coding agent setup](https://docs.together.ai/docs/agent-skills.md): Make your AI coding agent Together-AI-aware with ready-made skills for code generation and an MCP server for live docs lookup.
-- [Configure Claude Code, Claude Desktop, Codex, and ChatGPT with Together AI models](https://docs.together.ai/docs/togetherlink.md): Use TogetherLink to run Claude Code, Claude Desktop and Cowork, Codex CLI, and ChatGPT Desktop with models hosted by Together AI.
+- [Configure Claude Code & Codex with OSS models](https://docs.together.ai/docs/togetherlink.md): Use TogetherLink to run Claude Code, Claude Desktop and Cowork, Codex CLI, and ChatGPT Desktop with models hosted by Together AI.
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
 - [Available models](https://docs.together.ai/docs/serverless/models.md): Browse the catalog of available models for instant inference.
@@ -18,6 +18,7 @@
 - [Parameters](https://docs.together.ai/docs/inference/chat/parameters.md): The full list of parameters you can pass to the chat completions endpoint.
 - [Structured outputs](https://docs.together.ai/docs/inference/chat/structured-outputs.md): Use JSON mode to get structured outputs from supported chat models.
 - [Reasoning](https://docs.together.ai/docs/inference/chat/reasoning.md): Use reasoning models that think step-by-step before answering.
+- [Prompt caching](https://docs.together.ai/docs/inference/chat/prompt-caching.md): Together reuses previously processed prompt prefixes to lower input cost and time to first token.
 - [Log probabilities](https://docs.together.ai/docs/inference/chat/logprobs.md): Return per-token log probabilities to measure model confidence and route low-confidence outputs to a stronger model.
 - [Function calling patterns](https://docs.together.ai/docs/inference/function-calling/overview.md): Function calling lets LLMs respond with structured function names and arguments your application can execute.
 - [Call functions](https://docs.together.ai/docs/inference/function-calling/single-call.md): One tool call per response, covering simple and multiple-tool patterns.
@@ -33,7 +34,7 @@
 - [Video generation parameters](https://docs.together.ai/docs/inference/videos/parameters.md): Reference for video generation parameters, including guidance scale and quality control.
 - [Use image inputs](https://docs.together.ai/docs/inference/vision/overview.md): Run vision-language models on Together: pass images alongside text and get structured replies, transcripts, comparisons, or extracted data.
 - [Vision input modes](https://docs.together.ai/docs/inference/vision/inputs.md): Send local images, video URLs, or multiple images to a vision model in a single request.
-- [Structured extraction with vision](https://docs.together.ai/docs/inference/vision/structured-extraction.md): Combine image input with a JSON schema to extract typed data from screenshots, documents, and photos.
+- [Structured extraction with vision](https://docs.together.ai/docs/inference/vision/structured-extraction.md): Combine image input with a JSON schema to extract typed data from screenshots, documents, and photos, or run OCR to pull text out of images.
 - [Vision-language function calling](https://docs.together.ai/docs/inference/vision/function-calling.md): Combine image understanding with tool use on Together AI vision-language models.
 - [Transcribe audio](https://docs.together.ai/docs/inference/transcription/overview.md): Transcribe and translate audio into text.
 - [Streaming transcription](https://docs.together.ai/docs/inference/transcription/streaming.md): Use the real-time WebSocket API for low-latency, incremental speech-to-text.
@@ -150,7 +151,6 @@
 - [Build a Lovable clone with Kimi K3](https://docs.together.ai/docs/how-to-build-a-lovable-clone-with-kimi-k2.md): Build a full-stack Next.js app that generates React apps from a single prompt.
 - [Build a CSV data analysis app with the code interpreter](https://docs.together.ai/docs/csv-data-analysis-with-code-interpreter.md): Build a full-stack Next.js app that answers questions about CSV data with AI-generated Python code.
 - [Build a resume-to-website app with structured outputs](https://docs.together.ai/docs/pdf-to-website-with-structured-outputs.md): Build an AI-powered site builder that turns PDF resumes into personal websites with structured outputs.
-- [OCR quickstart](https://docs.together.ai/docs/quickstart-how-to-do-ocr.md): Run OCR on documents with Together AI vision models and structured outputs.
 - [Build a real-time image generator with Flux](https://docs.together.ai/docs/how-to-build-a-real-time-image-generator.md): Create a real-time text-to-image app with Juggernaut Lightning Flux, Next.js, and Together AI.
 - [Build an open source NotebookLM](https://docs.together.ai/docs/open-notebooklm-pdf-to-podcast.md): Build an open source NotebookLM that turns a PDF into a podcast.
 - [Build an interactive AI tutor](https://docs.together.ai/docs/ai-tutor.md): Create LlamaTutor from scratch, an open source AI tutor with 90k users.
