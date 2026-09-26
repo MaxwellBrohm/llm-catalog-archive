@@ -18,7 +18,7 @@ import { hnTitle } from '../src/desk/titles.js';
 import { ALERT_FLOOR_BITS, ALERT_MEMORY, alertable, nextAlertState, parseAlertState, type AlertState } from '../src/desk/alert.js';
 import type { Candidate } from '../src/desk/queue.js';
 import { arenaRows } from '../src/predicate.js';
-import { arenaCodenameMap, ARENA_CODENAME_FLOOR, isCodenameReveal, leaksFromChange, leakSentence } from '../src/derive/leaks.js';
+import { arenaCodenameMap, ARENA_CODENAME_FLOOR, isCodenameReveal, leaksFromChange, leakSentence, arenaFindingMap } from '../src/derive/leaks.js';
 import { buildQueue, cooldownKeys, HN_PER_DAY } from '../src/desk/queue.js';
 import { recommend } from '../src/desk/route.js';
 import { VENUES, venuesFor, allRoutedVenueIds, ROUTE_TABLE, blockedVenueIds } from '../src/desk/venues.js';
@@ -1081,5 +1081,60 @@ describe('a standing reveal is offered like any other finding', () => {
       type: 'codename_standing', id: 'sha:codename_standing:x', kind: 'leak',
       sentence: 'x'.repeat(150), facts: [['modelKey', 'x'], ['displayName', '']],
     } as never))).toBeNull();
+  });
+});
+
+describe('one codename, one event, on the change path too', () => {
+  /**
+   * The baseline path learned to group arena's three spellings of a contender
+   * into one finding; the change path was left reading one entry per name. The
+   * first real unmask after the RSC switch would therefore have published
+   * THREE TIMES, and an unmask is the most valuable event this desk produces.
+   * Both paths now share arenaFindingMap, so they cannot drift apart again.
+   */
+  const row = (k: string, d: string) => String.raw`{\"modelKey\":\"${k}\",\"modelDisplayName\":\"${d}\"}`;
+  const filler = Array.from({ length: 300 }, (_, i) => row(`filler-${i}`, `filler-${i}`)).join('');
+  const three = (a: string, b: string) =>
+    filler + row('newcode-ab12', a) + row('newcode-ab12-agent', b) + row('contenders/newcode-ab12-agent', b);
+  const change = (before: string, after: string) => ({
+    kind: 'modified', sourceId: 'arena-leaderboard-rsc', path: 'raw/arena-leaderboard-rsc/response.html',
+    sha: 'b'.repeat(40), before, after, stamp: { iso: '2026-09-27T00:00:00.000Z', kind: 'observed' },
+  }) as never;
+
+  it('publishes one unmask for one codename in three spellings', () => {
+    const items = leaksFromChange(change(
+      three('newcode-ab12', 'newcode-ab12-agent'),
+      three('qwen-9-max', 'Qwen 9 (Max)'),
+    ));
+    expect(items.map((i) => [i.type, i.subject])).toEqual([['codename_unmasked', 'newcode-ab12']]);
+  });
+
+  it('publishes one entry for one new codename in three spellings', () => {
+    const items = leaksFromChange(change(filler, three('newcode-ab12', 'newcode-ab12-agent')));
+    expect(items.filter((i) => i.type === 'codename_entered').map((i) => i.subject)).toEqual(['newcode-ab12']);
+  });
+
+  /** The sentence names the field the capture actually used. */
+  it('says modelKey, not publicName, for an RSC capture', () => {
+    const [item] = leaksFromChange(change(
+      three('newcode-ab12', 'newcode-ab12-agent'), three('qwen-9-max', 'Qwen 9 (Max)'),
+    ));
+    expect(leakSentence(item!)).toContain('beside the modelKey "newcode-ab12"');
+    expect(leakSentence(item!)).not.toContain('publicName');
+  });
+
+  /** And still reaches HN, rather than falling to Bluesky on a missing fact. */
+  it('composes an HN title for an RSC unmask', () => {
+    const [li] = leaksFromChange(change(
+      three('newcode-ab12', 'newcode-ab12-agent'), three('qwen-9-max', 'Qwen 9 (Max)'),
+    ));
+    const t = hnTitle(item({ type: 'codename_unmasked', id: li!.id, kind: 'leak', sentence: 'x'.repeat(150), facts: li!.facts } as never));
+    expect(t?.text).toBe('Arena codename "newcode-ab12" resolves to qwen-9-max');
+  });
+
+  /** History is untouched: an old publicName capture is one entry per name, as it always was. */
+  it('does not stem a publicName capture', () => {
+    const old = String.raw`{\"publicName\":\"foo-agent\",\"displayName\":\"foo-agent\"}`;
+    expect([...arenaFindingMap(old).keys()]).toEqual(['foo-agent']);
   });
 });

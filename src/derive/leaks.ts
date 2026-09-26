@@ -295,6 +295,57 @@ export function arenaCodenameMap(text: string): Map<string, string> {
 
 
 /**
+ * One entry per CODENAME, for both the baseline path and the change path.
+ *
+ * WHY THIS IS SHARED. The baseline path learned on 2026-09-26 that arena's RSC
+ * payload lists a contender up to eight times in three spellings (bare,
+ * `-agent`, and `contenders/...-agent`), and grouped them. The change path was
+ * left reading one entry per NAME, so the first real unmask after that date
+ * would have published three times: measured with a synthetic capture holding
+ * one codename in its three spellings, all unmasked together, which produced
+ * three codename_unmasked items for one event. Two implementations of "what is
+ * one finding" had already drifted once in a single day, so there is one now.
+ *
+ * STEMMING APPLIES ONLY TO THE modelKey SHAPE, chosen per capture exactly as
+ * arenaCodenameMap chooses its keying. A publicName capture is returned one
+ * entry per name, untouched. Zero stored publicNames carry the prefix or the
+ * suffix today, but history must stay unchanged by construction rather than by
+ * a measurement that could stop being true.
+ *
+ * The bare spelling is preferred where present, because `kimi-k3-max` is the
+ * vendor's identifier and "Kimi K3 (Max)" is a label made for a leaderboard
+ * cell; otherwise the shortest, least decorated name present.
+ */
+export type ArenaFinding = { readonly name: string; readonly display: string; readonly rows: number };
+
+export function arenaFindingMap(text: string): Map<string, ArenaFinding> {
+  const rows = arenaCodenameMap(text);
+  const out = new Map<string, ArenaFinding>();
+  const stemmed = !/\\?"publicName\\?":/.test(text);
+  if (!stemmed) {
+    for (const [name, display] of rows) out.set(name, { name, display, rows: 1 });
+    return out;
+  }
+  const groups = new Map<string, { name: string; display: string }[]>();
+  for (const [name, display] of rows) {
+    const stem = name.replace(/^contenders\//, '').replace(/-agent$/, '');
+    groups.set(stem, [...(groups.get(stem) ?? []), { name, display }]);
+  }
+  for (const [stem, group] of groups) {
+    const chosen =
+      group.find((r) => r.name === stem) ??
+      [...group].sort((a, b) => a.name.length - b.name.length || (a.name < b.name ? -1 : 1))[0]!;
+    out.set(stem, { name: chosen.name, display: chosen.display, rows: group.length });
+  }
+  return out;
+}
+
+/** Which field the capture keyed its names on, so facts and sentences name it truthfully. */
+function arenaKeyField(text: string): 'publicName' | 'modelKey' {
+  return /\\?"publicName\\?":/.test(text) ? 'publicName' : 'modelKey';
+}
+
+/**
  * The reveals standing in a BASELINE capture, with no claim about timing.
  *
  * ONLY THE REVEALS, not every pair. The map holds hundreds of rows and almost
@@ -329,37 +380,10 @@ function arenaStanding(change: ContentChange, after: string): LeakResult {
     };
   }
 
-  /*
-   * ONE FINDING PER CODENAME, not one per row.
-   *
-   * The RSC payload lists the same contender up to eight times across flight
-   * chunks and in three spellings: bare (`kivine-wxzc` beside `kimi-k3-max`),
-   * with an evaluation-mode suffix (`kivine-wxzc-agent` beside `Kimi K3
-   * (Max)`), and with both that suffix and a `contenders/` prefix. Measured on
-   * the first RSC capture: 88 reveal rows, 58 distinct names, 48 distinct
-   * codenames. Publishing per name would have put the same reveal on the page
-   * three times with three different displays, which reads as three findings
-   * and is one.
-   *
-   * The BARE spelling wins where the payload carries it, because `kimi-k3-max`
-   * is the vendor's own identifier and `Kimi K3 (Max)` is a label made for a
-   * leaderboard cell. Where it does not, the shortest name is taken, which is
-   * the least decorated form present. The exact modelKey that produced the
-   * item is kept in the facts either way, so a reader checking the artifact
-   * finds the string this row was actually read from.
-   */
-  const byStem = new Map<string, { name: string; display: string }[]>();
-  for (const [name, display] of map) {
-    if (!isCodenameReveal(name, display)) continue;
-    const stem = name.replace(/^contenders\//, '').replace(/-agent$/, '');
-    byStem.set(stem, [...(byStem.get(stem) ?? []), { name, display }]);
-  }
-
+  // One finding per codename: see arenaFindingMap, which the change path shares.
   const out: LeakItem[] = [];
-  for (const [stem, rows] of byStem) {
-    const chosen =
-      rows.find((r) => r.name === stem) ??
-      [...rows].sort((a, b) => a.name.length - b.name.length || (a.name < b.name ? -1 : 1))[0]!;
+  for (const [stem, f] of arenaFindingMap(after)) {
+    if (!isCodenameReveal(f.name, f.display)) continue;
     out.push({
       id: `${change.sha}:codename_standing:${stem}`,
       type: 'codename_standing',
@@ -370,9 +394,9 @@ function arenaStanding(change: ContentChange, after: string): LeakResult {
       stamp: change.stamp,
       subject: stem,
       facts: [
-        ['modelKey', chosen.name],
-        ['displayName', chosen.display],
-        ['rows carrying this codename', String(rows.length)],
+        ['modelKey', f.name],
+        ['displayName', f.display],
+        ['rows carrying this codename', String(f.rows)],
         ['classification', 'reveal: the two names share no identity token'],
       ],
     });
@@ -408,9 +432,15 @@ function arenaLeaks(change: ContentChange, before: string, after: string): LeakR
   }
 
   const out: LeakItem[] = [];
+  // Findings, not rows: one codename in three spellings is one event.
+  const prevF = arenaFindingMap(before);
+  const nextF = arenaFindingMap(after);
+  const keyField = arenaKeyField(after);
 
-  for (const [name, display] of next) {
-    const was = prev.get(name);
+  for (const [stem, f] of nextF) {
+    const name = stem;
+    const display = f.display;
+    const was = prevF.get(stem)?.display;
 
     // A NEW publicName. The claim is that a name is present in the payload,
     // which is all the diff supports: a model can be added to the picker long
@@ -427,11 +457,11 @@ function arenaLeaks(change: ContentChange, before: string, after: string): LeakR
         stamp: change.stamp,
         subject: name,
         facts: [
-          ['publicName', name],
+          [keyField, f.name],
           ['displayName', display === '' ? 'absent' : display],
           [
             'classification',
-            isCodenameReveal(name, display)
+            isCodenameReveal(f.name, display)
               ? 'reveal: the two names share no identity token'
               : display === ''
                 ? 'no displayName recorded beside it'
@@ -448,7 +478,7 @@ function arenaLeaks(change: ContentChange, before: string, after: string): LeakR
     // the codename itself while a model is anonymous, so the transition that
     // carries the reveal is the two names ceasing to agree, and requiring the
     // previous value to be absent would miss every one of them.
-    if (was !== display && isCodenameReveal(name, display)) {
+    if (was !== display && isCodenameReveal(f.name, display)) {
       out.push({
         id: `${change.sha}:codename_unmasked:${name}`,
         type: 'codename_unmasked',
@@ -459,7 +489,7 @@ function arenaLeaks(change: ContentChange, before: string, after: string): LeakR
         stamp: change.stamp,
         subject: name,
         facts: [
-          ['publicName', name],
+          [keyField, f.name],
           ['displayName before', was === '' ? 'absent' : was],
           ['displayName after', display],
         ],
@@ -958,7 +988,7 @@ export function leakSentence(item: LeakItem): string {
     case 'codename_entered':
       return `A model named ${quote(item.subject)} appears in arena.ai's leaderboard payload.`;
     case 'codename_unmasked':
-      return `The displayName recorded beside the publicName ${quote(item.subject)} in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.`;
+      return `The displayName recorded beside the ${item.facts.some((f) => f[0] === 'modelKey') ? 'modelKey' : 'publicName'} ${quote(item.subject)} in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.`;
     /*
      * NO VERB OF CHANGE IN THIS ONE, and that is the whole difference between
      * it and the case above. "records" is a statement about the bytes this

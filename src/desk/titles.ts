@@ -84,7 +84,10 @@ function compose(item: FeedItem): string | null {
   const ev = item.event;
   switch (item.type) {
     case 'codename_unmasked': {
-      const name = fact(item, 'publicName');
+      // publicName in captures before 2026-09-26, modelKey after: arena renamed
+      // the field. Reading only the old one returns null here, HN refuses the
+      // draft, and the item falls to Bluesky with nothing thrown.
+      const name = fact(item, 'publicName') ?? fact(item, 'modelKey');
       const to = fact(item, 'displayName after');
       if (name === null || to === null || to === 'absent') return null;
       return `Arena codename "${name}" resolves to ${to}`;
@@ -104,7 +107,10 @@ function compose(item: FeedItem): string | null {
       return `Arena codename "${item.id.split(':').slice(2).join(':')}" resolves to ${to}`;
     }
     case 'codename_entered': {
-      const name = fact(item, 'publicName');
+      // publicName in captures before 2026-09-26, modelKey after: arena renamed
+      // the field. Reading only the old one returns null here, HN refuses the
+      // draft, and the item falls to Bluesky with nothing thrown.
+      const name = fact(item, 'publicName') ?? fact(item, 'modelKey');
       if (name === null) return null;
       return `New codename "${name}" on the arena.ai leaderboard`;
     }
