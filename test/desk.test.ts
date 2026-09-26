@@ -1053,3 +1053,33 @@ describe('reveals standing in a baseline capture', () => {
     expect(leaksFromChange(tiny)).toEqual([]);
   });
 });
+
+describe('a standing reveal is offered like any other finding', () => {
+  it('is postable, so the flagship finding type reaches the desk', () => {
+    expect(POSTABLE_TYPES.has('codename_standing' as FeedType)).toBe(true);
+  });
+
+  /**
+   * Its title reads the facts codename_standing actually carries, which are
+   * modelKey and displayName, NOT the publicName and "displayName after" that
+   * the change-path type carries. Reading the wrong keys returns null, HN is
+   * refused, and the item silently falls to Bluesky: exactly what happened
+   * before this case existed, and exactly the kind of quiet downgrade a test
+   * has to catch because nothing throws.
+   */
+  it('composes an HN title from the keys this type carries', () => {
+    const t = hnTitle(item({
+      type: 'codename_standing', id: 'sha:codename_standing:kivine-wxzc', kind: 'leak',
+      sentence: 'x'.repeat(150),
+      facts: [['modelKey', 'kivine-wxzc-agent'], ['displayName', 'kimi-k3-max']],
+    } as never));
+    expect(t).toEqual({ text: 'Arena codename "kivine-wxzc" resolves to kimi-k3-max', by: 'template' });
+  });
+
+  it('refuses rather than guessing when the display name is absent', () => {
+    expect(hnTitle(item({
+      type: 'codename_standing', id: 'sha:codename_standing:x', kind: 'leak',
+      sentence: 'x'.repeat(150), facts: [['modelKey', 'x'], ['displayName', '']],
+    } as never))).toBeNull();
+  });
+});

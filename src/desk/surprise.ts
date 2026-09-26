@@ -39,6 +39,17 @@ export const POSTABLE_TYPES: ReadonlySet<FeedType> = new Set<FeedType>([
   'retirement_floor',
   'codename_entered',
   'codename_unmasked',
+  /*
+   * A pairing standing in a capture is postable for the same reason it is
+   * publishable: "this codename is that model" is the finding this site
+   * exists for, and the sentence claims no timing so it cannot be read as
+   * news it is not. 48 arrived together when arena changed payload shape,
+   * which is a BACKLOG rather than a day's news, and nothing special is done
+   * about that because the machinery already handles it: the queue offers at
+   * most five, HN takes at most two a day, and staleness costs a bit a day so
+   * the whole backlog falls under the floor within three.
+   */
+  'codename_standing',
   'stealth_listing',
   'incident_opened',
   'upstream_pr_merged',

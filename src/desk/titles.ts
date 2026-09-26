@@ -89,6 +89,20 @@ function compose(item: FeedItem): string | null {
       if (name === null || to === null || to === 'absent') return null;
       return `Arena codename "${name}" resolves to ${to}`;
     }
+    /*
+     * THE SAME TITLE AS codename_unmasked ON PURPOSE. To a reader the finding
+     * is identical, "this codename is that model", and the two types differ
+     * only in whether the archive also knows WHEN the pairing appeared. That
+     * difference belongs in the sentence and the facts, which carry it, not in
+     * a headline that would have to say "has been observed to be" to express
+     * it. "resolves to" is present tense and claims no timing.
+     */
+    case 'codename_standing': {
+      const key = fact(item, 'modelKey');
+      const to = fact(item, 'displayName');
+      if (key === null || to === null || to === '') return null;
+      return `Arena codename "${item.id.split(':').slice(2).join(':')}" resolves to ${to}`;
+    }
     case 'codename_entered': {
       const name = fact(item, 'publicName');
       if (name === null) return null;
