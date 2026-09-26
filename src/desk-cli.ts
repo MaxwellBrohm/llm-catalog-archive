@@ -24,6 +24,7 @@ import { buildQueue } from './desk/queue.js';
 import { parseCorrections, parsePosted } from './desk/ledger.js';
 import { POST_FLOOR_BITS } from './desk/surprise.js';
 import { blockedVenueIds } from './desk/venues.js';
+import { ALERT_FLOOR_BITS, alertable, nextAlertState, parseAlertState } from './desk/alert.js';
 
 const cwd = process.cwd();
 const siteUrl = process.env['LCA_SITE_URL'] ?? SITE_URL;
@@ -73,10 +74,27 @@ const blockedVenues = blockedVenueIds(
 const floor = Number(process.env['LCA_POST_FLOOR'] ?? POST_FLOOR_BITS);
 const queue = buildQueue(feed, posted, new Date(), siteUrl, floor, 5, corrections, blockedVenues);
 
+/**
+ * The alert state, passed in rather than read from disk, because it lives on
+ * the `desk` branch and not in this repository: writing it here would put a
+ * housekeeping commit into the archive's own history every two hours.
+ * LCA_ALERT_STATE holds the JSON the routine fetched from that branch.
+ */
+const alertState = parseAlertState(process.env['LCA_ALERT_STATE'] ?? '{"alerted":[]}');
+const floorAlert = Number(process.env['LCA_ALERT_FLOOR'] ?? ALERT_FLOOR_BITS);
+const urgent = alertable(queue.candidates, alertState, floorAlert);
+
 console.log(
   JSON.stringify(
     {
       generated_at: new Date().toISOString(),
+      alert: {
+        floor_bits: floorAlert,
+        /* Ids only: the routine mails from `candidates` below, and repeating
+           whole items here would let the two disagree. */
+        ids: urgent.map((c) => c.item.id),
+        next_state: nextAlertState(alertState, urgent),
+      },
       floor_bits: floor,
       funnel: queue.funnel,
       candidates: queue.candidates.map((c) => ({

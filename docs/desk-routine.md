@@ -1,6 +1,25 @@
-# The daily desk routine
+# The desk routine
 
-What the scheduled cloud agent does, once a day. It lives here rather than
+What the scheduled cloud agent does. It runs EVERY TWO HOURS and does one of
+two things.
+
+**Most runs do nothing and end in seconds.** Build the queue, see that nothing
+clears the interrupt floor, push the branch, send no mail, stop. That is the
+expected outcome of eleven runs out of twelve and it is not a failure.
+
+**A run at 12:00 UTC also sends the digest**, which is the mail that has always
+gone out: every candidate, its venue, its bits. Unchanged.
+
+**A run at any hour sends an INTERRUPT** when `alert.ids` in the CLI output is
+non-empty. That list is the CLI's decision and not yours: do not second-guess
+the floor, do not mail about an item that is not in it, and do not withhold one
+that is.
+
+Why the interrupt exists, so nobody removes it as noise: the first stealth
+listing this archive recorded was captured eighteen minutes before the first
+person posted it to Hacker News, and the once-a-day desk showed it twenty-one
+hours later. The collection layer was ahead of the world and the distribution
+layer gave the lead away. It lives here rather than
 inside the routine's configuration so that it is reviewable, diffable and
 editable like everything else, and so a change to how the desk is filled leaves
 a trace in the history.
@@ -89,6 +108,20 @@ desk's function, and it should stay that way.
 Skipped items need no cleanup: staleness costs a bit a day, so a six-bit
 candidate falls under the floor in three and stops being offered on its own.
 
+## 3b. Carry the alert state across runs
+
+The `desk` branch holds TWO files now. Read `alerted.json` from it before
+building the queue and pass it in, or every run will re-alert on the same item:
+
+    git fetch -q origin desk 2>/dev/null || true
+    export LCA_ALERT_STATE="$(git show origin/desk:alerted.json 2>/dev/null || echo '{"alerted":[]}')"
+
+`npm run desk` then reports `alert.ids` (what to interrupt about now) and
+`alert.next_state` (what to write back). Write `next_state` to `alerted.json`
+in the same push as `queue.json`, ALWAYS, including on a run that alerted about
+nothing: it is how the list stays bounded and how a crash between mail and push
+cannot repeat an alert for ever.
+
 ## 4. Push today's queue to the `desk` branch
 
 **You cannot POST to the desk.** This sandbox's egress proxy allows package
@@ -106,9 +139,15 @@ Then publish it as a ONE-COMMIT ORPHAN branch, using plumbing so that nothing
 touches the working tree, the current branch, or `main`:
 
     BLOB=$(git hash-object -w queue.json | tr -d '[:space:]')
-    TREE=$(printf '100644 blob %s\tqueue.json\n' "$BLOB" | git mktree | tr -d '[:space:]')
+    ABLOB=$(git hash-object -w alerted.json | tr -d '[:space:]')
+    TREE=$(printf '100644 blob %s\talerted.json\n100644 blob %s\tqueue.json\n' "$ABLOB" "$BLOB" \
+      | git mktree | tr -d '[:space:]')
     COMMIT=$(git commit-tree "$TREE" -m "desk queue $(date -u +%FT%TZ)" | tr -d '[:space:]')
     git push --force -q origin "${COMMIT}:refs/heads/desk"
+
+`git mktree` wants its entries SORTED BY NAME, so `alerted.json` comes before
+`queue.json`. Out of order it fails with a message about the tree rather than
+about the order.
 
 `tr -d` is not superstition: the command substitutions carry trailing
 whitespace that silently corrupts the refspec into something git rejects with a
@@ -130,6 +169,21 @@ value verbatim, and it is part of the CLI output you copy through untouched. Do
 not edit it, improve it, or write one where the CLI produced none.
 
 ## 5. Tell Max
+
+### The interrupt mail
+
+Send this the moment `alert.ids` is non-empty, at whatever hour the run is.
+
+Subject: `Diffwire: <the composed title, or the type and subject>`. One item per
+mail. Body: the desk link, the bits, the sentence verbatim, the venue, and the
+facts table. No preamble and no digest of the other candidates: this mail exists
+because something is worth acting on now, and anything else in it competes.
+
+### The digest mail
+
+ONLY on the 12:00 UTC run. Skip it entirely at every other hour, even when
+candidates are waiting: they will keep, and a digest every two hours is how an
+inbox rule gets written.
 
 Email maxwellbrohm@gmail.com if a Gmail connector is attached to this routine.
 Subject: `Diffwire desk: N waiting` (or `nothing today`).

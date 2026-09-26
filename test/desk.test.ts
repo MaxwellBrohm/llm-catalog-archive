@@ -15,6 +15,8 @@ import {
 } from '../src/desk/surprise.js';
 import { draftFor, draftsFor, PLATFORMS, changeUrl, type Draft } from '../src/desk/drafts.js';
 import { hnTitle } from '../src/desk/titles.js';
+import { ALERT_FLOOR_BITS, ALERT_MEMORY, alertable, nextAlertState, parseAlertState, type AlertState } from '../src/desk/alert.js';
+import type { Candidate } from '../src/desk/queue.js';
 import { arenaRows } from '../src/predicate.js';
 import { arenaCodenameMap, ARENA_CODENAME_FLOOR, isCodenameReveal } from '../src/derive/leaks.js';
 import { buildQueue, cooldownKeys, HN_PER_DAY } from '../src/desk/queue.js';
@@ -906,5 +908,68 @@ describe('arena moved to a React Server Components payload', () => {
   it('still finds a real reveal in the new shape', () => {
     expect(isCodenameReveal('kivine-wxzc-agent', 'Kimi K3 (Max)')).toBe(true);
     expect(isCodenameReveal('paisley-n9x0', 'Qwen3.8 Max')).toBe(true);
+  });
+});
+
+describe('the interrupt path beside the digest', () => {
+  /**
+   * WHY THIS EXISTS, measured rather than felt. The first stealth listing this
+   * archive ever recorded was captured 2026-09-16 15:06 UTC, eighteen minutes
+   * before the first person posted it to Hacker News, and the desk showed it
+   * twenty-one hours later. The collection layer was ahead of the world and the
+   * distribution layer gave the lead away. A digest is right for a price
+   * change; it is wrong for the one kind of item this site exists to break.
+   */
+  const cand = (bits: number, id: string): Candidate =>
+    ({ item: item({ type: 'stealth_listing', id, sentence: 'Short.' }), score: { bits, components: [] },
+       route: { primary: null, why: null, flair: null, needsFlair: false, others: [], shortfalls: [], blocked: null },
+       entities: [] }) as unknown as Candidate;
+
+  const none: AlertState = { alerted: [] };
+
+  it('stays silent for an ordinary day', () => {
+    expect(alertable([cand(5.9, 'a'), cand(4.8, 'b')], none)).toEqual([]);
+  });
+
+  it('fires for an item far enough above the floor', () => {
+    expect(alertable([cand(10.11, 'a'), cand(5.9, 'b')], none).map((c) => c.item.id)).toEqual(['a']);
+  });
+
+  /** Exactly at the floor counts, or the number means something other than it says. */
+  it('treats the floor as inclusive', () => {
+    expect(alertable([cand(ALERT_FLOOR_BITS, 'a')], none)).toHaveLength(1);
+    expect(alertable([cand(ALERT_FLOOR_BITS - 0.01, 'a')], none)).toHaveLength(0);
+  });
+
+  /** The property that stops it becoming a second digest. */
+  it('never wakes anyone twice for the same item', () => {
+    const sent = nextAlertState(none, alertable([cand(10, 'a')], none));
+    expect(sent.alerted).toEqual(['a']);
+    expect(alertable([cand(10, 'a')], sent)).toEqual([]);
+  });
+
+  it('still fires for a different item once one has been sent', () => {
+    const sent = nextAlertState(none, [cand(10, 'a')]);
+    expect(alertable([cand(10, 'a'), cand(9, 'b')], sent).map((c) => c.item.id)).toEqual(['b']);
+  });
+
+  /**
+   * The state is force-pushed to a branch every two hours, so an unbounded list
+   * would grow for ever. The cap is years of history at one or two alerts a
+   * week, and forgetting an id that old costs at worst one duplicate mail about
+   * a story the staleness penalty has long since pushed under the floor.
+   */
+  it('keeps the memory bounded, newest kept', () => {
+    const many: AlertState = { alerted: Array.from({ length: ALERT_MEMORY + 10 }, (_, i) => `old-${i}`) };
+    const next = nextAlertState(many, [cand(10, 'fresh')]);
+    expect(next.alerted).toHaveLength(ALERT_MEMORY);
+    expect(next.alerted.at(-1)).toBe('fresh');
+    expect(next.alerted).not.toContain('old-0');
+  });
+
+  it('reads a missing or malformed state as nothing sent, rather than throwing', () => {
+    expect(parseAlertState('{}').alerted).toEqual([]);
+    expect(parseAlertState('{"alerted":null}').alerted).toEqual([]);
+    expect(parseAlertState('{"alerted":["a",7,"b"]}').alerted).toEqual(['a', 'b']);
   });
 });
