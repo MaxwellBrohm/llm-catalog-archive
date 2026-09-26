@@ -7,7 +7,9 @@ two things.
 clears the interrupt floor, push the branch, send no mail, stop. That is the
 expected outcome of eleven runs out of twelve and it is not a failure.
 
-**A run at 12:00 UTC also sends the digest**, which is the mail that has always
+**The run in the 12:00 UTC hour also sends the digest.** The scheduler adds a
+few minutes of jitter, so that run fires at 12:0x rather than exactly 12:00;
+judge it by the hour, not the minute., which is the mail that has always
 gone out: every candidate, its venue, its bits. Unchanged.
 
 **A run at any hour sends an INTERRUPT** when `alert.ids` in the CLI output is
@@ -181,7 +183,7 @@ because something is worth acting on now, and anything else in it competes.
 
 ### The digest mail
 
-ONLY on the 12:00 UTC run. Skip it entirely at every other hour, even when
+ONLY on the run whose UTC hour is 12. Skip it entirely at every other hour, even when
 candidates are waiting: they will keep, and a digest every two hours is how an
 inbox rule gets written.
 
