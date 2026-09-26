@@ -1,5 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 24 Sep 2026 16:18:08 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Power your agents: Gemini 3.8 Live with Live Avatar is now generally available</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-3-8-live-with-live-avatar-is-now-generally-available/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Following our &lt;/span&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-gemini-3-8-live-extended-thinking/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;announcement&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; of Gemini 3.8 Live and Gemini 3.8 Live Extended Thinking last week, we are thrilled to share that &lt;/span&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-with-live-avatar/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.8 Live with Live Avatar&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is now generally available in &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/studio/multimodal-live"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. First previewed at Google Cloud Next 2026&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, the technology is now officially ready for enterprise production.&lt;/span&gt;&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Fri, 25 Sep 2026 16:00:09 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Best practices guide for customizing Gemini models via Reinforcement Learning (RL)</title><link>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Reinforcement learning (RL) has been a keystone of modern LLM post-training, but it demands large training clusters and access to model internals that external customers can't have with proprietary models like Gemini. So here at Google Cloud, we packaged it into &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;a managed RL fine-tuning service (RLFT service) &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;— you bring prompts and a reward function; we handle the infrastructure and the proprietary model internals. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Now, you can adapt Gemini with the service — teaching the model from a reward signal you define, rather than from a fixed set of labeled answers. This unlocks a class of problems that supervised fine-tuning (SFT) struggles with: tasks that are hard to demonstrate but easy to score.  &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In this guide, we will walk through practical best practices for using RL fine-tuning service. We'll start with a short tour of the RL training loop, how to decide if and when to use RL, and introduce how to get the most value from this approach.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;What is RLFT? &lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;RLFT adapts Gemini from a &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;reward signal you define&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; rather than labeled answers. Instead of authoring a large set of gold examples, you write one program that &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;scores&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; a response and the service improves the model against it — unlocking tasks that are hard to &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;demonstrate&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; but easy to &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;verify&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;: you can't hand-write the ideal SQL for every schema, but you can run the query and check the result.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_-_Single-Step_RL_Training_Loop.max-1000x1000.png"
+        
+          alt="1 - Single-Step RL Training Loop"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;At each training step the service generates multiple candidate responses to your prompts, scores them with your reward, and improves the model so that higher-scoring responses become more likely while it stays close to the original Gemini. The reinforcement learning that makes this work is fully managed — you never configure it. The one thing you own, and the thing that most determines your results, is the reward.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Three properties define what RLFT can and can't do:&lt;/span&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;It &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;learns from the model's own outputs:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; It refines what the model already produces rather than copying an external target, so it tends to disturb unrelated capabilities less than SFT. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;It &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;rewards outcomes, not paths:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;   Any response that reaches a good result earns reward, which fits open-ended tasks with many valid solutions. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;It &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;amplifies existing competence: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;  It makes &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;occasional&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; success &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;reliable&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, but it can't teach a skill the model never demonstrates.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;When to use RLFT&lt;/span&gt;&lt;/h3&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/2_-_RLFT_Approaches_-_Direct_RL_or_SFT_War.max-1000x1000.png"
+        
+          alt="2 - RLFT Approaches - Direct RL or SFT Warmup to Continuous RLFT"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Prompting and SFT handle most adaptation; exhaust them first. RLFT earns its keep when you can &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;grade a response but can't cheaply author it&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, when &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;SFT has plateaued&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; on the metric that matters (faithfulness, schema validity, tone), or when the task has &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;many equally valid answers&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; a single reference target would wrongly penalize. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;SFT and RLFT are complementary, not competing:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Direct RLFT&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; when the base model already succeeds part of the time — enough for the reward to tell better answers from worse ones.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Two-stage SFT → RLFT&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; when you have SFT data or the base success rate is too low for RL to gain traction. Use SFT as a short, cheap warm start — kept light, since over-fitting the demonstrations leaves less room for RL to improve — then continue into RL via &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Continuous Tuning&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, which initializes RL from the SFT checkpoint.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Across early adopters, these patterns show where RLFT delivers the most value — each scoring an outcome the business cares about but could never cheaply demonstrate.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Use cases for RLFT&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;AI-powered NPCs in games&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;What:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; In-character, on-brand dialogue held across long, multilingual, multi-turn conversations.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Problem:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Off-the-shelf models break immersion — wrong language, hallucinated items, ignored players, repetitive loops.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Objective and reward:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; A &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Gemini autorater (LLM-as-a-judge)&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; scores each turn on persona, flow, and game-state syntax, penalizing format and language errors.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Results:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Loops and language drift disappeared and state syntax held, making shippable in-game characters viable at scale.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Structured entity extraction&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;What:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Pulling a set of items from unstructured documents, such as supplier invoices and shipping manifests, into structured records automatically&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Problem:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; The long tail where SFT plateaus — missing required fields (recall) or inventing ones that aren't there (precision).&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Objective and reward:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; A &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;rule-based precision/recall reward&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; forces every field to be grounded in the source text, not imitated from one gold answer.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Results:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Field-level accuracy rose on noisy real-world documents where tuning had stalled, turning a manual review step into an automated one.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Content moderation&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;What:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Applying intricate policies and decision trees at scale.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Problem:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Models hallucinate false positives or reward-hack with invalid formats to dodge evaluation.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Objective and reward:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; A &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Cloud Run reward&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; pairs format validation with a deterministic grader to enforce multi-step policy adherence.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Results:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; The model handled complex exemption carve-outs, sharply cut false positives, and stopped reward hacking — reducing the human-escalation volume that makes moderation expensive.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Code measured by execution&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;What:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; SQL or API calls graded on whether they actually run against customer data.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Problem:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; SFT mimics one reference query and breaks on unseen proprietary schemas.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Objective &amp;amp; Reward:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; A &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;code-execution reward&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; runs the code in a secure sandbox and pays out only if it compiles, executes, and returns the correct result.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Results:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; The model produced first-attempt executable queries at closed-frontier quality and lower inference cost, letting non-technical users query proprietary data in natural language.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Presentation slide generation via HTML&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;What:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Multi-slide decks authored as HTML/CSS.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Problem:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Training on text alone is blind to visual quality — overflows, clipped elements, and inconsistent styling slip through unnoticed.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Objective &amp;amp; Reward:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; A &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;code-execution reward&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; renders the slides and scores visual design, layout integrity, structural completeness, and rubric adherence.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Results:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; The model emitted modular, well-styled decks with cohesive themes and no layout overflow.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Where to start?&lt;/span&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;A dataset.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; A diverse set of prompts with a held-out validation split is enough for a first run — confirm the loop converges and reward moves the right way, then scale. Keep train and eval strictly separated; a contaminated eval hides overfitting.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;A reward function.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Your task specification as code or configs, and the dominant driver of quality. A good reward correlates with human preference, is robust to malformed output (catch the failed parse and return a clearly negative score rather than crashing), and resists reward hacking — ensemble judges, penalize length, floor degenerate outputs, and prefer a verifiable check over a model's opinion. Validate it offline before launch.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The service handles the rest; start from the defaults, watch reward and eval curves in the console, and take the checkpoint where validation reward saturates rather than the last step.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/original_images/3_-_rlft_tutorial.gif"
+        
+          alt="3 - rlft_tutorial"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Get started today&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;What will you build? The tools are ready and waiting. &lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/tuning/reinforcement-tuning"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Documentation: Reinforcement Learning Fine-Tuning&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Fri, 25 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</guid><category>AI &amp; Machine Learning</category><category>Developers &amp; Practitioners</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Best practices guide for customizing Gemini models via Reinforcement Learning (RL)</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Jiaqi Pan</name><title>Senior Software Engineer, Google</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Kunal Jha</name><title>Senior Product Manager, Google</title><department></department><company></company></author></item><item><title>Power your agents: Gemini 3.8 Live with Live Avatar is now generally available</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-3-8-live-with-live-avatar-is-now-generally-available/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Following our &lt;/span&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-gemini-3-8-live-extended-thinking/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;announcement&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; of Gemini 3.8 Live and Gemini 3.8 Live Extended Thinking last week, we are thrilled to share that &lt;/span&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-with-live-avatar/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.8 Live with Live Avatar&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is now generally available in &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/studio/multimodal-live"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. First previewed at Google Cloud Next 2026&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, the technology is now officially ready for enterprise production.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;As enterprise voice AI evolves beyond basic speed and cost metrics, our priority has shifted to making each interaction even higher quality. Gemini 3.8 Live already delivers a native speech-to-speech foundation for fluid, responsive dialogue. The Live Avatar feature brings an interactive visual presence to conversational video agents across web, mobile, and interactive kiosks. Together, you’ll have access to:  &lt;/span&gt;&lt;/p&gt;
 &lt;ol&gt;
 &lt;li role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Video avatars: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Conversational video with the Live Avatar &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;feature can generate video avatars with synchronized lip-syncing. Note: Custom avatar feature is available via allowlist only.  &lt;/span&gt; &lt;/span&gt;&lt;/li&gt;
@@ -719,7 +970,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Orange's numbers came out of the community work. Building that foundation is the part worth copying first. When you're ready to extend it, &lt;/span&gt;&lt;a href="https://cloud.google.com/consulting" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud Consulting&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; can help you shape the community practice, and the Gemini Enterprise App is a low-lift way to put your first read-only agent in front of your teams.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 16 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Google Cloud Consulting</category><category>Telecommunications</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/orange-finops-shared-responsibility.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>How Orange built FinOps accountability, and why agents are next</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/orange-finops-shared-responsibility.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Samuel Moss</name><title>AI Transformation and FinOps Consultant, Google</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Celine Devie</name><title>AI Transformation Consultant, Google</title><department></department><company></company></author></item><item><title>Cloud CISO Perspectives: How Google monitors AI threats and advances AI defenses</title><link>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-monitors-ai-threats-advances-ai-defenses/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="eucpw"&gt;Welcome to the first Cloud CISO Perspectives for September 2026. Today, Sandra Joyce shares the latest details on Google’s visibility into how attackers are using AI, and how we’re using AI to stop them.&lt;/p&gt;&lt;p data-block-key="8i90k"&gt;As with all Cloud CISO Perspectives, the contents of this newsletter are posted to the &lt;a href="https://cloud.google.com/blog/products/identity-security/"&gt;Google Cloud blog&lt;/a&gt;. If you’re reading this on the website and you’d like to receive the email version, you can &lt;a href="https://cloud.google.com/resources/google-cloud-ciso-newsletter-signup"&gt;subscribe here&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Get vital board insights with Google Cloud&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f8290c74e90&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Visit the hub&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://cloud.google.com/solutions/security/board-of-directors?utm_source=cgc-site&amp;amp;utm_medium=et&amp;amp;utm_campaign=FY26-Q2-GLOBAL-GCP39634-email-dl-dgcsm-CISOP-NL-177159&amp;amp;utm_content=-&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Get vital board insights with Google Cloud&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144962b50&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Visit the hub&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://cloud.google.com/solutions/security/board-of-directors?utm_source=cgc-site&amp;amp;utm_medium=et&amp;amp;utm_campaign=FY26-Q2-GLOBAL-GCP39634-email-dl-dgcsm-CISOP-NL-177159&amp;amp;utm_content=-&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="hswvv"&gt;&lt;b&gt;‘Spellcheck for cybersecurity’ and beyond: How Google monitors AI threats and advances AI defenses&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="61crd"&gt;&lt;i&gt;By Sandra Joyce, VP, Google Threat Intelligence&lt;/i&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
@@ -922,12 +1173,12 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about our approach to securing the AI era, please check out our new &lt;/span&gt;&lt;a href="https://cloud.google.com/security/resources/ai-risk-and-resilience-2026"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Mandiant AI Risk and Resilience report&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Learn something new&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f8290b2df10&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Watch now&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://x.com/googlecloud/status/2090213589558698309?s=20&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: Cloud-CISO-Perspectives-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Learn something new&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff1448354d0&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Watch now&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://x.com/googlecloud/status/2090213589558698309?s=20&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: Cloud-CISO-Perspectives-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="4bd61"&gt;&lt;b&gt;In case you missed it&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="cvt34"&gt;Here are the latest updates, products, services, and resources from our security teams so far this month:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="7litu"&gt;&lt;b&gt;A manufacturing blueprint for secure agentic AI&lt;/b&gt;: AI and agents have arrived on the factory floor. Today’s CISOs and business leaders must balance innovation with precision, physical safety, and operational resilience. &lt;a href="https://cloud.google.com/transform/a-manufacturing-blueprint-for-secure-agentic-ai"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="91kp2"&gt;&lt;b&gt;Proactive cyber defense for governments and enterprises&lt;/b&gt;: Our new Fairwind Program is a limited access program for governments and trusted partners to use our most advanced cyber defense capabilities. &lt;a href="https://blog.google/innovation-and-ai/technology/safety-security/fairwind-program/" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="b72dh"&gt;&lt;b&gt;Getting started with the Mantis harness to find and fix bugs&lt;/b&gt;: Mantis is part of how Google finds and fixes vulnerabilities at machine-speed. The open-source AI harness creates a more effective repository analysis. &lt;a href="https://cloud.google.com/blog/products/identity-security/getting-started-with-the-mantis-harness-to-find-and-fix-bugs"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="3j0ag"&gt;&lt;b&gt;Breaking into Google's GFile for $100,000&lt;/b&gt;: Learn about how a vulnerability — that was not exploited and has now been patched — could have allowed attackers to chain unauthenticated, undocumented internal APIs with overly-permissive shared file libraries to achieve unrestricted data access across core infrastructure. &lt;a href="https://bughunters.google.com/blog/breaking-into-googles-gfile-for-100k" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="3sf9n"&gt;&lt;b&gt;Introducing new session management tools with native, granular controls&lt;/b&gt;: New Google Cloud session controls are deeply integrated and a granular feature of Context-Aware Access. Here’s what you need to know. &lt;a href="https://cloud.google.com/blog/products/identity-security/introducing-new-session-management-tools-with-native-granular-controls"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="4n9rm"&gt;&lt;b&gt;How Blackline prevents data exfiltration with VPC Service Controls&lt;/b&gt;: We’re excited to share new policy intelligence capabilities in VPC-SC that help drive operational simplicity: Violation analyzer and violation dashboard. &lt;a href="https://cloud.google.com/blog/topics/customers/how-blackline-prevents-data-exfiltration-with-vpc-service-controls"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="93csl"&gt;&lt;b&gt;Introducing Continuous Vulnerability Assessment&lt;/b&gt;: You can detect exposure to new vulnerabilities the moment they’re published with Wiz CVA. &lt;a href="https://www.wiz.io/blog/introducing-cva" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="fblu6"&gt;&lt;b&gt;How developers prevent production risk at the source&lt;/b&gt;: Fixing security vulnerabilities in code takes seconds, while patching in production creates high operational costs and risk. Discover how empowering developers as your first line of defense eliminates exposure across every phase of your software pipeline. &lt;a href="https://www.wiz.io/blog/prevent-production-risk-at-code-stage" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="7bin3"&gt;&lt;b&gt;Wiz achieves GovRAMP High authorization&lt;/b&gt;: Delivering unified cloud security and accelerating secure modernization to protect citizen data and critical infrastructure. &lt;a href="https://www.wiz.io/blog/wiz-govramp-high" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="36jbq"&gt;Please visit the Google Cloud blog for more security stories &lt;a href="https://cloud.google.com/blog/products/identity-security"&gt;published this month&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Join the Google Cloud CISO Community&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f8290b2d050&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Learn more&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://rsvp.withgoogle.com/events/google-cloud-ciso-community-interest-form-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY25-Q1-global-GCP30328-physicalevent-er-dgcsm-parent-CISO-community-2025&amp;amp;utm_content=cisop_&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Join the Google Cloud CISO Community&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144835d10&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Learn more&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://rsvp.withgoogle.com/events/google-cloud-ciso-community-interest-form-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY25-Q1-global-GCP30328-physicalevent-er-dgcsm-parent-CISO-community-2025&amp;amp;utm_content=cisop_&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="29tyz"&gt;&lt;b&gt;Threat Intelligence news&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="2prfo"&gt;&lt;b&gt;AI Threat Tracker: From prompting to autonomy&lt;/b&gt;: In the newest Google Threat Intelligence Group (GTIG) report on the adversarial misuse of AI, we’ve observed adversaries transition from basic prompting to agentic AI workflows and AI-enabled automation, including threat actors compromise a cloud resource, then plan, build, and execute an agent-enabled mass credential harvesting campaign in under six hours. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/from-prompting-to-autonomy-the-evolution-of-adversarial-ai"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="drch6"&gt;&lt;b&gt;Financially-motivated threat actor BREEZE COMET targets Brazil&lt;/b&gt;: Learn about BREEZE COMET’s tactics and toolkit, and our mitigation recommendations and detections to support organizations in defending against this active and developing threat. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/financially-motivated-threat-actor-breeze-comet-targets-brazil"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="5kgjp"&gt;&lt;b&gt;JFrog Artifactory under attack&lt;/b&gt;: Wiz Research has identified active, in-the-wild exploitation of three critical and high-severity vulnerabilities impacting JFrog Artifactory. Attackers are chaining these vulnerabilities to bypass authentication and gain administrative control. &lt;a href="https://www.wiz.io/blog/artifactory-under-attack-in-the-wild-exploitation-of-cve-2026-42016-cve-2026-4201" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="7oq8v"&gt;Please visit the Google Cloud blog for more threat intelligence stories &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/"&gt;published this month&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="rcfc5"&gt;&lt;b&gt;Now hear this: Podcasts from Google Cloud&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="d67qn"&gt;&lt;b&gt;Cloud Security Podcast: Patching browsers with AI, agents, Rust, and your tabs&lt;/b&gt;: Jasika Bawa and Doug Turner of Chrome Security explore how Google Chrome now uses AI agents to autonomously identify and patch security vulnerabilities at an unprecedented scale, significantly accelerating the browser's update cadence. &lt;a href="https://www.youtube.com/watch?v=pCXT8lQqg_U" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="4n541"&gt;&lt;b&gt;Cloud Security Podcast: All about Project Atlas, Wiz's AI vulnerability research&lt;/b&gt;: Nir Orfeld, head of vulnerability research, Wiz, discusses how his team uses multi-agent AI systems for discovering high-impact zero-day vulnerabilities in cloud infrastructure. &lt;a href="https://www.youtube.com/watch?v=qRJJ9ekpuVg" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="4p9rh"&gt;&lt;b&gt;Cloud Security Podcast: How Google eliminates classes of vulnerabilities at scale&lt;/b&gt;: How do you build the foundations for a secure Google-scale enterprise that stays secure even if an AI is writing the code and nobody has time to review it? Christoph Kern, principal security engineer, Google, explores what secure-by-design really means in the AI era. &lt;a href="https://www.youtube.com/watch?v=43imRRfgLgc" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="d008g"&gt;To have our Cloud CISO Perspectives post delivered twice a month to your inbox, &lt;a href="https://cloud.google.com/resources/google-cloud-ciso-newsletter-signup"&gt;sign up for our newsletter&lt;/a&gt;. We’ll be back in a few weeks with more security-related updates from Google Cloud.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 16 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-monitors-ai-threats-advances-ai-defenses/</guid><category>Cloud CISO</category><category>AI &amp; Machine Learning</category><category>Security &amp; Identity</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud_CISO_Perspectives_header_4_Blue.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Cloud CISO Perspectives: How Google monitors AI threats and advances AI defenses</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud_CISO_Perspectives_header_4_Blue.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-monitors-ai-threats-advances-ai-defenses/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Sandra Joyce</name><title>VP, Google Threat Intelligence</title><department></department><company></company></author></item><item><title>Google is a Leader in the 2026 Gartner® Magic Quadrant™ for Enterprise AI Assistants</title><link>https://cloud.google.com/blog/products/ai-machine-learning/google-is-a-leader-in-2026-gartner-magic-quadrant-for-enterprise-ai-assistants/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We are excited to share that Gartner has named Google a Leader in its inaugural &lt;/span&gt;&lt;a href="https://cloud.google.com/resources/content/2026-gartner-magic-quadrant-enterprise-ai-assistants"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;2026 Magic Quadrant for Enterprise AI Assistants&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;In this comprehensive evaluation of top enterprise AI assistant vendors, Gartner placed Google in the Leaders quadrant for its evaluation across both Completeness of Vision and Ability to Execute.&lt;/span&gt;&lt;/p&gt;
@@ -1233,7 +1484,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Instead of embedding raw Spanner table names and column assignments directly inside core DAO business logic, we isolate Spanner schema translation into dedicated converter units:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;// Example of the standardized pattern generated by our pipeline\r\n\r\ntype BpcTransferAmountsMutationConverter interface {\r\n    ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n    ToUpdateMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n}\r\n\r\ntype bpcTransferAmountsMutationConverterImpl struct {\r\n    tableName string\r\n}\r\n\r\nfunc (c *bpcTransferAmountsMutationConverterImpl) ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error) {\r\n    if entity == nil {\r\n        return nil, errors.New(&amp;quot;entity cannot be nil&amp;quot;)\r\n    }\r\n    \r\n    // Map domain fields to Cloud Spanner table schema\r\n    cols := []string{&amp;quot;TransferId&amp;quot;, &amp;quot;AmountCents&amp;quot;, &amp;quot;CurrencyCode&amp;quot;, &amp;quot;LastModifiedTimestamp&amp;quot;}\r\n    vals := []interface{}{\r\n        entity.TransferId,\r\n        entity.AmountCents,\r\n        entity.CurrencyCode,\r\n        spanner.CommitTimestamp, // Use Spanner commit timestamps\r\n    }\r\n    \r\n    return spanner.Insert(c.tableName, cols, vals), nil\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f8291c3c150&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;// Example of the standardized pattern generated by our pipeline\r\n\r\ntype BpcTransferAmountsMutationConverter interface {\r\n    ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n    ToUpdateMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n}\r\n\r\ntype bpcTransferAmountsMutationConverterImpl struct {\r\n    tableName string\r\n}\r\n\r\nfunc (c *bpcTransferAmountsMutationConverterImpl) ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error) {\r\n    if entity == nil {\r\n        return nil, errors.New(&amp;quot;entity cannot be nil&amp;quot;)\r\n    }\r\n    \r\n    // Map domain fields to Cloud Spanner table schema\r\n    cols := []string{&amp;quot;TransferId&amp;quot;, &amp;quot;AmountCents&amp;quot;, &amp;quot;CurrencyCode&amp;quot;, &amp;quot;LastModifiedTimestamp&amp;quot;}\r\n    vals := []interface{}{\r\n        entity.TransferId,\r\n        entity.AmountCents,\r\n        entity.CurrencyCode,\r\n        spanner.CommitTimestamp, // Use Spanner commit timestamps\r\n    }\r\n    \r\n    return spanner.Insert(c.tableName, cols, vals), nil\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144b41150&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;By establishing a rigid, deterministic contract between the DAO and the Spanner SDK (&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;spanner.Mutation&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;), we created an exact target specification that an AI coding agent could reason about and generate reliably.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Why use Antigravity&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;CLI in headless mode?&lt;/span&gt;&lt;/h3&gt;
@@ -1298,7 +1549,7 @@
 &lt;/ul&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;git clone https://github.com/google/mantis.git&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f82913986d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;git clone https://github.com/google/mantis.git&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144b42890&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
 &lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
@@ -1358,7 +1609,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Stay tuned for monthly updates on Google Cloud’s AI announcements, news, and best practices. For a deeper dive into the latest from Google Cloud customers, read our monthly recap, &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/topics/customers/cool-stuff-google-cloud-customers-built-monthly-round-up?e=48754805"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Cool stuff customers built. &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;$300 in free credit to try Google Cloud AI and ML&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f82909eb950&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Start building for free&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;http://console.cloud.google.com/freetrial?redirectPath=/vertex-ai/&amp;#x27;), (&amp;#x27;image&amp;#x27;, None)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;$300 in free credit to try Google Cloud AI and ML&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144d9dc50&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Start building for free&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;http://console.cloud.google.com/freetrial?redirectPath=/vertex-ai/&amp;#x27;), (&amp;#x27;image&amp;#x27;, None)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;hr/&gt;
 &lt;h2 style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;July&lt;/span&gt;&lt;/h2&gt;
@@ -2901,7 +3152,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/ai/financial-services"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise for Financial Services&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is available in &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;preview&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; today, launching alongside our new purpose-built solution for &lt;/span&gt;&lt;a href="https://cloud.google.com/ai/legal"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Legal&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. We invite enterprise leaders in financial institutions to explore how &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; can transform their most critical workflows, with solutions for Healthcare, Life Sciences, and other Professional Services on the horizon. &lt;/span&gt;&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 25 Aug 2026 12:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/introducing-gemini-enterprise-for-financial-services/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Gemini_Enterprise_for_Finserve_ru2ruLE.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Now introducing Gemini Enterprise for Financial Services</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Gemini_Enterprise_for_Finserve_ru2ruLE.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/introducing-gemini-enterprise-for-financial-services/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Thomas Kurian</name><title>CEO, Google Cloud</title><department></department><company></company></author></item><item><title>Cloud CISO Perspectives: Sticking to security fundamentals in the AI era</title><link>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-sticking-to-security-fundamentals-in-the-ai-era/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="eucpw"&gt;Welcome to the first Cloud CISO Perspectives for August 2026. Today, Chris Betz explains why the AI era makes it more important than ever to lean into security fundamentals.&lt;/p&gt;&lt;p data-block-key="3e9dh"&gt;As with all Cloud CISO Perspectives, the contents of this newsletter are posted to the &lt;a href="https://cloud.google.com/blog/products/identity-security/"&gt;Google Cloud blog&lt;/a&gt;. If you’re reading this on the website and you’d like to receive the email version, you can &lt;a href="https://cloud.google.com/resources/google-cloud-ciso-newsletter-signup"&gt;subscribe here&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Get vital board insights with Google Cloud&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f82909ebc50&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Visit the hub&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://cloud.google.com/solutions/security/board-of-directors?utm_source=cgc-site&amp;amp;utm_medium=et&amp;amp;utm_campaign=FY26-Q2-GLOBAL-GCP39634-email-dl-dgcsm-CISOP-NL-177159&amp;amp;utm_content=-&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Get vital board insights with Google Cloud&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144771b10&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Visit the hub&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://cloud.google.com/solutions/security/board-of-directors?utm_source=cgc-site&amp;amp;utm_medium=et&amp;amp;utm_campaign=FY26-Q2-GLOBAL-GCP39634-email-dl-dgcsm-CISOP-NL-177159&amp;amp;utm_content=-&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="hswvv"&gt;&lt;b&gt;How to stay strong with security fundamentals in the AI era&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="eoh1k"&gt;&lt;i&gt;By Chris Betz, CISO, Google Cloud&lt;/i&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
@@ -2982,12 +3233,12 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about building and maintaining strong security foundations in the AI era, read our newest &lt;/span&gt;&lt;a href="https://cloud.google.com/security/resources/cyber-snapshot-reports"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Defender’s Advantage: Cyber Snapshot Report&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Learn something new&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f8283ce9f50&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Watch now&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://www.youtube.com/watch?v=CmGWIwgHR60&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: Cloud-CISO-Perspectives-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Learn something new&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144771d50&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Watch now&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://www.youtube.com/watch?v=CmGWIwgHR60&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: Cloud-CISO-Perspectives-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="4bd61"&gt;&lt;b&gt;In case you missed it&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="5tvtn"&gt;Here are the latest updates, products, services, and resources from our security teams so far this month:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="4h3h5"&gt;&lt;b&gt;Driving AI threat readiness with Wiz&lt;/b&gt;: Announcing new Wiz capabilities that can help organizations prepare for the AI era by expanding visibility and accelerating response, so your security teams can defend at machine speed. &lt;a href="https://www.wiz.io/blog/wiz-at-black-hat-2026" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="d5vd8"&gt;&lt;b&gt;PQC in Plaintext: Google Cloud’s post-quantum cryptography roadmap&lt;/b&gt;: We’ve long been actively working on and rolling out post-quantum cryptography in our infrastructure. Here’s our updated Google Cloud roadmap to migrate to PQC by 2029. &lt;a href="https://cloud.google.com/blog/products/identity-security/pqc-in-plaintext-google-clouds-post-quantum-cryptography-roadmap"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="6anll"&gt;&lt;b&gt;How Google Cloud detects, contains, and protects against emerging threats&lt;/b&gt;: Learn more about how Google Cloud empowers you with the tools, governance, and infrastructure you need to securely deploy workloads and maintain long-term trust. &lt;a href="https://cloud.google.com/blog/products/identity-security/how-google-cloud-detects-contains-and-protects-against-emerging-threats"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="9pqs5"&gt;&lt;b&gt;Privacy-first medical AI with MedPerf and Google Cloud&lt;/b&gt;: Discover how Google Cloud and MedPerf use Confidential Computing to enable secure, privacy-first collaborative medical AI evaluation. &lt;a href="https://cloud.google.com/blog/products/identity-security/privacy-first-medical-ai-with-medperf-and-google-cloud"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="djij2"&gt;&lt;b&gt;More cryptanalysis makes us all safer&lt;/b&gt;: Recent advances in frontier AI models do not signal the downfall of cryptography. Here’s why they’re best viewed as additional cryptanalysts. &lt;a href="https://bughunters.google.com/blog/more-cryptanalysis-makes-us-all-safer" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="dhi1p"&gt;&lt;b&gt;How layered defenses harden Chrome against abusive notifications&lt;/b&gt;: Learn how Chrome Security has collaborated with Firebase Cloud Messaging (FCM) and Safe Browsing to significantly reduce notification abuse, and improve the security and quality of the web ecosystem for everyone. &lt;a href="https://blog.google/security/the-multi-layered-defenses-that-harden-chrome-against-abusive-notifications/" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="5nair"&gt;Please visit the Google Cloud blog for more security stories &lt;a href="https://cloud.google.com/blog/products/identity-security"&gt;published this month&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Join the Google Cloud CISO Community&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f8290bcea10&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Learn more&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://rsvp.withgoogle.com/events/google-cloud-ciso-community-interest-form-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY25-Q1-global-GCP30328-physicalevent-er-dgcsm-parent-CISO-community-2025&amp;amp;utm_content=cisop_&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Join the Google Cloud CISO Community&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7ff144772e50&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Learn more&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://rsvp.withgoogle.com/events/google-cloud-ciso-community-interest-form-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY25-Q1-global-GCP30328-physicalevent-er-dgcsm-parent-CISO-community-2025&amp;amp;utm_content=cisop_&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="29tyz"&gt;&lt;b&gt;Threat Intelligence news&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="cm2sc"&gt;&lt;b&gt;Staying ahead of adversarial AI through agentic source code review&lt;/b&gt;: To help defenders implement agentic approaches similar to our approach at Google Cloud, we are sharing the details of our Agentic Vulnerability Discovery Harness architecture for the first time. AVDH can also be used alongside CodeMender’s ongoing scanning to create a two-layered defense strategy. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/staying-ahead-of-adversarial-ai-through-agentic-source-code-review"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="6lp6o"&gt;&lt;b&gt;Cloud threat highlights from the first half of 2026&lt;/b&gt;: In the first half of 2026, Wiz's Research and CIRT teams tracked threats affecting thousands of cloud environments. We saw a notable increase in the volume of activity, with supply-chain attacks running at a previously unseen scale and developer toolchains and AI infrastructure drawing serious attention. &lt;a href="https://www.wiz.io/blog/cloud-threat-highlights-h1-2026" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="dtcu6"&gt;&lt;b&gt;Batten down your packages: Mitigation guidance for supply chain compromise&lt;/b&gt;: GTIG and Mandiant have tracked ongoing and increasing open source software supply chain compromise campaigns over the past several years. Here are our mitigation and hardening recommendations to secure software supply chains, including insights we have developed as a result of supporting customers. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/mitigation-guidance-for-supply-chain-compromise"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="bqqfp"&gt;&lt;b&gt;Multi-brand vishing extortion targets financial services and enterprise cloud environments&lt;/b&gt;: Telemetry and infrastructure analysis reveal that UNC6671 has not disbanded. Instead, the threat group has diversified its operations across multiple extortion fronts including Redact, Pink, Helix, and Falcon and continues to rely on voice phishing to target enterprise employees. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/unc6671-targets-financial-services-and-enterprise-cloud-environments"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="74ud9"&gt;&lt;b&gt;Keyv and cacheable npm package hijacked in supply chain attack&lt;/b&gt;: Wiz Research is actively investigating an ongoing software supply chain attack affecting multiple keyv/cacheable npm packages. &lt;a href="https://www.wiz.io/blog/keyv-and-cacheable-npm-supply-chain-attack" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="49ocf"&gt;&lt;b&gt;Inside the Metabase SQLi: Exploited in the wild&lt;/b&gt;: Wiz has reverse engineered Metabase CVE-2026-72898 with AI to accelerate defense. Here’s what we learned. &lt;a href="https://www.wiz.io/blog/inside-the-metabase-sqli-exploited-in-the-wild" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="d9no2"&gt;Please visit the Google Cloud blog for more threat intelligence stories &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/"&gt;published this month&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="rcfc5"&gt;&lt;b&gt;Now hear this: Podcasts from Google Cloud&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="drbpp"&gt;&lt;b&gt;Cloud Security Podcast: All about Project Atlas, Wiz's AI vulnerability research&lt;/b&gt;: Near Orfeld, head of vulnerability research, Wiz, discusses how his team uses multi-agent AI systems for discovering high-impact zero-day vulnerabilities in cloud infrastructure. &lt;a href="https://www.youtube.com/watch?v=qRJJ9ekpuVg" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="1chcd"&gt;&lt;b&gt;Cloud Security Podcast: How Google eliminates classes of vulnerabilities at scale&lt;/b&gt;: How do you build the foundations for a secure Google-scale enterprise that stays secure even if an AI is writing the code and nobody has time to review it? Christoph Kern, principal security engineer, Google, explores what secure-by-design really means in the AI era. &lt;a href="https://www.youtube.com/watch?v=43imRRfgLgc" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="fjjbt"&gt;To have our Cloud CISO Perspectives post delivered twice a month to your inbox, &lt;a href="https://cloud.google.com/resources/google-cloud-ciso-newsletter-signup"&gt;sign up for our newsletter&lt;/a&gt;. We’ll be back in a few weeks with more security-related updates from Google Cloud.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Fri, 21 Aug 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-sticking-to-security-fundamentals-in-the-ai-era/</guid><category>Cloud CISO</category><category>AI &amp; Machine Learning</category><category>Security &amp; Identity</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud_CISO_Perspectives_header_4_Blue.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Cloud CISO Perspectives: Sticking to security fundamentals in the AI era</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud_CISO_Perspectives_header_4_Blue.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-sticking-to-security-fundamentals-in-the-ai-era/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Chris Betz</name><title>CISO, Google Cloud</title><department></department><company></company></author></item><item><title>How agents can delegate better</title><link>https://cloud.google.com/blog/products/ai-machine-learning/how-agents-can-delegate-better/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In any organizational behavior class, students will learn that effective delegation is among the most important skills for a seasoned leader. Getting meaningful work done involves careful coordination, starting with a subdivision of projects into manageable tasks, mapped onto the skills of the team, and assigned to the right people.&lt;/span&gt;&lt;/p&gt;
@@ -3206,144 +3457,4 @@
 &lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
 &lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;For developers: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Start &lt;/span&gt;&lt;a href="https://antigravity.google/docs/home" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;building&lt;/span&gt;&lt;/a&gt; &lt;span style="vertical-align: baseline;"&gt;with Antigravity 2.0, the Antigravity CLI, or your preferred IDEs via Antigravity IDE extensions.&lt;/span&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Thu, 20 Aug 2026 17:30:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/antigravity_enterprise.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Expanding Google Antigravity for enterprise customers</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/antigravity_enterprise.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Scott Densmore</name><title>Senior Director of Engineering</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Damith Karunaratne</name><title>Group Product Manager</title><department></department><company></company></author></item><item><title>How AlloyDB ScaNN scales vector search to 10 billion vectors</title><link>https://cloud.google.com/blog/products/databases/alloydb-scann-index-four-level-tree-improves-vector-search/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To satisfy the demands of enterprise-grade agentic AI applications, underlying vector databases often struggle to scale effectively as modern use cases can scale to billions of vectors.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;As a fully managed PostgreSQL-compatible database service, &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;AlloyDB&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is engineered to handle demanding enterprise workloads. Combining Google's infrastructure with the reliability of commercial databases, it delivers high availability, scalability, and includes a cutting-edge analytical engine, optimal for agentic AI use cases. A key part of this is its &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;ScaNN index&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, which now operates efficiently &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;at a scale of 10 billion vectors&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;. This was achieved through a major architectural enhancement: an innovative &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index#four-level-tree-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;four-level tree (preview)&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; paired with efficient memory usage&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;.&lt;/strong&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;The 10 billion vector scale challenge&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Scaling to a 10 billion vector workload presents significant memory and computational challenges. Previous AlloyDB ScaNN tree-based index was limited to &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index#two-level-tree-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;two&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;- or &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index#three-level-tree-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;three&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;-level tree configurations, and attempting to scale those structures led to several bottlenecks:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Increased compute intensity:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Larger tree structures demand significantly more operations for both index construction and query traversal.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Memory constraints:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; The sampling processes required for 10 billion vectors can easily exceed the system's available memory capacity.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Solution: Four-level architecture&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The introduction of a &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index#four-level-tree-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;four-level tree (preview)&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is the primary innovation in the recent AlloyDB ScaNN release. This architecture, illustrated in Figure 1, employs a top-down strategy to optimize the balance between accuracy and build efficiency. To maintain high performance and mitigate recall loss, the system integrates key enhancements such as Top-K branch, &lt;/span&gt;&lt;a href="https://research.google/blog/soar-new-algorithms-for-even-faster-vector-search-with-scann/#:~:text=ScaNN%20is%20open%2Dsourced%20on%20GitHub%20and%20can%20be%20easily%20installed%20via%20Pip." rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;SOAR&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://arxiv.org/abs/1908.10396" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;centroid adjustment&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; and balanced tree shape.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_fpfICUj.max-1000x1000.jpg"
-        
-          alt="1"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="uveoq"&gt;Figure 1. AlloyDB ScaNN four-level tree architecture&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This design has two primary benefits:&lt;/span&gt;&lt;/p&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;1. Reduced compute intensity via hierarchical partitioning&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The four-level architecture drastically reduces compute intensity by using hierarchical partitioning to restrict the volume of vectors scanned during a query. Instead of traversing a flat or poorly segmented space, the multi-layered hierarchy narrows down the search path exponentially. Figure 2 illustrates the search spaces across different tree levels, demonstrating how structural layering optimizes traversal efficiency:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/2_LWwXC70.max-1000x1000.jpg"
-        
-          alt="2"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="uveoq"&gt;Figure 2. Search space for two-, three- and four-level trees&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Two-level:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Utilizes coarse partitioning to guide queries, resulting in a basic search complexity of &lt;/span&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt;O(&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;N&lt;/span&gt;&lt;sup&gt;&lt;span style="vertical-align: baseline;"&gt;1/2&lt;/span&gt;&lt;/sup&gt;&lt;/em&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;em&gt;)&lt;/em&gt;&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Three-level:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Introduces an intermediate layer to further subdivide clusters, narrowing exploration to &lt;/span&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt;O(&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;N&lt;/span&gt;&lt;sup&gt;&lt;span style="vertical-align: baseline;"&gt;1/3&lt;/span&gt;&lt;/sup&gt;&lt;/em&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;em&gt;)&lt;/em&gt;&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Four-level:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Implements refined, highly granular partitions that optimize traversal efficiency down to &lt;/span&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt;O(&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;N&lt;/span&gt;&lt;sup&gt;&lt;span style="vertical-align: baseline;"&gt;1/4&lt;/span&gt;&lt;/sup&gt;&lt;/em&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;em&gt;)&lt;/em&gt;&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, sufficiently allowing for more than 10-billion vectors.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;By dynamically expanding hierarchical layers as the dataset expands, AlloyDB ScaNN maintains ultra-low query latency and avoids computational scale walls from impacting performance.&lt;/span&gt;&lt;/p&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;2. Efficient memory usage&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Achieving a 10 billion vector scale requires high memory efficiency. AlloyDB ScaNN uses these strategies to maximize memory management performance:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Balanced tree shape construction:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; The four-level tree utilizes a &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;balanced&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; configuration to circumvent memory limitations that restrict the size of training datasets. This balanced architecture effectively leverages reduced sampling sizes to construct high-fidelity tree partitions.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Sampling optimization:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; When the system encounters memory limitations, it generates a condensed sampling set that considers performance and accuracy. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Performance test results&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;By leveraging the innovative four-level tree architecture in our internal tests, we are able to achieve the following performance results:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;AlloyDB can scale to over 10 billion vectors with its ScaNN index.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;AlloyDB can deliver &amp;lt;= 51 ms p95 latency and 95% recall at 10 billion vectors with its ScaNN index.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Get started today&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Experience AlloyDB ScaNN's &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index#four-level-tree-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;four-level tree (preview)&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; architecture today. You can deploy ScaNN for AlloyDB by following our &lt;/span&gt;&lt;a href="https://cloud.google.com/alloydb/docs/quickstart/create-and-connect"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;quickstart guide&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to set up an instance. For optimized, high-speed vector search, refer to the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/alloydb/docs/ai/create-scann-index"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;official ScaNN documentation&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. New users can also &lt;/span&gt;&lt;a href="https://console.cloud.google.com/alloydb/create-trial-cluster?_gl=1*qsd2cd*_up*MQ..&amp;amp;gclid=CjwKCAjwooq3BhB3EiwAYqYoEh91xxGzv4xrmyMJJ_BPfF4X8cv-I3kINwvnMI2pADozFQPsrHnaOhoCbioQAvD_BwE&amp;amp;gclsrc=aw.ds"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;explore AlloyDB&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; through our &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/databases/run-your-postgresql-database-in-an-alloydb-free-trial-cluster"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;30-day free trial&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; program. We can’t wait to hear about what you build!&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 20 Aug 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/databases/alloydb-scann-index-four-level-tree-improves-vector-search/</guid><category>AI &amp; Machine Learning</category><category>Databases</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>How AlloyDB ScaNN scales vector search to 10 billion vectors</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/databases/alloydb-scann-index-four-level-tree-improves-vector-search/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Bin Song</name><title>Software Engineer</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Itai Rosenblatt</name><title>Engineering Manager</title><department></department><company></company></author></item></channel></rss>
+&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Thu, 20 Aug 2026 17:30:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/antigravity_enterprise.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Expanding Google Antigravity for enterprise customers</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/antigravity_enterprise.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Scott Densmore</name><title>Senior Director of Engineering</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Damith Karunaratne</name><title>Group Product Manager</title><department></department><company></company></author></item></channel></rss>
