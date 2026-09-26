@@ -5,6 +5,11 @@
       "why": "automod removes posts from accounts under 5 comment karma, in response to spam volume",
       "observed": "2026-09-03, on the first real post",
       "clears_when": "the account has 5 comment karma on that subreddit"
+    },
+    "hn": {
+      "why": "every submission from this account is dead on arrival: 14 of 14 since it was created on 2026-09-04, each with dead: true in HN's own item API and a score of 1, meaning no human flagged them and no one but the submitter ever saw them. Continuing risks the DOMAIN being banned, which is permanent and would outlive any fix to the account.",
+      "observed": "2026-09-26, by reading every item under news.ycombinator.com/user?id=MaxMillion404",
+      "clears_when": "the account has a history of genuine comments on other people's stories and some karma, AND a test submission of a diffwire URL comes back live (dead: false) when checked logged out"
     }
   }
 }
