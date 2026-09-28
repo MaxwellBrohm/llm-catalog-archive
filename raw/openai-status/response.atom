@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://status.openai.com/</id>
     <title>OpenAI status</title>
-    <updated>2026-09-27T05:18:05.557Z</updated>
+    <updated>2026-09-28T05:23:55.414Z</updated>
     <generator>incident.io</generator>
     <link rel="alternate" href="https://status.openai.com/"/>
     <subtitle>OpenAI status page updates</subtitle>
@@ -42,39 +42,39 @@
         <updated>2026-09-23T23:49:06.741Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Search (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>File uploads (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Deep Research (Operational)</li>
+          <li>Deep Research (Operational)</li>
 <li>Login (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Image Generation (Operational)</li>
-<li>Agent (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Voice mode (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
 <li>ChatGPT Atlas (Operational)</li>
+<li>Voice mode (Operational)</li>
+<li>GPTs (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Agent (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
+<li>Search (Operational)</li>
+<li>Conversations (Operational)</li>
+<li>Compliance API (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Search (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>File uploads (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Deep Research (Operational)</li>
+          <li>Deep Research (Operational)</li>
 <li>Login (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Image Generation (Operational)</li>
-<li>Agent (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Voice mode (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
 <li>ChatGPT Atlas (Operational)</li>
+<li>Voice mode (Operational)</li>
+<li>GPTs (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Agent (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
+<li>Search (Operational)</li>
+<li>Conversations (Operational)</li>
+<li>Compliance API (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -150,31 +150,31 @@
         <updated>2026-09-17T21:50:36.056Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Realtime (Operational)</li>
-<li>Files (Operational)</li>
-<li>Moderations (Operational)</li>
+          <li>Embeddings (Operational)</li>
 <li>Responses (Operational)</li>
-<li>Login (Operational)</li>
 <li>Images (Operational)</li>
-<li>Batch (Operational)</li>
-<li>Chat Completions (Operational)</li>
 <li>Audio (Operational)</li>
 <li>Fine-tuning (Operational)</li>
-<li>Embeddings (Operational)</li>
+<li>Realtime (Operational)</li>
+<li>Files (Operational)</li>
+<li>Moderations (Operational)</li>
+<li>Login (Operational)</li>
+<li>Batch (Operational)</li>
+<li>Chat Completions (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Realtime (Operational)</li>
-<li>Files (Operational)</li>
-<li>Moderations (Operational)</li>
+          <li>Embeddings (Operational)</li>
 <li>Responses (Operational)</li>
-<li>Login (Operational)</li>
 <li>Images (Operational)</li>
-<li>Batch (Operational)</li>
-<li>Chat Completions (Operational)</li>
 <li>Audio (Operational)</li>
 <li>Fine-tuning (Operational)</li>
-<li>Embeddings (Operational)</li>
+<li>Realtime (Operational)</li>
+<li>Files (Operational)</li>
+<li>Moderations (Operational)</li>
+<li>Login (Operational)</li>
+<li>Batch (Operational)</li>
+<li>Chat Completions (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -446,19 +446,19 @@
         <updated>2026-09-04T10:46:54.348Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Image Generation (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>File uploads (Operational)</li>
+          <li>File uploads (Operational)</li>
 <li>Voice mode (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Image Generation (Operational)</li>
+<li>Codex Web (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Image Generation (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>File uploads (Operational)</li>
+          <li>File uploads (Operational)</li>
 <li>Voice mode (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Image Generation (Operational)</li>
+<li>Codex Web (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -470,49 +470,49 @@
 
 Some Codex remote control users may need to pair their mobile device again following this incident.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Agent (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Sites (Operational)</li>
+          <li>Login (Operational)</li>
+<li>Voice mode (Operational)</li>
 <li>Codex Web (Operational)</li>
 <li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Codex API (Operational)</li>
 <li>Search (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>VS Code extension (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-<li>File uploads (Operational)</li>
 <li>Compliance API (Operational)</li>
 <li>Image Generation (Operational)</li>
+<li>Agent (Operational)</li>
+<li>Deep Research (Operational)</li>
 <li>CLI (Operational)</li>
-<li>Login (Operational)</li>
-<li>Voice mode (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>VS Code extension (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Conversations (Operational)</li>
+<li>GPTs (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>The issue causing elevated errors across ChatGPT and Codex has been resolved.
 
 Some Codex remote control users may need to pair their mobile device again following this incident.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Agent (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Sites (Operational)</li>
+          <li>Login (Operational)</li>
+<li>Voice mode (Operational)</li>
 <li>Codex Web (Operational)</li>
 <li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Codex API (Operational)</li>
 <li>Search (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>VS Code extension (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-<li>File uploads (Operational)</li>
 <li>Compliance API (Operational)</li>
 <li>Image Generation (Operational)</li>
+<li>Agent (Operational)</li>
+<li>Deep Research (Operational)</li>
 <li>CLI (Operational)</li>
-<li>Login (Operational)</li>
-<li>Voice mode (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>VS Code extension (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Conversations (Operational)</li>
+<li>GPTs (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -522,39 +522,39 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-09-03T00:10:45.629Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Image Generation (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-<li>Login (Operational)</li>
-<li>Voice mode (Operational)</li>
-<li>Agent (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>Deep Research (Operational)</li>
+          <li>Connectors/Apps (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Login (Operational)</li>
 <li>File uploads (Operational)</li>
-<li>Search (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+<li>Voice mode (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Compliance API (Operational)</li>
+<li>GPTs (Operational)</li>
+<li>Agent (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Search (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Image Generation (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-<li>Login (Operational)</li>
-<li>Voice mode (Operational)</li>
-<li>Agent (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>Deep Research (Operational)</li>
+          <li>Connectors/Apps (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Login (Operational)</li>
 <li>File uploads (Operational)</li>
-<li>Search (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+<li>Voice mode (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Compliance API (Operational)</li>
+<li>GPTs (Operational)</li>
+<li>Agent (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Search (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -658,15 +658,15 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-08-20T16:51:51.914Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>ChatGPT Work (Operational)</li>
-<li>Conversations (Operational)</li>
+          <li>Conversations (Operational)</li>
 <li>Image Generation (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>ChatGPT Work (Operational)</li>
-<li>Conversations (Operational)</li>
+          <li>Conversations (Operational)</li>
 <li>Image Generation (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -972,69 +972,69 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-07-25T11:57:02.014Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Search (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>Fine-tuning (Operational)</li>
-<li>Agent (Operational)</li>
-<li>Login (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
+          <li>Embeddings (Operational)</li>
+<li>Conversations (Operational)</li>
 <li>Audio (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
+<li>Responses (Operational)</li>
+<li>Login (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>Images (Operational)</li>
+<li>GPTs (Operational)</li>
 <li>Realtime (Operational)</li>
 <li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Moderations (Operational)</li>
-<li>Login (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Images (Operational)</li>
-<li>Image Generation (Operational)</li>
+<li>Search (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>Codex Web (Operational)</li>
+<li>Codex in ChatGPT Desktop (Operational)</li>
 <li>VS Code extension (Operational)</li>
+<li>Codex API (Operational)</li>
+<li>Fine-tuning (Operational)</li>
+<li>Image Generation (Operational)</li>
+<li>Agent (Operational)</li>
 <li>Sites (Operational)</li>
+<li>CLI (Operational)</li>
+<li>Moderations (Operational)</li>
 <li>Voice mode (Operational)</li>
-<li>Batch (Operational)</li>
 <li>Chat Completions (Operational)</li>
 <li>Files (Operational)</li>
-<li>Embeddings (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>File uploads (Operational)</li>
-<li>Responses (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>Login (Operational)</li>
+<li>Batch (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Search (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>Fine-tuning (Operational)</li>
-<li>Agent (Operational)</li>
-<li>Login (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
+          <li>Embeddings (Operational)</li>
+<li>Conversations (Operational)</li>
 <li>Audio (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
+<li>Responses (Operational)</li>
+<li>Login (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>Images (Operational)</li>
+<li>GPTs (Operational)</li>
 <li>Realtime (Operational)</li>
 <li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Moderations (Operational)</li>
-<li>Login (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Images (Operational)</li>
-<li>Image Generation (Operational)</li>
+<li>Search (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>Codex Web (Operational)</li>
+<li>Codex in ChatGPT Desktop (Operational)</li>
 <li>VS Code extension (Operational)</li>
+<li>Codex API (Operational)</li>
+<li>Fine-tuning (Operational)</li>
+<li>Image Generation (Operational)</li>
+<li>Agent (Operational)</li>
 <li>Sites (Operational)</li>
+<li>CLI (Operational)</li>
+<li>Moderations (Operational)</li>
 <li>Voice mode (Operational)</li>
-<li>Batch (Operational)</li>
 <li>Chat Completions (Operational)</li>
 <li>Files (Operational)</li>
-<li>Embeddings (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>File uploads (Operational)</li>
-<li>Responses (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>Login (Operational)</li>
+<li>Batch (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1044,69 +1044,69 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-07-25T11:08:36.611Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>File uploads (Operational)</li>
-<li>Fine-tuning (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Login (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Realtime (Operational)</li>
-<li>Moderations (Operational)</li>
-<li>Voice mode (Operational)</li>
-<li>Audio (Operational)</li>
-<li>Files (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-<li>Image Generation (Operational)</li>
-<li>Search (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Images (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Batch (Operational)</li>
+          <li>Conversations (Operational)</li>
 <li>Responses (Operational)</li>
+<li>GPTs (Operational)</li>
+<li>Codex Web (Operational)</li>
+<li>VS Code extension (Operational)</li>
+<li>Codex API (Operational)</li>
+<li>Search (Operational)</li>
 <li>Agent (Operational)</li>
 <li>Login (Operational)</li>
-<li>VS Code extension (Operational)</li>
-<li>Chat Completions (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>Images (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>Login (Operational)</li>
+<li>Voice mode (Operational)</li>
+<li>Audio (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+<li>CLI (Operational)</li>
+<li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Realtime (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>Image Generation (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Moderations (Operational)</li>
+<li>Files (Operational)</li>
 <li>Embeddings (Operational)</li>
+<li>Batch (Operational)</li>
+<li>Chat Completions (Operational)</li>
+<li>Fine-tuning (Operational)</li>
+<li>Compliance API (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>File uploads (Operational)</li>
-<li>Fine-tuning (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Login (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Realtime (Operational)</li>
-<li>Moderations (Operational)</li>
-<li>Voice mode (Operational)</li>
-<li>Audio (Operational)</li>
-<li>Files (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-<li>Image Generation (Operational)</li>
-<li>Search (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Images (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Batch (Operational)</li>
+          <li>Conversations (Operational)</li>
 <li>Responses (Operational)</li>
+<li>GPTs (Operational)</li>
+<li>Codex Web (Operational)</li>
+<li>VS Code extension (Operational)</li>
+<li>Codex API (Operational)</li>
+<li>Search (Operational)</li>
 <li>Agent (Operational)</li>
 <li>Login (Operational)</li>
-<li>VS Code extension (Operational)</li>
-<li>Chat Completions (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
+<li>Images (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>Login (Operational)</li>
+<li>Voice mode (Operational)</li>
+<li>Audio (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+<li>CLI (Operational)</li>
+<li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Realtime (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>Image Generation (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Moderations (Operational)</li>
+<li>Files (Operational)</li>
 <li>Embeddings (Operational)</li>
+<li>Batch (Operational)</li>
+<li>Chat Completions (Operational)</li>
+<li>Fine-tuning (Operational)</li>
+<li>Compliance API (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1116,47 +1116,47 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-07-24T19:33:22.018Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Conversations (Operational)</li>
-<li>Batch (Operational)</li>
-<li>Fine-tuning (Operational)</li>
-<li>Files (Operational)</li>
-<li>Responses (Operational)</li>
-<li>Agent (Operational)</li>
-<li>Realtime (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Images (Operational)</li>
-<li>Embeddings (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Chat Completions (Operational)</li>
-<li>Audio (Operational)</li>
-<li>Moderations (Operational)</li>
+          <li>Embeddings (Operational)</li>
 <li>Login (Operational)</li>
 <li>Codex Web (Operational)</li>
+<li>Batch (Operational)</li>
+<li>Chat Completions (Operational)</li>
+<li>Audio (Operational)</li>
+<li>Files (Operational)</li>
+<li>Responses (Operational)</li>
 <li>Connectors/Apps (Operational)</li>
 <li>VS Code extension (Operational)</li>
+<li>Fine-tuning (Operational)</li>
+<li>Realtime (Operational)</li>
+<li>Agent (Operational)</li>
+<li>CLI (Operational)</li>
+<li>Codex API (Operational)</li>
+<li>Images (Operational)</li>
+<li>Moderations (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
+<li>Conversations (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Conversations (Operational)</li>
-<li>Batch (Operational)</li>
-<li>Fine-tuning (Operational)</li>
-<li>Files (Operational)</li>
-<li>Responses (Operational)</li>
-<li>Agent (Operational)</li>
-<li>Realtime (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Images (Operational)</li>
-<li>Embeddings (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Chat Completions (Operational)</li>
-<li>Audio (Operational)</li>
-<li>Moderations (Operational)</li>
+          <li>Embeddings (Operational)</li>
 <li>Login (Operational)</li>
 <li>Codex Web (Operational)</li>
+<li>Batch (Operational)</li>
+<li>Chat Completions (Operational)</li>
+<li>Audio (Operational)</li>
+<li>Files (Operational)</li>
+<li>Responses (Operational)</li>
 <li>Connectors/Apps (Operational)</li>
 <li>VS Code extension (Operational)</li>
+<li>Fine-tuning (Operational)</li>
+<li>Realtime (Operational)</li>
+<li>Agent (Operational)</li>
+<li>CLI (Operational)</li>
+<li>Codex API (Operational)</li>
+<li>Images (Operational)</li>
+<li>Moderations (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
+<li>Conversations (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1200,39 +1200,39 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-07-23T20:41:01.307Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Login (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
+          <li>Connectors/Apps (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
-<li>File uploads (Operational)</li>
+<li>Conversations (Operational)</li>
+<li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Voice mode (Operational)</li>
 <li>Search (Operational)</li>
 <li>Compliance API (Operational)</li>
 <li>Image Generation (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>Voice mode (Operational)</li>
 <li>Agent (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
 <li>Sites (Operational)</li>
+<li>Login (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>GPTs (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Login (Operational)</li>
-<li>Conversations (Operational)</li>
-<li>Deep Research (Operational)</li>
-<li>ChatGPT Atlas (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
+          <li>Connectors/Apps (Operational)</li>
 <li>ChatGPT Work (Operational)</li>
-<li>File uploads (Operational)</li>
+<li>Conversations (Operational)</li>
+<li>Codex in ChatGPT Desktop (Operational)</li>
+<li>Voice mode (Operational)</li>
 <li>Search (Operational)</li>
 <li>Compliance API (Operational)</li>
 <li>Image Generation (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
-<li>Voice mode (Operational)</li>
 <li>Agent (Operational)</li>
+<li>Deep Research (Operational)</li>
+<li>ChatGPT Atlas (Operational)</li>
 <li>Sites (Operational)</li>
+<li>Login (Operational)</li>
+<li>File uploads (Operational)</li>
+<li>GPTs (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1272,13 +1272,13 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-07-21T22:19:31.797Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>Image generation functionality has fully recovered, and error rates have returned to normal levels.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Image Generation (Operational)</li>
-<li>Images (Operational)</li>
+          <li>Images (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>Image generation functionality has fully recovered, and error rates have returned to normal levels.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Image Generation (Operational)</li>
-<li>Images (Operational)</li>
+          <li>Images (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1324,17 +1324,17 @@ Some Codex remote control users may need to pair their mobile device again follo
         <updated>2026-07-19T17:05:02.474Z</updated>
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
+          <li>ChatGPT Work (Operational)</li>
 <li>Voice mode (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
-          <li>Connectors/Apps (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
+          <li>ChatGPT Work (Operational)</li>
 <li>Voice mode (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1413,38 +1413,38 @@ Some Codex remote control users may need to pair their mobile device again follo
         <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
           <li>File uploads (Operational)</li>
-<li>Voice mode (Operational)</li>
-<li>Image Generation (Operational)</li>
+<li>GPTs (Operational)</li>
 <li>Deep Research (Operational)</li>
-<li>Search (Operational)</li>
-<li>Agent (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
 <li>ChatGPT Atlas (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
 <li>Login (Operational)</li>
+<li>Search (Operational)</li>
+<li>Agent (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Voice mode (Operational)</li>
+<li>Compliance API (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></summary>
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
           <li>File uploads (Operational)</li>
-<li>Voice mode (Operational)</li>
-<li>Image Generation (Operational)</li>
+<li>GPTs (Operational)</li>
 <li>Deep Research (Operational)</li>
-<li>Search (Operational)</li>
-<li>Agent (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
 <li>Conversations (Operational)</li>
+<li>Connectors/Apps (Operational)</li>
 <li>ChatGPT Atlas (Operational)</li>
 <li>Codex in ChatGPT Desktop (Operational)</li>
-<li>Sites (Operational)</li>
-<li>Compliance API (Operational)</li>
-<li>GPTs (Operational)</li>
-<li>Connectors/Apps (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
 <li>Login (Operational)</li>
+<li>Search (Operational)</li>
+<li>Agent (Operational)</li>
+<li>Sites (Operational)</li>
+<li>Voice mode (Operational)</li>
+<li>Compliance API (Operational)</li>
+<li>Image Generation (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
@@ -1569,28 +1569,6 @@ Some Codex remote control users may need to pair their mobile device again follo
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
           <li>Image Generation (Operational)</li>
-          </ul>]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Codex Usage Limits Depleting Faster Than Expected]]></title>
-        <id>https://status.openai.com//incidents/01KW2E6W0503W4NXJNCVAG8V6T</id>
-        <link href="https://status.openai.com//incidents/01KW2E6W0503W4NXJNCVAG8V6T"/>
-        <updated>2026-06-29T17:06:33.013Z</updated>
-        <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
-          <ul>
-          <li>VS Code extension (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
-          </ul>]]></summary>
-        <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
-          <ul>
-          <li>VS Code extension (Operational)</li>
-<li>Codex API (Operational)</li>
-<li>Codex Web (Operational)</li>
-<li>CLI (Operational)</li>
-<li>Codex in ChatGPT Desktop (Operational)</li>
           </ul>]]></content>
     </entry>
 </feed>
