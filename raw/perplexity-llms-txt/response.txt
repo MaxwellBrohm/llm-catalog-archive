@@ -1,6 +1,6 @@
 # Perplexity
 
-> Perplexity API documentation for building with the Agent API, the default for web-grounded AI and multi-provider applications, plus Search, Embeddings, and Sonar APIs.
+> Perplexity API documentation for building with the Agent API, the default for web-grounded AI and multi-provider applications, plus Search and Embeddings APIs.
 
 - [Overview](https://docs.perplexity.ai/docs/getting-started/overview.md): Perplexity API Platform - build with the Router, Agent, Search, and Embeddings APIs. Real-time, web-wide research and Q&A capabilities for your products.
 - [Quickstart](https://docs.perplexity.ai/docs/getting-started/quickstart.md): Generate an API key and make your first call in < 3 minutes.
@@ -37,7 +37,6 @@
 - [Background Mode](https://docs.perplexity.ai/docs/agent-api/background-mode.md): Run long agentic tasks asynchronously — submit with background, poll by response id, stream, reconnect, and cancel.
 - [Working with Files](https://docs.perplexity.ai/docs/agent-api/working-with-files.md): List and download files an Agent API response produced in the sandbox.
 - [Skills](https://docs.perplexity.ai/docs/agent-api/skills.md): Give the agent on-demand domain expertise with built-in, inline, and custom skills.
-- [Wide Research](https://docs.perplexity.ai/docs/agent-api/wide-research.md): Run wide-and-deep research tasks with the wide-research preset — build large, evidence-backed collections in the background.
 - [OpenAI Compatibility](https://docs.perplexity.ai/docs/agent-api/openai-compatibility.md): Use your existing OpenAI SDKs with Perplexity's Agent API. Full compatibility with minimal code changes.
 - [Migrate from Sonar to the Agent API](https://docs.perplexity.ai/docs/agent-api/migrate-from-sonar/overview.md): The Agent API represents a major upgrade of Sonar Chat Completions, bringing added configuration and powerful agentic primitives to your AI applications.
 - [How to migrate from Sonar](https://docs.perplexity.ai/docs/agent-api/migrate-from-sonar/how-to.md): Move a Sonar chat completions integration to the Agent API, including requests, responses, search, presets, async runs, and parameter mappings.
@@ -98,50 +97,9 @@
 - [Changelog](https://docs.perplexity.ai/docs/resources/changelog.md): Updates to the Perplexity API platform.
 - [Get in Touch](https://docs.perplexity.ai/docs/resources/discussions.md)
 - [Perplexity Crawlers](https://docs.perplexity.ai/docs/resources/perplexity-crawlers.md): We strive to improve our service every day by delivering the best search experience possible. To achieve this, we collect data using web crawlers ("robots") and user agents that gather and index information from the internet, operating either automatically or in response to user requests. Webmasters…
-- [Sonar API](https://docs.perplexity.ai/docs/sonar/quickstart.md): Get started with Perplexity's Sonar API for web-grounded AI responses. Make your first API call in minutes.
-- [Sonar API](https://docs.perplexity.ai/docs/sonar/quickstart.md): Get started with Perplexity's Sonar API for web-grounded AI responses. Make your first API call in minutes.
-- [Models](https://docs.perplexity.ai/docs/sonar/models.md): Compare Sonar, Sonar Pro, Sonar Reasoning Pro, and Sonar Deep Research models for the Sonar API.
-- [Sonar](https://docs.perplexity.ai/docs/sonar/models/sonar.md): Learn about the Sonar search model, including its pricing, API usage, and best-fit use cases.
-- [Sonar Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-pro.md): Learn about Sonar Pro for advanced search, including pricing, API usage, and Pro Search support.
-- [Sonar Reasoning Pro](https://docs.perplexity.ai/docs/sonar/models/sonar-reasoning-pro.md): Learn about Sonar Reasoning Pro for advanced multi-step reasoning, including pricing and API usage.
-- [Sonar Deep Research](https://docs.perplexity.ai/docs/sonar/models/sonar-deep-research.md): Learn about Sonar Deep Research for exhaustive research workflows, including pricing and API usage.
-- [Prompt Guide](https://docs.perplexity.ai/docs/sonar/prompt-guide.md): Sonar-specific prompting guidance and how it differs from the Agent API.
-- [Core Features](https://docs.perplexity.ai/docs/sonar/features.md): Streaming and structured outputs for the Sonar API
-- [Search Filters](https://docs.perplexity.ai/docs/sonar/filters.md): Control and customize Sonar API search results with filters
-- [Media & Attachments](https://docs.perplexity.ai/docs/sonar/media.md): Send and receive images, videos, and files with the Sonar API
-- [Quickstart](https://docs.perplexity.ai/docs/sonar/pro-search/quickstart.md): Get started with Pro Search for Sonar Pro - enhanced search with automated tools, multi-step reasoning, and real-time thought streaming
-- [Built-in Tool Capabilities](https://docs.perplexity.ai/docs/sonar/pro-search/tools.md): Learn about Pro Search's built-in tools: web search and URL content fetching
-- [Stream Mode: Concise vs Full](https://docs.perplexity.ai/docs/sonar/pro-search/stream-mode.md): Learn how to use stream_mode to control streaming response formats and optimize your integration
-- [Pro Search Classifier](https://docs.perplexity.ai/docs/sonar/pro-search/classifier.md): Optimize cost and performance with automatic query classification between Pro Search and Fast Search modes
-- [OpenAI SDK Compatibility](https://docs.perplexity.ai/docs/sonar/openai-compatibility.md): Use OpenAI SDKs with the Sonar API by changing the base URL and API key
 - [Cookbook](https://docs.perplexity.ai/docs/cookbook/index.md): Guides, runnable examples, and community projects for building with the Perplexity Agent, Search, and Embeddings APIs. Search or filter by product and category.
 - [Getting Started](https://docs.perplexity.ai/docs/cookbook/getting-started.md): How to use the Perplexity API Cookbook, plus a quick start for getting your API key and installing the SDK.
-- [Briefo | Perplexity Powered News & Finance Social App](https://docs.perplexity.ai/docs/cookbook/showcase/briefo.md): AI curated newsfeed, social discussion, and deep research reports built on the Sonar API
-- [CityPulse | AI-Powered Geospatial Discovery Search](https://docs.perplexity.ai/docs/cookbook/showcase/citypulse-ai-search.md): Real-time local discovery search using Perplexity AI for personalized location insights and recommendations
-- [Fact Dynamics | Real-time Fact-Checking Flutter App](https://docs.perplexity.ai/docs/cookbook/showcase/fact-dynamics.md): Cross-platform app for real-time fact-checking of debates, speeches, and images using Perplexity's Sonar API
-- [Perplexity Dart & Flutter SDKs](https://docs.perplexity.ai/docs/cookbook/showcase/perplexity-flutter.md): Lightweight, type-safe SDKs for seamless Perplexity API integration in Dart and Flutter applications
-- [PerplexiGrid | Interactive Analytics Dashboards](https://docs.perplexity.ai/docs/cookbook/showcase/perplexigrid.md): Instantly generate analytics dashboards from natural language using live data via Perplexity Sonar API.
-- [Valetudo AI | Trusted Medical Answer Assistant](https://docs.perplexity.ai/docs/cookbook/showcase/valetudo-ai.md): Sonar-powered medical assistant for fast, science-backed answers.
-- [CycleSyncAI | Personalized Health Plans Powered by Sonar API](https://docs.perplexity.ai/docs/cookbook/showcase/cycle-sync-ai.md): iOS app that delivers personalized diet and workout recommendations for women, powered by Apple HealthKit and Perplexity's Sonar Pro API.
-- [FlameGuardAI | AI-powered wildfire prevention](https://docs.perplexity.ai/docs/cookbook/showcase/flameguardai.md): AI-powered wildfire prevention using OpenAI Vision + Perplexity Sonar API
-- [Monday – Voice-First AI Learning Assistant](https://docs.perplexity.ai/docs/cookbook/showcase/monday.md): An accessible, multimodal AI learning companion that delivers contextual reasoning, 3D visualizations, and curated educational content via natural voice interaction.
-- [Ellipsis | One-Click Podcast Generation Agent](https://docs.perplexity.ai/docs/cookbook/showcase/Ellipsis.md): A next-gen podcast generation agent that brings human-like, high-quality audio content to life on any topic with just one click
-- [FirstPrinciples | AI Learning Roadmap Generator](https://docs.perplexity.ai/docs/cookbook/showcase/first-principle.md): An AI-powered learning roadmap generator that uses conversational AI to help users identify specific learning topics and provides personalized step-by-step learning plans
-- [BazaarAISaathi | AI-Powered Indian Stock Market Assistant](https://docs.perplexity.ai/docs/cookbook/showcase/bazaar-ai-saathi.md): An AI-powered platform for Indian stock market analysis, portfolio optimization, and investment strategies using Perplexity Sonar API
-- [4Point Hoops | AI Basketball Analytics Platform](https://docs.perplexity.ai/docs/cookbook/showcase/4point-Hoops.md): Advanced NBA analytics platform that combines live Basketball-Reference data with Perplexity Sonar to deliver deep-dive player stats, cross-season comparisons and expert-grade AI explanations
-- [MVP LifeLine | AI Youth Empowerment Platform](https://docs.perplexity.ai/docs/cookbook/showcase/mvp-lifeline-ai-app.md): A multilingual, offline-first AI platform that helps underserved youth Earn, Heal, and Grow using real-time AI and holistic tools
-- [Executive Intelligence | AI-Powered Strategic Decision Platform](https://docs.perplexity.ai/docs/cookbook/showcase/executive-intelligence.md): A comprehensive Perplexity Sonar-powered application that provides executives and board members with instant, accurate, and credible intelligence for strategic decision-making
-- [Flow & Focus | Personalized News for Genuine Understanding](https://docs.perplexity.ai/docs/cookbook/showcase/flow-and-focus.md): A personalized news app combining vertical feed discovery with AI-powered deep dives using Perplexity Sonar Pro and Deep Research models
-- [Perplexity Lens | AI-Powered Knowledge Graph Browser Extension](https://docs.perplexity.ai/docs/cookbook/showcase/perplexity-lens.md): A browser extension that builds personalized knowledge graphs using Perplexity AI for smart text selection, webpage summarization, and contextual insights
-- [Greenify | Localized community-driven greenification/plantation solution with AI](https://docs.perplexity.ai/docs/cookbook/showcase/greenify.md): A mobile application that analyzes photos and location data to suggest suitable plants and build sustainable communities using Perplexity Sonar API
-- [Sonar Chromium Browser | Native Search Omnibox and Context Menu](https://docs.perplexity.ai/docs/cookbook/showcase/sonar-chromium-browser.md): Chromium browser patch with native Perplexity Sonar API integration providing omnibox answers and context-menu summarization
-- [PosterLens | Scientific Poster Scanner & Research Assistant](https://docs.perplexity.ai/docs/cookbook/showcase/posterlens.md): An iOS app that transforms static scientific posters into interactive insights using OCR and Perplexity's Sonar Pro API for semantic search and context
-- [Daily News Briefing | AI-Powered News Summaries for Obsidian](https://docs.perplexity.ai/docs/cookbook/showcase/daily-news-briefing.md): An Obsidian plugin that delivers AI-powered daily news summaries directly to your vault using Perplexity's Sonar API for intelligent content curation
-- [UnCovered | Real-Time Fact-Checking Chrome Extension](https://docs.perplexity.ai/docs/cookbook/showcase/uncovered.md): A Chrome extension that brings real-time fact-checking to anything you see online in just 2 clicks, powered by Perplexity's Sonar API for instant verification
-- [PerplexiCart | AI-Powered Value-Aligned Shopping Assistant](https://docs.perplexity.ai/docs/cookbook/showcase/perplexicart.md): An AI shopping assistant that uses Perplexity Sonar to deliver structured research, value-aligned recommendations, and transparent citations across the web
-- [TruthTracer | AI-Powered Misinformation Detection Platform](https://docs.perplexity.ai/docs/cookbook/showcase/truth-tracer.md): A comprehensive misinformation detection platform that uses Perplexity's Sonar API to analyze claims, trace trust chains, and provide Socratic reasoning for fact verification
-- [StarPlex | AI-Powered Startup Intelligence Platform](https://docs.perplexity.ai/docs/cookbook/showcase/starplex.md): An AI-powered startup intelligence platform that helps entrepreneurs validate their business ideas and find the right resources to succeed
-- [Perplexity Client | Desktop AI Chat Interface with API Controls](https://docs.perplexity.ai/docs/cookbook/showcase/perplexity-client.md): An Electron-based desktop client for Perplexity API with advanced features like model selection, custom system prompts, and API debugging mode
+- [Community Showcase](https://docs.perplexity.ai/docs/cookbook/showcase/index.md): Applications developers have built on the Perplexity API Platform.
 - [Examples Overview](https://docs.perplexity.ai/docs/cookbook/examples/README.md): Runnable projects covering the Agent API, Search API, and Embeddings API
 - [Document Q&A with Embeddings](https://docs.perplexity.ai/docs/cookbook/examples/document-qa/README.md): A self-contained RAG system that ingests documents, generates contextualized embeddings, and answers questions using the Agent API
 - [Agent Research Assistant](https://docs.perplexity.ai/docs/cookbook/examples/agent-research-assistant/README.md): A CLI tool that uses Perplexity's Agent API with the medium preset to conduct multi-step web research and produce structured reports
@@ -195,11 +153,6 @@
 - [Search the Web](https://docs.perplexity.ai/api-reference/search-post.md): Search the web and retrieve relevant web page contents.
 - [Create Embeddings](https://docs.perplexity.ai/api-reference/embeddings-post.md): Generate embeddings for a list of texts. Use these embeddings for semantic search, clustering, and other machine learning applications.
 - [Create Contextualized Embeddings](https://docs.perplexity.ai/api-reference/contextualized-embeddings-post.md): Generate contextualized embeddings for document chunks. Chunks from the same document share context awareness, improving retrieval quality for document-based applications.
-- [Create Chat Completion](https://docs.perplexity.ai/api-reference/sonar-post.md): Generate a chat completion response for the given conversation.
-- [Create Chat Completion](https://docs.perplexity.ai/api-reference/sonar-post.md): Generate a chat completion response for the given conversation.
-- [Create Async Chat Completion](https://docs.perplexity.ai/api-reference/async-sonar-post.md): Submit an asynchronous chat completion request.
-- [List Async Chat Completions](https://docs.perplexity.ai/api-reference/async-sonar-get.md): Retrieve a list of all asynchronous chat completion requests for a given user.
-- [Get Async Chat Completion](https://docs.perplexity.ai/api-reference/async-sonar-api-request-get.md): Retrieve the response for a given asynchronous chat completion request.
 - [Generate Auth Token](https://docs.perplexity.ai/api-reference/generate-auth-token-post.md): Generates a new authentication token for API access.
 - [Revoke Auth Token](https://docs.perplexity.ai/api-reference/revoke-auth-token-post.md): Revokes an existing authentication token.
 - [Usage Analytics](https://docs.perplexity.ai/api-reference/computer-analytics-usage-get.md): Returns your organization's Perplexity usage analytics as a bucketed time series for a single dataset. Requires an organization analytics API key, generated by an org admin from Settings → Organization → Computer in the Perplexity web app. Only complete UTC grid buckets are returned: start_time snap…
