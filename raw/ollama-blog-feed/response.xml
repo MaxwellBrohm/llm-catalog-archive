@@ -3,8 +3,15 @@
     <title><![CDATA[Ollama]]></title>
     <description><![CDATA[Ollama]]></description>
     <link>https://ollama.com/blog</link>
-    <lastBuildDate>Wed, 02 Sep 2026 01:32:28 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 30 Sep 2026 05:32:55 +0000</lastBuildDate>
     <atom:link href="https://ollama.com/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title><![CDATA[Ollama now supports Jev-style decision models]]></title>
+      <description><![CDATA[Ollama now supports decision models, based on TypeSafe's Jev API for fast, typed decisions. Decision models can now be run at no cost with low latency. Based on text, decision models answer yes-or-no questions, choices and scores about it, with a probability for every option.]]></description>
+      <link>https://ollama.com/blog/ollama-now-supports-jev-style-decision-models</link>
+      <pubDate>Tue, 29 Sep 2026 00:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://ollama.com/blog/ollama-now-supports-jev-style-decision-models</guid>
+    </item>
     <item>
       <title><![CDATA[Ollama's transparent pricing]]></title>
       <description><![CDATA[Ollama's Pro, Max, and Team plans now use industry-standard per-token pricing with usage included on every plan.]]></description>
