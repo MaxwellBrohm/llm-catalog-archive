@@ -7,6 +7,18 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>NVIDIA Kumo Tabular Sets a New Accuracy-Efficiency Frontier for Tabular Prediction</title>
+   <pubDate>Tue, 29 Sep 2026 15:30:38 GMT</pubDate>
+   <link>https://huggingface.co/blog/nvidia/kumo-tabular</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/kumo-tabular</guid>
+  </item>
+  <item>
+   <title>Getting the Source Right, Not Just the Fact: Source-Aware Verification for MCP Agents</title>
+   <pubDate>Tue, 29 Sep 2026 13:07:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/MultiverseComputingCAI/getting-the-source-right-not-just-the-fact-source</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/MultiverseComputingCAI/getting-the-source-right-not-just-the-fact-source</guid>
+  </item>
+  <item>
    <title>Holo4: powering generalist computer-use agents</title>
    <pubDate>Mon, 28 Sep 2026 09:44:05 GMT</pubDate>
    <link>https://huggingface.co/blog/Hcompany/holo4</link>
@@ -17,12 +29,6 @@
    <pubDate>Thu, 24 Sep 2026 14:08:57 GMT</pubDate>
    <link>https://huggingface.co/blog/LiquidAI/lfm2-5-vl-dspark</link>
    <guid isPermaLink="false">https://huggingface.co/blog/LiquidAI/lfm2-5-vl-dspark</guid>
-  </item>
-  <item>
-   <title>How to Use NVIDIA Warp and MjWarp to Accelerate Robotics Simulation and Learning Workflows</title>
-   <pubDate>Wed, 23 Sep 2026 18:41:40 GMT</pubDate>
-   <link>https://huggingface.co/blog/nvidia/how-to-use-nvidia-warp-and-mjwarp</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/how-to-use-nvidia-warp-and-mjwarp</guid>
   </item>
   <item>
    <title>How UK AISI and EvalEval Are Making Benchmark Results Reproducible</title>
@@ -41,12 +47,6 @@
    <pubDate>Tue, 22 Sep 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/omlx</link>
    <guid isPermaLink="true">https://huggingface.co/blog/omlx</guid>
-  </item>
-  <item>
-   <title>Pruning LLMs Like a Physicist: Block Removal as an Ising Optimization Problem</title>
-   <pubDate>Mon, 21 Sep 2026 13:44:34 GMT</pubDate>
-   <link>https://huggingface.co/blog/MultiverseComputingCAI/pruning-llms-like-a-physicist-block-removal-as-an</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/MultiverseComputingCAI/pruning-llms-like-a-physicist-block-removal-as-an</guid>
   </item>
   <item>
    <title>tokenizers v1: encode, decode and scaling, measured</title>
