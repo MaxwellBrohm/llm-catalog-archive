@@ -199,6 +199,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Deploy and operate](https://docs.mistral.ai/studio/search/search-toolkit/search-index/vespa/operations.md): Production deployment and operation of Vespa applications.
 - [Vespa](https://docs.mistral.ai/studio/search/search-toolkit/search-index/vespa.md): Define, deploy, and operate Vespa applications - schema management, migrations, ranking configuration, and production deployment.
 - [Manage ranking](https://docs.mistral.ai/studio/search/search-toolkit/search-index/vespa/query-profiles.md): Query profiles let you control ranking at query time without modifying your schema.
+- [Secrets Manager](https://docs.mistral.ai/studio/secrets.md): Store credentials in Secrets Manager and reference them from your managed deployments without hardcoding.
 - [Basics](https://docs.mistral.ai/studio/workflows/building-workflows/activities/basics.md): Activities are the units of work in a workflow.
 - [Local activities](https://docs.mistral.ai/studio/workflows/building-workflows/activities/local_activities.md): Local activities run directly in the workflow worker process, skipping the regular platform scheduling hop.
 - [Activities](https://docs.mistral.ai/studio/workflows/building-workflows/activities.md): This page covers the practical patterns for building activities.
