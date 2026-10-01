@@ -189,6 +189,11 @@
 - [Cost per session by harness and model](https://openrouter.ai/docs/api/api-reference/datasets/cost-per-session-by-harness-and-model.md): Returns weekly refreshed, aggregated cost-per-session cells for the published harnesses. Sessions are never pooled across apps. Medians are of per-session USD spend, and privacy-preserving aggregation never exposes clerk_user_id values or per-session rows.
 - [Submit an embedding request](https://openrouter.ai/docs/api/api-reference/embeddings/submit-an-embedding-request.md): Submits an embedding request to the embeddings router
 - [List all embeddings models](https://openrouter.ai/docs/api/api-reference/embeddings/list-all-embeddings-models.md): Returns a list of all available embeddings models and their properties
+- [List registered end users](https://openrouter.ai/docs/api/api-reference/end-users/list-registered-end-users.md): List registrations belonging to the authenticated organization. Inactive registrations are excluded by default. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Register an end user](https://openrouter.ai/docs/api/api-reference/end-users/register-an-end-user.md): Register a caller-supplied tracking ID under the authenticated organization. No login account, policy, or credentials are created. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Get a registered end user](https://openrouter.ai/docs/api/api-reference/end-users/get-a-registered-end-user.md): Retrieve an active or inactive registration by its URL-encoded, caller-supplied tracking ID. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Deactivate a registered end user](https://openrouter.ai/docs/api/api-reference/end-users/deactivate-a-registered-end-user.md): Soft-deactivate a registration while retaining its tracking ID. Repeat deactivation succeeds. This does not block inference; reactivate through PATCH. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Update a registered end user](https://openrouter.ai/docs/api/api-reference/end-users/update-a-registered-end-user.md): Update registration state without changing identity. State changes do not enforce inference access. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Preview the impact of ZDR on the available endpoints](https://openrouter.ai/docs/api/api-reference/endpoints/preview-the-impact-of-zdr-on-the-available-endpoints.md)
 - [List all endpoints for a model](https://openrouter.ai/docs/api/api-reference/endpoints/list-all-endpoints-for-a-model.md)
 - [List files](https://openrouter.ai/docs/api/api-reference/files/list-files.md): Lists files belonging to the workspace of the authenticating API key.
@@ -243,6 +248,8 @@
 - [Delete an observability destination](https://openrouter.ai/docs/api/api-reference/observability/delete-an-observability-destination.md): Delete an existing observability destination. This performs a soft delete. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Update an observability destination](https://openrouter.ai/docs/api/api-reference/observability/update-an-observability-destination.md): Update an existing observability destination. Only the fields provided in the request body are updated. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [List organization members](https://openrouter.ai/docs/api/api-reference/organization/list-organization-members.md): List all members of the organization associated with the authenticated management key. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Get organization settings](https://openrouter.ai/docs/api/api-reference/organization/get-organization-settings.md): Get the settings of the organization associated with the authenticated management key. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Update organization settings](https://openrouter.ai/docs/api/api-reference/organization/update-organization-settings.md): Update the settings of the organization associated with the authenticated management key. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [List presets](https://openrouter.ai/docs/api/api-reference/presets/list-presets.md): Lists all presets for the authenticated user, ordered by most recently updated first.
 - [Get a preset](https://openrouter.ai/docs/api/api-reference/presets/get-a-preset.md): Retrieves a preset by its slug with its currently designated version inline.
 - [Create a preset from a chat-completions request body](https://openrouter.ai/docs/api/api-reference/presets/create-a-preset-from-a-chat-completions-request-body.md): Creates a preset (or a new version of an existing one) from an inference request body. Only fields that overlap with the preset config are persisted; other fields (e.g. `messages`, `stream`, `prompt`) are silently ignored.
@@ -315,6 +322,7 @@
 - [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/typescript/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/typescript/sdks/endpoints/README.md): Endpoint information
+- [EndUsers](https://openrouter.ai/docs/client-sdks/typescript/sdks/endusers/README.md): End Users endpoints
 - [Files](https://openrouter.ai/docs/client-sdks/typescript/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/typescript/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/typescript/sdks/guardrails/README.md): Guardrails endpoints
@@ -352,6 +360,7 @@
 - [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/python/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/python/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/python/sdks/endpoints/README.md): Endpoint information
+- [EndUsers](https://openrouter.ai/docs/client-sdks/python/sdks/endusers/README.md): End Users endpoints
 - [Files](https://openrouter.ai/docs/client-sdks/python/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/python/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/python/sdks/guardrails/README.md): Guardrails endpoints
@@ -389,6 +398,7 @@
 - [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/go/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/go/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/go/sdks/endpoints/README.md): Endpoint information
+- [EndUsers](https://openrouter.ai/docs/client-sdks/go/sdks/endusers/README.md): End Users endpoints
 - [Files](https://openrouter.ai/docs/client-sdks/go/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/go/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/go/sdks/guardrails/README.md): Guardrails endpoints
