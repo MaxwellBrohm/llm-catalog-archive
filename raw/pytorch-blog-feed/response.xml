@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Thu, 24 Sep 2026 21:06:09 +0000</lastBuildDate>
+	<lastBuildDate>Wed, 30 Sep 2026 14:39:49 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,317 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>A Ray-Focused Guide to PyTorch Conference North America</title>
+		<link>https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Wed, 30 Sep 2026 16:45:20 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=171171</guid>
+
+					<description><![CDATA[TL;DR In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve...]]></description>
+										<content:encoded><![CDATA[<h3><span style="font-weight: 400;">TL;DR</span></h3>
+<p><span style="font-weight: 400;">In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve heard of Ray but never had a reason to dig in, this is the year as more teams seek to scale AI on top of their own secure and governed AI infrastructure. </span></p>
+<p><span style="font-weight: 400;">Ray is a distributed compute framework that helps teams scale any AI framework, library or model. It provides a consistent surface for developers to go from curating petabytes of multimodal data, to training a model across multiple nodes and then deploying it in production whether it&#8217;s on VMs or a Kubernetes-managed cluster. That coverage across the full AI lifecycle is also why Ray has become the standard substrate for post training and reinforcement learning (RL) at labs like Cursor, Microsoft AI and NVIDIA. Whether you&#8217;re new to distributed PyTorch or already running Ray in production, here&#8217;s your guide to the sessions worth blocking off on your schedule.</span></p>
+<h2><span style="font-weight: 400;">The open source AI compute stack</span></h2>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1298071"><b>Keynote: Evolving Ray and Kubernetes Together for the AI Era</b><b><br />
+</b></a> <i><span style="font-weight: 400;">Ion Stoica, Anyscale / Databricks / UC Berkeley · Tue 9:35 AM · Grand Ballroom</span></i></p>
+<p><span style="font-weight: 400;">Ray co-creator Ion Stoica will deliver a keynote on where Ray and Kubernetes are headed together in the AI era.</span></p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1256376"><b>Crossing the Divide: Co-Evolving Kubernetes and Ray for the AI Era</b><b><br />
+</b></a> <i><span style="font-weight: 400;">Jago Macleod, Google, Ion Stoica, Anyscale / Databricks / UC Berkeley · Tue 2:50 PM · Room 210BF</span></i></p>
+<p><span style="font-weight: 400;">The AI workload orchestration landscape is currently split across two massive, parallel universes: the CNCF (the bedrock of cloud native and modern infrastructure) and the PyTorch Foundation (the epicenter of AI/ML innovation). While these foundations operate independently, the end user does not have the luxury of choosing just one. PyTorch Foundation contains PyTorch, vLLM, Ray, and more, while CNCF owns Kubernetes, Envoy, OpenTelemetry, llm-d, containerd and more. To build, deploy, and scale modern AI applications, users require a seamless integration of projects from both ecosystems. This session will explore the critical bridge connecting these communities: the co-evolution of Kubernetes and Ray into a unified OSS AI Stack. We will discuss how Google and Anyscale, together with the broader community, are actively collaborating to build an open, vertically integrated stack that prevents ecosystem fragmentation.</span></p>
+<h2><span style="font-weight: 400;">Production-scale data curation and model training</span></h2>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1257598"><b>Ray All the Way Down: A Heterogeneous, Elastic PyTorch Training Stack at LinkedIn</b><b><br />
+</b></a> <i><span style="font-weight: 400;">Tommy Li, Tao Huang, LinkedIn · Tue 3:25 PM · Room 210AE</span></i></p>
+<p><span style="font-weight: 400;">If you want a concrete blueprint for scaling PyTorch past a single machine, this is the session to attend. LinkedIn&#8217;s team walks through a three-layer Ray-based training stack: a Ray-actor-based data loading library that streams Avro, Parquet, and Iceberg; a Ray Train framework layered with FSDP, HSDP, elastic scaling, and async checkpointing; and an on-demand cluster provisioning platform. The core lesson? Keep data loading off the GPUs by routing it through dedicated CPU nodes over a zero-copy bridge. This led to a 50–70% cut in dataloader memory and a scenario where they had to work </span><i><span style="font-weight: 400;">around</span></i><span style="font-weight: 400;"> Ray to reclaim 24% of their step time. This use case is practical, specific, and reusable well beyond LinkedIn&#8217;s stack.</span></p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1241540"><b>PyTorch-Native Feature Transformation and Training Framework for Uber Eats Recommendation</b></a><br />
+<i><span style="font-weight: 400;">Peng Zhang, Ke Chen, Xandra Zhu, Uber ·</span></i> <i><span style="font-weight: 400;">Oct 21 · 4:55–5:20 PM · Room LL20CD</span></i></p>
+<p><span style="font-weight: 400;">Uber&#8217;s talk on migrating the Eats recommendation stack from TensorFlow/Horovod to PyTorch leans on Ray Data as a core piece of the redesign, replacing legacy Spark-based preprocessing with distributed feature-stat computation and zero-copy batch transformations. The results are striking: a 5x speedup and 90% lower memory usage for data transformation, plus a 20x improvement in training throughput.</span></p>
+<h2><span style="font-weight: 400;">Scaling the LLM Serving Layer with Ray</span></h2>
+<p><span style="font-weight: 400;">Ray isn&#8217;t just powering dedicated training sessions this year, it&#8217;s also showing up as critical infrastructure inside talks with a different primary focus:</span></p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1228462"><b>Keeping GPUs Busy: High-Speed Storage for PyTorch via fsspec</b><b><br />
+</b></a> <i><span style="font-weight: 400;">Ankita Luthra, Trinadh Kotturu, Google · Tue 3:40 PM · Room LL21DEF</span></i></p>
+<p><span style="font-weight: 400;">A bottleneck has shifted from compute to storage: GPUs sitting idle while waiting on legacy REST-based data access. The proposed fix, Rapid Storage, brings a high-throughput gRPC-based protocol to PyTorch via fsspec. According to the team, the payoff extends across the fsspec ecosystem &#8211; including Ray, alongside Dask, HF Datasets, and vLLM. If your Ray Data pipelines are storage-bound, this session is worth a visit. </span></p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1256403"><b>From PyTorch to Production: Serving a Physics-Constrained Generative Model with ONNX, Ray, and vLLM</b></a><b><br />
+</b><i><span style="font-weight: 400;">Arun Sharma, University of Minnesota · Tue 2:50–3:15 PM · Room 210AE</span></i></p>
+<p><span style="font-weight: 400;">A deep engineering narrative following a physics-constrained generative model &#8211; PC-RF, a conditional rectified-flow model for climate downscaling &#8211; from training through to a served, production stack. The talk covers exporting to ONNX two different ways, running the flow-matching sampler outside the graph, and enforcing physics constraints at inference time. Ray shows up as part of the training recipe used to scale the model, with the serving path fanning out into ONNX Runtime, Temporal, and a vLLM agent.</span></p>
+<h2><span style="font-weight: 400;">Post-training and RL with Ray</span></h2>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1257963"><b>Building a Post-Training Platform for Teams That Don&#8217;t Own the Training Loop</b></a><br />
+<i><span style="font-weight: 400;">Gaurav Arora, Shunyao Li, Eric Wang, Pinterest · Weds 3:25–3:50 PM · Room LL20CD</span></i></p>
+<p><span style="font-weight: 400;">As post-training expanded across teams at Pinterest (SFT, DPO, GRPO on vision-language models), each built its own stack: different frameworks, data formats, and distributed strategies. Teams spent weeks integrating OSS frameworks with internal infra before training a single step. Our traditional ML platform (MLEnv) owned the PyTorch training loop and reached 95% adoption. Post-training broke that: the loop now lives inside fast-moving OSS frameworks releasing monthly with new techniques. We built PTEnv &#8211; a lifecycle harness for PyTorch-based post-training, owning everything around the loop (data, orchestration, scaling, eval, export) while delegating the inner loop to OSS frameworks. The same interface supports subprocess execution with Ray for RL and in-process with MS-Swift using PyTorch FSDP/DDP for SFT &#8211; framework choice is a config line, not a rewrite. This talk covers the harness architecture, production gotchas training VLMs at scale (weight sync bottlenecks, MoE workarounds), post training optimization on real workloads, and framework-agnostic eval with LLM-as-judge. A practical talk for platform teams supporting multiple post-training workloads.</span></p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1345867"><b>SkyRL: Democratizing Scalable RL Training</b></a><br />
+<span style="font-weight: 400;">Sumanth Hedge, Eric Tang, Anyscale </span><i><span style="font-weight: 400;">· Oct 20 4:55 PM-5:20 PM · LL20A (Lower Level)</span></i></p>
+<p><span style="font-weight: 400;">Agents have taken center stage in 2026, with ever-growing interest from companies in training custom agents with reinforcement learning. As agents shift to longer horizon, multi-turn interactions, the systems challenges and requirements on underlying training infrastructure have also evolved. SkyRL is a modular, performant RL library built to meet this growing demand for customization and scalability. This talk traces where SkyRL started &#8211; a set of modular APIs decoupling training, inference, and environments orchestrated with Ray &#8211; and where it is today. The session will cover: </span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How SkyRL provides scalable fully async RL training on 350 billion+ parameter MoE models with Megatron and vLLM</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SkyRL&#8217;s multi-tenant Tinker Engine, which allows researchers to efficiently use their own hardware for RL training while using Tinker&#8217;s flexible training APIs to iterate on recipes</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SkyRL&#8217;s redesign towards HTTP-based APIs for scalable inference, and our contributions of native RL APIs to vLLM</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Community recipes built on top of SkyRL including large MoE training on long-horizon tasks, custom recursive language models, and more.</span></li>
+</ul>
+<h2><span style="font-weight: 400;">Demo Theater</span></h2>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1345871"><b>Evolving Ray Core for Post-Training at Scale</b></a><br />
+<span style="font-weight: 400;">Mengjin Yan, (Ray Core), Josh Lee, Anyscale </span><i><span style="font-weight: 400;">· </span></i><span style="font-weight: 400;">Oct 21 3:55 PM-4:05 PM </span><i><span style="font-weight: 400;">·</span></i><span style="font-weight: 400;"> Community Expo (Concourse Level)</span></p>
+<p><span style="font-weight: 400;">Before a post-training job trains a single step, its trainers and inference engines must be scheduled onto the cluster, and every step after that, fresh weights must move between them.  Ray Core evolves directly from the workloads it powers, shaped by the post-training community&#8217;s core requirements for higher scalability and stronger performance. Continuous engineering enhancements to Ray Core address these needs directly, establishing it as a key open source runtime underneath post-training frameworks such as SkyRL, Miles, and NeMo RL. The session introduces the underlying building blocks of Ray Core and demonstrates how they map onto an active post-training loop. Key scalability achievements are examined, highlighting how Ray scales scheduling across 10,000-node clusters, alongside performance optimizations like Ray Direct Transport, which moves PyTorch tensors directly between GPUs. The discussion concludes with an overview of the future development roadmap for Ray Core and practical ways for community members to contribute.</span></p>
+<h2><span style="font-weight: 400;">Meet the Developers</span></h2>
+<p><i><span style="font-weight: 400;">Tues ·  3:50 PM-4:25 PM · Community Expo</span></i></p>
+<p><span style="font-weight: 400;">Join Ray experts for an interactive “Meet the Developers” session for a chance to learn in a small group setting and ask your most pressing questions.</span></p>
+<h2><span style="font-weight: 400;">Learn more about Ray at PyTorch Conference North America</span></h2>
+<p><span style="font-weight: 400;">Taken together, these sessions tell a coherent story: Ray has moved from a scaling library you reach for to foundational infrastructure spanning orchestration, training, data loading, storage, and observability. If you&#8217;re building AI infrastructure on PyTorch, don’t miss the Ray sessions at PyTorch Conference North America.</span></p>
+<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the complete schedule here</span></a></p>
+<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America today</span></a></p>
+<p>&nbsp;</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>From Upstream Changes to Downstream Confidence: Inside Torch Spyre&#8217;s Integration with PyTorch CRCR</title>
+		<link>https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/</link>
+		
+		<dc:creator><![CDATA[Mehant Kammakomati (IBM), Jewel K M (Red Hat), Anubhav Jana (IBM), Padmanabha Venkatagiri Seshadri (IBM)]]></dc:creator>
+		<pubDate>Wed, 30 Sep 2026 13:40:56 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=171223</guid>
+
+					<description><![CDATA[TL;DR PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s...]]></description>
+										<content:encoded><![CDATA[<h2>TL;DR</h2>
+<p>PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s tens of thousands of tests actually matter for its hardware, and how to keep that answer current as PyTorch, the backend, and the test suite all evolve. This post walks through how Torch Spyre built on top of that foundation to reach CRCR&#8217;s L2 integration, using an agentic pipeline that selects and re-buckets tests from code and execution evidence, a declarative YAML framework that adapts upstream tests without patching them, and a set of workflow patterns for reliability and reproducibility at scale. Most of this is applicable for any generic privateuse1 device, and we&#8217;re looking to work with the pytorch community to make it reusable and upstream where relevant.</p>
+<h2>Introduction</h2>
+<p>PyTorch&#8217;s <a href="https://pytorch.org/blog/introducing-cross-repository-ci-relay-scalable-ci-for-pytorchs-out-of-tree-backends/">Cross-Repository CI Relay</a> (CRCR) closes the coordination gap between PyTorch and out-of-tree (OOT) accelerator repositories by providing a standardized way to trigger downstream CI on upstream changes, surface results directly to PyTorch reviewers, and present regressions into a unified view through <a href="https://hud.pytorch.org/crcr">PyTorch CI CRCR HUD</a>. This is done by allowing OOT accelerator repositories to receive dispatches from <a href="https://github.com/pytorch/pytorch">pytorch/pytorch</a> and report results back to the HUD with minimal integration burden consisting of an allowlist entry, a workflow that listens for repository_dispatch, and performs a composite callback action. Further, CRCR provides four levels of integration, enabling downstream projects to incrementally onboard from receiving upstream dispatch notifications to reporting results through HUD and ultimately participating in non-blocking or blocking upstream PR validation.</p>
+<p>The interesting engineering starts one step later, in the decisions the relay leaves to each backend: what are the test candidates, which dispatches deserve a build, which of PyTorch&#8217;s tens of thousands of tests are meaningful on your hardware, how to adapt tests written for CUDA without forking them, and what &#8220;green&#8221; is allowed to mean. Those are the right decisions to own, because only the backend can make them. This post describes the mechanisms we built to make them, consisting of an agentic test-selection pipeline, a declarative test-reuse framework, and reliable workflows. These together took <a href="https://github.com/torch-spyre/torch-spyre">Torch Spyre</a> to L2 integration. None of it is Spyre-specific by design, that is the accelerator sits behind the config, not inside the CI logic, so rather than leave these as patterns for each backend to reimplement, we intend to work with the PyTorch team to upstream the reusable parts, with <a href="https://pytorch.org/blog/openreg-a-self-contained-pytorch-accelerator-simulator/">PyTorch OpenReg</a> as the natural reference point.</p>
+<h2>Three Evolving Candidates under Test: OOT Accelerator PyTorch Backend, PyTorch Core, Test Suite</h2>
+<p><!-- IMAGE PLACEHOLDER: Figure 1 - Testing Surface in PyTorch and Torch Spyre (re-upload via WP media library) --></p>
+<p><em><img fetchpriority="high" decoding="async" class="alignnone wp-image-171228 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png" alt="" width="1886" height="828" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png 1886w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-300x132.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-1024x450.png 1024w" sizes="(max-width: 1886px) 100vw, 1886px" /></em></p>
+<p><em>Figure 1: Testing Surface in PyTorch and Torch Spyre</em></p>
+<h3>Challenge 1: Deciding what to test: three moving targets, and which combination to run</h3>
+<p>Often, OOT accelerators have to deal with three evolving candidates to test after receiving a dispatch from <a href="https://pytorch.org/blog/introducing-cross-repository-ci-relay-scalable-ci-for-pytorchs-out-of-tree-backends/">PyTorch CRCR</a>. First, an OOT accelerator PyTorch backend codebase, such as <a href="https://github.com/torch-spyre/torch-spyre">Torch Spyre</a>. As the PyTorch backend for the IBM Spyre Accelerator, Torch Spyre relies on deep integration through PyTorch&#8217;s OOT extension interfaces. This exposes a broad testing surface across hooks into PyTorch core, including operators and runtime behaviour. The second candidate is the PyTorch core itself, where changes to runtime components, or other core functionality can introduce regressions in the OOT backend. Finally, there is the evolving test suite, where tests could have been modified, potentially uncovering regressions. Regressions could be introduced by any of these candidates. Testing the OOT accelerator backend against the PyTorch test suite helps surface regressions across all three candidates.</p>
+<p>Knowing the three candidates leads directly to the next decision: which combination of them to actually run. When a dispatch arrives, the OOT accelerator backend may have progressed since the last one, PyTorch core has new commits, and the test suite itself may have changed. The primary combination is the latest of all three that is the newest backend code, the newest PyTorch core, and the test suite as it stands at the time of the dispatch. That is what makes a regression attributable: when the only thing that moved since the last green run is upstream, a new failure points at upstream.</p>
+<p>Optionally, this can be expanded to include other useful combinations, such as testing a range of OOT accelerator backend versions against a moving PyTorch core and test suite. This can help uncover forward- and backward-compatibility issues for each OOT accelerator backend version. Further, each combination can be reported to HUD as a separate job, making the results and regressions associated with each combination easier to track.</p>
+<h2>Taming the PyTorch Test Suite</h2>
+<h3>Challenge 2: Identifying the candidate tests for your OOT accelerator backend</h3>
+<p><!-- IMAGE PLACEHOLDER: Figure 2 - Agentic Workflow for Test Selection (re-upload via WP media library) --></p>
+<p><em><img decoding="async" class="alignnone wp-image-171231 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-2-1.png" alt="" width="1468" height="520" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-2-1.png 1468w, https://pytorch.org/wp-content/uploads/2026/09/image-2-1-300x106.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-2-1-1024x363.png 1024w" sizes="(max-width: 1468px) 100vw, 1468px" /></em></p>
+<p><em>Figure 2: Agentic Workflow for Test Selection</em></p>
+<p>PyTorch has tens of thousands of tests. Manually identifying which ones are relevant to your backend doesn&#8217;t scale and keeping that selection current as both PyTorch and your backend evolve is worse. Hence, we built an agentic pipeline to do it.</p>
+<p>The pipeline runs in four stages (refer Figure 2). The first two stages build context; the last two make decisions: first from code, then from execution.</p>
+<ol>
+<li>High-level selection. A first agent narrows the search space from the whole test tree to the folders and top-level files worth analysing, using two inputs: which PyTorch extension points the backend actually hooks into, and plain-language preferences about scope. A backend that does not hook <code>torch.dynamo</code>, or that is not ready to take on autograd, says so here and skips those trees entirely.</li>
+<li>Repository memory. A Repository Memory Generator turns that shortlist into a queryable index which includes symbols, files, LLM-written summaries and per-test embeddings. This lets the selection agent in the next phase to reason over the whole candidate set at once instead of being limited to whatever fits in a single context window.</li>
+<li>Low-level selection. The second agent then reads the backend&#8217;s own codebase, its documentation, and metadata (e.g., supported operators), then queries the repository exact tests to run and buckets them into <code>mandatory_success</code> or <code>skip</code>. Every decision is recorded with the reasoning behind it.</li>
+<li>Refinement from real execution. The selected tests run on real hardware. The agent takes a second pass using execution logs that leads to catching runtime failures and numerical differences that static analysis misses. The output is a corrected, re-bucketed test set with updated reasoning.</li>
+</ol>
+<p>This pipeline currently produces a per-file config for each upstream test file we run, covering thousands of individually named test cases, and a merge run exercises them on real hardware. Coverage grows automatically enabling a new op in the backend to admit every test that was waiting on it, with no manual list maintenance.</p>
+<p>Auditability matters: Every bucketing choice is written back into the config as a comment explaining why. When someone asks &#8220;why is this test skipped?&#8221;, the answer is in the file, not in a model&#8217;s memory. The agent proposes; the config is the reviewable artifact of record.</p>
+<p>Furthermore, the agentic pipeline can be customized for specific use cases. Two such use cases are discussed below.</p>
+<h3>Use Case A: Enabling a New Op</h3>
+<p><em>When a new op is enabled in the backend, which tests should I turn on?</em></p>
+<p>This involves preparing a test-to-op mapping, where, for each test, we record the operators it exercises and build a reverse index that maps each operator to the complete list of tests that exercise it. The Repository Memory Generator captures this metadata during a one-time execution pass:</p>
+<ol>
+<li>Eager path: captured via TorchDispatchMode</li>
+<li>Compile path: captured via TORCH_LOGS</li>
+</ol>
+<p>However, the tests captured through this process cannot be added directly to the test suite. Although a test may exercise a desired operator, it may also exercise other PyTorch features that are either not relevant to the OOT accelerator or are not currently supported. Therefore, the operator information, along with the identified test files, is passed to the low-level selection agent. The agent uses this information to further filter the candidates and generate the final set of tests and files that can be added to the test suite.</p>
+<p>Result: Enabling one op surfaces all relevant tests without any manual curation.</p>
+<h3>Use Case B: Upgrading PyTorch Versions</h3>
+<p><em>When upgrading to a new PyTorch version, how can test selection be updated without reprocessing everything?</em></p>
+<p>Across PyTorch versions, the test suite can evolve as new tests are added and existing tests are modified or removed. These changes can be incorporated into the repository memory to reflect the updated test suite. The low-level selection agent can then be run only on the delta that is the newly added and modified tests, to identify the changes relevant to the OOT accelerator and generate a revised test suite. This avoids reprocessing the entire test suite while keeping the selected tests aligned with the updated PyTorch version.</p>
+<p>Result: Version upgrades become config diffs, not full reprocessing. For example, upgrading from PyTorch 2.13 to 2.14 meant evaluating ~4000 changed tests instead of tens of thousands.</p>
+<h3>Challenge 3: Adapting the candidate tests</h3>
+<p>PyTorch tests are often parameterized across dtypes, shapes, and operators. Skipping an entire test because one dtype isn&#8217;t supported is too coarse, in such cases, only that dtype is excluded while the rest run. Deeper adaptations (e.g., removing CUDA-specific hardcoding) traditionally require patching upstream. To avoid that, Torch Spyre maintains a declarative test reuse framework that expresses all adaptations through YAML config.</p>
+<p>The framework provides three controls:</p>
+<ol>
+<li>Parameter-level knobs: Subselect dtypes, exclude specific shapes, add coverage for a dtype of interest.</li>
+<li>Outcome bucketing: Assign each test to mandatory_success (must pass), xfail (expected to fail), xfail_strict (expected to fail, and an unexpected pass is treated as failure), or skip.</li>
+<li>Capability-driven inclusion: Declare supported ops/dtypes globally; enabling a new op automatically admits all tests waiting on it.</li>
+</ol>
+<p>Concretely, this is what the declarative interface looks like in practice. A file entry sets a default policy for anything not explicitly listed, then lists tests in buckets, and an edits: block adapts individual cases without touching upstream source:</p>
+<pre><code class="language-yaml">test_suite_config:
+  labels: [trunk]
+  files:
+    - path: ${TORCH_ROOT}/test/test_view_ops.py
+      unlisted_test_mode: skip        # default policy for unlisted tests
+      tests:
+        # Basic tensor metadata manipulation which is fully supported on Spyre.
+        - names:
+            - TestOldViewOps::test_broadcast_tensors
+            - TestViewOps::test_contiguous_self
+          mode: mandatory_success
+        # bool/int64 fail only because test setup uses aten::random_.from.
+        - names:
+            - TestOldViewOps::test_broadcast_to
+          mode: mandatory_success
+          edits:
+            dtypes:
+              exclude:
+                - name: bool
+                - name: int64
+  global:
+    supported_dtypes: [{name: bfloat16}, {name: float16}, {name: float32}]
+    supported_ops:
+      - name: _scaled_mm
+        dtypes: [{name: bfloat16}]
+</code></pre>
+<p>Given these additional user-facing controls, the agentic workflow can be extended to generate the corresponding configuration files that can be consumed by the OOT test reuse framework. The low-level agent along with test repository memory can then capture not only test outcomes (e.g., <code>mandatory_success</code>), but also identify supported dtypes and other test parameters, enabling tests to be bucketed at the individual test-case level.</p>
+<p>Four properties of the schema do most of the work:</p>
+<ol>
+<li>A declared default. <code>unlisted_test_mode</code> sets the outcome for anything unlisted, so a test added upstream tomorrow has a defined result instead of breaking CI the day it lands.</li>
+<li>Four outcome buckets. <code>mandatory_success</code>, <code>xfail</code>, <code>xfail_strict</code> and <code>skip</code>. The strict variant earns its place: an unexpected pass surfaces as a signal to promote the test, not silence.</li>
+<li>Per-case adaptation. <code>edits:</code> applies to individual dtypes, ops and modules, so an unsupported dtype costs one dtype rather than the whole test.</li>
+<li>Capability declared once. <code>global.supported_ops</code> and <code>supported_dtypes</code> are declared per file, so enabling an operator in the backend is a one-line change that admits every test waiting on it.</li>
+</ol>
+<p>How it works: The framework patches upstream&#8217;s <code>@ops</code>, <code>@modules</code>, and <code>@dtypes</code> decorators at collection time, emitting pytest marks (<code>op__</code>, <code>dtype__</code>). This means the same config drives both adaptation and selection: <code>-m op__add</code> runs exactly the tests exercising that operator.</p>
+<p>Key guarantee: The upstream test tree stays pristine. No patches against PyTorch&#8217;s tests. A version bump becomes a config delta, not a merge conflict. The framework targets the generic privateuse1 device, so nothing is hardware-specific.</p>
+<h2>CRCR Integration into Existing Workflows</h2>
+<p><!-- IMAGE PLACEHOLDER: Figure 3 - Workflow with CRCR Integration for Torch Spyre (re-upload via WP media library) --></p>
+<p><em><img decoding="async" class="alignnone wp-image-171232 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-3-1-scaled.png" alt="" width="2560" height="1147" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-3-1-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/09/image-3-1-300x134.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-3-1-1024x459.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></em></p>
+<p><em>Figure 3: Workflow with CRCR Integration for Torch Spyre</em></p>
+<h3>Challenge 4: Consuming the dispatch: gate on the payload, resolve the SHA yourself</h3>
+<table>
+<thead>
+<tr>
+<th>Dispatch Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SHA</td>
+<td>Identifies the exact upstream commit to validate.</td>
+</tr>
+<tr>
+<td>PR Number</td>
+<td>Associates downstream test results with a specific upstream PR.</td>
+</tr>
+<tr>
+<td>Action</td>
+<td>Specifies whether the PR was opened, updated (synchronize), or closed/merged.</td>
+</tr>
+<tr>
+<td>Base Branch (<code>pull_request.base.ref</code>)</td>
+<td>Identifies the target branch and enables filtering for main and release branches such as <code>release/{version}</code>.</td>
+</tr>
+<tr>
+<td>PR Label (<code>pull_request.labels</code>)</td>
+<td>Labels used with the pull request. Can be used to identify merged PRs through label &#8220;Merged&#8221;.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Table 1: Key Dispatch Fields</em></p>
+<p>Integrating CRCR starts with consuming the dispatch from PyTorch. The dispatch payload contains key pieces of information as shown in the Table 1. Dispatches can be filtered by consuming these pieces of information for various use cases. Filtering dispatches for pull requests merged to main requires action to be closed with a merge signal and base branch as main. The merge signal is indirect. PyTorch doesn&#8217;t use GitHub&#8217;s merge button that means PRs are closed, then PyTorchBot squash-merges and applies a &#8220;Merged&#8221; label. So detecting a landed PR requires checking for that label:</p>
+<pre><code class="language-bash">HAS_MERGED=$(echo "$PAYLOAD_JSON" | jq -r '.payload.pull_request.labels // [] | map(.name) | index("Merged") // ""')
+</code></pre>
+<p>Edge case: A race condition can cause the label to be applied after the dispatch, or a manual merge may skip the label entirely. Defensive handling (e.g., polling or a fallback heuristic) may be needed for critical workflows.</p>
+<p>Apart from this dispatch-driven use case, there are two other use cases that may be of interest to OOT accelerators: testing against PyTorch nightly builds and testing against PyTorch releases.</p>
+<h3>Use Case C: Nightly Testing</h3>
+<p>CRCR doesn&#8217;t dispatch for nightlies, but HUD supports reporting nightly results. The workflow runs on a schedule and resolves the SHA directly as below:</p>
+<pre><code class="language-bash">NIGHTLY_SHA=$(curl -fsSL "https://api.github.com/repos/pytorch/pytorch/commits?sha=nightly&amp;per_page=1" | jq -r '.[0].sha // empty')
+
+if [ -z "${NIGHTLY_SHA}" ]; then
+  echo "::error::Could not resolve HEAD for pytorch/pytorch/nightly"
+  exit 1
+fi
+
+COMMIT_MSG=$(curl -fsSL "https://api.github.com/repos/pytorch/pytorch/commits/${NIGHTLY_SHA}" | jq -r '.commit.message')
+
+SOURCE_SHA=$(echo "$COMMIT_MSG" | grep -oP '\(([a-f0-9]{40})\)' | tr -d '()')
+
+if [ -z "${SOURCE_SHA}" ]; then
+  echo "::error::Could not extract source SHA from latest nightly commit"
+  exit 1
+fi
+
+echo "Resolved pytorch/pytorch@nightly -&gt; source ${SOURCE_SHA}"
+</code></pre>
+<h3>Use Case D: Release Testing</h3>
+<p>No dispatch is sent when a PyTorch release is published. Release testing is triggered manually via workflow_dispatch, passing the release branch (e.g., release/v2.14). SHA resolution follows the same pattern as nightly.</p>
+<p>Note: HUD does not currently have a dedicated view for release test results.</p>
+<h3>Challenge 5: Enhancing workflow efficiency: test splitting, parallelization, and build-once-test-many</h3>
+<p>Thousands of tests need to run fast. Splitting happens at three levels:</p>
+<ol>
+<li>Feature-level: Group tests by area (Inductor, operators, eager, etc.)</li>
+<li>Duration-constrained: Subdivide each feature group to stay under a max job duration (e.g., 30 min)</li>
+<li>Balanced bucketing: Distribute individual tests across splits to avoid stragglers</li>
+</ol>
+<p>Building this requires a one-pass timing run to measure per-test and per-feature durations. The result: parallel jobs that finish together, not one job holding up the rest.</p>
+<p>Build-once, test-many: Build PyTorch and backend wheels once, publish as workflow artifacts, consume across all test splits. This avoids redundant builds and guarantees all jobs test the same artifacts.</p>
+<h3>Challenge 6: Enhancing workflow reliability</h3>
+<p><!-- IMAGE PLACEHOLDER: Figure 4 - Retry Patterns for Workflow Resilience (re-upload via WP media library) --></p>
+<p><em><img decoding="async" class="alignnone wp-image-171235 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-4-1.png" alt="" width="1374" height="822" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-4-1.png 1374w, https://pytorch.org/wp-content/uploads/2026/09/image-4-1-300x179.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-4-1-1024x613.png 1024w" sizes="(max-width: 1374px) 100vw, 1374px" /></em></p>
+<p><em>Figure 4: Retry Patterns for Workflow Resilience</em></p>
+<p>The final state of the workflow in HUD should focus on surfacing regressions introduced by the evolving PyTorch and OOT accelerator codebases, rather than workflow stability failures such as transient infrastructure issues that may not be meaningful to the broader community.</p>
+<p>While infrastructure and platform layers could be equipped with multiple reliability measures to improve workflow stability, developers can further strengthen the workflow by adopting additional reliability patterns, as shown in Table 2. The patterns listed here are not intended to be exhaustive, but provide a practical baseline for OOT accelerators to build reliable CRCR workflows.</p>
+<table>
+<thead>
+<tr>
+<th>Reliability Dimension</th>
+<th>Pattern</th>
+<th>Impact from CRCR PoV</th>
+<th>Implementation Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fault tolerance</td>
+<td>Parallel and isolated execution pattern</td>
+<td>Non-faulty test jobs continue to complete and report their status even when another job fails.</td>
+<td>GitHub Actions matrix jobs with pods/containers at the platform layer for execution isolation.</td>
+</tr>
+<tr>
+<td>Fault tolerance</td>
+<td>Continue on error pattern</td>
+<td>Failures in non-critical paths do not cause the overall workflow to be reported as failed in HUD.</td>
+<td>Use GitHub Actions <code>continue-on-error</code> for non-critical jobs or steps.</td>
+</tr>
+<tr>
+<td>Resilience</td>
+<td>Retry pattern</td>
+<td>Transient failures can be recovered without surfacing persistent failures in HUD.</td>
+<td>As shown in Figure 4, use workflow-level retries and finer-grained in-job retries based on test logs and failure heuristic.</td>
+</tr>
+<tr>
+<td>Resilience</td>
+<td>Logging and failure classification</td>
+<td>Distinguishes actionable test regressions from transient infrastructure or platform failures not recoverable from retry pattern.</td>
+<td>Verbose logging with summaries can help classify failures (that passed through retry pattern) and act for recovery.</td>
+</tr>
+<tr>
+<td>Consistency</td>
+<td>Build-once, use-many</td>
+<td>Parallel jobs test the same PyTorch and OOT accelerator artifacts, reducing inconsistencies across splits.</td>
+<td>Build wheels once, publish them as GitHub workflow artifacts, and consume the same artifacts across all test jobs.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Table 2: Workflow Reliability Patterns</em></p>
+<h3>Challenge 7: CRCR Callbacks with Matrix Jobs</h3>
+<p>Github provides the ability to run a set of jobs based on a combination of variables and refers to that as a matrix strategy. Individual jobs as part of a matrix strategy are called legs.</p>
+<p>The constraint: A matched in_progress/completed callback pair must originate from the same job. CRCR uses check_run_id to track retries, and each matrix leg gets its own check_run_id. This means callbacks cannot be sent from a parent job that spawns a matrix.</p>
+<p>Two workarounds:</p>
+<p>Option A: Per-leg callbacks. Each matrix job sends its own in_progress and completed. Simple, but can clutter HUD for large matrices and may not be ideal for dynamic jobs.</p>
+<p>Option B: Dispatch + poll. The parent job dispatches a separate workflow containing the matrix, then polls for completion. This pattern also applies to heterogeneous CI such as triggering Jenkins or other platforms from a GitHub Actions parent job.</p>
+<h3>Challenge 8: Making a run reproducible weeks later</h3>
+<p>Debugging a failure from two weeks ago requires knowing exactly what ran. Capture this metadata as workflow artifacts:</p>
+<ol>
+<li>Dispatch payload (PR number, SHA, action)</li>
+<li>PyTorch and backend wheel versions (or commit SHAs)</li>
+<li>Runtime environment (Python, CUDA, OS, CPU arch)</li>
+<li>Per-test results (pass/fail/skip, duration)</li>
+</ol>
+<p>Combined with build-once artifacts, this ensures any run can be reproduced or bisected weeks later.</p>
+<h2>Conclusion</h2>
+<p>CRCR handles distribution and reporting. The decisions it leaves to the downstream repo are the right ones to own: which dispatches matter, which tests are meaningful, and what &#8220;green&#8221; means on a given platform.</p>
+<p>Owning those decisions meant keeping three moving targets in sync: the backend, PyTorch core, and the test suite. That&#8217;s where the engineering in this post went: an agentic test-selection pipeline, a declarative test-reuse framework, build-once-promote-many, and layered retries.</p>
+<p>None of this is hardware-specific. The test-reuse framework targets the generic privateuse1 device. We intend to work with the PyTorch team to upstream it — most naturally alongside Torch OpenReg, the in-tree reference backend that accelerator authors already use to learn the extension points.</p>
+<p>If any of these patterns would help your integration, we&#8217;d like to hear which ones matter most before shaping that proposal. Reach out by opening an issue at <a href="https://github.com/torch-spyre/torch-spyre">torch-spyre/torch-spyre</a>.</p>
+<h2>Acknowledgements</h2>
+<p>We would like to thank the IBM Spyre Team for their support in this effort.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Accelerate Your AI Journey with new Introduction Track at PyTorch Conference NA 2026 and PyTorch Associate Training</title>
 		<link>https://pytorch.org/blog/accelerate-your-ai-journey-with-new-introduction-track-at-pytorch-conference-na-2026-and-pytorch-associate-training/</link>
 		
@@ -105,7 +416,7 @@
 		<guid isPermaLink="false">https://pytorch.org/?p=170102</guid>
 
 					<description><![CDATA[Some of the most interesting work being built with PyTorch starts in universities, research labs, student groups, and academic institutions. A new model architecture. A library created to support a...]]></description>
-										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img fetchpriority="high" decoding="async" class="aligncenter wp-image-170129 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png" alt="" width="1983" height="793" srcset="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png 1983w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-300x120.png 300w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-1024x409.png 1024w" sizes="(max-width: 1983px) 100vw, 1983px" /></span></p>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img decoding="async" class="aligncenter wp-image-170129 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png" alt="" width="1983" height="793" srcset="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png 1983w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-300x120.png 300w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-1024x409.png 1024w" sizes="(max-width: 1983px) 100vw, 1983px" /></span></p>
 <p><span style="font-weight: 400;">Some of the most interesting work being built with PyTorch starts in universities, research labs, student groups, and academic institutions.</span></p>
 <p><span style="font-weight: 400;">A new model architecture. A library created to support a paper. A benchmarking framework. A research tool that solves a problem no existing project addresses. An educational toolkit developed for a university course. A system that begins with three graduate students and unexpectedly finds users around the world.</span></p>
 <p><b>What happens after the research project works?</b></p>
@@ -1199,360 +1510,7 @@ Tue 20 Oct, 16:20–16:30, LL20AB</p>
 		
 		
 			</item>
-		<item>
-		<title>Helion x 🤗 HF Kernels: Building and Shipping Out-of-the-box Performant Kernels</title>
-		<link>https://pytorch.org/blog/helion-x-%f0%9f%a4%97-hf-kernels-building-and-shipping-out-of-the-box-performant-kernels/</link>
-		
-		<dc:creator><![CDATA[Sayak Paul (Hugging Face), Dunfan Lu (Meta), Tarindu Jayatilaka (Meta), Jongsok Choi (Meta)]]></dc:creator>
-		<pubDate>Fri, 11 Sep 2026 17:45:57 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=165024</guid>
-
-					<description><![CDATA[TL;DR The HuggingFace Kernels project now has Helion support. This blog walks through how to build, autotune, and ship performant and portable Helion kernels via the Hugging Face Kernels project,...]]></description>
-										<content:encoded><![CDATA[<h3><img decoding="async" class="alignnone wp-image-164371 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21.png" alt="" width="1920" height="1080" srcset="https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21.png 1920w, https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/09/All-PyTorch-Blog-Social-Images-21-1024x576.png 1024w" sizes="(max-width: 1920px) 100vw, 1920px" /></h3>
-<h3>TL;DR</h3>
-<p>The HuggingFace Kernels project now has Helion support. This blog walks through how to build, autotune, and ship performant and portable Helion kernels via the Hugging Face Kernels project, allowing users to consume these kernels seamlessly.</p>
-<h2>Introduction</h2>
-<p><a href="https://github.com/pytorch/helion">Helion</a> is a high-level DSL for writing high-performance, portable kernels for machine learning. The <a href="https://huggingface.co/docs/kernels/en/index"><img src="https://s.w.org/images/core/emoji/17.0.2/72x72/1f917.png" alt="🤗" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Kernels</a> project lets kernel developers package and distribute their kernels on the Hugging Face Hub platform in a consistent and reproducible manner. It also lets kernel users consume these kernels seamlessly without managing dependency hell.</p>
-<p>In this post, we will discuss how Helion is supported within the Kernels project, how users can benefit from first-class autotuning support in Helion, and how to ship pre-tuned kernel configs to reduce cold-start times. We will also show examples of Helion kernels and how tuning them for specific problem sizes can yield performance benefits.</p>
-<p>P.S.: Throughout the rest of the post, we will refer to the <strong>Kernels</strong> project with “k” in capital letters to distinguish it from actual “kernels”.</p>
-<h2>Intro: Helion</h2>
-<p>Helion is a tiled DSL for writing performant ML kernels. The programming model is often described as &#8220;PyTorch with tiles” – the kernel operates on PyTorch tensors, and tile-level operations are specified via ordinary PyTorch tensor operators. As a quick example, the following function shows a tiled matmul implemented in Helion:</p>
-<pre><code class="language-python">import torch, helion, helion.language as hl
-
-@helion.kernel()
-def matmul(x: torch.Tensor, y: torch.Tensor) -&gt; torch.Tensor:
-    m, k = x.size()
-    k, n = y.size()
-    out = torch.empty([m, n], dtype=x.dtype, device=x.device)
-
-    for tile_m, tile_n in hl.tile([m, n]):
-        acc = hl.zeros([tile_m, tile_n], dtype=torch.float32)
-        for tile_k in hl.tile(k):
-            acc = torch.addmm(acc, x[tile_m, tile_k], y[tile_k, tile_n])
-        out[tile_m, tile_n] = acc
-
-    return out
-</code></pre>
-<p>What makes Helion desirable is not just its concise syntax but what it leaves deliberately unspecified. When you write <span style="font-weight: 400;"><code>hl.tile</code></span>, you say only that the iteration space should be tiled &#8211; not how large the tiles are, or how their data is fetched from memory. Helion turns these decisions into a search space to be autotuned over. Crucially, the autotuner does not merely sweep numerical parameters like tile sizes, it also searches over lowering strategies &#8211; the actual implementation of the kernel: which memory-access pattern to use (pointer arithmetic, block pointers, TMA), how to order and flatten nested loops, whether a reduction should be persistent or looped, and more. In Triton or CUDA, switching between these choices means rewriting the kernel entirely; in Helion the optimal choice is found algorithmically.</p>
-<p>This autotuning process is why a Helion kernel can often outperform a hand-written kernel in a lower-level language, when benchmarked on a large set of shapes. With that said, autotuning is sometimes a lengthy process, so it is beneficial to have an established approach for shipping a kernel bundled with pre-tuned configs. This is where the Kernels project comes in.</p>
-<h2>Intro: Kernels</h2>
-<p>The current landscape of kernel packaging and distribution is fragmented, characterized by inconsistent source structures, disparate tooling, and limited compatibility support. Consequently, users often face arduous build times, even when pre-built wheels are available.</p>
-<p>The Kernels project addresses these challenges by establishing a standardized, unified packaging and build process for both AoT and JIT kernels. The project is divided into two primary components:</p>
-<ul>
-<li><span style="font-weight: 400;"><strong><code>kernel-builder</code></strong>: </span> A tool for developers to reliably package and distribute kernels across different framework versions and system configurations. It enforces standards to ensure predictable source structures, build reproducibility, native PyTorch compatibility, and easy community sharing.</li>
-<li><span style="font-weight: 400;"><b><code>kernels</code></b>: </span>A consumer-facing Python library that allows users to effortlessly load ready-to-use kernels without dependency management issues via a simple command like <code>get_kernel("org/name", version=1)</code>, much like pulling a model or dataset from the Hugging Face Hub.</li>
-</ul>
-<p>For kernel users, we want to provide a seamless experience of loading kernels and getting them ready to use right away. Let’s take a look at an example of how one could load the popular Flash-Attention 3 kernel:</p>
-<pre><code class="language-python">from kernels import get_kernel
-
-kernel_module = get_kernel("kernels-community/flash-attn3", version=1)
-flash_attn_func = kernel_module.flash_attn_func
-
-flash_attn_func(...)
-</code></pre>
-<p>We provide prebuilt binaries for a comprehensive compatibility matrix of ahead-of-time kernels, such as Flash Attention 3. This is quite beneficial to end users, particularly when the kernel&#8217;s upstream repository may not have a specific build available.</p>
-<p>Users can browse a wide variety of kernels on the Hugging Face Hub platform: <a href="http://hf.co/kernels">hf.co/kernels</a>:</p>
-<p><img decoding="async" class="alignleft wp-image-164983 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png" alt="" width="1280" height="774" srcset="https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052.png 1280w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-300x181.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Screenshot-2026-09-09-161052-1024x619.png 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
-<p>We refer to this collection of kernels as the <strong>Kernels Hub</strong>.</p>
-<h2>Packaging and using Helion in Kernels</h2>
-<p>Helion kernels are plain Python. They compile themselves the first time you call them, so there is nothing for <span style="font-weight: 400;"><code>kernel-builder</code> </span>to compile ahead of time. Helion provides utilities to tune these kernels for specific workloads and hardware (more on that in a bit) so that users can tune once and reuse later. Helion kernels are also <em><span style="font-weight: 400;">noarch</span> </em>kernels: you ship the source, and Helion does the rest on the user&#8217;s machine.</p>
-<p>In this section, we discuss how to scaffold and structure a Helion kernel for building with <span style="font-weight: 400;"><code>kernel-builder</code></span><span style="font-weight: 400;">. </span></p>
-<h3>Start from the scaffold</h3>
-<p><code>kernel-builder init</code> gives you a working kernel project to edit:</p>
-<pre><code class="language-bash">kernel-builder init --name myorg/vector-add-helion --backends cuda rocm xpu -- vector-add-helion
-cd vector-add-helion
-</code></pre>
-<p>Note the <span style="font-weight: 400;"><code>--</code></span><span style="font-weight: 400;"> </span>before the directory name. <span style="font-weight: 400;"><code>--backends</code></span> takes any number of values, so without the separator the directory name is read as another backend.</p>
-<p>The scaffold assumes a compiled kernel, so delete the parts you don&#8217;t need:</p>
-<pre><code class="language-bash">rm -rf vector_add_helion_cuda vector_add_helion_xpu torch-ext/torch_binding.{cpp,h}
-</code></pre>
-<p>That leaves three files to edit.</p>
-<h3><code>build.toml</code></h3>
-<pre><code class="language-toml">[general]
-name = "vector-add-helion"
-license = "Apache-2.0"
-backends = ["cuda", "rocm", "xpu"]
-version = 1
-edition = 5
-
-python-depends = ["helion"]
-
-[general.hub]
-repo-id = "myorg/vector-add-helion"
-
-[torch-noarch]
-</code></pre>
-<p>Two things worth paying heed to:</p>
-<ul>
-<li><span style="font-weight: 400;"><code>python-depends = ["helion"]</code> records that the kernel needs Helion at runtime. When someone loads the kernel, <code>kernels</code> checks that Helion is importable and gives a clear error if it isn&#8217;t. </span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;"><code>[torch-noarch]</code> says there is no ahead-of-time compilation. </span></li>
-</ul>
-<h3><strong><code>torch-ext/vector_add_helion/__init__.py</code></strong></h3>
-<pre><code class="language-python">import helion
-import helion.language as hl
-import torch
-
-
-@helion.kernel(config=helion.Config(block_sizes=[1024], num_warps=4))
-def vector_add(x: torch.Tensor, y: torch.Tensor) -&gt; torch.Tensor:
-    out = torch.empty_like(x)
-    for tile in hl.tile(x.size(0)):
-        out[tile] = x[tile] + y[tile]
-    return out
-
-
-__all__ = ["vector_add"]
-</code></pre>
-<p>This example here uses a hardcoded config, pinned via <span style="font-weight: 400;"><code>config=</code></span>. In a later section we&#8217;ll go into details on pre-tuning and shipping a decision tree of configs covering a large set of shapes.</p>
-<h3><strong><code>flake.nix</code></strong></h3>
-<p>The scaffolded one needs no changes:</p>
-<pre><code class="language-nix">{
-  inputs.kernel-builder.url = "github:huggingface/kernels";
-  outputs = { self, kernel-builder, ... }:
-    kernel-builder.lib.genKernelFlakeOutputs { inherit self; path = ./.; };
-}
-</code></pre>
-<h3>Build and publish</h3>
-<pre><code class="language-bash">kernel-builder check-config .
-kernel-builder build-and-copy .
-</code></pre>
-<p>Build and publish the builds to the Hub:</p>
-<pre><code class="language-bash">kernel-builder build-and-upload .
-</code></pre>
-<p>The build produces one directory per backend, each holding your <span style="font-weight: 400;"><code>__init__.py</code> </span>alongside a generated<span style="font-weight: 400;"> <code>metadata.json</code></span> that carries the Helion dependency forward:</p>
-<pre><code class="language-json">{
-  "name": "vector-add-helion",
-  "python-depends": ["helion"],
-  "backend": { "type": "cuda" }
-}
-</code></pre>
-<p>Below is an example of the published kernel on the Hub: <a href="https://huggingface.co/kernels/sayakpaul/vector-add-helion">sayakpaul/vector-add-helion</a>.</p>
-<h3>Using the kernel</h3>
-<pre><code class="language-python">from kernels import get_kernel
-
-kernel = get_kernel("myorg/vector-add-helion", version=1, trust_remote_code=True)
-out = kernel.vector_add(x, y)
-</code></pre>
-<p>Users would need Helion installed (<span style="font-weight: 400;"><code>pip install helion</code></span><span style="font-weight: 400;">) </span>and a version of <span style="font-weight: 400;"><code>kernels</code></span> that knows about it. Older releases reject the dependency outright with <span style="font-weight: 400;"><code>unsupported kernel dependency: helion</code></span><span style="font-weight: 400;">.</span></p>
-<h2>Pre-tuning and Shipping Pre-tuned configs</h2>
-<p>To ensure the shipped Helion kernel performs well on different input problem shapes and different GPU generations, it’s often beneficial to pre-tune them. The workflow has three steps:</p>
-<ul>
-<li>tune the kernel across a representative set of shapes,</li>
-<li>let Helion build a decision tree that maps each shape to its best config</li>
-<li>ship that tree beside your kernel.</li>
-</ul>
-<p>At load time, Helion reads the tree (stored as a plain python file next to the kernel source file) and picks a config per call &#8211; no tuning on the user&#8217;s machine. To do this, the first kernel source change is a decorator:</p>
-<pre><code class="language-python">--- @helion.kernel(config=...) 
-+++ @helion.aot_kernel(static_shapes=True) 
-</code></pre>
-<p>Write a small script that calls the kernel on every shape you want covered during pre-tuning:</p>
-<pre><code class="language-python"># bench.py
-import torch
-from vector_add_helion.vector_add import vector_add
-
-for n in [1024, 1 &lt;&lt; 16, 1 &lt;&lt; 20, 1 &lt;&lt; 24]:
-    x = torch.randn(n, device="cuda")
-    y = torch.randn(n, device="cuda")
-    vector_add(x, y)
-</code></pre>
-<p>Then hand that script to Helion’s AOT runner:</p>
-<pre><code class="language-bash">python -m helion.autotuner.aot_runner \
-    --phase all --goal max_slowdown --threshold 1.01 --max-configs 8 \
-    -- python bench.py
-</code></pre>
-<p>The runner drives <span style="font-weight: 400;"><code>bench.py</code></span>, accomplishing three phases:</p>
-<p><strong>Collect:</strong> autotunes each shape independently,<br />
-<strong>Measure:</strong> re-benchmarks every discovered config on every shape<br />
-<strong>Build:</strong> selects the smallest set of configs that keeps each shape within &#8211;threshold of its own best (1.01 = within 1%), up to &#8211;max-configs. If one config satisfies every shape, that&#8217;s all you ship; if shapes diverge, you get a tree of several.</p>
-<p>The runner produces a plain-Python file next to your kernel source, named <span style="font-weight: 400;"><code>_helion_aot_&lt;source-module&gt;_&lt;device&gt;_&lt;compute&gt;.py</code></span>, which can be shipped together with the kernel source file alongside other files in the build on the Hub. So the resulting file structure may look like this:</p>
-<pre><code class="language-text">vector-add-helion/
-├── build.toml
-├── flake.nix
-└── torch-ext/vector_add_helion/
-    ├── __init__.py
-    ├── vector_add.py                          # @helion.aot_kernel
-    ├── _helion_aot_vector_add_cuda_sm90.py    # H100 configs
-    └── _helion_aot_vector_add_cuda_sm100.py   # B200 configs
-</code></pre>
-<p>When a consumer uses <span style="font-weight: 400;"><code>get_kernel</code></span> to access this kernel and call it on a tensor, Helion will use the decision tree to identify a pre-tuned config that fits the runtime input shape.</p>
-<h2>Examples</h2>
-<h3>Attention</h3>
-<p>In <a href="https://huggingface.co/kernels/HelionDSL/attention">HelionDSL/attention</a>, we show an example of a pre-tuned Helion attention kernel, shipped via Kernels. It includes pre-tuned configs for NVIDIA H100s, created using the workflow and structure described above. We measured the performance of these pre-tuned configs, comparing against the FLASH backend of PyTorch’s <span style="font-weight: 400;"><code>scaled_dot_product_attention</code> </span>implementation on an H100. This shipped kernel outperforms SDPA on 19 out of 19 of the pre-tuned shapes, with a geomean speed-up of <strong>1.20</strong>. On held-out shapes not seen during tuning, the kernel outperforms SDPA on 9 out of 10 shapes, with a geomean speed-up of <strong>1.17</strong>.</p>
-<h3><img decoding="async" class="alignnone wp-image-164397 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical.png" alt="" width="2000" height="1250" srcset="https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical.png 2000w, https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical-300x188.png 300w, https://pytorch.org/wp-content/uploads/2026/09/attention_tuned_vertical-1024x640.png 1024w" sizes="(max-width: 2000px) 100vw, 2000px" /></h3>
-<h3><img decoding="async" class="alignleft wp-image-164402 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical.png" alt="" width="1700" height="1250" srcset="https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical.png 1700w, https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical-300x221.png 300w, https://pytorch.org/wp-content/uploads/2026/09/attention_heldout_vertical-1024x753.png 1024w" sizes="(max-width: 1700px) 100vw, 1700px" /></h3>
-<h3>Linear Attention</h3>
-<p>In <a href="https://huggingface.co/kernels/HelionDSL/linear-attention">HelionDSL/linear-attention</a> we ship seven pre-tuned linear-attention kernels: linear attention, simple GLA, retention, GLA, delta rule, gated delta rule, and KDA. It includes pre-tuned configs for NVIDIA B200s. We <a href="https://gist.github.com/tarinduj/4e1178840ffea453c5c72ce9e33cc5f2">measured the performance</a> of these pre-tuned configs against FLA. Across the six pre-tuned shapes the shipped kernels are faster than flash-linear-attention on all seven variants, with a geomean speed-up of <strong>1.41</strong> on device time (CUDA-graph replay) and <strong>1.33</strong> end to end (including CPU dispatch). On six held-out shapes not seen during tuning, the geomean speed-up is <strong>1.35</strong> on device time and <strong>1.31</strong> end to end. Forward and backward together give a geomean speed-up of <strong>1.55</strong> on the pre-tuned shapes.</p>
-<h2><img decoding="async" class="alignleft wp-image-164403 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical.png" alt="" width="1450" height="1100" srcset="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical.png 1450w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical-300x228.png 300w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_tuned_vertical-1024x777.png 1024w" sizes="(max-width: 1450px) 100vw, 1450px" /></h2>
-<h2></h2>
-<h2></h2>
-<h2></h2>
-<h2></h2>
-<h2></h2>
-<h2></h2>
-<h2></h2>
-<h2></h2>
-<p><img decoding="async" class="alignleft wp-image-164404 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical.png" alt="" width="1450" height="1100" srcset="https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical.png 1450w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical-300x228.png 300w, https://pytorch.org/wp-content/uploads/2026/09/linear_attention_heldout_vertical-1024x777.png 1024w" sizes="(max-width: 1450px) 100vw, 1450px" /></p>
-<p>&nbsp;</p>
-<h2><strong>Conclusion</strong></h2>
-<p>In this post, we discussed the Helion, a high-level DSL from Meta, and the Kernels project from Hugging Face. We also showed how the two projects complement each other to ease the process of how compute-optimized kernels are developed, distributed, and used. We welcome you to try out Helion and publish your cool Helion kernel on the Hub <img src="https://s.w.org/images/core/emoji/17.0.2/72x72/1f917.png" alt="🤗" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
-<p><em><strong>Acknowledgments:</strong> Thanks to Daniël de Kok and Lysandre Debut for reviewing the post.</em></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>PyTorch Conference China 2026: Advancing the Open Source AI Stack</title>
-		<link>https://pytorch.org/blog/pytorch-conference-china-2026-advancing-the-open-source-ai-stack/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Thu, 10 Sep 2026 00:01:29 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=164643</guid>
-
-					<description><![CDATA[PyTorch Conference China 2026 brought the PyTorch community together in Shanghai on September 8–9 alongside KubeCon + CloudNativeCon and OpenInfra Summit, following sponsor-hosted co-located events on September 7. Technical discussions...]]></description>
-										<content:encoded><![CDATA[<p>PyTorch Conference China 2026 brought the PyTorch community together in Shanghai on September 8–9 alongside <a href="https://www.lfopensource.cn/kubecon-cloudnativecon-openinfra-summit-pytorch-conference-china/">KubeCon + CloudNativeCon and OpenInfra Summit</a>, following sponsor-hosted co-located events on September 7. Technical discussions spanned models, frameworks, distributed training, inference, hardware, cloud native infrastructure, and agents.</p>
-<p>“Open Source for the AI Era” framed work across those layers. Across co-located sessions, keynotes, technical demonstrations, a PyTorch Foundation press conference, community meetings, and conversations at the PyTorch booth, the program covered hardware adaptation, training and serving, open infrastructure, accelerator integration, and collaboration across open source communities.</p>
-<p><a href="https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/">PyTorch Foundation welcomed Alibaba Cloud, Ant Group, and Cambricon</a> as new members, joining Huawei and other existing Foundation members.</p>
-<p><img decoding="async" class="aligncenter wp-image-164785 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN0826-1-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
-<p><img decoding="async" class="aligncenter wp-image-164782 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN1626-scaled.jpg" alt="" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN1626-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN1626-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN1626-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /><br />
-<img decoding="async" class="aligncenter wp-image-165091 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-scaled.jpeg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-scaled.jpeg 2560w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2733-2-1024x768.jpeg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
-<h2>Building Frontier Intelligence in the Open</h2>
-<p><strong>Speaker:</strong> Mark Collier, Executive Director, PyTorch Foundation</p>
-<p>Mark’s September 8 keynote focused on an open ecosystem where researchers, developers, model builders, and hardware companies can work together across an expanding landscape of models and compute. The session connected PyTorch with the path from experimentation to production, new accelerator architectures, and the infrastructure that ultimately runs AI workloads.</p>
-<p><img decoding="async" class="aligncenter wp-image-164736 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-scaled.jpg" alt="cambricon mark" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN1667-3-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
-<h2>Additional Keynotes Across the Open Source AI Stack</h2>
-<p>The keynote program brought together speakers working across models, PyTorch, cloud native infrastructure, accelerators, serving, and agents.</p>
-<h3>Day 1</h3>
-<p><strong>From Open Source Adoption to Open Source Innovation: China’s Next Chapter</strong><br />
-<strong>Speaker:</strong> Professor Lu Shouqun<br />
-<strong>Organization:</strong> China OSS</p>
-<p><strong>Open Source for the AI Era</strong><br />
-<strong>Speakers:</strong> Jonathan Bryce and Horace Li<br />
-<strong>Organization:</strong> The Linux Foundation</p>
-<p><strong>Beyond Multimodal: Building Full-Modal AGI via Open-Weight</strong><br />
-<strong>Speaker:</strong> Ryan Lee<br />
-<strong>Organization:</strong> MiniMax</p>
-<p><strong>Operating Frontier Intelligence at Scale</strong><br />
-<strong>Speakers:</strong> Chris Aniszczyk and Xiao Zhang<br />
-<strong>Organizations:</strong> The Linux Foundation and Dynamia.ai</p>
-<p><strong>Tidal Auto-scaling for Training and Inference Based on Kubernetes + KEDA</strong><br />
-<strong>Speakers:</strong> Jun Zheng and Tan Pei Xiang<br />
-<strong>Organization:</strong> China Merchants Bank</p>
-<p><strong>Ascend &amp; PyTorch: Pioneer New AI Open Ecosystem</strong><br />
-<strong>Speaker:</strong> Liang Zhang<br />
-<strong>Organization:</strong> Huawei</p>
-<p><strong>Towards Device-agnostic PyTorch: Building Unified Infrastructure for a Multi-Backend Ecosystem</strong><br />
-<strong>Speaker:</strong> Wei Li<br />
-<strong>Organization:</strong> Cambricon</p>
-<p><strong>Inside vLLM: Production Best Practices, Model Integration and Road Map</strong><br />
-<strong>Speaker:</strong> Kaichao You<br />
-<strong>Organization:</strong> Inferact Inc.</p>
-<p><strong>PD Disaggregation vLLM Deployment on Alternative AI Accelerators Using llm-d</strong><br />
-<strong>Speakers:</strong> 纪飞 王 and Mengxuan Li<br />
-<strong>Organizations:</strong> Dynamia and Dynamia.ai</p>
-<p><strong>Building an Agent Runtime with Open Infrastructure</strong><br />
-<strong>Speakers:</strong> Yaya Xia and Xu Wang<br />
-<strong>Organization:</strong> Ant Group</p>
-<p><strong>What AI Agents Need from Open Infrastructure</strong><br />
-<strong>Speaker:</strong> Yaya Xia<br />
-<strong>Organization:</strong> Ant Group</p>
-<h3>Day 2</h3>
-<p><strong>Welcome Back + Opening Remarks</strong><br />
-<strong>Speakers:</strong> Jonathan Bryce and Horace Li<br />
-<strong>Organization:</strong> The Linux Foundation</p>
-<p><strong>What Powers Frontier Intelligence</strong><br />
-<strong>Speaker:</strong> Thierry Carrez<br />
-<strong>Organization:</strong> OpenInfra Foundation</p>
-<p><strong>Road from Kata Containers to Confidential Containers + GPUs: From First Commit to CNCF Incubation</strong><br />
-<strong>Speaker:</strong> Zvonko Kaiser<br />
-<strong>Organization:</strong> NVIDIA</p>
-<p><strong>HyperParallel: A SuperPoD-Aware Distributed Acceleration Library</strong><br />
-<strong>Speakers:</strong> Teng Su and Shendi Wang<br />
-<strong>Organization:</strong> Huawei</p>
-<p><strong>Build a Unified Heterogeneous AI Computing Ecosystem for PyTorch</strong><br />
-<strong>Speaker:</strong> Zesheng Zong<br />
-<strong>Organization:</strong> Huawei</p>
-<p><strong>Serving Qwen at Scale: Multi-Cluster AI Infrastructure on Karmada</strong><br />
-<strong>Speaker:</strong> Jionghang Cai<br />
-<strong>Organization:</strong> Alibaba Cloud</p>
-<p><strong>Meet the Community Behind the Open Source AI Stack</strong><br />
-<strong>Speakers:</strong> Jane Lyu; Fupan Li; Zesheng Zong; Hiu Yeung, Sunny Chan<br />
-<strong>Organizations:</strong> The Linux Foundation; Ant Group; Huawei; TCC Consulting Limited</p>
-<p><strong>Building Frontier AI Infra: SGLang and Miles</strong><br />
-<strong>Speaker:</strong> Ke Bao<br />
-<strong>Organization:</strong> RadixArk</p>
-<p><strong>A Cloud Native Stack from Bare Metal to Tokens for Large-Scale AI Inference</strong><br />
-<strong>Speaker:</strong> Trong Vinh Nguyen<br />
-<strong>Organization:</strong> Viettel</p>
-<p><img decoding="async" class="aligncenter wp-image-164737 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/JASN0671-scaled.jpg" alt="keynote crowd" width="2560" height="1708" srcset="https://pytorch.org/wp-content/uploads/2026/09/JASN0671-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/JASN0671-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/JASN0671-1024x683.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
-<h2>Alibaba Cloud, Ant Group, and Cambricon Join PyTorch Foundation</h2>
-<p>PyTorch Foundation announced three new members in Shanghai on September 8.</p>
-<p><strong>Alibaba Cloud</strong> joined as a <strong>Platinum Member</strong>, with work spanning cloud infrastructure and the Qwen model family.</p>
-<p><strong>Ant Group</strong> joined as a <strong>Gold Member</strong>, bringing experience with production AI at financial-services scale.</p>
-<p><strong>Cambricon</strong> joined as a <strong>Platinum Member</strong>. Cambricon develops MLU accelerators and follows an “Upstream First” approach to its PyTorch contributions. Its contributions span torch.compile, Eager Operators, Device Runtime, Distributed Computing, AMP, Dataloader, and Profiler.</p>
-<p>Representatives from Alibaba Cloud, Ant Group, Cambricon, and Huawei took the keynote stage to speak about the open AI stack across <strong>hardware, models, and infrastructure</strong>.</p>
-<p><strong>ANY MODEL · ANY CHIP · ANY CLOUD · ANY AGENT</strong></p>
-<p><img decoding="async" class="aligncenter wp-image-164730 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-15.png" alt="3 new members" width="960" height="540" srcset="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-15.png 960w, https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-15-300x169.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></p>
-<p><a href="https://pytorch.org/blog/alibaba-cloud-ant-group-cambricon-and-huawei-come-together-in-shanghai-to-advance-the-open-source-ai-stack-at-pytorch-conference-china/">Read the full membership announcement.</a></p>
-<p><a href="https://pytorch.org/blog/cambricon-joins-the-pytorch-foundation-as-a-platinum-member/">Read more about Cambricon joining PyTorch Foundation as a Platinum Member.</a></p>
-<h2>One Open Source AI Stack</h2>
-<p>At the September 8 press conference, PyTorch Foundation outlined an open source AI stack spanning applications and agents, building and delivering intelligence, running and scaling AI workloads, infrastructure and isolation, and heterogeneous compute.</p>
-<p>PyTorch, vLLM, and Ray represented the layer focused on building and delivering intelligence. Kubernetes, KServe, Kueue, OpenTelemetry, and llm-d represented the layer focused on running and scaling AI workloads. OpenStack and Kata Containers represented infrastructure and isolation. Those software layers run across NPUs, CPUs, GPUs, and other accelerators.</p>
-<p>PyTorch Foundation members work across four areas:</p>
-<ul>
-<li><strong>Any Model:</strong> AI labs and builders</li>
-<li><strong>Any Chip:</strong> silicon and systems</li>
-<li><strong>Any Cloud:</strong> clouds and platforms</li>
-<li><strong>Any Agent:</strong> production and services</li>
-</ul>
-<p>Many members work across more than one layer. The Foundation summarized the model directly: <strong>“No single organization builds the whole system. Together, our members span it.”</strong></p>
-<p><img decoding="async" class="aligncenter wp-image-164729 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-16.png" alt="members building and serving intelligence" width="960" height="540" srcset="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-16.png 960w, https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-16-300x169.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></p>
-<h2>China in the Stack</h2>
-<p><img decoding="async" class="aligncenter wp-image-164754 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-18.png" alt="" width="960" height="540" srcset="https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-18.png 960w, https://pytorch.org/wp-content/uploads/2026/09/KCCNCOISPTC-China-26-Press-Conference-18-300x169.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></p>
-<p><strong>100+ China-based developers contribute to PyTorch across 40+ affiliated organizations.</strong></p>
-<p>PyTorch Foundation members represented in the China-focused overview included <strong>Alibaba Cloud, Cambricon, and Huawei</strong> as Platinum Members, <strong>Ant Group</strong> as a Gold Member, and <strong>Beijing Academy of Artificial Intelligence (BAAI)</strong> as an Associate Member.</p>
-<p>The September 8 membership announcement also noted that <strong>more than 250 organizations across China contribute to PyTorch Foundation projects</strong>, including DeepSpeed, Helion, PyTorch, Ray, Safetensors, and vLLM.</p>
-<p>The conference also highlighted open model development and optimization through the open software layer.</p>
-<p>For <strong>DeepSeek-R1</strong>, one case study covered optimization through kernels, routing, parallelism, and serving on the same GB300 hardware six months later. In the configuration presented, the optimized system delivered <strong>2.77x throughput</strong> and <strong>60% lower token cost</strong>. The source cited in the conference material was NVIDIA, 2026.</p>
-<p>A second example showed the share of <strong>OpenRouter token traffic served by open-weight models developed in China</strong> increasing from <strong>2% in late 2024 to 45% in April 2026</strong>. The source cited in the conference material was Mozilla.</p>
-<h2>Join the PyTorch TAC Accelerator Integration Working Group</h2>
-<p>AI computing hardware faces heterogeneity challenges with high adaptation costs and a lack of unified standards.</p>
-<p>The <strong>PyTorch TAC Accelerator Integration Working Group</strong>, co-chaired by Huawei and Intel, delivers standardized hardware onboarding guidelines, a cross-repo CI testing mechanism, generalized device-aware test suites, and platform incubation workflows.</p>
-<p>Zesheng Zong shared the Accelerator Integration Working Group’s achievements and future roadmap during PyTorch Conference China, including <strong>refined device-agnostic APIs</strong> and an <strong>expanded multi-backend test matrix</strong>.</p>
-<p>Hardware vendors and developers interested in co-building an open, efficient heterogeneous computing ecosystem for PyTorch can participate in the Accelerator Integration Working Group.</p>
-<p><a href="https://pytorch.org/working-groups/">Join a PyTorch Foundation Working Group.</a></p>
-<h2>Community in Shanghai</h2>
-<p>PyTorch Foundation Technical Advisory Council members met in Shanghai during Day 1 of PyTorch Conference China 2026.</p>
-<p>At the PyTorch booth, developers, contributors, hardware vendors, and attendees discussed work across the open source AI ecosystem.</p>
-<p><img decoding="async" class="aligncenter wp-image-164778 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-scaled.jpeg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-scaled.jpeg 2560w, https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/HRvsS1ibwAAxEiq-1024x768.jpeg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
-<p><img decoding="async" class="aligncenter wp-image-164781 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-scaled.jpg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/09/IMG_2932-1-1024x768.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></p>
-<h2>September 7: Starting with Diverse Hardware</h2>
-<p>Two September 7 co-located events highlighted the challenges created by increasingly heterogeneous AI hardware and the software work required to support it.</p>
-<h3>Open Computing: Building Open Software for Diverse Hardware</h3>
-<p><strong>Speaker:</strong> Mark Collier, Executive Director, PyTorch Foundation<br />
-<strong>Host:</strong> FlagOS</p>
-<p>Mark Collier joined experts from Beijing Academy of Artificial Intelligence (BAAI), Shanghai AI Laboratory, vLLM, SGLang, NVIDIA, and others in a technical discussion about open system software for diverse hardware.</p>
-<p>AI chip diversification creates repeated integration work across operators, compilers, training and inference frameworks, communications, and other parts of the software stack. Talks focused on technical roadmaps and collaboration models for a multi-chip AI system software stack, including hardware-software co-optimization across emerging chip architectures.</p>
-<p><img decoding="async" class="aligncenter wp-image-164700 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo.jpeg" alt="" width="1280" height="960" srcset="https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo.jpeg 1280w, https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo-300x225.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/09/open-computing-colo-1024x768.jpeg 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
-<h3>Hardware-Aware AI: Building PyTorch Workloads Across Accelerators</h3>
-<p><strong>Opening remarks:</strong> Mark Collier, Executive Director, PyTorch Foundation<br />
-<strong>Host:</strong> Huawei</p>
-<p>Huawei’s co-located session focused on PyTorch workloads across GPUs, NPUs, and XPUs, including framework adaptation, operators, compiler co-optimization, workload migration, and performance tuning.</p>
-<p><img decoding="async" class="aligncenter wp-image-164699 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/hardware-aware-ai.jpeg" alt="" width="800" height="600" srcset="https://pytorch.org/wp-content/uploads/2026/09/hardware-aware-ai.jpeg 800w, https://pytorch.org/wp-content/uploads/2026/09/hardware-aware-ai-300x225.jpeg 300w" sizes="(max-width: 800px) 100vw, 800px" /></p>
-<h2>Register for PyTorch Conference North America 2026</h2>
-<p>If you couldn’t join us in Shanghai, PyTorch Conference North America 2026 is the next chance to hear directly from maintainers, researchers, developers, and AI engineers working across the open source AI stack.</p>
-<p>PyTorch conferences are the open source AI community’s town square, where what’s next gets decided.</p>
-<p>PyTorch Conference North America comes to San Jose October 20–21, with maintainers from PyTorch, vLLM, DeepSpeed, and Ray among the speakers.</p>
-<p><a href="https://hubs.la/Q04x03FW0">Register for PyTorch Conference North America 2026.</a></p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4222 metric#misses=30 metric#hit-ratio=99.3 metric#bytes=1400487 metric#prefetches=149 metric#store-reads=65 metric#store-writes=8 metric#store-hits=289 metric#store-misses=14 metric#sql-queries=12 metric#ms-total=347.20 metric#ms-cache=30.72 metric#ms-cache-avg=0.4267 metric#ms-cache-ratio=8.9 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4232 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1383695 metric#prefetches=258 metric#store-reads=42 metric#store-writes=8 metric#store-hits=273 metric#store-misses=15 metric#sql-queries=12 metric#ms-total=657.87 metric#ms-cache=35.53 metric#ms-cache-avg=0.7251 metric#ms-cache-ratio=5.4 -->
