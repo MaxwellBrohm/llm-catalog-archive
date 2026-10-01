@@ -5,7 +5,7 @@
 	<atom:link href="https://aws.amazon.com/blogs/machine-learning/feed/" rel="self" type="application/rss+xml"/>
 	<link>https://aws.amazon.com/blogs/machine-learning/</link>
 	<description>Official Machine Learning Blog of Amazon Web Services</description>
-	<lastBuildDate>Wed, 30 Sep 2026 01:13:14 +0000</lastBuildDate>
+	<lastBuildDate>Wed, 30 Sep 2026 15:37:15 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -13,6 +13,947 @@
 	1	</sy:updateFrequency>
 	
 	<item>
+		<title>Query claims in natural language with Amazon Bedrock Knowledge Bases</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/query-claims-in-natural-language-with-amazon-bedrock-knowledge-bases/</link>
+		
+		<dc:creator><![CDATA[Shreya Pawaskar]]></dc:creator>
+		<pubDate>Wed, 30 Sep 2026 15:37:15 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon Bedrock]]></category>
+		<category><![CDATA[Amazon Bedrock Knowledge Bases]]></category>
+		<category><![CDATA[Technical How-to]]></category>
+		<guid isPermaLink="false">6f62e0665479ef5d4ffddb480328d07ce719281b</guid>
+
+					<description>This technical how-to builds a conversational claims assistant on Amazon Bedrock Knowledge Bases that answers natural-language questions with citations. It covers ingesting claim documents from Amazon S3, querying with the AgenticRetrieveStream API, multi-turn follow-ups, metadata filters, and contextual grounding guardrails.</description>
+										<content:encoded>&lt;p&gt;Claim answers are scattered across adjuster diary entries, repair estimates, police reports, payment ledgers, and scanned attachments rather than one searchable field. A policyholder might ask whether a claim was approved, while an adjuster might need every open auto claim over $10,000 from last month. Both tasks require finding and combining evidence quickly and accurately.&lt;/p&gt;
+&lt;p&gt;Retrieval Augmented Generation (RAG) uses retrieved documents to ground model responses. &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html" target="_blank" rel="noopener"&gt;Amazon Bedrock Knowledge Bases&lt;/a&gt; is the fully managed RAG capability for documents. Amazon Bedrock handles parsing, chunking, embeddings, and vector storage, so you can build a conversational interface that returns cited answers from claim files.&lt;/p&gt;
+&lt;p&gt;This technical how-to uses synthetic claim records and doesn’t describe a production customer deployment. You build a claims assistant that answers natural-language questions with citations by completing these steps:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;Ingest claim documents and their metadata from Amazon Simple Storage Service (Amazon S3).&lt;/li&gt;
+ &lt;li&gt;Query them in plain language with the &lt;code&gt;AgenticRetrieveStream&lt;/code&gt; API.&lt;/li&gt;
+ &lt;li&gt;Ask multi-turn follow-up questions.&lt;/li&gt;
+ &lt;li&gt;Scope retrieval with metadata filters on attributes such as claim ID and claim type.&lt;/li&gt;
+ &lt;li&gt;Add a contextual grounding guardrail to keep answers tied to the records.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="the-claims-lookup-challenge"&gt;The claims lookup challenge&lt;/h2&gt;
+&lt;p&gt;Policyholders, contact center agents, and adjusters ask different questions:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;Policyholders ask for a plain-language status update: “Has the estimate for claim CLM-100482 been approved, and when will the check be issued?”&lt;/li&gt;
+ &lt;li&gt;Contact center agents need a fast, accurate answer while the customer waits, without transferring the call.&lt;/li&gt;
+ &lt;li&gt;Adjusters ask multi-part questions across claims, such as which open auto claims over $10,000 were filed last month and what work remains on each.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Answers are stored in PDF adjuster reports, Word correspondence, and text notes rather than consistent database fields.&lt;/p&gt;
+&lt;p&gt;Records can conflict or supersede earlier versions. A revised estimate can replace an earlier one, or a provisional payment can be reversed later. The assistant must identify which estimate, payment, or status controls.&lt;/p&gt;
+&lt;p&gt;Because claims are regulated, every answer must be grounded in source documents and include citations. Contact center agents can verify a source before repeating an answer, and supervisors can audit how the assistant reached it.&lt;/p&gt;
+&lt;h2 id="solution-overview"&gt;Solution overview&lt;/h2&gt;
+&lt;p&gt;The solution uses &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html" target="_blank" rel="noopener"&gt;Amazon Bedrock Knowledge Bases&lt;/a&gt; to index claim documents from Amazon S3 for retrieval.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/kb-test-agentic-retrieve.html" target="_blank" rel="noopener"&gt;Agentic retrieval&lt;/a&gt; through &lt;code&gt;AgenticRetrieveStream&lt;/code&gt; plans an answer, breaks a multi-part question into sub-queries, and runs one or more retrieval passes. It checks whether the evidence is sufficient before generating a response.&lt;/p&gt;
+&lt;p&gt;The API streams trace events, answer text, and citations. Trace events expose the retrieval plan, and each citation maps part of the answer to a source claim document.&lt;/p&gt;
+&lt;p&gt;The following diagram shows both paths. The ingestion lane loads claim documents and metadata into a knowledge base. The retrieval lane sends each question through &lt;code&gt;AgenticRetrieveStream&lt;/code&gt; and an Amazon Bedrock Guardrails grounding check before returning a cited answer.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-1.png" alt="Architecture with an ingestion lane from Amazon S3 to Amazon Bedrock Knowledge Bases and managed vector storage, and a retrieval lane from the user through the claims assistant, AgenticRetrieveStream, and Amazon Bedrock Guardrails to a cited answer" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: Conversational claims assistant with Amazon Bedrock Knowledge Bases&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;The ingestion lane runs as documents arrive:&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Claim documents in PDF, Word, or text format land in Amazon S3 with matching metadata sidecars.&lt;/li&gt;
+ &lt;li&gt;An ingestion job synchronizes the S3 data source with the knowledge base as documents change.&lt;/li&gt;
+ &lt;li&gt;The knowledge base parses, chunks, embeds, and indexes the documents and their metadata in managed vector storage.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The retrieval lane runs for each question:&lt;/p&gt;
+&lt;ol start="4" type="1"&gt;
+ &lt;li&gt;The application calls &lt;code&gt;AgenticRetrieveStream&lt;/code&gt; with the question, conversation history, and optional metadata filters that scope the search.&lt;/li&gt;
+ &lt;li&gt;A foundation model creates sub-queries and repeats retrieval until it has enough evidence, up to maxAgentIteration rounds.&lt;/li&gt;
+ &lt;li&gt;A contextual grounding check blocks answers that are unsupported by the retrieved records.&lt;/li&gt;
+ &lt;li&gt;Amazon Bedrock streams the answer, trace events, and citations, so the application can display output as it arrives.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
+&lt;p&gt;Before you begin, verify that you have the following:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;An AWS account with AWS Identity and Access Management (IAM) permissions for Amazon Bedrock and Amazon S3.&lt;/li&gt;
+ &lt;li&gt;Access to a foundation model (FM) enabled through &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html" target="_blank" rel="noopener"&gt;Amazon Bedrock model access&lt;/a&gt;.&lt;/li&gt;
+ &lt;li&gt;An AWS Region that supports the selected foundation model and Amazon Bedrock Knowledge Bases. This walkthrough uses US West (Oregon), us-west-2. Check &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html" target="_blank" rel="noopener"&gt;Supported models by AWS Region in Amazon Bedrock&lt;/a&gt; before deployment.&lt;/li&gt;
+ &lt;li&gt;The &lt;a href="https://aws.amazon.com/sdk-for-python/" target="_blank" rel="noopener"&gt;AWS SDK for Python (Boto3)&lt;/a&gt;, configured with credentials and a version that supports the APIs used here.&lt;/li&gt;
+ &lt;li&gt;An S3 bucket for the synthetic claim documents and metadata.&lt;/li&gt;
+ &lt;li&gt;Familiarity with Python and with basic RAG concepts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="prepare-the-claims-documents-and-metadata"&gt;Prepare the claims documents and metadata&lt;/h2&gt;
+&lt;p&gt;Store one document per claim in Amazon S3. The knowledge base reads PDF adjuster reports, Word correspondence, and text notes directly, so you can keep documents in their native format.&lt;/p&gt;
+&lt;p&gt;Figure 2 shows a synthetic claim record. Current exposure is the estimated total claim cost. Its evidence index identifies a superseded fax draft, meaning a record replaced by a newer version. The metadata sidecar repeats fields that the assistant can filter.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-2.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-2.png" alt="A synthetic claim record showing its file-control fields and evidence index" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 2: A synthetic claim record with its file-control fields and evidence index&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;For filtering, add an accompanying metadata file with the same name plus &lt;code&gt;.metadata.json&lt;/code&gt;. For &lt;code&gt;CLM-100482.pdf&lt;/code&gt;, use &lt;code&gt;CLM-100482.pdf.metadata.json&lt;/code&gt;. Subrogation is an insurer’s effort to recover costs from a responsible third party. The following example describes one auto claim:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+    "metadataAttributes": {
+        "claim_id": "CLM-100482",
+        "claim_type": "auto",
+        "status": "open",
+        "date_filed": 20260709,
+        "amount": 14250,
+        "region": "us-west",
+        "adjuster": "Martha Rivera",
+        "policyholder": "Mary Major",
+        "policy_number": "POL-AUTO-78432",
+        "customer_id": "CUST-MM-1042",
+        "household_id": "HHD-MM-1042",
+        "document_type": "adjuster_report",
+        "carrier": "Example Insurance",
+        "has_subrogation": true,
+        "has_litigation": false,
+        "complexity_tier": "high"
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The sidecar contains scalar string, number, and Boolean values. Value types determine available filters. The following table lists fields used later in the queries.&lt;/p&gt;
+&lt;p&gt;This post uses synthetic data. Don’t place real personally identifiable information (PII) or protected health information in these resources without the required controls and approvals.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Attribute&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Type&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Filter use&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;claim_id&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;String&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;CLM-100482&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;equals&lt;/code&gt; for a single-claim lookup&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;claim_type&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;String&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;auto&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;equals&lt;/code&gt; or &lt;code&gt;in&lt;/code&gt; for a line of business&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;status&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;String&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;open&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;in&lt;/code&gt; for active work queues&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;amount&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;Number&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;14250&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;numeric range comparisons&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;date_filed&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;Number&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;20260709&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;date ranges as &lt;code&gt;YYYYMMDD&lt;/code&gt; integers&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;region&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;String&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;us-west&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;tenant scoping from the session&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;customer_id&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;String&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;CUST-MM-1042&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;customer scoping from the session&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;code&gt;has_subrogation&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;Boolean&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;true&lt;/code&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;code&gt;equals&lt;/code&gt; for recovery work&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Store dates as &lt;code&gt;YYYYMMDD&lt;/code&gt; integers because metadata filters compare numbers rather than date strings. This format supports ranges such as “filed last month.”&lt;/p&gt;
+&lt;p&gt;Store only one comparable monetary value in &lt;code&gt;amount&lt;/code&gt;. A reserve is money set aside for the estimated claim cost, while a hold is temporarily withheld. Keep reserves, payments, and holds in document text so their labels remain clear.&lt;/p&gt;
+&lt;p&gt;Sidecar files are limited to 10 KB. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/s3-data-source-connector.html" target="_blank" rel="noopener"&gt;Connect to Amazon S3 for your knowledge base&lt;/a&gt; for the complete format.&lt;/p&gt;
+&lt;p&gt;The S3 layout pairs each claim document with its metadata file:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-plaintext"&gt;s3://amzn-s3-demo-insurance-claims/claims/CLM-100482.pdf
+s3://amzn-s3-demo-insurance-claims/claims/CLM-100482.pdf.metadata.json
+s3://amzn-s3-demo-insurance-claims/claims/CLM-100517.docx
+s3://amzn-s3-demo-insurance-claims/claims/CLM-100517.docx.metadata.json
+s3://amzn-s3-demo-insurance-claims/claims/CLM-100533.txt
+s3://amzn-s3-demo-insurance-claims/claims/CLM-100533.txt.metadata.json&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id="create-the-managed-knowledge-base-and-ingest-the-claims"&gt;Create the managed knowledge base and ingest the claims&lt;/h2&gt;
+&lt;p&gt;Create the knowledge base with the bedrock-agent client. Set knowledgeBaseConfiguration.type and embeddingModelType to MANAGED.&lt;/p&gt;
+&lt;p&gt;Amazon Bedrock selects and operates the embedding model. No vector store configuration is required. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent_CreateKnowledgeBase.html" target="_blank" rel="noopener"&gt;CreateKnowledgeBase&lt;/a&gt; for all parameters. The following code creates the knowledge base:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;import boto3
+
+bedrock_agent = boto3.client("bedrock-agent", region_name="us-west-2")
+
+kb = bedrock_agent.create_knowledge_base(
+    name="insurance-claims-kb",
+    description="Synthetic insurance claims for the claims assistant",
+    roleArn="arn:aws:iam::111122223333:role/InsuranceClaimsKnowledgeBaseRole",
+    knowledgeBaseConfiguration={
+        "type": "MANAGED",
+        "managedKnowledgeBaseConfiguration": {
+            "embeddingModelType": "MANAGED"
+        },
+    },
+)
+kb_id = kb["knowledgeBase"]["knowledgeBaseId"]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The roleArn service role grants the knowledge base permission to read the S3 bucket and use the managed embedding model. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/kb-permissions.html" target="_blank" rel="noopener"&gt;Create a service role for Amazon Bedrock Knowledge Bases&lt;/a&gt;. To encrypt managed vector storage with a customer managed &lt;a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html" target="_blank" rel="noopener"&gt;AWS Key Management Service (AWS KMS)&lt;/a&gt; key, pass its ARN in serverSideEncryptionConfiguration.&lt;/p&gt;
+&lt;p&gt;Next, connect the S3 bucket as a data source. The inclusionPrefixes setting limits ingestion to claims/:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;data_source = bedrock_agent.create_data_source(
+    knowledgeBaseId=kb_id,
+    name="claims-s3",
+    dataSourceConfiguration={
+        "type": "S3",
+        "s3Configuration": {
+            "bucketArn": "arn:aws:s3:::amzn-s3-demo-insurance-claims",
+            "inclusionPrefixes": ["claims/"],
+        },
+    },
+)
+data_source_id = data_source["dataSource"]["dataSourceId"]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Start an ingestion job to parse, chunk, embed, and index the documents. Run it again whenever claim documents are added or updated so the index stays synchronized:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;bedrock_agent.start_ingestion_job(
+    knowledgeBaseId=kb_id,
+    dataSourceId=data_source_id,
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Check status with get_ingestion_job or the Amazon Bedrock console. When the job completes, the claims are searchable. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent_StartIngestionJob.html" target="_blank" rel="noopener"&gt;StartIngestionJob&lt;/a&gt; for details.&lt;/p&gt;
+&lt;h2 id="query-claims-with-the-agenticretrievestream-api"&gt;Query claims with the AgenticRetrieveStream API&lt;/h2&gt;
+&lt;p&gt;With the claims ingested, call &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_AgenticRetrieveStream.html" target="_blank" rel="noopener"&gt;AgenticRetrieveStream&lt;/a&gt; with the bedrock-agent-runtime client. See the API reference for complete request and response syntax. The request has three parts:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;messages: Conversation turns. Each message has a user or assistant role and a content.text value.&lt;/li&gt;
+ &lt;li&gt;retrievers: Up to five knowledge bases. Each includes a knowledge base ID and can specify a metadata filter and maxNumberOfResults (1–100). Increase the limit for questions that span many claims.&lt;/li&gt;
+ &lt;li&gt;agenticRetrieveConfiguration: Planning model and iteration limit. Use MANAGED for the service model. To use a specific model, use CUSTOM with a model ARN. maxAgentIteration caps the number of planning and retrieval rounds.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This request asks for one claim’s status. Setting generateResponse to True returns a natural-language answer:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;bedrock_agent_runtime = boto3.client("bedrock-agent-runtime", region_name="us-west-2")
+
+response = bedrock_agent_runtime.agentic_retrieve_stream(
+    messages=[
+        {"role": "user", "content": {"text": "What is the status of claim CLM-100482?"}}
+    ],
+    retrievers=[
+        {
+            "configuration": {"knowledgeBase": {"knowledgeBaseId": kb_id}},
+            "description": "Synthetic insurance claim records",
+        }
+    ],
+    agenticRetrieveConfiguration={
+        "foundationModelType": "MANAGED",
+        "maxAgentIteration": 5,
+    },
+    generateResponse=True,
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Iterate over response[“stream”] and handle these three event types:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;traceEvent: Reports planning, retrieval, full-document expansion, guardrail actions, status, and generated sub-queries for each step.&lt;/li&gt;
+ &lt;li&gt;responseEvent: Provides incremental answer text that you can stream to the user.&lt;/li&gt;
+ &lt;li&gt;result: Contains deduplicated retrieval results and, when generateResponse is True, the complete generated answer and its citations.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The following loop streams answer chunks as they arrive and retains the final result for citation rendering:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;answer = ""
+final_result = None
+
+for event in response["stream"]:
+    if "traceEvent" in event:
+        attributes = event["traceEvent"]["attributes"]
+        print(f"[trace] {attributes.get('step')}: {attributes.get('status')}")
+    elif "responseEvent" in event:
+        chunk = event["responseEvent"]["text"]
+        answer += chunk
+        print(chunk, end="", flush=True)
+    elif "result" in event:
+        final_result = event["result"]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id="read-the-trace-to-see-the-plan"&gt;Read the trace to see the plan&lt;/h3&gt;
+&lt;p&gt;The basic loop prints each step and status. This helper also prints sub-queries, full-document fetches, and guardrail actions:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;def report_trace(trace_event):
+    attributes = trace_event.get("attributes", {})
+    print(f"[trace] {attributes.get('step')}: {attributes.get('status')}")
+
+    for action in attributes.get("actions", []):
+        if "retrieve" in action:
+            sub_query = action["retrieve"].get("inputQuery", {}).get("text", "")
+            print(f"    sub-query: {sub_query}")
+        elif "fullDocumentExpansion" in action:
+            document = action["fullDocumentExpansion"].get("documentId", "")
+            print(f"    full document: {document}")
+
+    for warning in attributes.get("warnings", []):
+        if "guardrail" in warning:
+            print(f"    guardrail: {warning['guardrail'].get('action')}")&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Figure 3 shows the agentic loop. The service plans a strategy, creates sub-queries, retrieves evidence, and checks whether it has enough. If needed, it runs another pass before generating a cited answer.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-3.png" alt="Diagram of the agentic retrieval loop from question to cited answer" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 3: The agentic retrieval loop from question to cited answer&lt;/p&gt;
+&lt;/div&gt;
+&lt;h3 id="render-citations"&gt;Render citations&lt;/h3&gt;
+&lt;p&gt;Each citation identifies a character span in the answer and references supporting entries in the result event’s results array. The application uses the indexes to associate the displayed text with its source documents.&lt;/p&gt;
+&lt;p&gt;The following code prints each cited span beside the built-in x-amz-bedrock-kb-source-uri value for its source document:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;generated = final_result["generatedResponse"]
+results = final_result["results"]
+
+for citation in generated.get("citations", []):
+    span = generated["answer"][citation["startIndex"]:citation["endIndex"]]
+    for reference in citation["references"]:
+        source = results[reference["resultIndex"]]
+        source_uri = source.get("metadata", {}).get("x-amz-bedrock-kb-source-uri")
+        print(f'"{span}"\n  -&amp;gt; {source_uri}')&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id="ask-follow-up-questions-in-a-multi-turn-conversation"&gt;Ask follow-up questions in a multi-turn conversation&lt;/h2&gt;
+&lt;p&gt;Follow-up questions depend on prior turns. After a status answer, a policyholder might ask, “Who is the adjuster assigned to it?” The word &lt;em&gt;it&lt;/em&gt; is resolved from the conversation history passed in messages.&lt;/p&gt;
+&lt;p&gt;Keep the conversation in the application. After each turn, append the user’s question and the assistant’s answer, then send the complete list on the next call:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;messages = [
+    {"role": "user", "content": {"text": "What is the status of claim CLM-100482?"}},
+    {"role": "assistant", "content": {"text": answer}},
+    {"role": "user", "content": {"text": "Who is the adjuster assigned to it?"}},
+]
+
+response = bedrock_agent_runtime.agentic_retrieve_stream(
+    messages=messages,
+    retrievers=[
+        {"configuration": {"knowledgeBase": {"knowledgeBaseId": kb_id}}}
+    ],
+    agenticRetrieveConfiguration={"foundationModelType": "MANAGED"},
+    generateResponse=True,
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The service uses earlier turns to resolve it to claim &lt;code&gt;CLM-100482&lt;/code&gt; and retrieves that claim’s adjuster. Process the response stream as before.&lt;/p&gt;
+&lt;h2 id="scope-retrieval-with-metadata-filters"&gt;Scope retrieval with metadata filters&lt;/h2&gt;
+&lt;p&gt;Metadata filters restrict documents before semantic search. Add them under the retriever’s retrievalOverrides. Use query filters for relevance, and derive authorization filters from the authenticated session on the server.&lt;/p&gt;
+&lt;p&gt;For a direct lookup by claim ID, use an equals filter:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;retrievers = [
+    {
+        "configuration": {
+            "knowledgeBase": {
+                "knowledgeBaseId": kb_id,
+                "retrievalOverrides": {
+                    "filter": {"equals": {"key": "claim_id", "value": "CLM-100482"}}
+                },
+            }
+        }
+    }
+]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;For open auto claims over $10,000 filed in July 2026, combine claim type, status, amount, and date conditions with andAll:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;claims_filter = {
+    "andAll": [
+        {"equals": {"key": "claim_type", "value": "auto"}},
+        {"equals": {"key": "status", "value": "open"}},
+        {"greaterThan": {"key": "amount", "value": 10000}},
+        {"greaterThanOrEquals": {"key": "date_filed", "value": 20260701}},
+        {"lessThanOrEquals": {"key": "date_filed", "value": 20260731}},
+    ]
+}
+
+response = bedrock_agent_runtime.agentic_retrieve_stream(
+    messages=[
+        {
+            "role": "user",
+            "content": {
+                "text": "Summarize the outstanding items on the open auto "
+                        "claims over $10,000 filed in July."
+            },
+        }
+    ],
+    retrievers=[
+        {
+            "configuration": {
+                "knowledgeBase": {
+                    "knowledgeBaseId": kb_id,
+                    "retrievalOverrides": {
+                        "filter": claims_filter,
+                        "maxNumberOfResults": 50,
+                    },
+                }
+            }
+        }
+    ],
+    agenticRetrieveConfiguration={"foundationModelType": "MANAGED"},
+    generateResponse=True,
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This query can match many claims, so maxNumberOfResults is 50. A smaller limit could omit matching claims from the summary.&lt;/p&gt;
+&lt;p&gt;Supported operators include equals, notEquals, numeric comparisons, in, notIn, stringContains, listContains, and logical andAll/orAll. startsWith is limited to Amazon OpenSearch Serverless vector stores. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/kb-metadata.html" target="_blank" rel="noopener"&gt;Metadata and filtering&lt;/a&gt; and confirm operator support.&lt;/p&gt;
+&lt;p&gt;If a filter returns no documents, check for an empty result and return a clear message such as “No claims match those criteria” instead of generating an answer.&lt;/p&gt;
+&lt;h2 id="what-we-measured"&gt;What we measured&lt;/h2&gt;
+&lt;p&gt;We measured this 30-document synthetic corpus with Retrieve and RetrieveAndGenerate, not AgenticRetrieveStream. Treat the results as a baseline for the corpus and metadata schema, not an agentic retrieval benchmark.&lt;/p&gt;
+&lt;p&gt;The 40-question suite includes direct lookups, comparisons, aliases, superseded records, reversed payments, and instruction-like document text. Automated foundation-model grading makes the fact-level results directional.&lt;/p&gt;
+&lt;p&gt;Expected-source retrieval recall measures required documents found. Citation recall measures required documents cited. Both average per question at document level and do not measure chunk precision.&lt;/p&gt;
+&lt;p&gt;The following table shows the overall results.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Metric&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Result&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Questions answered&lt;/td&gt;
+   &lt;td&gt;40 of 40&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Answers carrying citations&lt;/td&gt;
+   &lt;td&gt;40 of 40&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Mean citations per answer&lt;/td&gt;
+   &lt;td&gt;3.9&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Expected-source retrieval recall&lt;/td&gt;
+   &lt;td&gt;90.5%&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Expected-source citation recall&lt;/td&gt;
+   &lt;td&gt;81.2%&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Chunks contradicting the requested filter&lt;/td&gt;
+   &lt;td&gt;0&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Source: the 40-question evaluation suite and foundation-model grader described here.&lt;/p&gt;
+&lt;p&gt;On 20 adversarial questions, retrieval recall was 96.7 percent and citation recall was 90.2 percent. The model kept similarly named companies separate, preserved an allegation as an allegation, and ignored instruction-like text inside an attachment.&lt;/p&gt;
+&lt;p&gt;Figure 4 compares expected-source retrieval and citation recall for the full suite and adversarial subset. These measurements use Retrieve and RetrieveAndGenerate.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-4.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-4.png" alt="Bar chart comparing expected-source retrieval and citation recall for the full suite and the adversarial subset" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 4: Expected-source retrieval and citation recall, full suite versus adversarial subset&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Narrow claim-specific questions performed best. Broad unfiltered inventory questions produced the three weakest results.&lt;/p&gt;
+&lt;p&gt;Citation coverage doesn’t guarantee answer completeness, so measure completeness separately when it matters.&lt;/p&gt;
+&lt;p&gt;These results use synthetic documents and automated grading. Run human review on your own corpus before exposing an assistant to policyholders.&lt;/p&gt;
+&lt;h2 id="add-security-and-governance"&gt;Add security and governance&lt;/h2&gt;
+&lt;p&gt;A claims assistant needs access controls and grounded responses.&lt;/p&gt;
+&lt;h3 id="scope-filters-to-the-authenticated-user"&gt;Scope filters to the authenticated user&lt;/h3&gt;
+&lt;p&gt;Treat metadata filters as an access boundary. Derive &lt;code&gt;region&lt;/code&gt; or &lt;code&gt;customer_id&lt;/code&gt; from the authenticated session, combine it with query filters using andAll, and never accept the boundary from user text. The userContext field also supports access-control filtering.&lt;/p&gt;
+&lt;h3 id="iam-permissions"&gt;IAM permissions&lt;/h3&gt;
+&lt;p&gt;Grant only the permissions needed for agentic retrieval, knowledge-base access, model streaming, and guardrail actions:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "bedrock:AgenticRetrieveStream",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:Retrieve",
+                "bedrock:GetDocumentContent"
+            ],
+            "Resource": "arn:aws:bedrock:us-west-2:111122223333:knowledge-base/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "bedrock:InvokeModelWithResponseStream",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:GetGuardrail",
+                "bedrock:ApplyGuardrail"
+            ],
+            "Resource": "*"
+        }
+    ]
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/logging-using-cloudtrail.html" target="_blank" rel="noopener"&gt;AWS CloudTrail&lt;/a&gt; records calls to Amazon Bedrock for auditing.&lt;/p&gt;
+&lt;h3 id="encryption"&gt;Encryption&lt;/h3&gt;
+&lt;p&gt;Amazon S3 encrypts objects at rest by default. See &lt;a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-bucket-encryption.html" target="_blank" rel="noopener"&gt;Configuring default encryption&lt;/a&gt;. You can use customer managed AWS KMS keys for the bucket and managed vector storage. API traffic uses Transport Layer Security (TLS).&lt;/p&gt;
+&lt;h3 id="contextual-grounding-with-amazon-bedrock-guardrails"&gt;Contextual grounding with Amazon Bedrock Guardrails&lt;/h3&gt;
+&lt;p&gt;Add an Amazon Bedrock Guardrails &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-contextual-grounding-check.html" target="_blank" rel="noopener"&gt;contextual grounding check&lt;/a&gt; to block responses below configured grounding or relevance thresholds:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;Grounding: Consistency with retrieved claim documents.&lt;/li&gt;
+ &lt;li&gt;Relevance: Alignment with the user’s question.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Create a guardrail with the bedrock client. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_CreateGuardrail.html" target="_blank" rel="noopener"&gt;CreateGuardrail&lt;/a&gt; for all policy types, and choose a high grounding threshold for claims:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;bedrock = boto3.client("bedrock", region_name="us-west-2")
+
+guardrail = bedrock.create_guardrail(
+    name="claims-assistant-guardrail",
+    description="Contextual grounding for the claims assistant",
+    contextualGroundingPolicyConfig={
+        "filtersConfig": [
+            {"type": "GROUNDING", "threshold": 0.85},
+            {"type": "RELEVANCE", "threshold": 0.75},
+        ]
+    },
+    blockedInputMessaging="I can't help with that request.",
+    blockedOutputsMessaging="I can only answer questions using the claim records.",
+)
+guardrail_id = guardrail["guardrailId"]
+guardrail_version = bedrock.create_guardrail_version(
+    guardrailIdentifier=guardrail_id
+)["version"]&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Higher thresholds block more responses. In claims workflows, declining to answer is safer than generating unsupported content. Pass the guardrail ID and version in policyConfiguration:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;response = bedrock_agent_runtime.agentic_retrieve_stream(
+    messages=[
+        {"role": "user", "content": {"text": "What is the status of claim CLM-100482?"}}
+    ],
+    retrievers=[
+        {"configuration": {"knowledgeBase": {"knowledgeBaseId": kb_id}}}
+    ],
+    agenticRetrieveConfiguration={"foundationModelType": "MANAGED"},
+    policyConfiguration={
+        "bedrockGuardrailConfiguration": {
+            "guardrailId": guardrail_id,
+            "guardrailVersion": guardrail_version,
+        }
+    },
+    generateResponse=True,
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Agentic retrieval supports the BLOCK action. A failed grounding check blocks the response, and trace events record the intervention.&lt;/p&gt;
+&lt;p&gt;Keep a person in the loop to review cited evidence and make the final claim decision.&lt;/p&gt;
+&lt;h2 id="clean-up"&gt;Clean up&lt;/h2&gt;
+&lt;p&gt;Delete the resources when finished to avoid future charges:&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Delete the knowledge base. This also removes the managed vector storage:
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="lang-cli"&gt;bedrock_agent.delete_knowledge_base(knowledgeBaseId=kb_id)&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Delete the guardrail:
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="lang-cli"&gt;bedrock.delete_guardrail(guardrailIdentifier=guardrail_id)&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Empty and delete the S3 bucket.&lt;/li&gt;
+ &lt;li&gt;Delete the knowledge-base IAM role and policy.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;You built a claims assistant with Amazon Bedrock Knowledge Bases and synthetic documents in Amazon S3.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;AgenticRetrieveStream&lt;/code&gt; handles multi-part questions, conversation history, metadata filters, grounding checks, streamed answers, and citations.&lt;/p&gt;
+&lt;p&gt;The same pattern applies to underwriting and policy-service documents. Learn more in &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html" target="_blank" rel="noopener"&gt;Amazon Bedrock Knowledge Bases&lt;/a&gt; and &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/kb-test-agentic-retrieve.html" target="_blank" rel="noopener"&gt;Use agentic retrieval to query a knowledge base&lt;/a&gt;.&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-5.jpg" alt="Shreya Pawaskar" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Shreya Pawaskar&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/shreya-pawaskar/" target="_blank" rel="noopener"&gt;Shreya&lt;/a&gt; is a Delivery Consultant specializing in AI/ML at AWS Professional Services. She helps enterprise customers design and deploy agentic retrieval and generative AI solutions on Amazon Bedrock. She holds a Master’s degree in Computer Science from the University of California, Irvine. Outside of work, she enjoys hiking Bay Area trails and discovering new restaurants.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21629-6.jpg" alt="Abhishek Sharma" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Abhishek Sharma&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/abhishek-sharma-80989671/" target="_blank" rel="noopener"&gt;Abhishek&lt;/a&gt; is a Senior Solutions Architect at AWS. He collaborates with AWS customers to identify the right use case for their business and guide them through their AI transformation journey. Before joining Amazon, he worked with major enterprises as a Software developer. He is enthusiastic about building generative AI tools and assists customers in developing generative AI-powered applications within cloud environments.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Build a multi-agent music production pipeline on Amazon Bedrock AgentCore Runtime Instances</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/build-a-multi-agent-music-production-pipeline-on-amazon-bedrock-agentcore-runtime-instances/</link>
+		
+		<dc:creator><![CDATA[Evandro Franco]]></dc:creator>
+		<pubDate>Wed, 30 Sep 2026 15:21:57 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon Bedrock AgentCore]]></category>
+		<category><![CDATA[Technical How-to]]></category>
+		<guid isPermaLink="false">37f0383beadfcb1c0bb959bcb5b53ec408457b0c</guid>
+
+					<description>Amazon Bedrock AgentCore Runtime Instances gives multi-agent workflows AWS managed EC2 infrastructure with GPUs, persistent volumes, and multi-day sessions. In this post, we deploy a three-agent music production pipeline where the agents colocate on one GPU instance, share a filesystem, and hand work to each other to produce a finished track.</description>
+										<content:encoded>&lt;p&gt;As organizations move from single-purpose agents to multi-agent systems, the infrastructure requirements change. A lone agent handling customer queries can run in a serverless environment with short-lived sessions. But when you need three agents collaborating on a creative workflow that spans several days, sharing context and building on each other’s output, serverless sessions that cap at a few hours don’t cut it.&lt;/p&gt;
+&lt;p&gt;In this post, we walk through deploying a music production pipeline: One agent runs a generative audio model on the instance’s own GPU. The other two open the .wav file it wrote, off a shared volume. By the end, you will have a track you can play. You will also have learned how to create capacity providers, deploy agents from different artifact types, orchestrate agent-to-agent collaboration using shared sessions, and persist workflows across multiple days.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://aws.amazon.com/bedrock/agentcore/" target="_blank" rel="noopener"&gt;Amazon Bedrock AgentCore&lt;/a&gt; offers two compute options for hosting agents. &lt;em&gt;MicroVMs&lt;/em&gt; are the serverless option: fast cold starts, session isolation, and consumption-based pricing. &lt;em&gt;Runtime Instances&lt;/em&gt; are the new option: AWS managed EC2 infrastructure for persistent, long-running agent workflows. Both use the same runtime APIs, but Instances add multi-day sessions, GPUs, persistent volumes, and the ability to colocate multiple agents on a single instance.&lt;/p&gt;
+&lt;h2 id="how-runtime-instances-differs-from-microvm"&gt;How Runtime Instances differs from MicroVM&lt;/h2&gt;
+&lt;p&gt;Both options support custom frameworks (CrewAI, LangGraph, LlamaIndex, Strands Agents), work with your choice of foundation model, integrate with MCP and A2A, and share the same AgentCore runtime APIs. The difference is in the underlying compute model.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Capability&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;MicroVM (Serverless)&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Runtime Instances&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Compute&lt;/td&gt;
+   &lt;td&gt;Fully AWS managed&lt;/td&gt;
+   &lt;td&gt;AWS managed EC2 instances&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Session duration&lt;/td&gt;
+   &lt;td&gt;Up to 8 hours&lt;/td&gt;
+   &lt;td&gt;Up to 14 days&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Agents per compute&lt;/td&gt;
+   &lt;td&gt;One runtime (microVM) hosts one agent (1:1)&lt;/td&gt;
+   &lt;td&gt;One instance (EC2) can host multiple agents (1:N)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Artifact types&lt;/td&gt;
+   &lt;td&gt;Container image and Amazon S3 source&lt;/td&gt;
+   &lt;td&gt;Container image and Amazon S3 source&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;GPU access&lt;/td&gt;
+   &lt;td&gt;Not supported&lt;/td&gt;
+   &lt;td&gt;Yes, on a supported instance family&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Session persistence&lt;/td&gt;
+   &lt;td&gt;Session-scoped&lt;/td&gt;
+   &lt;td&gt;Persistent storage (Amazon EBS)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Pricing&lt;/td&gt;
+   &lt;td&gt;Consumption-based&lt;/td&gt;
+   &lt;td&gt;EC2 instances run in your account. Use your AWS Savings Plans and On-Demand Capacity Reservations (ODCRs)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Scaling&lt;/td&gt;
+   &lt;td&gt;Scale on demand&lt;/td&gt;
+   &lt;td&gt;Managed by capacity provider&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;An agent is a workload running within a session. Unlike the MicroVM model, where one runtime hosts one agent, a single Instances session can host multiple agents. When two agent runtimes share the same capacity provider, you can invoke them with the same &lt;code&gt;runtimeSessionId&lt;/code&gt; to land both agents on the same EC2 instance. There, they share a filesystem and can collaborate on the same task.&lt;/p&gt;
+&lt;h2 id="solution-overview"&gt;Solution overview&lt;/h2&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21762-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21762-1.png" alt="Compose, Deliver, and Screen agents on one shared GPU instance turn a producer request into a playable track and three reports" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: The three-agent pipeline (Compose, Deliver, Screen) sharing one GPU instance and session&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;We will build a music production system that uses three specialized agents:&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;&lt;strong&gt;Composition agent&lt;/strong&gt; (Audio AI team): Turns a producer’s request into a musical brief using Claude Sonnet 4.6, then renders the actual audio with a generative music model (&lt;a href="https://github.com/ace-step/ACE-Step" target="_blank" rel="noopener"&gt;ACE-Step&lt;/a&gt;, an open-source foundation model (FM) for music generation), running on the instance’s own GPU. Packaged as a container image in Amazon Elastic Container Registry (Amazon ECR).&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Delivery agent&lt;/strong&gt; (Audio Engineering team): Reads the rendered track off the shared filesystem and measures it, then asks Claude Sonnet 4.6 for a delivery chain (EQ, compression, limiting) based on those measurements rather than on the audio itself. Real signal processing applies to the chain, and the result is measured again to confirm it hit the delivery target. Packaged as a container image in Amazon ECR.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Compliance agent&lt;/strong&gt; (Release Engineering team): Independently re-measures the finished delivery, checks it against the delivery targets the delivery agent claimed, and screens it for harmonic similarity against the studio’s own back catalog. If the screen objects, the agent calls back to the composition agent for a replacement and re-screens. Delivered as a zip file on Amazon Simple Storage Service (Amazon S3).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The workflow: a producer starts a track. The composition agent writes a brief and renders real audio on the instance’s GPU. The delivery agent opens that file, measures it, applies a chain it derived from those measurements, and measures again to prove the result landed on target. The compliance agent then re-measures independently, checks the delivery targets, and screens the audio against the studio’s back catalog. If the screen flags a match, it calls back to the composition agent to generate an alternative. The producer ends up with a playable .wav and three reports explaining every decision.&lt;/p&gt;
+&lt;p&gt;What makes this possible on Runtime Instances:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;Colocation via shared session ID.&lt;/strong&gt; Each agent has its own runtime, but by invoking them with the same &lt;code&gt;runtimeSessionId&lt;/code&gt; on the same capacity provider, AgentCore places them on the same instance with the same volumes mounted. They share a filesystem and can access each other’s outputs.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;A GPU you can use.&lt;/strong&gt; The composition agent runs the ACE-Step foundation model directly on the instance’s NVIDIA L4, rendering 20 seconds of 48 kHz stereo in about 9 seconds. The model and its dependencies live on a persistent volume. Built once for a session, then reused by every invocation in it, including after an overnight stop.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Independent deployment.&lt;/strong&gt; Each team ships its own artifact on its own cadence. The Audio AI team pushes a new composition image without coordinating with Audio Engineering or Release Engineering, and the other two keep running untouched.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Multi-day persistence.&lt;/strong&gt; A producer works on composition Monday, stops the session overnight, and resumes delivery Tuesday. The instance idles automatically and resumes the next invoke.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Mixed artifacts.&lt;/strong&gt; Containers from ECR and code packages from S3 coexist on one capacity provider. Teams choose the packaging that fits their workflow.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="walkthrough"&gt;Walkthrough&lt;/h2&gt;
+&lt;p&gt;From here on, this post is hands-on. You will prepare your AWS account, then run a three-agent pipeline that renders, generates, and clears a finished track, producing a .wav file you can play. Work through the steps in order. You will start by confirming the prerequisites, then define the three agents (Step 1), create a capacity provider that provisions the GPU instance and its persistent volumes (Step 2), deploy each agent as its own runtime (Step 3), and invoke them with a shared session ID so they can colocate on one instance and hand work to each other (Step 4). Finally, Step 5 shows how any one team can ship a new version of its agent without disturbing the others. The complete sample is in the &lt;a href="https://github.com/awslabs/agentcore-samples/tree/main/02-use-cases/02-workflow-automation-agents/gpu-music-production-agent" target="_blank" rel="noopener"&gt;AgentCore samples GitHub repository&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="prerequisites"&gt;Prerequisites&lt;/h3&gt;
+&lt;p&gt;Before you begin, make sure you have:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;An AWS account, with credentials for a principal that can create infrastructure. This sample creates AWS Identity and Access Management (IAM) roles, an S3 bucket, ECR repositories, and an AgentCore capacity provider and runtimes.&lt;/li&gt;
+ &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener"&gt;AWS Command Line Interface (AWS CLI)&lt;/a&gt; installed and configured.&lt;/li&gt;
+ &lt;li&gt;A virtual private cloud (VPC) with at least one subnet and security group.&lt;/li&gt;
+ &lt;li&gt;Model access enabled in the &lt;a href="https://console.aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock console&lt;/a&gt; for Anthropic Claude Sonnet 4.6.&lt;/li&gt;
+ &lt;li&gt;&lt;a href="https://github.com/runfinch/finch" target="_blank" rel="noopener"&gt;Finch&lt;/a&gt; or another OCI-compatible container tool installed locally.&lt;/li&gt;
+ &lt;li&gt;Python 3.10+ installed.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;boto3 ≥ 1.36.0&lt;/strong&gt; or &lt;strong&gt;botocore ≥ 1.43.72&lt;/strong&gt;. Older versions lack &lt;code&gt;create_capacity_provider&lt;/code&gt;, and &lt;code&gt;deploy.py&lt;/code&gt; will fail.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For the complete working code, see the &lt;a href="https://github.com/awslabs/agentcore-samples/tree/main/02-use-cases/02-workflow-automation-agents/gpu-music-production-agent" target="_blank" rel="noopener"&gt;AgentCore samples repository&lt;/a&gt; on GitHub.&lt;/p&gt;
+&lt;h3 id="step-1-define-your-agents"&gt;Step 1: Define your agents&lt;/h3&gt;
+&lt;p&gt;AgentCore Runtime Instances supports any agent framework. In this sample, each agent is a Python application built with &lt;a href="https://github.com/strands-agents/" target="_blank" rel="noopener"&gt;Strands Agents&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Two details are commonly misconfigured, and both fail confusingly:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;@app.entrypoint
+def invoke(payload, context):  # the parameter must be NAMED "context"
+    session_id = getattr(context, "session_id", None) or "local-session"&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The SDK dispatches on the parameter name (it checks &lt;code&gt;params[1] == "context"&lt;/code&gt;). That is the only way to read the session ID, which the agents need in order to find each other’s files and to call one another.&lt;/p&gt;
+&lt;p&gt;Second, build the &lt;code&gt;Agent&lt;/code&gt; inside the handler, not at module scope:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;def build_agent(session_id: str, track_id: str) -&amp;gt; Agent:
+    return Agent(
+        name=AGENT_NAME,
+        model=BedrockModel(model_id=MODEL_ID, region_name=REGION),
+        system_prompt=SYSTEM_PROMPT,
+        session_manager=FileSessionManager(
+            session_id=f"{session_id}-{AGENT_NAME}",
+            storage_dir=str(track_path(track_id) / f".sessions-{AGENT_NAME}"),
+        ),
+    )&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;A module-level &lt;code&gt;Agent&lt;/code&gt; is shared across concurrent requests, and Strands rejects re-entrant invocation with &lt;code&gt;Agent is already processing a request&lt;/code&gt;. History lives on the volume through &lt;code&gt;FileSessionManager&lt;/code&gt;, which is how a session resumed days later remembers earlier decisions.&lt;/p&gt;
+&lt;h4 id="composition-agent"&gt;Composition agent&lt;/h4&gt;
+&lt;p&gt;The composition agent turns the producer request (prompt) into a musical brief, using Claude Sonnet 4.6, then renders the actual audio with the ACE-Step foundation model:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;@app.entrypoint
+def invoke(payload, context):
+    session_id = getattr(context, "session_id", None) or "local-session"
+    track_id = payload.get("track_id", "demo-track")
+    if payload.get("mode") == "prepare":
+        return {"status": "ok", "model_stack": prepare_model_stack()}
+    ensure_track_dir(track_id)
+    brief = build_agent(session_id, track_id)(
+        payload["prompt"], structured_output_model=CompositionBrief
+    ).structured_output
+    wav = track_path(track_id) / "composition.wav"
+    render = render_audio(wav, brief, duration_s=payload.get("duration_s", 30.0))
+    write_text(track_id, "composition.md", brief.to_markdown(render))
+    return {"status": "ok", "render": render, "host": host_info(),
+            "artifacts": [publish(track_id, wav)]}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;mode=prepare&lt;/code&gt; call builds the stack onto the volume, a virtualenv with CUDA PyTorch and ACE-Step. The render runs as a subprocess under that volume’s interpreter:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;proc = subprocess.run(
+    [status["python"], status["runner"], "--out", str(out_path),
+     "--prompt", brief.style_tags, "--duration", str(duration_s)],
+    capture_output=True, text=True, check=False,
+    timeout=RENDER_TIMEOUT_S, env=gpu_env(),
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h4 id="delivery-agent"&gt;Delivery agent&lt;/h4&gt;
+&lt;p&gt;The delivery agent reads the rendered track off the shared filesystem and measures it. It uses Claude Sonnet 4.6 to choose EQ bands, compressor settings, and what to leave alone. The digital signal processing (DSP) is then applied. Then the output is measured again, so the plan is checked rather than trusted.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;before = audio.measure(str(source))  # ITU-R BS.1770-4
+plan = build_agent(session_id, track_id)(
+    f"Prepare this for {platform} delivery.\n{json.dumps(before.to_dict())}",
+    structured_output_model=DeliveryPlan,
+).structured_output
+data, rate = audio.read_audio(str(source))
+bands = [b.model_dump() for b in plan.eq_bands]
+if bands:
+    data = audio.apply_filters(data, rate, bands)
+if plan.compressor.enabled:
+    data, _ = audio.compress(
+        data, rate,
+        threshold_db=plan.compressor.threshold_db,
+        ratio=plan.compressor.ratio,
+        attack_ms=plan.compressor.attack_ms,
+        release_ms=plan.compressor.release_ms,
+        knee_db=plan.compressor.knee_db,
+    )
+data, _ = audio.normalise_loudness(data, rate, plan.target_lufs)
+data, _ = audio.limit(data, rate, ceiling_dbtp=plan.target_true_peak_dbtp)
+audio.write_audio(str(delivery), data, rate, subtype="PCM_24")
+after = audio.measure(str(delivery))  # verify, don't trust&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h4 id="compliance-agent"&gt;Compliance agent&lt;/h4&gt;
+&lt;p&gt;The compliance agent independently re-measures the finished delivery, checks it against the delivery targets the delivery agent claimed, and screens it for harmonic similarity against the studio’s own back catalog. When it finds a similarity, it raises a flag and calls back to the composition agent for remediation.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;client = boto3.client(
+    "bedrock-agentcore", region_name=REGION,
+    config=Config(read_timeout=600, retries={"max_attempts": 3, "mode": "standard"}),
+)
+response = client.invoke_agent_runtime(
+    agentRuntimeArn=COMPOSITION_RUNTIME_ARN,  # injected at deploy time, not hard-coded
+    qualifier=COMPOSITION_QUALIFIER,
+    runtimeSessionId=session_id,  # the caller's own --- routes to this instance
+    payload=json.dumps({
+        "mode": "remediate", "track_id": track_id,
+        "issue": issue,
+        "avoid": avoid or {},
+    }).encode(),
+)
+body = json.loads(response["response"].read())  # "response", not "body"&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id="step-2-create-a-capacity-provider"&gt;Step 2: Create a capacity provider&lt;/h3&gt;
+&lt;p&gt;A capacity provider tells AgentCore what compute infrastructure to provision for your agents. You specify instance types and VPC placement. AgentCore handles provisioning and lifecycle management.&lt;/p&gt;
+&lt;p&gt;You need &lt;strong&gt;two&lt;/strong&gt; IAM roles, and the distinction matters:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;An &lt;strong&gt;operator role&lt;/strong&gt; AgentCore assumes to provision EC2 on your behalf: launching, tagging, and terminating instances and their network interfaces. Attach the managed policy &lt;code&gt;BedrockAgentCoreRuntimeInstancesOperatorRolePolicy&lt;/code&gt;.&lt;/li&gt;
+ &lt;li&gt;An &lt;strong&gt;execution role&lt;/strong&gt; your agent process assumes at runtime to call Bedrock and S3. &lt;code&gt;CreateAgentRuntime&lt;/code&gt; requires it and fails without it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Both trust &lt;code&gt;bedrock-agentcore.amazonaws.com&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now create the capacity provider. Note that names must use underscores (hyphens are not allowed):&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;control = boto3.client("bedrock-agentcore-control", region_name=REGION)
+resp = control.create_capacity_provider(
+    name="music_production_capacity",
+    permissionsConfiguration={"capacityProviderOperatorRoleArn": operator_arn},
+    computeConfiguration={
+        "ec2Configuration": {
+            "launchTemplateSource": {
+                "launchParameters": {
+                    "operatingSystem": "LINUX_X86_64", "instanceRequirements": {"allowedInstanceTypes": ["g6.xlarge"]},
+                }
+            },
+            "vpcConfiguration": {"subnets": subnets, "securityGroups": groups},
+            "volumes": [
+                {"ebsConfiguration": {"name": "tracks", "sizeGiB": 20,
+                    "volumeType": "gp3", "encrypted": True}},
+                {"ebsConfiguration": {"name": "models", "sizeGiB": 60,
+                    "volumeType": "gp3", "encrypted": True,
+                    "throughput": 500}},
+            ],
+            "rootVolume": {"freeSpaceGiB": 30, "volumeType": "gp3"},
+            "lifecycleConfiguration": {"idleInstanceTimeout": 600,
+                "maxLifetime": 86400},
+        }
+    },
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/26a0.png" alt="⚠" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt; &lt;strong&gt;GPU capacity.&lt;/strong&gt; If you hit &lt;code&gt;InsufficientInstanceCapacity&lt;/code&gt; across multiple Availability Zones (AZs) trying to allocate a GPU instance, you can switch to another GPU instance type, like &lt;code&gt;g5.xlarge&lt;/code&gt;. Update &lt;code&gt;allowedInstanceTypes&lt;/code&gt; accordingly.&lt;/p&gt;
+&lt;h3 id="step-3-deploy-agent-runtimes"&gt;Step 3: Deploy agent runtimes&lt;/h3&gt;
+&lt;p&gt;Each agent here gets its own runtime. The runtimes are brought together at invoke time. When two runtimes share a capacity provider and you invoke them with the same &lt;code&gt;runtimeSessionId&lt;/code&gt;, AgentCore places both agents on the same EC2 instance, where they share a filesystem and can collaborate on the same task. That’s how the delivery agent reads the .wav the composition agent wrote.&lt;/p&gt;
+&lt;p&gt;Next, point each runtime at the capacity provider and declare which volumes it mounts:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;composition = control.create_agent_runtime(
+    agentRuntimeName="music_production_composition",
+    roleArn=execution_arn,  # required
+    agentRuntimeArtifact={"containerConfiguration": {"containerUri": image_uri}},
+    protocolConfiguration={"serverProtocol": "HTTP"},
+    capacityProviderConfiguration={"capacityProviderArn": cp_arn},
+    filesystemConfigurations=[
+        {"capacityProviderVolume": {"volumeName": "tracks", "mountPath": "/mnt/tracks"}},
+        {"capacityProviderVolume": {"volumeName": "models", "mountPath": "/mnt/models"}},
+    ],
+    lifecycleConfiguration={"idleRuntimeSessionTimeout": 600, "maxLifetime": 86400},
+    environmentVariables={"AWS_REGION": REGION, "WORKSPACE_DIR": "/mnt/tracks",
+        "MODELS_DIR": "/mnt/models", "MODEL_ID": MODEL_ID},
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The compliance agent is the same call with a different artifact, a zip rather than an image, and only the workspace volume:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;agentRuntimeArtifact={"codeConfiguration": {
+    "code": {"s3": {"bucket": bucket, "prefix": key}},
+    "runtime": "PYTHON_3_12",
+    "entryPoint": ["compliance_agent.py"],
+}},&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id="step-4-orchestrate-multi-agent-workflows-with-shared-sessions"&gt;Step 4: Orchestrate multi-agent workflows with shared sessions&lt;/h3&gt;
+&lt;p&gt;Now invoke the agents. This is where the three agents become a pipeline: you pass the same &lt;code&gt;runtimeSessionId&lt;/code&gt; to each invocation. The first invocation is the slow one because it provisions the instance. Every call after that routes to the instance already running.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;client = boto3.client(
+    "bedrock-agentcore", region_name=REGION,
+    config=Config(read_timeout=900, retries={"max_attempts": 2, "mode": "standard"}),
+)
+session_id = f"music-production-{uuid.uuid4()}"  # 33-100 characters
+
+def invoke_agent(runtime_arn, payload):
+    response = client.invoke_agent_runtime(
+        agentRuntimeArn=runtime_arn, qualifier="DEFAULT",
+        runtimeSessionId=session_id, payload=json.dumps(payload).encode(),
+    )
+    return json.loads(response["response"].read())
+
+invoke_agent(COMPOSITION_ARN, {"mode": "prepare"})
+invoke_agent(COMPOSITION_ARN, {"mode": "catalogue", "track_id": track_id, "duration_s": 20})
+invoke_agent(COMPOSITION_ARN, {"mode": "compose", "track_id": track_id, "duration_s": 30,
+    "prompt": "Create an upbeat electronic track with heavy bass and synth melodies."})
+invoke_agent(DELIVERY_ARN, {"track_id": track_id, "platform": "spotify",
+    "prompt": "Prepare this for streaming delivery."})
+result = invoke_agent(COMPLIANCE_ARN, {"track_id": track_id,
+    "prompt": "Screen this delivery for release."})
+print(result["outcome"])  # cleared | review_required | not_cleared&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Here’s what that produces on a live &lt;code&gt;g6.xlarge&lt;/code&gt; in us-east-2:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-text"&gt;1. prepare model stack (GPU instance + torch + weights)  239s
+   host : ip-172-31-11-83.us-east-2.compute.internal
+   stack : ready=True in 125s
+2. render back-catalogue  66s
+3. compose (renders audio on the GPU)  25s
+   rendered : NVIDIA L4 in 8.98s (peak VRAM 7.63 GiB)
+   audio 20.062s 48000Hz 2ch -7.5 LUFS peak 0.42 dBTP
+4. delivery (real DSP, verified by measurement)  41s
+   read : composition.wav &amp;lt;- written by another agent
+   before -7.5 LUFS peak 0.42 dBTP
+   after -14.0 LUFS peak -3.2 dBTP
+   targets : loudness met, true peak held
+5. compliance screen  28s
+   verdict : REVIEW REQUIRED
+   screen : 2 reference(s), closest catalogue_00.wav distance 0.0665 (review)
+
+-- collocation --  All 5 steps were served by one instance, as intended.&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;When you call &lt;code&gt;StopRuntimeSession&lt;/code&gt;, the instance idles down automatically. No compute charges accrue while idle. When you invoke the session again, AgentCore resumes it, &lt;strong&gt;provided it lands in the same Availability Zone&lt;/strong&gt;. Amazon Elastic Block Store (Amazon EBS) volumes are AZ-locked. If the original AZ is capacity-dry, volumes can’t reattach and persistence is lost. Use an AZ-pinned ODCR or &lt;code&gt;MODELS_SNAPSHOT_ID&lt;/code&gt; so a re-placed resume can recover. Sessions can persist for up to 14 days.&lt;/p&gt;
+&lt;h3 id="step-5-update-agents-independently"&gt;Step 5: Update agents independently&lt;/h3&gt;
+&lt;p&gt;One of the strengths of this architecture is independent deployment. When the Audio AI team ships a new version of the composition agent, they update only their runtime:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;# Audio AI team pushes new container version
+finch build --platform linux/amd64 \
+  -f Dockerfile.composition \
+  -t "$ECR/music-production/composition-agent:v2" .
+finch push "$ECR/music-production/composition-agent:v2"&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;control.update_agent_runtime(
+    agentRuntimeId=composition_id,  # all three are required
+    roleArn=execution_arn,
+    agentRuntimeArtifact={"containerConfiguration": {"containerUri": new_uri}},
+    capacityProviderConfiguration={"capacityProviderArn": cp_arn},
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The delivery and compliance agents continue running unchanged. No coordination needed, no shared deploy pipeline, no risk of breaking another team’s agent with your update.&lt;/p&gt;
+&lt;h2 id="cleaning-up"&gt;Cleaning up&lt;/h2&gt;
+&lt;p&gt;Delete the session first. It’s the most direct way to stop EC2 and Amazon EBS charges. Deleting a session deprovisions the EC2 resources: instance, network interface, and Amazon EBS volume. Deleting the capacity provider also stops and deletes its associated sessions and their persistent storage. However, you must first disassociate every runtime and runtime version from it, and that detachment is asynchronous. Session deletion is the fast path, and the one to reach for if you want to avoid ongoing charges.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;data = boto3.client("bedrock-agentcore", region_name=REGION)
+data.delete_capacity_provider_session(capacityProviderId=cp_id, sessionId=session_id)
+for rid in runtime_ids:
+    control.delete_agent_runtime(agentRuntimeId=rid)
+# Versions detach from the capacity provider asynchronously, so poll here.
+control.delete_capacity_provider(capacityProviderId=cp_id)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Then delete the ECR repositories, S3 artifacts, IAM roles, and Amazon CloudWatch log groups.&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In this post, we deployed a multi-agent music production system on Amazon Bedrock AgentCore Runtime Instances. Three agents, built by different teams using different packaging formats, collaborated within one session on a single GPU instance, and produced a track you can play.&lt;/p&gt;
+&lt;p&gt;The architecture demonstrates several patterns that apply beyond music production:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;Colocation through shared sessions.&lt;/strong&gt; Multiple agent runtimes on the same capacity provider share an instance when invoked with the same session ID, which gives them one host: the same GPU, the same local volume, the same process space.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Independent team deployment.&lt;/strong&gt; Each agent has its own runtime lifecycle. Teams ship on their own cadence without coordination.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Mixed artifact types.&lt;/strong&gt; Containers and code packages coexist on the same infrastructure. Use whatever packaging fits your team’s workflow.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Multi-day persistence.&lt;/strong&gt; Stop sessions when work pauses, resume by invoking again. Sessions persist for up to 14 days (resume depends on landing in the same AZ).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Music was a convenient vehicle, but nothing about the architecture is musical. Swap out the render step and the same three-agent shape fits the workloads AWS calls out for GPU Instances: 3D rendering, simulation, model inference, media processing. Or a long-running job where a pipeline produces a large artifact, hands it to a second agent to transform, and has a third check the result before it ships.&lt;/p&gt;
+&lt;p&gt;To learn more, see the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/agentcore.html" target="_blank" rel="noopener"&gt;Amazon Bedrock AgentCore documentation&lt;/a&gt;. For the complete working code from this post, explore the &lt;a href="https://github.com/aws-samples/amazon-bedrock-agentcore-samples" target="_blank" rel="noopener"&gt;AgentCore samples repository&lt;/a&gt;. For advanced orchestration patterns like Graph, Swarm, or Workflow, see the &lt;a href="https://strandsagents.com/" target="_blank" rel="noopener"&gt;Strands Agents documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p style="clear: both"&gt;&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21762-2.jpg" alt="Evandro Franco" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Evandro Franco&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Evandro is a Sr.&amp;nbsp;Data Scientist working on Amazon Web Services. He is part of the Global GTM team that helps AWS customers overcome business challenges related to AI/ML on top of AWS, mainly on Amazon Bedrock AgentCore and Strands Agents. He has more than 18 years of experience working with technology, from software development, infrastructure, serverless, to machine learning. In his free time, Evandro enjoys playing with his son, mainly building some funny Lego bricks.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21762-3.jpg" alt="Rui Cardoso" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Rui Cardoso&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Rui is a Sr.&amp;nbsp;Partner Solutions Architect at AWS, specializing in Agentic AI and Physical AI. He works with AWS Partners to take solutions from prototype to production, spanning agentic workloads and accuracy evaluation frameworks for enterprise applications. His focus is helping partners build reliably on well-architected foundations.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21762-4.jpg" alt="Sayee Kulkarni" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Sayee Kulkarni&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Sayee is a Software Development Engineer on the Amazon Bedrock AgentCore service. Her team is responsible for building and maintaining the AgentCore Runtime platform, a foundational component that enables customers to leverage agentic AI capabilities. She is driven by delivering tangible customer value, and this customer-centric focus motivates her work. Sayee led the design and launch of AgentCore Runtime Instances, driving the project from architecture through general availability and empowering customers to run persistent, long-running agentic workloads with the flexibility and control to build sophisticated multi-agent systems.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/28/ML-21762-5.jpg" alt="Yanis Telaoumaten" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Yanis Telaoumaten&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Yanis is a Software Development Engineer on the Amazon Bedrock AgentCore service. His team builds AgentCore Runtime Instances, a platform that lets agents run for days on instances customized to their specific needs. Yanis conceived, designed, and led the implementation of the platform, driving cross-organizational collaboration and clearing roadblocks to ensure a successful delivery.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Amazon Bedrock expands Claude model availability to in-country inferencing in India</title>
 		<link>https://aws.amazon.com/blogs/machine-learning/amazon-bedrock-expands-claude-model-availability-to-india-cross-region-inference/</link>
 		
@@ -3935,692 +4876,6 @@ predictor.delete_model()&lt;/code&gt;&lt;/pre&gt;
 					
 		
 		
-			</item>
-		<item>
-		<title>Multi-Region training with Amazon SageMaker HyperPod and Qumulo</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/multi-region-training-with-amazon-sagemaker-hyperpod-and-qumulo/</link>
-		
-		<dc:creator><![CDATA[Bryan Berezdivin]]></dc:creator>
-		<pubDate>Fri, 25 Sep 2026 15:49:44 +0000</pubDate>
-				<category><![CDATA[Advanced (300)]]></category>
-		<category><![CDATA[Amazon SageMaker HyperPod]]></category>
-		<category><![CDATA[Customer Solutions]]></category>
-		<guid isPermaLink="false">30192cb168dbb5ad37dad117c1788926317f0bc4</guid>
-
-					<description>Amazon SageMaker HyperPod and Cloud Native Qumulo let you place training compute in one AWS Region while keeping your dataset in another. This post shares the architecture and validation results from a cross-Region training run, where a remote cluster matched a co-located cluster's throughput after a brief NeuralCache warmup.</description>
-										<content:encoded>&lt;p&gt;With &lt;a href="https://aws.amazon.com/sagemaker/ai/hyperpod/" target="_blank" rel="noopener"&gt;Amazon SageMaker HyperPod&lt;/a&gt; and &lt;a href="https://qumulo.com/product/aws"&gt;Qumulo&lt;/a&gt;, you can place training compute in one AWS Region and keep your dataset in another. Training large AI models requires massive GPU capacity, but your ideal compute resources and your training data don’t always reside in the same AWS Region. Accessing data across Regions adds network latency and transfer costs. Teams face a choice: either replicate petabytes of data across Regions, or absorb cross-Region latency on every read and accept slower training. This pairing can help tackle that trade-off, letting teams keep frontier models current without moving data or sacrificing throughput.&lt;/p&gt;
-&lt;p&gt;In this post, we present a solution to this challenge, explain the architecture, and share validation results from a cross-Region training run. By pairing Amazon SageMaker HyperPod with &lt;a href="https://qumulo.com/product/aws" target="_blank" rel="noopener"&gt;Cloud Native Qumulo (CNQ)&lt;/a&gt; and Qumulo’s &lt;a href="https://qumulo.com/product/cloud-data-fabric/" target="_blank" rel="noopener"&gt;Cloud Data Fabric (CDF)&lt;/a&gt;, training jobs can read datasets stored in another AWS Region or on-premises without copying the data, changing the code, or sacrificing throughput. We validated the approach by running the same training job independently on two clusters. The hub cluster runs in the US East (Ohio) Region (us-east-2), co-located with the data. The spoke cluster runs in the US West (Oregon) Region (us-west-2) and reads the data remotely through CDF with 60 ms of network latency. We then compared their throughput. After a short warmup, the spoke cluster matched the hub’s performance.&lt;/p&gt;
-&lt;p&gt;Pairing Amazon SageMaker HyperPod with CNQ delivers two measurable outcomes:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Single-Region training performance:&lt;/strong&gt; CNQ’s cloud-native architecture allows it to scale its performance independently of its data storage size. This results in full 99 percent GPU utilization and p5.48xlarge network saturation with sub-3 ms data operations.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Remote clusters train at optimal utilization:&lt;/strong&gt; A HyperPod cluster running in a different Region from its data reaches the same throughput as a cluster co-located with the data (115–117 samples/sec) with no additional data orchestration needed. Throughput converges within the first 100–150 batches, and that one-time warmup is negligible at scale: under 1 percent of wall-clock time at 10,000+ batches, and under 0.1 percent at over 100,000. This ultimately results in 80–90 percent GPU utilization for the initial phase of training for 100–150 batches and then converges on 98–100 percent GPU utilization.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="solution-overview"&gt;Solution overview&lt;/h2&gt;
-&lt;p&gt;Amazon SageMaker HyperPod provides the managed training infrastructure including resilient clusters with automatic health checks, node replacement, and checkpoint recovery. The solution pairs SageMaker HyperPod with Qumulo’s storage layer. We validated the solution with the following components:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Single source of truth&lt;/strong&gt;: Store your training dataset in one AWS Region using Cloud Native Qumulo (CNQ).&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Cross-Region access&lt;/strong&gt;: Each HyperPod cluster mounts its local CNQ instance over Network File System (NFS). The CNQ spoke cluster retrieves data from the hub cluster over &lt;a href="https://aws.amazon.com/vpc/" target="_blank" rel="noopener"&gt;Virtual Private Cloud (VPC)&lt;/a&gt; peering, making the full dataset available without cross-Region access from the compute nodes.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Intelligent data placement&lt;/strong&gt;: Qumulo’s Cloud Data Fabric (CDF) uses predictive caching through &lt;a href="https://qumulo.com/product/neural-cache"&gt;NeuralCache&lt;/a&gt;. It learns your data loader access patterns and serves data from local Non-Volatile Memory Express (NVMe), making cross-Region latency transparent after an initial warmup period.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Figure 1 shows the validated architecture. In the spoke Region, machine learning developers submit jobs through an &lt;a href="https://aws.amazon.com/eks/" target="_blank" rel="noopener"&gt;Amazon Elastic Kubernetes Service (Amazon EKS)&lt;/a&gt; orchestrator, which runs them on the HyperPod cluster compute nodes. Those nodes mount a local CNQ spoke over NFS. The CNQ hub in the second Region holds the single copy of the training data, and CDF projects that dataset to the spoke over VPC peering, so the compute nodes read from the same local mount path in both Regions.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-1.png" alt="Two AWS Regions: a HyperPod cluster and CNQ spoke in one Region reading a dataset from a CNQ hub in the other over Cloud Data Fabric." width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: SageMaker HyperPod with multi-Region data on Qumulo&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="about-qumulo-cloud-data-fabric"&gt;About Qumulo Cloud Data Fabric&lt;/h3&gt;
-&lt;p&gt;CDF makes a single dataset on a &lt;em&gt;hub&lt;/em&gt; Cloud Native Qumulo (CNQ) instantly visible and accessible to multiple &lt;em&gt;spoke&lt;/em&gt; CNQ instances. This holds even on network links with more than 100 ms of latency. The primary component is Qumulo’s NeuralCache, which uses an AI model to predict the next 4 KB blocks a job will need and pre-caches them at the spoke. Combined with CNQ’s elastic performance, the dataset performs like local storage for the spoke clusters in this validated configuration, without the costs of full data replication.&lt;/p&gt;
-&lt;p&gt;We ran the same training job (1.02 billion-parameter LLaMA v3, two ml.p5.48xlarge instances per Amazon SageMaker HyperPod cluster, 16 H100 GPUs total) independently on each cluster. The following table compares the performance:&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Configuration&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Training speed&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Time to 999 batches&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;NeuralCache state&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Hub (us-east-2 to us-east-2)&lt;/td&gt;
-   &lt;td&gt;116–117 samples/sec&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;18.5 minutes&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;N/A (local)&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Spoke, Warm Cache (us-east-2 to us-west-2)&lt;/td&gt;
-   &lt;td&gt;115–116 samples/sec&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;18.5 minutes&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;Converged&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Spoke, Cold Start (us-east-2 to us-west-2)&lt;/td&gt;
-   &lt;td&gt;95–115, then 116 samples/sec&lt;/td&gt;
-   &lt;td&gt;~19–20 minutes*&lt;/td&gt;
-   &lt;td&gt;Warming then Converged&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;** Worst-case scenario with no prior runs. Batches 0–150 run 15–20 percent slower during NeuralCache warmup, then converge to hub-level performance within the first epoch.*&lt;/p&gt;
-&lt;h2 id="understanding-the-architecture"&gt;Understanding the architecture&lt;/h2&gt;
-&lt;p&gt;The following sections introduce the validated architecture with Qumulo configured in the same Region as the HyperPod cluster as a hub and also as a spoke.&lt;/p&gt;
-&lt;h3 id="how-cloud-data-fabric-and-neuralcache-work"&gt;How Cloud Data Fabric and NeuralCache work&lt;/h3&gt;
-&lt;p&gt;Cloud Data Fabric (CDF) keeps a single authoritative copy of your dataset on the hub cluster and projects it to spoke clusters as a unified Portable Operating System Interface (POSIX) namespace. When a spoke is created, CDF replicates the filesystem metadata to it, so the full namespace is browsable within seconds, before file data has moved. When the spoke mounts the filesystem, CDF services each read from the nearest valid source: local NVMe cache on a hit, the hub on a miss. CDF also uses advanced congestion control, which paces to measured bottleneck bandwidth and round-trip propagation time rather than backing off on packet loss. This is what keeps a long-haul link full where loss-based algorithms collapse. CDF sustains near-line-rate throughput on paths with round-trip times (RTTs) as high as 900 ms.&lt;/p&gt;
-&lt;p&gt;NeuralCache is the predictive caching layer inside CDF. It observes the sequential 4 KB block reads issued by the training data loader and learns the access pattern. It then places data predictively before the job issues the request. Within the first 100–150 batches, the model learns to predict which blocks will be requested next and pre-fetches them from the hub into local NVMe storage on the spoke. Once warmed, 94–96 percent of reads are served from local cache at sub-5 ms latency. This results in lower latency operations for applications.&lt;/p&gt;
-&lt;h3 id="hub-configuration"&gt;Hub configuration&lt;/h3&gt;
-&lt;p&gt;Data and compute share the same Region. Qumulo delivers 1.0–1.3 GBps sustained read throughput (saturating the 10 Gbps network link) at 2–3 ms max read latency, keeping GPUs fully utilized throughout training. Co-locating data and compute matters because every data loader read travels only within the Region, so there’s no wide-area network hop on the critical path. CNQ sustains these numbers because its cloud-native architecture scales throughput with the size of the cluster rather than the size of the dataset. This is why a 4-node cluster can saturate the network link feeding the GPUs. Figure 2 shows this single-Region layout, with the HyperPod cluster, the Amazon EKS orchestrator, and the CNQ hub that stores the dataset all in one Region.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-2.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-2.png" alt="A single AWS Region holding the HyperPod cluster, the Amazon EKS orchestrator, and the CNQ hub that stores the training dataset." width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 2: SageMaker HyperPod with single-Region data on Qumulo&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="spoke-configuration-cold-start"&gt;Spoke configuration (cold start)&lt;/h3&gt;
-&lt;p&gt;Your Amazon SageMaker HyperPod cluster runs in a different Region from where the data originates. It mounts the local Qumulo spoke, which handles fetching data from the hub. NeuralCache observes your data loader access patterns in real time and begins caching data locally. During the initial 100–150 batches, cross-Region latency is visible and training runs at 95–105 samples per second. Performance then converges to hub-equivalent levels (115–117 samples per second) for the remainder of the run. Figure 3 shows this cross-Region layout. The HyperPod cluster and a CNQ spoke run in one Region, and the CNQ hub that holds the dataset runs in a second Region, connected by CDF over VPC peering.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-3.png" alt="A HyperPod cluster and CNQ spoke in one Region reading data from a CNQ hub in a second Region during NeuralCache cold start." width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 3: SageMaker HyperPod with multi-Region data on Qumulo (cold start, worst case)&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="spoke-configuration-warm-cache"&gt;Spoke configuration (warm cache)&lt;/h3&gt;
-&lt;p&gt;Subsequent runs benefit from a fully warmed NeuralCache. With a 94–96 percent cache hit rate, data is served from local NVMe at sub-5 ms latency, delivering immediate hub-equivalent performance with GPU utilizations above 99 percent.&lt;/p&gt;
-&lt;h2 id="walkthrough"&gt;Walkthrough&lt;/h2&gt;
-&lt;p&gt;This walkthrough provides a step-by-step process for configuring and running these same tests.&lt;/p&gt;
-&lt;h3 id="prerequisites"&gt;Prerequisites&lt;/h3&gt;
-&lt;p&gt;To set up a representative environment, you need the following prerequisites:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;An AWS account with Amazon SageMaker HyperPod enabled.&lt;/li&gt;
- &lt;li&gt;Deploy Qumulo Cloud Native in your primary Region (us-east-2, Ohio).&lt;/li&gt;
- &lt;li&gt;Sufficient quota for ml.p5.48xlarge instances (two per cluster).&lt;/li&gt;
- &lt;li&gt;Configure VPC peering between hub and spoke Regions.&lt;/li&gt;
- &lt;li&gt;Basic familiarity with PyTorch and distributed training concepts.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="step-1-deploy-qumulo-cloud-native-in-your-hub-region"&gt;Step 1: Deploy Qumulo Cloud Native in your hub Region&lt;/h3&gt;
-&lt;p&gt;Deploy Qumulo Cloud Native in us-east-2 from &lt;a href="https://aws.amazon.com/marketplace/" target="_blank" rel="noopener"&gt;AWS Marketplace&lt;/a&gt;. In the &lt;a href="https://aws.amazon.com/s3/" target="_blank" rel="noopener"&gt;Amazon Simple Storage Service (Amazon S3)&lt;/a&gt; bucket that hosts your deployment files, find the &lt;a href="https://aws.amazon.com/cloudformation/" target="_blank" rel="noopener"&gt;AWS CloudFormation&lt;/a&gt; template at templates/cnq-standard.&lt;code&gt;template.yaml&lt;/code&gt; and copy its object URL. Create the stack from that URL, then choose r5.8xlarge instances and a 4-node cluster in your existing VPC.&lt;/p&gt;
-&lt;h3 id="step-2-configure-vpc-peering-between-regions"&gt;Step 2: Configure VPC peering between Regions&lt;/h3&gt;
-&lt;p&gt;Create a VPC peering connection between your hub (us-east-2) and spoke (us-west-2) VPCs. Then accept the connection in the peer Region and update the route tables in both Regions so that each VPC’s CIDR range routes to the peering connection. This gives Qumulo instances in the spoke Region a path to the Qumulo instances in the hub Region. Now, Amazon SageMaker HyperPod instances in the spoke Region (us-west-2) have access to data in the hub Region (us-east-2) through their local NFS mount. This is because both Qumulo clusters are connected with a private, low-latency path.&lt;/p&gt;
-&lt;p&gt;VPC peering traffic between AWS Regions is encrypted in transit. Configure security groups on both the Qumulo and HyperPod instances to allow only the required NFS ports (TCP 2049) between the two VPCs.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; Replace placeholder values (shown in angle brackets) with your own resource identifiers.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;aws ec2 create-vpc-peering-connection \
-    --vpc-id &amp;lt;hub-vpc-id&amp;gt; \
-    --peer-vpc-id &amp;lt;spoke-vpc-id&amp;gt; \
-    --peer-region us-west-2 \
-    --region us-east-2&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Accept the peering connection from the spoke Region. Then update the route tables in both Regions so that each VPC’s CIDR block routes through the peering connection:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;# Accept the peering connection in the spoke Region (us-west-2)
-aws ec2 accept-vpc-peering-connection \
-    --vpc-peering-connection-id &amp;lt;peering-connection-id&amp;gt; \
-    --region us-west-2
-
-# Add a route in the hub route table (us-east-2) pointing to the spoke CIDR
-aws ec2 create-route \
-    --route-table-id &amp;lt;hub-route-table-id&amp;gt; \
-    --destination-cidr-block &amp;lt;spoke-vpc-cidr&amp;gt; \
-    --vpc-peering-connection-id &amp;lt;peering-connection-id&amp;gt; \
-    --region us-east-2
-
-# Add the reciprocal route in the spoke route table (us-west-2)
-aws ec2 create-route \
-    --route-table-id &amp;lt;spoke-route-table-id&amp;gt; \
-    --destination-cidr-block &amp;lt;hub-vpc-cidr&amp;gt; \
-    --vpc-peering-connection-id &amp;lt;peering-connection-id&amp;gt; \
-    --region us-west-2
-
-# Verify the peering connection is active
-aws ec2 describe-vpc-peering-connections \
-    --vpc-peering-connection-ids &amp;lt;peering-connection-id&amp;gt; \
-    --query "VpcPeeringConnections[0].Status.Code" \
-    --region us-east-2
-# Expected output: "active"&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h3 id="step-3-upload-your-training-dataset-to-qumulo"&gt;Step 3: Upload your training dataset to Qumulo&lt;/h3&gt;
-&lt;p&gt;Mount Qumulo over NFS and sync your pre-tokenized dataset. We used the &lt;a href="https://huggingface.co/datasets/allenai/c4" target="_blank" rel="noopener"&gt;C4 dataset&lt;/a&gt;, tokenized for LLaMA (48.4 million sequences packed to 4,096-token windows). Qumulo presents a unified POSIX namespace, so hub and spoke instances use the same mount path.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;sudo mount -t nfs4 -o rw,hard,nointr,proto=tcp &amp;lt;qumulo-ip&amp;gt;:/ /mnt/qumulo
-aws s3 sync s3://&amp;lt;your-bucket-name&amp;gt;/c4-tokenized/ /mnt/qumulo/data/c4/&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h3 id="step-4-create-your-hyperpod-clusters"&gt;Step 4: Create your HyperPod clusters&lt;/h3&gt;
-&lt;p&gt;Create Amazon SageMaker HyperPod clusters in both Regions with ml.p5.48xlarge instances. HyperPod manages the underlying infrastructure (health monitoring, automatic node replacement, and checkpoint-based recovery), so your training run survives hardware failures without manual intervention. Configure a lifecycle script that mounts Qumulo at startup. The spoke cluster uses the same lifecycle script and mounts the local Qumulo spoke instance over NFS. The Qumulo spoke retrieves data from the hub transparently over VPC peering.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;aws sagemaker create-cluster \
-    --cli-input-json file://hub-cluster-config.json \
-    --region us-east-2
-
-aws sagemaker create-cluster \
-    --cli-input-json file://spoke-cluster-config.json \
-    --region us-west-2&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Each cluster is defined by a CreateCluster request file. The following &lt;code&gt;hub-cluster-config.json&lt;/code&gt; creates a two-node ml.p5.48xlarge instance group attached to your Amazon EKS control plane, with automatic node recovery turned on and a lifecycle script that mounts Qumulo at startup:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-json"&gt;{
-    "ClusterName": "hyperpod-hub-us-east-2",
-    "InstanceGroups": [
-        {
-            "InstanceGroupName": "training",
-            "InstanceType": "ml.p5.48xlarge",
-            "InstanceCount": 2,
-            "LifeCycleConfig": {
-                "SourceS3Uri": "s3://sagemaker-&amp;lt;your-bucket-name&amp;gt;/lifecycle-scripts/",
-                "OnCreate": "on_create.sh"
-            },
-            "ExecutionRole": "arn:aws:iam::&amp;lt;account-id&amp;gt;:role/&amp;lt;hyperpod-execution-role&amp;gt;",
-            "ThreadsPerCore": 1,
-            "OnStartDeepHealthChecks": ["InstanceStress", "InstanceConnectivity"]
-        }
-    ],
-    "VpcConfig": {
-        "SecurityGroupIds": ["&amp;lt;hub-security-group-id&amp;gt;"],
-        "Subnets": ["&amp;lt;hub-private-subnet-id&amp;gt;"]
-    },
-    "Orchestrator": {
-        "Eks": {
-            "ClusterArn": "arn:aws:eks:us-east-2:&amp;lt;account-id&amp;gt;:cluster/&amp;lt;hub-eks-cluster-name&amp;gt;"
-        }
-    },
-    "NodeRecovery": "Automatic"
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Create &lt;code&gt;spoke-cluster-config.json&lt;/code&gt; from the same structure, changing ClusterName, the Region in the Amazon EKS cluster ARN, and the VpcConfig values to the spoke Region resources. Each HyperPod cluster must sit in the same VPC as its Amazon EKS control plane, and the subnets must be private.&lt;/p&gt;
-&lt;h3 id="step-5-configure-the-container-storage-interface-csi-driver-to-mount-qumulo"&gt;Step 5: Configure the Container Storage Interface (CSI) driver to mount Qumulo&lt;/h3&gt;
-&lt;p&gt;Install the Qumulo CSI driver using your preferred installation method. This example uses Helm:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;helm repo add qumulo https://qumulo.github.io/qumulo-csi-driver
-helm repo update
-helm install qumulo-csi qumulo/qumulo-csi-driver --namespace kube-system&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Verify the CSI driver pods are running before proceeding to mount:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;kubectl get pods -n kube-system -l app=qumulo-csi
-
-# All pods should report STATUS=Running. If any pod shows Pending or CrashLoopBackOff, run to inspect the events:
-kubectl describe pod &amp;lt;pod-name&amp;gt; -n kube-system&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Create a Static Persistent Volume like this YAML: The accessModes value of ReadWriteMany lets every training node mount the same volume at once, which is what allows the hub and spoke clusters to share one dataset. The server attribute points at the local Qumulo instance in each Region. The same manifest works in both hub and spoke clusters by changing only that value to the local Qumulo address.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-qumulo-static
-spec:
-  capacity:
-    storage: 50Ti
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
-  mountOptions:
-    - vers=3
-    - proto=tcp
-    - nolock
-  csi:
-    driver: nfs.csi.k8s.io
-    # Unique ID for this directory/volume; use a stable path-based handle
-    volumeHandle: qumulo-nfs-root
-    volumeAttributes:
-      server: &amp;lt;qumulo-spoke-address&amp;gt;
-      share: "/"
-      #storeExportPath: "/csi"
-      #storeRealPath: "/data"
-    # If your driver requires secrets for node stage/publish, uncomment:
-    nodeStageSecretRef:
-      name: cluster1-login
-      namespace: kube-system&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Finally, create the Persistent Volume Claim:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-qumulo-static
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 50Ti
-  storageClassName: ""
-  volumeName: pv-qumulo-static&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h3 id="step-6-run-training-on-your-amazon-sagemaker-hyperpod-clusters"&gt;Step 6: Run training on your Amazon SageMaker HyperPod clusters&lt;/h3&gt;
-&lt;p&gt;Deploy a Test Pod using kubectl with the following YAML:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: v1
-kind: Pod
-metadata:
-  name: qumulo-test
-spec:
-  containers:
-    - name: app
-      image: busybox
-      command: ["sleep", "3600"]
-      volumeMounts:
-        - mountPath: /csi
-          name: storage
-  volumes:
-    - name: storage
-      persistentVolumeClaim:
-        claimName: pvc-qumulo-static&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Launch distributed training using PyTorch torchrun, pointing dataset and checkpoint paths to the Qumulo mount. No code changes are needed between hub and spoke runs. The following &lt;code&gt;job.yaml&lt;/code&gt; defines the run as a Kubeflow PyTorchJob with one worker per ml.p5.48xlarge instance. It mounts the Qumulo PersistentVolumeClaim at /csi and passes the dataset and checkpoint paths on that mount to the training script:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: kubeflow.org/v1
-kind: PyTorchJob
-metadata:
-  name: llama-fsdp
-spec:
-  pytorchReplicaSpecs:
-    Worker:
-      replicas: 2
-      restartPolicy: OnFailure
-      template:
-        spec:
-          containers:
-            - name: pytorch
-              image: &amp;lt;account-id&amp;gt;.dkr.ecr.us-east-2.amazonaws.com/&amp;lt;training-image&amp;gt;:latest
-              resources:
-                limits:
-                  nvidia.com/gpu: 8
-                  vpc.amazonaws.com/efa: 32
-              command:
-                - torchrun
-                - --nproc_per_node=8
-                - --nnodes=2
-                - /workspace/train_fsdp.py
-                - --dataset-path=/csi/data/c4
-                - --checkpoint-path=/csi/checkpoints/llama-fsdp
-                - --batch-size=24
-                - --seq-length=4096
-                - --num-workers=64
-                - --prefetch-factor=4
-              volumeMounts:
-                - mountPath: /csi
-                  name: storage
-          volumes:
-            - name: storage
-              persistentVolumeClaim:
-                claimName: pvc-qumulo-static&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Apply the manifest to the cluster:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;kubectl apply -f job.yaml&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Configure 64 data loader workers with prefetch_factor=4, keeping 256 batches in flight. This masks latency during cache warmup while Fully Sharded Data Parallel (FSDP) overlaps gradient synchronization with I/O.&lt;/p&gt;
-&lt;h2 id="performance-results"&gt;Performance results&lt;/h2&gt;
-&lt;p&gt;The performance results for relevant tests are shown in the following sections, illustrating I/O operations per second (IOPS), throughput, and latency per test run. All tests use PyTorch 2.1 FSDP, batch size 24 per GPU, and 4,096-token sequence length.&lt;/p&gt;
-&lt;h3 id="hub-configuration-1"&gt;Hub configuration&lt;/h3&gt;
-&lt;p&gt;The hub delivers consistent performance throughout training: 1.0–1.3 GBps sustained read throughput, 2–3 ms read latency, and 98–100 percent GPU utilization. These numbers are the baseline that the spoke configurations are measured against, because the hub has no wide-area network in the data path. The Qumulo dashboard (Figure 4) displays a stable IOPS profile across a full training run, with the periodic spikes corresponding to checkpoint writes rather than read stalls. The dashboard stacks three time series over the same window: IOPS, throughput, and latency. Throughput holds a flat band just above 1.0 GBps for the length of the run, and the latency trace stays flat alongside it.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-4.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-4.png" alt="Qumulo dashboard time series for the hub run, with steady IOPS, throughput above 1.0 GBps, and a flat read latency trace." width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 4: Qumulo dashboard showing hub training (us-east-2) with sustained IOPS and throughput&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="spoke-configuration-with-cold-start-worst-case"&gt;Spoke configuration with cold start (worst case)&lt;/h3&gt;
-&lt;p&gt;NeuralCache begins learning from batch zero. As it observes the data loader, it identifies the sequential access pattern that FSDP training produces and starts prefetching the next blocks before the job requests them, which minimizes data operation latency. The cache hit rate climbs steadily. It stabilizes after the prefetcher is reliably staying ahead of the data loader. Convergence lands around batch 100–150 rather than at a fixed point, because it depends on how quickly the access pattern becomes predictable. These two phases illustrate this transition.&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Phase 1 (batches 0–100): cross-Region latency dominates at over 60 ms, GPU utilization dips to 80–90 percent, and throughput runs at 500–800 MBps.&lt;/li&gt;
- &lt;li&gt;Phase 2 (batches 100–150): cache hit rate stabilizes, latency drops to 5–10 ms and training speed climbs to approximately 115 samples per second and 98–100 percent GPU utilization.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Figure 5 shows the same transition on the Qumulo dashboard. IOPS and throughput ramp upward through the warmup window while read latency falls, and all three traces flatten once NeuralCache converges.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-5.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-5.png" alt="Qumulo dashboard time series for the spoke cold start, with IOPS and throughput ramping up as read latency falls." width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 5: Qumulo dashboard showing spoke cold start (us-west-2 to us-east-2) with NeuralCache convergence&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;At production scale, this one-time penalty diminishes rapidly for geo-distributed training:&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Training Scale&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Total Batches&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Wall Clock Time&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Cold Start Impact&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Development run&lt;/td&gt;
-   &lt;td&gt;10,000&lt;/td&gt;
-   &lt;td&gt;~3 hours&lt;/td&gt;
-   &lt;td&gt;0.81%&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Production training*&lt;/td&gt;
-   &lt;td&gt;100,000&lt;/td&gt;
-   &lt;td&gt;~31 hours&lt;/td&gt;
-   &lt;td&gt;0.08%&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Large-scale pretraining*&lt;/td&gt;
-   &lt;td&gt;1,000,000&lt;/td&gt;
-   &lt;td&gt;~13 days&lt;/td&gt;
-   &lt;td&gt;0.008%&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;** “Production training” and “Large-scale pre-training” numbers are extrapolated from observed cold-start duration. Actual results will vary by dataset size, access pattern, and network conditions.*&lt;/p&gt;
-&lt;h2 id="clean-up-resources"&gt;Clean up resources&lt;/h2&gt;
-&lt;p&gt;This walkthrough provisions infrastructure in two Regions that continues to incur charges until you remove it. When you finish, tear down the resources in roughly the reverse order you created them so that dependencies are released cleanly.&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Delete the PersistentVolumeClaim and PersistentVolume, then uninstall the Qumulo CSI driver (helm uninstall qumulo-csi -n kube-system).&lt;/li&gt;
- &lt;li&gt;Delete both Amazon SageMaker HyperPod clusters (aws sagemaker delete-cluster) in us-east-2 and us-west-2. For the full procedure, see &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks-operate-cli-command-delete-cluster.html" target="_blank" rel="noopener"&gt;Deleting a SageMaker HyperPod cluster&lt;/a&gt;.&lt;/li&gt;
- &lt;li&gt;Delete the VPC peering connection and remove the routes you added to the route tables in both Regions. For the full procedure, see &lt;a href="https://docs.aws.amazon.com/vpc/latest/peering/delete-vpc-peering-connection.html" target="_blank" rel="noopener"&gt;Delete a VPC peering connection&lt;/a&gt;.&lt;/li&gt;
- &lt;li&gt;Delete the Qumulo Cloud Native deployment by removing its AWS CloudFormation stack, which also releases the underlying instances and storage. Before deleting the stack, verify any data you want to keep has been copied off the cluster. The CNQ storage volumes are deleted with the stack and are not recoverable. To delete, open the AWS CloudFormation console, select the stack you created for Qumulo in us-east-2, and choose &lt;strong&gt;Delete&lt;/strong&gt;, as described in &lt;a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-delete-stack.html" target="_blank" rel="noopener"&gt;Delete a stack from the CloudFormation console&lt;/a&gt;. Alternatively, run &lt;code&gt;aws cloudformation delete-stack --stack-name &amp;lt;qumulo-stack-name&amp;gt; --region us-east-2&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;By pairing &lt;a href="https://qumulo.com/product/cloud-native-qumulo" target="_blank" rel="noopener"&gt;CNQ&lt;/a&gt; and &lt;a href="https://qumulo.com/product/cloud-data-fabric" target="_blank" rel="noopener"&gt;CDF&lt;/a&gt; with &lt;a href="https://aws.amazon.com/sagemaker/ai/hyperpod/" target="_blank" rel="noopener"&gt;Amazon SageMaker HyperPod&lt;/a&gt;, you can run geo-distributed training from a single dataset without data replication. Our validation confirmed that a single copy of your data, with no replication overhead, delivers near-local latency and hub-equivalent throughput after a brief warmup. To avoid the cold start entirely, pre-warm the spoke before training begins by issuing a pre-warm request through the Qumulo API on the dataset inside your training job orchestration script with &lt;a href="https://www.ray.io/" target="_blank" rel="noopener"&gt;Ray&lt;/a&gt;, &lt;a href="https://aws.amazon.com/eks/" target="_blank" rel="noopener"&gt;Amazon EKS&lt;/a&gt;, &lt;a href="https://slurm.schedmd.com/overview.html" target="_blank" rel="noopener"&gt;Slurm&lt;/a&gt;, or other tooling.&lt;/p&gt;
-&lt;p&gt;To extend this architecture, consider multi-spoke deployments accessing a single dataset from three or more Regions, hybrid configurations using &lt;a href="https://aws.amazon.com/directconnect/" target="_blank" rel="noopener"&gt;AWS Direct Connect&lt;/a&gt; for on-premises data, or lifecycle policies to archive checkpoints to an &lt;a href="https://aws.amazon.com/s3/storage-classes/glacier/" target="_blank" rel="noopener"&gt;Amazon S3 Glacier&lt;/a&gt; storage class.&lt;/p&gt;
-&lt;p&gt;To get started, see &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks.html" target="_blank" rel="noopener"&gt;Orchestrating SageMaker HyperPod clusters with Amazon EKS&lt;/a&gt; in the Amazon SageMaker AI Developer Guide. For the AWS CloudFormation templates, Terraform modules, and lifecycle scripts that provision clusters like the ones in this post, see the &lt;a href="https://github.com/awslabs/awsome-distributed-ai/tree/main/architectures/sagemaker-hyperpod-eks" target="_blank" rel="noopener"&gt;SageMaker HyperPod EKS reference architecture&lt;/a&gt; in the awsome-distributed-ai GitHub repository.&lt;/p&gt;
-&lt;p&gt;For more reading on Cloud Native Qumulo, read &lt;a href="https://aws.amazon.com/blogs/apn/building-a-cloud-native-file-system-with-cloud-native-qumulo-and-amazon-s3/"&gt;Building a Cloud Native File System with Cloud Native Qumulo and Amazon S3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;For more on the components used here, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-amazon-eks-support-in-amazon-sagemaker-hyperpod/" target="_blank" rel="noopener"&gt;Introducing Amazon EKS support in Amazon SageMaker HyperPod&lt;/a&gt; and &lt;a href="https://aws.amazon.com/blogs/machine-learning/accelerate-pre-training-of-mistrals-mathstral-model-with-highly-resilient-clusters-on-amazon-sagemaker-hyperpod/" target="_blank" rel="noopener"&gt;Accelerate pre-training of Mistral’s Mathstral model with highly resilient clusters on Amazon SageMaker HyperPod&lt;/a&gt; on the &lt;a href="https://aws.amazon.com/blogs/machine-learning/"&gt;AWS Artificial Intelligence Blog&lt;/a&gt;. Leave a comment to tell us how you use multi-Region training.&lt;/p&gt;
-&lt;p style="clear: both"&gt;&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-6.jpg" alt="Bryan Berezdivin" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Bryan Berezdivin&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Bryan is Director of AI Product and Strategy at Qumulo. Prior to Qumulo, he spent over six years at AWS partnering with 100s of AI/ML customers to modernize their data architectures and AI/MLOps, including autonomous systems teams building data frameworks at scale. Bryan also led the launch of AWS multimodal intelligence services purpose-built for AI/ML.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-7.jpg" alt="Marcos Perez Seoane" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Marcos Perez Seoane&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Marcos is a Principal Solutions Architect at Qumulo with over 28 years of experience in enterprise storage. He has worked across leading vendors specializing in SAN, NAS, and object storage, spent three years at AWS as an Amazon FSx for Lustre specialist, and now serves as an SME for Life Sciences workloads, helping organizations power high-performance, data-intensive environments from the edge to the cloud.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-8.jpg" alt="Florian Gauter" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Florian Gauter&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Florian is a Machine Learning and Generative AI specialist with deep expertise in large-scale distributed training and building AI systems at scale. With a background in data science, he helps organizations architect, optimize, and scale complex AI/ML workloads, from distributed model training to production-ready generative AI.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/17/ML-19515-9.jpg" alt="Mark Vinciguerra" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Mark Vinciguerra&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Mark specializes in solving the hard problems of large-scale GPU computing, including distributed training and inference across tens to thousands of accelerators. His expertise spans cluster orchestration with Kubernetes and Slurm, high-performance networking with EFA and NCCL, and storage architectures built to support demanding AI and Generative AI workloads at scale.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Speaker-labeled transcription with WhisperX on SageMaker AI</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/speaker-labeled-transcription-with-whisperx-on-sagemaker-ai/</link>
-		
-		<dc:creator><![CDATA[Ayush Sharma]]></dc:creator>
-		<pubDate>Thu, 24 Sep 2026 16:20:12 +0000</pubDate>
-				<category><![CDATA[Advanced (300)]]></category>
-		<category><![CDATA[Amazon SageMaker AI]]></category>
-		<category><![CDATA[Technical How-to]]></category>
-		<guid isPermaLink="false">89ffa52d3ad1a4f1ba4eb44fab5c1bc6ba6dcc60</guid>
-
-					<description>The AWS WhisperX Deep Learning Container packages Whisper, wav2vec2 forced alignment, and speaker diarization into a GPU-ready image. Learn how to deploy it to Amazon SageMaker AI real-time and asynchronous endpoints for word-level, speaker-labeled transcription, plus the production details that matter: the GPU AMI pin, scaling, and cost controls.</description>
-										<content:encoded>&lt;p&gt;Any team working with spoken audio hits the same wall with generic speech-to-text. Think contact-center calls, all-hands meetings, podcasts, depositions, and broadcast media. These workloads need two things that standard transcription gets wrong. First, timestamps land at the utterance level, off by several seconds. Second, there’s no reliable answer to “who said what.” Those gaps make transcripts hard to search, caption, redact, or analyze at scale. A missing speaker label breaks compliance review, and an imprecise timestamp breaks a caption or a redaction.&lt;/p&gt;
-&lt;p&gt;WhisperX closes both gaps. It wraps OpenAI’s Whisper with batched inference, adds wav2vec2 forced alignment for precise per-word timestamps, and adds speaker diarization to label who spoke. These capabilities map directly to real workloads. Contact centers can measure talk time, check script adherence, and run sentiment analysis, while teams turn meetings into searchable notes. Media and e-learning teams generate accurate captions (in SubRip Subtitle (SRT) and Web Video Text Tracks (VTT) format) for large content libraries. Time-sensitive uses get text the moment someone speaks. In regulated fields like healthcare, legal, and finance, speaker-labeled transcripts support audits and legal discovery.&lt;/p&gt;
-&lt;p&gt;The AWS WhisperX Deep Learning Container (DLC) packages all of this into a GPU-ready image. You deploy it to an Amazon SageMaker AI real-time or asynchronous endpoint without building a custom image. In this post, we show how to deploy both endpoint types and when to choose each. We also cover the production details that matter: the GPU AMI pin, scaling, Amazon Simple Storage Service (Amazon S3) setup, and cost controls. This post is part of a multimodal series showcasing specialized AWS DLCs. The series spans three AWS DLCs across four use cases: (1) vLLM-Omni for text-to-speech, (2) vLLM-Omni for image and video, (3) WhisperX for speech-to-text (this post), and (4) llama.cpp.&lt;/p&gt;
-&lt;h2 id="what-is-whisperx-and-what-workloads-it-unlocks"&gt;What is WhisperX, and what workloads it unlocks&lt;/h2&gt;
-&lt;p&gt;Whisper is a popular open source automatic speech recognition (ASR) model family from OpenAI that transcribes spoken audio into text accurately across many languages. It focuses on high-quality transcription and produces timestamps at the phrase or segment level. WhisperX is an open source project that builds on Whisper and extends it for production workloads. It adds per-word timestamps, speaker labels, and faster transcription, three capabilities that together turn raw audio into structured, analyzable transcripts.&lt;/p&gt;
-&lt;h2 id="why-a-purpose-built-deep-learning-container"&gt;Why a purpose-built Deep Learning Container&lt;/h2&gt;
-&lt;p&gt;The AWS WhisperX DLC is a maintained, GPU-ready image that already contains Whisper, the alignment models, and the diarization weights, with no Hugging Face token required. It follows the standard Amazon SageMaker AI serving contract, so you deploy it like any other model.&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Serving contract:&lt;/strong&gt; The container serves on port &lt;code&gt;8080&lt;/code&gt; and exposes &lt;code&gt;POST /invocations&lt;/code&gt; for inference and &lt;code&gt;GET /ping&lt;/code&gt; for health checks.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Request format:&lt;/strong&gt; The endpoint expects &lt;code&gt;multipart/form-data&lt;/code&gt;, with the audio as the &lt;code&gt;file&lt;/code&gt; part plus optional string fields such as &lt;code&gt;language&lt;/code&gt;, &lt;code&gt;diarize&lt;/code&gt;, and &lt;code&gt;response_format&lt;/code&gt;. Amazon SageMaker AI passes the &lt;code&gt;ContentType&lt;/code&gt; header (including the multipart boundary) through to the container unchanged.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Output formats:&lt;/strong&gt; &lt;code&gt;json&lt;/code&gt;, &lt;code&gt;verbose_json&lt;/code&gt;, &lt;code&gt;srt&lt;/code&gt;, and &lt;code&gt;vtt&lt;/code&gt;, so the same endpoint feeds analytics pipelines and video editors alike.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="choosing-between-real-time-and-asynchronous-endpoints"&gt;Choosing between real-time and asynchronous endpoints&lt;/h2&gt;
-&lt;p&gt;Amazon SageMaker AI supports both real-time and asynchronous endpoints, so you can serve the same WhisperX DLC through either pattern. The decision usually comes down to clip length and interactivity. For long audio, use the asynchronous endpoint: it’s the recommended path when transcription, alignment, and diarization need more time to run. Reserve the real-time endpoint for short, interactive clips that finish within the Amazon SageMaker AI 60-second response cap.&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Dimension&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Real-time endpoint&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Asynchronous endpoint&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Best for&lt;/td&gt;
-   &lt;td&gt;Short, interactive clips&lt;/td&gt;
-   &lt;td&gt;Long audio, high-volume batch&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Latency&lt;/td&gt;
-   &lt;td&gt;Synchronous, must finish &amp;lt; 60s&lt;/td&gt;
-   &lt;td&gt;Submit-and-poll. No response cap&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Invocation&lt;/td&gt;
-   &lt;td&gt;InvokeEndpoint (inline body)&lt;/td&gt;
-   &lt;td&gt;InvokeEndpointAsync (S3 reference)&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;I/O&lt;/td&gt;
-   &lt;td&gt;Body in request / response&lt;/td&gt;
-   &lt;td&gt;Input + output in Amazon S3&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Scaling&lt;/td&gt;
-   &lt;td&gt;Add instances (one request/container)&lt;/td&gt;
-   &lt;td&gt;Add instances. Can autoscale to zero&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Cost profile&lt;/td&gt;
-   &lt;td&gt;Bills while endpoint is up&lt;/td&gt;
-   &lt;td&gt;Scale-to-zero when idle saves cost&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;h2 id="solution-architecture"&gt;Solution architecture&lt;/h2&gt;
-&lt;p&gt;Both patterns share the same container contract. Amazon SageMaker AI forwards each request to the WhisperX DLC on port &lt;code&gt;8080&lt;/code&gt;. The real-time pattern is synchronous, and the asynchronous pattern brokers input and output through Amazon S3. Instance selection (&lt;code&gt;ml.g4dn.xlarge&lt;/code&gt; for cost, &lt;code&gt;ml.g5.2xlarge&lt;/code&gt; for headroom) and the required GPU AMI pin apply to both, and you scale throughput by adding instances rather than concurrency. The request/response sequence for each endpoint type is shown in its walkthrough section.&lt;/p&gt;
-&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;An AWS account and an Amazon SageMaker AI execution role that can &lt;code&gt;create_model&lt;/code&gt;, &lt;code&gt;create_endpoint&lt;/code&gt;, and (for asynchronous inference) read and write S3.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;GPU service quota&lt;/strong&gt; for your endpoint instance type (for example, &lt;code&gt;ml.g4dn.xlarge&lt;/code&gt; or &lt;code&gt;ml.g5.2xlarge&lt;/code&gt;).&lt;/li&gt;
- &lt;li&gt;The &lt;strong&gt;WhisperX DLC image URI&lt;/strong&gt; from Amazon Elastic Container Registry (Amazon ECR) (for example, &lt;code&gt;763104351884.dkr.ecr.&amp;lt;region&amp;gt;.amazonaws.com/whisperx:3.8.6-cu128-amzn2023-sagemaker&lt;/code&gt;).&lt;/li&gt;
- &lt;li&gt;For asynchronous inference, an S3 bucket whose name contains “sagemaker.” The default &lt;code&gt;AmazonSageMakerFullAccess&lt;/code&gt; policy grants S3 access only to such buckets.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;A complete, runnable JupyterLab notebook that walks through these steps end to end is available in the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/03-features/speech-to-text-whisperx-sagemaker" target="_blank" rel="noopener"&gt;AWS Samples repository&lt;/a&gt;. You can run it in Amazon SageMaker AI Studio against your own audio.&lt;/p&gt;
-&lt;h2 id="walkthrough-real-time-endpoint"&gt;Walkthrough: Real-time endpoint&lt;/h2&gt;
-&lt;p&gt;The real-time endpoint returns the transcript in the same synchronous call. Use it for short clips that comfortably finish within the 60-second cap. Figure 1 is a sequence diagram that traces a single real-time request end to end, from the client call through in-container transcription to the inline transcript.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-1.png" alt="Real-time endpoint request and response sequence between the client, Amazon SageMaker AI runtime, and the WhisperX DLC" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: Real-time endpoint synchronous InvokeEndpoint flow, in-container transcription, and inline transcript within the 60-second cap&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Reading the sequence end to end: the client assembles a &lt;code&gt;multipart/form-data&lt;/code&gt; body (the audio as the &lt;code&gt;file&lt;/code&gt; part plus fields such as &lt;code&gt;language&lt;/code&gt;, &lt;code&gt;diarize&lt;/code&gt;, and word-level timestamp granularity) and calls &lt;code&gt;InvokeEndpoint&lt;/code&gt;. Amazon SageMaker AI forwards the request to the container on port &lt;code&gt;8080&lt;/code&gt;, passing the &lt;code&gt;ContentType&lt;/code&gt; and its multipart boundary through unchanged. Inside the container, WhisperX runs voice-activity detection and batched Whisper transcription, wav2vec2 forced alignment for per-word timestamps, and speaker diarization to label who is speaking. It then serializes the result. The runtime returns the transcript (segments, words with timestamps, and speaker labels) inline to the client, which must complete within the Amazon SageMaker AI 60-second response cap.&lt;/p&gt;
-&lt;h3 id="create-the-model-and-endpoint-config"&gt;Create the model and endpoint config&lt;/h3&gt;
-&lt;p&gt;Register the WhisperX DLC as a model, where &lt;code&gt;IMAGE_URI&lt;/code&gt; points at the WhisperX DLC in Amazon ECR, then create an endpoint config. On every GPU variant, you must set &lt;code&gt;InferenceAmiVersion&lt;/code&gt; to &lt;code&gt;al2-ami-sagemaker-inference-gpu-3-1&lt;/code&gt;. Without this pin, the endpoint fails to start with a zero-log &lt;code&gt;CannotStartContainerError&lt;/code&gt;. Allow a generous startup health-check timeout because the weights load lazily.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;sm = boto3.client("sagemaker")
-# The WhisperX Deep Learning Container image (Python 3.12, CUDA 12.8, Amazon Linux 2023).
-REGION = "us-west-2"
-IMAGE_URI = f"763104351884.dkr.ecr.{REGION}.amazonaws.com/whisperx:3.8.6-cu128-amzn2023-sagemaker"
-
-sm.create_model(
-    ModelName=MODEL_NAME,
-    PrimaryContainer={"Image": IMAGE_URI},  # WhisperX DLC; large-v2 is the default model
-    ExecutionRoleArn=ROLE_ARN,
-)
-
-sm.create_endpoint_config(
-    EndpointConfigName=ENDPOINT_CONFIG_NAME,
-    ProductionVariants=[{
-        "VariantName": "AllTraffic",
-        "ModelName": MODEL_NAME,
-        "InitialInstanceCount": 1,
-        "InstanceType": "ml.g4dn.xlarge",
-        "InferenceAmiVersion": "al2-ami-sagemaker-inference-gpu-3-1",  # required for CUDA 12.8 DLC
-        "ContainerStartupHealthCheckTimeoutInSeconds": 900,
-    }],
-)
-
-sm.create_endpoint(EndpointName=ENDPOINT_NAME, EndpointConfigName=ENDPOINT_CONFIG_NAME)
-sm.get_waiter("endpoint_in_service").wait(EndpointName=ENDPOINT_NAME)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h3 id="invoke-with-diarization-and-word-timestamps"&gt;Invoke with diarization and word timestamps&lt;/h3&gt;
-&lt;p&gt;Build a &lt;code&gt;multipart/form-data&lt;/code&gt; body with the audio as the &lt;code&gt;file&lt;/code&gt; part and fields such as &lt;code&gt;language=en&lt;/code&gt;, &lt;code&gt;diarize=true&lt;/code&gt;, and &lt;code&gt;response_format=verbose_json&lt;/code&gt;. The response contains segments, per-word timestamps, and speaker labels.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;def build_multipart(audio_path, fields):
-    """Audio as the `file` part + optional string fields, per the WhisperX DLC contract."""
-    boundary = uuid.uuid4().hex
-    body = b""
-    for name, value in fields.items():
-        body += (f"--{boundary}\r\n"
-                 f'Content-Disposition: form-data; name="{name}"\r\n\r\n'
-                 f"{value}\r\n").encode()
-    body += (f"--{boundary}\r\n"
-             f'Content-Disposition: form-data; name="file"; filename="audio.wav"\r\n'
-             f"Content-Type: audio/wav\r\n\r\n").encode()
-    body += open(audio_path, "rb").read() + b"\r\n"
-    body += f"--{boundary}--\r\n".encode()
-    return body, f"multipart/form-data; boundary={boundary}"
-
-body, content_type = build_multipart("audio.wav", {
-    "language": "en",
-    "response_format": "verbose_json",
-    "timestamp_granularities[]": "word",  # word-level timestamps
-    "diarize": "true",  # speaker labels
-})
-
-resp = sm_runtime.invoke_endpoint(
-    EndpointName=ENDPOINT_NAME, ContentType=content_type, Body=body,
-)
-transcription = json.loads(resp["Body"].read())&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;The example GitHub repository uses a public-domain recording of the air traffic control (ATC) communications from US Airways Flight 1549, the 2009 “Miracle on the Hudson” emergency landing. It’s a real multi-party radio exchange with background noise, radio compression, and rapid callsign and frequency readouts. Those conditions make it a strong test of transcription accuracy, word-level timestamps, and speaker diarization. The full approximately 3-minute recording is sent to the asynchronous endpoint, and a 40-second segment to the real-time endpoint.&lt;/p&gt;
-&lt;audio class="wp-audio-shortcode" id="audio-139973-4" preload="none" style="width: 100%;" controls="controls"&gt;&lt;source type="audio/mpeg" src="https://d2908q01vomqb2.cloudfront.net/artifacts/DBSBlogs/ML-21846/realtime_endpoint_whisperx-flight1549-demo.mp3?_=4"&gt;&lt;/audio&gt;
-&lt;p&gt;Running this against a 40-second segment of the source audio returns the following diarized, word-timed transcript:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-plaintext"&gt;[00:02] SPEAKER_01: Cactus 1549, turn left heading 270.
-[00:04] SPEAKER_00: This is Cactus 1539, head first to Placid Crest, I'm hoping it's returning back towards LaGuardia.
-[00:11] SPEAKER_01: Okay, you need to return to LaGuardia, turn left heading of 220.
-[00:14] SPEAKER_01: 220.
-[00:18] SPEAKER_01: Tower, stoppy to park, he's got emergency returning.
-[00:22] SPEAKER_01: Who is it?
-[00:23] SPEAKER_01: It's 1529, he, uh, bird strike, he lost all engine, he lost the thrust in the engine, so he's returning immediately.
-[00:28] SPEAKER_01: Check, it's 1529, which engines?
-[00:30] SPEAKER_01: He lost thrust in both engines, he said.
-[00:32] SPEAKER_01: Got it.
-[00:34] SPEAKER_01: Check, it's 1529, if we can get it for you, do you want to try to land 131.3?&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h2 id="walkthrough-asynchronous-endpoint"&gt;Walkthrough: Asynchronous endpoint&lt;/h2&gt;
-&lt;p&gt;The asynchronous endpoint removes the 60-second cap and is the recommended path for long audio. Input and output are brokered through Amazon S3, and you poll for the result. Figure 2 is a sequence diagram that traces the full asynchronous lifecycle, from the S3 upload and InvokeEndpointAsync call through container processing to the S3 output and failure paths.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-3.png" alt="Asynchronous endpoint request and response sequence between the client, Amazon S3, Amazon SageMaker AI runtime, and the WhisperX DLC" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 2: Asynchronous endpoint S3 by-reference InvokeEndpointAsync flow, single-worker processing, and results through the S3 output and failure paths&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Reading the sequence end to end: the client uploads the multipart body to Amazon S3 and calls &lt;code&gt;InvokeEndpointAsync&lt;/code&gt; with the object’s &lt;code&gt;InputLocation&lt;/code&gt;. It receives an &lt;code&gt;OutputLocation&lt;/code&gt; and &lt;code&gt;FailureLocation&lt;/code&gt; immediately rather than waiting for the transcript. Amazon SageMaker AI reads the input from Amazon S3 and forwards it to the container on port &lt;code&gt;8080&lt;/code&gt;. There, the same voice-activity detection, batched transcription, forced-alignment, and diarization pipeline runs, one request per container. On success, the container writes the transcript to the S3 output path, or an error document to the failure path. The client polls the output path for the result and checks the failure path, so a failed job surfaces an error instead of looping indefinitely. Because work is brokered through Amazon S3, this path isn’t bound by the 60-second cap and suits long audio.&lt;/p&gt;
-&lt;h3 id="create-the-asynchronous-endpoint-config"&gt;Create the asynchronous endpoint config&lt;/h3&gt;
-&lt;p&gt;The only structural difference from the real-time endpoint is the endpoint config: it adds an &lt;code&gt;AsyncInferenceConfig&lt;/code&gt; with an S3 &lt;code&gt;OutputPath&lt;/code&gt; and &lt;code&gt;S3FailurePath&lt;/code&gt;. Set &lt;code&gt;MaxConcurrentInvocationsPerInstance=1&lt;/code&gt; to match the container’s single-worker limit, and keep the same &lt;code&gt;InferenceAmiVersion&lt;/code&gt; pin. &lt;code&gt;IMAGE_URI&lt;/code&gt; is the same WhisperX DLC used for the real-time endpoint.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;# Same WhisperX DLC image as the real-time endpoint.
-IMAGE_URI = f"763104351884.dkr.ecr.{REGION}.amazonaws.com/whisperx:3.8.6-cu128-amzn2023-sagemaker"
-
-sm.create_model(
-    ModelName=ASYNC_MODEL_NAME,
-    PrimaryContainer={"Image": IMAGE_URI},  # WhisperX DLC
-    ExecutionRoleArn=ROLE_ARN,
-)
-
-sm.create_endpoint_config(
-    EndpointConfigName=ASYNC_ENDPOINT_CONFIG_NAME,
-    ProductionVariants=[{
-        "VariantName": "AllTraffic",
-        "ModelName": ASYNC_MODEL_NAME,
-        "InitialInstanceCount": 1,
-        "InstanceType": "ml.g5.2xlarge",
-        "InferenceAmiVersion": "al2-ami-sagemaker-inference-gpu-3-1",
-        "ContainerStartupHealthCheckTimeoutInSeconds": 1200,
-    }],
-    AsyncInferenceConfig={
-        "OutputConfig": {
-            "S3OutputPath": f"s3://{BUCKET}/whisperx-async/output/",
-            "S3FailurePath": f"s3://{BUCKET}/whisperx-async/failure/",
-        },
-        "ClientConfig": {"MaxConcurrentInvocationsPerInstance": 1},  # 1 request/container
-    },
-)
-
-sm.create_endpoint(EndpointName=ASYNC_ENDPOINT_NAME, EndpointConfigName=ASYNC_ENDPOINT_CONFIG_NAME)
-sm.get_waiter("endpoint_in_service").wait(EndpointName=ASYNC_ENDPOINT_NAME)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;The rest of the workflow is identical to the real-time walkthrough. Building the &lt;code&gt;multipart/form-data&lt;/code&gt; request (the &lt;code&gt;build_multipart&lt;/code&gt; helper and transcription fields) is unchanged. You submit it with &lt;code&gt;invoke_endpoint_async&lt;/code&gt; by S3 reference instead of &lt;code&gt;invoke_endpoint&lt;/code&gt;, then read the transcript from the &lt;code&gt;OutputLocation&lt;/code&gt; and check the &lt;code&gt;FailureLocation&lt;/code&gt;. Cleanup is also the same.&lt;/p&gt;
-&lt;p&gt;Submitting the full approximately 3-minute recording to the asynchronous endpoint returns the following transcript (first and last five lines shown):&lt;/p&gt;
-&lt;audio class="wp-audio-shortcode" id="audio-139973-5" preload="none" style="width: 100%;" controls="controls"&gt;&lt;source type="audio/mpeg" src="https://d2908q01vomqb2.cloudfront.net/artifacts/DBSBlogs/ML-21846/async_endpoint_flight1549-source.mp3?_=5"&gt;&lt;/audio&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-plaintext"&gt;[00:02] SPEAKER_00: Cactus 1549, turn left heading 270.
-[00:04] SPEAKER_01: This is Cactus 1539, head first to Placid Crest, I'm hoping it's returning back towards LaGuardia.
-[00:11] SPEAKER_00: Okay, you need to return to LaGuardia, turn left heading of 220.
-[00:14] SPEAKER_00: 220.
-[00:18] SPEAKER_00: Tower, stoppy to park, he's got emergency returning.
-......
-[02:38] SPEAKER_02: 2-1-0, 4718, I think he said he's going in the Hudson.
-[02:43] SPEAKER_00: Cactus 1529, Houston.
-[02:51] SPEAKER_00: Cactus 1529, if you can, you got runway 29 available at Newark, it'll be 2 o'clock in 7 miles.
-[03:01] SPEAKER_00: You can fly 4718, climb and maintain 1-2-thousand.
-[03:04] SPEAKER_02: 1-2-thousand, and keep it private, please.&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h2 id="cleaning-up"&gt;Cleaning up&lt;/h2&gt;
-&lt;p&gt;A GPU endpoint bills continuously until you delete it. When you are done, delete the &lt;strong&gt;endpoint&lt;/strong&gt;, &lt;strong&gt;endpoint config&lt;/strong&gt;, and &lt;strong&gt;model&lt;/strong&gt; for both endpoints, and remove any S3 input and output artifacts you no longer need.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;# A GPU endpoint bills until deleted. Delete endpoint -&amp;gt; config -&amp;gt; model for each endpoint.
-for name, cfg, model in [
-    (ENDPOINT_NAME, ENDPOINT_CONFIG_NAME, MODEL_NAME),
-    (ASYNC_ENDPOINT_NAME, ASYNC_ENDPOINT_CONFIG_NAME, ASYNC_MODEL_NAME),
-]:
-    sm.delete_endpoint(EndpointName=name)
-    sm.delete_endpoint_config(EndpointConfigName=cfg)
-    sm.delete_model(ModelName=model)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h2 id="best-practices-and-production-considerations"&gt;Best practices and production considerations&lt;/h2&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Pin the GPU AMI &lt;/strong&gt;–&amp;nbsp;Always set &lt;code&gt;InferenceAmiVersion=al2-ami-sagemaker-inference-gpu-3-1&lt;/code&gt; on GPU variants. The default host AMI ships drivers that fail to start this CUDA 12.8 image.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Scale by instances, not concurrency &lt;/strong&gt;–&amp;nbsp;Inference is serialized to one request per container. Set &lt;code&gt;MaxConcurrentInvocationsPerInstance=1&lt;/code&gt; on asynchronous endpoints and add instances or containers for throughput.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Autoscale asynchronous endpoints to zero &lt;/strong&gt;–&amp;nbsp;For bursty batch workloads, scale the asynchronous endpoint to zero instances when idle to cut cost, and use &lt;a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html" target="_blank" rel="noopener"&gt;Amazon Simple Notification Service (Amazon SNS)&lt;/a&gt; completion notifications instead of tight polling.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Right-size the GPU, and use instance pools for availability &lt;/strong&gt;–&amp;nbsp;Use &lt;code&gt;ml.g4dn.xlarge&lt;/code&gt; (T4) for cost or &lt;code&gt;ml.g5.2xlarge&lt;/code&gt; (A10G) for headroom. To avoid insufficient-capacity errors, list up to five instance types in an Amazon SageMaker AI instance pool. It provisions the highest-priority type first and falls back automatically when capacity is unavailable.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Secure the S3 artifacts &lt;/strong&gt;–&amp;nbsp;Turn on S3 Block Public Access, default SSE-S3 or SSE-KMS encryption, and BucketOwnerEnforced ownership on the asynchronous bucket. Scope the execution role to specific buckets and keys.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Handle personally identifiable information (PII) responsibly &lt;/strong&gt;–&amp;nbsp;Transcripts of calls and meetings might contain sensitive data, so encrypt artifacts, restrict access, and apply redaction downstream using the word-level timestamps.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Observe and retry &lt;/strong&gt;–&amp;nbsp;Monitor with Amazon CloudWatch, alarm on failures, and retry around the cold-start behavior described earlier. For deeper GPU and inference visibility, turn on the &lt;a href="https://aws.amazon.com/blogs/machine-learning/monitor-and-debug-generative-ai-inference-with-sagemaker-detailed-metrics-and-insights-dashboard-on-cloudwatch/" target="_blank" rel="noopener"&gt;Amazon SageMaker AI detailed metrics and Insights dashboard on CloudWatch&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;In this post, we showed how to deploy the AWS WhisperX Deep Learning Container to Amazon SageMaker AI for word-level, speaker-labeled transcription. We used a real-time endpoint for short interactive clips and an asynchronous endpoint for long, high-volume audio. We covered the production details that matter most: the required GPU AMI pin, single-request-per-container scaling, S3 bucket naming, and cost controls.&lt;/p&gt;
-&lt;p&gt;To go further, explore the &lt;a href="https://aws.github.io/deep-learning-containers/whisperx/deployment/sagemaker/" target="_blank" rel="noopener"&gt;WhisperX DLC deployment guide&lt;/a&gt;, review &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html" target="_blank" rel="noopener"&gt;Amazon SageMaker AI asynchronous inference&lt;/a&gt;, and try the accompanying demo notebook against your own audio. You can also find the full working example in the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/03-features/speech-to-text-whisperx-sagemaker" target="_blank" rel="noopener"&gt;AWS Samples GitHub repository&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id="acknowledgements"&gt;Acknowledgements&lt;/h2&gt;
-&lt;p&gt;The authors thank the AWS Deep Learning Containers and Amazon SageMaker AI teams for their technical review and contributions to the sample.&lt;/p&gt;
-&lt;p style="clear: both"&gt;&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-5.jpg" alt="Ayush Sharma" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Ayush Sharma&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="http://www.linkedin.com/in/ayushsharma-india" target="_blank" rel="noopener"&gt;Ayush&lt;/a&gt; is a Senior AI Specialist Solutions Architect at AWS, working with ISVs and startups on generative AI. His interests span multi-agent architectures and the design patterns that make autonomous AI systems reliable at scale. He works closely with model deployment, fine-tuning, and cost-efficient inference across the AWS AI/ML stack. He is passionate about turning emerging AI research into practical, real-world systems.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-6.jpg" alt="Daniel Wirjo" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Daniel Wirjo&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://linkedin.com/in/wirjo" target="_blank" rel="noopener"&gt;Daniel&lt;/a&gt; is a Solutions Architect at AWS, focused on frontier AI startups. As a former startup CTO, he enjoys collaborating with founders and engineering leaders to drive growth and innovation on AWS. Outside of work, Daniel enjoys taking walks with a coffee in hand, appreciating nature, and learning new ideas.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-7.jpg" alt="Dmitry Soldatkin" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Dmitry Soldatkin&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/dmitry-soldatkin/" target="_blank" rel="noopener"&gt;Dmitry&lt;/a&gt; is the Worldwide Leader for Specialist Solutions Architecture, SageMaker Inference at AWS. He helps customers design, build, and optimize generative AI and machine learning solutions, with interests in deep learning and deploying machine learning at scale. He has a passion for continuous innovation and using data to drive business outcomes.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/22/ML-21846-8.jpg" alt="Yadan Wei" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Yadan Wei&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://aws.amazon.com/blogs/machine-learning/reducing-container-cold-start-times-using-soci-index-on-dlami-and-dlc/" target="_blank" rel="noopener"&gt;Yadan&lt;/a&gt; is a Software Development Engineer on the AWS Deep Learning Containers team. He builds containers that package tested framework versions, dependencies, and AWS deployment configuration for Amazon SageMaker AI, Amazon Elastic Compute Cloud (Amazon EC2), Amazon Elastic Container Service (Amazon ECS), and Amazon Elastic Kubernetes Service (Amazon EKS), including the vLLM-Omni DLC used in this post.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		<enclosure length="1280078" type="audio/mpeg" url="https://d2908q01vomqb2.cloudfront.net/artifacts/DBSBlogs/ML-21846/realtime_endpoint_whisperx-flight1549-demo.mp3"/>
-<enclosure length="16758078" type="audio/mpeg" url="https://d2908q01vomqb2.cloudfront.net/artifacts/DBSBlogs/ML-21846/async_endpoint_flight1549-source.mp3"/>
-
 			</item>
 	</channel>
 </rss>
