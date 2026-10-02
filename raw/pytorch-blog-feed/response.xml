@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Wed, 30 Sep 2026 14:39:49 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 01 Oct 2026 22:32:14 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,149 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</title>
+		<link>https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/</link>
+		
+		<dc:creator><![CDATA[Han Xu, Jacky Zhou, Jackie (Jiaqi) Xu, Hongtao Yu, Peng Chen (Dev Infra), Darren Liu, Dev (Devashish) Shankar, Max Leung, Nick Riasanovsky, Hao Yan, Manman Ren, Yuanwei (Kevin) Fang]]></dc:creator>
+		<pubDate>Thu, 01 Oct 2026 22:26:57 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=171511</guid>
+
+					<description><![CDATA[TL;DR In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built...]]></description>
+										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
+<p><span style="font-weight: 400;">In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built with TLX (Triton Low-level Extensions), which add explicit, hardware-aware control on top of Triton&#8217;s high-level, tile-based programming model. </span></p>
+<p><span style="font-weight: 400;">Attention is the single slowest kernel in GEM, and reaching peak Blackwell performance has traditionally required hand-written CuteDSL or CUDA — slow to develop and hard to extend to new variants. We show that TLX closes this gap on both fronts. On development efficiency, the TLX attention kernel is about </span><b>3.2K lines of concise Triton-level code</b><span style="font-weight: 400;"> — roughly 3× less than the ~10K-line CuteDSL kernels of the state-of-the-art FlashAttention-4 (FA4). On performance, it outperforms FA4 (May 2026 version)  on the jagged shapes that matter for GEM — by </span><b>~13% on the forward pass and ~50% on the backward pass</b><span style="font-weight: 400;">. And by staying in Triton&#8217;s high-level model, the kernel is approachable enough for modeling engineers, not just kernel specialists, to read, extend, and fuse.</span></p>
+<p><span style="font-weight: 400;">We organize the work in two parts — the structural changes the TLX rewrite makes possible, and the optimizations we layer on top — all benchmarked in bfloat16 on B200 against FA4, the current state of the art on Blackwell.</span></p>
+<p><span style="font-weight: 400;">Code available at: </span><a href="https://github.com/facebookresearch/ads_model_kernel_library/tree/main/tlx_jfa"><span style="font-weight: 400;">https://github.com/facebookresearch/ads_model_kernel_library/tree/main/tlx_jfa</span></a></p>
+<h2><span style="font-weight: 400;">Introduction</span></h2>
+<p><span style="font-weight: 400;">Meta&#8217;s ads models, including the Generative Ads Model (GEM) [2] and the Kunlun architecture [5], run attention over jagged (variable-length or ragged) user sequences. As described in our </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">GEM training deep dive</span></a><span style="font-weight: 400;">, padding these sequences to a fixed length can waste up to 50% of compute. GEM instead packs sequences contiguously and records each sequence&#8217;s boundaries in an offsets tensor.</span></p>
+<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-171512 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/1.png" alt="" width="1376" height="768" srcset="https://pytorch.org/wp-content/uploads/2026/09/1.png 1376w, https://pytorch.org/wp-content/uploads/2026/09/1-300x167.png 300w, https://pytorch.org/wp-content/uploads/2026/09/1-1024x572.png 1024w" sizes="(max-width: 1376px) 100vw, 1376px" />Jagged Flash Attention is the kernel-level mechanism that makes this padding-free representation efficient: it applies the FlashAttention algorithm directly to packed Q/K/V tensors and their offsets, without ever materializing padded tokens. The earlier GEM post described this challenge at the training-system level; here, we focus on optimizing the underlying attention kernel for Blackwell.</p>
+<p><span style="font-weight: 400;">Hitting peak throughput on Blackwell means keeping the tensor cores continuously fed. Plain Triton leaves most of these decisions to the compiler; TLX [1] exposes them as first-class primitives (explicit SMEM/TMEM allocation, async_task warp specialization, barriers, async TMA and MMA, and CLC). The rest of the post uses that control to turn a compiler-scheduled, memory-bound kernel into a tightly pipelined, warp-specialized one.</span></p>
+<h2><span style="font-weight: 400;">1. The Challenge: Performant and Extensible Attention on Blackwell</span></h2>
+<p><span style="font-weight: 400;">Optimizing attention on Blackwell means solving two problems at once. The first is performance: attention is the single slowest kernel in GEM, and it reaches peak throughput only when the global-memory loads, softmax, and matmuls are tightly overlapped. The second is iteration speed: attention is where new modeling ideas land (sliding window, block-sparse, and other variants), so the kernel is edited often — yet the state-of-the-art path to that performance is a hand-written CuteDSL/CUDA kernel that is hard to read, extend, or fuse. Our aim with TLX is to </span><b>strike the balance</b><span style="font-weight: 400;">: competitive performance in a kernel that stays easy to iterate on.</span></p>
+<p><b>Why a compiler-scheduled baseline falls short.</b><span style="font-weight: 400;"> Our starting point is a mature Triton-based JFA kernel — algorithmically correct, but it leaves all on-chip data movement and scheduling to the compiler: no control over shared-memory allocation or pipeline depth, no explicit barriers or warp specialization, and a single homogeneous warp group doing loads, softmax, and matmuls at once, so the tensor cores stall whenever it is not issuing an MMA. Breaking that ceiling is exactly what TLX&#8217;s explicit control enables.</span></p>
+<p><b>The production case, broadcast-Q, further shapes the design:</b><span style="font-weight: 400;"> a single dense Q is broadcast across every sequence in the batch, so its gradient </span><b>dQ must be summed across the entire batch</b><span style="font-weight: 400;"> — turning the dQ epilogue into a heavily contended cross-program reduction that several of our optimizations exist to make fast. Unless noted otherwise, the rest of the post assumes broadcast_q=True.</span></p>
+<h2><span style="font-weight: 400;">2. Optimizing Jagged Flash Attention with TLX</span></h2>
+<p><span style="font-weight: 400;">Our work falls into two categories. </span><b>Structural changes</b><span style="font-weight: 400;"> (§2.1) are the ground-up reorganization of the kernel that TLX makes possible — they change how work and memory are laid out across the CTA&#8217;s warps. </span><b>Optimizations</b><span style="font-weight: 400;"> (§2.2) keep that structure fixed and squeeze out additional performance, mostly by removing stalls and wasted work. We motivate each by the bottleneck it targets rather than the mechanics of its implementation.</span></p>
+<h3><span style="font-weight: 400;">2.1 Structural changes</span></h3>
+<p><span style="font-weight: 400;">Warp specialization, explicit shared-/tensor-memory management, and barrier pipelining are standard ingredients of any high-performance Blackwell attention kernel, so we keep this brief — what matters is that TLX lets us express them in high-level Triton code rather than hand-written CuteDSL or CUDA, which is what made the §2.2 optimizations fast to prototype. Concretely, we split the CTA into role-specialized async tasks — dedicated warps for TMA loads, tensor-core matmuls, softmax/correction math, and the epilogue store, plus a dedicated dQ-reduction warp in the backward — so the tensor cores stay fed with back-to-back MMAs while softmax runs concurrently, instead of one warp group stalling the matmuls as in the baseline.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-171513 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/2.png" alt="" width="1620" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/09/2.png 1620w, https://pytorch.org/wp-content/uploads/2026/09/2-300x167.png 300w, https://pytorch.org/wp-content/uploads/2026/09/2-1024x569.png 1024w" sizes="(max-width: 1620px) 100vw, 1620px" /></p>
+<p><span style="font-weight: 400;">The same explicit control extends to memory and scheduling: we hand-allocate every on-chip buffer and choose its pipeline depth (e.g. triple-buffered K/V so the load warp runs ahead), alias TMEM buffers with non-overlapping lifetimes (QK scores, P, and the softmax statistics share one allocation while the PV accumulator keeps its own), hand data between warps through explicit producer/consumer barriers for a deterministic pipeline, and make both passes persistent — one CTA per SM looping over tiles. None of this is expressible in plain Triton, and the persistent structure in particular gives us a place to make our own scheduling decisions — the foundation for §2.2.</span></p>
+<h3><span style="font-weight: 400;">2.2 Optimizations</span></h3>
+<p><span style="font-weight: 400;">With the warp-specialized, persistent structure in place, the remaining work is to eliminate the stalls and wasted work that keep the tensor cores from staying busy. The following optimizations are largely independent and each targets a specific bottleneck.</span></p>
+<p><span style="font-weight: 400;">We found them with a consistent methodology: NVIDIA Nsight Compute (NCU) to read hardware counters such as tensor-core/TMEM pipeline utilization, SM-busy, and register spills (which show up as local-memory traffic); the ptxas dump logs to confirm spills; and TritonBench in profiler-measure mode for clean before/after A/B latency. The optimizations fall into two groups. Some we adopt from the FA4 implementation — which itself shows that TLX can express, in readable Python, the same techniques a hand-written CuteDSL kernel uses. Others we derive ourselves, from profiling and analysis of our own kernel, targeting the jagged broadcast-Q workload specifically.</span></p>
+<p><span style="font-weight: 400;">At a glance, the optimizations below are:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>Scheduling jagged tiles across SMs</b><span style="font-weight: 400;"> — software load balancing plus Cluster Launch Control keep every SM busy despite the order-of-magnitude length skew of jagged inputs (forward and backward).</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Multi-stage dQ staging</b><span style="font-weight: 400;"> — a double-buffered SMEM staging pipeline hides the heavily contended broadcast-Q dQ reduce-add, the #1 backward bottleneck.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Early tensor-memory release</b><span style="font-weight: 400;"> — freeing the dQ tensor-memory buffer before its final stores lets the MMA warp start the next tile&#8217;s dQ matmul sooner.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Loop peeling</b><span style="font-weight: 400;"> — splitting the KV loop into a branch-free bulk pass and a tiny masked tail removes per-iteration mask overhead and the register spills it causes.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>2-CTA collaborative MMA</b><span style="font-weight: 400;"> — two CTAs cooperate on a single matmul to raise tensor-core utilization in the matmul-heavy backward (adopted from FA4).</span></li>
+</ul>
+<h4>Scheduling jagged tiles across SMs</h4>
+<p><span style="font-weight: 400;">Jagged inputs create severe load imbalance across SMs: with sequence lengths varying by orders of magnitude, a naive tile-to-SM mapping leaves some SMs idle while others grind through the long sequences. An SM-occupancy heatmap (Triton-MPP) makes this visual — a few rows stay hot long after the rest go idle. A truly greedy rebalancing is near-optimal but cannot be vectorized, so it blows up host-side launch overhead.</span></p>
+<p><span style="font-weight: 400;">In the forward pass the outer loop is over the dense Q and the inner loop over the jagged K/V, so a tile&#8217;s cost is proportional to its batch&#8217;s key length — the tiles are highly non-uniform. Balancing this is our own idea for the jagged case: on the host we sort all tiles by KV workload (descending) and hand them to SMs in a zigzag (boustrophedon) pattern — even passes fill SMs left-to-right, odd passes right-to-left — so every SM ends up with a balanced mix of long and short tiles at negligible CPU cost. This recovered roughly 20% on the forward kernel.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-171516 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/3.png" alt="" width="1396" height="1038" srcset="https://pytorch.org/wp-content/uploads/2026/09/3.png 1396w, https://pytorch.org/wp-content/uploads/2026/09/3-300x223.png 300w, https://pytorch.org/wp-content/uploads/2026/09/3-1024x761.png 1024w" sizes="(max-width: 1396px) 100vw, 1396px" /></p>
+<p><span style="font-weight: 400;">The backward needs a different strategy. Its dK/dV pass loops over K/V blocks on the outside and the dense Q on the inside, so now the K/V blocks are the tiles: each one is roughly uniform in cost (a K/V block against the shared dense Q), but the number of tiles per batch varies with the jagged key length. Sorting by workload no longer helps — instead we precompute the list of valid (batch, head, K/V-block) tiles on the host and round-robin them across SMs, using a block-innermost ordering so consecutive tiles reuse the same K/V in L2, and padding each head&#8217;s block count to a multiple of the cluster size for the 2-CTA path. Distributing a variable count of equal-cost tiles this way keeps every SM busy without any sorting.</span></p>
+<p><span style="font-weight: 400;">Static balancing handles the skew we can predict ahead of time; the residual variance that only shows up at runtime is handled dynamically by Cluster Launch Control (CLC) [3]. A Blackwell feature, CLC hands out the next tile index on demand, so whichever SM finishes first grabs the next piece of work and no single long sequence stalls the grid.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-171519 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/4.png" alt="" width="1400" height="700" srcset="https://pytorch.org/wp-content/uploads/2026/09/4.png 1400w, https://pytorch.org/wp-content/uploads/2026/09/4-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/4-1024x512.png 1024w" sizes="(max-width: 1400px) 100vw, 1400px" /></p>
+<p style="text-align: center;"><i><span style="font-weight: 400;">CTAs workload heapmat without CLC</span></i></p>
+<p><img decoding="async" class="aligncenter wp-image-171522 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/5.png" alt="" width="1400" height="700" srcset="https://pytorch.org/wp-content/uploads/2026/09/5.png 1400w, https://pytorch.org/wp-content/uploads/2026/09/5-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/5-1024x512.png 1024w" sizes="(max-width: 1400px) 100vw, 1400px" /></p>
+<p style="text-align: center;"><i><span style="font-weight: 400;">CTAs workload heatmap with CLC</span></i></p>
+<p><span style="font-weight: 400;">We apply CLC to both the forward and backward kernels; in TLX it is a lightweight producer/consumer protocol over a shared scheduling context.</span></p>
+<p><span style="font-weight: 400;">Although software load balancing and CLC may look redundant — both spread work across SMs — they are complementary: CLC schedules dynamically yet cannot tell which tiles are empty, so on jagged (and especially sparse) inputs it still spends cycles handing out the sentinel/empty tiles that padding introduces, whereas our host-side valid-tile precompute prunes those up front. That is why software load balancing stays valuable even on a CLC-capable kernel.</span></p>
+<h4>Multi-stage dQ staging</h4>
+<p><span style="font-weight: 400;">Triton-MPP barrier analysis of the backward pinned the dQ epilogue as the #1 bottleneck: its reduce-add to HBM accounted for ~9–11% of lost tensor-core utilization, the single largest actionable gap. Two things make it slow. First, because dQ is summed across the whole batch, every SM issues reduce-adds into the same dQ locations — heavy contention. Second, the high-level reduce-add API serializes them — each column slice&#8217;s add must finish before the next begins, with no pipelining.</span></p>
+<p><span style="font-weight: 400;">We make the staging explicit and double-buffered so that one slice&#8217;s reduce-add to HBM overlaps the next slice&#8217;s copy out of TMEM, keeping a store in flight at all times:</span></p>
+<pre><code class="language-python">NCOL   = BLOCK_D // (EPILOGUE_SUBTILE * 2)   # narrow column slices, sized to fit SMEM
+STAGES = 2                                   # double-buffered staging
+dq_smem = tlx.local_alloc((BLOCK_M, NCOL), dq.dtype, STAGES)
+
+for s in range(BLOCK_D // NCOL):
+    # TMEM -&gt; registers
+    dq = tlx.local_load(dq_tmem[:, s * NCOL : (s + 1) * NCOL]) * LN2
+
+    # registers -&gt; SMEM (ping-pong)
+    tlx.local_store(dq_smem[s % STAGES], dq.to(dq.dtype))
+    tlx.fence_async_shared()
+
+    tlx.async_descriptor_store(desc_dq, dq_smem[s % STAGES],
+                               offsets, store_reduce="add")  # SMEM -&gt; HBM, accumulating
+
+    # keep at most 1 store in flight
+    tlx.async_descriptor_store_wait(STAGES - 1)</code></pre>
+<p>The technique generalizes to any shared-memory-bound reduce-store epilogue, not just attention.</p>
+<h4>Early tensor-memory release</h4>
+<p>The same analysis showed why that epilogue stalls the math from the TMEM side: the reduction warp holds the dQ tensor-memory buffer until all of its slices have been drained to HBM, so the MMA warp blocks on the dq-empty barrier before it can start the next tile&#8217;s dQ matmul. A waterfall test that simply removed the dQ store confirmed it, recovering +8–11% of tensor-core utilization across sequence lengths.</p>
+<p>The improvement is to pre-load the last one or two slices into registers and release the TMEM buffer before issuing their stores, so the MMA warp can begin reusing that memory while the reduction warp finishes writing to HBM:</p>
+<pre><code class="language-python"><span style="color: #993366;"># Drain most slices the normal way
+# (TMEM -&gt; SMEM -&gt; async reduce-add to HBM).
+<span style="color: #0000ff;">for</span></span> s <span style="color: #0000ff;">in range</span>(N_SLICES - EARLY_RELEASE_SUBTILES):
+    reduce_add_slice(s)
+<span style="color: #993366;">
+# Pre-load the final 1-2 slices into registers FIRST, then release
+# the dQ TMEM buffer immediately
+# so the MMA warp can start the next tile's dQ matmul.</span>
+dq_tail = tlx.local_load(dq_tmem[:, last_slice])   <span style="color: #993366;"># TMEM -&gt; registers</span>
+tlx.barrier_arrive(dq_empties[buf])                <span style="color: #993366;"># &lt;-- TMEM freed early</span>
+reduce_add_from_registers(dq_tail)</code></pre>
+<p>How many slices to release early is autotuned (1 or 2); the optimal choice is small because releasing more raises register pressure enough to hurt. Together with multi-stage staging, this lets the MMA warp begin the next dQ matmul while the previous tile&#8217;s dQ is still being written out.</p>
+<h4>Loop peeling</h4>
+<p><span style="font-weight: 400;">NCU profiling showed the forward was MMA-issue starved — not memory- or compute-bound — with the tensor-core (TMEM) pipeline at ~57% utilization versus FA4&#8217;s ~82% on the same shape, and the lost cycles coming from softmax-warp overhead bubbling into the MMA-issue gaps. Anything that shrinks or simplifies the softmax body therefore lets the MMA warp pick up work sooner.</span></p>
+<p><span style="font-weight: 400;">Two signals point at the culprit. First, the ptxas dumps and NCU show register spills (local-memory traffic) in the register-heavy softmax warp — in an earlier round, simply granting the warps more registers cut that traffic by ~40% for a ~6% forward gain, confirming the pressure is real. Second, the worst offender is a per-iteration mask branch in the KV loops that only ever matters on the partial last tile.</span></p>
+<p><span style="font-weight: 400;">The reason this branch is costly is subtle and specific to how the compiler allocates registers: Triton/TLX assign registers to variables </span><i><span style="font-weight: 400;">statically</span></i><span style="font-weight: 400;">, so a mask branch living inside the hot loop forces the compiler to reserve registers for the variables used only in the rarely-taken masked path (the column offsets, the mask tensor, the select) across the </span><i><span style="font-weight: 400;">entire</span></i><span style="font-weight: 400;"> loop. That permanent reservation raises register pressure and can trigger spills — especially damaging for the register-heavy softmax warp.</span></p>
+<p><span style="font-weight: 400;">The fix is to peel the loop into a branch-free bulk pass plus a tiny masked tail. Because the mask flag is a compile-time constant, the bulk body contains no mask variables at all, so the compiler frees those registers and can schedule a tighter MMA-issue cadence:</span></p>
+<pre><code class="language-python"><span style="color: #993366;"># APPLY_MASK is constexpr: with APPLY_MASK=False the compiler statically removes the
+# comparison, the offs_n / mask tensors, and the select -&gt; a branch-free body that
+# does not reserve registers for the (rare) masked path.</span>
+aligned = (klen // BLOCK_N) * BLOCK_N
+
+<span style="color: #0000ff;">for</span> start_n <span style="color: #0000ff;">in</span> tl.<span style="color: #0000ff;">range</span>(lo, aligned, BLOCK_N):  <span style="color: #993366;"># bulk: straight-line, no mask code</span>
+    softmax_iter(start_n, ..., APPLY_MASK=False)
+
+<span style="color: #0000ff;">for</span> start_n <span style="color: #0000ff;">in</span> tl.<span style="color: #0000ff;">range</span>(aligned, klen, BLOCK_N): <span style="color: #993366;"># tail: 0 or 1 iteration</span>
+    softmax_iter(start_n, ..., APPLY_MASK=True)  <span style="color: #993366;"># mask only the partial last tile</span></code></pre>
+<p>We apply the same peeling to the register-heavy paths in both the forward softmax loop and the backward, where the gain comes not from skipping a cheap runtime branch but from the reduced register pressure it unlocks; in the backward it specifically reclaims the ~9% latency that the correctness masks would otherwise add.</p>
+<h4>2-CTA collaborative MMA (backward)</h4>
+<p><span style="font-weight: 400;">The backward is matmul-heavy — computing dQ, dK, and dV takes five GEMMs per K/V block — and a single CTA does not fully utilize the Blackwell tensor cores on its own. We adopt FA4&#8217;s 2-CTA (paired-CTA tcgen05) scheme: two CTAs in a cluster cooperate on one wider collaborative matmul over two adjacent K/V blocks of the same (batch, head), splitting the accumulator rows across the two SMs and exchanging the dS intermediate on-chip over distributed shared memory (DSMEM) rather than through global memory. Feeding a single MMA from both SMs raises tensor-core utilization on the backward.</span></p>
+<p><span style="font-weight: 400;">What is ours here is the TLX implementation: porting the scheme to our jagged, broadcast-Q layout and running it under our persistent and CLC multi-tile schedulers.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-171525 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/6.png" alt="" width="896" height="1200" srcset="https://pytorch.org/wp-content/uploads/2026/09/6.png 896w, https://pytorch.org/wp-content/uploads/2026/09/6-224x300.png 224w, https://pytorch.org/wp-content/uploads/2026/09/6-765x1024.png 765w" sizes="(max-width: 896px) 100vw, 896px" /></p>
+<p><span style="font-weight: 400;">Scoped to the production broadcast-Q, HEAD_DIM=128 case, it adds about +12% throughput (−11% latency) in the backward over the single-CTA path.</span></p>
+<h3><span style="font-weight: 400;">Performance</span></h3>
+<p><span style="font-weight: 400;">We benchmark on B200 (bf16) in two regimes: the production jagged case (Hierarchical Seed Pooling (HSP) — a broadcast dense Q against jagged K/V) and an LLM-style dense case (equal-length Q/K/V), both against FA4, the state-of-the-art open-source CuteDSL FlashAttention-4 [6] kernel (May 2026 version). On the jagged shapes — the ones that matter for Ads — TLX outperforms FA4 on both passes: the forward is faster across most shapes and sparsities (about +13% on average, trailing only on the longest sequences at high density), and the backward is faster everywhere, by about +50% on average. On the dense shapes the forward is competitive (~87% of FA4) while the backward again wins (~+17%). The jagged charts sweep sparsity from 0.1 (highly variable lengths) through 0.5 to 0.9 (nearly uniform lengths, with 1.0 meaning all sequences are the same length) — the range seen in production.</span></p>
+<p><b>Jagged (broadcast-Q) — forward TFLOPS (bf16, B200)</b></p>
+<p><img decoding="async" class="aligncenter wp-image-171530 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/7.png" alt="" width="1692" height="730" srcset="https://pytorch.org/wp-content/uploads/2026/09/7.png 1692w, https://pytorch.org/wp-content/uploads/2026/09/7-300x129.png 300w, https://pytorch.org/wp-content/uploads/2026/09/7-1024x442.png 1024w" sizes="(max-width: 1692px) 100vw, 1692px" /></p>
+<p><b>Jagged (broadcast-Q) — backward TFLOPS (bf16, B200)</b></p>
+<p><img decoding="async" class="aligncenter wp-image-171531 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/8.png" alt="" width="1926" height="792" srcset="https://pytorch.org/wp-content/uploads/2026/09/8.png 1926w, https://pytorch.org/wp-content/uploads/2026/09/8-300x123.png 300w, https://pytorch.org/wp-content/uploads/2026/09/8-1024x421.png 1024w" sizes="(max-width: 1926px) 100vw, 1926px" /></p>
+<p><b>LLM dense — forward TFLOPS (bf16, B200, B=768, H=4, head_dim=128)</b></p>
+<p><img decoding="async" class="aligncenter wp-image-171536 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/9.png" alt="" width="1358" height="680" srcset="https://pytorch.org/wp-content/uploads/2026/09/9.png 1358w, https://pytorch.org/wp-content/uploads/2026/09/9-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/9-1024x513.png 1024w" sizes="(max-width: 1358px) 100vw, 1358px" /></p>
+<p><b>LLM dense — backward TFLOPS (bf16, B200, B=768, H=4, head_dim=128)</b></p>
+<p><img decoding="async" class="aligncenter wp-image-171537 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/10.png" alt="" width="1358" height="680" srcset="https://pytorch.org/wp-content/uploads/2026/09/10.png 1358w, https://pytorch.org/wp-content/uploads/2026/09/10-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/10-1024x513.png 1024w" sizes="(max-width: 1358px) 100vw, 1358px" /></p>
+<h2><span style="font-weight: 400;">3. Attention Variants: the flexibility of TLX</span></h2>
+<p><span style="font-weight: 400;">A practical benefit of building on TLX is that the kernel is structured enough to </span><i><span style="font-weight: 400;">fork</span></i><span style="font-weight: 400;"> for new requirements without a ground-up rewrite. Because the warp specialization, memory allocation, barriers, and scheduling are written once in readable Python-level code, retargeting the kernel to a new numerical format or a new attention pattern mostly comes down to changing the math, not the machinery. Two variants illustrate this.</span></p>
+<h4>Low-precision (MXFP8) attention</h4>
+<p><span style="font-weight: 400;">For FP8-tolerant training we built a microscaling-FP8 variant of both the forward and backward by swapping the BF16 matmuls for TLX&#8217;s block-scaled MMA (FP8 E4M3 data with E8M0 per-block scale factors), reusing the same warp-specialized skeleton, barriers, and TMEM layout. The softmax output P is quantized to FP8 on the fly and its scale factors are kept in tensor memory so the block-scaled MMA can consume them directly.</span></p>
+<p><span style="font-weight: 400;">After tuning, the MXFP8 forward lands above FA4&#8217;s own FP8 kernel and the backward reaches parity with FA4 at dense — both comfortably beating the BF16 baseline — a large throughput win obtained largely by changing the GEMM calls rather than the kernel structure.</span></p>
+<h4>Block-sparse attention</h4>
+<p><span style="font-weight: 400;">For long jagged histories where full O(N²) attention dominates, we built a two-stage sparse variant [4]. A cheap scoring kernel average-pools each Q and K block and selects the top-k most relevant KV blocks per Q block (a tunable selection ratio); a TLX attention kernel — forked from the dense one with per-tile sparse block iteration added — then runs attention over only the selected blocks.</span></p>
+<p><span style="font-weight: 400;">It reuses the same warp-specialized structure, CLC dispatch, and software load balancing (here used to skip unselected and empty tiles), stays PT2-friendly, and still supports broadcast-Q, GQA, and windowing. At a 0.5 selection ratio the forward is roughly 1.3–1.5× faster than dense across the sequence lengths we tested.</span></p>
+<p><span style="font-weight: 400;">In both cases the bulk of the kernel carried over unchanged; only the math — the GEMM precision, or the set of KV blocks each tile visits — differed. That reuse is the practical payoff of TLX: the same kernel can be re-targeted to new precisions and sparsity patterns while staying at the Python level, instead of dropping down to hand-written CUDA.</span></p>
+<h2><span style="font-weight: 400;">4. Summary and Future Work</span></h2>
+<p><span style="font-weight: 400;">The structural changes — warp specialization, persistent execution, explicit SMEM/TMEM allocation with reuse aliasing, and barrier-mediated pipelining — set the stage, and the optimizations layered on top — software load balancing, Cluster Launch Control, multi-stage dQ staging, early TMEM release, loop peeling, and 2-CTA collaborative MMA — recovered most of the remaining headroom. Together they let the TLX kernel match or beat FA4 on both passes for the production jagged shapes, while retaining full broadcast-Q, sliding-window, and GQA support.</span></p>
+<p><span style="font-weight: 400;">Beyond raw performance, the biggest win is development efficiency. Much of the low-level plumbing that CuteDSL writes by hand — async pipelines, barrier management, tcgen05 MMA setup — is instead handled by the TLX compiler, so we express intent rather than machinery, in a fraction of the code. That leverage lets the team prototype, profile, and land every optimization above quickly, and then fork the same kernel into MXFP8 and block-sparse variants with little extra code. Taken together — faster on both passes for the jagged Ads shapes, competitive on dense, and far cheaper to build and maintain — TLX JFA is a better fit than the SOTA open-source FA4 for our Ads models.</span></p>
+<h2><span style="font-weight: 400;">References</span></h2>
+<p><span style="font-weight: 400;">[1] TLX: Enabling Cluster Launch Control with Triton — </span><a href="https://pytorch.org/blog/enabling-cluster-launch-control-with-tlx/"><span style="font-weight: 400;">https://pytorch.org/blog/enabling-cluster-launch-control-with-tlx/</span></a></p>
+<p><span style="font-weight: 400;">[2] GEM: Meta&#8217;s Generative Ads Model — </span><a href="https://engineering.fb.com/2025/11/10/ml-applications/metas-generative-ads-model-gem-the-central-brain-accelerating-ads-recommendation-ai-innovation/"><span style="font-weight: 400;">https://engineering.fb.com/2025/11/10/ml-applications/metas-generative-ads-model-gem-the-central-brain-accelerating-ads-recommendation-ai-innovation/</span></a></p>
+<p><span style="font-weight: 400;">[3] NVIDIA Blackwell Tuning Guide (thread-block clusters) — </span><a href="https://docs.nvidia.com/cuda/blackwell-tuning-guide/index.html#thread-block-clusters"><span style="font-weight: 400;">https://docs.nvidia.com/cuda/blackwell-tuning-guide/index.html#thread-block-clusters</span></a></p>
+<p><span style="font-weight: 400;">[4] TLX Block Attention: A Warp-Specialized Blackwell Kernel for Fixed-Block Sparse Self-Attention — </span><a href="https://pytorch.org/blog/tlx-block-attention-a-warp-specialized-blackwell-kernel-for-fixed-block-sparse-self-attention/"><span style="font-weight: 400;">https://pytorch.org/blog/tlx-block-attention-a-warp-specialized-blackwell-kernel-for-fixed-block-sparse-self-attention/</span></a></p>
+<p><span style="font-weight: 400;">[5] Kunlun: Establishing Scaling Laws for Massive-Scale Recommendation Systems through Unified Architecture Design — </span><a href="https://arxiv.org/abs/2602.10016"><span style="font-weight: 400;">https://arxiv.org/abs/2602.10016</span></a></p>
+<p><span style="font-weight: 400;">[6] FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling — </span><a href="https://arxiv.org/abs/2603.05451"><span style="font-weight: 400;">https://arxiv.org/abs/2603.05451</span></a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>A Ray-Focused Guide to PyTorch Conference North America</title>
 		<link>https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/</link>
 		
@@ -109,7 +252,7 @@
 <p>The interesting engineering starts one step later, in the decisions the relay leaves to each backend: what are the test candidates, which dispatches deserve a build, which of PyTorch&#8217;s tens of thousands of tests are meaningful on your hardware, how to adapt tests written for CUDA without forking them, and what &#8220;green&#8221; is allowed to mean. Those are the right decisions to own, because only the backend can make them. This post describes the mechanisms we built to make them, consisting of an agentic test-selection pipeline, a declarative test-reuse framework, and reliable workflows. These together took <a href="https://github.com/torch-spyre/torch-spyre">Torch Spyre</a> to L2 integration. None of it is Spyre-specific by design, that is the accelerator sits behind the config, not inside the CI logic, so rather than leave these as patterns for each backend to reimplement, we intend to work with the PyTorch team to upstream the reusable parts, with <a href="https://pytorch.org/blog/openreg-a-self-contained-pytorch-accelerator-simulator/">PyTorch OpenReg</a> as the natural reference point.</p>
 <h2>Three Evolving Candidates under Test: OOT Accelerator PyTorch Backend, PyTorch Core, Test Suite</h2>
 <p><!-- IMAGE PLACEHOLDER: Figure 1 - Testing Surface in PyTorch and Torch Spyre (re-upload via WP media library) --></p>
-<p><em><img fetchpriority="high" decoding="async" class="alignnone wp-image-171228 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png" alt="" width="1886" height="828" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png 1886w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-300x132.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-1024x450.png 1024w" sizes="(max-width: 1886px) 100vw, 1886px" /></em></p>
+<p><em><img decoding="async" class="alignnone wp-image-171228 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png" alt="" width="1886" height="828" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png 1886w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-300x132.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-1024x450.png 1024w" sizes="(max-width: 1886px) 100vw, 1886px" /></em></p>
 <p><em>Figure 1: Testing Surface in PyTorch and Torch Spyre</em></p>
 <h3>Challenge 1: Deciding what to test: three moving targets, and which combination to run</h3>
 <p>Often, OOT accelerators have to deal with three evolving candidates to test after receiving a dispatch from <a href="https://pytorch.org/blog/introducing-cross-repository-ci-relay-scalable-ci-for-pytorchs-out-of-tree-backends/">PyTorch CRCR</a>. First, an OOT accelerator PyTorch backend codebase, such as <a href="https://github.com/torch-spyre/torch-spyre">Torch Spyre</a>. As the PyTorch backend for the IBM Spyre Accelerator, Torch Spyre relies on deep integration through PyTorch&#8217;s OOT extension interfaces. This exposes a broad testing surface across hooks into PyTorch core, including operators and runtime behaviour. The second candidate is the PyTorch core itself, where changes to runtime components, or other core functionality can introduce regressions in the OOT backend. Finally, there is the evolving test suite, where tests could have been modified, potentially uncovering regressions. Regressions could be introduced by any of these candidates. Testing the OOT accelerator backend against the PyTorch test suite helps surface regressions across all three candidates.</p>
@@ -1123,394 +1266,7 @@ Tue 20 Oct, 16:20–16:30, LL20AB</p>
 		
 		
 			</item>
-		<item>
-		<title>Low Precision Flash Attention 4: End-to-End Block-Scaled Attention for Blackwell</title>
-		<link>https://pytorch.org/blog/low-precision-flash-attention-4-end-to-end-block-scaled-attention-for-blackwell/</link>
-		
-		<dc:creator><![CDATA[Dev (Devashish) Shankar, Darren Liu, Chunzhi Yang, Jackie (Jiaqi) Xu,Markus Hoehnerbach, Jason Xie, Santosh Mohan, Han Xu, Rich Zhu, Josh Fromm, Hongtao Yu, Max Leung, John Bocharov, Alan Purvis]]></dc:creator>
-		<pubDate>Wed, 16 Sep 2026 18:55:21 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=159902</guid>
-
-					<description><![CDATA[TL;DR We extend FlashAttention-4 [1] with MXFP8 forward and backward, reaching 2.85 PF/s forward and 2 PF/s backward on LLM shapes. On our internal shapes, FA4 MX8 reaches 2.54 PF/s...]]></description>
-										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
-<p><span style="font-weight: 400;">We extend FlashAttention-4 [1] with MXFP8 forward and backward, reaching 2.85 PF/s forward and 2 PF/s backward on LLM shapes. On our internal shapes, FA4 MX8 reaches 2.54 PF/s forward and 1.58 PF/s backward, delivering up to 1.6× and 1.52× gains over BF16. We fuse quantization into the surrounding producers and develop an end-to-end zero-gather jagged module in which most activations and compute remain in FP8. This module is used internally at Meta for </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">GEM training</span></a><span style="font-weight: 400;"> [2]. To our knowledge, this is one of the first SoTA implementations of MXFP8 FA4 forward and backward being used in production training workloads. We have open sourced the code in <a class="decorated-link cursor-pointer" href="https://github.com/facebookresearch/ads_model_kernel_library/tree/main/lp_fa4" target="_new" rel="noopener" data-start="783" data-end="861">https://github.com/facebookresearch/ads_model_kernel_library/tree/main/lp_fa4</a></span></p>
-<h2><span style="font-weight: 400;">1. Introduction</span></h2>
-<p><span style="font-weight: 400;">Blackwell&#8217;s tensor cores introduce block-scaled MMA instructions (tcgen05.mma.block_scale) that operate natively on microscaling formats &#8212; MXFP8, MXFP6, MXFP4 &amp; NVFP4 &#8212; delivering 2-4x the throughput of BF16 MMA [4,5]. However, exploiting this in real training workloads requires more than just swapping the attention kernel&#8217;s data type. Scale factors must be managed in the already-saturated TMEM, quantization along the GEMM K-dimension must be handled for every operand (including online-computed intermediates like P and dS), and the overhead of converting between precisions must be overlapped so MMA can continue to execute at full speed.</span></p>
-<p><span style="font-weight: 400;">In this work, we extend the FA4 attention kernel with end-to-end MXFP8 support for both forward and backward passes, and integrate it into a cross-attention module for Ads training with fused producer and output epilogues. The key contributions are: (1) TMEM allocation strategies that fit scale factors into fully-utilized 512-column TMEM with minimal new barriers, (2) online transpose invariant square block scale quantization of dS using Blackwell&#8217;s redux.sync.max.abs.f32 warp-wide reduction, (3) fused RMSNorm+Quantize and GEMM+Quantize kernels that eliminate quantization overhead by producing FP8 output with dual scale factor layouts in a single pass, and (4) a zero-gather jagged module where FP8 data stays at unpadded positions and only the much smaller scale factors are scattered, padded, and permuted to tensor-core friendly 128-aligned addresses for TMA.</span></p>
-<h2><span style="font-weight: 400;">2. Implementation Details</span></h2>
-<h3><span style="font-weight: 400;">2.1 Attention Forward</span></h3>
-<p><span style="font-weight: 400;">Attention forward consists of the following primary operations:</span></p>
-<p><span style="font-weight: 400;">S = Q @ K.T</span></p>
-<p><span style="font-weight: 400;">P = Softmax(S)</span></p>
-<p><span style="font-weight: 400;">O = P @ V</span></p>
-<p><span style="font-weight: 400;">To enable blockscaled MMA, we follow existing CuTe DSL examples from Quack GEMM kernels and CUTLASS C++ examples [5,6]. We use TMA loads to fetch scale factors from GMEM to SMEM, and copy SFs from SMEM to TMEM before triggering the UMMA. The primary challenge here is TMEM contention, which is explained in later.</span></p>
-<p><span style="font-weight: 400;">Currently, in the softmax warp, softmax computation happens in FP32, and then the results are converted to BF16 before the PV multiplication. We convert P to MXFP8 while also computing the scales. We deep dive into the PTX optimizations done to achieve this efficiently later.</span></p>
-<p><span style="font-weight: 400;">One subtle thing to note is that for P.V blockscaled MMA to work, the scales need to be computed along the MMA K-dim. For Q and K, this is the embedding dimension (D) of attention, but for V, the scales and quantization need to be computed along the sequence dimension (N). </span></p>
-<h4><span style="font-weight: 400;">2.1.1 TMEM Allocation and barrier synchronization</span></h4>
-<p><span style="font-weight: 400;">Blackwell architecture has a fixed TMEM size of 512 column, which is completely utilized for MMA operands and accumulators in existing Blackwell FA kernels. This makes it challenging to add block scaled MMA, since scales also need to be in TMEM.</span></p>
-<p><span style="font-weight: 400;">FA4 forward uses a ping-pong computation between two Q tiles. We load  two Q tiles, Q0 &amp; Q1 of size [128, 128], and loop over K/V tiles (N dimension). The order of GEMMs is:</span></p>
-<table style="border-collapse: collapse; width: 100%; max-width: 520px; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; background: #ffffff;">
-<tbody>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>GEMM</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>Prologue</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 @ K0</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 @ K0</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>Mainloop</strong> (for n in 0 .. N-1)</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_n * V_n</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 * K_{n+1}</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_n * V_n</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 * K_{n+1}</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>Epilogue</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_N * V_N</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_N * V_N</td>
-</tr>
-</tbody>
-</table>
-<p><span style="font-weight: 400;">This is the TMEM Alloc:</span><img decoding="async" class="aligncenter wp-image-159911 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/1.png" alt="" width="1788" height="426" srcset="https://pytorch.org/wp-content/uploads/2026/08/1.png 1788w, https://pytorch.org/wp-content/uploads/2026/08/1-300x71.png 300w, https://pytorch.org/wp-content/uploads/2026/08/1-1024x244.png 1024w" sizes="(max-width: 1788px) 100vw, 1788px" /><span style="font-weight: 400;">As you can see, TMEM is fully utilized with no spare room for SFs. Note that we cannot overlap input SFs with the accumulator TMEM. To solve this problem, we overlap the SF’s in the following way:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">For the prologue S(i) GEMMs, we can use O(i) for S(i) SFs, as O(i) hasn’t started yet</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SFs for O(i) can live overlapped with S(i) &#8211; this is the same strategy used by regular FA which overlaps P(i) with S(i). Thus, there already exists a barrier which ensures that S(i) TMEM is consumed, before we copy O(i) SFs. We just need to choose a region in S(i) distinct from P(i). Note that for FP8, P(i) is 32 columns, vs S(i) being F32 is 128 columns. </span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SFs for S(i) live overlap with S(1-i). This requires an additional barrier between the MMA and Softmax warps, since MMA is executed asynchronously, it is possible that there is a write-write conflict between S(1-i) accumulator and S(i) SFs. Hence, we add a barrier in MMA warp which waits before copying S(i) SFs, and arrives when S(1-i)’s accumulator is read by the softmax warp. Note that this barrier doesn’t usually add any extra cost, since there is an O(i) GEMM to overlap the TMEM-&gt;reg reads that need to precede the barrier. Typically, the GEMM takes longer than TMEM-&gt;reg read.</span></li>
-</ul>
-<p><span style="font-weight: 400;">Concretely, the GEMM execution order with SF placement is shown below:</span></p>
-<table style="border-collapse: collapse; width: 100%; max-width: 1040px; font-family: Arial, Helvetica, sans-serif; font-size: 24px; line-height: 1.25; background: #ffffff;">
-<colgroup>
-<col style="width: 50%;" />
-<col style="width: 50%;" /> </colgroup>
-<tbody>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>GEMM</strong></td>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><strong>SF TMEM Region</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;" colspan="2"><strong>Prologue</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 @ K0</td>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;">O0 (free, not started)</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 @ K0</td>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;">O1 (free, not started)</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; height: 62px; padding: 0;" colspan="2"></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;" colspan="2"><strong>Mainloop</strong> (for n in 0 .. N-1)</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_n * V_n</td>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;">S0 (S consumed, P distinct)</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S0</strong> = Q0 * K_{n+1}</td>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><span style="color: #366fbc;">S1</span><br />
-<strong style="color: #c92a2a;"> (new barrier!)</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_n * V_n</td>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;">O0 (existing barrier)</td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #366fbc;"><strong>S1</strong> = Q1 * K_{n+1}</td>
-<td style="border: 2px solid #111111; padding: 14px 12px;"><span style="color: #366fbc;">S0</span><br />
-<strong style="color: #c92a2a;"> (new barrier!)</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; height: 62px; padding: 0;" colspan="2"></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px;" colspan="2"><strong>Epilogue</strong></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #6a4adf;"><strong>O0</strong> = P0_N * V_N</td>
-<td style="border: 2px solid #111111; padding: 14px 12px;"></td>
-</tr>
-<tr>
-<td style="border: 2px solid #111111; padding: 14px 12px; color: #d7622b;"><strong>O1</strong> = P1_N * V_N</td>
-<td style="border: 2px solid #111111; padding: 14px 12px;"></td>
-</tr>
-</tbody>
-</table>
-<h4> <span style="font-weight: 400;">2.1.2 Improved unroll-KV </span></h4>
-<p><span style="font-weight: 400;">As we move to lower precision, MMA throughput increases (2x for MXFP8, 4x for MXFP4 vs BF16), the softmax warp&#8217;s SFU-bound computation stays the same. This shifts the bottleneck: softmax bubbles that were hidden behind slow BF16 MMA now become exposed.</span></p>
-<p><span style="font-weight: 400;">In the persistent kernel, the tile boundary is particularly problematic. Without unroll-KV, the last two GEMMs of a tile are both PV, followed by both QK of the next tile. Softmax for the next tile&#8217;s Q0 can&#8217;t start until QK0 completes — but QK0 can&#8217;t start until all of tile(n)&#8217;s PV GEMMs finish. This creates a bubble at every tile boundary. </span><b>Unroll-KV</b><span style="font-weight: 400;"> (inspired by </span><a href="https://pytorch.org/blog/generalized-dot-product-attention-tackling-real-world-challenges-in-gpu-training-kernels/"><span style="font-weight: 400;">GDPA</span></a><span style="font-weight: 400;">) [3] interleaves the last PV of the current tile with the first QK of the next tile:</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159927 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/2.png" alt="" width="1696" height="778" srcset="https://pytorch.org/wp-content/uploads/2026/08/2.png 1696w, https://pytorch.org/wp-content/uploads/2026/08/2-300x138.png 300w, https://pytorch.org/wp-content/uploads/2026/08/2-1024x470.png 1024w" sizes="(max-width: 1696px) 100vw, 1696px" /></p>
-<p><span style="font-weight: 400;">Now softmax for Q0 triggers one GEMM earlier, hiding the tile boundary latency behind the PV pipeline.</span></p>
-<p><span style="font-weight: 400;">However, enabling this for BF16 caused a regression: the correction warp (which processes both stages sequentially) was delayed because PV1 was pushed later, which cascaded through the softmax_corr_empty barrier into the next softmax. We fixed this by moving the barrier wait to after the row-sum computation (which has no dependency on the barrier), decoupling the correction pipeline from the critical path.</span></p>
-<h4><span style="font-weight: 400;">2.1.3 Optimized Online MXFP8 conversion</span></h4>
-<p><span style="font-weight: 400;">Since we want to do both QK and PV GEMMs using block-scaled attention, this necessitates an online conversion of the post-softmax output (P) from FP32 to MXFP8, instead of BF16. Applying blockscaling is a 3-step process. For a block x consisting of 32 elements:</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159928 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/3.png" alt="" width="606" height="150" srcset="https://pytorch.org/wp-content/uploads/2026/08/3.png 606w, https://pytorch.org/wp-content/uploads/2026/08/3-300x74.png 300w" sizes="(max-width: 606px) 100vw, 606px" /></p>
-<p><span style="font-weight: 400;">Here, a is the amax for the block, and sigma is the scaling factor. In order to do this optimally in Blackwell, we make use of 3-instruction max, and fmul2 instructions (exposed in CuteDSL nvvm) for step (1) and (3) &#8211; which happen for every element. For computing the scale factor (Step 2) &#8211; we use an optimized PTX sequence which avoids log2 and division by extracting FP32 exponent and mantissa bits.</span></p>
-<p><span style="font-weight: 400;">Additionally, we notice that computation of softmax already involves calculating row maxes for the 128 elements before the exponentiation. Since exp is a monotonically increasing function, we can re-use the max computed for softmax, thus preventing additional max operations while adding 1 exp operation per 32 elements. We find this approach to yield better performance.</span></p>
-<p><span style="font-weight: 400;">Our recent experiments indicate that performance can be further enhanced via constant scaling for P; this remains numerically robust given that the softmax operator naturally constrains outputs within the [0, 1] interval.</span></p>
-<h4><span style="font-weight: 400;">2.1.4 Handling variable sequence length tensors with TMA</span></h4>
-<p><span style="font-weight: 400;">Handling jagged data is important in Ads models, but it is especially challenging with MXFP8. Blackwell block-scaled MMA uses a </span><a href="https://docs.nvidia.com/cutlass/latest/media/docs/cpp/blackwell_functionality.html#scale-factor-layouts"><span style="font-weight: 400;">swizzled 512-byte scale-factor atom</span></a><span style="font-weight: 400;">, corresponding to the scale factors for a 128&#215;128 data tile [5]. Because jagged sequence lengths are arbitrary and often not multiples of 128, their natural offsets do not satisfy this layout requirement. Padding the full data tensors would work, but adds costly memory traffic and storage overhead. Instead, we use split addressing: only the much smaller scale-factor tensors are padded to 128-aligned positions, while the FP8 data remains compact. In the consuming GEMM or attention kernel, TMA loads use padded offsets for the scale factors and the original jagged offsets for the data. We use lightweight scatter and layout-transformation kernels to move scale factors from compact jagged layouts into the padded, swizzled layouts expected by downstream TMA loads. More generally, these kernels rearrange scale-factor bytes without changing their values, allowing each subsequent GEMM or attention kernel to consume scales directly in its preferred layout.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159929 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/4.png" alt="" width="2048" height="1090" srcset="https://pytorch.org/wp-content/uploads/2026/08/4.png 2048w, https://pytorch.org/wp-content/uploads/2026/08/4-300x160.png 300w, https://pytorch.org/wp-content/uploads/2026/08/4-1024x545.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
-<h3><span style="font-weight: 400;">2.2 Attention Backward</span></h3>
-<p><span style="font-weight: 400;">Attention backward consists of the following key operations:</span></p>
-<p><span style="font-weight: 400;">GEMMs:</span></p>
-<p><span style="font-weight: 400;"> S  = K   @ Q.T    </span></p>
-<p><span style="font-weight: 400;"> dP = V   @ dO.T   </span></p>
-<p><span style="font-weight: 400;"> dV = P.T @ dO     </span></p>
-<p><span style="font-weight: 400;"> dK = dS.T @ Q      </span></p>
-<p><span style="font-weight: 400;"> dQ = dS  @ K      </span></p>
-<p><span style="font-weight: 400;">Compute:</span></p>
-<p><span style="font-weight: 400;">P = softmax(S)</span></p>
-<p><span style="font-weight: 400;">dS = dsoftmax(dP, P)</span></p>
-<p><span style="font-weight: 400;">Notice that in the backward pass, several GEMMs are transposed. For instance, consider:</span></p>
-<p><span style="font-weight: 400;"> dP = V   @ dO.T </span></p>
-<p><span style="font-weight: 400;"> dV = P.T @ dO</span></p>
-<p><span style="font-weight: 400;">For the dP MMA, the dO quantization needs to be along the D (Embedding dimension), however, for the dV MMA, the quantization needs to be along the M (Sequence dimension). This is similar to what we saw with the P.V MMA in forward, where V needs to be quantized along the M-dim. However, in backward, we have GEMMs that require quantization along both axes. Note that this is a limitation of using block-scaled MMA, as quantization needs to be along the GEMM K-dim.</span></p>
-<p><span style="font-weight: 400;">To solve this problem, we quantize Q, K, and dO using square [32,32] blocks, making the E4M3 payload transpose-invariant. Both GEMMs can therefore reuse one quantized representation instead of storing separate versions. The much smaller E8M0 scales are still laid out and loaded separately for each GEMM’s required Tensor Core scale layout. dS presents a related transpose challenge. The square quantization scheme produces one representation that both dK and dQ can consume.</span></p>
-<h4><span style="font-weight: 400;">2.2.1 TMEM Allocation</span></h4>
-<p><span style="font-weight: 400;">[Note: This scheme describes the 1-CTA path. We currently are using the 1-CTA path for MX8, as it is performing better currently]</span></p>
-<p><span style="font-weight: 400;">While the forward has 2 GEMMs (S and O) with 2-stage Q pipelining across 4 accumulators, the backward has 5 GEMMs that all need TMEM space for accumulators and scale factors. The TMEM layout packs all 512 columns:</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159930 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/5.png" alt="" width="1782" height="296" srcset="https://pytorch.org/wp-content/uploads/2026/08/5.png 1782w, https://pytorch.org/wp-content/uploads/2026/08/5-300x50.png 300w, https://pytorch.org/wp-content/uploads/2026/08/5-1024x170.png 1024w" sizes="(max-width: 1782px) 100vw, 1782px" /></p>
-<p><span style="font-weight: 400;">The core constraint: dK and dV are persistent accumulators &#8212; they accumulate across the entire M-loop, so their TMEM regions are occupied for the kernel&#8217;s entire lifetime. This means SF placement can only use the S and dP regions. We use the dP region for the first 2 GEMMs (S &amp; dK), and the S region for the next 3 GEMMs. We only needed to add one additional barrier before the S GEMM, which should not add any additional cost. The TMEM allocation scheme is detailed below:</span></p>
-<table>
-<tbody>
-<tr>
-<td><b>Name</b></td>
-<td><b>GEMM SFs</b></td>
-<td><b>SF TMEM Region</b></td>
-<td><b>Why safe?</b></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">Prologue</span></td>
-<td><span style="font-weight: 400;">SFK, SFQ, SFV, SFDO</span></td>
-<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;dK&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">dK</span></td>
-<td><span style="font-weight: 400;">dK free during prologue</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">S (K@Q.T)</span></td>
-<td><span style="font-weight: 400;">SFK, SFQ</span></td>
-<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;dP&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">dP</span></td>
-<td><span style="font-weight: 400;">pipeline_dP_drain.empty.wait ensures the previous dP value has been drained. In cluster-one this aliases  the existing pipeline_dP barrier.</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">dK (dS.T@Q)</span></td>
-<td><span style="font-weight: 400;">SFDS, SFQ_dK</span></td>
-<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;dP&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">dP</span></td>
-<td><span style="font-weight: 400;">Since dS is the input to the dK GEMM, existing barriers ensure the region is free to use. Note that dS only takes 32 columns as it is FP8, so we have 96 columns free.</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">dQ (dS@K)</span></td>
-<td><span style="font-weight: 400;">SFDS_dQ, SFK_dQ</span></td>
-<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;S&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">S</span></td>
-<td><span style="font-weight: 400;">pipeline_S_drain.empty.wait ensures S has been read before its TMEM region is reused.</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">dP (V@dO.T)</span></td>
-<td><span style="font-weight: 400;">SFV, SFDO</span></td>
-<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;S&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">S</span></td>
-<td><span style="font-weight: 400;">Implicit ordering</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">dV (P.T@dO)</span></td>
-<td><span style="font-weight: 400;">SFP, SFDO_dV</span></td>
-<td><span style="font-weight: 400;" data-rich-links="{&quot;dde_di&quot;:&quot;kix.slzhx8cwgju5&quot;,&quot;dde-fdv&quot;:&quot;S&quot;,&quot;dde-sii&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;ddefe-ddi&quot;:{&quot;cv&quot;:{&quot;op&quot;:&quot;set&quot;,&quot;opValue&quot;:[{&quot;di-id&quot;:&quot;dropdownItem.egcjvhlb4vmx&quot;,&quot;di-v&quot;:&quot;S&quot;,&quot;di-dv&quot;:&quot;S&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.whf8o9a3vz9c&quot;,&quot;di-v&quot;:&quot;dK&quot;,&quot;di-dv&quot;:&quot;dK&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}},{&quot;di-id&quot;:&quot;dropdownItem.9q1yfrhxqyq6&quot;,&quot;di-v&quot;:&quot;dP&quot;,&quot;di-dv&quot;:&quot;dP&quot;,&quot;di-ts&quot;:{&quot;ts_bd&quot;:false,&quot;ts_fs&quot;:11,&quot;ts_ff&quot;:&quot;Arial&quot;,&quot;ts_it&quot;:false,&quot;ts_sc&quot;:false,&quot;ts_st&quot;:false,&quot;ts_tw&quot;:400,&quot;ts_un&quot;:false,&quot;ts_va&quot;:&quot;nor&quot;,&quot;ts_bgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_fgc2&quot;:{&quot;clr_type&quot;:0,&quot;hclr_color&quot;:null},&quot;ts_bd_i&quot;:false,&quot;ts_fs_i&quot;:false,&quot;ts_ff_i&quot;:false,&quot;ts_it_i&quot;:false,&quot;ts_sc_i&quot;:false,&quot;ts_st_i&quot;:false,&quot;ts_un_i&quot;:false,&quot;ts_va_i&quot;:false,&quot;ts_bgc2_i&quot;:false,&quot;ts_fgc2_i&quot;:false},&quot;di-cv&quot;:{&quot;dicv_v&quot;:0,&quot;dicv_ft&quot;:0}}]}},&quot;ddefe-t&quot;:&quot;Region&quot;,&quot;type&quot;:&quot;dropdown&quot;}">S</span></td>
-<td><span style="font-weight: 400;">pipeline_S_P.empty.wait (already needed for P readiness)</span></td>
-</tr>
-</tbody>
-</table>
-<h4><span style="font-weight: 400;">2.2.2 Online square dS quantization</span></h4>
-<p><span style="font-weight: 400;">In backward, dS is computed in FP32 and consumed by two GEMMs:</span></p>
-<p><span style="font-weight: 400;">dK = dSᵀ @ Q,    dQ = dS @ K.</span></p>
-<p><span style="font-weight: 400;">We quantize each 32×32 block of dS once. Each warp lane owns 32 values and computes a thread-local absolute maximum. Blackwell’s redux.sync.max.abs.f32 instruction then reduces these 32 partial maxima across the warp to obtain the AMAX for the full block. Because the scaling region is square, it remains valid when dS is transposed. The same scale and payload can therefore feed both GEMMs.</span></p>
-<p><span style="font-weight: 400;">Quantizing dS once avoids an additional E8M0 conversion, inverse-scale multiplication, E4M3 conversion, and payload fragment. The dK and dQ MMAs still copy the shared scale into their respective hardware layouts. We find the [32, 32] square quantization to be numerically acceptable in our training workloads.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159931 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/6.png" alt="" width="1567" height="1034" srcset="https://pytorch.org/wp-content/uploads/2026/08/6.png 1567w, https://pytorch.org/wp-content/uploads/2026/08/6-300x198.png 300w, https://pytorch.org/wp-content/uploads/2026/08/6-1024x676.png 1024w" sizes="(max-width: 1567px) 100vw, 1567px" /></p>
-<h4><span style="font-weight: 400;">2.2.3 FP16 dQ Reduction</span></h4>
-<p><span style="font-weight: 400;">Through ablation studies, we identified dQ reduction as a critical throughput bottleneck. Because dQ necessitates writing a 128&#215;128 tile to GMEM during every inner-loop iteration, it substantially increases global memory bandwidth consumption. To mitigate this, we evaluated both BF16 and FP16 dQ reduction strategies, finding that FP16 dQ with static scaling yields optimal performance. Given that dQ values remain consistently small in our production workloads, this FP16 approach paired with large scale factors maintains acceptable numerical accuracy. We provide a detailed performance comparison between FP32 and FP16 dQ reduction in the results section to quantify the speedup.</span></p>
-<h3><span style="font-weight: 400;">2.3 Hiding the Q/K/V Quantization overhead</span></h3>
-<p><span style="font-weight: 400;">While we obtain good speedups for the core attention kernel, one of the key challenges is quantization overhead, especially for smaller sequence lengths. To eliminate the quantization overhead, we fuse the MXFP8 quantization into the epilogue of the preceding kernel. On our shapes, it also speeds up the preceding kernel for several shapes by reducing the data read/write or compute.</span></p>
-<p><span style="font-weight: 400;">Another challenge for the backward pass is the transpose quantization, the fact that we need to quantize Q, dO and K tensors along both axes for the backward pass. Traditional block-scaling is not transpose invariant. Initially, we tried fusing dual quantization [32, 1], [1, 32]  in the epilogue, but we found this to be slow. Our current solution uses [32, 32] square quantization, similar to SFDS_dQ. This makes the quantization transpose invariant and we just need to quantize once.</span></p>
-<h4><span style="font-weight: 400;">2.3.1 RMSNorm+Quantize</span></h4>
-<p><span style="font-weight: 400;">In the forward pass, the RMSNorm output feeds into Wq and Wk projection MXFP8 GEMMs. Rather than writing BF16 to GMEM and running a separate quantize kernel, we fuse RMSNorm + [32,32] MXFP8 quantization into a single CuTe DSL kernel.</span></p>
-<p><span style="font-weight: 400;">The kernel uses a </span><b>two-phase persistent design</b><span style="font-weight: 400;">: each CTA processes 4 tiles of 8 rows (= 32 rows, matching the [32,32] block height). Phase 1 computes RMSNorm, stores BF16 to SMEM, and accumulates per-K-block AMAX into a running max. Phase 2 reduces AMAX across all 32 rows, then reads BF16 from SMEM, scales, and converts to FP8. The two-phase split is necessary because the [32,32] AMAX requires seeing all 32 rows before quantizing, but each tile only processes 8.</span></p>
-<p><span style="font-weight: 400;">For the backward pass, we fuse two additional operations into the existing Quack RMSNorm backward kernel at </span><b>zero additional memory cost</b><span style="font-weight: 400;">: (1) x_norm = x </span><i><span style="font-weight: 400;"> </span></i><span style="font-weight: 400;">* rstd *</span> <span style="font-weight: 400;"> w reconstruction (x_hat and weight are already in registers), eliminating a separate reconstruct kernel, and (2) inline FP8 dV dequantization &#8212; dV from FA4 backward is dequantized per-iteration using scalar SF indexing and added directly to dout.</span></p>
-<h4><span style="font-weight: 400;">2.3.2 GEMM+Quantize</span></h4>
-<p><span style="font-weight: 400;">For projection GEMMs (e.g., Wq, Wk, Wv), we fuse MXFP8 quantization into the GEMM epilogue. The key idea: after MMA accumulator values move from TMEM to registers (FP32), the conversion to FP8 happens entirely in registers before writing to GMEM. The BF16 intermediate never touches global memory.</span></p>
-<p><span style="font-weight: 400;">Vectorized 128/256-bit stores and batched FP8 conversion were needed for speedups. At compute-bound shapes, the fused FP8 kernel is faster than a BF16 GEMM because FP8 MMA has 2x the throughput.</span></p>
-<p><span style="font-weight: 400;">The [32,32] variant writes FP8 data once and outputs E8M0 scales in two cuBLAS blocked layouts (K-block for FA4 forward, M-block for backward) from a single warp-wide AMAX reduction (redux.sync.max.abs.f32).</span></p>
-<h4><span style="font-weight: 400;">2.3.3 Jagged GEMM-Norm backward</span></h4>
-<p><span style="font-weight: 400;">The attention output gradient is consumed by two projection-backward GEMMs with different contraction dimensions. For self-attention, (dX = dZ @ W^T) requires scales along the feature dimension, while (dW = X^T @ dZ) requires scales along the token dimension. We therefore treat its 1.76 PFLOP/s result as performance-only, not as an accuracy-qualified comparison, and thus emit it from the above charts. We plan to open an issue in CuDNN github to investigate the issue. The PMA path follows the same principle: FA4 emits FP8 dK and dV with sequence-local [32,32] scales, from which we construct both the row-wise layout used by (dX = dK @ W) and the transposed layout used by (dW = dK^T @ X).</span></p>
-<p><span style="font-weight: 400;">The weight-gradient GEMM is especially challenging for jagged inputs because transposition makes the variable-length token dimension the GEMM K dimension. We extended the downstream Quack GEMM [6] to read FP8 values directly from compact jagged storage while addressing their scales in a separate, padded logical K space. The kernel processes each sequence as an independent K segment and reduces the resulting partial weight gradients, preventing quantization groups from crossing sequence boundaries without padding the activation tensors. Finally, the compact dX output flows directly into the norm backward; in PMA, FP8 dV dequantization and addition are also fused into that norm kernel, avoiding another materialized intermediate.</span></p>
-<h3><span style="font-weight: 400;">2.4 E2E Module</span></h3>
-<p><span style="font-weight: 400;">A primary bottleneck in optimizing Ads models stems from their relatively small tensor shapes and embedding dimensions compared to LLM workloads, which makes the models more bandwidth bound. Traditional approaches utilizing separate quantization kernels incur memory bandwidth overhead due to redundant global memory traffic, which severely degrades our MFU. To address these constraints, we adopted a specialized module design strategy, developing a suite of high-performance fused kernels and customized modules specifically optimized for the unique requirements of the GEM architecture.</span></p>
-<p><span style="font-weight: 400;">For this work, our focus was on a cross-attention module, that is common in many recommendation modules across Meta. The end-to-end execution flow is illustrated in the following diagram:</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159934 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/7.png" alt="" width="2048" height="1376" srcset="https://pytorch.org/wp-content/uploads/2026/08/7.png 2048w, https://pytorch.org/wp-content/uploads/2026/08/7-300x202.png 300w, https://pytorch.org/wp-content/uploads/2026/08/7-1024x688.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
-<h2><span style="font-weight: 400;">3. Results</span></h2>
-<h3><span style="font-weight: 400;">3.1 Kernel Performance</span></h3>
-<h4><span style="font-weight: 400;">3.1.1 FA4 </span></h4>
-<p><span style="font-weight: 400;">In this section we compare the OSS FA4 kernel, CuDNN 9.24, vs our forked FA4 kernel on common LLM Shapes, as well as our internal workload. Our internal workload shapes are somewhat different from the shapes used in FA4 paper, namely: 1) higher batch size, 2) Fewer heads, 3) Lower query lengths, 4) Highly jagged seq len distributions.</span></p>
-<p><span style="font-weight: 400;">We report kernel-level performance using Tensor Core throughput (TFLOP/s) and speedup relative to baseline implementations.  The benchmarks are done on Meta internal Recsys GB300 GPUs. We evaluate the following implementations:</span></p>
-<ol>
-<li style="font-weight: 400;" aria-level="1"><b>OSS FA4 BF16:</b><span style="font-weight: 400;"> A snapshot of the open-source FA4 implementation as of August 2, 2026.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Internal FA4 BF16:</b><span style="font-weight: 400;"> Our internal FA4 implementation, which adds persistent execution and improved variable-length scheduling.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Internal FA4 MX8:</b><span style="font-weight: 400;"> The MXFP8 extension of our internal FA4 implementation.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>cuDNN 9.24:</b><span style="font-weight: 400;"> The cuDNN BF16 baseline for forward and backward, with the MXFP8 baseline included where reported.</span></li>
-</ol>
-<p><b>LLM Shapes</b></p>
-<p><img decoding="async" class="aligncenter wp-image-159935 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/8.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/8.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/8-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/8-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">On the forward pass, FA4 MX8 reaches 2.85 PF/s, comparable to cuDNN 9.24 MX8 at 2.82 PF/s, and delivers a 1.43× gain over FA4 Internal BF16 at 2.00 PF/s.</span></li>
-</ul>
-<p><img decoding="async" class="aligncenter wp-image-159938 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/9.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/9.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/9-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/9-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">On the backward pass, FA4 MX8 reaches 1.82 PF/s with FP32 dQ accumulation and 1.98 PF/s with FP16 dQ accumulation—1.21× and 1.32× faster, respectively, than cuDNN BF16 at 1.50 PF/s. </span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">In our tests with cuDNN Frontend 1.26 and cuDNN 9.24, MXFP8 backward with nonuniform E8M0 V scales did not match the reference for dQ and dK; uniform V scales removed the discrepancy. We therefore treat its 1.76 PFLOP/s result as performance-only, not as an accuracy-qualified comparison. This backward caveat does not apply to the cuDNN MXFP8 forward results. Another notable difference is that CuDNN returns BF16 dK/dV gradients, while we return quantized gradients.</span></li>
-</ul>
-<p><b>Internal Shapes</b></p>
-<p><span style="font-weight: 400;">Forward results are shown for both jagged K (sparsity = 0.5) and uniform K (sparsity = 1.0). For shared-Q shapes, the OSS FA4 and cuDNN references use the closest supported independent-Q executions with matched attention arithmetic; the figure legends use presentation names for readability.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-159939 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/10.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/10.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/10-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/10-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
-<p><img decoding="async" class="aligncenter wp-image-159940 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/11.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/11.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/11-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/11-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">For jagged K (sparsity = 0.5) at K max = 16384, FA4 Internal MX8 reaches 2.54 PF/s &#8212; 1.59× faster than FA4 Internal BF16 at 1.60 PF/s and within 4% of cuDNN MX8 at 2.64 PF/s.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">For uniform K (sparsity = 1.0) at K max = 16384, FA4 Internal MX8 reaches 2.59 PF/s &#8212; 1.51× faster than FA4 Internal BF16 at 1.71 PF/s and within 4% of cuDNN MX8 at 2.68 PF/s.</span></li>
-</ul>
-<p><img decoding="async" class="aligncenter wp-image-159941 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/12.png" alt="" width="1600" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/08/12.png 1600w, https://pytorch.org/wp-content/uploads/2026/08/12-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/08/12-1024x576.png 1024w" sizes="(max-width: 1600px) 100vw, 1600px" /></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">On the backward pass, FA4 Internal MX8 reaches 1.42 PF/s with FP32 dQ accumulation and 1.58 PF/s with FP16 dQ accumulation, corresponding to 1.37× and 1.52× gains over FA4 Internal BF16 at 1.04 PF/s.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">OSS FA4 lacks some scheduler and small-Q optimizations we have done in our fork, which is why it is significantly slower on our internal shapes</span></li>
-</ul>
-<h4><span style="font-weight: 400;">3.1.2 GEMM+Quantize </span></h4>
-<p><img decoding="async" class="aligncenter wp-image-159942 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/13.png" alt="" width="1200" height="742" srcset="https://pytorch.org/wp-content/uploads/2026/08/13.png 1200w, https://pytorch.org/wp-content/uploads/2026/08/13-300x186.png 300w, https://pytorch.org/wp-content/uploads/2026/08/13-1024x633.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
-<p><img decoding="async" class="aligncenter wp-image-159945 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/14.png" alt="" width="1200" height="742" srcset="https://pytorch.org/wp-content/uploads/2026/08/14.png 1200w, https://pytorch.org/wp-content/uploads/2026/08/14-300x186.png 300w, https://pytorch.org/wp-content/uploads/2026/08/14-1024x633.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
-<p><span style="font-weight: 400;">On B200 module shapes, fusing quantization into the GEMM epilogue raises throughput from approximately 0.20 PF/s for separate GEMM and quantization to 0.91–0.98 PF/s, a 4.4–4.7× speedup.</span></p>
-<h4><span style="font-weight: 400;">3.1.3 Fused RMSNorm+Quantize </span></h4>
-<p><img decoding="async" class="aligncenter wp-image-159946 size-full" src="https://pytorch.org/wp-content/uploads/2026/08/15.png" alt="" width="1200" height="742" srcset="https://pytorch.org/wp-content/uploads/2026/08/15.png 1200w, https://pytorch.org/wp-content/uploads/2026/08/15-300x186.png 300w, https://pytorch.org/wp-content/uploads/2026/08/15-1024x633.png 1024w" sizes="(max-width: 1200px) 100vw, 1200px" /></p>
-<p><span style="font-weight: 400;">On B200 shapes with N=512, fusing RMSNorm and MXFP8 quantization raises effective bandwidth from 0.75–0.87 TB/s to 2.6–4.0 TB/s, reaching up to a 4.7× speedup.</span></p>
-<h3><span style="font-weight: 400;">3.2 Module Performance</span></h3>
-<p><span style="font-weight: 400;">Benchmarked on a single GB300 GPU with B=768, Q=512 seed queries, D=384, and H=3; values are median compiled forward + backward latency for the PMA module, measured over 1,000 iterations after 200 warmup iterations.</span></p>
-<table>
-<thead>
-<tr>
-<th><b>KV tokens</b></th>
-<th><b>BF16 FA4 median latency (ms)</b></th>
-<th><b>MXFP8 median latency (ms)</b></th>
-<th><b>Speedup</b></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><span style="font-weight: 400;">4,096</span></td>
-<td><span style="font-weight: 400;">10.327</span></td>
-<td><span style="font-weight: 400;">10.281</span></td>
-<td><span style="font-weight: 400;">1.00×</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">8,192</span></td>
-<td><span style="font-weight: 400;">17.348</span></td>
-<td><span style="font-weight: 400;">14.663</span></td>
-<td><span style="font-weight: 400;">1.18×</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">16,384</span></td>
-<td><span style="font-weight: 400;">31.705</span></td>
-<td><span style="font-weight: 400;">24.479</span></td>
-<td><span style="font-weight: 400;">1.30×</span></td>
-</tr>
-</tbody>
-</table>
-<h3><span style="font-weight: 400;">3.3 Numerics</span></h3>
-<p><span style="font-weight: 400;">Here we report SQNR (signal-to-quantization-noise ratio), the SNR variant where the “noise” is the difference between the MXFP8 result and the BF16 reference. Higher is better; a 10 dB increase means 10× lower error power relative to the signal. We use SQNR because activation and gradient magnitudes differ widely across tensors. </span></p>
-<p><span style="font-weight: 400;">The following table shares the numbers on production-shape synthetic run (B=768, 5,856,019 total KV tokens, maximum K=14,980, D=384, H=3, and Q=512):</span></p>
-<table>
-<thead>
-<tr>
-<th><b>Numerical row</b></th>
-<th><b>FP32 dQ</b></th>
-<th><b>FP16 dQ, 2^9</b></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><span style="font-weight: 400;">forward_output</span></td>
-<td><span style="font-weight: 400;">18.84</span></td>
-<td><span style="font-weight: 400;">18.84</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">event_embs.grad</span></td>
-<td><span style="font-weight: 400;">26.55</span></td>
-<td><span style="font-weight: 400;">26.55</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">seed_embs grad</span></td>
-<td><span style="font-weight: 400;">27.68</span></td>
-<td><span style="font-weight: 400;">25.65</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">query_norm.weight grad</span></td>
-<td><span style="font-weight: 400;">28.02</span></td>
-<td><span style="font-weight: 400;">26.02</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">query_proj.weight grad</span></td>
-<td><span style="font-weight: 400;">27.69</span></td>
-<td><span style="font-weight: 400;">25.66</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">key_proj.weight grad</span></td>
-<td><span style="font-weight: 400;">25.15</span></td>
-<td><span style="font-weight: 400;">25.15</span></td>
-</tr>
-<tr>
-<td><span style="font-weight: 400;">Strict summary</span></td>
-<td><span style="font-weight: 400;">23 / 1 / 0</span></td>
-<td><span style="font-weight: 400;">23 / 1 / 0</span></td>
-</tr>
-</tbody>
-</table>
-<p><span style="font-weight: 400;">While productionizing this module for GEM training, we found MXFP8 attention to have neutral NE. Achieving numerical stability required techniques inspired by SageAttention3 [7] and Qiu et al. [8].</span></p>
-<h2><span style="font-weight: 400;">4. Conclusion</span></h2>
-<p><span style="font-weight: 400;">Block-scaled attention on Blackwell is an end-to-end systems problem, not simply a datatype substitution. We extended FA4 with MXFP8 forward and backward by co-designing TMEM allocation, pipeline scheduling, online quantization of P and dS, and lower-bandwidth dQ reduction. We then fused quantization into RMSNorm and GEMM producers and kept jagged FP8 data compact by rearranging only scale metadata, avoiding separate quantization passes and full-tensor gathers.</span></p>
-<p>&nbsp;</p>
-<p><span style="font-weight: 400;">Together, these techniques turn Blackwell’s block-scaled MMA throughput into a practical training stack for both LLM and recommendation workloads. We plan to open-source Low Precision FA4 and its supporting components in the </span><a href="https://github.com/facebookresearch/ads_model_kernel_library"><span style="font-weight: 400;">Ads Model Kernel Library</span></a><span style="font-weight: 400;"> so these techniques can be reused and extended for other low-precision attention workloads.</span></p>
-<h2><span style="font-weight: 400;">Acknowledgements</span></h2>
-<p><span style="font-weight: 400;">We are thankful to Tri Dao, Markus Hoehnerbach, Jay Shah, Ted Zadouri and Vijay Thakkar for open sourcing FlashAttention-4 [1]. We would like to thank Ying Zhang whose initial work on FP8 attention served as the foundation for this work.</span></p>
-<h2><span style="font-weight: 400;">References</span></h2>
-<ol>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">T. Zadouri, M. Hoehnerbach, J. Shah, T. Liu, V. Thakkar, and T. Dao. </span><a href="https://arxiv.org/abs/2603.05451"><span style="font-weight: 400;">FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling</span></a><span style="font-weight: 400;">. arXiv:2603.05451, 2026.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Meta Engineering. </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">Training GEM at LLM Scale: Meta Ads Recommendation Foundation Model</span></a><span style="font-weight: 400;">. 2026.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">PyTorch. </span><a href="https://pytorch.org/blog/generalized-dot-product-attention-tackling-real-world-challenges-in-gpu-training-kernels/"><span style="font-weight: 400;">Generalized Dot-Product Attention: Tackling Real-World Challenges in GPU Training Kernels</span></a><span style="font-weight: 400;">.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">B. D. Rouhani et al. </span><a href="https://arxiv.org/abs/2310.10537"><span style="font-weight: 400;">Microscaling Data Formats for Deep Learning</span></a><span style="font-weight: 400;">. arXiv:2310.10537, 2023.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">NVIDIA. </span><a href="https://docs.nvidia.com/cutlass/latest/media/docs/cpp/blackwell_functionality.html#scale-factor-layouts"><span style="font-weight: 400;">CUTLASS Blackwell Functionality: Scale-Factor Layouts</span></a><span style="font-weight: 400;">.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Dao-AILab. </span><a href="https://github.com/Dao-AILab/quack"><span style="font-weight: 400;">Quack: A Quirky Assortment of CuTe Kernels</span></a><span style="font-weight: 400;">.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">J. Zhang et al. </span><a href="https://arxiv.org/abs/2505.11594"><span style="font-weight: 400;">SageAttention3: Microscaling FP4 Attention for Inference and An Exploration of 8-Bit Training</span></a><span style="font-weight: 400;">. arXiv:2505.11594, 2025.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">H. Qiu and Q. Yao. </span><a href="https://arxiv.org/abs/2510.04212"><span style="font-weight: 400;">Why Low-Precision Transformer Training Fails: An Analysis on Flash Attention</span></a><span style="font-weight: 400;">. arXiv:2510.04212, 2025.</span></li>
-</ol>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4232 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1383695 metric#prefetches=258 metric#store-reads=42 metric#store-writes=8 metric#store-hits=273 metric#store-misses=15 metric#sql-queries=12 metric#ms-total=657.87 metric#ms-cache=35.53 metric#ms-cache-avg=0.7251 metric#ms-cache-ratio=5.4 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4175 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1276709 metric#prefetches=236 metric#store-reads=36 metric#store-writes=6 metric#store-hits=245 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=610.38 metric#ms-cache=24.02 metric#ms-cache-avg=0.5858 metric#ms-cache-ratio=3.9 -->
