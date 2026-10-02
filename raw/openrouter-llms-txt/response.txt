@@ -97,6 +97,7 @@
 - [OAuth PKCE](https://openrouter.ai/docs/guides/overview/auth/oauth.md): Connect your users to OpenRouter
 - [Workload Identity Federation](https://openrouter.ai/docs/guides/overview/auth/workload-identity-federation.md): Call OpenRouter from workloads signed in with your own identity provider, without long-lived API keys
 - [Management API Keys](https://openrouter.ai/docs/guides/overview/auth/management-api-keys.md): Manage API keys programmatically
+- [Security settings](https://openrouter.ai/docs/guides/overview/auth/security-settings.md): Review and manage API key security settings
 - [BYOK](https://openrouter.ai/docs/guides/overview/auth/byok.md): Bring your own provider API keys
 - [Single Sign-On (SSO)](https://openrouter.ai/docs/guides/features/sso.md): Let your team sign in to OpenRouter through your identity provider
 - [SCIM Group Mappings](https://openrouter.ai/docs/guides/features/scim-mappings.md): Automatically provision workspace access from your identity provider groups
@@ -117,6 +118,7 @@
 - [Sovereign AI](https://openrouter.ai/docs/guides/features/sovereign-ai.md): Keep AI workloads within national and regional boundaries
 - [Latency and Performance](https://openrouter.ai/docs/guides/best-practices/latency-and-performance.md): Understanding OpenRouter's performance characteristics and practical DX optimization recipes
 - [Prompt Caching](https://openrouter.ai/docs/guides/best-practices/prompt-caching.md): Cache prompt messages
+- [Spend Controls](https://openrouter.ai/docs/guides/best-practices/spend-controls.md): How to structure workspace budgets, guardrails, and access controls for your organization
 - [Uptime Optimization](https://openrouter.ai/docs/guides/best-practices/uptime-optimization.md): OpenRouter tracks provider availability
 - [Reasoning Tokens](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens.md)
 - [Provider Integration](https://openrouter.ai/docs/guides/community/for-providers.md)
