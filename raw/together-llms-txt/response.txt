@@ -72,7 +72,7 @@
 - [Send requests](https://docs.together.ai/docs/dedicated-endpoints/requests.md): After deploying a model, send requests using the shared inference API.
 - [Monitor endpoints and deployments](https://docs.together.ai/docs/dedicated-endpoints/monitoring.md): Monitor endpoint and deployment metrics with built-in dashboards and a Prometheus-compatible metrics endpoint.
 - [Visualize endpoint metrics in Grafana](https://docs.together.ai/docs/dedicated-endpoints/grafana.md): Scrape the metrics endpoint with Prometheus and import the example Grafana dashboard for dedicated endpoints.
-- [Overview](https://docs.together.ai/docs/dedicated-container-inference.md): Deploy custom containers on Together's managed GPU infrastructure with automatic scaling, job queues, and built-in observability.
+- [Overview](https://docs.together.ai/docs/dedicated-container-inference.md): Deploy your own containers on Together's managed GPU infrastructure with automatic scaling, job queues, and built-in observability.
 - [Quickstart](https://docs.together.ai/docs/containers-quickstart.md): Deploy your first container in 20 minutes.
 - [Image generation with Flux2](https://docs.together.ai/docs/dedicated-containers-image.md): Deploy a Flux2 image generation model on Together's managed GPU infrastructure using dedicated containers.
 - [Video generation with Wan 2.1](https://docs.together.ai/docs/dedicated-containers-video.md): Deploy a multi-GPU video generation model on Together's managed GPU infrastructure using dedicated containers.
@@ -80,7 +80,7 @@
 - [Architecture](https://docs.together.ai/docs/together-deployments.md): Architecture, deployment lifecycle, and core concepts for dedicated container inference.
 - [Jig CLI](https://docs.together.ai/docs/deployments-jig.md): Build, push, and deploy containers to Together's managed GPU infrastructure.
 - [Sprocket SDK](https://docs.together.ai/docs/deployments-sprocket.md): A Python SDK for building inference workers that support both synchronous and asynchronous requests via Together's platform.
-- [Queue API](https://docs.together.ai/docs/deployments-queue.md): Submit, monitor, and manage asynchronous jobs for your Dedicated Container deployments.
+- [Queue API](https://docs.together.ai/docs/deployments-queue.md): Submit, monitor, and manage asynchronous jobs for your dedicated container inference deployments.
 - [Sprocket SDK reference](https://docs.together.ai/reference/dci-reference-sprocket.md): API reference for Sprocket classes, functions, and configuration.
 - [Overview](https://docs.together.ai/docs/gpu-clusters-overview.md): High-performance GPU clusters for training, fine-tuning, and large-scale AI workloads.
 - [Quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Create a reserved or on-demand GPU cluster and connect to it.
@@ -91,10 +91,10 @@
 - [Cluster storage](https://docs.together.ai/docs/cluster-storage.md): Understand storage types, persistence, and best practices for GPU clusters.
 - [Billing & pricing](https://docs.together.ai/docs/gpu-clusters-billing.md): Understand billing, pricing, and lifecycle policies for GPU clusters.
 - [Set up OIDC authentication](https://docs.together.ai/docs/cluster-oidc.md): Authenticate team members to a GPU cluster's Kubernetes API using your organization's identity provider.
-- [Slurm management system](https://docs.together.ai/docs/slurm.md)
+- [Slurm management system](https://docs.together.ai/docs/slurm.md): Run HPC-style batch workloads on GPU clusters with Slurm job scheduling, partitions, and job arrays.
 - [Slurm configuration](https://docs.together.ai/docs/slurm-configuration.md): Customize Slurm cluster settings to match your workload requirements.
 - [Slurm startup scripts](https://docs.together.ai/docs/slurm-startup-scripts.md): Configure lifecycle hook scripts that run automatically at node startup, job start, and job completion.
-- [Run nanochat on instant clusters](https://docs.together.ai/docs/nanochat-on-instant-clusters.md): Train Andrej Karpathy's end-to-end ChatGPT clone on Together's on-demand GPU clusters.
+- [Run nanochat on GPU clusters](https://docs.together.ai/docs/nanochat-on-gpu-clusters.md): Train Andrej Karpathy's end-to-end ChatGPT clone on Together's on-demand GPU clusters.
 - [Gang-schedule GPU jobs with Volcano](https://docs.together.ai/docs/volcano-on-gpu-clusters.md): Install the Volcano scheduler and run gang-scheduled GPU jobs on a Together Kubernetes cluster.
 - [Queue GPU jobs with Kueue](https://docs.together.ai/docs/kueue-on-gpu-clusters.md): Install Kueue and gate GPU jobs on quota so a shared cluster admits work as capacity frees up.
 - [API & integrations](https://docs.together.ai/docs/gpu-clusters-api.md): Manage clusters programmatically with the Together CLI, REST API, and SkyPilot.
@@ -114,8 +114,8 @@
 - [Early stopping](https://docs.together.ai/docs/fine-tuning/early-stopping.md): Halt a fine-tuning job when validation loss stops improving.
 - [Troubleshooting fine-tuning jobs](https://docs.together.ai/docs/fine-tuning/troubleshooting.md): Diagnose failed or cancelled fine-tuning jobs, understand job timing, and resolve common errors.
 - [Deploy a fine-tuned model](https://docs.together.ai/docs/fine-tuning/deployment.md): Serve your fine-tuned model on a dedicated endpoint or download it for local inference.
-- [Code interpreter](https://docs.together.ai/docs/together-code-interpreter.md): Execute LLM-generated code in a sandboxed environment.
-- [Code sandbox](https://docs.together.ai/docs/together-code-sandbox.md): Run generative code tooling in fast, secure sandboxes at scale.
+- [Code sandbox](https://docs.together.ai/docs/together-code-sandbox.md): Run commands and code in isolated runtime environments built from Docker-image snapshots.
+- [Code sandbox legacy SDK](https://docs.together.ai/docs/together-code-sandbox-legacy.md): Reference for the earlier code sandbox offering built on the CodeSandbox SDK.
 - [Manage your account](https://docs.together.ai/docs/account-management.md): Sign up for Together AI, get your API key, and manage your account settings.
 - [Authentication](https://docs.together.ai/docs/api-keys-authentication.md): Create, manage, and authenticate with project-scoped API keys.
 - [IAM model](https://docs.together.ai/docs/identity-access-management.md): How users, credentials, and resources are organized across the Together platform.
@@ -150,7 +150,6 @@
 - [Seedance 2.5 quickstart](https://docs.together.ai/docs/seedance2.5-quickstart.md): Generate multi-shot videos with synchronized audio from text, image, video, and audio inputs.
 - [Build a phone voice agent with Together AI](https://docs.together.ai/docs/how-to-build-phone-voice-agent.md): Create a real-time phone voice agent from scratch with Twilio Media Streams, Together AI realtime STT, chat completions, realtime TTS, and local voice activity detection.
 - [Build a Lovable clone with Kimi K3](https://docs.together.ai/docs/how-to-build-a-lovable-clone-with-kimi-k2.md): Build a full-stack Next.js app that generates React apps from a single prompt.
-- [Build a CSV data analysis app with the code interpreter](https://docs.together.ai/docs/csv-data-analysis-with-code-interpreter.md): Build a full-stack Next.js app that answers questions about CSV data with AI-generated Python code.
 - [Build a resume-to-website app with structured outputs](https://docs.together.ai/docs/pdf-to-website-with-structured-outputs.md): Build an AI-powered site builder that turns PDF resumes into personal websites with structured outputs.
 - [Build a real-time image generator with Flux](https://docs.together.ai/docs/how-to-build-a-real-time-image-generator.md): Create a real-time text-to-image app with Juggernaut Lightning Flux, Next.js, and Together AI.
 - [Build an open source NotebookLM](https://docs.together.ai/docs/open-notebooklm-pdf-to-podcast.md): Build an open source NotebookLM that turns a PDF into a podcast.
@@ -375,3 +374,6 @@
 - [deprecated-spec](/deprecated-spec.json)
 - [openapi.base](/openapi-src/openapi.base.yaml)
 - [openapi](/openapi.yaml)
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.
