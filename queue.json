@@ -1,0 +1,236 @@
+{
+  "generated_at": "2026-10-03T06:07:19.280Z",
+  "alert": {
+    "floor_bits": 8,
+    "ids": [],
+    "next_state": {
+      "alerted": []
+    }
+  },
+  "floor_bits": 4.5,
+  "funnel": {
+    "seen": 4886,
+    "postableType": 523,
+    "notOnCooldown": 523,
+    "aboveFloor": 14
+  },
+  "candidates": [
+    {
+      "id": "0df34447cbd451cf3fe6b54efc054dd214f53dd7:codename_unmasked:porcelain-k9cy",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the modelKey \"porcelain-k9cy\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-02T22:50:34.000Z",
+        "kind": "origin"
+      },
+      "bits": 7.94,
+      "why": [
+        "codename_unmasked is rare in the archive: +7.94 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:porcelain-k9cy"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "porcelain-k9cy"
+        ],
+        [
+          "displayName before",
+          "grok-imagine-image-2.0 (low)"
+        ],
+        [
+          "displayName after",
+          "grok-imagine-image-2.0 (20260801)"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The displayName recorded beside the modelKey \"porcelain-k9cy\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "url": "https://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20modelKey%20%22porcelain-k9cy%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F0df34447cbd451cf3fe6b54efc054dd214f53dd7.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "ef58cc0d4c6717db5123182bd28b20605df13450:incident_opened:https://status.openai.com//incidents/01M3YNNVTSCXS8YM2V1YMHMVSE",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Issues with data analysis and file creation in ChatGPT\" at \"https://status.openai.com//incidents/01M3YNNVTSCXS8YM2V1YMHMVSE\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-10-03T05:18:36.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.35,
+      "why": [
+        "incident_opened is rare in the archive: +6.35 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M3YNNVTSCXS8YM2V1YMHMVSE"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Issues with data analysis and file creation in ChatGPT\" at \"https://status.openai.com//incidents/01M3YNNVTSCXS8YM2V1YMHMVSE\".\n\nhttps://diffwire.dev/changes/ef58cc0d4c6717db5123182bd28b20605df13450.html",
+        "url": "https://diffwire.dev/changes/ef58cc0d4c6717db5123182bd28b20605df13450.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Issues%20with%20data%20analysis%20and%20file%20creation%20in%20ChatGPT%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M3YNNVTSCXS8YM2V1YMHMVSE%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fef58cc0d4c6717db5123182bd28b20605df13450.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "0df34447cbd451cf3fe6b54efc054dd214f53dd7:codename_entered:claude-sonnet-5-5-max",
+      "type": "codename_entered",
+      "sentence": "A model named \"claude-sonnet-5-5-max\" appears in arena.ai's leaderboard payload.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-02T22:50:34.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.68,
+      "why": [
+        "codename_entered is rare in the archive: +5.68 bits"
+      ],
+      "entities": [
+        "subject:codename_entered:claude-sonnet-5-5-max"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "claude-sonnet-5-5-max-agent"
+        ],
+        [
+          "displayName",
+          "Claude Sonnet 5.5 (Max)"
+        ],
+        [
+          "classification",
+          "label variant: the two names share an identity token"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "A model named \"claude-sonnet-5-5-max\" appears in arena.ai's leaderboard payload.\n\nhttps://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "url": "https://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=A%20model%20named%20%22claude-sonnet-5-5-max%22%20appears%20in%20arena.ai's%20leaderboard%20payload.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F0df34447cbd451cf3fe6b54efc054dd214f53dd7.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "0df34447cbd451cf3fe6b54efc054dd214f53dd7:codename_entered:fiddler-l4ag",
+      "type": "codename_entered",
+      "sentence": "A model named \"fiddler-l4ag\" appears in arena.ai's leaderboard payload.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-02T22:50:34.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.68,
+      "why": [
+        "codename_entered is rare in the archive: +5.68 bits"
+      ],
+      "entities": [
+        "subject:codename_entered:fiddler-l4ag"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "fiddler-l4ag"
+        ],
+        [
+          "displayName",
+          "grok-imagine-image-2.0 (canvas)"
+        ],
+        [
+          "classification",
+          "reveal: the two names share no identity token"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "A model named \"fiddler-l4ag\" appears in arena.ai's leaderboard payload.\n\nhttps://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "url": "https://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=A%20model%20named%20%22fiddler-l4ag%22%20appears%20in%20arena.ai's%20leaderboard%20payload.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F0df34447cbd451cf3fe6b54efc054dd214f53dd7.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "0df34447cbd451cf3fe6b54efc054dd214f53dd7:codename_entered:gpt-6.1-sol-max",
+      "type": "codename_entered",
+      "sentence": "A model named \"gpt-6.1-sol-max\" appears in arena.ai's leaderboard payload.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-02T22:50:34.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.68,
+      "why": [
+        "codename_entered is rare in the archive: +5.68 bits"
+      ],
+      "entities": [
+        "subject:codename_entered:gpt-6.1-sol-max"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "gpt-6.1-sol-max"
+        ],
+        [
+          "displayName",
+          "gpt-6.1-sol-max"
+        ],
+        [
+          "classification",
+          "label variant: the two names share an identity token"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "A model named \"gpt-6.1-sol-max\" appears in arena.ai's leaderboard payload.\n\nhttps://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "url": "https://diffwire.dev/changes/0df34447cbd451cf3fe6b54efc054dd214f53dd7.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=A%20model%20named%20%22gpt-6.1-sol-max%22%20appears%20in%20arena.ai's%20leaderboard%20payload.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F0df34447cbd451cf3fe6b54efc054dd214f53dd7.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ]
+}
