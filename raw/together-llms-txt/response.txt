@@ -9,7 +9,7 @@
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
 - [Available models](https://docs.together.ai/docs/serverless/models.md): Browse the catalog of available models for instant inference.
-- [Rate limits](https://docs.together.ai/docs/serverless/rate-limits.md): Together AI applies dynamic per-model rate limits that scale with your sustained traffic on serverless inference.
+- [Rate limits](https://docs.together.ai/docs/serverless/rate-limits.md): Understand serverless performance, how to handle rate limits during high demand, and options for throughput guarantees.
 - [Provisioned throughput](https://docs.together.ai/docs/inference/provisioned-throughput.md): Reserved inference capacity for production workloads.
 - [Overview](https://docs.together.ai/docs/inference/overview.md): Run inference on 100+ open-source models.
 - [OpenAI compatibility](https://docs.together.ai/docs/inference/openai-compatibility.md): Point your OpenAI Python or TypeScript client at Together AI to call open-source models without rewriting your app.
@@ -207,7 +207,6 @@
 - [Execute code](https://docs.together.ai/reference/tci-execute.md): Executes the given code snippet and returns the output. Without a session_id, a new session is created to run the code. If you pass a valid session_id, the code runs in that session. This is useful for running multiple code snippets in the same environment, because dependencies and similar things ar…
 - [List active sessions](https://docs.together.ai/reference/tci-sessions.md): Lists all your currently active sessions.
 - [Create a rerank request](https://docs.together.ai/reference/rerank.md): Rerank a list of documents by relevance to a query. Returns a relevance score and ordering index for each document.
-- [Create embedding](https://docs.together.ai/reference/embeddings.md): Generate vector embeddings for one or more text inputs. Returns numerical arrays representing semantic meaning, useful for search, classification, and retrieval.
 - [Create completion](https://docs.together.ai/reference/completions.md): Generate text completions for a given prompt using a language, code, or image model.
 - [List batch jobs](https://docs.together.ai/reference/batch-list.md): List all batch jobs for the authenticated user
 - [Create a batch job](https://docs.together.ai/reference/batch-create.md): Create a new batch job with the given input file and endpoint
