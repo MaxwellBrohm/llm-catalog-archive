@@ -24,6 +24,7 @@
 - [Model Fallback](https://docs.perplexity.ai/docs/agent-api/model-fallback.md): Specify multiple models in a fallback chain for higher availability and automatic failover.
 - [Tools overview](https://docs.perplexity.ai/docs/agent-api/tools/overview.md): The tools an Agent API run can call - Perplexity-hosted built-in tools, remote MCP servers, and your own custom functions - and where to go for each.
 - [Web Search](https://docs.perplexity.ai/docs/agent-api/tools/web-search.md): Search the web from the Agent API with filters, search configurations, pricing, parameters, and response fields.
+- [Image Search](https://docs.perplexity.ai/docs/agent-api/tools/image-search.md): Search for web images from the Agent API with result limits, domain and format filters, typed results, streaming events, and per-invocation pricing.
 - [Sandbox](https://docs.perplexity.ai/docs/agent-api/tools/sandbox.md): Execute code in isolated containers from inside an Agent API request.
 - [Fetch URL Content](https://docs.perplexity.ai/docs/agent-api/tools/fetch-url-content.md): Fetch and extract content from specific URLs in the Agent API.
 - [Finance Search](https://docs.perplexity.ai/docs/agent-api/tools/finance-search.md): Retrieve structured financial and market data in the Agent API.
