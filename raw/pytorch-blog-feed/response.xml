@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Thu, 01 Oct 2026 22:32:14 +0000</lastBuildDate>
+	<lastBuildDate>Fri, 02 Oct 2026 19:57:16 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,263 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Building a High-Performance and Portable vLLM Linear Backend with Helion</title>
+		<link>https://pytorch.org/blog/building-a-high-performance-and-portable-vllm-linear-backend-with-helion/</link>
+		
+		<dc:creator><![CDATA[Sean Chen (Red Hat) and Shangdi Yu (PyTorch, Meta Platforms)]]></dc:creator>
+		<pubDate>Fri, 02 Oct 2026 19:55:07 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=171767</guid>
+
+					<description><![CDATA[TL;DR We integrated Helion into vLLM’s linear backend to explore how an autotuned, high-level kernel DSL can improve LLM inference performance while reducing kernel implementation complexity. A single Helion general...]]></description>
+										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
+<p><span style="font-weight: 400;">We integrated </span><a href="https://helionlang.com/index.html"><span style="font-weight: 400;">Helion</span></a><span style="font-weight: 400;"> into vLLM’s </span><a href="https://docs.vllm.ai/en/latest/api/vllm/model_executor/kernels/linear/"><span style="font-weight: 400;">linear backend</span></a><span style="font-weight: 400;"> to explore how an autotuned, high-level kernel DSL can improve LLM inference performance while reducing kernel implementation complexity. A single Helion general matrix multiplication (GEMM) implementation can cover multiple algorithmic variants, including Standard GEMM, Split-K, and Swap-AB, with the best variant and config automatically selected through per-shape autotuning.</span></p>
+<p><span style="font-weight: 400;">On NVIDIA Hopper GPUs, the Helion linear backend combines per-shape tuning with hybrid dispatch to outperform the vLLM default CUTLASS and DeepGEMM backends across the evaluated models, delivering consistent end-to-end performance gains and more than 10% throughput improvement for some workloads.</span></p>
+<h2><span style="font-weight: 400;">Brief Background on vLLM and Helion</span></h2>
+<p><a href="https://docs.vllm.ai/en/latest/"><span style="font-weight: 400;">vLLM</span></a><span style="font-weight: 400;"> is a high-performance inference and serving framework for large language models (LLMs). For quantized linear layers, such as FP8, INT8, INT4, and NVFP4, vLLM provides specialized </span><a href="https://docs.vllm.ai/en/latest/api/vllm/model_executor/kernels/linear/"><span style="font-weight: 400;">linear backends</span></a><span style="font-weight: 400;"> that integrate hardware-optimized kernel implementations from libraries such as CUTLASS, DeepGEMM, and FlashInfer. These backends allow vLLM to use optimized kernels for different quantization formats and hardware platforms.</span></p>
+<p><a href="https://helionlang.com/index.html"><span style="font-weight: 400;">Helion</span></a><span style="font-weight: 400;"> is a PyTorch-native hardware agnostic kernel DSL designed for writing high-performance kernels using a tile-programming model. Its high-level abstraction allows developers to express a kernel once in concise Pythonic code, while Helion generates specialized code for different workloads on different hardware platforms. Rather than manually specializing kernels for each workload and hardware target, Helion relies on ahead-of-time (AOT) autotuner to systematically explore a broad search space, from low-level memory layout and kernel scheduling to high-level algorithmic choices, and select the best-performing config. This combination of high-level abstraction and systematic autotuning enables a single kernel implementation to be optimized across diverse workloads and hardware. Helion also supports LLM-guided search to further improve tuning efficiency.</span></p>
+<h2><span style="font-weight: 400;">Helion Adoption Opportunities and Challenges</span></h2>
+<p><span style="font-weight: 400;">This section summarizes the key opportunities and challenges of adopting Helion kernels in inference engines such as vLLM, providing a high-level overview of Helion’s value proposition and tradeoffs.</span></p>
+<h3><span style="font-weight: 400;">Opportunities</span></h3>
+<p><b>Performance</b><span style="font-weight: 400;">: Our </span><a href="https://pytorch.org/blog/portable-vllm-model-inference-kernels-in-helion/"><span style="font-weight: 400;">previous work</span></a><span style="font-weight: 400;"> demonstrated Helion’s potential to achieve SOTA performance for inference kernels across diverse workload patterns and hardware platforms through fine-grained tuning. </span></p>
+<p><b>Systematic Tuning Framework</b><span style="font-weight: 400;">: Compared with more open-ended agentic approaches that iteratively generate, profile, and refine kernel implementations, Helion formulates kernel tuning as a structured numerical optimization problem over a well-defined search space. This makes the tuning process more robust and reliable while remaining competitive in tuning efficiency, without relying on profiling to guide the search. Helion further supports LLM-guided search, combining the reasoning capabilities of LLMs with systematic numerical optimization to efficiently navigate the search space.</span></p>
+<p><b>Portability and Abstraction</b><span style="font-weight: 400;">: Helion is not only a portable DSL. It is possible to maintain a single kernel implementation while optimizing it for different workload patterns and hardware platforms. </span></p>
+<p><b>Client-Side Kernel Optimization</b><span style="font-weight: 400;">: Default kernels in inference engines such as vLLM are typically optimized for general workloads and commonly used models. With Helion, users can further tune kernel performance for their specific deployments without requiring specialized kernel expertise or significant engineering effort.</span></p>
+<h3><span style="font-weight: 400;">Challenges</span></h3>
+<p><span style="font-weight: 400;">Helion still has some challenges integrating into inference engines, with ongoing work from the Helion team to address and mitigate them.</span></p>
+<p><b>Ahead-of-time kernel tuning overhead</b><span style="font-weight: 400;">: Helion automates and systematizes kernel tuning, but fine-grained tuning can still take hours. This overhead comes primarily from the granularity of the tuning strategy rather than from Helion itself. Achieving the same level of workload-specific specialization with other kernel DSLs would incur comparable—or potentially greater—tuning costs.</span></p>
+<p><b>Startup-time overhead</b><span style="font-weight: 400;">: CUDA Graph capture during vLLM startup triggers Helion JIT compilation, increasing cold-start latency. This overhead can be largely eliminated on warm starts by caching compiled artifacts.</span></p>
+<p><b>Inference-runtime overhead</b><span style="font-weight: 400;">: Outside the CUDA Graph capture range, Helion kernel dispatch and launch during inference can introduce additional CPU overhead, potentially offsetting the performance gains from fine-grained tuning. In practice, Helion is most effective when executed under CUDA Graphs to avoid this CPU overhead.</span></p>
+<p><b>Maintenance overhead</b><span style="font-weight: 400;">: Shipping pre-tuned configs for popular models creates an ongoing upstream maintenance burden. Large config files are difficult to maintain and impractical to validate exhaustively through unit tests and CI. </span></p>
+<h3><span style="font-weight: 400;">The Tradeoff Triangle</span></h3>
+<p><span style="font-weight: 400;">Fine-grained kernel tuning with Helion presents a tradeoff among </span><b>performance</b><span style="font-weight: 400;">, </span><b>usability</b><span style="font-weight: 400;">, and </span><b>maintainability</b><span style="font-weight: 400;">. This tradeoff is not specific to Helion, but is inherent to workload-specific kernel optimization: optimizing for two often comes at the expense of the third.</span></p>
+<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-171928 " src="https://pytorch.org/wp-content/uploads/2026/10/1.png" alt="" width="587" height="587" srcset="https://pytorch.org/wp-content/uploads/2026/10/1.png 1254w, https://pytorch.org/wp-content/uploads/2026/10/1-300x300.png 300w, https://pytorch.org/wp-content/uploads/2026/10/1-1024x1024.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/1-150x150.png 150w" sizes="(max-width: 587px) 100vw, 587px" /></p>
+<p style="text-align: center;"><i><span style="font-weight: 400;">Fig. 1: The Performance-Usability-Maintainability tradeoff triangle</span></i></p>
+<p><span style="font-weight: 400;">Higher performance generally requires more fine-grained config tuning. This either increases client-side autotuning overhead or requires maintainers to provide and maintain more pre-tuned configs upstream. The goal, therefore, is to strike the right balance for the target use case. </span></p>
+<h2><span style="font-weight: 400;">Helion Linear Backend </span></h2>
+<h3><span style="font-weight: 400;">Scope</span></h3>
+<p><span style="font-weight: 400;">This work adds a Helion linear backend to vLLM and focuses on NVIDIA Hopper GPUs using Helion’s Triton backend. FP8 and INT8 are the primary quantization formats for efficient inference on Hopper, so we target quantized GEMM with the following formats:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><a href="https://docs.vllm.ai/en/latest/features/quantization/llm_compressor/fp8/"><b>FP8_Dynamic</b></a><span style="font-weight: 400;">: FP8 per-token activation and per-channel weight scaling.</span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://docs.vllm.ai/en/latest/features/quantization/llm_compressor/int8_w8a8/"><b>W8A8_INT8</b></a><span style="font-weight: 400;">: INT8 per-token activation and per-channel weight scaling.</span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://docs.vllm.ai/en/latest/features/quantization/llm_compressor/fp8/"><b>Block_FP8</b></a><span style="font-weight: 400;">: FP8 with 1×128 activation scaling and 128×128 weight scaling. </span></li>
+</ul>
+<p><a href="https://github.com/pytorch/helion/pull/3377#issuecomment-5345673133"><span style="font-weight: 400;">Initial results</span></a><span style="font-weight: 400;"> with Helion’s CuteDSL backend show competitive GEMM performance on NVIDIA Blackwell GPUs. As the CuteDSL backend matures, this work can be extended to support Blackwell.</span></p>
+<h3><span style="font-weight: 400;">Kernel Implementation</span></h3>
+<p><span style="font-weight: 400;">Several GEMM algorithm variants can improve performance for specific input shapes. In particular:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>Split-K</b><span style="font-weight: 400;">: Partitions the K dimension across multiple thread blocks to increase parallelism when the M and/or N dimensions are too small.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Swap-AB</b><span style="font-weight: 400;">: Rewrites </span><span style="font-weight: 400;">A@B</span> <span style="font-weight: 400;">as</span> <span style="font-weight: 400;">(B.T@A.T).T</span><span style="font-weight: 400;"> to improve performance for shapes with a small M dimension by enabling more favorable tiling and better GPU utilization.</span></li>
+</ul>
+<p><span style="font-weight: 400;">Traditionally, kernel authors need to implement multiple GEMM variants, benchmark the standard GEMM against these specialized variants, and develop heuristics to determine which implementation to dispatch to based on the input shape. For example, vLLM’s current Block_FP8 linear backend dispatches to the Swap-AB variant when M &lt; 32 on Hopper. Such heuristics are typically designed to perform well in general, but may not be optimal for every model or workload. </span></p>
+<p><span style="font-weight: 400;">With Helion, a single unified GEMM implementation can cover all three variants—Standard, Split-K, and Swap-AB. Instead of implementing separate kernels and manually designing dispatch heuristics, the algorithmic choices are exposed as tunable parameters. The AOT autotuner can then automatically select the best variant along with the low-level kernel config for each workload.</span></p>
+<p><span style="font-weight: 400;">For simplicity, we use a basic matrix multiplication kernel below to illustrate the approach. The quantized GEMM kernels used in this work follow the same structure, with additional quantization and scaling logic.</span></p>
+<pre><code class="language-python">def matmul(
+    out: torch.Tensor,  # [M, N]
+    a: torch.Tensor,    # [M, K]
+    b: torch.Tensor,    # [K, N]
+) -&gt; None:
+    M, K = a.shape
+    N = b.shape[1]
+    hl.specialize(K)
+    hl.specialize(N)
+
+    out_dtype = out.dtype
+    acc_dtype = torch.float32
+
+    split_k = hl.register_tunable(
+        "split_k", PowerOfTwoFragment(1, 256)
+    )
+    k_block_size = helion.next_power_of_2(helion.cdiv(K, split_k))
+    if split_k &gt; 1:
+        out.zero_()
+
+    swap_ab = hl.register_tunable(
+        "swap_ab", BooleanFragment()
+    )
+
+    for tile_m, tile_n, outer_k in hl.tile(
+        [M, N, K],
+        block_size=[None, None, k_block_size]
+    ):
+        acc = hl.zeros([tile_m, tile_n], acc_dtype)
+        acc_t = acc.t()
+        for tile_k in hl.tile(outer_k.begin, outer_k.end):
+            if swap_ab:
+                a_blk = hl.load(a, [tile_m.index[None, :], tile_k.index[:, None]])
+                b_blk = hl.load(b, [tile_k.index[None, :], tile_n.index[:, None]])
+                acc_t = hl.dot(
+                    b_blk,
+                    a_blk,
+                    acc=acc_t,
+                    out_dtype=acc_dtype,
+                )
+            else:
+                acc = hl.dot(
+                    a[tile_m, tile_k],
+                    b[tile_k, tile_n],
+                    acc=acc,
+                    out_dtype=acc_dtype,
+                )
+
+        if swap_ab:
+            out_blk = acc_t.t().to(out_dtype)
+        else:
+            out_blk = acc.to(out_dtype)
+
+        if split_k == 1:
+            out[tile_m, tile_n] = out_blk
+        else:
+            hl.atomic_add(out, [tile_m, tile_n], out_blk)</code></pre>
+<p><span style="font-weight: 400;">This implementation exposes both algorithmic choices as tunable parameters: </span><span style="font-weight: 400;"><code>split_k</code></span><span style="font-weight: 400;"> is constrained to power-of-two values up to 256, while </span><span style="font-weight: 400;"><code>swap_ab</code></span><span style="font-weight: 400;"> is a Boolean parameter. The autotuner explores the constrained search space, benchmarks different combinations, and selects the best variant for each workload.</span></p>
+<h3><span style="font-weight: 400;">Hybrid Dispatch</span></h3>
+<p><img decoding="async" class="aligncenter wp-image-171936 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/2.png" alt="" width="1448" height="284" srcset="https://pytorch.org/wp-content/uploads/2026/10/2.png 1448w, https://pytorch.org/wp-content/uploads/2026/10/2-300x59.png 300w, https://pytorch.org/wp-content/uploads/2026/10/2-1024x201.png 1024w" sizes="(max-width: 1448px) 100vw, 1448px" /></p>
+<p style="text-align: center;"><i><span style="font-weight: 400;">Fig. 2: Helion linear backend hybrid dispatch strategy based on runtime num_tokens and CUDA Graph coverage.</span></i></p>
+<p>We adopt a hybrid dispatch strategy based on runtime <code>num_tokens</code> and CUDA Graph coverage. For small shapes up to <code>max_helion_size</code>, the linear backend dispatches to Helion under CUDA Graph replay. For larger shapes beyond <code>max_helion_size</code>, it falls back to the default kernel (CUTLASS/DeepGEMM).</p>
+<p><span style="font-weight: 400;">This hybrid dispatch strategy provides three practical benefits:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>Eliminates Helion runtime overhead</b><span style="font-weight: 400;">. Helion kernels execute only through CUDA Graph replay, avoiding the additional CPU overhead from kernel dispatch and launch.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Reduces kernel tuning overhead</b><span style="font-weight: 400;">. Fine-grained Helion tuning is limited to the small </span><span style="font-weight: 400;"><code>num_tokens</code></span><span style="font-weight: 400;"> range that dominates decoding workloads, significantly reducing the number of input shapes that need to be tuned while preserving the opportunity for meaningful end-to-end performance gains.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Reduces config maintenance overhead</b><span style="font-weight: 400;">. The smaller set of tuned configs makes pre-tuned configs more practical to validate, ship, and maintain over time.</span></li>
+</ul>
+<h3><span style="font-weight: 400;">Kernel Autotuning</span></h3>
+<p><span style="font-weight: 400;">We autotune the Helion linear kernels using the utility script available in vLLM:</span></p>
+<pre><code>HELION_AUTOTUNER=LLMSeededLFBOTreeSearch \
+HELION_BENCHMARK_CUDAGRAPH =1 \
+python scripts/autotune_helion_kernels.py \
+  --kernels scaled_mm block_scaled_mm \
+  --autotune-effort "full"</code></pre>
+<p><span style="font-weight: 400;">The following sections describe the key tuning strategies and setups used in this work.</span></p>
+<h4><span style="font-weight: 400;">Per-shape Config Tuning</span></h4>
+<p><span style="font-weight: 400;">To compete with highly optimized GEMM libraries such as CUTLASS, DeepGEMM, and FlashInfer, we tune the Helion kernel individually for each input shape within the Helion dispatch range.</span></p>
+<p><span style="font-weight: 400;">As described in the hybrid dispatch strategy, we set </span><span style="font-weight: 400;"><code>max_helion_size = 32</code></span><span style="font-weight: 400;"> for this work. vLLM captures CUDA Graphs for the following num_tokens values:</span></p>
+<pre><code>[1, 2, 4] + range(8, 256, 8) + range(256, max_graph_size + 1, 16)</code></pre>
+<p>With <code>max_helion_size = 32</code>, the Helion kernels are therefore autotuned for:</p>
+<pre><code>num_tokens = [1, 2, 4, 8, 16, 24, 32]</code></pre>
+<p><span style="font-weight: 400;">Each num_tokens value is tuned individually for the corresponding GEMM shapes used by the model.</span></p>
+<h4><span style="font-weight: 400;">Enable CUDA Graph for Autotuner Benchmarking</span></h4>
+<p><span style="font-weight: 400;">Due to the additional CPU overhead from kernel dispatch and launch, Helion kernels are used only under CUDA Graph execution. Benchmarking with CUDA Graph enabled therefore allows the autotuner to evaluate configs under conditions that more closely match actual inference execution.</span></p>
+<p><span style="font-weight: 400;">Helion exposes this feature through the <code>HELION_BENCHMARK_CUDAGRAPH</code></span><span style="font-weight: 400;">environment variable and is turned on for this work.</span></p>
+<h4><span style="font-weight: 400;">Use LLM-Guided Search</span></h4>
+<p><span style="font-weight: 400;">The kernel configs in this work are generated using the </span><a href="https://pytorch.org/blog/from-minutes-to-seconds-llm-guided-autotuning-for-helion-kernels/"><span style="font-weight: 400;">LLMSeededLFBOTreeSearch</span></a><span style="font-weight: 400;"> autotuner, which uses an LLM to identify a set of promising config candidates as seeds for the subsequent LFBOTreeSearch. For this work, we use </span><a href="https://www.anthropic.com/news/claude-opus-4-8"><span style="font-weight: 400;">Claude Opus 4.8</span></a><span style="font-weight: 400;">.</span></p>
+<p><span style="font-weight: 400;">Starting the search from higher-quality candidates helps the autotuner discover better-performing configs. It may also reduce overall autotuning time by directing the search toward more promising regions of the search space.</span></p>
+<h2><span style="font-weight: 400;">Performance Evaluation</span></h2>
+<p><span style="font-weight: 400;">We evaluate the Helion linear backend at both the kernel and end-to-end serving levels across a range of dense models and quantization formats. To understand how performance scales with model size, we benchmark Qwen3-1.7B, Qwen3-4B, Qwen3-8B, Qwen3-14B, and Qwen3-32B. We additionally include the latest Qwen3.8-27B model to evaluate the backend on a more recent model architecture.</span></p>
+<p><span style="font-weight: 400;">For each model, we evaluate three commonly used 8-bit quantization formats on NVIDIA Hopper GPUs. For example, for Qwen3.8-27B, we benchmark: </span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><a href="https://huggingface.co/AzatAI/Qwen3.8-27B-FP8-dynamic"><span style="font-weight: 400;">AzatAI/Qwen3.8-27B-FP8-dynamic</span></a><span style="font-weight: 400;"> (FP8_Dynamic)</span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://huggingface.co/Freaksterz/Qwen3.8-27B-SmoothQuant-W8A8-INT8"><span style="font-weight: 400;">Freaksterz/Qwen3.8-27B-SmoothQuant-W8A8-INT8</span></a><span style="font-weight: 400;"> (W8A8_INT8)</span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://huggingface.co/Qwen/Qwen3.8-27B-FP8"><span style="font-weight: 400;">Qwen/Qwen3.8-27B-FP8</span></a><span style="font-weight: 400;"> (Block_FP8) </span></li>
+</ul>
+<p><span style="font-weight: 400;">All benchmarks are performed on an NVIDIA H100 80GB HBM3 GPU.</span></p>
+<h3><span style="font-weight: 400;">Kernel-Level Evaluation</span></h3>
+<p><span style="font-weight: 400;">We first evaluate the Helion quantized GEMM kernels in isolation to understand the performance benefit of fine-grained tuning independent of the rest of the inference stack. Each Helion kernel is compared against the corresponding kernel used by the default vLLM linear backend on Hopper:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">FP8_Dynamic: Helion vs. CUTLASS</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">W8A8_INT8: Helion vs. CUTLASS</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Block_FP8: Helion vs. FlashInfer/DeepGEMM</span></li>
+</ul>
+<p><img decoding="async" class="aligncenter wp-image-171943 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/3.png" alt="" width="2048" height="1035" srcset="https://pytorch.org/wp-content/uploads/2026/10/3.png 2048w, https://pytorch.org/wp-content/uploads/2026/10/3-300x152.png 300w, https://pytorch.org/wp-content/uploads/2026/10/3-1024x518.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p style="text-align: center;"><i><span style="font-weight: 400;">Fig. 3: Helion quantized GEMM kernel speedup distribution over the default vLLM kernel libraries across all input shapes used by the end-to-end benchmarked models. Diamonds indicate the geometric mean speedup.</span></i></p>
+<p><span style="font-weight: 400;">Helion achieves geometric mean speedups of </span><b>1.110×</b><span style="font-weight: 400;"> for FP8_Dynamic over CUTLASS, </span><b>1.178×</b><span style="font-weight: 400;"> for W8A8_INT8 over CUTLASS, </span><b>1.149×</b><span style="font-weight: 400;"> for Block_FP8 over FlashInfer, and </span><b>1.177×</b><span style="font-weight: 400;"> for Block_FP8 over DeepGEMM. The distribution also shows that performance varies across individual input shapes, highlighting the value of fine-grained tuning rather than relying on a single kernel config or generic dispatch heuristic.</span></p>
+<h3><span style="font-weight: 400;">End-to-End Evaluation</span></h3>
+<p><span style="font-weight: 400;">We next evaluate whether the kernel-level improvements translate into end-to-end serving performance.</span></p>
+<h4><span style="font-weight: 400;">Server Setup</span></h4>
+<p><span style="font-weight: 400;">We use the following command to start the vLLM server:</span></p>
+<pre><code>vllm serve \
+    --model "$MODEL" \
+    --max-num-seqs 32 \
+    --tensor-parallel-size 1 \
+    --no-enable-prefix-caching \
+    --linear-backend helion</code></pre>
+<p>The relevant options are:</p>
+<ul>
+<li><code>--max-num-seqs 32</code>: The Helion linear backend currently uses a hybrid dispatch threshold of 32 <code>num_tokens</code>. We therefore focus the evaluation on batch sizes up to 32, where Helion kernels are active and can directly affect end-to-end performance.</li>
+<li><code>--no-enable-prefix-caching</code>: Prefix caching is intentionally disabled to avoid its impact on benchmark results.</li>
+<li><code>--linear-backend helion</code>: Enables the Helion linear backend. Omitting this flag uses the default linear backend.</li>
+</ul>
+<h3><span style="font-weight: 400;">Benchmark Setup</span></h3>
+<p><span style="font-weight: 400;">We run end-to-end serving benchmarks using the ShareGPT dataset with:</span></p>
+<pre><code>vllm bench serve \
+    --backend vllm \
+    --model "${MODEL}" \
+    --endpoint /v1/completions \
+    --dataset-name sharegpt \
+    --dataset-path "${DATASET}" \
+    --max-concurrency "${BATCH_SIZE}" \
+    --num-warmups "${NUM_WARMUPS}" \
+    --num-prompts "${PROMPTS}" \
+    --ignore-eos</code></pre>
+<p><span style="font-weight: 400;">Each workload is benchmarked with both the default and Helion linear backends. The default vLLM </span><a href="https://docs.vllm.ai/en/latest/api/vllm/model_executor/kernels/linear/scaled_mm/"><span style="font-weight: 400;">linear backends</span></a><span style="font-weight: 400;"> used as baselines on Hopper are:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>FP8_Dynamic</b><span style="font-weight: 400;">: CutlassFP8ScaledMMLinearKernel</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>W8A8_INT8</b><span style="font-weight: 400;">: CutlassInt8ScaledMMLinearKernel</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Block_FP8</b><span style="font-weight: 400;">: FlashInferFp8DeepGEMMDynamicBlockScaledKernel</span></li>
+</ul>
+<h4><span style="font-weight: 400;">End-to-End Benchmark Results</span></h4>
+<p><span style="font-weight: 400;">The following Figure shows the end-to-end throughput speedup of the Helion linear backend over the corresponding default backend across different model sizes, batch sizes, and quantization formats.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-171947 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/4.png" alt="" width="2048" height="625" srcset="https://pytorch.org/wp-content/uploads/2026/10/4.png 2048w, https://pytorch.org/wp-content/uploads/2026/10/4-300x92.png 300w, https://pytorch.org/wp-content/uploads/2026/10/4-1024x313.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></p>
+<p style="text-align: center;"><i><span style="font-weight: 400;">Fig. 4: Helion linear backend end-to-end throughput speedup.</span></i></p>
+<p><span style="font-weight: 400;">Overall, the Helion linear backend delivers consistent end-to-end performance gains across the evaluated models and quantization formats, with more than 10% throughput improvement for some workloads.</span></p>
+<h2><span style="font-weight: 400;">Toward a Practical Adoption Model</span></h2>
+<p><span style="font-weight: 400;">The Helion linear backend presented in this work is currently available in our </span><a href="https://github.com/redhat-et/vllm-helion"><span style="font-weight: 400;">vLLM fork</span></a><span style="font-weight: 400;"> and ready for production use. The fork also includes the autotuning tooling and instructions needed for end users to generate optimized configs for additional models and workloads. One remaining challenge for upstream adoption is the maintenance overhead of shipping and validating a large collection of pre-tuned configs.</span></p>
+<p><span style="font-weight: 400;">For latency-critical kernels such as the GEMM kernels studied in this work, we are exploring a model in which the Helion kernels and integration framework are maintained upstream with a default config for functional testing and CI, while workload-specific autotuning is delegated to end users. The same automated tooling used in this work allows users to generate optimized configs for their target models and hardware before deployment. This model favors performance and maintainability over out-of-the-box usability. We believe this tradeoff is practical for latency-critical kernels, where the performance benefits can justify the additional offline optimization effort, particularly for model serving providers willing to make this investment before production deployment.</span></p>
+<p><span style="font-weight: 400;">Fine-grained tuning, however, is not the only practical adoption strategy for Helion kernels. For smaller auxiliary kernels, such as quantization, activation, and normalization kernels, it can be preferable to trade some peak performance for a much smaller config set that generalizes across shapes. Our </span><a href="https://github.com/vllm-project/vllm/issues/53788"><span style="font-weight: 400;">initial experiments</span></a><span style="font-weight: 400;"> show that meaningful performance improvements can be achieved for these kernels with as few as six configs. This provides another path toward upstream adoption with substantially lower tuning and maintenance overhead for auxiliary kernels.</span></p>
+<p><span style="font-weight: 400;">We encourage interested users to try the current implementation and share their experience in the ⁠</span><a href="https://github.com/vllm-project/vllm/issues/46526"><span style="font-weight: 400;">vLLM Helion linear backend RFC</span></a><span style="font-weight: 400;">. Feedback from real-world deployments will help us evaluate these approaches and guide the integration toward broader adoption.</span></p>
+<h2><span style="font-weight: 400;">Future work</span></h2>
+<p><span style="font-weight: 400;">Future work will focus on expanding Helion kernel coverage across inference workloads and hardware platforms.</span></p>
+<p><b>Hardware coverage</b><span style="font-weight: 400;">. The Helion team is continuing to expand and optimize backend support across hardware platforms, including the CuteDSL backend for NVIDIA Blackwell GPUs and ongoing performance work for AMD GPUs and </span><a href="https://pytorch.org/blog/helion-on-tpu-towards-hardware-heterogeneous-kernel-authoring/"><span style="font-weight: 400;">TPUs</span></a><span style="font-weight: 400;">. As these backends mature, we plan to extend and re-evaluate the Helion linear backend across these hardware targets.</span></p>
+<p><b>Model coverage</b><span style="font-weight: 400;">. This work primarily targets dense models, where the linear backend accounts for a significant portion of inference latency. For MoE models, the MoE backend becomes the more important optimization target. We are working on a Helion MoE backend to bring Helion’s kernel optimization capabilities to these workloads and broaden model coverage.</span></p>
+<h2><span style="font-weight: 400;">Conclusion</span></h2>
+<p><span style="font-weight: 400;">Helion’s high-level abstraction makes it possible to express and maintain a single kernel implementation while optimizing it across different workloads and hardware targets. As demonstrated by the quantized GEMM kernels in this work, even algorithmic variants such as Standard GEMM, Split-K, and Swap-AB can be unified into one implementation and exposed as tunable choices for the autotuner. Combined with per-shape fine-grained kernel tuning and hybrid dispatch, the Helion linear backend outperforms the default CUTLASS, DeepGEMM, and FlashInfer backends on Hopper GPUs across the evaluated models, delivering consistent end-to-end performance gains and throughput improvements exceeding 10% for some workloads.</span></p>
+<p><span style="font-weight: 400;">These performance gains, however, come with tradeoffs. Fine-grained tuning for latency-critical kernels improves performance but increases AOT tuning effort, while shipping pre-tuned configs improves out-of-the-box usability at the cost of ongoing maintenance. This reflects the broader performance-usability-maintainability tradeoff discussed throughout this post.</span></p>
+<p><span style="font-weight: 400;">Today, we ship the pre-tuned configs with our </span><a href="https://github.com/redhat-et/vllm-helion"><span style="font-weight: 400;">vLLM fork</span></a><span style="font-weight: 400;">. For upstream adoption, we are exploring a different model: maintain the Helion kernels and integration framework upstream while delegating workload-specific autotuning to end users. This favors performance and maintainability over out-of-the-box usability, but Helion’s automated tuning framework makes the additional optimization step practical for performance-sensitive deployments.</span></p>
+<h2><span style="font-weight: 400;">Acknowledgments</span></h2>
+<p><span style="font-weight: 400;">This work was supported by many contributors across the OCTO and vLLM teams at Red Hat, as well as the Helion team at Meta. In particular, we would like to thank our colleagues: Richard Zou and Jongsok Choi for their feedback and support throughout this work. </span></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>New Pathway to PyTorch Certified Associate (PTCA) Certification</title>
+		<link>https://pytorch.org/blog/new-pathway-to-pytorch-certified-associate-ptca-certification/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Fri, 02 Oct 2026 19:33:47 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=171978</guid>
+
+					<description><![CDATA[We&#8217;re excited to bring you the new PyTorch Certified Associate (PTCA) Certification Pathway, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience...]]></description>
+										<content:encoded><![CDATA[<p><span style="font-size: 18.72px;"><img decoding="async" class="alignnone size-large wp-image-171984" src="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-1024x536.png" alt="PyTorch Certification Pathway" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></p>
+<p>We&#8217;re excited to bring you the new <a href="https://training.linuxfoundation.org/certification/ptca-certification-pathway/">PyTorch Certified Associate (PTCA) Certification Pathway</a>, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience through Linux Foundation Education. The Certification Pathway is designed to help you build the foundational PyTorch skills validated by PTCA through learning that more closely aligns with the certification’s domains and competencies.</p>
+<p>The pathway includes four self-paced learning modules plus the PTCA certification exam:</p>
+<ul>
+<li>PyTorch Fundamentals</li>
+<li>Data Handling in PyTorch</li>
+<li>PyTorch Model Development</li>
+<li>Optimizing PyTorch</li>
+</ul>
+<p>Together, the modules cover core skills across the same key areas measured by the PTCA certification, from working with tensors and devices to preparing data, building neural networks, and improving model performance.</p>
+<h4><strong>Learn, Build, Validate, Certify</strong></h4>
+<p>Throughout the pathway, you’ll build skills to:</p>
+<ul>
+<li><strong>Work with tensors and devices</strong> across the model lifecycle, from training through prediction</li>
+<li><strong>Prepare and manage data</strong> using Datasets, DataLoaders, and transforms</li>
+<li><strong>Build neural networks</strong> using PyTorch layers, activations, loss functions, and optimizers</li>
+<li><strong>Measure and optimize performance</strong> using tools and techniques including torch.compile, Automatic Mixed Precision, the PyTorch Profiler, and distributed training concepts</li>
+</ul>
+<p>The full pathway includes 15–17 hours of self-paced learning and hands-on labs designed to help you build a strong foundation. Certification readiness takes more than completing coursework, so additional hands-on practice and real-world experience with PyTorch are recommended as you prepare for the PTCA exam.</p>
+<h4><strong>Put Your PyTorch Skills on a Clear Path</strong></h4>
+<p>PTCA is designed for early-stage practitioners with Python and machine learning experience who are beginning to work with PyTorch. The certification validates your understanding of the core concepts and workflows used by engineers and researchers to design, train, optimize, and work with machine learning models. With the new <a href="https://training.linuxfoundation.org/certification/ptca-certification-pathway/" target="_blank" rel="noopener"><strong>PTCA Certification Pathway</strong></a>, you can build those skills through focused learning and then validate what you know with the included certification exam, all in one product.</p>
+<p>Build your PyTorch skills and get certified today.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</title>
 		<link>https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/</link>
 		
@@ -44,7 +301,7 @@
 <p><span style="font-weight: 400;">Code available at: </span><a href="https://github.com/facebookresearch/ads_model_kernel_library/tree/main/tlx_jfa"><span style="font-weight: 400;">https://github.com/facebookresearch/ads_model_kernel_library/tree/main/tlx_jfa</span></a></p>
 <h2><span style="font-weight: 400;">Introduction</span></h2>
 <p><span style="font-weight: 400;">Meta&#8217;s ads models, including the Generative Ads Model (GEM) [2] and the Kunlun architecture [5], run attention over jagged (variable-length or ragged) user sequences. As described in our </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">GEM training deep dive</span></a><span style="font-weight: 400;">, padding these sequences to a fixed length can waste up to 50% of compute. GEM instead packs sequences contiguously and records each sequence&#8217;s boundaries in an offsets tensor.</span></p>
-<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-171512 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/1.png" alt="" width="1376" height="768" srcset="https://pytorch.org/wp-content/uploads/2026/09/1.png 1376w, https://pytorch.org/wp-content/uploads/2026/09/1-300x167.png 300w, https://pytorch.org/wp-content/uploads/2026/09/1-1024x572.png 1024w" sizes="(max-width: 1376px) 100vw, 1376px" />Jagged Flash Attention is the kernel-level mechanism that makes this padding-free representation efficient: it applies the FlashAttention algorithm directly to packed Q/K/V tensors and their offsets, without ever materializing padded tokens. The earlier GEM post described this challenge at the training-system level; here, we focus on optimizing the underlying attention kernel for Blackwell.</p>
+<p><img decoding="async" class="aligncenter wp-image-171512 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/1.png" alt="" width="1376" height="768" srcset="https://pytorch.org/wp-content/uploads/2026/09/1.png 1376w, https://pytorch.org/wp-content/uploads/2026/09/1-300x167.png 300w, https://pytorch.org/wp-content/uploads/2026/09/1-1024x572.png 1024w" sizes="(max-width: 1376px) 100vw, 1376px" />Jagged Flash Attention is the kernel-level mechanism that makes this padding-free representation efficient: it applies the FlashAttention algorithm directly to packed Q/K/V tensors and their offsets, without ever materializing padded tokens. The earlier GEM post described this challenge at the training-system level; here, we focus on optimizing the underlying attention kernel for Blackwell.</p>
 <p><span style="font-weight: 400;">Hitting peak throughput on Blackwell means keeping the tensor cores continuously fed. Plain Triton leaves most of these decisions to the compiler; TLX [1] exposes them as first-class primitives (explicit SMEM/TMEM allocation, async_task warp specialization, barriers, async TMA and MMA, and CLC). The rest of the post uses that control to turn a compiler-scheduled, memory-bound kernel into a tightly pipelined, warp-specialized one.</span></p>
 <h2><span style="font-weight: 400;">1. The Challenge: Performant and Extensible Attention on Blackwell</span></h2>
 <p><span style="font-weight: 400;">Optimizing attention on Blackwell means solving two problems at once. The first is performance: attention is the single slowest kernel in GEM, and it reaches peak throughput only when the global-memory loads, softmax, and matmuls are tightly overlapped. The second is iteration speed: attention is where new modeling ideas land (sliding window, block-sparse, and other variants), so the kernel is edited often — yet the state-of-the-art path to that performance is a hand-written CuteDSL/CUDA kernel that is hard to read, extend, or fuse. Our aim with TLX is to </span><b>strike the balance</b><span style="font-weight: 400;">: competitive performance in a kernel that stays easy to iterate on.</span></p>
@@ -925,348 +1182,7 @@ echo "Resolved pytorch/pytorch@nightly -&gt; source ${SOURCE_SHA}"
 		
 		
 			</item>
-		<item>
-		<title>PyTorch Day Japan 2026 Comes to Tokyo on December 10</title>
-		<link>https://pytorch.org/blog/pytorch-day-japan-2026-comes-to-tokyo/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Fri, 18 Sep 2026 00:25:32 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=168823</guid>
-
-					<description><![CDATA[PyTorch Day Japan 2026 will bring the open source AI community together in Tokyo on December 10 for a full day of technical talks and interactive discussions designed to foster...]]></description>
-										<content:encoded><![CDATA[<p><a href="https://events.linuxfoundation.org/pytorch-day-japan/">PyTorch Day Japan 2026</a> will bring the open source AI community together in Tokyo on December 10 for a full day of technical talks and interactive discussions designed to foster knowledge exchange and collaboration.</p>
-<p>Hosted by PyTorch Foundation, Hugging Face, IBM, and Mitsubishi Electric, the event will bring together PyTorch enthusiasts, machine learning engineers, AI researchers, and industry professionals working across open source AI.</p>
-<p>The program will explore PyTorch and PyTorch Foundation hosted projects, including vLLM, DeepSpeed, Ray, Helion, and Safetensors, alongside broader topics in AI and machine learning such as training, inference, responsible AI, physical and edge AI, and open model development.</p>
-<p><a href="https://events.linuxfoundation.org/pytorch-day-japan/program/cfp/">The call for proposals is now open</a>, and <a href="https://events.linuxfoundation.org/pytorch-day-japan/register/">registration is available with discounted pricing</a> through November 11.</p>
-<h2>Submit a Session Proposal</h2>
-<p>PyTorch Day Japan 2026 is accepting proposals for session presentations and lightning talks.</p>
-<p>Suggested topics include:</p>
-<p><strong>Sovereign AI and local open models:</strong> Strategies and architectures for building and running open-weights AI on local infrastructure, including open model adaptation, post-training, local inference, and privacy-first deployments using PyTorch.</p>
-<p><strong>Physical AI and edge AI:</strong> Experiences bringing PyTorch models to physical hardware, robotics, and edge systems, including real-time on-device inference, vision-language-action models, hardware acceleration, and optimization for resource-constrained environments.</p>
-<p><strong>PyTorch ecosystem:</strong> Developments across the PyTorch library and developer toolchain, including domain libraries such as TorchVision, TorchAudio, TorchRL, and PyTorch Distributed, as well as developer tooling, PyTorch 2.x and <code>torch.compile</code>, production pipelines, and community-driven open source projects.</p>
-<p>The CFP closes <strong>Sunday, September 27 at 11:59 PM JST</strong>.</p>
-<p>Key dates:</p>
-<ul>
-<li>CFP deadline: Sunday, September 27 at 11:59 PM JST</li>
-<li>CFP notifications: Tuesday, October 13</li>
-<li>Schedule announcement: Wednesday, October 14</li>
-<li>Presentation slides due: Wednesday, December 9</li>
-<li>PyTorch Day Japan: Thursday, December 10</li>
-</ul>
-<p><a href="https://events.linuxfoundation.org/pytorch-day-japan/program/cfp/">Submit a proposal</a></p>
-<h2>Register for PyTorch Day Japan</h2>
-<p>Registration is also open for PyTorch Day Japan 2026.</p>
-<p>Registration is <strong>¥5,000 through November 11 at 11:59 PM JST</strong>, representing ¥3,000 in savings. Discounted academic pricing is also available for students and faculty members.</p>
-<p><a href="https://events.linuxfoundation.org/pytorch-day-japan/register/">Register for PyTorch Day Japan</a></p>
-<p>PyTorch Day Japan 2026 takes place <strong>Thursday, December 10 in Tokyo, Japan</strong>.</p>
-<p>For full event details, visit the <a href="https://events.linuxfoundation.org/pytorch-day-japan/">PyTorch Day Japan 2026 website</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Open Research, Tooling &#038; Optimization at PyTorch Conference North America 2026</title>
-		<link>https://pytorch.org/blog/open-research-tooling-optimization-at-pytorch-conference-north-america-2026/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Wed, 16 Sep 2026 19:00:47 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=167741</guid>
-
-					<description><![CDATA[TL;DR Taking place October 20 to 21 in San Jose, California, PyTorch Conference North America 2026 highlights open research, tooling, and performance optimization across compiler architecture, cross-hardware kernel domain-specific languages,...]]></description>
-										<content:encoded><![CDATA[<h2>TL;DR</h2>
-<p><span style="font-weight: 400;">Taking place October 20 to 21 in San Jose, California, PyTorch Conference North America 2026 highlights open research, tooling, and performance optimization across compiler architecture, cross-hardware kernel domain-specific languages, exascale distributed training, and low-precision quantization. Read this blog to learn more.</span></p>
-<h2><span style="font-weight: 400;">Introduction</span></h2>
-<p><span style="font-weight: 400;">Every year, the beating heart of PyTorch Conference is the work that happens <em>underneath</em> the flashy headlines- the compilers, kernels, autotuners, distributed runtimes, profilers, and open-source libraries that make the rest of the ecosystem possible. At PyTorch Conference North America 2026, taking place October 20–21 in San Jose, California, this theme &#8211; </span><b>Open Research, Tooling &amp; Optimization</b><span style="font-weight: 400;"> &#8211; runs through dozens of sessions across the Core PyTorch, Kernel Engineering, Training, and Inference tracks.</span></p>
-<p><span style="font-weight: 400;">This is where you&#8217;ll find the engineers rewriting torch.compile&#8217;s internals for speed, the teams building DSLs (Helion, CuteDSL, FlyDSL) that let a single kernel target NVIDIA, AMD, Intel, and TPU silicon, the researchers pushing quantization down to FP4 and NVFP4 without losing accuracy, and the maintainers open-sourcing tools like TinyTorch, Pyrefly, LMCache, and OpenEnv so the whole community can build on their work. It&#8217;s also where PyTorch&#8217;s own maintainers are candidly discussing how AI agents are reshaping how the framework itself gets built, reviewed, and released.</span></p>
-<p><span style="font-weight: 400;">In this blog we have picked out the sessions that fall into this theme &#8211; open source tooling, systems research, and hard-won performance optimization.</span></p>
-<p><a href="https://hubs.ly/Q04tDx8f0">View the full conference schedule</a></p>
-<p><a href="https://hubs.ly/Q04tDx8f0">Register for PyTorch Conference North America 2026</a></p>
-<h2><span style="font-weight: 400;">Compilers, Graph Capture &amp; Dynamic Shapes</span></h2>
-<p><span style="font-weight: 400;">Everything to do with torch.compile, Dynamo, and the machinery that turns eager PyTorch code into a graph format that can be optimized at runtime, or used to generate artifacts for later execution</span></p>
-<p><strong>Beyond Size and Stride: Unleash Performance with Device-Aware Tensor Layouts</strong><br />
-Olivier Tardieu; Matthew Arnold (IBM)<br />
-Tue 20 Oct, 16:20–16:30, LL20AB</p>
-<p>A lightweight tensor layout extension that lets torch.compile (Inductor) automatically adapt tiling and NUMA-aware placement to the target device, without changing existing PyTorch model code.</p>
-<p><b>Nested Graph Breaks: Reducing the Cost of Graph Breaks in torch.compile</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">William Wen (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:35–16:45, LL20AB </span></p>
-<p><span style="font-weight: 400;">New Dynamo support reduces the cost of a graph break nested O(N) layers deep from O(N) duplicate breaks and O(N²) frame traces down to O(1) duplicate breaks and O(N) frame traces &#8211; yielding larger captured graphs, fewer breaks, and faster, more debuggable compilation.</span></p>
-<p><b>Static Tensor Shape Checking for PyTorch with Pyrefly</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Steven Troxler; Avik Chaudhuri (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:55, LL20AB </span></p>
-<p><span style="font-weight: 400;">Shape mismatches cause roughly 45% of deep learning program failures and drive slow torch.compile recompilations. Pyrefly brings static, near-instant tensor shape checking to the type checker itself, evaluated across 28 real LLM, vision, recommender, and RL models.</span></p>
-<p><b>Parametrized Dynamic Shape CUDA Graphs</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Elias Ellison (Meta); Daniel Galvez (NVIDIA) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 11:45–12:10, LL21ABC </span></p>
-<p><span style="font-weight: 400;">Building on parametrized CUDA Graphs and torch.compile&#8217;s symbolic tracing and guard infrastructure, this work captures and re-parametrizes a single CUDA Graph across dynamic shapes, eliminating the need for whole-model rewrites, padding, or re-recording across every possible shape.</span></p>
-<p><b>From Backed to Unbacked: Sound, Predictable, and Controllable Dynamic Shapes in PyTorch</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Laith Sakka (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:20–16:45, LL21ABC </span></p>
-<p><span style="font-weight: 400;">This session explains why explicit graph-capture workflows (vLLM, export, pre-compilation) need unbacked dynamic shapes, which disallow implicit guards and force the compiler to prove general validity. </span></p>
-<p><b>Speeding Up torch.compile: A New FakeTensor</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Angel Li (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:05, LL21ABC </span></p>
-<p><span style="font-weight: 400;">FakeTensor propagation eats roughly 20% of Dynamo&#8217;s tracing time. This talk introduces a new C++ FakeTensor implementation that delivers a 30x speedup on operations like </span><span style="font-weight: 400;">aten.mm</span><span style="font-weight: 400;">, meaningfully cutting torch.compile&#8217;s notorious cold-start compilation time.</span></p>
-<p><b>Lightweight FX Tracing in PyTorch</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Richard Zou; Yidi Wu (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 17:10–17:20, LL21ABC </span></p>
-<p><span style="font-weight: 400;">A new FX tracer based on </span><span style="font-weight: 400;">make_fx</span><span style="font-weight: 400;">, targeting functionally pure PyTorch code instead of trying to capture full Python semantics like Dynamo. This means trading flexibility for a much simpler, more learnable, JAX-style tracing programming model for users who need a full graph.</span></p>
-<p><b>Unlocking the Full Potential of TorchDynamo: Accelerating, Comparing, and Debugging ML Systems</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Yi Pan (UC Berkeley); Megan Frisella (University of Washington); Stephanie Wang (Paul Allen School, University of Washington) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55, LL21ABC </span></p>
-<p><span style="font-weight: 400;">Research using TorchDynamo&#8217;s graph-interception capability well beyond torch.compile itself. DynaFlow and Piper for transparent parallelism acceleration, Magneton for automatically comparing equivalent operations across competing systems, and numerical debugging via matched-subgraph tensor comparison.</span></p>
-<h2><span style="font-weight: 400;">Kernel Engineering &amp; Domain-Specific Languages</span></h2>
-<p><span style="font-weight: 400;">The DSLs, autotuners, and hand- and agent-written kernels that squeeze more performance out of every GPU cycle, spanning Triton, Helion, CUTLASS, FlyDSL, and the agentic pipelines now writing and optimizing kernels themselves.</span></p>
-<p><b>Extending TorchInductor with FlyDSL: A New MLIR-Native Backend for High-Performance GEMMs</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Liz Li (AMD) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 11:10–11:35,  210BF </span></p>
-<p><span style="font-weight: 400;">AMD&#8217;s FlyDSL, a Python-native, MLIR-based GPU kernel DSL, gets integrated into TorchInductor&#8217;s GEMM compilation pipeline. The talk covers how FlyDSL plugs into autotuning, coexists with existing backends, and delivers measured speedups over Triton on AMD Instinct GPUs.</span></p>
-<p><b>Helion: CuteDSL and TPU Backends for Heterogeneous Hardware, and Why It Suits Agents</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Oguz Ulgen, Dunfan Lu, Jason Ansel (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 11:45–12:10, 210BF </span></p>
-<p><span style="font-weight: 400;">Helion, PyTorch&#8217;s high-level kernel-authoring DSL, gains two new compiler backends &#8211; CuteDSL for recent NVIDIA GPUs and Pallas for TPUs &#8211; letting one kernel source target very different hardware. The second half explores why Helion&#8217;s abstraction level is particularly well suited to LLM-agent-generated kernel code.</span></p>
-<p><b>Practical GPU Programming with Triton for PyTorch Developers</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Suman Debnath, JanakiRam Goteti (Crusoe AI) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 11:45–12:10,  LL20CD</span></p>
-<p><span style="font-weight: 400;">A friendly, from-scratch introduction to writing GPU kernels in Triton &#8211; no CUDA or C++ required.  Building from a simple vector-add up to a small matrix multiplication, with an emphasis on reading and understanding what PyTorch already generates for you.</span></p>
-<p><b>High-Velocity GPU Kernel Authoring with CUTLASS Python</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Michael Goldfarb, Guray Ozen (NVIDIA) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 12:20–12:45, 210BF </span></p>
-<p><span style="font-weight: 400;">New Python-first capabilities in CUTLASS&#8217;s CuTe DSL &#8211; high-level building blocks, low-level hardware-instruction primitives, and a zero-cost Resource and Task Scheduler &#8211; that reduce boilerplate for kernel authors while keeping the DSL&#8217;s zero-cost abstractions intact.</span></p>
-<p><b>Smarter Autotuning for Kernels: From Bayesian Optimization to LLM-Guided Search in Helion DSL</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Jongsok Choi; Ethan Che (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 14:15–14:40,  210BF </span></p>
-<p><span style="font-weight: 400;">Two leaps in Helion&#8217;s autotuning: Likelihood-Free Bayesian Optimization (LFBO), which cuts tuning time by 36.5% via an on-the-fly Random Forest filter, and LLM-guided autotuning, which proposes strong kernel configurations in seconds &#8211; up to 10x faster tuning on NVIDIA B200.</span></p>
-<p><b>KernelAgent: Hardware-Guided GPU Kernel Optimization via Multi-Agent Orchestration</b><br />
-<span style="font-weight: 400;">Kaiming Cheng; Laura Wang (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 14:15–14:40, LL21DEF </span></p>
-<p><span style="font-weight: 400;">Building on KernelAgent&#8217;s 100% correctness across all KernelBench L1/L2/L3 tasks, this talk adds a hardware-guided optimization layer that feeds GPU performance signals into a closed-loop multi-agent workflow, achieving 1.56x speedup over default torch.compile and 89% of H100 roofline efficiency.</span></p>
-<p><b>From Weeks to Overnight: Autonomous Day-0 Kernel Bring-Up with Agent Pipelines</b><br />
-<span style="font-weight: 400;">Xiaogang Gu; Qun Yang (Intel) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:40, 210BF </span></p>
-<p><span style="font-weight: 400;">A pipeline-driven autonomous system that encodes GPU kernel optimization (Profile, Analyze, CodeGen, Verify, Fix, Benchmark, Evaluate) as a deterministic workflow with specialized agents per stage and long-term memory, cutting kernel bring-up cycles from weeks to unattended overnight runs.</span></p>
-<p><b>Beyond the Brrr: Building a Unified Ecosystem for Optimized Kernels</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Sayak Paul (Hugging Face) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, 210BF </span></p>
-<p><span style="font-weight: 400;">Generic operators often use only 20–30% of available GPU performance. This talk introduces Hugging Face&#8217;s Kernels library, which makes discovering and swapping in optimized custom kernels as simple as loading a model checkpoint &#8211; already delivering 2–5x speedups in production Transformers workloads.</span></p>
-<p><b>Making vLLM Faster on Intel GPUs with Triton Kernels</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Whitney Tsang, Artur Fierka (Intel) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 12:20–12:30, 210BF </span></p>
-<p><span style="font-weight: 400;">Treats Intel GPU architectures like Arc as first-class optimization targets rather than portability afterthoughts, covering Triton kernel strategies for unified attention, fused and batched MoE, and fusion opportunities like QK-norm+RoPE that outperform hand-written SYCL on key vLLM serving paths.</span></p>
-<p><b>FlexGEMM: Flexible PyTorch Epilogues</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Driss Guessous (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 12:35–12:45,  210BF </span></p>
-<p><span style="font-weight: 400;">A proposed PyTorch frontend for writing GEMM epilogues &#8211; bias, activation, residual adds, fp8 scaling, SwiGLU-style gating &#8211; as ordinary PyTorch functions, giving the compiler a clear, fail-closed contract for fusing them directly into the GEMM store path.</span></p>
-<p><b>Native DSL Operators in PyTorch Core</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Simon Layton (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 14:50–15:15, LL21ABC </span></p>
-<p><span style="font-weight: 400;">DSL-authored kernels (as used in FlashAttention) have stayed outside PyTorch&#8217;s core dispatch system. This talk presents ongoing work to make DSL operators first-class citizens, tied into dispatch and testing, enabling new operators and targeted performance fixes.</span></p>
-<p><b>Portable Paged Attention: From Triton to Helion</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Burkhard Ringlein (IBM Research) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 15:25–15:50, 210BF </span></p>
-<p><span style="font-weight: 400;">Building on the state-of-the-art portable Triton attention backend in vLLM, this team wrote an experimental Helion attention backend for Paged Attention &#8211; vLLM&#8217;s core kernel &#8211; reporting up to 50% lower latency and 10% higher end-to-end throughput than the optimized Triton version.</span></p>
-<h2><span style="font-weight: 400;">Distributed Training, Parallelism &amp; Systems</span></h2>
-<p><span style="font-weight: 400;">Systems and abstractions for training at scale — sharding, single-GPU-to-cluster developer experience, and the frameworks that decide how a model gets split across thousands of devices.</span></p>
-<p><b>Monarch &#8211; Single-Machine DevX at Distributed Scale</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Marius Eriksen (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 11:10–11:35, LL20CD </span></p>
-<p><span style="font-weight: 400;">Monarch lets developers program an entire cluster as if it were a single machine, using actor-based IPC and RDMA so remote logs, filesystems, and debugging behave like they&#8217;re local. The talk demos how it speeds up building large-scale post-training frameworks.</span></p>
-<p><b>FlexShard: Pluggable Sharding Placements for Matrix Optimizers and Block-wise Quantization</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Wei Feng; Anshul Sinha; Ailing Zhang (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, LL20CD </span></p>
-<p><span style="font-weight: 400;">A prototype PyTorch abstraction that decouples parameter sharding from FSDP&#8217;s runtime machinery via a small Placement contract, enabling optimizer-aware sharding for matrix optimizers like Muon and quantization-aligned sharding for block-wise FP8 all-gather.</span></p>
-<p><b>DeepSpeed Is Not Just ZeRO: Tensor, Sequence, and Expert Parallelism with ZeRO-Level Usability</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Masahiro Tanaka (Anyscale) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, LL21DEF </span></p>
-<p><span style="font-weight: 400;">DeepSpeed&#8217;s AutoTP, AutoSP, and AutoEP bring tensor, sequence, and expert parallelism to existing model implementations, including many Hugging Face models, without rewriting code, and can be combined with ZeRO for large dense models, long-context training, and MoE workloads.</span></p>
-<p><b>Precompile for Training</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Bob Ren; Aaron Orenstein (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 12:00–12:10, LL20CD </span></p>
-<p><span style="font-weight: 400;">A new abstraction for compiling distributed SPMD training programs once and reusing the artifact across every rank, eliminating redundant per-rank compilation, preventing divergent compiler decisions that cause NCCL hangs, and guaranteeing identical kernel selection across the cluster.</span></p>
-<p><b>From Full DTensor to spmd_types: Making Parallelism Explicit in TorchTitan</b><br />
-<span style="font-weight: 400;">Chien-Chin Huang, Pian Pawakapan (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 14:15–14:40, LL21DEF </span></p>
-<p><span style="font-weight: 400;">The evolution from an all-DTensor approach to spmd_types, a lightweight, zero-runtime-overhead type system where sharding is part of a tensor&#8217;s type, collectives are explicit, and backward gradient sharding follows predictably from forward, covering both global and local SPMD modes.</span></p>
-<p><b>AutoParallel: Automatic Discovery of Distributed Training Strategies in PyTorch</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Sanket Jayant Purandare, Francisco Massa (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 15:25–15:50, LL21DEF </span></p>
-<p><span style="font-weight: 400;">Given only a device mesh, memory budget, and sample batch, AutoParallel searches for an optimal parallelization strategy directly on the model graph &#8211; no manual FSDP/TP/SP/EP placement &#8211; matching a strong hand-tuned baseline on Llama-3 8B at 12% less memory, fully open source under meta-pytorch.</span></p>
-<h2><span style="font-weight: 400;">Communication &amp; Collective Libraries</span></h2>
-<p><span style="font-weight: 400;">The collective-communication layer underneath distributed training and inference: symmetric memory, NCCL extensions, and fault-tolerant libraries built to survive failures at exascale.</span></p>
-<p><b>EP-Overlap: Hiding Expert-Parallel Communication in MoE Training</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Sanket Jayant Purandare (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 15:25–15:35,  LL21DEF </span></p>
-<p><span style="font-weight: 400;">A general technique for hiding expert-parallel all-to-all communication behind any available compute,  not just DualPipe pipeline schedules, implemented as graph passes in TorchTitan&#8217;s GraphTrainer, hiding 76–86% of EP communication on DeepSeek-V3 for a ~1.3x throughput gain.</span></p>
-<p><b>Future of Distributed Communication in PyTorch: New APIs for Fault Tolerance, RDMA and Extensibility</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Tristan Rice, Kapil Sharma (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:20–16:45, LL21ABC</span></p>
-<p><span style="font-weight: 400;">New torch.distributed APIs incubated in TorchComms and now upstreaming directly. Live process-group reconfiguration after rank failures, one-sided RDMA put/get windows, composable collective hooks, and pip-installable backend extensibility &#8211; all with zero migration cost for existing users.</span></p>
-<p><b>rocSHMEM Symmetric Memory in PyTorch for AMD GPUs</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Prachi Gupta (AMD) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:35–16:45, LL21DEF </span></p>
-<p><span style="font-weight: 400;">Extends PyTorch&#8217;s symmetric memory, previously NVIDIA/NVSHMEM-only, to AMD GPUs via rocSHMEM, exposing one-sided put/get and signal/wait primitives as Triton-callable ops so a single Triton kernel can run MoE all-to-all dispatch and combine on either vendor&#8217;s hardware.</span></p>
-<p><b>XCCL: Scaling PyTorch Collectives to Exascale on Intel GPUs with TorchComms</b><br />
-<span style="font-weight: 400;">Panagiotis Kourdis, Tanima Dey (Intel) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 17:10–17:20, LL21ABC </span></p>
-<p><span style="font-weight: 400;">XCCL extends TorchComms with native Intel GPU support built on oneCCL, validated on Argonne&#8217;s Aurora exascale supercomputer with over 90% scaling efficiency across thousands of nodes, plus a stream-ordered async execution model that overlaps computation and communication.</span></p>
-<p><b>Beyond Collectives: Building Fused Compute-Communication Kernels with PyTorch Symmetric Memory</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Ke Wen (NVIDIA), Natalia Gimelshein, Kapil Sharma (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 11:45–12:10, 210BF </span></p>
-<p><span style="font-weight: 400;">PyTorch Symmetric Memory gives every rank a direct window into peers&#8217; GPU memory, letting communication happen inline inside a kernel rather than as a black-box collective. This covers compute–communication fusion, CuTe-DSL bindings for NCCL device primitives, and new profiling and CUDA Graph support.</span></p>
-<p><b>Introducing NCCL Extensions: Communication Patterns for Modern AI</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Sreeram Potluri, Artem Polyakov (NVIDIA)</span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:20, 210AE </span></p>
-<p><span style="font-weight: 400;">Debuts NCCL-EP, bringing tuned MoE dispatch/combine natively into NCCL with GPU-initiated RDMA and NVLink, and NCCL-M2N, enabling zero-copy resharding between disjoint device meshes for RL weight rollout. Both are built on NCCL&#8217;s new Device APIs for custom, fused communication patterns.</span></p>
-<p><b>MCCL: Fault-Tolerant Collective Communication for Large-Scale GPU Training</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Ben Carver (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55, 210AE </span></p>
-<p><span style="font-weight: 400;">The Meta Collective Communication Library (MCCL) treats hardware failure as a first-class design principle at tens-of-thousands-of-GPU scale, enabling dynamic communicator reconfiguration, shrinking and growing as ranks fail or recover, without full job restarts, integrated with TorchComms.</span></p>
-<p><span style="font-weight: 400;">Quantization &amp; Low-Precision Training</span></p>
-<p><span style="font-weight: 400;">Pushing training and inference into 4- and 8-bit formats — NVFP4, HiFloat, and the recipes that close the accuracy gap with BF16 while unlocking large throughput gains.</span></p>
-<p><b>HiFloat: Democratizing Ultra-Low Precision Training and Inference in PyTorch Ecosystems</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Yun Zhao, Haonan Zhang (Huawei) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 14:50–15:00, LL20AB </span></p>
-<p><span style="font-weight: 400;">HiFloat8 and HiFloat4 are tapered-precision formats designed to match neural network weight and gradient distributions without complex delayed scaling, achieving FP16 loss parity with a 1.5x–1.7x GEMM speedup, integrated via PyTorch custom ops, Triton kernels, and torch.compile.</span></p>
-<p><b>Efficient Pretraining of LLMs in NVFP4</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Anjulie Agrusa, Ryan Spring, Bruce Zitelli (NVIDIA) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 15:25–15:50, LL20AB </span></p>
-<p><span style="font-weight: 400;">NVFP4 GEMMs offer 2x–3x higher peak throughput than FP8 on GB200/GB300, but quality gaps persist versus BF16 at smaller model sizes. This talk presents recipe improvements that close that gap, upstreamed into TorchAO and TorchTitan for native PyTorch NVFP4 pretraining.</span></p>
-<h2><span style="font-weight: 400;">Optimizers &amp; Multi-Loss Training</span></h2>
-<p><span style="font-weight: 400;">New training algorithms and loss-aggregation techniques moving beyond AdamW and single-loss optimization.</span></p>
-<p><b>Beyond AdamW: A Practical PyTorch Walkthrough of Muon, Dion, and Orthogonalized Optimizer Variants</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Jennifer Wei (Bird of Paradise AI) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 14:50–15:15, LL21DEF </span></p>
-<p><span style="font-weight: 400;">A hands-on walkthrough of Muon&#8217;s matrix-orthogonalization approach to hidden-layer updates &#8211; momentum, Newton-Schulz iteration, parameter grouping, AdamW compatibility &#8211; bridging from single-GPU implementation to distributed training and touching on newer Dion/Dion2 developments.</span></p>
-<p><b>TorchJD: Training PyTorch Models with Multiple Losses</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Valérian Rey, Khush Patel (SimplexLab) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 15:05–15:15, LL20AB </span></p>
-<p><span style="font-weight: 400;">Now part of the PyTorch ecosystem, TorchJD implements Jacobian descent, aggregating the per-loss gradient Jacobian so parameter updates benefit every objective, with applications spanning multitask learning, machine unlearning, federated learning, and adversarial fairness.</span></p>
-<p><span style="font-weight: 400;">Reinforcement Learning Systems</span></p>
-<p><span style="font-weight: 400;">Open frameworks and infrastructure for agentic and multi-turn RL — from standardized environments to the training frameworks and numerical-consistency fixes that keep large-scale RL stable.</span></p>
-<p><b>Open Source Reinforcement Learning with Agent Harnesses</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Ben Burtenshaw (Hugging Face) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:55, 210AE </span></p>
-<p><span style="font-weight: 400;">OpenEnv is an interoperability layer, co-owned by Hugging Face, Meta, Unsloth, Prime Intellect, Modal, NVIDIA, and Mercor,  that standardizes how RL environments are published, deployed, and consumed via a consistent HTTP/WebSocket/MCP API, decoupling environments from harness and trainer choice.</span></p>
-<p><b>Torchtitan RL: A Unified and Extensible Training Framework for Agentic Tasks</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Felipe Mello, Jiani Wang (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:20–16:45, LL21DEF </span></p>
-<p><span style="font-weight: 400;">Addresses the two core instabilities in frontier-scale asynchronous RL &#8211; numerical mismatch between training and generation, and infrastructure complexity. This is done through a single shared model definition for both roles and a hackable, forkable stack built on TorchTitan&#8217;s large-scale trainer.</span></p>
-<p><b>When Rollout and Training Disagree: Lessons from Building a Mismatch-Free RL Engine</b><span style="font-weight: 400;"> Neiwen Ling (ByteDance), Tianle Zhong (University of Virginia) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:05, LL21DEF </span></p>
-<p><span style="font-weight: 400;">Introduces VeXact, an open-source rollout backend that aligns rollout log-probabilities with the training path in verl-based RL systems, showing that small token-level numerical disagreements between inference and training stacks can independently destabilize PPO/GRPO objectives.</span></p>
-<p><span style="font-weight: 400;">Inference &amp; Serving Optimization</span></p>
-<p><span style="font-weight: 400;">Tools that make LLM serving faster and cheaper to operate, from checkpoint loading to prompt caching.</span></p>
-<p><b>Faster LLM Serving Startup with fastsafetensors</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Takeshi Yoshimura (IBM) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 15:25–15:35, LL20CD </span></p>
-<p><span style="font-weight: 400;">fastsafetensors treats checkpoint loading as a data-movement problem, removing per-tensor copies and host staging to deliver 4.8x–7.5x faster model loading and up to 28 GB/s of NVMe throughput, now a portable, cross-vendor library with ROCm and Windows DirectStorage support.</span></p>
-<p><b>LMCache: A Cluster-Wide Open-Source Solution for LLM Prompt Caching</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Kuntai Du (Tensormesh, Inc.) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 15:40–15:50, LL20CD </span></p>
-<p><span style="font-weight: 400;">LMCache is one of the most widely adopted open-source prompt-caching solutions, spanning vLLM, SGLang, and TensorRT-LLM inference engines and storage backends from Mooncake to Redis to S3. This talk includes a quick tutorial for deploying it on Kubernetes.</span></p>
-<h2><span style="font-weight: 400;">Hardware Portability &amp; Accelerator Backends</span></h2>
-<p><span style="font-weight: 400;">The backends and compilers bringing native PyTorch support to TPUs, Trainium, Spyre, dataflow accelerators, Intel XPUs, and edge hardware — the work that keeps PyTorch truly hardware-agnostic.</span></p>
-<p><b>Unlocking PyTorch for Dataflow Accelerators: An Open-Source Kernel Tile IR and Dataflow Scheduler</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Prasanth Chatarasi, Bardia Mahjour, Viji Srinivasan (IBM) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, 210BF </span></p>
-<p><span style="font-weight: 400;">KTIR, an open-source MLIR-based tile IR, extends data-parallel abstractions with distributed scratchpads and inter-tile communication, paired with an architecture-agnostic dataflow scheduler. Both are open sourced and integrated with PyTorch via TorchInductor to power IBM&#8217;s Spyre accelerator.</span></p>
-<p><b>Portable PyTorch Across AI Accelerators: A Triton Operator Stack from Eager Mode to vLLM</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Yonghua Lin (Beijing Academy of Artificial Intelligence) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, LL20CD </span></p>
-<p><span style="font-weight: 400;">FlagOS is an open source Triton-based operator, compiler, and runtime stack (FlagGems, FlagTree, vllm-plugin-fl) tested on 20+ chips and architectures, enabling Day-0 support for frontier open models across NVIDIA GPUs, non-CUDA accelerators, and ARM CPUs.</span></p>
-<p><b>Integrating the IBM Spyre Accelerator</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">David Grove, Antoni Viros Martin, Avery Blanchard (IBM) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, LL21DEF </span></p>
-<p><span style="font-weight: 400;">Torch-Spyre, an open source PyTorch PrivateUse1 device with an Inductor backend for IBM&#8217;s 32-core Spyre accelerator, now runs thousands of Hugging Face and vLLM models. This talk covers device-specific tensor layouts, scratchpad tiling, and the upstream contributions that made it possible.</span></p>
-<p><b>TorchNeuron: Native PyTorch on AWS Trainium — From Research to Production Without Compromise</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Yahav Biran (Annapurna Labs) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 17:30–17:40, LL21ABC</span></p>
-<p><span style="font-weight: 400;">An open-source native PyTorch backend for Trainium via PrivateUse1 — change </span><span style="font-weight: 400;">.to(&#8216;cuda&#8217;)</span><span style="font-weight: 400;"> to </span><span style="font-weight: 400;">.to(&#8216;neuron&#8217;)</span><span style="font-weight: 400;"> and keep unmodified code &#8211; covering adaptive eager execution, native FSDP/DDP/TP+SP distributed support, and custom NKI kernels integrated into compiled graphs.</span></p>
-<p><b>TorchTPU: Running PyTorch Natively on Google TPUs</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Claudio Basile (Google) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 11:10–11:35, LL21ABC </span></p>
-<p><span style="font-weight: 400;">TorchTPU brings native, high-performance PyTorch to TPUs (previously JAX-only) through an ATen-to-StableHLO lowering path and &#8220;DeferAndFuse&#8221; execution for automated op fusion, integrating with vLLM for serving and TorchTitan for training, and moving to a public open-source release.</span></p>
-<p><b>Integrating TorchTPU into TorchTitan and Optimizing Models for TPUs</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Aleksey Vlasenko (Google), Will Constable (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 17:10–17:20, LL21DEF </span></p>
-<p><span style="font-weight: 400;">A concise look at the process of adding TorchTPU support into TorchTitan and optimizing selected models to run on TPU, with a direct performance comparison against GPU.</span></p>
-<p><b>From PyTorch to the Edge: Agentic Synthesis of Inference Runtimes for Heterogeneous Hardware</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Thomas Cottenier (Arm) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55, LL20AB </span></p>
-<p><span style="font-weight: 400;">An agentic harness that synthesizes bespoke inference runtimes per edge target, routing through torch.export, ExecuTorch backends, torchao quantization, or direct kernel generation as needed. This is then validated on Apple silicon against llama.cpp and MLX, then extended to Arm hardware with no existing baseline.</span></p>
-<p><b>Scaling PyTorch on Intel XPU: Field Notes from AI for Science on Aurora</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Sam Foreman (Argonne National Laboratory), Panagiotis Kourdis, Tanima Dey (Intel) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 17:30–17:55,  LL20CD </span></p>
-<p><span style="font-weight: 400;">Field notes from training scientific foundation models in production on 63,000+ Intel XPUs on Argonne&#8217;s Aurora system, covering the migration from Megatron-DeepSpeed to torchtitan + DTensor + FSDP2, and the operational machinery (silent-hang detection, bad-node failover) that long-running jobs demand.</span></p>
-<h2><span style="font-weight: 400;">Profiling, Observability &amp; Performance Diagnostics</span></h2>
-<p><span style="font-weight: 400;">Tools and techniques for actually seeing what your PyTorch code is doing on the hardware &#8211; reading traces, diagnosing bottlenecks, and estimating memory and runtime before you touch a cluster.</span></p>
-<p><b>What You Cannot Profile, You Cannot Optimize: Learning to Read PyTorch Traces</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Aritra Roy Gosthipaty, Suvaditya Mukherjee (Hugging Face) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 14:50–15:15, LL20AB </span></p>
-<p><span style="font-weight: 400;">A Socratic, no-prerequisites walkthrough of PyTorch profiler traces, from a simple matmul-plus-bias workload up to a real GeGLU MLP, teaching durable mental models for overhead-bound vs. compute-bound execution and the CPU→ATen→cuBLAS→GPU dispatch chain.</span></p>
-<p><b>Observability Tooling for Cudagraph Workloads</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Natalia Gimelshein, Driss Guessous (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:20–16:30, LL21DEF </span></p>
-<p><span style="font-weight: 400;">CUDA graphs help solve CPU overhead on Blackwell-class hardware but make profiles harder to read. This talk covers new PyTorch utilities that make cudagraph profiling and memory monitoring information-rich with near-zero overhead, by cross-referencing capture-time and replay-time data.</span></p>
-<p><b>Five Bottlenecks, Five Fixes: Systematic Performance Diagnosis for PyTorch Distributed Training</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Paulo Aragao (Amazon Web Services) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 16:55–17:20, 210AE </span></p>
-<p><span style="font-weight: 400;">Five real case studies &#8211; from an 83x DataLoader speedup to a 6.8x end-to-end gain on an autonomous-driving model &#8211; mapped to a repeatable diagnostic framework for classifying distributed training bottlenecks as compute-, memory-, communication-, or I/O-bound.</span></p>
-<p><b>TorchInsights: Zero-GPU Memory &amp; Runtime Estimation for Distributed Training and Agentic Research</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Sanket Jayant Purandare, Aditya Venkataraman (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 17:45–17:55, LL21ABC </span></p>
-<p><span style="font-weight: 400;">Using fake tensors and simulated multi-stream GPU execution, TorchInsights predicts peak memory and runtime across FSDP/TP/EP/CP/PP configurations before touching a real cluster, published at ICML 2025 as TorchSim and fully open source under meta-pytorch.</span></p>
-<h2><span style="font-weight: 400;">Data Loading, Storage &amp; Media Pipelines</span></h2>
-<p><span style="font-weight: 400;">Feeding hungry GPUs &#8211; high-speed storage protocols, dataloader scaling, and efficient image/video/audio preprocessing.</span></p>
-<p><b>Keeping GPUs Busy: High-Speed Storage for PyTorch via fsspec</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Ankita Luthra, Trinadh Kotturu (Google) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 15:40–15:50, LL21DEF </span></p>
-<p><span style="font-weight: 400;">&#8220;Rapid Storage&#8221; brings Google&#8217;s Colossus stateful protocol to PyTorch through the fsspec interface, bypassing REST APIs via persistent gRPC streams to achieve sub-1ms random I/O latency and 6 TB/s aggregate throughput for training and checkpointing.</span></p>
-<p><b>From Bytes to Tensors: Efficient Media Processing with PyTorch in 2026</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Nicolas Hug, Scott Schneider (Meta) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:20–16:45, 210BF </span></p>
-<p><span style="font-weight: 400;">A tour of how TorchVision, TorchCodec, and TorchAudio together form an efficient end-to-end media preprocessing pipeline, plus techniques from the past year &#8211; CUDA-accelerated decoding, SIMD-optimized transforms, pre-computed frame indices &#8211; that eliminate preprocessing bottlenecks starving the GPU.</span></p>
-<p><b>Scaling PyTorch Dataloaders 10x: A Case Study</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Ian Stenbit, Christine Cheng, Dylan Doblar (NVIDIA) </span></p>
-<p><span style="font-weight: 400;">Wed 21 Oct, 16:55–17:20, 210BF</span></p>
-<p><span style="font-weight: 400;">Over two years, NVIDIA&#8217;s autonomous vehicles team scaled a research dataloader to full production across thousands of GPUs, sharing lessons on profiling with Nsight and cprofiler, distributed filesystems, CUDA pipelining, and scaling video decoding to hit a 10x throughput improvement.</span></p>
-<h2><span style="font-weight: 400;">AI Agents, Open-Source Community &amp; Release Engineering</span></h2>
-<p><span style="font-weight: 400;">How AI agents are reshaping PyTorch&#8217;s own development process, plus the open-source education and release-engineering tooling that keeps the ecosystem healthy.</span></p>
-<p><b>Contributing to PyTorch with AI Agents</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Edward Yang (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 10:35–11:05, Community Expo (Birds of a Feather) </span></p>
-<p><span style="font-weight: 400;">A community discussion on how AI agents can be used productively to contribute to PyTorch itself &#8211; how to get a PR reviewed, what maintainers want to see, and lessons from the project&#8217;s own devlog on AI coding practices.</span></p>
-<p><b>Relay and Reuse: The Dual Engine Behind PyTorch Out-of-Tree Release Readiness</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Jiahao Chen, Jiahao Tan (Huawei) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 11:10–11:35, LL21DEF </span></p>
-<p><span style="font-weight: 400;">How device-agnostic test reuse and a Cross-Repo CI Relay (CRCR) let out-of-tree hardware backends ship high-quality releases within 30 days of each PyTorch update, turning 580K+ community tests into a shared safety net.</span></p>
-<p><b>Scaling PyTorch&#8217;s Compatibility Promise: A Tiered Cross-Repository CI Relay for Out-of-Tree Backends</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Subin George, Jewel K M (Red Hat) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 12:00–12:10, LL21DEF </span></p>
-<p><span style="font-weight: 400;">A deeper technical dive into CRCR&#8217;s four-tier trust model (event dispatch through blocking merge prerequisites), its DynamoDB/ClickHouse ingestion pipeline, and how it cut breakage detection for out-of-tree backends like Ascend NPU and RISC-V from days to minutes.</span></p>
-<p><b>Fighting Agents with Agents — Bringing Claude to PyTorch CI, Triage, and PR Review</b><br />
-<span style="font-weight: 400;">Driss Guessous (Meta) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 12:35–12:45, LL21DEF </span></p>
-<p><span style="font-weight: 400;">How the PyTorch project brought Claude into its own infrastructure: </span><span style="font-weight: 400;">@claude</span><span style="font-weight: 400;"> on issues and PRs, automatic issue triage, reusable onboarding skills, and CI/autorevert investigation &#8211; plus the Bedrock/OIDC setup and adoption trends behind it.</span></p>
-<p><b>From Scratch to PyTorch: Demystifying ML Frameworks by Building Your Own</b><span style="font-weight: 400;"> </span><br />
-<span style="font-weight: 400;">Andrea Mattia Garavagno (University of Genoa), Vijay Janapa Reddi (Harvard University) </span></p>
-<p><span style="font-weight: 400;">Tue 20 Oct, 14:15–14:40, LL20AB </span></p>
-<p><span style="font-weight: 400;">TinyTorch is an open-source CLI teaching tool which guides developers through rebuilding PyTorch&#8217;s foundational components &#8211; tensors, autograd, optimizers, transformers &#8211; in pure Python, closing the gap between using a framework and understanding it.</span></p>
-<h2><span style="font-weight: 400;">Conclusion</span></h2>
-<p><span style="font-weight: 400;">Taken together, these sessions tell a consistent story: the PyTorch ecosystem&#8217;s edge doesn&#8217;t just come from bigger models &#8211; it comes from relentless, open, collaborative work on the tools underneath them. Whether it&#8217;s a new DSL that lets one kernel run on five different chips, a profiler that finally makes CUDA graphs legible, or an autotuner that shaves days off a training run, this is the research and tooling that quietly makes everything else in AI possible. And because so much of it ships as open source &#8211; Helion, TinyTorch, Pyrefly, LMCache, OpenEnv, TorchJD, and dozens more &#8211; every session here is also an invitation to go build with it yourself.</span></p>
-<p><span style="font-weight: 400;">If you work anywhere near performance, compilers, distributed systems, or open-source ML infrastructure, this track alone is worth the trip. </span><a href="https://hubs.ly/Q04tDx8f0"><b>Register now for PyTorch Conference North America 2026</b></a><span style="font-weight: 400;">, taking place October 20–21 in San Jose, California, and get direct access to the people building the tools that power the next generation of open AI. Seats fill up fast for the technical breakout sessions &#8211; secure yours today.</span></p>
-<p><i>PyTorch Conference is the open source AI community&#8217;s town square. Where what&#8217;s next gets decided.</i></p>
-<p>&nbsp;</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4175 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1276709 metric#prefetches=236 metric#store-reads=36 metric#store-writes=6 metric#store-hits=245 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=610.38 metric#ms-cache=24.02 metric#ms-cache-avg=0.5858 metric#ms-cache-ratio=3.9 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4213 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1283237 metric#prefetches=245 metric#store-reads=36 metric#store-writes=6 metric#store-hits=254 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=323.10 metric#ms-cache=16.43 metric#ms-cache-avg=0.4008 metric#ms-cache-ratio=5.1 -->
