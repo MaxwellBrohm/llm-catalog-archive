@@ -4,10 +4,18 @@
   <link rel="alternate" type="text/html" href="https://status.claude.com"/>
   <link rel="self" type="application/atom+xml" href="https://status.claude.com/history.atom"/>
   <title>Claude Status - Incident History</title>
-  <updated>2026-10-02T01:49:23Z</updated>
+  <updated>2026-10-06T05:44:45Z</updated>
   <author>
     <name>Claude</name>
   </author>
+  <entry>
+    <id>tag:status.claude.com,2005:Incident/31597311</id>
+    <published>2026-10-05T13:21:37Z</published>
+    <updated>2026-10-05T13:21:37Z</updated>
+    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/bhphxz3vr58g"/>
+    <title>Elevated errors for Claude Mythos 5.1 and Claude Fable 5.1</title>
+    <content type="html">&lt;p&gt; &lt;small&gt;Oct &lt;var data-var='date'&gt; 5&lt;/var&gt;, &lt;var data-var='time'&gt;13:21&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue affecting Claude Mythos 5.1 and Claude Fable 5.1 has been resolved. Impact occurred from 05:40 PT / 12:40 UTC to 06:10 PT / 13:10 UTC. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Oct &lt;var data-var='date'&gt; 5&lt;/var&gt;, &lt;var data-var='time'&gt;13:05&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Mythos 5.1 and Claude Fable 5.1. We will provide an update as soon as possible. &lt;/p&gt;</content>
+  </entry>
   <entry>
     <id>tag:status.claude.com,2005:Incident/31573399</id>
     <published>2026-10-01T22:36:22Z</published>
@@ -199,13 +207,5 @@
     <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/q7txxvbsftgq"/>
     <title>Degraded performance for multiple models</title>
     <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;18&lt;/var&gt;, &lt;var data-var='time'&gt;19:01&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - The issue affecting Claude Opus 5 has been resolved. Impact occurred from 16:11 to 18:23 UTC. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;18&lt;/var&gt;, &lt;var data-var='time'&gt;18:26&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Monitoring&lt;/strong&gt; - A fix has been implemented and we are monitoring the results. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;18&lt;/var&gt;, &lt;var data-var='time'&gt;17:12&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Update&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Opus 5. We will provide an update as soon as possible. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;18&lt;/var&gt;, &lt;var data-var='time'&gt;16:20&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Update&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Mythos 5, Claude Fable 5, Claude Opus 5, Claude Sonnet 5, Claude Haiku 4.5, and other Claude models. We will provide an update as soon as possible. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;18&lt;/var&gt;, &lt;var data-var='time'&gt;16:20&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating reports of degraded performance affecting multiple models. We will provide an update as soon as possible. &lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <id>tag:status.claude.com,2005:Incident/31193886</id>
-    <published>2026-08-17T15:29:25Z</published>
-    <updated>2026-08-17T15:29:25Z</updated>
-    <link rel="alternate" type="text/html" href="https://status.claude.com/incidents/zhk4v3yv1lsf"/>
-    <title>Degraded performance for Claude Opus 5, Claude Sonnet 5</title>
-    <content type="html">&lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;17&lt;/var&gt;, &lt;var data-var='time'&gt;15:29&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Resolved&lt;/strong&gt; - This incident has been resolved. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;17&lt;/var&gt;, &lt;var data-var='time'&gt;14:39&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Monitoring&lt;/strong&gt; - A fix has been implemented and we are monitoring the results. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;17&lt;/var&gt;, &lt;var data-var='time'&gt;14:25&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Update&lt;/strong&gt; - Claude Opus 5 is operational. Claude Sonnet 5 is degraded. We are investigating. &lt;/p&gt; &lt;p&gt; &lt;small&gt;Aug &lt;var data-var='date'&gt;17&lt;/var&gt;, &lt;var data-var='time'&gt;13:56&lt;/var&gt; UTC&lt;/small&gt;&lt;br&gt; &lt;strong&gt;Investigating&lt;/strong&gt; - We are investigating elevated errors on requests to Claude Opus 5. We will provide an update as soon as possible. &lt;/p&gt;</content>
   </entry>
 </feed>
