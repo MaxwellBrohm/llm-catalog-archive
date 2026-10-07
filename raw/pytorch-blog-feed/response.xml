@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org</link>
 	<description></description>
-	<lastBuildDate>Mon, 05 Oct 2026 13:44:04 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 06 Oct 2026 22:57:33 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,157 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Modernizing Table Batched Embeddings with FBTriton</title>
+		<link>https://pytorch.org/blog/modernizing-table-batched-embeddings-with-fbtriton/</link>
+		
+		<dc:creator><![CDATA[Meta Team: Daohang Shi, Oleksandr Stashuk, Rupert Wu, Liangbei Xu, Rich Zhu]]></dc:creator>
+		<pubDate>Tue, 06 Oct 2026 22:57:33 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=172614</guid>
+
+					<description><![CDATA[This post explores the FBTriton kernel design for Table Batched Embedding (TBE) forward and backward passes. These core operators handle embedding lookups across thousands of sharded GPUs within recommendation systems....]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;">This post explores the FBTriton kernel design for Table Batched Embedding (TBE) forward and backward passes. These core operators handle embedding lookups across thousands of sharded GPUs within recommendation systems. Our Triton implementation successfully outperforms the legacy CUDA kernels on these workloads. Here, we explain the architectural design, detail the measured performance gains, and highlight future optimization opportunities.</span></p>
+<h2><span style="font-weight: 400;">1. What’s TBE</span></h2>
+<p><span style="font-weight: 400;">TBE (Table-Batched Embedding) kernel efficiently performs embedding lookups and pooling across many tables in one GPU operation. TBE combines embedding lookup and pooling for many tables in a single GPU launch, reducing launch overhead and improving memory efficiency. You can read more general info </span><a href="https://medium.com/better-ml/table-manners-batching-embeddings-for-large-scale-recsys-training-4b5a856cb913"><span style="font-weight: 400;">here</span></a></p>
+<h2><span style="font-weight: 400;">2. Implementation of Triton TBE Forward</span></h2>
+<p><span style="font-weight: 400;">For each table and bag, forward gathers the indexed rows, optionally multiplies them by per-sample weights, accumulates them in FP32 (FP64 for FP32 weights), and writes one D-wide pooled output. We built two implementations: a generic gather and a fast path implementation with a small-table histogram.</span></p>
+<h3><span style="font-weight: 400;">The general gather path</span></h3>
+<ul>
+<li><b>Grid.</b><span style="font-weight: 400;"><span style="font-weight: 400;"> The generic launch uses <code>ceil(B / BAGS_PER_PROGRAM)</code> programs. Each program loops over T features instead of launching a B×T grid.</span></span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Gather width.</b><span style="font-weight: 400;"> The inner loop issues four independent row loads. The tuned two-bag path issues eight</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Bags per program.</b><span style="font-weight: 400;"> Large non-VBE, non-FP32 workloads use two bags per program. When a histogram feature is split out, the remaining generic feature ranges use four. Other shapes use one</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Index and offset width.</b><span style="font-weight: 400;"> TorchRec accepts config-driven int32 indices and offsets when the linearized range fits below 2^31. This halves index/offset storage and the CUB radix-sort key width while keeping int64 as the default</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Accumulation.</b><span style="font-weight: 400;"> FP16/BF16 weights accumulate in FP32. FP32 weights accumulate in FP64 to preserve accuracy at large D</span></li>
+</ul>
+<h3><span style="font-weight: 400;">The small-table histogram and tensor-core path</span></h3>
+<p><span style="font-weight: 400;">The specialized path is selected for one feature with E≤64, 64≤D≤128, L≥64, FP16 weights, FP32 output, no per-sample weights, and no VBE. One program handles 16 bags. It builds a histogram over the first 256 indices and evaluates counts × table with </span><span style="font-weight: 400;"><code>tl.dot</code></span><span style="font-weight: 400;">; a scalar path handles the remaining indices. Other shapes use the generic kernel. </span></p>
+<h3><span style="font-weight: 400;">Bounds checking</span></h3>
+<p><span style="font-weight: 400;">The standalone path uses an updated CUDA validation step before the Triton forward pass. On B200, this achieves up to 1.24x speedup on the bounds-check component across workloads. When </span><span style="font-weight: 400;"><code>fused_bounds_check</code></span><span style="font-weight: 400;"> is enabled, the eligible kernel validates and repairs invalid input tensors. Offset validation and repair remain a separate small kernel. Other configurations, such as weighted, variable batched, AMD, and transpose-hoist cases, fall back to standard validation. The option is exposed through TorchRec and defaults off.</span></p>
+<h3><span style="font-weight: 400;">Forward-state reuse and preprocessing</span></h3>
+<p><span style="font-weight: 400;">Exact row-wise Adagrad can save the forward histogram. Backward uses those counts for the compensated FP16 high/low GEMM into FP32, then applies the optimizer. Forward and backward remain separate launches; only the histogram counts are reused.</span></p>
+<p><span style="font-weight: 400;">Another optional core-module path moves index transpose, sort, and run-length encoding into forward and returns the metadata through autograd. It defaults off and is not exposed by the current TorchRec wrapper. On a large B200 configuration, forward moves from 22.844 ms to 33.252 ms, backward from 56.693 ms to 32.931 ms, and combined latency from 79.537 ms to 66.183 ms (−16.8%).</span></p>
+<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-172621 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/1-1.png" alt="" width="1772" height="1058" srcset="https://pytorch.org/wp-content/uploads/2026/10/1-1.png 1772w, https://pytorch.org/wp-content/uploads/2026/10/1-1-300x179.png 300w, https://pytorch.org/wp-content/uploads/2026/10/1-1-1024x611.png 1024w" sizes="(max-width: 1772px) 100vw, 1772px" /></p>
+<h2><span style="font-weight: 400;">3. Implementation of Triton TBE Backward Kernel</span></h2>
+<p><span style="font-weight: 400;">The core logic of the TBE backward propagation: for every unique (table, row) pair touched anywhere in the batch, sum the upstream gradient rows from every batch position that touched it, then apply exactly one optimizer update to that row.</span></p>
+<p><span style="font-weight: 400;">Annotations: T is number of tables; E is embedding size (i.e. number of rows); D is embedding dimension (i.e. number of cols); L is pooling factor (i.e. </span><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.EmbeddingBag.html"><span style="font-weight: 400;">embedding bag</span></a><span style="font-weight: 400;"> size); B is batch size (i.e. number of embedding bags per request)</span></p>
+<p><span style="font-weight: 400;">Forward-pass. An embedding table T is a 2-D tensor (ExD) located in the GPU. </span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Given: a sparse feature (id-list or id-score-list) such as [id1, id2, id3, id4] (here L=4 and B=1) or multiple sparse features (B&gt;1).</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Goal: By computing the sum T[id1%E]+T[id2%E]+T[id3%E]+T[id4%E], we get its forward output. If B=100, we will have 100 forward outputs.</span></li>
+</ul>
+<p><span style="font-weight: 400;">Backward-pass </span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Given: forward output and output grads (output.backward(grads))</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Goal: calculate weights.grad and update weights</span>
+<ul>
+<li style="font-weight: 400;" aria-level="2"><span style="font-weight: 400;">Calc grads: for each index &#8220;id&#8221;, compute the sum of all the output grads from the embedding bags containing &#8220;id&#8221;. (With TxB=4.2M, B=128K, the indice stats can be total/dedup/highest_freq = 83M/3M/125K)</span></li>
+<li style="font-weight: 400;" aria-level="2"><span style="font-weight: 400;">Update weights: as simple as weight = weight &#8211; grad * LR</span></li>
+</ul>
+</li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">TBE backward has no tensor core ops but it requires heavy data move/reduction and suffers from load imbalance issues. </span></li>
+</ul>
+<p><img decoding="async" class="aligncenter wp-image-172636 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Screenshot-2026-10-06-at-3.03.34-PM.png" alt="" width="871" height="282" srcset="https://pytorch.org/wp-content/uploads/2026/10/Screenshot-2026-10-06-at-3.03.34-PM.png 871w, https://pytorch.org/wp-content/uploads/2026/10/Screenshot-2026-10-06-at-3.03.34-PM-300x97.png 300w" sizes="(max-width: 871px) 100vw, 871px" /></p>
+<p><span style="font-weight: 400;"><code>transpose_embedding_input</code></span><span style="font-weight: 400;"> inverts the batch into runs: one unique row paired with the samples that touched it. This operation is hoisted into the forward pass, off the backward critical path.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-172637 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/4-1.png" alt="" width="1378" height="613" srcset="https://pytorch.org/wp-content/uploads/2026/10/4-1.png 1378w, https://pytorch.org/wp-content/uploads/2026/10/4-1-300x133.png 300w, https://pytorch.org/wp-content/uploads/2026/10/4-1-1024x456.png 1024w" sizes="(max-width: 1378px) 100vw, 1378px" /></p>
+<p><span style="font-weight: 400;">Segment length (SL), the number of samples touching a row, is the variable everything keys on, and it spans one to millions inside a single batch. Runs are routed by SL to one of three kernels.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-172646 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/5.png" alt="" width="1729" height="1010" srcset="https://pytorch.org/wp-content/uploads/2026/10/5.png 1729w, https://pytorch.org/wp-content/uploads/2026/10/5-300x175.png 300w, https://pytorch.org/wp-content/uploads/2026/10/5-1024x598.png 1024w" sizes="(max-width: 1729px) 100vw, 1729px" /></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>short_run</b><span style="font-weight: 400;"> (</span><span style="font-weight: 400;"><code>SL &lt; 256</code></span><span style="font-weight: 400;">): one program owns the run start to finish: gather, accumulate in registers, optimizer, store. Exclusive ownership means a plain store, no atomics.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>grad_accum + apply</b><span style="font-weight: 400;"> (</span><span style="font-weight: 400;"><code>SL &gt;= 256</code></span><span style="font-weight: 400;">, default): the run is split into 256-lookup chunks, partials land in a workspace, a second kernel applies the optimizer.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>fused</b><span style="font-weight: 400;"> (</span><span style="font-weight: 400;"><code>SL &gt;= 256</code></span><span style="font-weight: 400;">, Blackwell, very large batches): same split, but a device-scope fence lets the last sub-program apply the update in one launch.</span></li>
+</ul>
+<p><span style="font-weight: 400;">Weighted tables differ only in scaling each gradient row by its per-sample weight before accumulating.</span></p>
+<h2><span style="font-weight: 400;">4. Edge Cases and performance improvements</span></h2>
+<h3><span style="font-weight: 400;">Problem 1. imbalanced programs</span></h3>
+<p><span style="font-weight: 400;">A single program walking two million lookups leaves the GPU idle, while a huge tail of one-lookup runs pays full per-run cost for almost no work.</span></p>
+<p><b>Solution 1.1: split long runs.</b><span style="font-weight: 400;"> Runs at or above the threshold become fixed 256-lookup chunks, split-K style. A two-million-lookup run turns into roughly eight thousand sub-programs, enough to fill the machine from one row&#8217;s work.</span></p>
+<p><b>Solution 1.2: </b><a href="https://docs.nvidia.com/cutlass/media/docs/cpp/blackwell_cluster_launch_control.html#blackwell-warp-specialized-persistent-kernel"><b>CLC</b></a><b> (</b><a href="https://github.com/facebookexperimental/triton/pull/516"><b>TLX Blackwell</b></a><b>)</b><span style="font-weight: 400;"> A kernel will persist once started initially and keep stealing &#8216;free&#8217; run_id after finishing the current &#8216;run_id&#8217;. If the kernel steals a workload successfully, it will process it in the same block. Otherwise, the kernel exits. To address the load imbalance issues, we no longer need a software-based solution like bifurcating run_id processing by frequency. Instead CLC provides a hardware-based solution.</span></p>
+<h3><span style="font-weight: 400;">Problem 2. the gather width is a register cliff</span></h3>
+<p>Each buffered row keeps <code>BLOCK_SIZE</code> <em>64-bit addresses</em> live, because <code>dout_row_start_ptr[:, None] + col_offsets[None, :]</code> materializes a whole pointer tile. Cost is <code>width × BLOCK_SIZE</code>, so a width tuned at one row width is wrong at another.</p>
+<p><b>Solution: per-target config width, in every tier.</b><span style="font-weight: 400;"> Measured on B200:</span></p>
+<table style="height: 279px;" width="989">
+<tbody>
+<tr>
+<td><span style="font-weight: 400;">tier</span></td>
+<td><span style="font-weight: 400;">width</span></td>
+<td><span style="font-weight: 400;">registers</span></td>
+<td><span style="font-weight: 400;">occupancy</span></td>
+<td><span style="font-weight: 400;">effect</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">short run, unweighted</span></td>
+<td><span style="font-weight: 400;">8 → 2</span></td>
+<td><span style="font-weight: 400;">184 → 64</span></td>
+<td><span style="font-weight: 400;">12.5% → 49.9%</span></td>
+<td><span style="font-weight: 400;">0.41 → 1.05</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">long run, accumulate</span></td>
+<td><span style="font-weight: 400;">8 → 2</span></td>
+<td><span style="font-weight: 400;">158 → 62</span></td>
+<td><span style="font-weight: 400;">17.6% → 44.7%</span></td>
+<td><span style="font-weight: 400;">fleet parity 82% → 87%</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">short run, weighted</span></td>
+<td><span style="font-weight: 400;">4 → 2</span></td>
+<td><span style="font-weight: 400;">125 → 64</span></td>
+<td><span style="font-weight: 400;">24.8% → 49.3%</span></td>
+<td><span style="font-weight: 400;">weighted parity 51% → 69%</span></td>
+</tr>
+</tbody>
+</table>
+<h3><span style="font-weight: 400;">Problem 3. BLOCK_SIZE is a constexpr</span></h3>
+<p>One launch must size <code>BLOCK_SIZE</code> to <code>next_pow2(max_D)</code> across <em>all</em> tables, so when the lookup-dominant table is much narrower than the widest, most of every gathered row is masked-off lanes.</p>
+<p><strong>To overcome that, we bucket by dimension.</strong> Short runs are routed to one bucket per <code>next_pow2(D)</code> during classification, each launching with its own <code>BLOCK_SIZE</code>. It folds into the classification kernel, so it costs no extra pass; profiling confirms it buys reduced lane waste, not occupancy.</p>
+<p>Which runs are long is data-dependent and known only on the GPU, and reading those counts back with <code>.item()</code> is a <code>cudaStreamSynchronize</code> every backward.</p>
+<p><strong>Solution: keep the shapes on the GPU.</strong> Workspace is preallocated to a bound computed from the index count, and classification runs in a kernel using atomic counters for stream compaction:</p>
+<pre><code>is_long        = (run_len &gt;= threshold) &amp; mask
+num_long_block = tl.sum(is_long.to(tl.int32))
+long_base      = tl.atomic_add(num_long_ptr, num_long_block)
+long_local     = tl.cumsum(is_long.to(tl.int32), axis=0) - 1
+tl.store(long_run_ids_ptr + (long_base + long_local).to(tl.int64),
+         offsets.to(tl.int32), mask=is_long)</code></pre>
+<p><span style="font-weight: 400;">One atomic per block rather than one per element, intra-block offsets from a prefix sum. Kernels then consume the counts as device pointers and self-distribute with while-loops.</span></p>
+<h3><span style="font-weight: 400;">Problem 5. split runs need a cross-program barrier</span></h3>
+<p><span style="font-weight: 400;">Once a run is split, the optimizer update can only run after every sub-program&#8217;s partial has landed. Triton had no device-scope fence, so this cost a second kernel and a global-memory round trip.</span></p>
+<p><b>Solution: fence, then countdown (TLX Blackwell).</b><span style="font-weight: 400;"> TLX exposes the fence, letting the last sub-program apply the update in the same launch:</span></p>
+<pre><code>tl.atomic_add(temp_grad_buffer_ptr + temp_grad_offset + col_offsets, grad, mask=mask)
+tlx.fence("gpu")
+remaining = tl.atomic_add(grad_accum_counter_ptr + grad_buffer_id, -1)
+if remaining == 1:
+    ...  # last sub-program applies the optimizer and stores</code></pre>
+<p><span style="font-weight: 400;">The ordering is the correctness argument: the fence makes each partial visible device-wide before the countdown decrements, so the program that sees remaining == 1 reads a complete sum. Without it one could win the countdown while another&#8217;s atomic_add was in flight, a silent numerical error.</span></p>
+<h3><span style="font-weight: 400;">Problem 6. merging partials is a row-wide atomic</span></h3>
+<p><span style="font-weight: 400;">Every sub-program atomically adds an entire BLOCK_SIZE row into the run&#8217;s workspace slot. A run split into eight thousand chunks means eight thousand programs contending on the same row, and tl.atomic_add issues that merge one element-wise operation at a time.</span></p>
+<p><strong>Solution: reduce through TMA (TLX Blackwell).</strong> Blackwell has a better instruction than <code>tl.atomic_add</code> for merging partials <code>cp.reduce.async.bulk.tensor</code>, exposed as <code>tlx.async_descriptor_store(..., store_reduce="add")</code>.</p>
+<h2><span style="font-weight: 400;">5. Results and Analysis</span></h2>
+<h3><span style="font-weight: 400;">Results</span></h3>
+<p><span style="font-weight: 400;">307 shard configurations (283 distinct shapes) on GB200, exact row-wise Adagrad, FP16 weights. Metric: Triton performance divided by CUDA TBE. Median forward speedup is 1.28×.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-172653 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/5-1.png" alt="" width="1847" height="648" srcset="https://pytorch.org/wp-content/uploads/2026/10/5-1.png 1847w, https://pytorch.org/wp-content/uploads/2026/10/5-1-300x105.png 300w, https://pytorch.org/wp-content/uploads/2026/10/5-1-1024x359.png 1024w" sizes="(max-width: 1847px) 100vw, 1847px" /></p>
+<p><span style="font-weight: 400;">For backward data: </span></p>
+<p><img decoding="async" class="aligncenter wp-image-172654 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/6.png" alt="" width="1703" height="572" srcset="https://pytorch.org/wp-content/uploads/2026/10/6.png 1703w, https://pytorch.org/wp-content/uploads/2026/10/6-300x101.png 300w, https://pytorch.org/wp-content/uploads/2026/10/6-1024x344.png 1024w" sizes="(max-width: 1703px) 100vw, 1703px" /></p>
+<h3><span style="font-weight: 400;">Analysis: why does Triton beat CUDA here?</span></h3>
+<p>We gain most of the win through changing the run-length. CUDA escalates to a cooperative CTA(Cooperative Thread Array)-per-row kernel at <code>SL = 32</code>; Triton stays on simple streaming to <code>SL = 256</code>.</p>
+<p><img decoding="async" class="aligncenter wp-image-172657 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/7.png" alt="" width="1502" height="665" srcset="https://pytorch.org/wp-content/uploads/2026/10/7.png 1502w, https://pytorch.org/wp-content/uploads/2026/10/7-300x133.png 300w, https://pytorch.org/wp-content/uploads/2026/10/7-1024x453.png 1024w" sizes="(max-width: 1502px) 100vw, 1502px" /></p>
+<p><b>The speedup is from better memory throughputput.</b><span style="font-weight: 400;"> Deep in that band Triton runs 4.3x faster while moving the same DRAM bytes across the pass (0.91x) and issuing 29% more load requests. Nsight Compute shows where the difference lives: the CUDA kernel carrying this shape achieves 678 GB/s, versus 3,948 GB/s for the Triton kernel (5.8x) at identical occupancy. Just above SL = 32 there is nothing to amortize CTA-wide synchronization against, and Triton&#8217;s path has no cooperation at all.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-172658 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/8.png" alt="" width="1433" height="631" srcset="https://pytorch.org/wp-content/uploads/2026/10/8.png 1433w, https://pytorch.org/wp-content/uploads/2026/10/8-300x132.png 300w, https://pytorch.org/wp-content/uploads/2026/10/8-1024x451.png 1024w" sizes="(max-width: 1433px) 100vw, 1433px" /></p>
+<p><span style="font-weight: 400;">The wins came from config values. Every fix in Section 2 is exposed as a config change. Moving an escalation point or gather width in template-generated CUDA means restructuring which kernel handles what.</span></p>
+<p><b>Where Triton still loses.</b><span style="font-weight: 400;"> Shapes whose work is entirely in runs shorter than 4 sit below parity because of pure dependent-load latency; CUDA&#8217;s warp-per-row amortizes per-run metadata better. That is 11 of 307 shards, each under about a millisecond. Shapes above SL = 256 are at parity rather than ahead. We will invest more if they become a bottleneck on workloads.</span></p>
+<h2><span style="font-weight: 400;">6. Beyond Performance: What FBTriton Unlocks</span></h2>
+<p><span style="font-weight: 400;">The most durable outcome of FBTriton is that the entire sparse path (both forward and backward) is now written in ordinary Python and is smaller than the original CUDA templates alone. As a result, we can apply more possible fusions in the future like demonstrated in forward and unlock these benefits: </span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>Rapid Developer Velocity:</b><span style="font-weight: 400;"> FBTriton delivers high machine efficiency and developer efficiency simultaneously. Compared to CUDA Jinja templates, Triton TBE makes it much easier for rank/infra engineers to rapidly implement SOTA embedding algorithms for better model performance.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Simultaneous Portability and Agility:</b><span style="font-weight: 400;"> FBTriton maintains identical kernel bodies whether running on Blackwell, Hopper, or AMD architectures. Instead of creating separate code forks for different hardware, specific features (like CLC, TMA bulk atomic reductions or device-scope fences) are integrated as additive flags.</span></li>
+<li style="font-weight: 400;" aria-level="1"><strong>Pathway to a &#8220;Mega Sparse Kernel&#8221;:</strong> Rewriting CUDA kernels in Triton unlocks massive <code>[forward, backward]</code> and <code>[prologue, epilogue]</code> fusion opportunities. By treating the optimizer as a backward epilogue, FBTriton eliminates extra memory passes. This fusion collapses the entire sparse sequence into one kernel, reducing complex features like FP8 momentum scaling to just a few lines of accumulation.</li>
+</ul>
+<p><span style="font-weight: 400;">Code: </span><a href="https://github.com/meta-pytorch/torchrec/tree/main/torchrec/distributed/triton_tbe"><span style="font-weight: 400;">link</span></a></p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Evolution of the PyTorch Media Processing Landscape</title>
 		<link>https://pytorch.org/blog/evolution-of-the-pytorch-media-processing-landscape/</link>
 		
@@ -42,7 +193,7 @@
 <p>Images, video and audio are now central to a lot of model development, from vision-language models to diffusion models that generate images and video. Training these models means decoding media into tensors and transforming them, and generative models then need to encode their outputs back into media files. Over the last two years we have consolidated PyTorch&#8217;s media stack across three libraries: <a href="https://github.com/pytorch/torchcodec"><strong>TorchCodec</strong></a>, <a href="https://github.com/pytorch/vision"><strong>TorchVision</strong></a>, and <a href="https://github.com/pytorch/audio"><strong>TorchAudio</strong></a>. This post describes where things landed, and why.</p>
 <h2>Before and now</h2>
 <p><!-- IMAGE PLACEHOLDER: image1 (Before/now diagram of the media stack) - download from the Doc and upload via the WP media library --></p>
-<h3><img fetchpriority="high" decoding="async" class="alignnone wp-image-172323 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/media_libraries_2026-ezgif.com-svg-to-png-converter.png" alt="" width="960" height="560" srcset="https://pytorch.org/wp-content/uploads/2026/10/media_libraries_2026-ezgif.com-svg-to-png-converter.png 960w, https://pytorch.org/wp-content/uploads/2026/10/media_libraries_2026-ezgif.com-svg-to-png-converter-300x175.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></h3>
+<h3><img decoding="async" class="alignnone wp-image-172323 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/media_libraries_2026-ezgif.com-svg-to-png-converter.png" alt="" width="960" height="560" srcset="https://pytorch.org/wp-content/uploads/2026/10/media_libraries_2026-ezgif.com-svg-to-png-converter.png 960w, https://pytorch.org/wp-content/uploads/2026/10/media_libraries_2026-ezgif.com-svg-to-png-converter-300x175.png 300w" sizes="(max-width: 960px) 100vw, 960px" /></h3>
 <h3>TorchCodec: the one place for decoding and encoding</h3>
 <p>A few years ago, media decoding and encoding capabilities were scattered and partially duplicated across TorchVision and TorchAudio, with each one building its own stack. TorchVision had multiple entry points (<code>io.read_video()</code> and <code>io.VideoReader()</code>), spread across three backends: PyAV in Python, a C++ FFmpeg backend, and a CUDA/NVCUVID backend. Only the PyAV backend was available out-of-the-box, as the two other backends required building from source, and were tied to a specific FFmpeg version. TorchAudio had <code>StreamReader</code> and <code>StreamWriter</code> for video and audio, and additional audio decoding utils with various backends (<code>FFmpeg</code>, <code>libsoundfile</code>, <code>libsox</code>). Image decoding lived in TorchVision.</p>
 <p>In response to this, we have consolidated all decoding and encoding capabilities for media to live in TorchCodec: images, video, and audio, on CPU and CUDA. The APIs that used to live in TorchVision or TorchAudio are deprecated, or removed. We did this for three reasons:</p>
@@ -1104,81 +1255,7 @@ echo "Resolved pytorch/pytorch@nightly -&gt; source ${SOURCE_SHA}"
 		
 		
 			</item>
-		<item>
-		<title>Hardware-Agnostic Models in vLLM</title>
-		<link>https://pytorch.org/blog/hardware-agnostic-models-in-vllm/</link>
-		
-		<dc:creator><![CDATA[Thomas Parnell (IBM), Thomas Ortner (IBM), Richard Zou (Meta), Harry Mellor (Hugging Face)]]></dc:creator>
-		<pubDate>Tue, 22 Sep 2026 15:45:46 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=169750</guid>
-
-					<description><![CDATA[TL;DR To achieve state-of-the-art performance at the frontier, vLLM is changing its internal implementation in ways that make it incompatible with fullgraph torch.compile. This may have consequences for users who...]]></description>
-										<content:encoded><![CDATA[<p><strong>TL;DR</strong></p>
-<p>To achieve state-of-the-art performance at the frontier, vLLM is changing its internal implementation in ways that make it incompatible with fullgraph torch.compile. This may have consequences for users who care about out-of-tree accelerators, older GPUs, or more exotic models. To address this, we are introducing a new set of &#8220;HW agnostic&#8221; layers in vLLM. These layers will ensure vLLM can continue to move at the speed of light, while at the same time meeting the needs of users who care about portability. On NVIDIA H100 GPUs, the HW agnostic layers achieve total token throughput within 3.4% of the native implementation (geometric mean across three recent models).</p>
-<h2>vLLM at the frontier</h2>
-<p>vLLM has achieved unprecedented success by positioning itself as the abstraction layer supporting a wide variety of models on a wide variety of hardware. By using a set of well-designed abstractions and <a href="https://vllm.ai/blog/2025-08-20-torch-compile">torch.compile for optimization and fusion</a>, the project has been able to keep the code defining the actual model logic (commonly known as &#8220;model definitions&#8221;) relatively simple, whilst still achieving high performance across NVIDIA GPUs, AMD GPUs, Intel XPUs, Google TPUs, IBM Spyre, Huawei Ascend and more.</p>
-<p>However, the architectures of frontier open-weight models are rapidly diverging, which has led the community to revisit whether some of the existing abstractions are fit for purpose. Models increasingly ship with bespoke layers and optimized kernels. This even extends to the core attention mechanism: DeepSeek V4 and Kimi K3 achieve million-token context via completely different approaches. Fitting one of these into vLLM means composing it from the shared layers in <code>model_executor/layers</code> and keeping the whole model fullgraph compilable: written so that Dynamo can trace it, with each new kernel registered as a torch library op with a fake implementation and correct mutation annotations. That work is a tax on model development, and it is paid by whoever adds the model, including the advanced users who bring their own.</p>
-<p>At the same time, NVIDIA Blackwell GPUs and rack-scale systems like NVIDIA GB300 NVL72 require careful kernel engineering to exploit new features and effectively overlap computation with communication.</p>
-<p>While all this is happening, we have seen the rise of coding agents like Claude Code and OpenAI Codex, which make generating code much easier. In particular, these agents are very effective at designing optimizations for a specific model on specific hardware. However, they work best if they do not need to worry about whether a particular change will make things worse for a different model, on a different accelerator.</p>
-<p>These trends come together and mean that, to achieve state-of-the-art performance on the latest GPU hardware, the community would like to dismantle some of the existing abstractions in vLLM. In particular, vLLM is starting to maintain <a href="https://github.com/vllm-project/vllm/issues/42770">hardware-specific model definitions</a>, otherwise known as &#8220;flat&#8221; models. Rather than using torch.compile, flat models use custom fusions and other model-specific and hardware-specific optimizations. New frontier models added to vLLM in recent months all use this flat model definition. Critically, the existing layers and ops consumed by the model definitions are likely to be refactored in a way that makes them fundamentally incompatible with torch.compile.</p>
-<p>This effort is necessary to enable vLLM to stay competitive on the latest GPU benchmarks. However, it is also important that vLLM continues to serve its users who care about serving diverse models on diverse hardware like older GPUs or out-of-tree (OOT) accelerators.</p>
-<p>So, what can we do about it? Let&#8217;s start by reviewing how vLLM handles model definitions today.</p>
-<h2>How do model definitions work in vLLM?</h2>
-<p>Today, vLLM offers three flavours of model definitions.</p>
-<ol>
-<li>The new &#8220;flat&#8221; models which live under <code>vllm/models/</code></li>
-<li>The legacy models which live under <code>vllm/model_executor/models</code></li>
-<li>The transformers modeling backend, which imports models from transformers.</li>
-</ol>
-<p>A high-level sketch of the current state is shown below.</p>
-<p><!-- IMAGE PLACEHOLDER: 'untitled image' - download from the Google Doc and upload to the WP media library, then replace this comment with the real <img> or WP image block --></p>
-<p><em><strong><img decoding="async" class="alignleft wp-image-169762 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-scaled.png" alt="" width="2560" height="1430" srcset="https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-300x168.png 300w, https://pytorch.org/wp-content/uploads/2026/09/fig1-model-definitions-1024x572.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></strong></em></p>
-<p><em><strong>Figure 1</strong>: The current state of model definitions in vLLM. All three flavours resolve to a single implementation of each common layer, shown here for RowParallelLinear. SpyreRowParallelLinear is an out-of-tree plugin overriding that layer on one accelerator.</em></p>
-<p>While the modeling logic may live in different places, most models are composed of common layers like attention, mixture-of-experts, linear projections, norms and activations. It is important to understand that, in all 3 cases above, these common layers are still implemented in a single place. In case (1) and (2) these layers are explicitly imported from <code>vllm/model_executor/layers</code>. In case (3), the transformers model gets automatically fused and re-wired to use the vLLM layers. Thus, wherever the model definition is coming from, we are still using a common implementation of the majority of the layers that underpin it.</p>
-<p>vLLM&#8217;s layer implementations have evolved over several years and offer two important features that we will now discuss in more detail: (a) torch compile support, and (b) OOT extensibility.</p>
-<p>While fullgraph torch compile is not used by the flat models, it remains a critical feature for OOT plugins like <a href="https://github.com/torch-spyre/spyre-inference">IBM Spyre</a>. Spyre relies on TorchDynamo to trace the model graph, and TorchInductor to lower the graph down to representations that run optimally on the target hardware. Crucially, torch compile is also a necessary component for enabling vLLM&#8217;s transformers backend to achieve <a href="https://huggingface.co/blog/native-speed-vllm-transformers-backend">native speed</a> for models like Qwen3 on NVIDIA GPUs.</p>
-<p>However, for OOT plugins torch compile is not the whole story. Accelerators like Spyre also occasionally need to inject behaviour into the layers (e.g., custom memory layouts) to achieve optimal performance. vLLM&#8217;s layer offers two different mechanisms for injecting custom behaviour: <strong>CustomOp</strong> (which enables the plugin to override the forward function) and <strong>PluggableLayer</strong> (which enables the plugin to override the entire layer). Without this extensibility, OOT plugins would need to re-implement many of the layers themselves.</p>
-<h2>So, what is the problem here?</h2>
-<p>Aside from the fact that having model definitions in three places is pretty confusing, there is a more pressing issue with the above design.</p>
-<p>The flat model workstream needs to change the model definitions, and their underlying layer implementations, to <strong>break compatibility with torch compile</strong> and <strong>remove support for extensibility via CustomOp</strong>. This will unlock them to move faster on developing hardware-specific and model-specific performance optimizations, but it also raises some concerns.</p>
-<p>Firstly, it leaves OOT plugins facing the prospect of maintaining their own set of model definitions and layers, creating a large maintenance burden. Supporting a new model will involve making pull requests to transformers, vLLM, and then potentially every OOT plugin that wants to support it. Yes, coding agents make this easier but this will still require burning through token budgets across multiple different organizations for ultimately no real benefit.</p>
-<p>Second, vLLM is increasingly relying on the transformers backend to provide support for older or more exotic models. Legacy model definitions are actively being removed from <code>model_executor/models</code> and their registry entries updated to point directly at the transformers modeling backend. Without torch compilable layers, performance for these models on GPU will regress significantly.</p>
-<p>Finally, while the flat model and layers will be optimized for frontier GPUs, we do not expect them to provide support for older GPUs or consumer/prosumer GPUs. vLLM&#8217;s own <a href="https://app.hex.tech/019c4540-72b8-7005-9d68-08e0191ac583/app/vLLM-Weekly-Usage-Stats-032Vh7ZNLdI3OI2hNYJaPv/latest">usage statistics</a> show that a significant portion of the user base continues to use such hardware. We believe the project should also evolve in a way that meets their needs.</p>
-<h2>What is our solution?</h2>
-<p>We are building a set of hardware-agnostic layers in-tree in vLLM. The aim of these layers is to ensure that vLLM can continue to support its user base that cares about running diverse models on diverse hardware.</p>
-<p>The Hardware-agnostic layers adhere to the following four design principles:</p>
-<ol>
-<li><strong>Compilable</strong>. The model definitions will be full-graph torch compilable; Accelerators that require compile for performance can continue using it as they do today.</li>
-<li><strong>Extensible</strong>. We will keep mechanisms like vLLM&#8217;s CustomOp and PluggableLayer to ensure that OOT plugins can override the implementation when necessary.</li>
-<li><strong>Isolated</strong>. The model definitions will be built with their own set of layers and ops that are separate and isolated from the layers and ops used by the hardware-specific paths. This will ensure that development in both directions can move fast without impeding the other.</li>
-<li><strong>Portable</strong>. We will strive to implement all layers and ops using either native PyTorch code or portable DSLs like Triton and Helion. This will make the models portable across all accelerators that support these frameworks. Those that do not can still rely on (2) when necessary.</li>
-</ol>
-<p>The design we are working towards is illustrated below:</p>
-<p><!-- IMAGE PLACEHOLDER: 'untitled image' - download from the Google Doc and upload to the WP media library, then replace this comment with the real <img> or WP image block --></p>
-<p><em><strong><img decoding="async" class="alignleft wp-image-169763 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/fig2-hw-agnostic-layers-scaled.png" alt="" width="2560" height="1567" srcset="https://pytorch.org/wp-content/uploads/2026/09/fig2-hw-agnostic-layers-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/09/fig2-hw-agnostic-layers-300x184.png 300w, https://pytorch.org/wp-content/uploads/2026/09/fig2-hw-agnostic-layers-1024x627.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></strong></em></p>
-<p><em><strong>Figure 2: </strong>Hardware-agnostic Layers in vLLM.</em></p>
-<p>As the legacy model definitions are gradually removed, models will either be re-implemented in the flat way (e.g., a different implementation for NVIDIA, AMD, XPU etc), or they will fallback to the transformers backend. We intended to offer hardware-agnostic support in both of these cases.</p>
-<p>For the transformers backend, we have modified the &#8220;rewiring&#8221; process to target the new HW-agnostic layers which reside at <code>model_executor/hw_agnostic</code>, instead of the existing layers at <code>model_executor/layers</code>. This support has <a href="https://github.com/vllm-project/vllm/pull/49458">already landed</a> in the main branch of vLLM (for a limited number of layers), and can be enabled by setting <code>USE_HW_AGNOSTIC=1</code> when running vLLM with the transformers backend:</p>
-<pre><code class="language-bash">USE_HW_AGNOSTIC=1 vllm serve google/gemma-4-31B --model-impl=transformers</code></pre>
-<p>We have validated this new pathway using the Spyre OOT plugin for models like Gemma 4, Qwen3, and Granite 4.2. Very soon, we will start to include HW agnostic models in our CI, and gradually switch over to using this as our default pathway for serving models on Spyre.</p>
-<p>While not yet landed, we plan to provide a new <code>model.py</code> for each flat model, that implements the model using the HW-agnostic layers. Layers that are re-used across multiple flat models will reside in a shared place (<code>model_executor/hw_agnostic</code>), whereas model-specific layers (e.g., <code>DeepSeekV4FlashMLAAttention</code>) will reside in the local directory with the <code>model.py</code> but still adhere to the 4 design principles above. As one example of this, please check out the hardware agnostic <a href="https://github.com/vllm-project/vllm/pull/45470">DeepSeek V4 PR</a> that is currently under review.</p>
-<h2>But, how will it perform on GPUs?</h2>
-<p>We stress that state-of-the-art performance on Blackwell, CDNA 4, and beyond is not the goal of these model definitions. Our aim is to achieve platform and performance portability across diverse hardware, including OOT accelerators, older GPUs, as well as prosumer-grade GPUs.</p>
-<p>To evaluate how the new pathway behaves on widely-available GPUs, we ran some experiments on NVIDIA H100 GPUs, for a handful of recent models. We compare the performance of vLLM&#8217;s transformers backend using <code>USE_HW_AGNOSTIC=0</code> vs. <code>USE_HW_AGNOSTIC=1</code> in Figure 3.</p>
-<p>As we can see, despite being built solely from <strong>portable implementations</strong> of the underlying layers and ops, HW agnostic models achieve relatively close, and in some cases even slightly better, performance, than the native models that use CUDA-optimized libraries like FlashAttention and CUTLASS.</p>
-<p><!-- IMAGE PLACEHOLDER: 'untitled image' - download from the Google Doc and upload to the WP media library, then replace this comment with the real <img> or WP image block --></p>
-<p><em><strong><img decoding="async" class="alignleft wp-image-169764 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/fig3-h100-performance.png" alt="" width="2256" height="800" srcset="https://pytorch.org/wp-content/uploads/2026/09/fig3-h100-performance.png 2256w, https://pytorch.org/wp-content/uploads/2026/09/fig3-h100-performance-300x106.png 300w, https://pytorch.org/wp-content/uploads/2026/09/fig3-h100-performance-1024x363.png 1024w" sizes="(max-width: 2256px) 100vw, 2256px" /></strong></em></p>
-<p><em><strong>Figure 3:</strong> Impact of HW Agnostic layers on performance for H100 GPUs.</em></p>
-<h2>Conclusion</h2>
-<p>We are introducing HW agnostic layers into vLLM to ensure that the project can continue to support diverse models on diverse hardware, without slowing down performance engineering at the frontier. We believe this effort is important for vLLM to continue to serve the needs of the broader open-source ecosystem. While we have started landing PRs to realize this effort, this is still very much a work-in-progress and we welcome any feedback.</p>
-<p>For more information, please check out the <a href="https://github.com/vllm-project/vllm/issues/44219">RFC</a> or follow the slack channel <a href="https://vllm-dev.slack.com/archives/C0B8VV3CRC7">#hw-agnostic-models</a> on vLLM slack. You can also learn more about vLLM at <a href="http://vllm.ai">vLLM.ai</a> or the <a href="https://github.com/vllm-project/vllm">vLLM github</a> project page.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4106 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1246455 metric#prefetches=222 metric#store-reads=36 metric#store-writes=8 metric#store-hits=231 metric#store-misses=15 metric#sql-queries=12 metric#ms-total=560.29 metric#ms-cache=32.95 metric#ms-cache-avg=0.7662 metric#ms-cache-ratio=5.9 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4151 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1275157 metric#prefetches=232 metric#store-reads=36 metric#store-writes=6 metric#store-hits=241 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=509.03 metric#ms-cache=20.57 metric#ms-cache-avg=0.5017 metric#ms-cache-ratio=4.0 -->
