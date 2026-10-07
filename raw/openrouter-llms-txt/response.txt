@@ -105,6 +105,7 @@
 - [SCIM Group Mappings](https://openrouter.ai/docs/guides/features/scim-mappings.md): Automatically provision workspace access from your identity provider groups
 - [Ori Eval](https://openrouter.ai/docs/guides/ori/eval.md): Find the best model for your project by testing your agent on real prompts, with one harness and one model for each run
 - [Ori Harness](https://openrouter.ai/docs/guides/ori/harness.md): Run your existing agent CLI on OpenRouter with any model, organization guardrails, and one bill
+- [Ori Codex](https://openrouter.ai/docs/guides/ori/codex.md): Run the Codex CLI and Codex Desktop on OpenRouter with one setup command, and go back with one reset
 - [File Writing](https://openrouter.ai/docs/guides/ori/files.md): Find the files and directories that Ori creates during a run
 - [Ori Configuration](https://openrouter.ai/docs/guides/ori/configuration.md): How to configure Ori, from a single shell to a managed fleet, plus every setting it reads
 - [Chatting with Interns](https://openrouter.ai/docs/guides/ori/intern-chat.md): Stream a chat completion from one of your interns with an API key, and answer its questions and permission requests in a second request
