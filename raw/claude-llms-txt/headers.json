@@ -1,16 +1,16 @@
 {
-  "fetchedAt": "2026-10-07T05:59:48.027Z",
+  "fetchedAt": "2026-10-08T06:04:20.246Z",
   "finalUrl": "https://platform.claude.com/llms.txt",
   "userAgent": "llm-catalog-archive/1.0 (+https://github.com/MaxwellBrohm/llm-catalog-archive)",
   "status": 200,
   "etag": null,
-  "lastModified": "Wed, 07 Oct 2026 05:59:48 GMT",
-  "date": "Wed, 07 Oct 2026 05:59:48 GMT",
-  "age": null,
+  "lastModified": "Thu, 08 Oct 2026 06:00:26 GMT",
+  "date": "Thu, 08 Oct 2026 06:04:20 GMT",
+  "age": "302",
   "cacheControl": "public, max-age=3600",
-  "cfCacheStatus": "EXPIRED",
+  "cfCacheStatus": "HIT",
   "contentEncoding": "gzip",
   "contentLength": null,
-  "observed_at": "2026-10-07T05:59:48.027Z",
-  "origin_date": null
+  "observed_at": "2026-10-08T06:04:20.246Z",
+  "origin_date": "2026-10-08T05:59:18.000Z"
 }
