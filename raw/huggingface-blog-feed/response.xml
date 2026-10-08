@@ -7,10 +7,16 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
-   <title>Falcon-Emirati: When an LLM Learns the Dialect, the Culture, and the Nuance</title>
-   <pubDate>Tue, 06 Oct 2026 06:44:39 GMT</pubDate>
-   <link>https://huggingface.co/blog/tiiuae/falcon-emirati</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/tiiuae/falcon-emirati</guid>
+   <title>Multimodal open d1 decision models for the edge</title>
+   <pubDate>Wed, 07 Oct 2026 16:54:33 GMT</pubDate>
+   <link>https://huggingface.co/blog/LiquidAI/open-d1</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/LiquidAI/open-d1</guid>
+  </item>
+  <item>
+   <title>One Model Family, Two Gold-Level Results: Fine-Tuning Nemotron for IOI and IMO</title>
+   <pubDate>Wed, 07 Oct 2026 12:45:31 GMT</pubDate>
+   <link>https://huggingface.co/blog/nvidia/nemotron-ioi-and-imo-2026</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/nemotron-ioi-and-imo-2026</guid>
   </item>
   <item>
    <title>The Agent Said It Was Done. The Database Disagreed.</title>
@@ -37,12 +43,6 @@
    <guid isPermaLink="true">https://huggingface.co/blog/open-tts-leaderboard</guid>
   </item>
   <item>
-   <title>NVIDIA Kumo Tabular Sets a New Accuracy-Efficiency Frontier for Tabular Prediction</title>
-   <pubDate>Tue, 29 Sep 2026 15:30:38 GMT</pubDate>
-   <link>https://huggingface.co/blog/nvidia/kumo-tabular</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/kumo-tabular</guid>
-  </item>
-  <item>
    <title>Getting the Source Right, Not Just the Fact: Source-Aware Verification for MCP Agents</title>
    <pubDate>Tue, 29 Sep 2026 13:07:00 GMT</pubDate>
    <link>https://huggingface.co/blog/MultiverseComputingCAI/getting-the-source-right-not-just-the-fact-source</link>
@@ -59,12 +59,6 @@
    <pubDate>Mon, 28 Sep 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/rl-environments</link>
    <guid isPermaLink="true">https://huggingface.co/blog/rl-environments</guid>
-  </item>
-  <item>
-   <title>Accelerating vision-language models with LFM2.5-VL-DSpark</title>
-   <pubDate>Thu, 24 Sep 2026 14:08:57 GMT</pubDate>
-   <link>https://huggingface.co/blog/LiquidAI/lfm2-5-vl-dspark</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/LiquidAI/lfm2-5-vl-dspark</guid>
   </item>
   <item>
    <title>How UK AISI and EvalEval Are Making Benchmark Results Reproducible</title>
