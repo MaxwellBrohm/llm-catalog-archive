@@ -25,6 +25,7 @@ Add the programming language you want code examples in to the `Accept-Language` 
 - [Imagine — Image Editing](https://docs.x.ai/developers/model-capabilities/images/editing.md)
 - [Imagine — Multi-Image Editing](https://docs.x.ai/developers/model-capabilities/images/multi-image-editing.md)
 - [Imagine — Video Generation](https://docs.x.ai/developers/model-capabilities/video/generation.md)
+- [Imagine — Video Overview](https://docs.x.ai/developers/model-capabilities/video/overview.md)
 - [Imagine — Image-to-Video](https://docs.x.ai/developers/model-capabilities/video/image-to-video.md)
 - [Imagine — Reference-to-Video](https://docs.x.ai/developers/model-capabilities/video/reference-to-video.md)
 - [Imagine — Video Editing](https://docs.x.ai/developers/model-capabilities/video/editing.md)
@@ -111,15 +112,6 @@ Add the programming language you want code examples in to the `Accept-Language` 
 - [Management API — Accounts and Authorization](https://docs.x.ai/developers/rest-api-reference/management/auth.md)
 - [Management API — Billing Management](https://docs.x.ai/developers/rest-api-reference/management/billing.md)
 - [Management API — Audit Logs](https://docs.x.ai/developers/rest-api-reference/management/audit.md)
-- [gRPC API](https://docs.x.ai/developers/grpc-api-reference.md)
-- [gRPC API — Chat](https://docs.x.ai/developers/grpc-api-reference/chat.md)
-- [gRPC API — Image](https://docs.x.ai/developers/grpc-api-reference/image.md)
-- [gRPC API — Video](https://docs.x.ai/developers/grpc-api-reference/video.md)
-- [gRPC API — Batch Management](https://docs.x.ai/developers/grpc-api-reference/batches.md)
-- [gRPC API — Models](https://docs.x.ai/developers/grpc-api-reference/models.md)
-- [gRPC API — Auth](https://docs.x.ai/developers/grpc-api-reference/auth.md)
-- [gRPC API — Tokenize](https://docs.x.ai/developers/grpc-api-reference/tokenize.md)
-- [gRPC API — Raw Sampling](https://docs.x.ai/developers/grpc-api-reference/sample.md)
 
 ## Grok Build
 
@@ -157,6 +149,7 @@ Add the programming language you want code examples in to the `Accept-Language` 
 - [Work with Grok Bot](https://docs.x.ai/grok-bot/bots.md)
 - [Work with Grok Bot — Team Bots](https://docs.x.ai/grok-bot/team-bots.md)
 - [Work with Grok Bot — Message and collaborate](https://docs.x.ai/grok-bot/chat-and-collaboration.md)
+- [Work with Grok Bot — Tag @bot on X](https://docs.x.ai/grok-bot/tag-on-x.md)
 - [Work with Grok Bot — Files and results](https://docs.x.ai/grok-bot/files-and-results.md)
 - [Work with Grok Bot — Use the computer and apps](https://docs.x.ai/grok-bot/computer-and-apps.md)
 - [Work with Grok Bot — Skills and routines](https://docs.x.ai/grok-bot/skills-routines-and-automations.md)
