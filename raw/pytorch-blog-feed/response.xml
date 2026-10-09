@@ -8,26 +8,393 @@
 	>
 
 <channel>
-	<title>Blog &#8211; PyTorch</title>
+	<title>Blog - PyTorch</title>
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
-	<link>https://pytorch.org</link>
+	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Tue, 06 Oct 2026 22:57:33 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 08 Oct 2026 19:36:43 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=7.1.2</generator>
+	<generator>https://wordpress.org/?v=7.1.3</generator>
 
 <image>
 	<url>https://pytorch.org/wp-content/uploads/2024/10/cropped-favicon-32x32.webp</url>
-	<title>Blog &#8211; PyTorch</title>
-	<link>https://pytorch.org</link>
+	<title>Blog - PyTorch</title>
+	<link>https://pytorch.org/blog/</link>
 	<width>32</width>
 	<height>32</height>
 </image> 
 	<item>
+		<title>Session-Aware Agentic Inference with NVIDIA Dynamo</title>
+		<link>https://pytorch.org/blog/session-aware-agentic-inference-with-nvidia-dynamo/</link>
+		
+		<dc:creator><![CDATA[Ishan Dhanani, Jamie Li, Karen Chung]]></dc:creator>
+		<pubDate>Thu, 08 Oct 2026 18:13:46 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=172542</guid>
+
+					<description><![CDATA[<p>TL;DR Agentic workloads change the traffic an inference server sees. Unlike single-turn chat, an agent session can involve a large initial prefill, repeated model calls, and subagents running in parallel,...</p>
+<p>The post <a href="https://pytorch.org/blog/session-aware-agentic-inference-with-nvidia-dynamo/">Session-Aware Agentic Inference with NVIDIA Dynamo</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h3>TL;DR</h3>
+<p>Agentic workloads change the traffic an inference server sees. Unlike single-turn chat, an agent session can involve a large initial prefill, repeated model calls, and subagents running in parallel, with KV cache remaining resident while tools execute between turns.</p>
+<p>This technical blog post details how NVIDIA Dynamo uses a unified, session level identifier to transform request-level serving infrastructure into a program-aware system, unlocking session-aware routing, shared KV cache indexing, and programmatic cache movement across vLLM and SGLang.</p>
+<h2>Introduction</h2>
+<p>Agentic workloads have changed the shape of the traffic an inference server sees. A coding session opens with a large prefill, often tens of thousands of tokens of system prompt, tool definitions, and user-specific guidance, and every turn after that appends to a context the session resends in full. One task fans out into dozens of such calls, alongside short and long lived subagents running in parallel. Most of a session&#8217;s wall-clock time passes between tool calls, with its context sitting resident in the KV cache while nothing generates. Serving these well comes down to how much of that context a system keeps resident and reuses, and how many sessions it holds at once while still meeting latency targets This contrast between agentic workloads and that of a standard chatbot is shown in Figure one.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 1 (image1) - download from the Doc and upload via WP media library --></p>
+<p><em><img fetchpriority="high" decoding="async" class="alignnone wp-image-172935 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Agentic-Model-Chain-GIF-2-1.gif" alt="" width="1280" height="720" /></em></p>
+<p><em>Figure 1: Compares the alternating user and model turns of a standard chatbot with an agentic workflow that includes tool calls and tool responses. In the agentic workflow, a single user request can trigger multiple inference calls, with subsequent steps depending on intermediate results.</em></p>
+<p>Most open-source serving stacks are still built for the model on top of the figure. They route, admit, and cache each request on its own, with no notion of the harness or the session that ties it to previous turns.</p>
+<p>Serving this shape optimally is something we have been building towards. In our previous post, <a href="https://developer.nvidia.com/blog/full-stack-optimizations-for-agentic-inference-with-nvidia-dynamo/">Full-Stack Optimizations for Agentic Inference</a>, we shared work across three layers of the NVIDIA Dynamo stack: the router, the inference engine, and the KV cache manager. Over the last few months we&#8217;ve unified this work around a single primitive: a common session-level identifier. Session-level ID (often called program or trajectory in papers and academia) turns request-aware infrastructure into program-aware infrastructure, and serves as the foundation for additional session-aware optimizations.</p>
+<p>This post covers that progress in four parts:</p>
+<ol>
+<li><strong>Session_ID:</strong> How Dynamo recognizes sessions and subagents from existing harness headers, and how custom harnesses can provide the same information.</li>
+<li><strong>Tracing and replay:</strong> How session-linked traces connect harness activity to inference performance and support offline simulation and live benchmarking.</li>
+<li><strong>Session-aware scheduling:</strong> How routing and admission control account for session working sets and apply backpressure at tool boundaries to reduce cache thrashing.</li>
+<li><strong>Shared KV cache awareness:</strong> How the experimental shared-pool indexer lets the router account for reusable KV in external stores when placing requests.</li>
+<li><strong>Programmatic KV cache:</strong> How the Session-Prefix Indexer and proposed KvHint interface support session-aware cache policies across memory tiers, with Dynamo supplying policy intent and inference engines controlling execution.</li>
+</ol>
+<h2>Identify Agent Sessions with Session ID</h2>
+<p>A Dynamo session ID is a unique stable identifier for a single agentic chain of reasoning and tool calls. Every LLM request in a given trajectory shares the same <code>session_id</code>. Usually, child sessions carry a <code>parent_session_id</code>, so traces and replay tools can establish a connection between agents and subagents or subtasks they spawn. Every optimization in this post is an opt-in consumer of the session information contained in session ID and parent session ID</p>
+<p>There are a few different ways to share a stable session identifier with Dynamo, depending on what&#8217;s calling it.</p>
+<h3>Out-of-the-box support for coding agents</h3>
+<p>Dynamo recognizes the identity headers that today&#8217;s popular coding agents already emit and maps each onto the same internal <code>agent_context</code>: the session header becomes <code>session_id</code>, and the parent header, where present, becomes <code>parent_session_id</code>. Claude Code, Codex, and OpenCode work without configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Coding agent</th>
+<th>Session header</th>
+<th>Parent header</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td><code>x-claude-code-session-id</code> (root), <code>x-claude-code-agent-id</code> (child agents)</td>
+<td><code>x-claude-code-parent-agent-id</code></td>
+</tr>
+<tr>
+<td>Codex</td>
+<td><code>thread-id</code></td>
+<td><code>x-codex-parent-thread-id</code></td>
+</tr>
+<tr>
+<td>OpenCode</td>
+<td><code>x-opencode-session-id</code></td>
+<td><code>x-opencode-parent-session-id</code></td>
+</tr>
+</tbody>
+</table>
+<p>We&#8217;re working with harness providers across the ecosystem to make this the default everywhere, so support expands without users changing anything. Dynamo&#8217;s CI tracks each first-class harness as it changes. You can find a full list of supported first class IDs <a href="https://docs.nvidia.com/dynamo/dev/agents/session-i-ds">here</a>.</p>
+<h3>Plugins for harnesses that don&#8217;t send session identity natively</h3>
+<p>For harnesses that don&#8217;t emit a compatible header on their own, the <a href="https://github.com/ai-dynamo/agent-plugins">agent-plugins repo</a> provides small integrations that translate a harness&#8217;s native session identity into <code>x-dynamo-session-id</code>. Three are available today: a Pi provider for Dynamo&#8217;s OpenAI-compatible endpoint, a Hermes middleware that maps Hermes&#8217;s <code>session_id</code>, and an OpenClaw provider that maps OpenClaw&#8217;s <code>sessionId</code>. Each plugin ships its own install, configuration, and validation steps in its own folder in the repo.</p>
+<h3>Custom harnesses: opt in with one header</h3>
+<p>A custom harness opts in with one canonical header, <code>X-Dynamo-Session-ID</code>. Dynamo normalizes it into an internal <code>agent_context</code> struct that the rest of the stack reads, so nothing downstream needs to know which harness the request came from. If the harness supports subagents, you can also provide <code>X-Dynamo-Parent-Session-ID</code>. The following code block shows how any custom agent can pick up Dynamo&#8217;s optimizations without adopting a proprietary API.</p>
+<pre><code class="language-bash">curl http://localhost:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer sk-dummy' \
+  -H 'x-dynamo-session-id: research-run-42:researcher' \
+  -d '{"model":"my-model","messages":[{"role":"user","content":"..."}]}'
+</code></pre>
+<h2>Harness <img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2194.png" alt="↔" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Inference Codesign</h2>
+<p>Agent observability tools can already capture what happens at the harness level, but they don&#8217;t yet show a unified picture of how the inference stack performed underneath each of those steps. We think about this gap as harness <img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2194.png" alt="↔" class="wp-smiley" style="height: 1em; max-height: 1em;" /> inference codesign: giving both sides a shared, measurable trace of the same request that can be used for performance visualization, replay, and offline simulation, all keyed by a constant session ID. This trace is meant to be lightweight. It can be used as additional optional metadata alongside other trace collection formats, like Harbor&#8217;s ATIF or Letta&#8217;s new Trajectory format.</p>
+<h3>Capturing request traces</h3>
+<p>To enable trace collection, run your deployment with <code>DYN_REQUEST_TRACE=1</code>. Dynamo automatically records information on each request, without storing prompt, response, or tool-call content by default (these can be opt-in enabled). Instead, Dynamo emits a <code>request_end</code> record after each response stream finishes, carrying the session fields, the output token count, the finish reason, KV cache metrics, tool-call names, and a replay block with the request&#8217;s input length and per-block sequence hashes, similar to the Mooncake trace format. The sequence hashes can be used for replay with tools like the built-in <code>dynamo.replay</code> or our load-gen tool, AIPerf.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 2 (image2) - download from the Doc and upload via WP media library --></p>
+<p><em><img decoding="async" class="alignnone wp-image-172895 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Dynosym-trace-view.png" alt="" width="1440" height="810" srcset="https://pytorch.org/wp-content/uploads/2026/10/Dynosym-trace-view.png 1440w, https://pytorch.org/wp-content/uploads/2026/10/Dynosym-trace-view-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/10/Dynosym-trace-view-1024x576.png 1024w" sizes="(max-width: 1440px) 100vw, 1440px" /></em></p>
+<p><em>Figure 2: Shows a screen capture of the dynamo trace, with separate tracks for agents and their tool calls. Prefill, decode, and tool execution appear on the same timeline, showing how work is sequenced and overlaps across the session.</em></p>
+<p>Because every record carries timestamps and finish reasons, we can see tool-call distributions and connect them to KV cache eviction behavior. Internally, we&#8217;ve used these techniques to optimize our model deployments end to end, using captured traces as backtesting data. Much of this data and these replay tools also power our internal autoresearch harnesses, which let AI generate novel routing strategies and research proactive KV cache offloading strategies, which we cover below.</p>
+<h3>Replaying agentic traces</h3>
+<p>A captured trace is a reusable benchmark. Because it records the workload the agent sent rather than the agent&#8217;s decisions, one capture replays the same request schedule as many times as you want without rerunning the model, the tools, or any external API. Replay stays content-free the same way the trace does: sequence hashes become synthetic block IDs that preserve prompt-prefix sharing across turns and sessions without exposing the original tokens.</p>
+<p>One capture drives two paths. Offline, <a href="https://github.com/ai-dynamo/aisimulate">AISimulate</a> runs the request graph against Dynamo&#8217;s simulated scheduler, router, and KV cache, letting you compare worker counts, serving topologies, routing policies, and cache capacity without spending GPU time. Live, AIPerf replays the same graph against a real Dynamo endpoint on real GPUs for final latency, throughput, and cache numbers.</p>
+<h2>Routing and admission control at the session layer</h2>
+<p>KV cache has always mattered for efficient LLM inference, but agentic inference adds real complexity: where the cache lives, how much of it can be reused at each memory tier, and whether the system is proactive about prioritization, eviction, and sharing. Throughput ends up being determined less by raw compute and more by how well the stack answers those questions.</p>
+<p>Because the Dynamo router is flexible enough to act on more than just the next request, we&#8217;ve been able to iterate on session-aware routing and admission control strategies that target these characteristics directly, improving performance for serving agentic-shaped workloads (including RL post-training). The goal is to reuse as much KV cache as possible and avoid thrashing: evicting and re-prefilling for every request because HBM, and eventually DRAM, can&#8217;t hold every agent&#8217;s working set at once.</p>
+<h3>The problem with request-level routing</h3>
+<p>A request-level router, Dynamo&#8217;s stock <code>KvRouter</code> included, solves placement one request at a time: given a prompt, which worker has the most cache overlap. That&#8217;s the right unit for a single turn, but it&#8217;s the wrong unit for an agent, and at high concurrency it misses two things about the agent behind the request:</p>
+<ul>
+<li><strong>Cache-occupancy blowup.</strong> Between turns, an agent&#8217;s cache doesn&#8217;t get freed. It sits in HBM holding blocks while the agent runs a tool call outside the GPU. With N agents concurrently at step k, the aggregate working set is <code>N × context_k</code>, and a request-level router has no notion of that aggregate. It only ever sees one turn&#8217;s context at a time. Once the working set exceeds HBM, and then DRAM, the engine starts evicting live sessions&#8217; cache, and every next turn pays a full re-prefill instead of a cache hit.</li>
+<li><strong>No tool-boundary backpressure.</strong> When a worker is over capacity, a request-level router&#8217;s only levers are to cancel or queue in-flight requests. Both are worse than the alternative: deferring the session at the pause point right before its next turn arrives, when it&#8217;s about to be idle anyway.</li>
+</ul>
+<h3>Session Aware admission control</h3>
+<p>Our first agent-aware routing strategy ports the scheduler from the ThunderAgent paper (Kang et al., 2026) on top of Dynamo&#8217;s KV-aware router. Written in Rust, it owns a <code>KvRouter</code> directly rather than sitting in front of one as an extra proxy hop, and it tracks real <code>prompt_tokens + completion_tokens</code> off each response instead of estimating token counts from raw bytes. Because this is written as a native Dynamo plugin, you can take its <a href="https://github.com/ai-dynamo/dynamo/tree/main/lib/router-plugins/builtin/src/thunderagent">source code</a> and adapt it to your workload shape without changing Dynamo’s underlying router code.</p>
+<p>The scheduler groups requests by <code>program_id</code> (the session ID) and moves each program through two independent states: <code>(REASONING | ACTING) × (ACTIVE | PAUSED)</code>. A program enters <code>ACTING</code> at a tool boundary. Under memory pressure, the scheduler pauses <code>ACTING</code> programs logically. There&#8217;s no decode preemption; the in-flight turn is allowed to finish, which frees the engine to evict their KV blocks. If a worker has no ACTING programs left to pause, it instead marks the smallest REASONING program for pause at its next tool boundary. When a worker has headroom again, the scheduler resumes the smallest-token paused programs first, bin-packing them back under threshold.</p>
+<h3>The control loop</h3>
+<p>Pause and resume are both driven off one quantity per worker: utilization, the fraction of a worker&#8217;s KV pool occupied by its assigned programs&#8217; working sets:</p>
+<pre><code class="language-plaintext">U_worker = (sum of token weights for ACTING programs on worker) / (worker's KV pool capacity)
+</code></pre>
+<p>Three thresholds (defaults shown) turn that number into a control loop:</p>
+<ul>
+<li><strong>U ≥ 0.95 (pause-threshold):</strong> the worker is over-subscribed. The tick pauses the smallest ACTING programs first until U falls back to 0.80 (pause-target).</li>
+<li><strong>0.80 ≤ U &lt; 0.95 (soft-demote band):</strong> programs aren&#8217;t paused yet, but take a -2.0 priority penalty as early backpressure before a hard pause is needed.</li>
+<li><strong>Resume only fires once U ≤ 0.85:</strong> that&#8217;s pause-threshold minus a 0.10 resume-hysteresis, a buffer below the pause line that keeps the loop from flapping between pausing and resuming right at the threshold.</li>
+</ul>
+<p>Resume itself is a bin-packing pass: paused programs are sorted by token count ascending, and the scheduler admits them smallest-first until the next one would push utilization back over threshold, accounting for a fixed per-program buffer. Resumed requests get a one-second priority boost so they don&#8217;t get stuck behind fresh admissions, and a 30-minute forced-resume cap guarantees no program starves indefinitely.</p>
+<h3>Results</h3>
+<p>At moderate to high concurrency, we see a large increase in throughput. the difference shows up directly in throughput. On SWE-bench, running two TP4 MiniMax-M2 replicas on a single 8xH100 node, program-aware scheduling improved throughput roughly 12-16% over KV-routing alone, with the gap coming from the re-prefill work that request-level routing can&#8217;t avoid.</p>
+<p>The same strategy shows a similarly large boost on agentic RL rollouts. Running Uni-Agent SWE-Bench on 8xH20-3e with Qwen3-Coder-30B-A3B-Instruct against VERL&#8217;s default Global LB, our strategy stayed roughly even at low concurrency (CC32-128), where nothing needed to pause. At medium concurrency (CC192-256) it pulled ahead, with 11.0-14.6% higher model-token throughput than Global LB, and at high concurrency (CC384-512) Global LB throughput dropped sharply while our strategy kept scaling. Across the full sweep it held prefix-cache hit rate above 94.5%.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 3 (image3) - download from the Doc and upload via WP media library --></p>
+<p><em><img decoding="async" class="alignnone wp-image-172897 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Concurrency-Regime-Chart.png" alt="" width="1440" height="810" srcset="https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Concurrency-Regime-Chart.png 1440w, https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Concurrency-Regime-Chart-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Concurrency-Regime-Chart-1024x576.png 1024w" sizes="(max-width: 1440px) 100vw, 1440px" /></em></p>
+<p><em>Figure 3: Compares model-token throughput across agent admission concurrency levels for VERL Global LB, Dynamo Python TA, and Dynamo’s native session-aware scheduler. At high concurrency, the native scheduler maintains the highest throughput of the three, while Global LB throughput drops sharply.</em></p>
+<h3>Shared KV cache awareness in the router</h3>
+<p>KV cache placement gets harder once our working set outgrows HBM. The cache doesn&#8217;t disappear, it moves into CPU memory and then into shared stores like Mooncake or NIXL backed storage. So far the Dynamo router was only aware of GPU and native framework CPU offloaded memory. When KV moved into an external store, Dynamo was unable to factor it into the cost function itself. To solve this, we worked with the Mooncake team to enable KV event emission natively from the Mooncake Store and implemented a new experimental shared-pool indexer that works in conjunction with Dynamo’s blazing fast FlashIndexer. When KV is moved from HiCache (SGLang’s native CPU offloading mechanism) into Mooncake, a removal event is emitted from SGLang, and a store event is emitted from Mooncake. A page only counts as a hit when every physical object for the worker&#8217;s parallelism layout is present, and credit applies beyond its device-local prefix.</p>
+<p>At request time, Dynamo hashes the prompt into SGLang KV pages and expands each logical page into the physical Mooncake objects implied by the worker’s TP/PP layout, K/V tensors, and optional backend tag. Mooncake publishes ordered <code>Store</code> and <code>Remove</code> events and Dynamo consumes them into a global shared-pool index, conservatively treating a page as reusable only when every required physical object is present. The index returns shared hits as contiguous page ranges rather than probing Mooncake on the routing hot path. FlashIndexer independently computes each candidate worker’s native device, CPU, and disk prefix overlap. For a worker with device-resident prefix depth <code>D</code>, the router credits only shared hits at positions <code>&gt;= D</code>: <code>shared_beyond_device = |shared_hit_ranges ∩ [D, request_pages)|</code>. That prevents a GPU-local hit from being counted twice, while allowing a worker with a shorter local prefix to receive credit for the suffix already available in Mooncake. The final placement score combines weighted native-tier overlap, configurable shared-pool credit, and live worker load.</p>
+<h2>Towards Programmatic KV Cache</h2>
+<p>Ultimately, performant inference on agentic workloads requires session-aware KV block management. To predict the priority value of a given KV cache block in such workloads, we need complementary information from the router and the engine. The router is aware of session lifecycle and reuse patterns across workers; the engine is individually aware of the KV cache status it holds. Hence, for engines (vLLM, SGLang) to execute a maximally informed cache policy, (1) Dynamo should express policy intent, and (2) the engine should resolve that intent against exact cache state and execute it.</p>
+<p>This is the central idea of <strong>programmatic KV cache</strong>. Essentially, the Dynamo router provides the “brain” that calculates smart, session/load/cache-aware KV movement policies, while the engine “executes” the movements that Dynamo mandates. As such, we have been developing features for both Dynamo and vLLM/SGLang: the machinery for Dynamo to calculate+emit KV policies, and the first-class abstractions in the engines required to lower Dynamo’s session-based policies into concrete, in-engine KV movements.</p>
+<h2>Router-Driven KV Hints Policy</h2>
+<p>Dynamo’s programmatic KV cache movements are driven by a <strong>narrow, router-initiated hint surface (”KvHint”)</strong> which enables Dynamo to pass KV cache intent to vLLM/SGLang. This avoids invasive changes to the engine’s native scheduler and cache manager. (<a href="https://github.com/sgl-project/sglang/issues/27574">SGLang design</a>, <a href="https://github.com/vllm-project/vllm/issues/51428">vLLM design</a>).</p>
+<p>The orchestrator holds what a request-local policy cannot see. Which sessions are still live, which token ranges are a shared prefix versus a unique tail, whether a tool-call gap will last milliseconds or minutes, when a subagent opens and closes. That knowledge belongs in the router layer, where the harness contract and the session lifecycle already live, and it should stay there. The engine&#8217;s job is to expose the mechanism and let the router supply the intent.</p>
+<p>The proposal is a narrow set of soft hints the router can emit to the engine. Here is a partial taxonomy of potential KvHints and their functions:</p>
+<table>
+<thead>
+<tr>
+<th>KvHint name</th>
+<th>Functionality</th>
+<th>Example use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Share</td>
+<td>Moves a cached prefix from one worker to another via p2p transfer</td>
+<td>A new engine worker warms its cache from the existing workers’ cache.</td>
+</tr>
+<tr>
+<td>Prefetch</td>
+<td>Fetches KV from a higher tier (e.g. DRAM) to lower tier, ahead of need</td>
+<td>Reloading a main agent’s context into HBM as a subagent approaches completion.</td>
+</tr>
+<tr>
+<td>Demote</td>
+<td>Pushes KV from a lower tier to a higher tier.</td>
+<td>Long tool call, or paused trajectory.</td>
+</tr>
+<tr>
+<td>Pin</td>
+<td>Pins a high-value KV cache onto its current tier for a bounded TTL</td>
+<td>Pinning a system cache shared by all requests.</td>
+</tr>
+<tr>
+<td>Retain</td>
+<td>Biases KV blocks to be more (or less) likely to be retained under cache pressure.</td>
+<td>Retaining a subagent’s KV blocks during a tool call.</td>
+</tr>
+</tbody>
+</table>
+<p>Each hint carries the session ID with it, so the tier receiving the KV knows which session it belongs to and can group, place, and reclaim it as a unit rather than as anonymous blocks. That matters most in the colder tiers, where a storage backend holding host memory or disk otherwise sees only opaque hashes and has no way to tell a live trajectory&#8217;s prefix from a finished one. The engine can clip, defer, or ignore any hint, and workloads that send no hints behave exactly as they do today.</p>
+<p>Share already has a working implementation layered into HiCache with minimal scheduler hooks, and Prefetch and Demote are designed to build on that machinery once Share lands.</p>
+<h2>Enabling KV Hint Policy Computations with Session-Prefix Indexer</h2>
+<p>For Dynamo to compose and execute these KvHint policies on the session level, it must own a continuously updated structure which bidirectionally maps between KV blocks, their session identities, and their in-session positional lineage. For this, we implemented the Session-Prefix Indexer, a radix tree structure for which each branch represents a unique session (or subagent session which branched from another).</p>
+<p>The Session-Prefix Indexer is continuously hydrated from both inference engine KV events (Stored / Removed) and the prefix cache hits from Dynamo router’s main indexer (“FlashIndexer”). Consequently, through the FlashIndexer and Session-Prefix Indexer, the Dynamo router has a cumulative view of (1) inference engine workers’ block ownership as well as (2) those same blocks’ session membership. This information-rich view can be consumed by various KV hint policies that require signals on KV blocks’ worker location, active session lifecycles, and/or engine workloads.</p>
+<p>With these indexers, we are actively experimenting with KvHint policies with Dynamo vLLM/SGLang on agentic workload datasets.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 4 (image4) - download from the Doc and upload via WP media library --></p>
+<p><em><img decoding="async" class="alignnone wp-image-172896 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Router-with-Session-Prefix-.png" alt="" width="1440" height="810" srcset="https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Router-with-Session-Prefix-.png 1440w, https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Router-with-Session-Prefix--300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/10/Dynamo-Router-with-Session-Prefix--1024x576.png 1024w" sizes="(max-width: 1440px) 100vw, 1440px" /></em></p>
+<p><em>Figure 4: The Session-Prefix Indexer tracks shared prefixes, session lineage, and KV block locations within the Dynamo router. KV events from inference workers update this view, supporting routing decisions and policies that send optional KV hints to vLLM or SGLang.</em></p>
+<h2>Looking forward</h2>
+<p>Efficient agentic inference depends on managing context across the full session lifecycle. Dynamo’s session ID connects harness behavior to routing, admission control, and cache management, giving the serving stack a shared view of an agent’s evolving working set.</p>
+<p>Session-linked traces and replay make policies measurable, while session-aware admission control reduces cache thrashing by applying backpressure at tool boundaries. In the SWE-bench configuration tested here, program-aware scheduling improved throughput by roughly 12–16% over KV-aware routing alone. The experimental shared-pool indexer extends routing visibility to external KV stores.</p>
+<p>The Session-Prefix Indexer and proposed KvHint interface build toward proactive cache movement: Dynamo supplies policy intent, and engines retain control over execution. The key takeaway is that cache reuse and session concurrency must be optimized together. Keeping useful context available across turns and avoiding repeated prefill as concurrency grows are central to serving more agent sessions efficiently.</p>
+<p>The post <a href="https://pytorch.org/blog/session-aware-agentic-inference-with-nvidia-dynamo/">Session-Aware Agentic Inference with NVIDIA Dynamo</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Building Spyre as a Native PyTorch Device</title>
+		<link>https://pytorch.org/blog/building-spyre-as-a-native-pytorch-device/</link>
+		
+		<dc:creator><![CDATA[Joshua Rosenkranz, Tuan Hoang Trong, Thomas Gooding, Matthew Pisano, and the IBM Spyre Team]]></dc:creator>
+		<pubDate>Thu, 08 Oct 2026 12:45:49 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=172567</guid>
+
+					<description><![CDATA[<p>TL;DR Spyre becomes a native PyTorch device by connecting PyTorch&#8217;s existing device, allocator, stream, and compiler abstractions through torch-spyre to the Spyre runtime and firmware. PrivateUse1 gives Spyre a real...</p>
+<p>The post <a href="https://pytorch.org/blog/building-spyre-as-a-native-pytorch-device/">Building Spyre as a Native PyTorch Device</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h3><strong>TL;DR</strong></h3>
+<p>Spyre becomes a native PyTorch device by connecting PyTorch&#8217;s existing device, allocator, stream, and compiler abstractions through <a href="https://github.com/torch-spyre/torch-spyre"><code>torch-spyre</code></a> to the Spyre runtime and firmware. <a href="https://docs.pytorch.org/tutorials/advanced/privateuseone.html">PrivateUse1</a> gives Spyre a real device identity, PyTorch allocator storage keeps tensors resident on <code>device="spyre"</code>, streams provide familiar ordering semantics, and runtime events connect dependent work across streams. FX graphs stay in the Inductor compiler path. This post focuses on the PyTorch-to-Spyre device/runtime integration: how device identity, allocator-backed storage, streams, events, and compiled-program launch map onto Spyre&#8217;s runtime constraints. Once a compiled artifact exists, launch is a prepared recipe of typed operations over ordered queues rather than a graph-based runtime interface. The result is one path for eager and compiled execution, lower launch overhead, and a PyTorch surface that maps cleanly onto Spyre&#8217;s hardware.</p>
+<p>Spyre is IBM&#8217;s dataflow AI accelerator, optimized for inference. It is designed for enterprise teams running AI alongside their applications and data on IBM Z, LinuxONE, and Power systems. Its reduced-precision compute is well suited to the matrix-heavy work in language generation and embedding models.</p>
+<p>For developers, the challenge is using that hardware through familiar PyTorch code while keeping up with new models and inference techniques. Efficient execution needs more than a compiler: tensors must be able to stay on the device between operations, launches need to be lightweight, and host work and data transfers should overlap computation wherever dependencies allow. This post explains how IBM&#8217;s <code>torch-spyre</code> team builds on the PyTorch community&#8217;s interfaces to support those workflows on a dataflow accelerator.</p>
+<h2>The dataflow constraints behind the PyTorch surface</h2>
+<p>The card has 32 cores connected by a high-bandwidth ring. Each core has 2 MB of local scratchpad and arrays of processing elements. Up to 128 GB of LPDDR5 provides storage for tensors and programs.</p>
+<p>Those two levels of memory have different owners. The runtime stack allocates and manages LPDDR5. Before a program runs, the compiler has already emitted the loads and stores that move tiles between LPDDR5 and each core&#8217;s scratchpad. Data moves across that path in 128-byte sticks, so layout and alignment affect how efficiently it can be fetched. The runtime does not allocate or schedule the scratchpad directly.</p>
+<p>A native PyTorch device still has to honor the execution model of the hardware underneath it. For Spyre, that means mapping PyTorch&#8217;s device, allocator, stream, event, and launch abstractions onto a runtime built around compiled programs, ordered queues, explicit data movement, and fixed layout contracts. Four constraints drive the design.</p>
+<p><strong>Computation is triggered by data, not by a single kernel instruction stream.</strong> A GPU kernel is typically organized around scheduled groups of threads executing the kernel&#8217;s instruction sequence. A compiled Spyre kernel is arranged differently: it contains programs for multiple functional units &#8211; such as processing elements, special-function pipelines, and load/store units &#8211; and each unit runs the program compiled for that unit. Hardware queues and local memories connect those units, so progress is driven by operands becoming available at the consuming unit. The Spyre compiler builds that device-side producer/consumer schedule; the runtime submits the compiled kernel as a complete device-compute operation with its tensor arguments.</p>
+<p><strong>Runtime overlap comes from separate pipelines, not concurrent compute launches.</strong> Spyre has a compute pipeline and data-movement pipelines, so a transfer can run while a compiled program is computing. Those pipelines are not interchangeable: a compiled program can use many cores in parallel, but independently submitted compute operations share one runtime compute queue and wait behind each other. Runtime-level overlap therefore comes from moving data while computing, not from launching two compute operations at once.</p>
+<p><strong>Ordered queues preserve per-stream completion order.</strong> Work arrives as a sequence of typed operations &#8211; move this in, run this, move that out &#8211; and each stream completes those operations in order. To use the separate hardware pipelines without weakening that guarantee, the runtime assigns independent transfer and compute work to different streams and connects them with an event where one consumes the other&#8217;s result. Putting all work on one stream preserves correctness but serializes those pipelines.</p>
+<p><strong>Programs are compiled ahead of time against a fixed layout.</strong> The compiler fixes how values compose into the device&#8217;s native <a href="https://github.com/torch-spyre/RFCs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md">fixed-size chunks</a> and what order dimensions appear in, and it can fix addresses for memory belonging to the job itself &#8211; intermediates and compiler-owned temporary buffers. What it cannot fix is anything whose address the <em>caller</em> owns: tensor inputs and outputs stay symbolic because the allocator has not placed them yet. The runtime must supply those addresses at launch.</p>
+<p>In the implementation described here, PyTorch does not talk to the card directly. <code>torch-spyre</code> provides the PyTorch device integration, while the Spyre runtime and firmware manage device work and communication. That layering is why the rest of this post separates PyTorch concepts such as tensors, streams, and events from lower-level concerns such as device regions, DMA-visible host staging buffers, and explicit work submission.</p>
+<h2>The PyTorch abstractions that Spyre maps onto</h2>
+<p>PyTorch already has concepts that map onto those constraints.</p>
+<p><strong>A device identity.</strong> <a href="https://docs.pytorch.org/tutorials/advanced/privateuseone.html">PrivateUse1</a> registration starts with two calls:</p>
+<pre><code class="language-python">torch.utils.rename_privateuse1_backend("spyre")
+torch._register_device_module("spyre", make_spyre_module())</code></pre>
+<p>Those calls give PrivateUse1 the name <code>spyre</code> and register its device module. With the allocator, copy kernels, and dispatcher registrations behind that identity, <code>tensor.to("spyre")</code> works and the dispatcher routes Spyre tensors to Spyre kernels.</p>
+<p><strong>Device-management APIs.</strong> Backend-specific controls live under <code>torch.spyre</code>, while <a href="https://docs.pytorch.org/docs/main/accelerator/index.html"><code>torch.accelerator</code></a> gives portable code a common interface for availability, device selection, streams, synchronization, and memory reporting. Tensor allocation and kernel launch still flow through tensors, the dispatcher, the device allocator, and the backend runtime.</p>
+<p><strong>A stream abstraction.</strong> Implementing the <a href="https://github.com/pytorch/pytorch/tree/main/test/cpp_extensions/open_registration_extension/torch_openreg/csrc/runtime">device-guard hooks</a> the framework asks for is what makes native <code>torch.Stream(device="spyre")</code> and <code>torch.stream(...)</code> work on your device. The framework-native surface works because those hooks are there, not because the backend reimplemented PyTorch&#8217;s stream API.</p>
+<p><strong>A device allocator interface.</strong> Its core contract hands back device storage and a way to release it. Additional hooks connect the backend to PyTorch&#8217;s memory statistics, cache controls, and stream association.</p>
+<p><strong>Reference-counted tensor storage.</strong> Tensor lifetime becomes the framework&#8217;s problem: when the last reference to a Spyre tensor goes away, PyTorch calls back into the backend allocator to release or recycle the device allocation.</p>
+<p><strong>A compiler path through Inductor.</strong> <code>torch.compile(backend="inductor")</code> keeps FX graphs in PyTorch&#8217;s compiler pipeline. The same lowering, cache, and launch path can serve compiled models and registered eager operations.</p>
+<p><strong>An event model.</strong> PyTorch defines events as a way to express ordering between streams. Spyre uses the same model internally through runtime events and derived dependency edges.</p>
+<p>Laid side by side, the correspondence is close:</p>
+<table>
+<thead>
+<tr>
+<th>Runtime/Hardware needs</th>
+<th>PyTorch abstraction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ordered queue of typed operations</td>
+<td>Stream</td>
+</tr>
+<tr>
+<td>Transfer pipelines, distinct from compute</td>
+<td>Multiple streams</td>
+</tr>
+<tr>
+<td>Cross-pipeline ordering</td>
+<td>Events, or edges the runtime derives</td>
+</tr>
+<tr>
+<td>Region-budgeted device memory</td>
+<td>Device allocator</td>
+</tr>
+<tr>
+<td>Device-resident values</td>
+<td>Tensor storage and its lifetime</td>
+</tr>
+<tr>
+<td>Ahead-of-time compiled program</td>
+<td>Compiled artifact behind <code>torch.compile</code></td>
+</tr>
+<tr>
+<td>Runtime-managed host work</td>
+<td>Ordered host operations associated with a stream</td>
+</tr>
+</tbody>
+</table>
+<p>The rest of this post walks through the four mappings that take real design work.</p>
+<h2>Mapping 1 &#8211; execution pipelines to streams</h2>
+<p>The runtime needs somewhere to put work that is ordered, asynchronous, and per-device. In PyTorch, that abstraction is a stream. For Spyre, the useful mapping is not that the hardware behaves exactly like a PyTorch stream; it is that stream-ordered work can be lowered into typed runtime operations while the runtime preserves the dependencies those operations require. What takes judgment is deciding what sits on either side of that boundary.</p>
+<p>Program-specific work stays above the stream boundary. On Spyre, the framework-facing layer turns the compiled artifact into a prepared launch plan: a recipe that records the host work, data movement, device compute, and synchronization needed to run that artifact. That layer can carry tensor layout and symbolic argument metadata and bind launch-time values for the actual tensors passed by PyTorch. Once work is submitted through a stream, the lower runtime sees typed operations with explicit operands and dependencies, not a program description to reinterpret.</p>
+<p>The lower layer cannot misinterpret a program description because it never receives one. A different submission mechanism can also sit underneath without changing the framework-facing code.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 1 - "Where to put the boundary" (upload via WP media library) --></p>
+<p><em><img decoding="async" class="alignnone size-full wp-image-172576" src="https://pytorch.org/wp-content/uploads/2026/10/fig1-where-the-boundary-goes-2.svg" alt="" /></em></p>
+<p><em>Figure 1: Where to put the boundary</em></p>
+<p><strong><em>Keep the program knowledge above the queue.</em></strong> <em>Everything that understands what a compiled program is belongs in the framework-facing layer. The runtime-facing layer accepts typed operations with explicit operands and dependencies for host work, device compute, data movement, synchronization, and other runtime tasks.</em></p>
+<p>Preparation and launch also happen at different times. Translating a compiled artifact into submittable operations is per-artifact work, not per-launch work:</p>
+<pre><code class="language-python"># once, when the compiled artifact is first seen
+job_plan = prepare_kernel(spyrecode_dir)
+
+# per invocation
+launch_jobplan(job_plan, args)</code></pre>
+<p>Preparation parses the artifact, allocates and transfers the program binary, and translates the execution plan into an ordered list of typed steps. Launch walks those steps and enqueues operations. Anything that can be resolved when the artifact is first seen should be resolved there, so the launch path is only operation construction and enqueue.</p>
+<h3>Why not another graph at runtime?</h3>
+<p>The earlier integration already started with a PyTorch FX graph through a custom backend implementation. FX was not the problem; graphs belong at the compiler boundary. The mismatch came after that handoff, when launches, copies, and tensor arguments were translated into a second backend-specific runtime graph.</p>
+<p>Running one already-compiled program meant reading and deserializing that runtime graph, adding nodes and edges for its tensor arguments, and loading and parsing the result before issuing device operations. A host-to-device copy similarly built a small graph around data conversion and transfer. That interface was useful when the runtime needed a whole graph, but it added graph-processing work to operations that were already fully determined by launch time.</p>
+<p>Copying the entire compiled graph into our own abstractions also caused a break in communication between the core runtime and PyTorch. PyTorch had no visibility as to whether tensors were resident to the device or to the host. As a consequence, PyTorch believed every tensor was a CPU tensor, even if the core runtime had really moved it to the device.</p>
+<p>The new boundary keeps FX graphs in Inductor and prepares the compiled artifact once. After that, the runtime needs an ordered recipe of typed operations, not another model graph to reconstruct or traverse on every invocation.</p>
+<h2>Mapping 2 &#8211; device memory to the allocator</h2>
+<p>A PyTorch-native device cannot treat every operation as &#8220;copy inputs to the accelerator, run, and copy outputs back.&#8221; A tensor on <code>device="spyre"</code> needs real device storage whose lifetime PyTorch owns through its allocator and storage contracts. The earlier custom <code>torch.compile</code> backend could keep specific model state such as weights and KV-cache entries resident through bespoke runtime paths, but that was not the same as PyTorch-native tensor residency. An ordinary PyTorch value was not simply a <code>device="spyre"</code> tensor whose storage PyTorch managed and whose allocation could be reused by the next operation. That is especially costly for eager execution, where each small operation would otherwise create another transfer boundary.</p>
+<p>Spyre adds a hardware constraint to that basic allocator contract. Framework allocators commonly present device memory as a flat pool addressed by pointers. Underneath that interface, Spyre manages memory in regions &#8211; each a contiguous chunk of device memory identified by a handle. A region can contain allocations for many tensors. Because the handle budget is limited, especially when a card is shared between tenants, the allocator must fit many tensors into a small number of regions.</p>
+<p>Spyre supports PF mode, where a card is dedicated to one tenant, and VF mode, where several tenants share it. VF mode has the tighter handle budget. The allocator acquires a small number of large regions and sub-allocates aligned blocks within them, allowing many live tensors to share a handful of handles.</p>
+<p>Every allocation uses the same kind of description in either mode: one or more region-and-offset pieces. Only the interpretation of the region identifier changes, so the layers above the allocator do not branch on the deployment mode. The allocator returns that description and a way to free it; PyTorch&#8217;s reference counting keeps the tensor on the device while it is live.</p>
+<p>The fuller allocator interface adds PyTorch&#8217;s standard memory-management API, including usage statistics, cache controls, and stream association. It is useful, but it is not what makes tensors resident.</p>
+<p>An allocation here is described by more than an address: the basic addressable piece is a region identifier, an offset within that region, and a length. A tensor interleaved across memory domains is several such pieces, not one flat pointer, and PyTorch has room for that: an allocation can carry an opaque context alongside its pointer, so the description rides there and reference counting still does the cleanup.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 2 - "What a device allocation really is" (upload via WP media library) --></p>
+<p><em><img decoding="async" class="alignnone size-full wp-image-172575" src="https://pytorch.org/wp-content/uploads/2026/10/fig2-what-an-allocation-is-2.svg" alt="" />Figure 2: What a device allocation really is</em></p>
+<p><strong><em>An allocation is a description, not just an address.</em></strong> <em>A tensor bound to one memory domain is a single region-and-offset piece; a tensor interleaved across domains is several. PyTorch carries that description in an opaque context, and its reference counting tells the backend allocator when the storage can be released.</em></p>
+<p>The same representation can cover hardware with non-uniform memory. On such a device, memory is divided into domains and a core reaches some domains more efficiently than others. A tensor can be bound near the cores that use it or interleaved across domains to use their combined bandwidth. This is locality within one device, not multi-card distribution.</p>
+<p>Placement must be explicit and binding because compiled code may depend on it. Every layer that carries an allocation therefore also needs to carry whether the allocation is bound to one domain or spread across several.</p>
+<p>Residency also makes layout an explicit contract. Model adapters place weights and KV caches in layouts compiled kernels expect, while compiler passes insert legal layout conversions for intermediate tensors. The work did not disappear; it moved from a hidden runtime graph into model preparation, allocation metadata, and the compiler.</p>
+<p>Device placement and offload are separate concerns. Placement determines where a tensor lives within the accelerator. Offload moves state that is not immediately needed, such as KV-cache pages, to a secondary storage tier and restores it before use. That tier may be host memory or, at the serving-system level, SSD or network-attached storage. The runtime interface should describe the transfer without exposing the physical medium behind that tier.</p>
+<h2>Mapping 3 &#8211; ahead-of-time programs to launch-time work</h2>
+<p>Every ahead-of-time accelerator has to solve this somewhere. The compiler knows the structure of the computation but not where the caller&#8217;s data will be, and the two have to be reconciled before the program runs. Spyre has used three approaches as the runtime has evolved. The runtime now uses the third approach, runtime patching, exclusively.</p>
+<p><strong>The earlier graph-mediated path let the compiled job own the addresses.</strong> Inputs were copied into device buffers owned by the job, and results were copied back out. Those buffers could keep concrete addresses across launches because their lifetime and placement belonged to the job. This still suits memory the job owns outright, such as intermediates and compiler-owned temporary buffers, but it does not generalize to resident tensors whose storage is chosen by PyTorch&#8217;s allocator.</p>
+<p><strong>An interim runtime pointed the program&#8217;s address windows at tensors.</strong> The device translation, or xlat, table exposes a small set of address windows, so the runtime bound each window to one allocator-placed tensor. Nothing was patched and the tensors did not need to be copied into compiler-owned locations. The limit was input arity rather than allocation: with one tensor per window and only a handful of windows, large fused kernels could not accept all of their tensors.</p>
+<p><strong>The current runtime patches the program at launch.</strong> Addresses remain symbolic until the allocator has placed the tensors. This avoids both repeated input and output copies and the window-count ceiling, making it the generic path for allocator-placed tensors. On Spyre the compiler emits an artifact whose layout is fixed but whose tensor start addresses may be <strong>symbolic</strong>; the binary carries placeholder variables where addresses will go. Substituting real values is three ordinary steps in the same plan as everything else:</p>
+<ol>
+<li><strong>A host callback</strong> runs on the CPU and writes the resolved addresses into a pinned host buffer.</li>
+<li><strong>A transfer</strong> copies that buffer into the program&#8217;s own allocation, at an offset the compiler specified.</li>
+<li><strong>The computation</strong> runs, reads those values, and patches its operands.</li>
+</ol>
+<p>On one stream, completion ordering is enough to keep the three steps from racing. In the initial two-stream design described next, the host callback and transfer remain ordered on one preparation stream. The compute operation runs on the device stream and waits for an event recorded after the transfer completes. This preserves the same ordering while allowing preparation to overlap with an earlier compute operation.</p>
+<p>Queue ordering controls when operations are issued. It does not control hardware that runs ahead of them. Spyre&#8217;s program distribution does exactly that: the unit feeding instruction buffers fetches eagerly rather than waiting for the current program to finish, so it can pull the program that is about to be patched into a buffer <em>before</em> the patch reaches memory, and then run stale bytes. The remedy is a barrier one level down, in program distribution, holding the fetch until the patch has landed. The queue orders submission; the lower-level barrier prevents the read-before-write race.</p>
+<p><!-- IMAGE PLACEHOLDER: Figure 3 - "Launch-time patching as three ordered steps" (upload via WP media library) --></p>
+<p><em><img decoding="async" class="alignnone size-full wp-image-172577" src="https://pytorch.org/wp-content/uploads/2026/10/fig3-launch-time-patching-1.svg" alt="" />Figure 3: Launch-time patching as three ordered steps</em></p>
+<p><strong><em>Launch-time patching is three ordinary steps and two guarantees.</em></strong> <em>A host callback writes resolved addresses into a pinned buffer, a transfer moves them into the program&#8217;s allocation at a compiler-specified offset, and the device reads them and patches its operands. The preparation stream orders the host callback and transfer, and the device stream waits for the transfer before computing. A barrier in program distribution also keeps the fetch engine from reading the program before the patch lands.</em></p>
+<p>The initial two-stream design can reuse one <strong>pinned host staging buffer</strong> because every write to that buffer and every transfer from it stays on the same preparation stream. Completion ordering prevents the next host callback from overwriting the host buffer until the previous transfer has consumed it. This guarantee does not extend automatically to multiple preparation streams or deeper host run-ahead. Those cases need a separate host buffer for each concurrent transfer or a completion-gated pool that prevents reuse until the transfer finishes.</p>
+<p>The device correction area is separate. The transfer writes it and compute reads it, so an event orders those operations across streams. If the next launch reuses that same device area, its transfer must also wait until the previous compute has finished reading it. Host preparation can still overlap that compute; a transfer overlaps compute only when its destination is independent of the memory that computation is using.</p>
+<p>Launch-time patching is the current general solution. Its host preparation can overlap device compute using the multiple streams described next, and transfers can overlap when they target independent device storage. Compiler-owned addresses and address-window binding may still fit specialized cases, but the runtime does not choose among all three for ordinary tensor inputs.</p>
+<p>Future support would allow the runtime to supply the actual sizes of variable tensor dimensions through the same launch-time correction mechanism used for addresses. When compiled with those dimensions left symbolic, one artifact could serve multiple input sizes within its supported bounds and layout constraints, without recompiling for each size.</p>
+<h2>Mapping 4 &#8211; independent pipelines to concurrent streams</h2>
+<p>Transfer and compute use separate hardware pipelines, but a single stream can still leave one waiting on the other. In the single-stream sequence, the host prepares correction data, the transfer moves it to the device, and compute consumes it before the next iteration begins. This is correct, but it also leaves the host and transfer pipeline waiting while the device computes.</p>
+<p>Within an iteration, the host callback must finish before the transfer reads the correction buffer, and the transfer must finish before compute uses the corrected program. That prevents the transfer from reading an incomplete buffer and compute from reading an unpatched program. Across iterations, preparation for iteration N+1 can begin while iteration N computes because its addresses are already known at launch.</p>
+<p>The runtime keeps the required ordering and moves independent work onto another stream. The preparation stream can produce correction data for iteration N+1 while the device stream computes iteration N. An event joins the streams at the actual dependency: compute N+1 waits for its transfer, but unrelated host preparation does not wait for compute N. A transfer can also overlap compute when it targets independent device storage. Reusing the same device correction area adds a reverse dependency, so that particular transfer waits for the earlier computation to finish reading it.</p>
+<p>Events connect the queues using a primitive a PyTorch reader already knows: a marker one stream records and another waits on. The preparation stream signals that a transfer is complete; the device stream waits for that signal before computing. Ordering stays total where it matters, expressed between queues rather than within one.</p>
+<p>At the runtime layer, event and synchronization operations map closely to CUDA:</p>
+<table>
+<thead>
+<tr>
+<th>CUDA</th>
+<th>Here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cudaEventRecord(event, stream)</code></td>
+<td>enqueue an event-signal operation; the signal fires only once everything already queued on that stream has completed</td>
+</tr>
+<tr>
+<td><code>cudaStreamWaitEvent(stream, event)</code></td>
+<td>enqueue an event-wait operation; the queue stops at that wait until the event is signalled, and fails outright if the producing queue died first</td>
+</tr>
+<tr>
+<td><code>cudaStreamSynchronize()</code></td>
+<td>synchronize the queue: block until it drains, re-raising the first error recorded on it</td>
+</tr>
+</tbody>
+</table>
+<p>In CUDA the caller records and waits explicitly. Here the runtime can derive an edge for operations whose device-memory read and write footprints are available. The framework layer routes preparation and device work to the appropriate queues; the runtime inserts signal and wait operations when those device ranges conflict. Program and tensor allocations participate in that model. Host staging-buffer reuse is a separate lifetime rule, protected by same-stream completion ordering or a completion-gated pool. The lower runtime supports explicit signal and wait operations for dependencies it cannot infer from device-memory footprints. These operations are currently internal; user-callable event recording and waiting through PyTorch are planned but not yet implemented. For now, users can wait for completion with <code>stream.synchronize()</code> or <code>torch.accelerator.synchronize()</code>, which block the host thread.</p>
+<p>The initial arrangement uses two queues in a producer/consumer relationship: a preparation queue carrying host work and its transfers, a device queue carrying compute. Nothing about the mechanism stops at two, and nothing forces the split either &#8211; a launch with no host work to do never needs it. The same primitives extend to any number of preparation queues, so host work with no reason to be serial can proceed in parallel; and because transfers and compute are separate pipelines, a transfer targeting independent device storage can be in flight while the current iteration computes. Additional preparation queues must use independent staging buffers or a completion-gated pool so one queue cannot overwrite a buffer another transfer is still reading.</p>
+<p>Host preparation becomes more visible as launch-time work grows and device compute gets faster. Resolving dimensions and addresses on one queue would serialize work that could run concurrently.</p>
+<p>Patching is not the only host work involved. Preparing a tensor in the device&#8217;s expected layout can also run alongside device compute and be connected to its consumer by an event.</p>
+<p>These events are software signals checked by the scheduler. They are single-use, so a fresh event backs each edge. The interface can later use hardware event support without changing the layers above it.</p>
+<h2>What the mapping buys, and what it costs</h2>
+<h3>User experience</h3>
+<p>The surface a user touches is the one they already know. <code>tensor.to("spyre")</code>, <code>torch.compile</code>, and <code>torch.Stream</code> use the same PyTorch concepts as other devices. That does not automatically provide operator coverage, profiling, distributed collectives, CUDA-specific extensions, or model-specific kernel quality; those remain backend work.</p>
+<p>For compile-backed eager operations, eager mode is not a second implementation. Torch-spyre registers a PrivateUse1 kernel around the same decomposition used during compilation. Inside a <code>torch.compile</code> trace, the wrapper calls that decomposition directly so PyTorch can capture it into the surrounding FX graph. Outside a trace, the first eager call compiles and caches the decomposition; later calls reuse the compiled entry point. These operations therefore reuse the same Inductor and launch machinery instead of maintaining a handwritten runtime beside it.</p>
+<p>That choice still exposes first-use compilation; unsupported operations can fail or fall back, and different tensor extents can require another compiled artifact. The benefit is one execution path whose fixes and regressions apply to both modes.</p>
+<p>A compile-backed eager operation is also the smallest possible compiled program: one operation, real tensors, real device memory, and a real launch. If a model fails but the corresponding eager operation passes, the fault is more likely in composition than in the operation. A test for a single operation exercises the whole compile-and-launch stack, so a per-operation suite doubles as an integration suite.</p>
+<p>And because residency is generic rather than hand-written per case, tensors stay on the device without bespoke residency code for each kind of tensor. That is what makes eager mode practical.</p>
+<p>When the device behaves like a normal PyTorch device, a new model implementation is mostly just a model implementation. It can be picked up and run rather than ported, because its operations already dispatch and its tensors already live in the right place. The same holds one level up. Inference techniques that restructure <em>how</em> a model is driven &#8211; speculative decoding, say, where a small draft model proposes tokens a larger one then verifies &#8211; are written against streams, tensor residency and ordinary control flow. If those are the framework&#8217;s own abstractions, the technique can be tried on the device without anything being added to the compiler.</p>
+<p>The compiler makes the arithmetic fast, but much of an inference stack&#8217;s performance comes from how work is scheduled, batched, overlapped and speculated. A backend that maps cleanly onto the framework&#8217;s primitives leaves that space open to people who never touch the compiler.</p>
+<h3>Performance</h3>
+<p>The performance argument is about what leaves the launch path. Submitting typed operations to a queue, rather than constructing a graph to describe them, removes a disk read, a deserialize, a per-argument stitch, and a compile-and-parse from every single launch. A launch becomes building a few operations and enqueueing them.</p>
+<p>On a real model the effect compounds, because those costs were being paid per launch. On <a href="https://huggingface.co/ibm-granite/granite-3.3-8b-instruct">Granite 3.3 8B</a> at batch size 1 and sequence length 1024, taking graph construction off the transfer path alone is worth 9.9% on prefill and 13.6% on decode &#8211; for a change that touches only how bytes move. Taking it off compute dispatch as well brings the totals to 1.7x faster prefill and 2.4x faster decode, with roughly three quarters of the gain coming from the compute path.</p>
+<p>The concurrency described in Mapping 4 is a separate opportunity: every piece of host preparation moved off the compute path reduces device idle time.</p>
+<h3>What PyTorch does not provide by itself</h3>
+<p>PyTorch has a device-event abstraction, but the cross-stream ordering described above has to be enforced where the operations actually sit &#8211; in the runtime scheduler, which is the layer that sees their device-memory footprints. The runtime therefore builds software event primitives and derived dependencies first. Exposing equivalent user-created events through PyTorch&#8217;s public event hooks is separate integration work.</p>
+<h3>What we put back</h3>
+<p>Building on a framework&#8217;s extension points is not a one-way transaction. PyTorch&#8217;s core developers maintain <a href="https://pytorch.org/blog/openreg-a-self-contained-pytorch-accelerator-simulator/"><code>openreg</code></a>, the upstream reference backend and accelerator simulator that shows how an out-of-tree device can register through PrivateUse1 without modifying core PyTorch, with contributions from hardware ecosystem partners. Contributing improvements there is how backend work like <code>torch-spyre</code> shortens the path for the next device team, and participating in the <a href="https://pytorch.org/tac/">PyTorch Technical Advisory Council</a> is how the constraints of devices like this one reach the people designing the next extension point. Our <a href="https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/">integration with PyTorch&#8217;s Cross-Repository CI Relay (CRCR)</a> tests upstream changes against Spyre and reports results to PyTorch&#8217;s CI dashboard, helping catch compatibility regressions as the framework evolves. We also built reusable tools for selecting and adapting upstream tests, which we plan to contribute upstream so other out-of-tree accelerators can benefit. A backend that only consumes an interface leaves the interface no better than it found it.</p>
+<h2>Conclusion</h2>
+<p>The win is that neither Spyre nor PyTorch has to pretend to be something else. Spyre keeps its dataflow execution model, while users get a native PyTorch device with familiar tensor placement, streams, and compilation.</p>
+<p>For Spyre, PyTorch&#8217;s interfaces provide generic tensor residency, one compile-and-launch path for eager and compiled execution, lower launch overhead, and a clear way to overlap host preparation with device work. They also leave less backend-specific machinery to maintain. Dispatch, storage lifetime, and stream management follow framework contracts, making the runtime easier to evolve and less likely to develop inconsistent execution paths.</p>
+<p>For PyTorch, Spyre demonstrates that those extension points can support hardware that is not organized around a conventional GPU execution model. The lessons that flow back through <a href="https://pytorch.org/blog/openreg-a-self-contained-pytorch-accelerator-simulator/"><code>openreg</code></a> and the <a href="https://pytorch.org/tac/">PyTorch Technical Advisory Council</a> make those interfaces more useful to the next accelerator backend as well. The result is a more robust Spyre runtime and a PyTorch ecosystem that can accommodate a broader range of hardware without giving each device a separate framework.</p>
+<p>The post <a href="https://pytorch.org/blog/building-spyre-as-a-native-pytorch-device/">Building Spyre as a Native PyTorch Device</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Modernizing Table Batched Embeddings with FBTriton</title>
 		<link>https://pytorch.org/blog/modernizing-table-batched-embeddings-with-fbtriton/</link>
 		
@@ -36,7 +403,9 @@
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=172614</guid>
 
-					<description><![CDATA[This post explores the FBTriton kernel design for Table Batched Embedding (TBE) forward and backward passes. These core operators handle embedding lookups across thousands of sharded GPUs within recommendation systems....]]></description>
+					<description><![CDATA[<p>This post explores the FBTriton kernel design for Table Batched Embedding (TBE) forward and backward passes. These core operators handle embedding lookups across thousands of sharded GPUs within recommendation systems....</p>
+<p>The post <a href="https://pytorch.org/blog/modernizing-table-batched-embeddings-with-fbtriton/">Modernizing Table Batched Embeddings with FBTriton</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<p><span style="font-weight: 400;">This post explores the FBTriton kernel design for Table Batched Embedding (TBE) forward and backward passes. These core operators handle embedding lookups across thousands of sharded GPUs within recommendation systems. Our Triton implementation successfully outperforms the legacy CUDA kernels on these workloads. Here, we explain the architectural design, detail the measured performance gains, and highlight future optimization opportunities.</span></p>
 <h2><span style="font-weight: 400;">1. What’s TBE</span></h2>
 <p><span style="font-weight: 400;">TBE (Table-Batched Embedding) kernel efficiently performs embedding lookups and pooling across many tables in one GPU operation. TBE combines embedding lookup and pooling for many tables in a single GPU launch, reducing launch overhead and improving memory efficiency. You can read more general info </span><a href="https://medium.com/better-ml/table-manners-batching-embeddings-for-large-scale-recsys-training-4b5a856cb913"><span style="font-weight: 400;">here</span></a></p>
@@ -57,7 +426,7 @@
 <h3><span style="font-weight: 400;">Forward-state reuse and preprocessing</span></h3>
 <p><span style="font-weight: 400;">Exact row-wise Adagrad can save the forward histogram. Backward uses those counts for the compensated FP16 high/low GEMM into FP32, then applies the optimizer. Forward and backward remain separate launches; only the histogram counts are reused.</span></p>
 <p><span style="font-weight: 400;">Another optional core-module path moves index transpose, sort, and run-length encoding into forward and returns the metadata through autograd. It defaults off and is not exposed by the current TorchRec wrapper. On a large B200 configuration, forward moves from 22.844 ms to 33.252 ms, backward from 56.693 ms to 32.931 ms, and combined latency from 79.537 ms to 66.183 ms (−16.8%).</span></p>
-<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-172621 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/1-1.png" alt="" width="1772" height="1058" srcset="https://pytorch.org/wp-content/uploads/2026/10/1-1.png 1772w, https://pytorch.org/wp-content/uploads/2026/10/1-1-300x179.png 300w, https://pytorch.org/wp-content/uploads/2026/10/1-1-1024x611.png 1024w" sizes="(max-width: 1772px) 100vw, 1772px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-172621 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/1-1.png" alt="" width="1772" height="1058" srcset="https://pytorch.org/wp-content/uploads/2026/10/1-1.png 1772w, https://pytorch.org/wp-content/uploads/2026/10/1-1-300x179.png 300w, https://pytorch.org/wp-content/uploads/2026/10/1-1-1024x611.png 1024w" sizes="(max-width: 1772px) 100vw, 1772px" /></p>
 <h2><span style="font-weight: 400;">3. Implementation of Triton TBE Backward Kernel</span></h2>
 <p><span style="font-weight: 400;">The core logic of the TBE backward propagation: for every unique (table, row) pair touched anywhere in the batch, sum the upstream gradient rows from every batch position that touched it, then apply exactly one optimizer update to that row.</span></p>
 <p><span style="font-weight: 400;">Annotations: T is number of tables; E is embedding size (i.e. number of rows); D is embedding dimension (i.e. number of cols); L is pooling factor (i.e. </span><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.EmbeddingBag.html"><span style="font-weight: 400;">embedding bag</span></a><span style="font-weight: 400;"> size); B is batch size (i.e. number of embedding bags per request)</span></p>
@@ -173,6 +542,7 @@ if remaining == 1:
 <li style="font-weight: 400;" aria-level="1"><strong>Pathway to a &#8220;Mega Sparse Kernel&#8221;:</strong> Rewriting CUDA kernels in Triton unlocks massive <code>[forward, backward]</code> and <code>[prologue, epilogue]</code> fusion opportunities. By treating the optimizer as a backward epilogue, FBTriton eliminates extra memory passes. This fusion collapses the entire sparse sequence into one kernel, reducing complex features like FP8 momentum scaling to just a few lines of accumulation.</li>
 </ul>
 <p><span style="font-weight: 400;">Code: </span><a href="https://github.com/meta-pytorch/torchrec/tree/main/torchrec/distributed/triton_tbe"><span style="font-weight: 400;">link</span></a></p>
+<p>The post <a href="https://pytorch.org/blog/modernizing-table-batched-embeddings-with-fbtriton/">Modernizing Table Batched Embeddings with FBTriton</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -187,7 +557,9 @@ if remaining == 1:
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=172290</guid>
 
-					<description><![CDATA[TL;DR If you need to decode or encode media, whether it&#8217;s images, video, or audio, use TorchCodec. If you need to transform media, use TorchVision for images and video, and...]]></description>
+					<description><![CDATA[<p>TL;DR If you need to decode or encode media, whether it&#8217;s images, video, or audio, use TorchCodec. If you need to transform media, use TorchVision for images and video, and...</p>
+<p>The post <a href="https://pytorch.org/blog/evolution-of-the-pytorch-media-processing-landscape/">Evolution of the PyTorch Media Processing Landscape</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<h3>TL;DR</h3>
 <p>If you need to <em>decode or encode</em> media, whether it&#8217;s images, video, or audio, use <a href="https://github.com/pytorch/torchcodec"><strong>TorchCodec</strong></a>. If you need to <em>transform</em> media, use <a href="https://github.com/pytorch/vision"><strong>TorchVision</strong></a> for images and video, and <a href="https://github.com/pytorch/audio"><strong>TorchAudio</strong></a> for audio. Everything else that used to live in these libraries (models, datasets, etc.) is better served today by the wider ecosystem, for example the HuggingFace libraries.</p>
 <p>Images, video and audio are now central to a lot of model development, from vision-language models to diffusion models that generate images and video. Training these models means decoding media into tensors and transforming them, and generative models then need to encode their outputs back into media files. Over the last two years we have consolidated PyTorch&#8217;s media stack across three libraries: <a href="https://github.com/pytorch/torchcodec"><strong>TorchCodec</strong></a>, <a href="https://github.com/pytorch/vision"><strong>TorchVision</strong></a>, and <a href="https://github.com/pytorch/audio"><strong>TorchAudio</strong></a>. This post describes where things landed, and why.</p>
@@ -231,6 +603,7 @@ mel = MelSpectrogram(sample_rate=samples.sample_rate)(samples.data)
 <p>In terms of releases, all three libraries are now <a href="https://docs.pytorch.org/docs/2.14/notes/libtorch_stable_abi.html">ABI stable</a>. This means that a given version of TorchCodec, TorchVision or TorchAudio isn&#8217;t tied to one single version of PyTorch anymore: it keeps working with the PyTorch versions that come after it. They no longer need to be rebuilt for every PyTorch release, so their release cadence no longer matches PyTorch&#8217;s. That&#8217;s expected!</p>
 <p>If you&#8217;re still using the decoding or encoding APIs in TorchVision or TorchAudio, now is a good time to move to TorchCodec: start with our <a href="https://meta-pytorch.org/torchcodec/main/generated_examples/migration/torchvision_migration.html">migration guide</a>, and let us know on <a href="https://github.com/meta-pytorch/torchcodec/issues">GitHub</a> if something you need is missing.</p>
 <p>There is a lot more to say about the media processing libraries, and we&#8217;ll do it in a follow-up post: what&#8217;s new in each library, and how to get the most performance out of a full decoding and transform pipeline. Stay tuned!</p>
+<p>The post <a href="https://pytorch.org/blog/evolution-of-the-pytorch-media-processing-landscape/">Evolution of the PyTorch Media Processing Landscape</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -245,7 +618,9 @@ mel = MelSpectrogram(sample_rate=samples.sample_rate)(samples.data)
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=171617</guid>
 
-					<description><![CDATA[TL;DR The Accelerator Integration Working Group plays a vital role in standardizing how new hardware architectures connect to the open source AI ecosystem. As compute platforms diversify across cloud, edge,...]]></description>
+					<description><![CDATA[<p>TL;DR The Accelerator Integration Working Group plays a vital role in standardizing how new hardware architectures connect to the open source AI ecosystem. As compute platforms diversify across cloud, edge,...</p>
+<p>The post <a href="https://pytorch.org/blog/pytorch-hardware-enablement-updates-from-the-acceleration-integration-working-group/">PyTorch Hardware Enablement: Updates from the Accelerator Integration Working Group</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<h3>TL;DR</h3>
 <p>The Accelerator Integration Working Group plays a vital role in standardizing how new hardware architectures connect to the open source AI ecosystem. As compute platforms diversify across cloud, edge, and specialized silicon, the Accelerator Integration Working Group establishes clear, vendor-neutral integration mechanisms that eliminate custom code patches and reduce ecosystem fragmentation. In this blog, we cover what the group achieved in H1 2026, including key infrastructure improvements, unified testing workflows, and reference backends across the entire PyTorch platform.</p>
 <h2>Introduction</h2>
@@ -338,6 +713,7 @@ For the broader ecosystem, the multi-level test skipping mechanism (by feature, 
 <p><span style="font-weight: 400;">We sincerely appreciate the generous support and guidance from PyTorch maintainers and community members throughout 2026H1. Special thanks to @alband, @afrittoli, @atalman, @jbschlosser, @marco-s, @matthew-d-white,@mikaylagawarecki, @ZainRizvi, @zxiiro … for their invaluable feedback and continuous help. We are also grateful to all community contributors for their participation and assistance throughout this work.</span></p>
 <p><span style="font-weight: 400;">Find more information about Accelerator Integration Working Group: </span><a href="https://github.com/pytorch-fdn/accelerator-integration-wg"><span style="font-weight: 400;">https://github.com/pytorch-fdn/accelerator-integration-wg</span></a></p>
 <p><span style="font-weight: 400;">PyTorch TAC Working Groups: </span><a href="https://pytorch.org/working-groups/"><span style="font-weight: 400;">https://pytorch.org/working-groups/</span></a></p>
+<p>The post <a href="https://pytorch.org/blog/pytorch-hardware-enablement-updates-from-the-acceleration-integration-working-group/">PyTorch Hardware Enablement: Updates from the Accelerator Integration Working Group</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -352,7 +728,9 @@ For the broader ecosystem, the multi-level test skipping mechanism (by feature, 
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=171767</guid>
 
-					<description><![CDATA[TL;DR We integrated Helion into vLLM’s linear backend to explore how an autotuned, high-level kernel DSL can improve LLM inference performance while reducing kernel implementation complexity. A single Helion general...]]></description>
+					<description><![CDATA[<p>TL;DR We integrated Helion into vLLM’s linear backend to explore how an autotuned, high-level kernel DSL can improve LLM inference performance while reducing kernel implementation complexity. A single Helion general...</p>
+<p>The post <a href="https://pytorch.org/blog/building-a-high-performance-and-portable-vllm-linear-backend-with-helion/">Building a High-Performance and Portable vLLM Linear Backend with Helion</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
 <p><span style="font-weight: 400;">We integrated </span><a href="https://helionlang.com/index.html"><span style="font-weight: 400;">Helion</span></a><span style="font-weight: 400;"> into vLLM’s </span><a href="https://docs.vllm.ai/en/latest/api/vllm/model_executor/kernels/linear/"><span style="font-weight: 400;">linear backend</span></a><span style="font-weight: 400;"> to explore how an autotuned, high-level kernel DSL can improve LLM inference performance while reducing kernel implementation complexity. A single Helion general matrix multiplication (GEMM) implementation can cover multiple algorithmic variants, including Standard GEMM, Split-K, and Swap-AB, with the best variant and config automatically selected through per-shape autotuning.</span></p>
 <p><span style="font-weight: 400;">On NVIDIA Hopper GPUs, the Helion linear backend combines per-shape tuning with hybrid dispatch to outperform the vLLM default CUTLASS and DeepGEMM backends across the evaluated models, delivering consistent end-to-end performance gains and more than 10% throughput improvement for some workloads.</span></p>
@@ -557,6 +935,7 @@ python scripts/autotune_helion_kernels.py \
 <p><span style="font-weight: 400;">Today, we ship the pre-tuned configs with our </span><a href="https://github.com/redhat-et/vllm-helion"><span style="font-weight: 400;">vLLM fork</span></a><span style="font-weight: 400;">. For upstream adoption, we are exploring a different model: maintain the Helion kernels and integration framework upstream while delegating workload-specific autotuning to end users. This favors performance and maintainability over out-of-the-box usability, but Helion’s automated tuning framework makes the additional optimization step practical for performance-sensitive deployments.</span></p>
 <h2><span style="font-weight: 400;">Acknowledgments</span></h2>
 <p><span style="font-weight: 400;">This work was supported by many contributors across the OCTO and vLLM teams at Red Hat, as well as the Helion team at Meta. In particular, we would like to thank our colleagues: Richard Zou and Jongsok Choi for their feedback and support throughout this work. </span></p>
+<p>The post <a href="https://pytorch.org/blog/building-a-high-performance-and-portable-vllm-linear-backend-with-helion/">Building a High-Performance and Portable vLLM Linear Backend with Helion</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -572,7 +951,9 @@ python scripts/autotune_helion_kernels.py \
 		<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=171978</guid>
 
-					<description><![CDATA[We&#8217;re excited to bring you the new PyTorch Certified Associate (PTCA) Certification Pathway, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience...]]></description>
+					<description><![CDATA[<p>We&#8217;re excited to bring you the new PyTorch Certified Associate (PTCA) Certification Pathway, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience...</p>
+<p>The post <a href="https://pytorch.org/blog/new-pathway-to-pytorch-certified-associate-ptca-certification/">New Pathway to PyTorch Certified Associate (PTCA) Certification</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<p><span style="font-size: 18.72px;"><img decoding="async" class="alignnone size-large wp-image-171984" src="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-1024x536.png" alt="PyTorch Certification Pathway" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></p>
 <p>We&#8217;re excited to bring you the new <a href="https://training.linuxfoundation.org/certification/ptca-certification-pathway/">PyTorch Certified Associate (PTCA) Certification Pathway</a>, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience through Linux Foundation Education. The Certification Pathway is designed to help you build the foundational PyTorch skills validated by PTCA through learning that more closely aligns with the certification’s domains and competencies.</p>
 <p>The pathway includes four self-paced learning modules plus the PTCA certification exam:</p>
@@ -595,6 +976,7 @@ python scripts/autotune_helion_kernels.py \
 <h4><strong>Put Your PyTorch Skills on a Clear Path</strong></h4>
 <p>PTCA is designed for early-stage practitioners with Python and machine learning experience who are beginning to work with PyTorch. The certification validates your understanding of the core concepts and workflows used by engineers and researchers to design, train, optimize, and work with machine learning models. With the new <a href="https://training.linuxfoundation.org/certification/ptca-certification-pathway/" target="_blank" rel="noopener"><strong>PTCA Certification Pathway</strong></a>, you can build those skills through focused learning and then validate what you know with the included certification exam, all in one product.</p>
 <p>Build your PyTorch skills and get certified today.</p>
+<p>The post <a href="https://pytorch.org/blog/new-pathway-to-pytorch-certified-associate-ptca-certification/">New Pathway to PyTorch Certified Associate (PTCA) Certification</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -609,7 +991,9 @@ python scripts/autotune_helion_kernels.py \
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=171511</guid>
 
-					<description><![CDATA[TL;DR In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built...]]></description>
+					<description><![CDATA[<p>TL;DR In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built...</p>
+<p>The post <a href="https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/">Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
 <p><span style="font-weight: 400;">In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built with TLX (Triton Low-level Extensions), which add explicit, hardware-aware control on top of Triton&#8217;s high-level, tile-based programming model. </span></p>
 <p><span style="font-weight: 400;">Attention is the single slowest kernel in GEM, and reaching peak Blackwell performance has traditionally required hand-written CuteDSL or CUDA — slow to develop and hard to extend to new variants. We show that TLX closes this gap on both fronts. On development efficiency, the TLX attention kernel is about </span><b>3.2K lines of concise Triton-level code</b><span style="font-weight: 400;"> — roughly 3× less than the ~10K-line CuteDSL kernels of the state-of-the-art FlashAttention-4 (FA4). On performance, it outperforms FA4 (May 2026 version)  on the jagged shapes that matter for GEM — by </span><b>~13% on the forward pass and ~50% on the backward pass</b><span style="font-weight: 400;">. And by staying in Triton&#8217;s high-level model, the kernel is approachable enough for modeling engineers, not just kernel specialists, to read, extend, and fuse.</span></p>
@@ -738,6 +1122,7 @@ aligned = (klen // BLOCK_N) * BLOCK_N
 <p><span style="font-weight: 400;">[4] TLX Block Attention: A Warp-Specialized Blackwell Kernel for Fixed-Block Sparse Self-Attention — </span><a href="https://pytorch.org/blog/tlx-block-attention-a-warp-specialized-blackwell-kernel-for-fixed-block-sparse-self-attention/"><span style="font-weight: 400;">https://pytorch.org/blog/tlx-block-attention-a-warp-specialized-blackwell-kernel-for-fixed-block-sparse-self-attention/</span></a></p>
 <p><span style="font-weight: 400;">[5] Kunlun: Establishing Scaling Laws for Massive-Scale Recommendation Systems through Unified Architecture Design — </span><a href="https://arxiv.org/abs/2602.10016"><span style="font-weight: 400;">https://arxiv.org/abs/2602.10016</span></a></p>
 <p><span style="font-weight: 400;">[6] FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling — </span><a href="https://arxiv.org/abs/2603.05451"><span style="font-weight: 400;">https://arxiv.org/abs/2603.05451</span></a></p>
+<p>The post <a href="https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/">Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -752,7 +1137,9 @@ aligned = (klen // BLOCK_N) * BLOCK_N
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=171171</guid>
 
-					<description><![CDATA[TL;DR In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve...]]></description>
+					<description><![CDATA[<p>TL;DR In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve...</p>
+<p>The post <a href="https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/">A Ray-Focused Guide to PyTorch Conference North America</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<h3><span style="font-weight: 400;">TL;DR</span></h3>
 <p><span style="font-weight: 400;">In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve heard of Ray but never had a reason to dig in, this is the year as more teams seek to scale AI on top of their own secure and governed AI infrastructure. </span></p>
 <p><span style="font-weight: 400;">Ray is a distributed compute framework that helps teams scale any AI framework, library or model. It provides a consistent surface for developers to go from curating petabytes of multimodal data, to training a model across multiple nodes and then deploying it in production whether it&#8217;s on VMs or a Kubernetes-managed cluster. That coverage across the full AI lifecycle is also why Ray has become the standard substrate for post training and reinforcement learning (RL) at labs like Cursor, Microsoft AI and NVIDIA. Whether you&#8217;re new to distributed PyTorch or already running Ray in production, here&#8217;s your guide to the sessions worth blocking off on your schedule.</span></p>
@@ -803,6 +1190,7 @@ aligned = (klen // BLOCK_N) * BLOCK_N
 <p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the complete schedule here</span></a></p>
 <p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America today</span></a></p>
 <p>&nbsp;</p>
+<p>The post <a href="https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/">A Ray-Focused Guide to PyTorch Conference North America</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -817,7 +1205,9 @@ aligned = (klen // BLOCK_N) * BLOCK_N
 				<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=171223</guid>
 
-					<description><![CDATA[TL;DR PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s...]]></description>
+					<description><![CDATA[<p>TL;DR PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s...</p>
+<p>The post <a href="https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/">From Upstream Changes to Downstream Confidence: Inside Torch Spyre&#8217;s Integration with PyTorch CRCR</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
 										<content:encoded><![CDATA[<h2>TL;DR</h2>
 <p>PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s tens of thousands of tests actually matter for its hardware, and how to keep that answer current as PyTorch, the backend, and the test suite all evolve. This post walks through how Torch Spyre built on top of that foundation to reach CRCR&#8217;s L2 integration, using an agentic pipeline that selects and re-buckets tests from code and execution evidence, a declarative YAML framework that adapts upstream tests without patching them, and a set of workflow patterns for reliability and reproducibility at scale. Most of this is applicable for any generic privateuse1 device, and we&#8217;re looking to work with the pytorch community to make it reusable and upstream where relevant.</p>
 <h2>Introduction</h2>
@@ -1049,207 +1439,7 @@ echo "Resolved pytorch/pytorch@nightly -&gt; source ${SOURCE_SHA}"
 <p>If any of these patterns would help your integration, we&#8217;d like to hear which ones matter most before shaping that proposal. Reach out by opening an issue at <a href="https://github.com/torch-spyre/torch-spyre">torch-spyre/torch-spyre</a>.</p>
 <h2>Acknowledgements</h2>
 <p>We would like to thank the IBM Spyre Team for their support in this effort.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Accelerate Your AI Journey with new Introduction Track at PyTorch Conference NA 2026 and PyTorch Associate Training</title>
-		<link>https://pytorch.org/blog/accelerate-your-ai-journey-with-new-introduction-track-at-pytorch-conference-na-2026-and-pytorch-associate-training/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Thu, 24 Sep 2026 21:06:09 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=170295</guid>
-
-					<description><![CDATA[As deep learning models move rapidly from research prototypes into core enterprise infrastructure, the demand for practical, end-to-end PyTorch expertise has never been higher. Building robust neural networks requires more...]]></description>
-										<content:encoded><![CDATA[<p><span style="font-weight: 400;">As deep learning models move rapidly from research prototypes into core enterprise infrastructure, the demand for practical, end-to-end PyTorch expertise has never been higher. Building robust neural networks requires more than just high-level understanding. It demands hands-on experience in training, optimizing, and deploying models effectively.</span></p>
-<p><span style="font-weight: 400;">To support developers, researchers, and engineers looking to deepen their technical skills, the PyTorch Foundation is running a dedicated </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?topic=introduction"><b>Introduction Track</b></a><span style="font-weight: 400;"> during the PyTorch Conference North America, as well as an official, full-day </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/training/?utm_campaign=41307495-PyTorch%20Conference%202026%20-%20North%20America&amp;utm_source=Training"><b>PyTorch Associate Training</b></a><span style="font-weight: 400;"> session on </span><b>Monday, October 19, 2026</b><span style="font-weight: 400;">, 9am &#8211; 5pm in San Jose, California.</span></p>
-<p><span style="font-weight: 400;">In this blog we share what developers can expect from the technical sessions and training. </span></p>
-<h2><span style="font-weight: 400;">What to Expect from the Introduction Track</span></h2>
-<p><span style="font-weight: 400;">All attendees, from students, first time attendees all the way to seasoned AI engineers that want to learn about new areas are invited to check out the brand new Introduction Track at PyTorch Conference NA. Learn about areas of the PyTorch library, PyTorch ecosystem or AI stack that you are not familiar with. Explore foundational concepts, common workflows, project orientation, and approachable ways to begin building with the PyTorch ecosystem. Sessions include:</span></p>
-<p><b>From Math Panic to PyTorch Confidence </b><br />
-<span style="font-weight: 400;">Yashasvi Misra, 3:25 PM PDT, Room LL20AB </span></p>
-<p><span style="font-weight: 400;">Designed for Python developers, students, and educators new to machine learning, this session uses visual explanations and interactive exercises to demystify tensors, gradients, and dynamic computation graphs. Attendees will build intuitive mental models before implementing a foundational neural network and training loop in PyTorch.</span></p>
-<p><b>Practical GPU Programming with Triton for PyTorch Developers</b><br />
-<span style="font-weight: 400;">Suman Debnath, JanakiRam Goteti, 11:45 AM PDT, Room LL20CD</span></p>
-<p><span style="font-weight: 400;">PyTorch developers rely on tools like </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;"> to generate GPU kernels, but writing custom kernels can feel daunting. This session introduces Triton, an open-source Python-embedded programming model for authoring high-performance GPU code without CUDA or C++. Attendees will learn GPU memory movement fundamentals, explore thread parallelization, and write custom vector addition and matrix multiplication kernels.</span></p>
-<p><b>What You Cannot Profile, You Cannot Optimize: Learning to Read PyTorch Traces </b><br />
-<span style="font-weight: 400;">Aritra Roy Gosthipaty, Suvaditya Mukherjee, 2:50 PM PDT, Room LL20AB</span></p>
-<p><span style="font-weight: 400;">Modern profiling tools generate complex traces that can be difficult to interpret. This talk builds practical mental models around CPU-to-GPU dispatch chains, compute-bound versus overhead-bound workloads, and kernel timing variations. Attendees will evaluate workloads using </span><span style="font-weight: 400;">torch.compile</span><span style="font-weight: 400;">, fused Triton kernels, and Liger kernels to make accurate performance comparisons.</span></p>
-<p><b>From Scratch to PyTorch: Demystifying ML Frameworks by Building Your Own </b><br />
-<span style="font-weight: 400;">Andrea Mattia Garavagno, Vijay Janapa Reddi,  2:15 PM PDT, Room LL20AB</span></p>
-<p><span style="font-weight: 400;">Understanding framework internals is critical for debugging complex logic, optimizing hardware, and contributing to backend infrastructure. This session introduces TinyTorch, an open-source CLI project that guides developers through rebuilding core framework components, including tensors, autograd, optimizers, and transformers, in pure Python.</span></p>
-<p><b>Understanding Modern Vision Language Models</b><br />
-<span style="font-weight: 400;">Aastha Jhunjhunwala, Mark Moyou, 12:20 PM PDT, Room LL20AB</span></p>
-<p><span style="font-weight: 400;">Vision-language models (VLMs) present unique serving and scaling challenges. Deconstructing five open source architectures, this talk examines image-to-token encoding, vision-language fusion strategies, multi-GPU fine-tuning, and production serving overheads such as KV-cache pressure and image-token expansion.</span></p>
-<p><b>A Developer&#8217;s Guide to Attention in vLLM </b><br />
-<span style="font-weight: 400;">Lucas Wilkinson, Matthew Bonanni, 11:45 AM PDT, Room LL20AB</span></p>
-<p><span style="font-weight: 400;">Modern state-of-the-art models rely on hybrid, sliding-window, sparse, and linear attention mechanisms to manage KV-cache memory over long context windows. This talk details how the vLLM engine represents and optimizes these diverse patterns through attention backends, KV-cache connectors, and hybrid memory allocators.</span></p>
-<h2><span style="font-weight: 400;">Elevate your AI Skills: PyTorch Associate Training </span></h2>
-<p><span style="font-weight: 400;">The PyTorch Foundation is excited to host an official, full-day, instructor-led </span><b>PyTorch Associate Training</b><span style="font-weight: 400;"> on </span><b>Monday, October 19, 2026</b><span style="font-weight: 400;">. </span></p>
-<h2><span style="font-weight: 400;">What to expect from the training</span></h2>
-<p><span style="font-weight: 400;">The PyTorch Associate Training is an in-person, instructor-led program, designed to equip participants with foundational and practical skills identified across the key domains of the PyTorch Certified Associate exam. Delivered through a structured series of sequential modules, the curriculum bridges the gap between core concepts and production-ready implementation.</span></p>
-<p><span style="font-weight: 400;">Participants in this full-day workshop will work with:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><b>Interactive Lectures &amp; Live Demos:</b><span style="font-weight: 400;"> Gain clear technical insights directly from experienced instructors as they demonstrate real-time model construction and training.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Guided Jupyter Notebook Labs:</b><span style="font-weight: 400;"> Build, train, and optimize deep learning models from scratch in interactive lab environments.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Comprehension Checkpoints:</b><span style="font-weight: 400;"> Solidify your understanding of key PyTorch ecosystem components through structured quizzes and reviews.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Practical Industry Projects:</b><span style="font-weight: 400;"> Work on real-world use cases that mirror production scenarios and deployment challenges.</span></li>
-</ul>
-<p><span style="font-weight: 400;">By learning alongside peers in an interactive setting, attendees receive direct feedback and real-time guidance from instructors.</span></p>
-<h2><span style="font-weight: 400;">To get the most out of this hands-on course, attendees should have:</span></h2>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Proficiency in Python programming</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Familiarity with Jupyter Notebooks and basic Google Colab environment workflows</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">A basic understanding of machine learning concepts</span></li>
-<li style="font-weight: 400;" aria-level="1">An active Google Account for accessing practical exercises</li>
-</ul>
-<h2><span style="font-weight: 400;">Meet your Instructor</span></h2>
-<p><span style="font-weight: 400;"><img decoding="async" class="alignleft wp-image-170296 size-thumbnail" src="https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot-150x150.png" alt="" width="150" height="150" srcset="https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot-150x150.png 150w, https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot-300x297.png 300w, https://pytorch.org/wp-content/uploads/2026/09/Faradawn-Yang-Headshot.png 646w" sizes="(max-width: 150px) 100vw, 150px" />Faradawn Yang is an engineer on the AI platform software team at NVIDIA, where he focuses on AI inference products. Faradawn holds a master’s degree in computer science and a bachelor’s degree in mathematics and computer science from the University of Chicago. Before joining NVIDIA, he worked as a data engineer at a marketing measurement company.</span></p>
-<h2></h2>
-<h2></h2>
-<h2><span style="font-weight: 400;">Receive a Certification Voucher</span></h2>
-<p><span style="font-weight: 400;">To support your long-term professional development, every attendee who completes the training will receive a voucher (valued at $250) for the official </span><b>PyTorch Certified Associate (PTCA)</b><span style="font-weight: 400;"> certification exam. Taking the PTCA exam provides a clear, industry-recognized credential to validate your practical skills in deep learning workflows using PyTorch.</span></p>
-<h2><span style="font-weight: 400;">Register now to elevate your AI skills</span></h2>
-<p><span style="font-weight: 400;">Pre-registration is required to secure your seat in the classroom, as space is limited to maintain an optimal student-to-instructor ratio.You can add the </span><b>PyTorch Associate Training</b><span style="font-weight: 400;"> directly to your PyTorch Conference North America registration through </span><b>Tuesday, October 13th</b><span style="font-weight: 400;">.</span></p>
-<p><span style="font-weight: 400;">Learn more and register for the </span><a href="https://hubs.la/Q04y8msv0"><span style="font-weight: 400;">PyTorch Associate Training at PyTorch Conference NA</span></a><span style="font-weight: 400;">.</span></p>
-<p>&nbsp;</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>From Research Project to Open Source Ecosystem: Bring Your Academic PyTorch Project to PyTorchCon NA</title>
-		<link>https://pytorch.org/blog/from-research-project-to-open-source-ecosystem-bring-your-academic-pytorch-project-to-pytorchcon-na/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Wed, 23 Sep 2026 20:18:34 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=170102</guid>
-
-					<description><![CDATA[Some of the most interesting work being built with PyTorch starts in universities, research labs, student groups, and academic institutions. A new model architecture. A library created to support a...]]></description>
-										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img decoding="async" class="aligncenter wp-image-170129 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png" alt="" width="1983" height="793" srcset="https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1.png 1983w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-300x120.png 300w, https://pytorch.org/wp-content/uploads/2026/09/PyTorch-logo-to-PyTorch-Foundation-logo-1-1024x409.png 1024w" sizes="(max-width: 1983px) 100vw, 1983px" /></span></p>
-<p><span style="font-weight: 400;">Some of the most interesting work being built with PyTorch starts in universities, research labs, student groups, and academic institutions.</span></p>
-<p><span style="font-weight: 400;">A new model architecture. A library created to support a paper. A benchmarking framework. A research tool that solves a problem no existing project addresses. An educational toolkit developed for a university course. A system that begins with three graduate students and unexpectedly finds users around the world.</span></p>
-<p><b>What happens after the research project works?</b></p>
-<p><span style="font-weight: 400;">The paper may be published. Students graduate. Grants end. Research priorities move on. And a project with genuine value to the broader PyTorch community can struggle to make the transition from </span><b>research artifact</b><span style="font-weight: 400;"> to </span><b>sustainable open source project</b><span style="font-weight: 400;">.</span></p>
-<p><span style="font-weight: 400;">The PyTorch Foundation </span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><b>OSPO &amp; Academic Outreach Working Group</b></a><span style="font-weight: 400;"> wants to help bridge that gap.</span></p>
-<p><span style="font-weight: 400;">As part of Day 0 programming ahead of </span><a href="https://pytorch.org/event/pytorch-conference-2026/"><b>PyTorch Conference North America 2026</b></a><span style="font-weight: 400;">, we are hosting an </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/co-located-events/#from-academia-to-adoption-workshop"><b>Academic Workshop focused on Education &amp; Community Adoption</b><span style="font-weight: 400;">.</span></a></p>
-<p><span style="font-weight: 400;">And we are inviting academic projects worth highlighting across a range of domains to submit using the </span><code>“PyTorch Projects: From Academia to Adoption”</code> <span style="font-weight: 400;">GH template in the OSPO and Academic Outreach </span><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach"><span style="font-weight: 400;">Repository</span></a><span style="font-weight: 400;">.</span></p>
-<h2><b>Call for Academic PyTorch Projects</b></h2>
-<p><span style="font-weight: 400;">We invite students, researchers, faculty, research engineers, university labs, Academic OSPOs, and research institutions to submit open source projects created within academia, substantially developed by academic contributors, or emerging</span><b> from academic research using PyTorch, DeepSpeed, Helion, Ray, Safetensors, and vLLM.</b></p>
-<p><span style="font-weight: 400;">Eight (8)  selected projects will be invited to present short lightning talks, five (5) mins each, during the workshop. Presenters must be able to attend in-person to present their projects.</span></p>
-<p><span style="font-weight: 400;">Following the talks, project teams and other meetup attendees will join a hands-on workshop and mentor office hours with maintainers, open source program managers and professionals working in industry and research organizations, open source contributors, and members of the broader PyTorch community.</span></p>
-<p><span style="font-weight: 400;">The goal is simple:</span></p>
-<p><b>Help promising academic projects take their next step toward becoming sustainable community projects.</b></p>
-<h2><b>What Kind of Projects Are We Looking For?</b></h2>
-<p><span style="font-weight: 400;">We are particularly interested in projects where the work has demonstrated </span><b>technical value beyond a single experiment or paper</b><span style="font-weight: 400;"> and could be useful to a wider community. Your project needs to use PyTorch or one of the other PyTorch Foundation hosted projects and might be:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a library or developer tool;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a research framework that extends one of these projects for a particular domain;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a compiler, runtime, profiling, distributed training, inference, or optimization project;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">work in computer vision, NLP, robotics, scientific computing, healthcare, responsible AI, accessibility, or another research area;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">an evaluation or benchmarking framework;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a reproducibility toolkit or research infrastructure project;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">an educational tool that makes these projects easier to teach or learn;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">an open source implementation accompanying significant academic research;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">a project connecting these projects with other parts of the open source AI stack;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">or something we have not thought of yet.</span></li>
-</ul>
-<h2><b>You Don&#8217;t Need to Have Everything Figured Out</b></h2>
-<p><span style="font-weight: 400;">Research software vs. sustainable, community-driven open source projects are often developed under very different conditions.</span></p>
-<p><span style="font-weight: 400;">Academic teams often optimize for experimentation, publication, reproducibility, and research velocity. Sustainable open source projects additionally need to think about documentation, releases, governance, security, contributor onboarding, testing, licensing, maintainer succession, and community operations.</span></p>
-<p><span style="font-weight: 400;">Those gaps should not prevent good academic work from reaching a wider community.</span></p>
-<p><span style="font-weight: 400;">The OSPO &amp; Academic Outreach Working Group was created in part to help academic projects navigate exactly this transition.</span></p>
-<p><span style="font-weight: 400;">So perhaps your project has excellent research behind it, but:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">the documentation needs work;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">new contributors find the repository difficult to navigate;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">only one person understands the release process;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">the original student maintainer is graduating;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">governance exists informally but is not documented;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">CI or packaging needs improvement;</span></li>
-<li aria-level="1"><span style="font-weight: 400;">there is no <code>CONTRIBUTING.md</code>, <code>SECURITY.md</code> , </span><span style="font-weight: 400;">or maintainer policy;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">you are unsure how to build a contributor community;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">users are appearing, but you do not know how to turn users into contributors;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">or you simply do not know what would be required to eventually become a PyTorch Ecosystem project.</span></li>
-</ul>
-<p><span style="font-weight: 400;">The workshop is designed to help identify those gaps and turn them into an actionable roadmap.</span></p>
-<h2><b>Workshop Program Overview</b></h2>
-<h3><b>1. Academic Project Showcases</b></h3>
-<p><span style="font-weight: 400;">Selected projects will present short lightning talks covering:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The problem they are solving,</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How they use or extend PyTorch Foundation hosted projects,</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The research or academic context behind the work,</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Who is using the project today,</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Why the project could matter to the broader community,</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;"> What support, resources, or changes could help the project reach its next stage</span></li>
-</ul>
-<h3><b>2. Maintainer &amp; Industry Open Source AI Leader Office Hours</b></h3>
-<p><span style="font-weight: 400;">After the lightning talks, we move from </span><b>show-and-tell to show-and-build</b><span style="font-weight: 400;">.</span></p>
-<p><span style="font-weight: 400;">Project teams will work with maintainers, PyTorch ecosystem contributors, professionals who lead and support open source ecosystems within companies and other organizations, and community members around actual repositories.</span></p>
-<p><span style="font-weight: 400;">Depending on the project, conversations may cover:</span></p>
-<p><b>Open source readiness:</b><span style="font-weight: 400;"> Is it obvious what the project does? Can someone install it, run it, test it, and understand how to contribute?</span></p>
-<p><b>Governance:</b><span style="font-weight: 400;"> Who makes decisions? Who can merge changes? What happens when the original academic maintainers move on?</span></p>
-<p><b>Reproducibility:</b><span style="font-weight: 400;"> Can another researcher reproduce the results? Are datasets, benchmarks, evaluation methodology, dependencies, and artifacts clearly documented?</span></p>
-<p><b>Community:</b><span style="font-weight: 400;"> How does a new user become a contributor? Where are decisions discussed? Are issues approachable by people outside the original lab?</span></p>
-<p><b>Security and maintenance:</b><span style="font-weight: 400;"> How are dependencies, vulnerabilities, releases, and supported PyTorch versions handled?</span></p>
-<p><b>Ecosystem positioning:</b><span style="font-weight: 400;"> What is the project&#8217;s relationship with PyTorch? What unique problem does it solve? What would need to change before a future PyTorch Ecosystem application made sense?</span></p>
-<p><span style="font-weight: 400;">Our ambition is that teams leave the workshop with </span><b>a prioritized set of next steps for making their project easier to use, contribute to, maintain, and grow.</b></p>
-<h2><b>Who Should Submit?</b></h2>
-<p><span style="font-weight: 400;">We encourage submissions from:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">university students and graduate researchers;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">professors and academic educators;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">research labs and institutes;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">research software engineers;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Academic OSPOs;</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">maintainers of research-originated open source projects; and</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">academic communities building tools around the PyTorch Foundation hosted projects.</span></li>
-</ul>
-<p><span style="font-weight: 400;">Projects can come from anywhere in the world.</span></p>
-<p><span style="font-weight: 400;">You do not need to represent a large institution, have thousands of users, or already have a mature open source organization behind you.</span></p>
-<p><span style="font-weight: 400;">We care about the </span><b>idea, its usefulness, its relationship with PyTorch and the other PyTorch Foundation hosted projects, the work already happening around it, and its potential to grow beyond its original academic environment.</b></p>
-<h3><b>Evaluation Criteria</b></h3>
-<p><span style="font-weight: 400;">Projects will be evaluated based on:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Academic relevance: The project originated in, is substantially developed by, or supports academic research</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Ecosystem relevance: The project uses, extends, or integrates with PyTorch or another PyTorch Foundation-hosted project</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Open source readiness: The project has a public repository, an open source license, and enough documentation for mentors to review it</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Potential impact: The project addresses a meaningful problem and could benefit users beyond its original research team.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Team commitment: At least one maintainer can participate in the event and continue working on the agreed next steps afterward.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Cohort diversity: The final selection should represent a range of institutions, research areas, project stages, and geographic regions</span></li>
-</ul>
-<h2><b>What to Include in Your Submission</b></h2>
-<p><span style="font-weight: 400;">Tell us:</span></p>
-<ol>
-<li style="font-weight: 400;" aria-level="1"><b>What is the project?</b><b><br />
-</b><span style="font-weight: 400;">Give us the repository and a short description.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Where did it come from?</b><b><br />
-</b><span style="font-weight: 400;">Tell us about the university, lab, research group, course, or academic collaboration behind it.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>How does it use or extend PyTorch or its ecosystem?</b></li>
-<li style="font-weight: 400;" aria-level="1"><b>Who is it useful to?</b><b><br />
-</b><span style="font-weight: 400;">Researchers? Students? ML engineers? A particular scientific community?</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>What exists today?</b><b><br />
-</b><span style="font-weight: 400;">Users, contributors, releases, papers, deployments, courses, benchmarks, or other evidence of adoption are all useful context.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Where are you stuck?</b><b><br />
-</b><span style="font-weight: 400;">Documentation? Governance? Packaging? Testing? Contributors? Maintainers? Visibility? Reproducibility? Ecosystem readiness?</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>What would you like this workshop to help you achieve?</b></li>
-</ol>
-<p><span style="font-weight: 400;">We are not looking for perfectly polished applications.</span></p>
-<p><span style="font-weight: 400;">We are looking for projects worth helping.</span></p>
-<h2><b>Bring Us the Projects Academia Shouldn&#8217;t Lose</b></h2>
-<p><span style="font-weight: 400;">There is extraordinary open source AI work being created inside universities and research institutions.</span></p>
-<p><span style="font-weight: 400;">If you have built something with PyTorch that deserves a life beyond the paper, thesis, course, grant, or research group that created it, </span><b>submit it to the PTCNA Day 0 Academic Workshop.</b></p>
-<p><b>Submit your academic PyTorch project → PyTorch OSPO and Academic WG Issues (New Issues→ </b><a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach/issues"><b>PyTorch Project : Academia to Adoption </b></a></p>
-<p><b>Submission deadline:</b><span style="font-weight: 400;"> September 30th 2026, midnight PT</span></p>
-<p><span style="font-weight: 400;">Registration for this event is separate from the PyTorch Conference and you can <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/co-located-events/#from-academia-to-adoption-workshop">learn more here</a>. </span></p>
-<p><span style="font-weight: 400;">Learn more about the </span><b>PyTorch Foundation <a href="https://github.com/pytorch-fdn/wg-ospo-and-academic-outreach">OSPO &amp; Academic Outreach Working Group.</a></b></p>
+<p>The post <a href="https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/">From Upstream Changes to Downstream Confidence: Inside Torch Spyre&#8217;s Integration with PyTorch CRCR</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
 		
@@ -1258,4 +1448,4 @@ echo "Resolved pytorch/pytorch@nightly -&gt; source ${SOURCE_SHA}"
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4151 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1275157 metric#prefetches=232 metric#store-reads=36 metric#store-writes=6 metric#store-hits=241 metric#store-misses=15 metric#sql-queries=9 metric#ms-total=509.03 metric#ms-cache=20.57 metric#ms-cache-avg=0.5017 metric#ms-cache-ratio=4.0 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4643 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1450747 metric#prefetches=246 metric#store-reads=36 metric#store-writes=12 metric#store-hits=255 metric#store-misses=15 metric#sql-queries=24 metric#ms-total=518.08 metric#ms-cache=28.71 metric#ms-cache-avg=0.6109 metric#ms-cache-ratio=5.5 -->
