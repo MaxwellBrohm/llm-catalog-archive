@@ -1,0 +1,241 @@
+{
+  "candidates": [
+    {
+      "id": "a613b312fd95e1b579b611cce02bad3125edc458:codename_unmasked:andwise-evfd",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the modelKey \"andwise-evfd\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-09T23:15:07.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.76,
+      "why": [
+        "codename_unmasked is rare in the archive: +6.76 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:andwise-evfd"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "andwise-evfd"
+        ],
+        [
+          "displayName before",
+          "absent"
+        ],
+        [
+          "displayName after",
+          "gemini-3.7-flash-high"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The displayName recorded beside the modelKey \"andwise-evfd\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "url": "https://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20modelKey%20%22andwise-evfd%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fa613b312fd95e1b579b611cce02bad3125edc458.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "a613b312fd95e1b579b611cce02bad3125edc458:codename_unmasked:barium-bb-v2-4xts",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the modelKey \"barium-bb-v2-4xts\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-09T23:15:07.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.76,
+      "why": [
+        "codename_unmasked is rare in the archive: +6.76 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:barium-bb-v2-4xts"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "barium-bb-v2-4xts-agent"
+        ],
+        [
+          "displayName before",
+          "absent"
+        ],
+        [
+          "displayName after",
+          "Gemini 4 Argon (High)"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The displayName recorded beside the modelKey \"barium-bb-v2-4xts\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "url": "https://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20modelKey%20%22barium-bb-v2-4xts%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fa613b312fd95e1b579b611cce02bad3125edc458.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "a613b312fd95e1b579b611cce02bad3125edc458:codename_unmasked:barium-bb-v2-4xts-webdev",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the modelKey \"barium-bb-v2-4xts-webdev\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-09T23:15:07.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.76,
+      "why": [
+        "codename_unmasked is rare in the archive: +6.76 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:barium-bb-v2-4xts-webdev"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "barium-bb-v2-4xts-webdev"
+        ],
+        [
+          "displayName before",
+          "absent"
+        ],
+        [
+          "displayName after",
+          "gemini-4-argon-high"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The displayName recorded beside the modelKey \"barium-bb-v2-4xts-webdev\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "url": "https://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20modelKey%20%22barium-bb-v2-4xts-webdev%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fa613b312fd95e1b579b611cce02bad3125edc458.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "a613b312fd95e1b579b611cce02bad3125edc458:codename_unmasked:barium-bb-wlqc-text",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the modelKey \"barium-bb-wlqc-text\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-09T23:15:07.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.76,
+      "why": [
+        "codename_unmasked is rare in the archive: +6.76 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:barium-bb-wlqc-text"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "barium-bb-wlqc-text"
+        ],
+        [
+          "displayName before",
+          "absent"
+        ],
+        [
+          "displayName after",
+          "gemini-4-argon-high"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The displayName recorded beside the modelKey \"barium-bb-wlqc-text\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "url": "https://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20modelKey%20%22barium-bb-wlqc-text%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fa613b312fd95e1b579b611cce02bad3125edc458.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "a613b312fd95e1b579b611cce02bad3125edc458:codename_unmasked:baryonyx-xyv3",
+      "type": "codename_unmasked",
+      "sentence": "The displayName recorded beside the modelKey \"baryonyx-xyv3\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.",
+      "source": "arena-leaderboard-rsc",
+      "stamp": {
+        "iso": "2026-10-09T23:15:07.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.76,
+      "why": [
+        "codename_unmasked is rare in the archive: +6.76 bits"
+      ],
+      "entities": [
+        "subject:codename_unmasked:baryonyx-xyv3"
+      ],
+      "facts": [
+        [
+          "modelKey",
+          "baryonyx-xyv3"
+        ],
+        [
+          "displayName before",
+          "absent"
+        ],
+        [
+          "displayName after",
+          "mai-image-2.5"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The displayName recorded beside the modelKey \"baryonyx-xyv3\" in arena.ai's leaderboard payload changed, and the two names no longer share an identity token.\n\nhttps://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "url": "https://diffwire.dev/changes/a613b312fd95e1b579b611cce02bad3125edc458.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20displayName%20recorded%20beside%20the%20modelKey%20%22baryonyx-xyv3%22%20in%20arena.ai's%20leaderboard%20payload%20changed%2C%20and%20the%20two%20names%20no%20longer%20share%20an%20identity%20token.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fa613b312fd95e1b579b611cce02bad3125edc458.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ],
+  "funnel": {
+    "seen": 6046,
+    "postableType": 650,
+    "notOnCooldown": 650,
+    "aboveFloor": 51
+  },
+  "generated_at": "2026-10-10T20:07:58.640Z"
+}
