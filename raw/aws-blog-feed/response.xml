@@ -5,7 +5,7 @@
 	<atom:link href="https://aws.amazon.com/blogs/machine-learning/feed/" rel="self" type="application/rss+xml"/>
 	<link>https://aws.amazon.com/blogs/machine-learning/</link>
 	<description>Official Machine Learning Blog of Amazon Web Services</description>
-	<lastBuildDate>Thu, 08 Oct 2026 18:33:29 +0000</lastBuildDate>
+	<lastBuildDate>Fri, 09 Oct 2026 15:38:39 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -13,6 +13,205 @@
 	1	</sy:updateFrequency>
 	
 	<item>
+		<title>ICYMI: What landed for AI builders in September 2026</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/icymi-what-landed-for-ai-builders-in-september-2026/</link>
+		
+		<dc:creator><![CDATA[Prachi Mishra]]></dc:creator>
+		<pubDate>Fri, 09 Oct 2026 15:38:39 +0000</pubDate>
+				<category><![CDATA[Amazon Bedrock]]></category>
+		<category><![CDATA[Amazon Bedrock AgentCore]]></category>
+		<category><![CDATA[Foundational (100)]]></category>
+		<category><![CDATA[Thought Leadership]]></category>
+		<guid isPermaLink="false">47f6ae2bd79e8fc92d958051f1fc9a5345f3e76e</guid>
+
+					<description>A monthly recap of the latest Amazon Bedrock, Amazon Bedrock AgentCore, and Strands updates from September 2026: broader model choice, faster serverless agents with built-in evaluation, and automated knowledge base syncing with native enterprise connectors.</description>
+										<content:encoded>&lt;p&gt;&lt;em&gt;A recap of the latest Amazon Bedrock, Amazon Bedrock AgentCore, and Strands updates from September 2026&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;At AWS, we believe the fastest path to enterprise AI is giving builders real choice at every layer: model, runtime, and tooling. That belief shapes how we invest across Amazon Bedrock, AgentCore, and Strands. &lt;a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; continues expanding access to leading frontier models so you can build and scale AI applications securely. &lt;a href="https://aws.amazon.com/bedrock/agentcore/" target="_blank" rel="noopener"&gt;Amazon Bedrock AgentCore&lt;/a&gt; provides the managed infrastructure to build, connect, and deploy enterprise agents using any framework or model. &lt;a href="https://strandsagents.com/" target="_blank" rel="noopener"&gt;Strands&lt;/a&gt;&amp;nbsp;gives you an open source toolkit to build agents and run anywhere.&lt;/p&gt;
+&lt;p&gt;As AI models become more capable and model choice expands, the industry conversations are shifting. Model performance is no longer the only question. Customers now weigh cost against benefit for their specific use case, and those decisions matter when delegating work to agents in production. AI agents are already moving into workflows that require them to reason over enterprise knowledge, operate across long-horizon tasks, and act in systems where security, accuracy, and governance matter. The focus is now shifting beyond the model itself to the broader system around it, including the context agents can access, the actions they can take, and how enterprise data is governed and protected.&lt;/p&gt;
+&lt;p&gt;In September, updates across Amazon Bedrock, AgentCore, and Strands strengthened those foundations. New capabilities expanded model choice, made agent operations more efficient and measurable, and created more direct ways to connect AI applications with current business information.&lt;/p&gt;
+&lt;h2 id="run-faster-agents-and-evaluate-what-matters"&gt;Run faster agents and evaluate what matters&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Build agents optimized for OpenAI models.&lt;/strong&gt; &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/bedrock-managed-agents-preview/" target="_blank" rel="noopener"&gt;Amazon Bedrock Managed Agents&lt;/a&gt;, powered by OpenAI, is now available in public preview, helping you build production-ready AI agents without sacrificing enterprise security. You can now use OpenAI models while keeping data within AWS, reuse existing AWS Identity and Access Management (IAM) permissions, and maintain full auditability through AWS CloudTrail. Durable sessions and built-in human approval workflows help reduce development overhead and mitigate risk.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Agents now start faster with less infrastructure overhead.&lt;/strong&gt; The latest &lt;a href="https://aws.amazon.com/blogs/machine-learning/the-new-agentcore-runtime-elastic-optimized-and-consistently-fast-starts/" target="_blank" rel="noopener"&gt;AgentCore runtime&lt;/a&gt;, a capability of Amazon Bedrock AgentCore, has more efficient memory management and lower cold start latency for serverless agents, so you pay for actual usage rather than the peak memory. You can run agents faster at lower cost with pay-as-you-go pricing and no need to pre-provision capacity. Sessions scale to zero when idle and run in hardware-isolated environments.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Lower your token cost with frontier performance.&lt;/strong&gt; &lt;a href="https://strandsagents.com/blog/introducing-strands-harness/" target="_blank" rel="noopener"&gt;Strands harness&lt;/a&gt; is a new open source agent harness that matches popular harnesses on accuracy while using 28 percent fewer tokens. You can spin up a production-ready agent in a single line of Python or TypeScript, with built-in context management, prompt caching, and memory, then deploy it anywhere.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Let your models make big decisions safely, locally.&lt;/strong&gt; &lt;a href="https://strandsagents.com/blog/introducing-strands-decider/" target="_blank" rel="noopener"&gt;Strands Decider 2B&lt;/a&gt; is a small, open source, 2B-parameter decision model that picks between predefined options (instead of generating text), delivering answers in ~115ms locally. It’s optimized for agentic AI tasks like tool selection, routing, and guardrails, with all code, data, and weights available on GitHub and Hugging Face.&lt;/p&gt;
+&lt;h2 id="find-the-right-model-for-each-workload"&gt;Find the right model for each workload&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Choose from a broader set of OpenAI models for your everyday work.&lt;/strong&gt; OpenAI’s Astra, Sol, and Luna models are now generally available on Amazon Bedrock, with options for demanding projects, recurring complex work, and high-volume tasks.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://aws.amazon.com/blogs/machine-learning/take-on-your-most-ambitious-work-with-gpt-6-astra-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;GPT-6 Astra&lt;/a&gt; is the flagship model for your most ambitious work, bringing deeper reasoning to complex decisions, document analysis, and software development with up to 1 million input tokens. It brings stronger reasoning and more precise judgment to complex business decisions, operates across software and files, and delivers professional-quality output aligned with organizational voice, templates, and standards. &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/openai-gpt-6-astra-ultrafast-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;GPT-6 Astra Ultrafast&lt;/a&gt; adds a premium speed tier for GPT-6 Astra, built for workloads where speed matters most. It delivers up to 6x faster inference in the API, with up to 300 tokens per second.&lt;/p&gt;
+&lt;p&gt;Sol brings near-Astra intelligence to coding, computer use, and professional workloads that run frequently. Both &lt;a href="https://aws.amazon.com/blogs/machine-learning/bring-near-astra-intelligence-to-everyday-work-with-gpt-6-1-sol-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;GPT-6.1 Sol&lt;/a&gt; and &lt;a href="https://aws.amazon.com/blogs/machine-learning/bring-more-intelligence-to-everyday-work-with-gpt-6-sol-and-gpt-6-luna-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;GPT-6 Sol&lt;/a&gt; are available on Amazon Bedrock. &lt;a href="https://aws.amazon.com/blogs/machine-learning/bring-more-intelligence-to-everyday-work-with-gpt-6-sol-and-gpt-6-luna-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;GPT 6.1 Luna&lt;/a&gt; is designed for high-volume tasks such as extraction, summarization, classification, and routing. Together, they help you balance intelligence, latency, and cost across workloads.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Take on long-running coding and research with Claude&lt;/strong&gt;. Model choices for Claude now include the latest versions to advance your coding and scientific work. &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-claude-fable-5-1-on-aws/" target="_blank" rel="noopener"&gt;Claude Fable 5.1&lt;/a&gt; expands options for coding, scientific research, and enterprise workflows. &lt;a href="https://aws.amazon.com/blogs/machine-learning/claude-opus-5-5-is-now-available-on-aws/" target="_blank" rel="noopener"&gt;Claude Opus 5.5&lt;/a&gt; is built for agentic coding, knowledge work, and long-running tasks. It uses adaptive thinking to gauge how much reasoning a task needs and an effort parameter to set an upper bound on reasoning depth. &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-claude-sonnet-5-5-on-aws/" target="_blank" rel="noopener"&gt;Claude Sonnet 5.5&lt;/a&gt; is a smarter, more efficient Sonnet suited to focused coding and knowledge work, delivering 30 percent lower cost per task at 30 percent faster speed than Claude Sonnet 5.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Reason through complexity with a broader model portfolio.&lt;/strong&gt; Moonshot AI’s Kimi K3 is now available on Amazon Bedrock. According to Moonshot AI, &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-kimi-k3-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;Kimi K3&lt;/a&gt; is its most capable model and the first open model to reach 2.8 trillion parameters. With a 1-million-token context window, native vision, and built-in prompt caching, it helps you build smarter apps 2.5x faster at lower cost than previous versions.&lt;/p&gt;
+&lt;p&gt;xAI’s frontier models &lt;a href="https://aws.amazon.com/blogs/machine-learning/xais-grok-4-6-is-now-available-in-amazon-bedrock/" target="_blank" rel="noopener"&gt;Grok 4.6&lt;/a&gt; and &lt;a href="https://aws.amazon.com/blogs/machine-learning/grok-4-7-is-now-available-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;Grok 4.7&lt;/a&gt; offer a 500K token context window and support configurable reasoning effort and self-verification for more reliable long-running tasks.&lt;/p&gt;
+&lt;p&gt;Together, these additions give you more flexibility when matching models to your requirements such as context length, latency, throughput, and cost.&lt;/p&gt;
+&lt;h2 id="get-more-control-over-your-enterprise-ai-agents"&gt;Get more control over your enterprise AI agents&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Keep agent knowledge current.&lt;/strong&gt; With new &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/amazon-bedrock-managed-knowledge-base-automatic-sync-scheduling-data-source-connectors/" target="_blank" rel="noopener"&gt;automatic sync scheduling&lt;/a&gt; in Amazon Bedrock Managed Knowledge Base, you can now configure daily, weekly, and monthly refresh options for all native data-source connectors. As a result, your enterprise AI agents retrieve the latest information. The &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/amazon-bedrock-managed-knowledge-base-user-managed-setup-sharepoint-onedrive-confluence/" target="_blank" rel="noopener"&gt;user-managed setup for SharePoint, OneDrive, and Confluence&lt;/a&gt; reduces reliance on admin-managed service accounts when you already have the access you need.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Connect more enterprise sources without maintaining custom ingestion pipelines.&lt;/strong&gt; Amazon Bedrock Managed Knowledge Base now supports &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/amazon-bedrock-managed-knowledge-base-servicenow-native-data-source-connector/" target="_blank" rel="noopener"&gt;ServiceNow&lt;/a&gt;, &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/amazon-bedrock-managed-knowledge-base-confluence-data-center-native-data-source-connector/" target="_blank" rel="noopener"&gt;Confluence Data Center&lt;/a&gt;, &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/amazon-bedrock-managed-knowledge-base-salesforce-zendesk-native-data-source-connectors/" target="_blank" rel="noopener"&gt;Salesforce, and Zendesk&lt;/a&gt; as native connectors to handle data crawling, metadata extraction, and incremental sync automatically. These connectors reduce the amount of custom ingestion code you need to build and maintain support content, internal documentation, and operational knowledge.&lt;/p&gt;
+&lt;h2 id="get-started"&gt;Get started&lt;/h2&gt;
+&lt;p&gt;Explore &lt;a href="https://aws-samples.github.io/sample-amazon-bedrock-central/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt;, deploy agents with the &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-get-started-cli.html" target="_blank" rel="noopener"&gt;AgentCore CLI&lt;/a&gt;, or build your first agent with the &lt;a href="https://strandsagents.com/" target="_blank" rel="noopener"&gt;Strands Harness SDK&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Interested in learning how Amazon Bedrock can support your team? &lt;a href="https://pages.awscloud.com/Amazon-Bedrock-Contact-Us.html" target="_blank" rel="noopener"&gt;Connect with us&lt;/a&gt; to start the conversation.&lt;/p&gt;
+&lt;p style="clear: both"&gt;&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the author&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-22094-1.jpg" alt="Prachi Mishra" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Prachi Mishra&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Prachi is a Senior Product Marketing Manager for Amazon Bedrock AgentCore at Amazon Web Services (AWS), where she helps bring the power of production-ready AI agents to developers and enterprises worldwide.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>How Postman runs Agent Mode for 40 million developers on Amazon Bedrock</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/how-postman-runs-agent-mode-for-40-million-developers-on-amazon-bedrock/</link>
+		
+		<dc:creator><![CDATA[Srinivas Kini]]></dc:creator>
+		<pubDate>Fri, 09 Oct 2026 15:35:02 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon Bedrock]]></category>
+		<category><![CDATA[Customer Solutions]]></category>
+		<guid isPermaLink="false">b70b3126633995a55ec3140e570c01681b054d89</guid>
+
+					<description>Building an AI agent that works in a demo is a different problem from running one for 40 million developers. Postman and AWS share the architectural patterns behind Agent Mode: controlling tool sprawl, exposing schema-based reads, and treating context as the real bottleneck, plus how it runs on Amazon Bedrock at scale.</description>
+										<content:encoded>&lt;p&gt;Building an AI agent for a demo and operating one for &lt;a href="https://www.postman.com/company/about-postman/" target="_blank" rel="noopener"&gt;40 million developers&lt;/a&gt; are different engineering problems. Postman set out to build &lt;a href="https://learning.postman.com/docs/postman-ai-developer-tools/agent-mode/" target="_blank" rel="noopener"&gt;Agent Mode&lt;/a&gt;, an AI-native way to work across &lt;a href="https://learning.postman.com/docs/sending-requests/response-data/test-responses/" target="_blank" rel="noopener"&gt;API testing&lt;/a&gt;, &lt;a href="https://learning.postman.com/docs/publishing-your-api/documenting-your-api/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;, discovery, and implementation. The team expected model quality and prompt design to be the hardest problems. The deeper challenges came from integrating an agent into a mature product with years of interface-driven assumptions, a wide surface area, and specialized concepts.&lt;/p&gt;
+&lt;p&gt;In this post, Postman and AWS describe the architectural patterns that emerged while making a mature product legible to an AI agent. These patterns include controlling tool sprawl, exposing schema-based reads, and treating context rather than capability as the primary bottleneck.&lt;/p&gt;
+&lt;p&gt;We also explain how &lt;a href="https://learning.postman.com/docs/getting-started/basics/about-agent-mode/" target="_blank" rel="noopener"&gt;Agent Mode&lt;/a&gt; uses &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; for model flexibility, geographically scoped cross-Region inference, model-dependent zero data retention, and multi-tier prompt caching. Together, these lessons can help teams move production agents beyond prototypes.&lt;/p&gt;
+&lt;h2 id="why-postman-built-agent-mode"&gt;Why Postman built Agent Mode&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://learning.postman.com/docs/getting-started/basics/about-agent-mode/" target="_blank" rel="noopener"&gt;Agent Mode&lt;/a&gt; is Postman’s portal for working with the product in an AI-native way across testing, documentation, discovery, and implementation. Postman has evolved over 11 years, and developers and users learned to locate information through the interface by expanding sidebars, checking tabs, and opening requests. Re-engineering that awareness for an agent surfaced structural assumptions in the product’s APIs, user experience, and distribution of product knowledge. An agent reasons over data rather than navigating a screen. Figure 1 illustrates how Agent Mode works directly against the application.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-1.png" alt="Postman Agent Mode opening a pull request and proposing next steps directly in the application" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: Agent Mode works directly against the Postman application. In this example, it opens a pull request and proposes next steps without requiring the user to navigate through the interface&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;a href="https://learning.postman.com/docs/getting-started/basics/about-agent-mode/" target="_blank" rel="noopener"&gt;Agent Mode&lt;/a&gt; runs on &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt;, which provides managed access to foundation models behind the agent. Supporting Postman’s global developer community creates variable, latency-sensitive demand with sharp traffic bursts. With Amazon Bedrock, Postman can scale this production workload without operating its own model-serving infrastructure while retaining flexibility in model selection and control over throughput, geographic processing, and cost. Figure 2 provides a high-level view of the production architecture before the following sections examine its components.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-2.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-2.png" alt="Postman Agent Mode architecture combining client-side tools, agent orchestration, purpose-built context, and Amazon Bedrock inference" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 2: Postman Agent Mode combines client-side tools, agent orchestration, purpose-built context, and Amazon Bedrock model inference. Tools are scoped for each task, and user approval remains part of actions that modify application state&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Human oversight is part of the production design. Agent Mode requires user approval before actions that modify application state. Postman also scopes available tools to the task, selects purpose-built context, and applies model-dependent data-retention settings. These controls reduce unintended actions and unnecessary data exposure, while production testing and monitoring remain necessary. As a responsible AI control, Postman uses &lt;a href="https://aws.amazon.com/bedrock/guardrails/" target="_blank" rel="noopener"&gt;Amazon Bedrock Guardrails&lt;/a&gt; to redact personally identifiable information before it reaches the underlying large language model (LLM). Enterprise admins can turn this on in Agent Mode’s guardrail settings.&lt;/p&gt;
+&lt;h2 id="handling-tool-sprawl"&gt;Handling tool sprawl&lt;/h2&gt;
+&lt;p&gt;In Agent Mode, tools define how the agent acts inside Postman. Early on, the team leaned toward highly atomic tools: small, precise actions such as opening a request, updating one field, or fetching a specific piece of metadata. That approach supported correctness and control in early iterations, but it also revealed several problems.&lt;/p&gt;
+&lt;p&gt;Many real-world workflows require long sequences of tool calls. Even when each step was fast, the overall experience felt slow, because every action had to return to the model before the next one could begin. Users watched the agent step through actions they had mentally grouped as a single operation.&lt;/p&gt;
+&lt;p&gt;In Postman’s testing, tool-selection errors increased once the visible toolset exceeded approximately 40 tools. The agent could call nonexistent tools, pass incorrect arguments despite valid schemas, or select tools that seemed semantically reasonable but were wrong in context. Larger or newer models reduced this behavior but didn’t remove it.&lt;/p&gt;
+&lt;p&gt;Past a certain toolset size, exposing more tools can reduce agent effectiveness. The current architecture selects tools based on need and context and isolates individual execution threads. The model sees only the tools relevant to the current task. Figure 3 illustrates this dynamic selection process.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-3.png" alt="Root agent narrowing more than 170 tools to about 15 by querying a vector database of tool embeddings, then handing them to a context-isolated sub-agent" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 3: The root agent queries a vector database of tool embeddings and narrows more than 170 tools to approximately 15 relevant to the request. It then hands those tools to a context-isolated sub-agent, so the model sees only the tools needed for the task&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;A subtler problem was that many client APIs were implicitly coupled to interface state. Tools that modified requests needed certain elements to be open, while other tools opened new tabs as side effects. The agent had to open a request tab to read it, mimicking interface interactions instead of reasoning about data. Postman is actively decoupling tools from tabs, and its &lt;a href="https://www.postman.com/product/native-git/" target="_blank" rel="noopener"&gt;Native Git&lt;/a&gt; feature makes extensive use of this approach. For example, &lt;a href="https://learning.postman.com/docs/postman-ai-developer-tools/agent-mode/" target="_blank" rel="noopener"&gt;Agent Mode&lt;/a&gt; can now send requests in the background without an open tab, although user approval is still required.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Builder takeaway:&lt;/strong&gt; Treat your tool catalog as part of the context budget. Dynamically scope the tools exposed to the model per task, and decouple “what the agent can do” from “what the UI happens to have open.”&lt;/p&gt;
+&lt;h2 id="exposing-schema-based-reads"&gt;Exposing schema-based reads&lt;/h2&gt;
+&lt;p&gt;For products such as the API Catalog, Postman consolidated multiple narrow views into a single query tool. These products expose structured data such as service uptime, test results, and endpoint response times across many services.&lt;/p&gt;
+&lt;p&gt;Given the schemas of the underlying ClickHouse tables, the agent can generate complex queries with joins and WHERE clauses. This substantially reduces the number of distinct tools needed to answer an analysis question:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-sql"&gt;SELECT toString(service_id) AS service_id,
+    countMerge(total_events_state) AS total_requests,
+    countMerge(error_events_state) AS total_errors,
+    round(countMerge(error_events_state) * 100.0
+        / countMerge(total_events_state), 4) AS error_rate_pct,
+    avgMerge(avg_latency_state) AS avg_latency_ms,
+    quantileMerge(0.95)(p95_latency_state) AS p95_latency_ms
+FROM http_events_summary_1d
+WHERE service_id IN ('...list of service IDs')
+    AND bucket_1d &amp;gt;= today() - 7
+GROUP BY service_id
+HAVING p95_latency_ms &amp;lt; 100
+    AND total_requests &amp;gt; 0
+ORDER BY error_rate_pct DESC;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;With this approach, the engineering job shifts from &lt;em&gt;building a tool per question&lt;/em&gt; to &lt;em&gt;modeling the data well once&lt;/em&gt;. The agent can then generate a far wider variety of queries than the team could ever have enumerated as individual tools.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Builder takeaway:&lt;/strong&gt; Where you have well-structured data, give the agent schema-aware read access to a query engine instead of a proliferation of single-purpose read tools. You trade tool count for data modeling, which produces a better scaling curve.&lt;/p&gt;
+&lt;h2 id="context-was-the-real-bottleneck"&gt;Context was the real bottleneck&lt;/h2&gt;
+&lt;p&gt;Postman initially assumed missing &lt;em&gt;tools&lt;/em&gt; would be the biggest blocker. In practice, missing or incomplete &lt;em&gt;context&lt;/em&gt; caused more failures than missing capabilities.&lt;/p&gt;
+&lt;p&gt;Context is the agent’s understanding of where the user is in Postman, which entities are active, and what state has already been established. When that context was wrong or absent, even correct tools became ineffective. Figure 4 distinguishes the two forms of context supplied to the agent.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-4.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-4.png" alt="Background context gathered automatically and user-selected context routed through per-entity handlers, both feeding the agent" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 4: Two kinds of context feed the agent. Broad, shallow background context is gathered automatically and minified for the prompt. Deep, focused selected context is chosen by the user and routed through a dedicated handler for each entity type. Each handler distills the entity into the information the agent needs&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;The challenge was structural. Over 11 years, developers and users learned to find information through the interface. Re-engineering that awareness for an agent required multiple iterations to determine what mattered for each workflow and what was noise. Serializing the existing interface data model did not produce useful context because those objects were shaped for rendering and data transfer, not reasoning. Postman therefore built dedicated context handlers that distilled each entity into what the agent needed to know.&lt;/p&gt;
+&lt;p&gt;As more objects gained handlers, truncation became the next problem. Many fields contain open-ended user-generated data, including request descriptions, OpenAPI specifications, and request payloads. This data can crowd the context window. Managing the context budget carefully is essential at scale and supports the filesystem-backed approach the team is exploring, where each handler does not need custom truncation and expansion logic.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Builder takeaway:&lt;/strong&gt; Don’t feed the model your rendering data model. Build purpose-shaped context handlers and treat the context window as a scarce, actively managed budget. Noise crowds out signal long before the model reaches its limit.&lt;/p&gt;
+&lt;h2 id="putting-it-all-together"&gt;Putting it all together&lt;/h2&gt;
+&lt;p&gt;As Agent Mode evolved, it became clear the system had to aggregate three distinct components, each solving a different problem.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Client-side tools live in the Postman application and represent the final actions the agent can take, such as opening requests, modifying settings, running collections, and inspecting authentication. Agent Mode also uses server-side tools for functions such as web search and agent-loop management, but most tools operate on the Postman application.&lt;/li&gt;
+ &lt;li&gt;Generic agent instructions define system-level behavior, including how proactive Agent Mode should be, how it communicates uncertainty, and what baseline product knowledge it carries.&lt;/li&gt;
+ &lt;li&gt;A knowledge base uses a Retrieval Augmented Generation (RAG) approach. Postman has a large product surface that includes multiple request protocols, mock servers, monitors, documentation, the API Network, workspace governance, variables, helpers, code generation, request settings, and collection runs.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Encoding all of this in static prompts was not feasible, and most of it is irrelevant to a given query. For initial seeding, the team used Postman’s Learning Center to generate concise feature-specific articles. At runtime, Agent Mode selects knowledge articles based on the incoming query and available context. For example, when a user selects a mock server, Agent Mode injects the related article automatically. This keeps the agent lightweight by default while providing depth when needed. The knowledge base evolves with the application, so teams can ship Agent Mode documentation with new features.&lt;/p&gt;
+&lt;h2 id="running-agent-mode-on-amazon-bedrock"&gt;Running Agent Mode on Amazon Bedrock&lt;/h2&gt;
+&lt;p&gt;The three components previously described resolve to the same runtime action: an inference call to a foundation model (FM). At Postman’s scale, traffic is bursty and developer-driven. Routing, caching, and geographic processing controls help Postman accommodate traffic bursts, manage inference cost, and address workload-specific processing requirements. Amazon Bedrock provides four capabilities that matter most here.&lt;/p&gt;
+&lt;h3 id="model-flexibility-across-the-claude-family"&gt;Model flexibility across the Claude family&lt;/h3&gt;
+&lt;p&gt;Agent Mode isn’t tied to one model. Through &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/welcome.html" target="_blank" rel="noopener"&gt;Amazon Bedrock model inference APIs&lt;/a&gt;, Postman can access supported Anthropic Claude models and route each workload to an appropriate model. A faster model can serve high-volume, latency-sensitive interactions, while a larger model can handle complex reasoning where quality matters more than cost. Moving between supported Claude models is primarily a configuration change rather than a new integration. This flexibility directly supports the tool-sprawl and context challenges described earlier. In Postman’s testing, newer and larger models reduced tool hallucinations, and Postman can adopt supported models without rebuilding the integration. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html" target="_blank" rel="noopener"&gt;supported models by AWS Region in Amazon Bedrock&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="cross-region-inference-for-high-throughput"&gt;Cross-Region inference for high throughput&lt;/h3&gt;
+&lt;p&gt;Developer traffic is spiky, and provisioning for peak demand in one AWS Region can be costly. Agent Mode uses &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html" target="_blank" rel="noopener"&gt;Amazon Bedrock cross-Region inference&lt;/a&gt; to automatically route requests among the destination Regions defined by an inference profile. At runtime, the application passes the selected inference profile ID or Amazon Resource Name (ARN) as the modelId in Converse or InvokeModel. The profile, applicable AWS Identity and Access Management (IAM) and service control policies, and quotas must permit every destination Region that Bedrock might select.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/geographic-cross-region-inference.html" target="_blank" rel="noopener"&gt;Geographic inference profiles&lt;/a&gt; route requests only among supported Regions within a defined geography, such as the United States or European Union. This option combines increased throughput with a configured geographic processing boundary.&lt;/li&gt;
+ &lt;li&gt;Global inference profiles can route requests among supported destination Regions worldwide to provide additional throughput during traffic bursts. They are appropriate only when the workload does not require a geographically constrained processing boundary.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Postman can select the inference profile per workload: a global profile for maximum available throughput or a geographic profile when processing must remain within the profile’s defined geography. This choice is explicit in the modelId used for each Bedrock inference request.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;# Schematic Converse request
+response = bedrock_runtime.converse(
+    modelId="&amp;lt;geographic-inference-profile-id-or-arn&amp;gt;",
+    messages=messages,
+    system=system_blocks,
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id="data-residency-and-enterprise-controls"&gt;Data residency and enterprise controls&lt;/h3&gt;
+&lt;p&gt;For enterprise customers, permitted processing geography can be as important as throughput. Geographic inference profiles constrain Bedrock routing to the profile’s supported destination Regions within the selected geography. This does not mean that inference runs inside Postman’s own AWS environment. Amazon Bedrock processes requests in the eligible AWS Regions for that profile, with data encrypted in transit and at rest. AWS states that Bedrock doesn’t use prompts and completions to train AWS models or distribute them to third parties. Postman has configured zero data retention with data_retention_mode set to none for supported Agent Mode models. Availability and behavior are model-dependent, so each production model must be checked against the current &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html" target="_blank" rel="noopener"&gt;Amazon Bedrock data-protection and retention documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="prompt-caching-to-keep-costs-in-check"&gt;Prompt caching to keep costs in check&lt;/h3&gt;
+&lt;p&gt;A production agent resends substantial stable context on each turn, including system instructions, generic agent behavior, a core tool set, selected knowledge, and conversation context. Reprocessing the unchanged prefix on every request adds avoidable latency and cost.&lt;/p&gt;
+&lt;p&gt;Agent Mode uses &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html" target="_blank" rel="noopener"&gt;Amazon Bedrock prompt caching&lt;/a&gt; to reuse stable prompt prefixes. The near-immutable core, including the system prompt, agent instructions, and core tool definitions, uses a one-hour cache checkpoint. More variable context uses a five-minute checkpoint that refreshes on a cache hit. Bedrock requires the longer-lived checkpoint to appear before the shorter-lived checkpoint. The shorter tier suits interactive sessions because idle context expires, while the one-hour tier can amortize its higher cache-write price across many reads. Cache benefits and supported TTLs depend on the selected model. Teams can verify behavior through the cacheReadInputTokens and cacheWriteInputTokens usage fields and measure time to first token for their own workloads.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;# Schematic cache checkpoints in Converse content blocks
+{"cachePoint": {"type": "default", "ttl": "1h"}}  # stable core
+{"cachePoint": {"type": "default", "ttl": "5m"}}  # variable layer&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Builder takeaway:&lt;/strong&gt; Treat inference as a routing-and-caching problem, not only a model-selection decision. Select the Claude model per workload, choose the appropriate cross-Region inference profile, and cache the stable prompt prefix with TTLs that match how frequently each layer changes.&lt;/p&gt;
+&lt;h2 id="best-practices-for-scaling-agents-in-production"&gt;Best practices for scaling agents in production&lt;/h2&gt;
+&lt;p&gt;Distilled from Postman’s journey, for builders working on Amazon Bedrock:&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;&lt;strong&gt;Budget tools as carefully as tokens.&lt;/strong&gt; Dynamically select the tools exposed per task. In Postman’s testing, tool-selection errors increased as the visible toolset became large.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Prefer schema-aware reads over tool proliferation.&lt;/strong&gt; Model your data well and let the agent query it.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Decouple agent actions from interface state.&lt;/strong&gt; If a tool requires an open tab, the agent is navigating the interface rather than reasoning directly over data.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Engineer context deliberately.&lt;/strong&gt; Purpose-built context handlers beat serializing your rendering model every time.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Manage the context window as a scarce resource.&lt;/strong&gt; Truncation and expansion strategy is a first-class design problem, not an afterthought.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Ship docs with features.&lt;/strong&gt; A RAG knowledge base only stays useful if it evolves in lockstep with the product.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Route and cache on Bedrock.&lt;/strong&gt; Match each workload to the appropriate Claude model, choose cross-Region inference based on throughput and geographic requirements, and apply tiered caching to stable prompt prefixes.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Building Agent Mode required Postman to confront the gap between large language model capabilities and the structure of mature products: interface assumptions, coupled clients, sprawling tool catalogs, and knowledge distributed across documentation and teams. Dynamic tool selection, schema-based reads, and deliberate context engineering emerged as repeatable patterns at the scale of &lt;a href="https://www.postman.com/company/about-postman/" target="_blank" rel="noopener"&gt;Postman’s developer community&lt;/a&gt;. &lt;a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; provides the managed model access, &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html" target="_blank" rel="noopener"&gt;cross-Region inference&lt;/a&gt;, model-dependent &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-retention.html" target="_blank" rel="noopener"&gt;retention controls&lt;/a&gt;, and &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html" target="_blank" rel="noopener"&gt;prompt caching&lt;/a&gt; that support the production architecture.&lt;/p&gt;
+&lt;p&gt;Whether you’re building your first agent or scaling an existing one, these patterns can help teams avoid common agent-integration and scaling challenges.&lt;/p&gt;
+&lt;p&gt;To learn more, see the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html" target="_blank" rel="noopener"&gt;Amazon Bedrock documentation&lt;/a&gt;, including guidance for &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html" target="_blank" rel="noopener"&gt;cross-Region inference&lt;/a&gt;, &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html" target="_blank" rel="noopener"&gt;prompt caching&lt;/a&gt;, and &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html" target="_blank" rel="noopener"&gt;data protection and retention&lt;/a&gt;. For related implementation guidance, read &lt;a href="https://aws.amazon.com/blogs/machine-learning/effectively-use-prompt-caching-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;Effectively use prompt caching on Amazon Bedrock&lt;/a&gt; and &lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-bedrock-announces-global-cross-region-inference-for-increased-throughput/" target="_blank" rel="noopener"&gt;Amazon Bedrock announces global cross-Region inference for increased throughput&lt;/a&gt; on the AWS Machine Learning Blog. To explore the product, see the &lt;a href="https://learning.postman.com/docs/getting-started/basics/about-agent-mode/" target="_blank" rel="noopener"&gt;Postman Agent Mode documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Postman’s production implementation is proprietary and isn’t available as a public sample repository.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p style="clear: both"&gt;&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-5.jpg" alt="Srinivas Kini" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Srinivas Kini&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Srinivas is a Senior Engineer on Postman’s AI team, building enterprise agents at the intersection of distributed systems and AI infrastructure. His focus is core agent architecture that keeps agents reliable and accurate at scale.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-21683-6.jpg" alt="Shubham Gupta" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Shubham Gupta&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Shubham is a Solutions Architect at AWS based in Bengaluru, India, supporting independent software vendors (ISVs). He works with engineering and leadership teams to design, build, and run their products on AWS, from first architecture to production, with a deep focus on generative AI and resilience at scale. Outside of work, Shubham is an avid hiker who brings the same preparation and persistence from the trail to building systems that last.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Pay-per-inference for AI agents: How BlockRun and Incarna use Amazon Bedrock AgentCore payments</title>
 		<link>https://aws.amazon.com/blogs/machine-learning/pay-per-inference-for-ai-agents-how-blockrun-and-incarna-use-amazon-bedrock-agentcore-payments/</link>
 		
@@ -3266,609 +3465,6 @@ export CLAUDE_CODE_USE_MANTLE=1&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt;
   &lt;h3 class="lb-h4"&gt;Vineet Kachhawaha&lt;/h3&gt;
   &lt;p style="overflow: hidden"&gt;Vineet is a Sr.&amp;nbsp;Worldwide Agentic AI Solution Architect at AWS, focused on Amazon Quick. He works closely with enterprise customers and partners to design, deploy, and scale AI-driven solutions. Vineet also co-led the AWS for Legal Tech initiative, helping legal and compliance organizations harness AI/ML to drive business value. He loves building and tinkering with agentic AI solutions and considers himself a lifelong learner. Vineet regularly speaks at AWS events and industry conferences, sharing his expertise on generative AI and agentic architectures.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Agentic retrieval with LangChain and Amazon Bedrock Knowledge Bases</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/agentic-retrieval-with-langchain-and-amazon-bedrock-knowledge-bases/</link>
-		
-		<dc:creator><![CDATA[Manideep Reddy Gillela]]></dc:creator>
-		<pubDate>Mon, 05 Oct 2026 15:53:56 +0000</pubDate>
-				<category><![CDATA[Advanced (300)]]></category>
-		<category><![CDATA[Amazon Bedrock Knowledge Bases]]></category>
-		<category><![CDATA[Technical How-to]]></category>
-		<guid isPermaLink="false">9ef1f1b789cbe6fd45278d748b65ebf4500d6c5e</guid>
-
-					<description>Build a Retrieval Augmented Generation (RAG) application on Amazon Bedrock Managed Knowledge Base with LangChain, and see how agentic retrieval handles the multi-part questions that single-shot retrieval answers poorly. Run the same query through both paths, read the trace events, and compare what each retrieval path costs.</description>
-										<content:encoded>&lt;p&gt;When a user asks the support assistant, a Retrieval Augmented Generation (RAG) application built with LangChain to compare two products across three dimensions, they’re effectively posing six questions simultaneously. Similarity search uses a single query vector to encapsulate all the intents. The retriever then generates the best approximation of the average of those intents. The resulting answer comes back concise. The search executes without errors. The relevance scores look reasonable. Yet the retrieved chunks, while topically relevant, only cover a fraction of what the question actually asked.&lt;/p&gt;
-&lt;p&gt;In this post, we showcase a RAG application on Amazon Bedrock Managed Knowledge Base with &lt;a href="https://github.com/langchain-ai/langchain-aws" target="_blank" rel="noopener"&gt;LangChain&lt;/a&gt;. We run the same multi-part question through standard and agentic retrieval, and read the trace events to see the plan the model produced. We also cover what the two retrieval paths cost and when the cheaper one is the right choice.&lt;/p&gt;
-&lt;p&gt;Agentic retrieval is available on Amazon Bedrock Managed Knowledge Base. Instead of one search, Amazon Bedrock Managed Knowledge Base plans the retrieval. It breaks the question into sub-queries, runs them, judges whether it has enough evidence, and searches again if it doesn’t. The &lt;code&gt;langchain-aws&lt;/code&gt; package exposes both agentic and standard retrieval, so you can use either from a LangChain application.&lt;/p&gt;
-&lt;h2 id="solution-overview"&gt;Solution overview&lt;/h2&gt;
-&lt;p&gt;&lt;a href="https://aws.amazon.com/blogs/aws/introducing-amazon-bedrock-managed-knowledge-base-for-faster-more-accurate-enterprise-ai-applications/" target="_blank" rel="noopener"&gt;Amazon Bedrock Managed Knowledge Base&lt;/a&gt;, the fully managed RAG capability in Amazon Bedrock, removes the self-managed vector store, embeddings, and re-ranking models from the RAG architecture. You configure a data source, and Amazon Bedrock Managed Knowledge Bases handles chunking, embedding, storage, and retrieval. This walkthrough uses &lt;a href="https://aws.amazon.com/pm/serv-s3/?trk=50b671a1-06f5-4224-9505-fa45ee881c08&amp;amp;sc_channel=ps&amp;amp;ef_id=EAIaIQobChMI1uiUo4eXlgMVy1J_AB2pfydUEAAYASAAEgJ6PPD_BwE&amp;amp;gads_camp=23522747487&amp;amp;gads_ag=196433733807&amp;amp;gads_ad=795876995201&amp;amp;gads_kw=amazon%20s3&amp;amp;gads_matchtype=e&amp;amp;gads_network=g&amp;amp;gads_device=c&amp;amp;gads_geo=9022830&amp;amp;gad_campaignid=23522747487&amp;amp;gbraid=0AAAAADjHtp-DJgH1kF6NUslUNqoqqj14q&amp;amp;gclid=EAIaIQobChMI1uiUo4eXlgMVy1J_AB2pfydUEAAYASAAEgJ6PPD_BwE" target="_blank" rel="noopener"&gt;Amazon Simple Storage Service (Amazon S3)&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Amazon Bedrock Managed Knowledge Bases provides two APIs. We briefly discuss those differences in this post. The &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_Retrieve.html" target="_blank" rel="noopener"&gt;Retrieve&lt;/a&gt; API runs one hybrid search and returns scored chunks. The &lt;a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_AgenticRetrieveStream.html" target="_blank" rel="noopener"&gt;AgenticRetrieveStream&lt;/a&gt; API runs a planning loop and streams the steps back to you as trace events. In the &lt;code&gt;langchain-aws&lt;/code&gt; package, the first is a standard LangChain retriever you can drop into a chain. The second is a function retrieval directly from a knowledge base.&lt;/p&gt;
-&lt;p&gt;The following diagram shows the solution architecture. The application queries Amazon Bedrock Knowledge Bases using either the Retrieve API (standard, single-shot) or the AgenticRetrieveStream API (multi-step planning loop). Both paths return document chunks from the knowledge base, which the application then uses to generate a grounded response.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-1.png" alt="Application querying Amazon Bedrock Knowledge Bases through the Retrieve and AgenticRetrieveStream APIs to return document chunks and generate a grounded response" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: Solution architecture for querying Amazon Bedrock Knowledge Bases with the Retrieve and AgenticRetrieveStream APIs&lt;/p&gt;
-&lt;/div&gt;
-&lt;h2 id="implementation-walkthrough"&gt;Implementation walkthrough&lt;/h2&gt;
-&lt;p&gt;The following sections walk you through creating a knowledge base, querying it with both retrieval methods, and reading the trace events the agentic planner produces.&lt;/p&gt;
-&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
-&lt;p&gt;To follow along you need:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;An AWS account with access to Amazon Bedrock in a Region where Amazon Bedrock Managed Knowledge Bases and agentic retrieval are available. This walkthrough uses the US East (N. Virginia) Region (&lt;code&gt;us-east-1&lt;/code&gt;), and the code assumes it throughout. Check the AWS &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt; for other Regional availability and support.&lt;/li&gt;
- &lt;li&gt;Two AWS Identity and Access Management (IAM) identities, described in the next section: a service role the knowledge base assumes, and permissions on the identity you call the APIs from.&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://www.python.org/downloads/" target="_blank" rel="noopener"&gt;Python 3.12&lt;/a&gt; or later.&lt;/li&gt;
- &lt;li&gt;An S3 bucket holding the sample documents. The corpus needs several documents that cover overlapping topics so that a comparative question has somewhere to go. A single flat document cannot demonstrate query planning.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Install the packages. The &lt;a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html" target="_blank" rel="noopener"&gt;Boto3&lt;/a&gt; version matters: &lt;code&gt;agentic_retrieve_stream&lt;/code&gt; did not exist before 1.43.32.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-text"&gt;langchain-aws&amp;gt;=1.6.3
-langchain&amp;gt;=1.0
-boto3&amp;gt;=1.43.32&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h2 id="permissions"&gt;Permissions&lt;/h2&gt;
-&lt;p&gt;Two identities are involved and separating them is worth doing deliberately. The knowledge base assumes a service role to read your documents and call the embedding model. Your application uses an AWS Security Token Service (AWS STS) caller identity to query. Neither needs the other’s permissions.&lt;/p&gt;
-&lt;p&gt;Amazon Bedrock creates the service role for you if you let it. To supply your own, give it a trust policy that lets Amazon Bedrock assume it. Scope it with &lt;code&gt;aws:SourceAccount&lt;/code&gt; and &lt;code&gt;aws:SourceArn&lt;/code&gt; so that another account can’t use it as a confused deputy:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-json"&gt;{
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Principal": {"Service": "bedrock.amazonaws.com"},
-        "Action": "sts:AssumeRole",
-        "Condition": {
-            "StringEquals": {"aws:SourceAccount": "111122223333"},
-            "ArnLike": {
-                "aws:SourceArn": "arn:aws:bedrock:us-east-1:111122223333:knowledge-base/*"
-            }
-        }
-    }]
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;The service role also needs &lt;code&gt;s3:ListBucket&lt;/code&gt; on your bucket and &lt;code&gt;s3:GetObject&lt;/code&gt; on its contents, both conditioned on &lt;code&gt;aws:ResourceAccount&lt;/code&gt;. Scope the &lt;code&gt;knowledge-base/*&lt;/code&gt; wildcard character down to specific knowledge base IDs after you have created them.&lt;/p&gt;
-&lt;p&gt;The AWS STS caller identity needs a different set. &lt;code&gt;bedrock:AgenticRetrieveStream&lt;/code&gt; and &lt;code&gt;bedrock:InvokeModelWithResponseStream&lt;/code&gt; can’t be scoped to a knowledge base Amazon Resource Name (ARN). &lt;code&gt;bedrock:Retrieve&lt;/code&gt; and &lt;code&gt;bedrock:GetDocumentContent&lt;/code&gt; can:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-json"&gt;{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AgenticRetrievalAndPlannerModel",
-            "Effect": "Allow",
-            "Action": [
-                "bedrock:AgenticRetrieveStream",
-                "bedrock:InvokeModelWithResponseStream"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "RetrieveAndFullDocumentExpansion",
-            "Effect": "Allow",
-            "Action": ["bedrock:Retrieve", "bedrock:GetDocumentContent"],
-            "Resource": "arn:aws:bedrock:&amp;lt;region&amp;gt;:111122223333:knowledge-base/&amp;lt;knowledge-base-id&amp;gt;"
-        },
-        {
-            "Sid": "GenerateAnswersInTheChains",
-            "Effect": "Allow",
-            "Action": ["bedrock:InvokeModel", "bedrock:Converse", "bedrock:ConverseStream"],
-            "Resource": "*"
-        }
-    ]
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;code&gt;bedrock:GetDocumentContent&lt;/code&gt; is often overlooked. Agentic retrieval calls it when a &lt;code&gt;FullDocumentExpansion&lt;/code&gt; step decides a passage lacks the context to answer. A policy with only &lt;code&gt;bedrock:Retrieve&lt;/code&gt; works until the planner reaches for a whole document and then fails partway through a query.&lt;/p&gt;
-&lt;p&gt;To create and manage the knowledge base itself, the calling role additionally needs &lt;code&gt;bedrock:CreateKnowledgeBase&lt;/code&gt; on &lt;code&gt;*&lt;/code&gt;, and the &lt;code&gt;GetKnowledgeBase&lt;/code&gt;, &lt;code&gt;UpdateKnowledgeBase&lt;/code&gt;, &lt;code&gt;DeleteKnowledgeBase&lt;/code&gt;, &lt;code&gt;StartIngestionJob&lt;/code&gt;, &lt;code&gt;GetIngestionJob&lt;/code&gt;, and &lt;code&gt;ListIngestionJobs&lt;/code&gt; actions on &lt;code&gt;knowledge-base/*&lt;/code&gt;. If you’re using guardrails, add &lt;code&gt;bedrock:GetGuardrail&lt;/code&gt; and &lt;code&gt;bedrock:ApplyGuardrail&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Running this walkthrough might incur costs for document storage and ingestion in the knowledge base, retrieval calls, and foundation model (FM) inference.&lt;/p&gt;
-&lt;p&gt;For more information about pricing, see the Knowledge Bases section of &lt;a href="https://aws.amazon.com/bedrock/pricing/" target="_blank" rel="noopener"&gt;Amazon Bedrock pricing&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Delete the resources when you complete this experiment.&lt;/p&gt;
-&lt;h2 id="creating-and-populating-the-knowledge-base"&gt;Creating and populating the knowledge base&lt;/h2&gt;
-&lt;p&gt;Create the knowledge base with a &lt;code&gt;managedKnowledgeBaseConfiguration&lt;/code&gt;. Setting &lt;code&gt;embeddingModelType&lt;/code&gt; to &lt;code&gt;MANAGED&lt;/code&gt; uses the service-managed embedding model.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;import boto3
-import os
-
-REGION = os.environ["AWS_REGION"]
-bedrock_agent = boto3.client("bedrock-agent", region_name=REGION)
-
-response = bedrock_agent.create_knowledge_base(
-    name=KB_NAME,
-    roleArn=KB_ROLE_ARN,
-    knowledgeBaseConfiguration={
-        "type": "MANAGED",
-        "managedKnowledgeBaseConfiguration": {
-            "embeddingModelType": "MANAGED",
-        },
-    },
-)
-KB_ID = response["knowledgeBase"]["knowledgeBaseId"]&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;There’s no &lt;code&gt;storageConfiguration&lt;/code&gt; in that request. For a self-managed knowledge base you would pass one describing your vector store. Amazon Bedrock Managed Knowledge Base does not take one, which is the clearest signal in the API that Amazon Bedrock owns the storage layer.&lt;/p&gt;
-&lt;p&gt;Attach the S3 bucket as a data source, then start an ingestion job. Ingestion is asynchronous, so poll until the job reaches a terminal state rather than sleeping for a fixed interval and hoping.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;import time
-
-SUCCESS_STATES = frozenset({"COMPLETE"})
-FAILURE_STATES = frozenset({"FAILED", "STOPPED"})
-
-def wait_for_ingestion(kb_id, ds_id, job_id, timeout_s=1800):
-    """Poll an ingestion job until it reaches a terminal state."""
-    deadline = time.time() + timeout_s
-    while time.time() &amp;lt; deadline:
-        job = bedrock_agent.get_ingestion_job(
-            knowledgeBaseId=kb_id,
-            dataSourceId=ds_id,
-            ingestionJobId=job_id,
-        )["ingestionJob"]
-        status = job["status"]
-        if status in SUCCESS_STATES:
-            return job
-        if status in FAILURE_STATES:
-            reasons = job.get("failureReasons") or ["no reason reported"]
-            raise RuntimeError(f"Ingestion job {job_id} finished as {status}: " + "; ".join(reasons))
-        time.sleep(15)
-    raise TimeoutError(f"Ingestion job {job_id} did not finish in {timeout_s}s")&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;The full data source configuration and error handling are in the &lt;a href="https://github.com/aws-samples/sample-rag-bedrock-langchain-blog" target="_blank" rel="noopener"&gt;sample repository&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id="querying-with-the-langchain-retriever"&gt;Querying with the LangChain retriever&lt;/h2&gt;
-&lt;p&gt;&lt;a href="https://reference.langchain.com/python/langchain-aws/retrievers/bedrock/AmazonKnowledgeBasesRetriever" target="_blank" rel="noopener"&gt;AmazonKnowledgeBasesRetriever&lt;/a&gt; wraps the Retrieve API and behaves like any other LangChain retriever. For Amazon Bedrock Managed Knowledge Bases, pass &lt;code&gt;managedSearchConfiguration&lt;/code&gt;. This is the part that trips people up: &lt;code&gt;vectorSearchConfiguration&lt;/code&gt; is the previous path for knowledge bases where you run your own vector store. It is what most existing examples show.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;from langchain_aws.retrievers import AmazonKnowledgeBasesRetriever
-
-SIMPLE_QUERY = "What is the restore time objective for the checkout service?"
-
-retriever = AmazonKnowledgeBasesRetriever(
-    knowledge_base_id=KB_ID,
-    region_name=REGION,
-    retrieval_config={
-        "managedSearchConfiguration": {
-            "numberOfResults": 5,
-        }
-    },
-)
-docs = retriever.invoke(SIMPLE_QUERY)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Each result comes back as a LangChain &lt;code&gt;Document&lt;/code&gt;. The relevance score is in &lt;code&gt;metadata["score"]&lt;/code&gt;, and the source document’s own metadata is under &lt;code&gt;metadata["source_metadata"]&lt;/code&gt;, renamed so it does not collide. If you want to drop low-confidence results, set &lt;code&gt;min_score_confidence&lt;/code&gt; on the retriever instead of filtering afterward.&lt;/p&gt;
-&lt;p&gt;For a question with one clear intent, this is the right tool. It is one call. The latency is the lowest of the two options, and you keep full control of how the answer gets generated. Most of the queries a production assistant sees are this shape, and reaching for a planning loop to answer them wastes money and time.&lt;/p&gt;
-&lt;h2 id="where-single-shot-retrieval-runs-out"&gt;Where single-shot retrieval runs out&lt;/h2&gt;
-&lt;p&gt;Now give the same retriever a question with several parts:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;COMPLEX_QUERY = (
-    "Compare the checkout and inventory services across on-call escalation, backup and "
-    "restore targets, and deployment rollback procedure. Where do they differ?"
-)
-
-docs = retriever.invoke(COMPLEX_QUERY)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Five chunks come back, ranked by hybrid score against one embedding of that whole question.&lt;/p&gt;
-&lt;p&gt;That question contains six intents: two services across three dimensions. Scoring the retrieved text for evidence of each one gives a concrete measure of what a single embedding recovers.&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;numberOfResults&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Chunks&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Share of corpus&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Sub-intents covered&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Missing&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;5&lt;/td&gt;
-   &lt;td&gt;5&lt;/td&gt;
-   &lt;td&gt;10%&lt;/td&gt;
-   &lt;td&gt;4 of 6&lt;/td&gt;
-   &lt;td&gt;checkout on-call, inventory restore&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;10&lt;/td&gt;
-   &lt;td&gt;10&lt;/td&gt;
-   &lt;td&gt;19%&lt;/td&gt;
-   &lt;td&gt;6 of 6&lt;/td&gt;
-   &lt;td&gt;none&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;At five results, one embedding standing for six intents misses two of them. At ten it covers all six, with visible waste: two sub-intents are covered twice and one chunk carries none.&lt;/p&gt;
-&lt;p&gt;The retriever did its job. The limitation is structural: one vector cannot represent six intents, and there is no step in the process that asks whether the returned evidence is enough to answer the question.&lt;/p&gt;
-&lt;h2 id="running-agentic-retrieval"&gt;Running agentic retrieval&lt;/h2&gt;
-&lt;p&gt;Agentic retrieval is not a LangChain retriever, but a feature of Amazon Bedrock Managed Knowledge Bases. The &lt;code&gt;langchain-aws&lt;/code&gt; package exposes it as a standalone function, &lt;a href="https://python.langchain.com/api_reference/aws/retrievers/langchain_aws.retrievers.bedrock.html" target="_blank" rel="noopener"&gt;agentic_retrieve&lt;/a&gt;, because the underlying API streams its results and doesn’t fit the synchronous &lt;code&gt;BaseRetriever&lt;/code&gt; interface. There’s no flag on &lt;code&gt;AmazonKnowledgeBasesRetriever&lt;/code&gt; that switches it on.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;from langchain_aws.retrievers.bedrock import agentic_retrieve
-
-result = agentic_retrieve(
-    knowledge_base_id=KB_ID,
-    query=COMPLEX_QUERY,
-    region_name=REGION,
-    generate_response=True,
-    number_of_results=10,
-)
-print(result["generatedResponse"]["answer"])&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;With &lt;code&gt;generate_response=True&lt;/code&gt;, the service returns a grounded answer and citations alongside the retrieved chunks, so you get an answer without wiring up a separate model call. The function works only against Amazon Bedrock Managed Knowledge Base.&lt;/p&gt;
-&lt;p&gt;Internally, the service plans, retrieves, evaluates whether the evidence is sufficient, and iterates if it isn’t. The helper hides all of that and hands back the final chunks, which is convenient and means you can’t see the plan.&lt;/p&gt;
-&lt;h2 id="reading-the-trace-events"&gt;Reading the trace events&lt;/h2&gt;
-&lt;p&gt;To watch the model decompose the question, call &lt;a href="https://docs.aws.amazon.com/boto3/latest/reference/services/bedrock-agent-runtime/client/agentic_retrieve_stream.html" target="_blank" rel="noopener"&gt;agentic_retrieve_stream&lt;/a&gt; on the &lt;a href="https://docs.aws.amazon.com/boto3/latest/reference/services/bedrock-agent-runtime.html" target="_blank" rel="noopener"&gt;bedrock-agent-runtime&lt;/a&gt; client directly. This is the one place in this walkthrough where we step around &lt;code&gt;langchain-aws&lt;/code&gt;, because the helper discards trace events and doesn’t expose &lt;code&gt;maxAgentIteration&lt;/code&gt; or a custom planner model.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;runtime = boto3.client("bedrock-agent-runtime", region_name=REGION)
-
-response = runtime.agentic_retrieve_stream(
-    messages=[{"role": "user", "content": {"text": COMPLEX_QUERY}}],
-    retrievers=[{
-        "configuration": {
-            "knowledgeBase": {
-                "knowledgeBaseId": KB_ID,
-                "retrievalOverrides": {"maxNumberOfResults": 10},
-            }
-        }
-    }],
-    agenticRetrieveConfiguration={
-        "foundationModelType": "MANAGED",
-        "rerankingModelType": "MANAGED",
-        # 5 is the API default. Below 4 the planner stops decomposing entirely.
-        "maxAgentIteration": 5,
-    },
-    generateResponse=False,
-)
-
-for event in response["stream"]:
-    if "traceEvent" in event:
-        attrs = event["traceEvent"]["attributes"]
-        print(f"{attrs.get('step')}: {attrs.get('status')}")
-        for action in attrs.get("actions", []) or []:
-            if "retrieve" in action:
-                query = action["retrieve"].get("inputQuery", {}).get("text", "")
-                print(f" sub-query: {query}")
-    elif "result" in event:
-        for chunk in event["result"].get("results", []):
-            print(chunk.get("content", {}).get("text", "")[:120])&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Set &lt;code&gt;generateResponse&lt;/code&gt; to &lt;code&gt;False&lt;/code&gt; when you only want the retrieval behavior. The API generates a grounded answer by default, which costs an extra model call you may not need while you are inspecting the plan.&lt;/p&gt;
-&lt;p&gt;A trace event’s &lt;code&gt;step&lt;/code&gt; tells you where the planner is. &lt;code&gt;SpeculativeRetrieval&lt;/code&gt; runs before the first plan to cut latency and doesn’t count against your iteration budget. &lt;code&gt;Planning&lt;/code&gt; is where the model reads the question and prior results and emits sub-queries. &lt;code&gt;Retrieval&lt;/code&gt; fires once per sub-query. &lt;code&gt;FullDocumentExpansion&lt;/code&gt; appears when the model decides a passage lacks the context to answer and pulls the whole document instead. Each carries a status of &lt;code&gt;IN_PROGRESS&lt;/code&gt;, &lt;code&gt;SUCCEEDED&lt;/code&gt;, or &lt;code&gt;FAILED&lt;/code&gt;, plus a human-readable message.&lt;/p&gt;
-&lt;p&gt;The final chunks arrive separately. The &lt;code&gt;result&lt;/code&gt; is its own event type rather than a fifth step, and it holds the deduplicated chunks from every iteration along with the grounded answer when response generation is on. Branch on the event key, as the preceding loop demonstrates, rather than expect a terminal step value.&lt;/p&gt;
-&lt;p&gt;The sub-query text is the part worth logging. It sits in &lt;code&gt;attributes.actions[].retrieve.inputQuery.text&lt;/code&gt;, not in the top-level trace fields, so a handler that reads only &lt;code&gt;step&lt;/code&gt; and &lt;code&gt;status&lt;/code&gt; shows you that planning happened without showing you what it decided.&lt;/p&gt;
-&lt;p&gt;The following diagram shows the agentic retrieval planning loop, including the speculative retrieval, planning, sub-query retrieval, evaluation, and optional re-planning steps.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-2.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-2.png" alt="The agentic retrieval planning loop, from speculative retrieval through planning, sub-query retrieval, evaluation, and optional re-planning" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 2: Steps in the agentic retrieval planning loop&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Two details are worth knowing before you build on this. Deduplication applies only to the &lt;code&gt;result&lt;/code&gt; event, so a chunk retrieved by three sub-queries appears once at the end but three times across the traces.&lt;/p&gt;
-&lt;p&gt;The second is about scores. A Retrieve response gives each chunk a typed &lt;code&gt;score&lt;/code&gt; field holding its relevance to the query. Agentic retrieval results carry &lt;code&gt;content&lt;/code&gt;, &lt;code&gt;metadata&lt;/code&gt;, and &lt;code&gt;sourceRetriever&lt;/code&gt;, with no equivalent typed field. Code that reads &lt;code&gt;result["score"]&lt;/code&gt; after switching APIs gets nothing. If you rank or filter relevance, plan for that difference.&lt;/p&gt;
-&lt;p&gt;In production, use Amazon Bedrock Guardrails to enforce content policies and grounding checks on generated responses. Both retrieval paths support guardrails. Agentic retrieval supports guardrails through &lt;code&gt;policyConfiguration.bedrockGuardrailConfiguration&lt;/code&gt; rather than the &lt;code&gt;guardrail_config&lt;/code&gt; argument the LangChain retriever takes, and supports &lt;code&gt;BLOCK&lt;/code&gt; mode only. If you rely on &lt;code&gt;MASK&lt;/code&gt; mode, that is a reason to stay on the Retrieve API.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;maxAgentIteration&lt;/code&gt; accepts two through ten and defaults to five. Leave it at the default. At two or three the planner runs one cycle, emits no sub-queries, and returns what the speculative retrieval step already found. This is single-shot behavior at the agentic price. Decomposition begins at four. The planner often stops early when it judges the evidence sufficient, so the ceiling is a bound rather than a target.&lt;/p&gt;
-&lt;h2 id="comparing-the-two-retrieval-paths"&gt;Comparing the two retrieval paths&lt;/h2&gt;
-&lt;p&gt;For context on how this behaves at scale, AWS evaluated agentic retrieval on MuSiQue, a public multi-hop benchmark. The evaluation showed improved recall over single-shot retrieval, with the largest gains on the hardest questions. Single-hop questions saw gains under five points. That last figure matches the shape of the trade-off: decomposition helps when there is something to decompose.&lt;/p&gt;
-&lt;h2 id="building-the-rag-chain"&gt;Building the RAG chain&lt;/h2&gt;
-&lt;p&gt;For the standard retriever, the usual &lt;a href="https://python.langchain.com/docs/concepts/lcel/" target="_blank" rel="noopener"&gt;LangChain Expression Language (LCEL)&lt;/a&gt; composition works directly:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;from langchain_aws import ChatBedrockConverse
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-llm = ChatBedrockConverse(model=MODEL_ID, region_name=REGION)
-prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-
-chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;code&gt;format_docs&lt;/code&gt; matters more than it looks. Passing &lt;code&gt;Document&lt;/code&gt; objects straight into a prompt renders their &lt;code&gt;repr&lt;/code&gt;, and the model gets metadata noise mixed into the context.&lt;/p&gt;
-&lt;p&gt;To put agentic retrieval in the same position, wrap it in a &lt;code&gt;RunnableLambda&lt;/code&gt;, since it is a function rather than a retriever:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;from langchain_core.runnables import RunnableLambda
-
-def agentic_context(question: str) -&amp;gt; str:
-    result = agentic_retrieve(
-        knowledge_base_id=KB_ID,
-        query=question,
-        region_name=REGION,
-        number_of_results=10,
-    )
-    return "\n\n".join(
-        item.get("content", {}).get("text", "")
-        for item in result.get("results", [])
-    )
-
-agentic_chain = (
-    {"context": RunnableLambda(agentic_context), "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Note that &lt;code&gt;generate_response&lt;/code&gt; is off here. The service can generate the answer itself, but inside a chain you usually want your own prompt and model, so you take the chunks and generate downstream. Use the service generation when you want one call and less code, and the wrapped version when the prompt is yours to control.&lt;/p&gt;
-&lt;h2 id="choosing-between-standard-and-agentic-retrieval"&gt;Choosing between standard and agentic retrieval&lt;/h2&gt;
-&lt;p&gt;Use Retrieve for short, well-scoped questions. It is cheaper, faster, works against self-managed knowledge bases, and returns scores in the results. Most production traffic looks like this.&lt;/p&gt;
-&lt;p&gt;Use AgenticRetrieveStream when questions are multi-part, comparative, or exploratory, or when the evidence spans more than one knowledge base. It registers up to five knowledge bases in one request and routes sub-queries using a natural-language description you attach to each. The other API cannot do this at all. It costs more per call, makes several model invocations, and has the higher latency of the two.&lt;/p&gt;
-&lt;p&gt;Routing on query shape rather than picking one for everything is the pattern we recommend. A classifier or a heuristic on the question can send most traffic down the cheap path and reserve the planner for questions that need it.&lt;/p&gt;
-&lt;h2 id="clean-up-resources"&gt;Clean up resources&lt;/h2&gt;
-&lt;p&gt;Delete the knowledge base, its data source, the S3 objects and bucket, and the IAM role that you created. A knowledge base with documents in it continues to incur storage charges.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;bedrock_agent.delete_data_source(knowledgeBaseId=KB_ID, dataSourceId=DS_ID)
-bedrock_agent.delete_knowledge_base(knowledgeBaseId=KB_ID)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;The &lt;a href="https://github.com/aws-samples/sample-rag-bedrock-langchain-blog" target="_blank" rel="noopener"&gt;repository&lt;/a&gt; includes a cleanup script that also empties the bucket and removes the role.&lt;/p&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;We showed how to build a RAG application on Amazon Bedrock Knowledge Bases with LangChain, and how agentic retrieval handles multi-part questions that single-shot retrieval answers poorly. We also showed the friction in the current integration. Agentic retrieval is a function rather than a LangChain retriever, so it needs a &lt;code&gt;RunnableLambda&lt;/code&gt; to sit in a chain. The trace events that show the query plan require a direct &lt;code&gt;boto3&lt;/code&gt; call.&lt;/p&gt;
-&lt;p&gt;Agentic retrieval trades higher per-call cost for improved recall on multi-hop questions, using a built-in model for query planning. The next useful step is measuring your own query mix before you route everything through a planner.&lt;/p&gt;
-&lt;p&gt;To get started, see the Amazon Bedrock Knowledge Bases &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/kb-build-managed.html" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt; and the accompanying sample code. For help applying this to your own workload, contact your AWS account team.&lt;/p&gt;
-&lt;p style="clear: both"&gt;&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-3.jpg" alt="Manideep Reddy Gillela" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Manideep Reddy Gillela&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/manideep-reddy-gillela/" target="_blank" rel="noopener"&gt;Manideep&lt;/a&gt; is a Delivery Consultant, Cloud Infrastructure Architect at Amazon Web Services, where he helps enterprise customers design scalable, secure, and cost-effective cloud solutions. With more than six years of experience spanning cloud architecture, AI/ML, and generative AI on AWS, he partners with organizations to accelerate digital transformation. Outside of work, Manideep enjoys traveling, swimming, and playing recreational sports.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-4.jpg" alt="Luis Felipe Florez Leano" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Luis Felipe Florez Leano&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/luis-felipe-fl%C3%B3rez-lea%C3%B1o-a1a58871/" target="_blank" rel="noopener"&gt;Luis&lt;/a&gt; is a Solutions Architect on the Americas GenAI Partner Solutions Architecture team at AWS. He works with AWS Partners across the Americas to help them design, build, and scale generative AI solutions on AWS. His focus is on practical implementations using Amazon Bedrock and helping organizations navigate the technical and business opportunities of generative AI.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-5.jpg" alt="Sushma Sunkollu Nagaraj" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Sushma Sunkollu Nagaraj&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="http://www.linkedin.com/in/sushma-sunkollu-nagaraj"&gt;Sushma&lt;/a&gt; is a Partner Solutions Architect at Amazon Web Services with over five years of experience helping partners and customers build secure, scalable cloud solutions. Specializing in DevOps and infrastructure automation, she collaborates with strategic partners to design AWS-optimized architectures, lead technical workshops, and deliver high-impact proofs-of-concept. Her expertise extends into AI/ML, where she supports customers in building intelligent applications using AWS AI services. She is passionate about simplifying complexity and enabling innovation at scale.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21691-6.jpg" alt="Satya Pattanaik" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Satya Pattanaik&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/satyapattanaik/" target="_blank" rel="noopener"&gt;Satya&lt;/a&gt; is a Senior Solutions Architect at AWS. In this role, he assists Independent Software Vendors (ISVs) in developing scalable and resilient applications on the AWS Cloud. Prior to joining AWS, he made a substantial impact in driving growth and cloud adaptation for large organizations. Outside of his professional endeavors, Satya is passionate about BBQ. He continuously learns new techniques to create flavorful dishes and experiments with various recipes.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Downgrading user roles in Amazon Quick</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/downgrading-user-roles-in-amazon-quick/</link>
-		
-		<dc:creator><![CDATA[Gaurav Jaisingh]]></dc:creator>
-		<pubDate>Mon, 05 Oct 2026 15:51:38 +0000</pubDate>
-				<category><![CDATA[Amazon Quick Sight]]></category>
-		<category><![CDATA[Amazon Quick Suite]]></category>
-		<category><![CDATA[Intermediate (200)]]></category>
-		<category><![CDATA[Technical How-to]]></category>
-		<guid isPermaLink="false">2eb081af901222e14948443d7e3f56ca181d9a82</guid>
-
-					<description>Amazon Quick doesn't offer a direct console path to downgrade a user from Admin or Author to Reader. This post walks through two reliable methods: a manual delete-and-recreate approach and an AWS CLI step-down sequence that downgrades roles safely while preserving asset ownership.</description>
-										<content:encoded>&lt;p&gt;Managing access permissions effectively is an important aspect of maintaining a secure and collaborative environment in Amazon Quick. Quick supports versatile user management options designed to accommodate various identity types and organizational needs. You can provision users natively through Quick Identity or manage them through enterprise identity providers such as AWS IAM Identity Center or Active Directory. These systems allow user roles including Admin, Author, and Reader to be assigned and grouped according to job functions and security requirements. As team members join, change roles, or leave the organization, administrators must make sure transitions happen smoothly without disrupting business workflows or creating security gaps.&lt;/p&gt;
-&lt;p&gt;Regular access reviews are important for maintaining security in your Quick environment. Plan monthly or quarterly audits of user roles to confirm everyone has appropriate permissions. When team members’ responsibilities change, proactively transfer ownership of their dashboards and analyses to prevent orphaned resources. This practice, recommended in the &lt;a href="https://aws.amazon.com/architecture/well-architected/" target="_blank" rel="noopener"&gt;AWS Well-Architected Framework&lt;/a&gt;, helps maintain continuity for business-critical visualizations.&lt;/p&gt;
-&lt;p&gt;In this post, we focus on one specific but important user lifecycle task: downgrading user roles.&lt;/p&gt;
-&lt;h2 id="why-downgrade-the-principle-of-least-privilege"&gt;Why downgrade?&lt;/h2&gt;
-&lt;p&gt;The principle of least privilege applies strongly to Quick administration. Users should have access only to what they need for their specific job functions. Downgrading user roles is a key part of enforcing least privilege. When a user’s responsibilities no longer require authoring or administrative capabilities, reduce their role accordingly to minimize the security surface area.&lt;/p&gt;
-&lt;p&gt;Quick pricing is also role-based: Authors and Admins pay a fixed monthly per-user fee, while Readers use session-based pricing. Organizations with users provisioned as Authors who only consume dashboards can reduce costs substantially by right-sizing them to Reader roles. For current pricing details, see the &lt;a href="https://aws.amazon.com/quicksight/pricing/" target="_blank" rel="noopener"&gt;Amazon Quick pricing page&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;For more granular control beyond the built-in roles in Amazon Quick, consider complementing role assignments with &lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/custom-permissions-profiles.html" target="_blank" rel="noopener"&gt;Custom Permissions&lt;/a&gt;, which restrict specific capabilities within a role tier. The integration of Amazon Quick with &lt;a href="https://aws.amazon.com/iam/" target="_blank" rel="noopener"&gt;AWS Identity and Access Management (IAM)&lt;/a&gt; provides additional permission boundaries that complement the basic role system.&lt;/p&gt;
-&lt;h2 id="scope-of-this-post"&gt;Scope of this post&lt;/h2&gt;
-&lt;p&gt;Although the exact steps depend on the user identity type, this post primarily addresses Amazon Quick Identity users (also called Quick-managed users). Users authenticated through IAM Identity Center or Active Directory typically have role changes managed through their external identity provider group mappings. If your environment uses IAM Identity Center, role downgrade is handled by moving the user from one IdC group to another (for example, from a Quick-Admins group to a Quick-Readers group). No step-down sequence is required.&lt;/p&gt;
-&lt;p&gt;Although the Amazon Quick console doesn’t provide a direct downgrade path for all role transitions (specifically, you cannot downgrade from Admin to Reader or from Author to Reader directly through the console interface), two reliable solutions exist: a manual deletion-and-recreation method, and an approach that uses the AWS Command Line Interface (AWS CLI). We walk you through both techniques to help you maintain proper access management as your team evolves.&lt;/p&gt;
-&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
-&lt;p&gt;Before we begin, make sure you have an active AWS account with administrator access to Amazon Quick. If you plan to use the CLI method, you need the &lt;a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener"&gt;AWS CLI installed and configured&lt;/a&gt; on your machine. It’s also helpful to prepare a list of users whose roles need changing.&lt;/p&gt;
-&lt;h2 id="understanding-amazon-quick-roles"&gt;Understanding Amazon Quick roles&lt;/h2&gt;
-&lt;p&gt;Amazon Quick offers two subscription tiers with distinct role sets:&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Subscription&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Roles&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Capabilities&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Amazon Quick Enterprise&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;Admin Pro, Author Pro, Reader Pro&lt;/td&gt;
-   &lt;td&gt;Full BI + AI features (agents, topics, Q&amp;amp;A, stories, generative summaries)&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Amazon Quick Sight&lt;/strong&gt; (BI-only)&lt;/td&gt;
-   &lt;td&gt;Admin, Author, Reader&lt;/td&gt;
-   &lt;td&gt;Traditional BI authoring and consumption&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;The console does not provide a direct way to downgrade from any Author tier to any Reader tier. The &lt;code&gt;update-user&lt;/code&gt; API enforces this same constraint, rejecting direct downgrades with a “You cannot downgrade a user role” error.&lt;/p&gt;
-&lt;p&gt;The following screenshot shows the Amazon Quick Suite user management page, where the console offers no direct control to move a user from an Author tier down to a Reader tier. This illustrates why the methods in this post are necessary.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-1.png" alt="Amazon Quick Suite user management page showing users and their assigned roles" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: Amazon Quick Suite user management page&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;The CLI step-down method works reliably for the &lt;strong&gt;legacy BI-only roles&lt;/strong&gt; (Admin, Author, Reader), following this sequence:&lt;/p&gt;
-&lt;p&gt;Admin &amp;gt; Author &amp;gt; Restricted Reader &amp;gt; Reader&lt;/p&gt;
-&lt;p&gt;This same sequence also works for Pro users, as long as the intermediate steps use the legacy roles. For example, Author Pro &amp;gt; Author &amp;gt; Restricted Reader &amp;gt; Reader Pro completes successfully.&lt;/p&gt;
-&lt;h2 id="important-considerations-before-making-changes"&gt;Important considerations before making changes&lt;/h2&gt;
-&lt;p&gt;When implementing role changes through either method, there are several important factors to keep in mind. First, verify that all users in your list are currently Admin or Author users before making changes. Attempting to downgrade users who already have lower permissions might cause errors. Resource ownership questions still apply even when using the CLI method. Users being downgraded will no longer be able to edit resources they previously owned. For larger organizations using the CLI method, consider loading user email addresses from a CSV file rather than hardcoding them. If you use &lt;a href="https://aws.amazon.com/cloudshell/" target="_blank" rel="noopener"&gt;AWS CloudShell&lt;/a&gt; instead of a local CLI installation, you can omit the AWS Region specification because AWS CloudShell automatically uses your current console Region context.&lt;/p&gt;
-&lt;h2 id="transferring-asset-ownership-do-this-first"&gt;Transferring asset ownership (do this first)&lt;/h2&gt;
-&lt;p&gt;Before deleting a user, it’s essential to make sure that any assets they own, such as dashboards, datasets, and analyses, are properly reassigned. This prevents disruptions and avoids leaving resources orphaned. If the user is an Author, verify whether they own any datasets or dashboards, and follow the same asset reassignment steps described here. There are three main ways to handle asset ownership transfers in Amazon Quick.&lt;/p&gt;
-&lt;h3 id="option-1-proactively-transfer-ownership-to-another-admin"&gt;Option 1: Proactively transfer ownership to another admin&lt;/h3&gt;
-&lt;p&gt;The most controlled approach is to manually reassign ownership before deleting the user. To do this, go into each asset in Quick, choose &lt;strong&gt;Share&lt;/strong&gt;, and assign another admin as a co-owner. With this method, you can determine exactly who takes over each resource, which is especially useful for high-impact dashboards or datasets. Although this can be time-consuming in large environments, it gives you the flexibility to distribute assets according to your team’s structure and responsibilities.&lt;/p&gt;
-&lt;p&gt;The following screenshot shows the &lt;strong&gt;Share&lt;/strong&gt; dialog for an asset, where you add another admin as a co-owner so that ownership is transferred before the original user is removed.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-2.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-2.png" alt="Amazon Quick Suite Share dialog for adding a co-owner to an asset" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 2: Transferring asset ownership to another user&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="option-2-use-the-amazon-quick-bulk-asset-transfer-on-the-admin-page"&gt;Option 2: Use the Amazon Quick bulk asset transfer on the Admin page&lt;/h3&gt;
-&lt;p&gt;If the user owns many assets, the manual method can become inefficient. In this case, you can use the &lt;strong&gt;Manage assets&lt;/strong&gt; feature available in the Admin section of Quick. With this tool, administrators can perform bulk ownership transfers or update sharing permissions for multiple assets at once. It streamlines the reassignment process significantly, particularly when offboarding users or managing organizational changes. For more details on how to use this feature, see the official &lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/manage-qs-assets.html" target="_blank" rel="noopener"&gt;Managing assets in Amazon Quick&lt;/a&gt; documentation.&lt;/p&gt;
-&lt;h3 id="option-3-share-assets-with-a-quick-user-group"&gt;Option 3: Share assets with a Quick user group&lt;/h3&gt;
-&lt;p&gt;Another effective strategy is to share assets with a user group. For Quick Identity users, you can create a Quick group, add relevant team members, and share dashboards or datasets with the group rather than individual users. If your account is integrated with IAM Identity Center or Active Directory, equivalent groups are created and managed in those systems, and Quick uses those external groups for access control instead of Quick-managed groups. This way, access to shared resources remains intact even if a specific user is deleted. It’s a resilient approach that reduces the need for reassigning ownership in the future and helps maintain consistent access across dynamic teams.&lt;/p&gt;
-&lt;h2 id="manual-method-deleting-and-recreating-the-user"&gt;Manual method: Deleting and recreating the user&lt;/h2&gt;
-&lt;p&gt;Although not the most efficient approach, the manual deletion and recreation method is one option for environments where CLI usage isn’t feasible. This method involves removing the admin user entirely and then recreating them with reader permissions. This same manual method also applies when downgrading an Author to a Reader, though typically with fewer complications around asset ownership.&lt;/p&gt;
-&lt;p&gt;Because this method requires deleting the user account before recreating it with a lower role, careful preparation is essential to avoid losing valuable resources and disrupting workflows. Make sure you have completed the asset ownership transfer described in the previous section before proceeding.&lt;/p&gt;
-&lt;h3 id="step-1-delete-the-admin-user"&gt;Step 1: Delete the admin user&lt;/h3&gt;
-&lt;p&gt;After you transfer ownership of all resources, sign in to the AWS Management Console and navigate to the Amazon Quick service. From there, choose your profile icon, and then choose &lt;strong&gt;Manage Quick&lt;/strong&gt;, followed by &lt;strong&gt;Manage users&lt;/strong&gt;. When you locate the admin user you want to downgrade, choose the delete icon next to their name and confirm the deletion when prompted. This completely removes their current access to the system.&lt;/p&gt;
-&lt;p&gt;If you haven’t transferred all resources beforehand, Quick presents an ownership transfer dialog. This dialog prompts you to select another admin who will receive ownership of all the user’s resources. Select an appropriate admin from the list, then confirm the transfer by choosing &lt;strong&gt;Delete and transfer&lt;/strong&gt;. This built-in transfer mechanism helps prevent orphaned resources but transfers everything to a single admin. For more granular control, use the proactive approach mentioned earlier to distribute resources strategically among different team members.&lt;/p&gt;
-&lt;p&gt;If you skipped the proactive transfer, the deletion dialog shown in the following figure lets you reassign all of the user’s resources to a single admin before the account is removed.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-3.png" alt="Ownership transfer dialog prompting selection of an admin to receive the deleted user’s resources" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 3: Built-in resource transfer during user deletion&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="step-2-recreate-the-user-with-the-reader-role"&gt;Step 2: Recreate the user with the Reader role&lt;/h3&gt;
-&lt;p&gt;After successfully deleting the user, remain on the Users page and choose &lt;strong&gt;Invite users&lt;/strong&gt;. Enter the user’s email address and select the &lt;strong&gt;Reader&lt;/strong&gt; role from the available options. Send the invitation to allow the user to rejoin Quick with their new, more restricted permissions.&lt;/p&gt;
-&lt;h3 id="step-3-verify-the-role-change"&gt;Step 3: Verify the role change&lt;/h3&gt;
-&lt;p&gt;After the user accepts the invitation:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Confirm that their permissions have been updated to &lt;strong&gt;Reader&lt;/strong&gt;.&lt;/li&gt;
- &lt;li&gt;Verify that they can only view dashboards and reports.&lt;/li&gt;
- &lt;li&gt;Confirm that they can’t modify or create content.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="cli-method-step-down-role-transition-recommended"&gt;CLI method: Step-down role transition (recommended)&lt;/h2&gt;
-&lt;p&gt;If you prefer to use the AWS CLI or AWS CloudShell, you can programmatically change the user’s role. Because Quick requires role changes to be made in a specific sequence, you can’t transition directly from any Admin to any Reader. Instead, you must step through intermediate roles.&lt;/p&gt;
-&lt;h3 id="important-notes"&gt;Important notes&lt;/h3&gt;
-&lt;ul&gt;
- &lt;li&gt;Replace &lt;code&gt;&amp;lt;your-account-id&amp;gt;&lt;/code&gt; with your AWS account ID.&lt;/li&gt;
- &lt;li&gt;Replace &lt;code&gt;&amp;lt;user-name&amp;gt;&lt;/code&gt; with the username of the user.&lt;/li&gt;
- &lt;li&gt;Replace &lt;code&gt;&amp;lt;user-email&amp;gt;&lt;/code&gt; with the user’s email address.&lt;/li&gt;
- &lt;li&gt;If you’re using the AWS CLI outside CloudShell, specify the &lt;code&gt;--region&lt;/code&gt; parameter.&lt;/li&gt;
- &lt;li&gt;The &lt;code&gt;--role&lt;/code&gt; value must match the API role name exactly (see the preceding table).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="example-legacy-track-admin-to-reader"&gt;Example: Legacy track (Admin to Reader)&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;Step 1:&lt;/strong&gt; Change role from Admin to Author:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;aws quicksight update-user \
-  --aws-account-id &amp;lt;your-account-id&amp;gt; \
-  --user-name &amp;lt;user-name&amp;gt; \
-  --namespace default \
-  --email &amp;lt;user-email&amp;gt; \
-  --role AUTHOR&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Step 2:&lt;/strong&gt; Update role from Author to Restricted Reader:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;aws quicksight update-user \
-  --aws-account-id &amp;lt;your-account-id&amp;gt; \
-  --user-name &amp;lt;user-name&amp;gt; \
-  --namespace default \
-  --email &amp;lt;user-email&amp;gt; \
-  --role RESTRICTED_READER&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Step 3:&lt;/strong&gt; Change role from Restricted Reader to Reader:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;aws quicksight update-user \
-  --aws-account-id &amp;lt;your-account-id&amp;gt; \
-  --user-name &amp;lt;user-name&amp;gt; \
-  --namespace default \
-  --email &amp;lt;user-email&amp;gt; \
-  --role READER&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h2 id="after-the-downgrade-review-limit-profiles-and-custom-permissions"&gt;After the downgrade: Review Limit Profiles and Custom Permissions&lt;/h2&gt;
-&lt;p&gt;Role changes don’t automatically adjust Limit Profiles or Custom Permissions profiles. Both persist independently of the user’s role, and you should review them after any downgrade.&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Limit Profiles&lt;/strong&gt; control per-user caps on resources such as index storage and agent hours. If the downgraded user was assigned a profile appropriate for their previous Admin or Author role, reassign a Reader-appropriate limit profile to avoid over-allocating resources. See the &lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/limit-profiles.html" target="_blank" rel="noopener"&gt;Limit Profiles documentation&lt;/a&gt; for details.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Custom Permissions&lt;/strong&gt; restrict specific capabilities within a role tier. A profile assigned to an Author might not behave as expected on a Reader. Either unapply it during the final CLI step (using &lt;code&gt;--unapply-custom-permissions&lt;/code&gt;) or assign a profile designed for the Reader tier.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="script-for-updating-multiple-users"&gt;Script for updating multiple users&lt;/h2&gt;
-&lt;p&gt;Use the following script to update multiple users.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;#!/bin/bash
-
-# Define AWS account details
-AWS_ACCOUNT_ID="&amp;lt;your-account-id&amp;gt;"
-REGION="&amp;lt;your-region&amp;gt;"
-
-# Load users from file (format: username,email per line)
-# Lines starting with # are treated as comments
-INPUT_FILE="users_to_downgrade.txt"
-
-while IFS=',' read -r username email; do
-  # Skip comments and empty lines
-  [[ "$username" =~ ^#.*$ || -z "$username" ]] &amp;amp;&amp;amp; continue
-
-  echo "Processing user: $username"
-
-  # Role transition stages
-  for ROLE in AUTHOR RESTRICTED_READER READER; do
-    RESULT=$(aws quicksight update-user \
-      --aws-account-id "$AWS_ACCOUNT_ID" \
-      --user-name "$username" \
-      --namespace default \
-      --email "$email" \
-      --role "$ROLE" \
-      --region "$REGION" 2&amp;gt;&amp;amp;1)
-
-    if [ $? -ne 0 ]; then
-      echo " ERROR at $ROLE: $RESULT"
-      break
-    fi
-
-    echo " Transitioned to $ROLE"
-    sleep 3
-  done
-
-  echo "Role update completed for $username."
-done &amp;lt; "$INPUT_FILE"
-
-echo "All user role updates processed!"&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h3 id="script-functionality"&gt;Script functionality&lt;/h3&gt;
-&lt;p&gt;This script performs the following:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Reads usernames and email addresses from an external file (supports comments with #).&lt;/li&gt;
- &lt;li&gt;Updates role in three stages: Admin &amp;gt; Author &amp;gt; Restricted Reader &amp;gt; Reader.&lt;/li&gt;
- &lt;li&gt;Error handling stops the transition for a user if any step fails.&lt;/li&gt;
- &lt;li&gt;Sleep commands allow time for changes to take effect.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;A few things to keep in mind when running the script:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Confirm users are currently Admin or Author users before running.&lt;/li&gt;
- &lt;li&gt;Use the actual Quick username, which might differ from the email prefix in federated environments.&lt;/li&gt;
- &lt;li&gt;No Region specification needed in AWS CloudShell.&lt;/li&gt;
- &lt;li&gt;You can modify the script to load users from a CSV export of &lt;code&gt;list-users&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="best-practices-for-user-access-management"&gt;Best practices for user access management&lt;/h2&gt;
-&lt;p&gt;To keep your Quick environment secure and well-organized, follow these best practices:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Review user roles regularly (monthly or quarterly audits).&lt;/li&gt;
- &lt;li&gt;Transfer resource ownership before changing roles.&lt;/li&gt;
- &lt;li&gt;Follow the principle of least privilege.&lt;/li&gt;
- &lt;li&gt;Use Custom Permissions profiles for fine-grained control within a role tier.&lt;/li&gt;
- &lt;li&gt;Share resources with groups rather than individuals for resilience.&lt;/li&gt;
- &lt;li&gt;Use AWS Identity and Access Management for additional permission boundaries.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="cleaning-up"&gt;Cleaning up&lt;/h2&gt;
-&lt;p&gt;After completing user role changes:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Remove any test users.&lt;/li&gt;
- &lt;li&gt;Verify that no unintended resources remain.&lt;/li&gt;
- &lt;li&gt;Delete temporary CLI scripts or user list files.&lt;/li&gt;
- &lt;li&gt;Double-check the final user permissions.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;In this post, we explored two methods to downgrade user roles in Amazon Quick: manual deletion and recreation, and a flexible AWS CLI approach. These strategies help you manage team access efficiently and securely.&lt;/p&gt;
-&lt;p&gt;For environments using IAM Identity Center, role changes are managed through IdC group reassignment, which does not require the step-down sequence described here. For additional governance controls, explore &lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/custom-permissions-profiles.html" target="_blank" rel="noopener"&gt;Custom Permissions&lt;/a&gt; for feature-level restrictions and &lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/restricted-folders.html" target="_blank" rel="noopener"&gt;Restricted Folders&lt;/a&gt; for content-level isolation.&lt;/p&gt;
-&lt;h2 id="resources"&gt;Resources&lt;/h2&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/managing-user-access-qs-iam.html" target="_blank" rel="noopener"&gt;Managing User Access in Amazon Quick&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/manage-qs-assets.html" target="_blank" rel="noopener"&gt;Managing Assets in Amazon Quick&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/quicksight/latest/user/custom-permissions-profiles.html" target="_blank" rel="noopener"&gt;Custom Permissions Profiles&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/iam/resources/best-practices/" target="_blank" rel="noopener"&gt;AWS IAM Best Practices&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/blogs/business-intelligence/" target="_blank" rel="noopener"&gt;AWS Business Intelligence Blog&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;We’d love to hear about your user management experiences. How does your organization handle role transitions in Quick Suite? Have you developed custom scripts or processes to streamline these changes? Share your thoughts and challenges in the comments.&lt;/p&gt;
-&lt;p style="clear: both"&gt;&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the author&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/25/ML-22009-4.jpg" alt="Gaurav Jaisingh" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Gaurav Jaisingh&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Gaurav is a Technical Account Manager at Amazon Web Services (AWS), where he helps enterprise customers design, optimize, and operate secure, scalable cloud solutions. He is passionate about cloud architecture, operational excellence, and helping customers solve complex technical challenges. Outside of work, Gaurav enjoys traveling, exploring new cultures, and staying curious about emerging technologies.&lt;/p&gt;
  &lt;/div&gt;
 &lt;/footer&gt;</content:encoded>
 					
