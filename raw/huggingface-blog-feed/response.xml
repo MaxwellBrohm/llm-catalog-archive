@@ -7,6 +7,12 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>Impactful scheduling for GPU clusters</title>
+   <pubDate>Fri, 09 Oct 2026 15:20:29 GMT</pubDate>
+   <link>https://huggingface.co/blog/allenai/impactful-scheduling</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/allenai/impactful-scheduling</guid>
+  </item>
+  <item>
    <title>The model that didn&apos;t exist, so you made it yourself</title>
    <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/building-with-ml-intern</link>
@@ -35,12 +41,6 @@
    <pubDate>Sat, 03 Oct 2026 22:56:48 GMT</pubDate>
    <link>https://huggingface.co/blog/microsoft/thinkingbox</link>
    <guid isPermaLink="false">https://huggingface.co/blog/microsoft/thinkingbox</guid>
-  </item>
-  <item>
-   <title>Open-sourcing AstaBrief, the fast report-generation model in Asta</title>
-   <pubDate>Fri, 02 Oct 2026 15:19:50 GMT</pubDate>
-   <link>https://huggingface.co/blog/allenai/astabrief</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/allenai/astabrief</guid>
   </item>
   <item>
    <title>AutoSynthData: Generating Training Data for Enterprise Agents</title>
