@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-11T22:52:05.875Z",
+  "updatedAt": "2026-10-12T01:58:55.949Z",
   "sources": {
     "anthropic-deprecations": {
       "lastAttemptAt": "2026-10-11T05:46:48.854Z",
@@ -123,15 +123,15 @@
       "held": null
     },
     "openrouter-models": {
-      "lastAttemptAt": "2026-10-11T22:52:05.875Z",
-      "lastSuccessAt": "2026-10-11T22:52:05.875Z",
-      "lastChangeAt": "2026-10-11T22:52:05.875Z",
+      "lastAttemptAt": "2026-10-12T01:58:55.949Z",
+      "lastSuccessAt": "2026-10-12T01:58:55.949Z",
+      "lastChangeAt": "2026-10-12T01:58:55.949Z",
       "consecutiveFailures": 0,
       "failing": false,
       "health": "ok",
       "httpStatus": 200,
-      "bytes": 766361,
-      "originDate": "2026-10-11T22:50:39.000Z",
+      "bytes": 766564,
+      "originDate": "2026-10-12T01:58:44.000Z",
       "held": null
     },
     "arena-leaderboard": {
