@@ -82,22 +82,28 @@
 - [Sprocket SDK](https://docs.together.ai/docs/deployments-sprocket.md): A Python SDK for building inference workers that support both synchronous and asynchronous requests via Together's platform.
 - [Queue API](https://docs.together.ai/docs/deployments-queue.md): Submit, monitor, and manage asynchronous jobs for your dedicated container inference deployments.
 - [Sprocket SDK reference](https://docs.together.ai/reference/dci-reference-sprocket.md): API reference for Sprocket classes, functions, and configuration.
-- [Overview](https://docs.together.ai/docs/gpu-clusters-overview.md): High-performance GPU clusters for training, fine-tuning, and large-scale AI workloads.
-- [Quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Create a reserved or on-demand GPU cluster and connect to it.
-- [Cluster management](https://docs.together.ai/docs/gpu-clusters-management.md): Manage, scale, and operate your GPU clusters.
-- [Preemptible compute](https://docs.together.ai/docs/preemptible-compute.md): Run interruptible workloads on discounted preemptible GPU nodes in your cluster.
-- [Health checks](https://docs.together.ai/docs/health-checks.md): Monitor GPU node health with active diagnostic tests and continuous passive monitoring.
-- [Node repair](https://docs.together.ai/docs/node-repair.md): Restore unhealthy GPU nodes through automated recommendations or manual repair actions.
-- [Cluster storage](https://docs.together.ai/docs/cluster-storage.md): Understand storage types, persistence, and best practices for GPU clusters.
-- [Billing & pricing](https://docs.together.ai/docs/gpu-clusters-billing.md): Understand billing, pricing, and lifecycle policies for GPU clusters.
-- [Set up OIDC authentication](https://docs.together.ai/docs/cluster-oidc.md): Authenticate team members to a GPU cluster's Kubernetes API using your organization's identity provider.
-- [Slurm management system](https://docs.together.ai/docs/slurm.md): Run HPC-style batch workloads on GPU clusters with Slurm job scheduling, partitions, and job arrays.
-- [Slurm configuration](https://docs.together.ai/docs/slurm-configuration.md): Customize Slurm cluster settings to match your workload requirements.
-- [Slurm startup scripts](https://docs.together.ai/docs/slurm-startup-scripts.md): Configure lifecycle hook scripts that run automatically at node startup, job start, and job completion.
-- [Run nanochat on GPU clusters](https://docs.together.ai/docs/nanochat-on-gpu-clusters.md): Train Andrej Karpathy's end-to-end ChatGPT clone on Together's on-demand GPU clusters.
-- [Gang-schedule GPU jobs with Volcano](https://docs.together.ai/docs/volcano-on-gpu-clusters.md): Install the Volcano scheduler and run gang-scheduled GPU jobs on a Together Kubernetes cluster.
-- [Queue GPU jobs with Kueue](https://docs.together.ai/docs/kueue-on-gpu-clusters.md): Install Kueue and gate GPU jobs on quota so a shared cluster admits work as capacity frees up.
-- [API & integrations](https://docs.together.ai/docs/gpu-clusters-api.md): Manage clusters programmatically with the Together CLI, REST API, and SkyPilot.
+- [Overview](https://docs.together.ai/docs/post-training/overview.md): Train models from your own training loop on Together AI GPUs.
+- [Supervised fine-tuning quickstart](https://docs.together.ai/docs/post-training/quickstart-sft.md): Run your first post-training session with supervised fine-tuning on instruction-following data, then download the trained weights.
+- [Reinforcement learning with GRPO quickstart](https://docs.together.ai/docs/post-training/quickstart-rl.md): Train a model to solve grade-school math with GRPO, monitor the run, and retrieve the trained model.
+- [Concepts](https://docs.together.ai/docs/post-training/concepts.md): See how a training run divides work between your code and a model resource on Together AI GPUs, how resources, sessions, and checkpoints relate, and how you deploy or download a trained model.
+- [Pricing](https://docs.together.ai/docs/post-training/pricing.md): How post-training bills for GPU time, how to estimate the cost of a resource or a training run, and how refunds and the minimum credit balance work.
+- [Supported models](https://docs.together.ai/docs/post-training/supported-models.md): Every base model available for post-training, with training modes, context lengths, GPU types, and adapter capacity.
+- [Overview](https://docs.together.ai/docs/post-training/training-methods.md): Match a post-training method to your data, choose between adapter and full-weight training, and combine methods.
+- [Supervised fine-tuning](https://docs.together.ai/docs/post-training/sft.md): Train a model on example conversations with supervised fine-tuning.
+- [Direct preference optimization](https://docs.together.ai/docs/post-training/dpo.md): Train on preference pairs with direct preference optimization, the worked example for any loss function you run client-side.
+- [Reinforcement learning with GRPO](https://docs.together.ai/docs/post-training/grpo.md): Train a model against a reward function with group relative policy optimization.
+- [Write a reward function](https://docs.together.ai/docs/post-training/reward-functions.md): How to write a reward function for GRPO, register it with your dataset, and test it before you start training.
+- [Train in multi-turn environments](https://docs.together.ai/docs/post-training/multi-turn-environments.md): Train tool-use agents with GRPO over whole episodes, where the model acts, an environment responds, and a reward scores the outcome.
+- [Write a custom loss function](https://docs.together.ai/docs/post-training/custom-loss-functions.md): Train with any objective you compute in PyTorch from the model's log-probabilities, for SFT, DPO, or RL.
+- [Manage model resources](https://docs.together.ai/docs/post-training/model-resources.md): Configure, create, attach to, inspect, and stop the GPU resource that post-training sessions run on, and learn its lifecycle states, timers, error codes, and limits.
+- [Manage checkpoints](https://docs.together.ai/docs/post-training/checkpoints.md): Save inference and training checkpoints, download trained weights, resume or fork a run, and find a session's checkpoints after it ends.
+- [Train multiple adapters on one base model](https://docs.together.ai/docs/post-training/multi-lora.md): Share one provisioned model resource across several adapter sessions to run hyperparameter sweeps at the cost of a single base model.
+- [Monitor training runs](https://docs.together.ai/docs/post-training/monitoring.md): Track sessions and model resources in the console, and read the run artifacts and Weights & Biases metrics that show whether a training run is healthy.
+- [Cookbook reference](https://docs.together.ai/docs/post-training/cookbook.md): The post-training cookbook's runnable recipes, and every field on its GRPO, SFT, and DPO config classes.
+- [Migrate from Tinker](https://docs.together.ai/docs/post-training/migrate-from-tinker.md): Run a Tinker training script on Together AI post-training by changing its import line.
+- [Deploy a checkpoint](https://docs.together.ai/docs/post-training/deployment.md): Deploy a trained model or LoRA adapter from an inference checkpoint to dedicated model inference.
+- [Multi-LoRA deployment](https://docs.together.ai/docs/post-training/multi-lora-deployment.md): Attach the adapters from post-training inference checkpoints to one dedicated deployment of their base model and choose an adapter per request.
+- [Prepare for FP4 inference](https://docs.together.ai/docs/post-training/prepare-for-fp4-inference.md): Merge a trained LoRA adapter into its base model and quantize the result to FP4 for dedicated model inference.
 - [Overview](https://docs.together.ai/docs/fine-tuning/overview.md): Adapt a base model to a task by training it on your data.
 - [Fine-tuning quickstart](https://docs.together.ai/docs/fine-tuning/quickstart.md): Prepare a conversational dataset, launch a LoRA job on Qwen3.5 9B, and evaluate the fine-tuned model.
 - [Pricing](https://docs.together.ai/docs/fine-tuning/pricing.md): Fine-tuning is billed per token processed, scaled by model size, training method, and training type.
@@ -114,6 +120,22 @@
 - [Early stopping](https://docs.together.ai/docs/fine-tuning/early-stopping.md): Halt a fine-tuning job when validation loss stops improving.
 - [Troubleshooting fine-tuning jobs](https://docs.together.ai/docs/fine-tuning/troubleshooting.md): Diagnose failed or cancelled fine-tuning jobs, understand job timing, and resolve common errors.
 - [Deploy a fine-tuned model](https://docs.together.ai/docs/fine-tuning/deployment.md): Serve your fine-tuned model on a dedicated endpoint or download it for local inference.
+- [Overview](https://docs.together.ai/docs/gpu-clusters-overview.md): High-performance GPU clusters for training, fine-tuning, and large-scale AI workloads.
+- [Quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Create a reserved or on-demand GPU cluster and connect to it.
+- [Cluster management](https://docs.together.ai/docs/gpu-clusters-management.md): Manage, scale, and operate your GPU clusters.
+- [Preemptible compute](https://docs.together.ai/docs/preemptible-compute.md): Run interruptible workloads on discounted preemptible GPU nodes in your cluster.
+- [Health checks](https://docs.together.ai/docs/health-checks.md): Monitor GPU node health with active diagnostic tests and continuous passive monitoring.
+- [Node repair](https://docs.together.ai/docs/node-repair.md): Restore unhealthy GPU nodes through automated recommendations or manual repair actions.
+- [Cluster storage](https://docs.together.ai/docs/cluster-storage.md): Understand storage types, persistence, and best practices for GPU clusters.
+- [Billing & pricing](https://docs.together.ai/docs/gpu-clusters-billing.md): Understand billing, pricing, and lifecycle policies for GPU clusters.
+- [Set up OIDC authentication](https://docs.together.ai/docs/cluster-oidc.md): Authenticate team members to a GPU cluster's Kubernetes API using your organization's identity provider.
+- [Slurm management system](https://docs.together.ai/docs/slurm.md): Run HPC-style batch workloads on GPU clusters with Slurm job scheduling, partitions, and job arrays.
+- [Slurm configuration](https://docs.together.ai/docs/slurm-configuration.md): Customize Slurm cluster settings to match your workload requirements.
+- [Slurm startup scripts](https://docs.together.ai/docs/slurm-startup-scripts.md): Configure lifecycle hook scripts that run automatically at node startup, job start, and job completion.
+- [Run nanochat on GPU clusters](https://docs.together.ai/docs/nanochat-on-gpu-clusters.md): Train Andrej Karpathy's end-to-end ChatGPT clone on Together's on-demand GPU clusters.
+- [Gang-schedule GPU jobs with Volcano](https://docs.together.ai/docs/volcano-on-gpu-clusters.md): Install the Volcano scheduler and run gang-scheduled GPU jobs on a Together Kubernetes cluster.
+- [Queue GPU jobs with Kueue](https://docs.together.ai/docs/kueue-on-gpu-clusters.md): Install Kueue and gate GPU jobs on quota so a shared cluster admits work as capacity frees up.
+- [API & integrations](https://docs.together.ai/docs/gpu-clusters-api.md): Manage clusters programmatically with the Together CLI, REST API, and SkyPilot.
 - [Code sandbox](https://docs.together.ai/docs/together-code-sandbox.md): Run commands and code in isolated runtime environments built from Docker-image snapshots.
 - [Code sandbox legacy SDK](https://docs.together.ai/docs/together-code-sandbox-legacy.md): Reference for the earlier code sandbox offering built on the CodeSandbox SDK.
 - [Manage your account](https://docs.together.ai/docs/account-management.md): Sign up for Together AI, get your API key, and manage your account settings.
@@ -212,6 +234,40 @@
 - [Create a batch job](https://docs.together.ai/reference/batch-create.md): Create a new batch job with the given input file and endpoint
 - [Get a batch job](https://docs.together.ai/reference/batch-get.md): Get details of a batch job by ID
 - [Cancel a batch job](https://docs.together.ai/reference/batch-cancel.md): Cancel a batch job by ID
+- [List supported models](https://docs.together.ai/reference/post-training/supported-models-list.md): Returns the models supported by the RL service and their limits for training/sampling operations.
+- [List model resources](https://docs.together.ai/reference/post-training/model-resources-list.md): Lists the caller's model resources.
+- [Create model resources](https://docs.together.ai/reference/post-training/model-resources-create.md): Provisions a standalone model resource that training sessions can attach to.
+- [Estimate on-demand model resource cost](https://docs.together.ai/reference/post-training/model-resources-estimate-cost.md): Estimates a model resource's on-demand hourly price without creating it.
+- [Get model resources](https://docs.together.ai/reference/post-training/model-resources-get.md): Gets a model resource by its ID and returns its details.
+- [Stop model resources](https://docs.together.ai/reference/post-training/model-resources-stop.md): Stops the model resource and releases its allocated compute. If active training sessions are attached, the request fails unless `force=true`. A forced stop also stops all attached training sessions.
+- [List training sessions](https://docs.together.ai/reference/post-training/training-sessions-list.md): Lists all training sessions.
+- [Create training session](https://docs.together.ai/reference/post-training/training-sessions-create.md): Creates a training session and returns its details.
+- [Get training session](https://docs.together.ai/reference/post-training/training-sessions-get.md): Gets a training session by its ID and returns its details.
+- [Update a training session](https://docs.together.ai/reference/post-training/training-sessions-update.md): Updates the display name or metadata associated with a training session. Omitted fields remain unchanged, and empty strings clear existing values.
+- [Stop training session](https://docs.together.ai/reference/post-training/training-sessions-stop.md): Stops a training session.
+- [Forward-backward pass](https://docs.together.ai/reference/post-training/operations-forward-backward-create.md): Submits a forward-backward pass operation that will asynchronously compute gradients via backpropagation.
+- [Get forward-backward operation](https://docs.together.ai/reference/post-training/operations-forward-backward-get.md): Retrieves the current status and result of a forward-backward operation.
+- [Custom forward-backward pass](https://docs.together.ai/reference/post-training/operations-custom-forward-backward-create.md): Submits a forward-backward pass driven by externally computed gradients of the loss with respect to per-token log-probabilities.
+- [Get custom forward-backward operation](https://docs.together.ai/reference/post-training/operations-custom-forward-backward-get.md): Retrieves the current status and result of a custom forward-backward operation.
+- [Optimizer step](https://docs.together.ai/reference/post-training/operations-optim-step-create.md): Submits an optimizer step operation that will asynchronously apply accumulated gradients to update model parameters. Does not make the updated parameters available for sampling; call `weights-sync` afterwards when you want subsequent samples to use the updated policy.
+- [Get optim-step operation](https://docs.together.ai/reference/post-training/operations-optim-step-get.md): Retrieves the current status and result of an optim-step operation.
+- [Sample](https://docs.together.ai/reference/post-training/operations-sample-create.md): Submits a sample operation that will asynchronously generate text completions with logprobs.
+- [Get sample operation](https://docs.together.ai/reference/post-training/operations-sample-get.md): Retrieves the current status and result of a sample operation.
+- [Weights sync](https://docs.together.ai/reference/post-training/operations-weights-sync-create.md): Submits a weights-sync operation that makes the session's current trained parameters available for sampling. Call this after `optim-step` when you want subsequent samples to use the updated policy.
+- [Get weights-sync operation](https://docs.together.ai/reference/post-training/operations-weights-sync-get.md): Retrieves the current status and result of a weights-sync operation.
+- [Create inference checkpoint](https://docs.together.ai/reference/post-training/operations-inference-checkpoint-create.md): Submits an operation that will asynchronously save the current LoRA adapter as an inference checkpoint and upload it to object storage.
+- [Get inference checkpoint operation](https://docs.together.ai/reference/post-training/operations-inference-checkpoint-get.md): Retrieves the current status and result of an inference checkpoint operation.
+- [Save training checkpoint](https://docs.together.ai/reference/post-training/operations-training-checkpoint-create.md): Submits an operation that will asynchronously save the full training state (adapter + optimizer + step).
+- [Get save training checkpoint operation](https://docs.together.ai/reference/post-training/operations-training-checkpoint-get.md): Retrieves the current status and result of a save training checkpoint operation.
+- [List checkpoints](https://docs.together.ai/reference/post-training/checkpoints-list.md): Lists training and inference checkpoints owned by the caller, newest first. Filter by type, session, or base model, for example to recover a checkpoint ID for resume.
+- [Get checkpoint](https://docs.together.ai/reference/post-training/checkpoints-get.md): Returns metadata for a checkpoint: type, base model, LoRA rank, step, and owning session.
+- [Download checkpoint](https://docs.together.ai/reference/post-training/checkpoints-download.md): Returns presigned URLs for downloading a checkpoint's model files. Only inference checkpoints support downloading.
+- [Prepare a fine-tuned model for FP4 inference](https://docs.together.ai/reference/post-training/fp4-inference-create.md): Merges a fine-tuned adapter into its base model and prepares the result for FP4 inference. The adapter is resolved when the request is made, so a request naming a model that does not exist in the project, is not an adapter, was not produced by fine-tuning, has no base model to merge into, or uses an…
+- [Estimate FP4 preparation cost](https://docs.together.ai/reference/post-training/fp4-inference-estimate.md): Reports the price and expected wall-clock time for preparing the named adapter without creating a job. The request body is the same as POST /shaping/prepare-for-fp4-inference, so a caller can price exactly the job it is about to submit.
+- [List FP4 preparation jobs](https://docs.together.ai/reference/post-training/shaping-jobs-list.md): List shaping jobs owned by the caller's project.
+- [Get FP4 preparation job](https://docs.together.ai/reference/post-training/shaping-jobs-get.md): Retrieve a shaping job owned by the caller's project.
+- [Cancel FP4 preparation job](https://docs.together.ai/reference/post-training/shaping-jobs-cancel.md): Request cancellation of a shaping job owned by the caller's project.
+- [List FP4 preparation job events](https://docs.together.ai/reference/post-training/shaping-jobs-list-events.md): List events for a shaping job owned by the caller's project.
 - [Create job](https://docs.together.ai/reference/post-fine-tunes.md): Create a fine-tuning job with the provided model and training data.
 - [Estimate price](https://docs.together.ai/reference/post-fine-tunes-estimate-price.md): Estimate the price of a fine-tuning job.
 - [List all jobs](https://docs.together.ai/reference/get-fine-tunes.md): List the metadata for all fine-tuning jobs. Returns a list of FinetuneResponseTruncated objects.
@@ -358,6 +414,7 @@
 - [Endpoints](https://docs.together.ai/reference/cli/endpoints.md): Create, update, and manage dedicated inference endpoints from your terminal.
 - [Files](https://docs.together.ai/reference/cli/files.md): Upload and manage datasets for use in fine-tuning, evals, and batch inference.
 - [Fine-tuning](https://docs.together.ai/reference/cli/finetune.md): Create, monitor, and manage fine-tuning jobs from your terminal.
+- [Training](https://docs.together.ai/reference/cli/training.md): Inspect post-training resources, sessions, and checkpoints, and prepare trained LoRA adapters for FP4 inference from your terminal.
 - [Evals](https://docs.together.ai/reference/cli/evals.md): Create and manage model-evaluation jobs from your terminal, including classify, score, and compare evals.
 - [Batches](https://docs.together.ai/reference/cli/batches.md): Submit, monitor, download, and cancel batch inference jobs from your terminal.
 - [Whoami](https://docs.together.ai/reference/cli/whoami.md): Show the project and organization for the API key used by the Together CLI.
