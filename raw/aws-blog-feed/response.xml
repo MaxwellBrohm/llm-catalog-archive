@@ -5,7 +5,7 @@
 	<atom:link href="https://aws.amazon.com/blogs/machine-learning/feed/" rel="self" type="application/rss+xml"/>
 	<link>https://aws.amazon.com/blogs/machine-learning/</link>
 	<description>Official Machine Learning Blog of Amazon Web Services</description>
-	<lastBuildDate>Fri, 09 Oct 2026 15:38:39 +0000</lastBuildDate>
+	<lastBuildDate>Mon, 12 Oct 2026 17:52:22 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -13,6 +13,849 @@
 	1	</sy:updateFrequency>
 	
 	<item>
+		<title>Accessing OpenAI GPT models on Amazon Bedrock with global cross-Region inference in Thailand, Malaysia, Singapore, Indonesia, and Taiwan</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/accessing-openai-gpt-models-on-amazon-bedrock-with-global-cross-region-inference-in-thailand-malaysia-singapore-indonesia-and-taiwan/</link>
+		
+		<dc:creator><![CDATA[Traci Lim]]></dc:creator>
+		<pubDate>Mon, 12 Oct 2026 17:52:22 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon Bedrock]]></category>
+		<category><![CDATA[Technical How-to]]></category>
+		<guid isPermaLink="false">e20b8171cff84e878ab96622856dfe3f22a41ff0</guid>
+
+					<description>Learn how to run OpenAI GPT-6 Sol, Luna, and Astra on Amazon Bedrock through global cross-Region inference from Singapore, Jakarta, Thailand, Malaysia, and Taipei. This post covers the Converse and OpenAI-compatible APIs, IAM and SCP permissions, quota sizing, and monitoring inference from your source Region.</description>
+										<content:encoded>&lt;p&gt;Single-Region inference can throttle when demand exceeds local capacity. Teams in Thailand, Malaysia, Singapore, Indonesia, and Taiwan need access to the newest OpenAI models beyond that capacity. &lt;a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; offers OpenAI GPT-6 Sol and GPT-6 Luna through global cross-Region inference from all five AWS Regions, and GPT-6 Astra from Asia Pacific (Singapore). This post shows you how to configure the call, set permissions, and monitor inference from your source Region.&lt;/p&gt;
+&lt;p&gt;GPT-6 Sol, GPT-6 Luna, and GPT-6 Astra are all available through global cross-Region inference from the preceding Regions, on the &lt;code&gt;bedrock-runtime&lt;/code&gt; endpoint. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html" target="_blank" rel="noopener"&gt;Cross-Region inference&lt;/a&gt; in the Amazon Bedrock User Guide. For the full list of source and destination Regions in each profile, see &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html" target="_blank" rel="noopener"&gt;Supported Regions and models for inference profiles&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In this post, we introduce the global cross-Region inference profiles and invoke them from Asia Pacific (Singapore) using the Converse API, the OpenAI-compatible APIs, and coding clients. We then cover the &lt;a href="https://aws.amazon.com/iam/" target="_blank" rel="noopener"&gt;AWS Identity and Access Management&lt;/a&gt; (IAM) and service control policy (SCP) configuration, quota management, and monitoring.&lt;/p&gt;
+&lt;h2 id="global-cross-region-inference-profiles-for-openai-gpt-6"&gt;Global cross-Region inference profiles for OpenAI GPT-6&lt;/h2&gt;
+&lt;p&gt;The GPT-6 family offers three models, each available through global cross-Region inference.&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;GPT-6 Sol brings strong reasoning and coding capabilities to complex tasks performed throughout the week.&lt;/li&gt;
+ &lt;li&gt;GPT-6 Luna makes focused, repeatable tasks practical at high volume.&lt;/li&gt;
+ &lt;li&gt;GPT-6 Astra handles complex reasoning, coding, and long-document work.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;All three accept text and image input, client-side tool use, and prompt caching. They differ on reasoning effort. GPT-6 Sol and GPT-6 Luna accept none, low, medium, high, xhigh, and max. GPT-6 Astra accepts the same levels except none. For GPT-6 Sol and GPT-6 Luna, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/bring-more-intelligence-to-everyday-work-with-gpt-6-sol-and-gpt-6-luna-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;Bring more intelligence to everyday work with GPT-6 Sol and GPT-6 Luna on Amazon Bedrock&lt;/a&gt;. For GPT-6 Astra, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/take-on-your-most-ambitious-work-with-gpt-6-astra-on-amazon-bedrock/" target="_blank" rel="noopener"&gt;Take on your most ambitious work with GPT-6 Astra on Amazon Bedrock&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Global cross-Region inference routes requests across supported commercial AWS Regions where the model is deployed, giving you broad access to Amazon Bedrock capacity. You invoke it by passing a global cross-Region inference profile ID in place of a model ID. Your source Region is where you make the API call. Amazon Bedrock selects the destination Region for processing. Billing, quota tracking, AWS CloudTrail, and Amazon CloudWatch all stay in your source Region.&lt;/p&gt;
+&lt;p&gt;The following table lists the global cross-Region inference profile IDs and the source Regions covered in this post.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Global cross-Region inference profiles&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Source Regions&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Destination Regions&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;
+    &lt;p&gt;global.openai.gpt-6-sol&lt;/p&gt;
+    &lt;p&gt;global.openai.gpt-6-luna&lt;/p&gt;
+   &lt;/td&gt;
+   &lt;td&gt;
+    &lt;p&gt;Asia Pacific (Singapore) ap-southeast-1&lt;/p&gt;
+    &lt;p&gt;Asia Pacific (Jakarta) ap-southeast-3&lt;/p&gt;
+    &lt;p&gt;Asia Pacific (Malaysia) ap-southeast-5&lt;/p&gt;
+    &lt;p&gt;Asia Pacific (Thailand) ap-southeast-7&lt;/p&gt;
+    &lt;p&gt;Asia Pacific (Taipei) ap-east-2&lt;/p&gt;
+   &lt;/td&gt;
+   &lt;td&gt;Supported commercial AWS Regions where the model is deployed&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;global.openai.gpt-6-astra&lt;/td&gt;
+   &lt;td&gt;Asia Pacific (Singapore) ap-southeast-1&lt;/td&gt;
+   &lt;td&gt;Supported commercial AWS Regions where the model is deployed&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Inference profile availability and Region support change as AWS adds Regions and profiles, so confirm both on the model card before you build: &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-openai-gpt-6-sol.html" target="_blank" rel="noopener"&gt;GPT-6 Sol&lt;/a&gt;, &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-openai-gpt-6-luna.html" target="_blank" rel="noopener"&gt;GPT-6 Luna&lt;/a&gt;, and &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-openai-gpt-6-astra.html" target="_blank" rel="noopener"&gt;GPT-6 Astra&lt;/a&gt;. For per-token rates, see &lt;a href="https://aws.amazon.com/bedrock/pricing/" target="_blank" rel="noopener"&gt;Amazon Bedrock pricing&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id="getting-started-with-openai-models-on-amazon-bedrock"&gt;Getting started with OpenAI models on Amazon Bedrock&lt;/h2&gt;
+&lt;p&gt;Start with the prerequisites, then invoke any of the three profiles through the Converse API, the OpenAI-compatible APIs, or your existing coding client.&lt;/p&gt;
+&lt;h3 id="prerequisites"&gt;Prerequisites&lt;/h3&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;An IAM identity with permission to invoke the profile. The IAM policy in the Security and permissions section grants only what these examples need.&lt;/li&gt;
+ &lt;li&gt;Your source Region activated. Only the Region you call from needs activating. You do not activate destination Regions, which run on Amazon Bedrock managed capacity. Singapore (&lt;code&gt;ap-southeast-1&lt;/code&gt;) is a Region that is enabled by default. Jakarta (&lt;code&gt;ap-southeast-3&lt;/code&gt;), Malaysia (&lt;code&gt;ap-southeast-5&lt;/code&gt;), Thailand (&lt;code&gt;ap-southeast-7&lt;/code&gt;), and Taipei (&lt;code&gt;ap-east-2&lt;/code&gt;) are opt-in Regions you must activate first. For more information, see &lt;a href="https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-regions.html" target="_blank" rel="noopener"&gt;Enable or disable AWS Regions in your account&lt;/a&gt;.&lt;/li&gt;
+ &lt;li&gt;A current AWS SDK or CLI. The OpenAI-compatible examples also require the OpenAI SDK and the Amazon Bedrock token generator. Install them with &lt;code&gt;pip install boto3 openai aws-bedrock-token-generator&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The Amazon Bedrock console lists all three global cross-Region inference profiles under system-defined inference profiles. See Figure 1.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-1-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-1-1.png" alt="The three global OpenAI GPT-6 inference profiles among the system-defined profiles in the Amazon Bedrock console." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: The three global OpenAI GPT-6 inference profiles among the system-defined profiles in the Amazon Bedrock console&lt;/p&gt;
+&lt;/div&gt;
+&lt;h3 id="invoke-gpt-6-models-through-amazon-bedrock-runtime"&gt;Invoke GPT-6 models through Amazon Bedrock Runtime&lt;/h3&gt;
+&lt;p&gt;Each model supports three access paths on this endpoint: the Amazon Bedrock Converse API, the OpenAI Responses API, and the OpenAI Chat Completions API. The OpenAI-compatible APIs are called on the &lt;code&gt;/openai/v1&lt;/code&gt; paths rather than through the AWS SDKs, and the endpoint accepts either Signature Version 4 (SigV4) or an Amazon Bedrock API key. Pass the global cross-Region inference profile ID as the &lt;code&gt;model&lt;/code&gt; in every case.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Converse API.&lt;/strong&gt; This example calls GPT-6 Sol from Asia Pacific (Singapore) and logs the response. Set &lt;code&gt;BEDROCK_PROFILE_ID&lt;/code&gt; to &lt;code&gt;global.openai.gpt-6-luna&lt;/code&gt; or &lt;code&gt;global.openai.gpt-6-astra&lt;/code&gt; to switch models, or call &lt;code&gt;converse_stream&lt;/code&gt; for streaming.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;import logging
+import os
+import boto3
+
+# AWS_REGION overrides this default, so set it to your source Region or unset it.
+REGION = os.environ.get("AWS_REGION", "ap-southeast-1")
+PROFILE_ID = os.environ.get("BEDROCK_PROFILE_ID", "global.openai.gpt-6-sol")
+PROMPT = (
+    "In three bullet points, explain when a workload should use "
+    "cross-Region inference instead of calling a model in a single Region."
+)
+
+logging.basicConfig(format="%(levelname)s %(message)s")
+log = logging.getLogger("bedrock-cris")
+log.setLevel(logging.INFO)
+
+client = boto3.client("bedrock-runtime", region_name=REGION)
+
+# AccessDeniedException points at the IAM policy. ValidationException usually
+# means the model ID is not a global cross-Region inference profile.
+response = client.converse(
+    modelId=PROFILE_ID,
+    messages=[{"role": "user", "content": [{"text": PROMPT}]}],
+    inferenceConfig={"maxTokens": 1024},
+    # GPT-6 Sol and Luna accept none through max. GPT-6 Astra rejects none.
+    additionalModelRequestFields={"reasoning": {"effort": "low"}},
+)
+
+# Any effort above none can prepend a reasoningContent block, so pick the text
+# block by key rather than by position.
+text = "".join(b["text"] for b in response["output"]["message"]["content"] if "text" in b)
+
+log.info("Called %s from %s", PROFILE_ID, REGION)
+log.info("Stop reason: %s", response["stopReason"])
+log.info("Response:\n%s", text)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;OpenAI Chat Completions API.&lt;/strong&gt; Point the OpenAI SDK at the Regional endpoint and pass the same profile ID.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-python"&gt;import logging
+import os
+from aws_bedrock_token_generator import provide_token
+from openai import OpenAI
+
+REGION = os.environ.get("AWS_REGION", "ap-southeast-1")
+PROFILE_ID = os.environ.get("BEDROCK_PROFILE_ID", "global.openai.gpt-6-sol")
+PROMPT = "List three uses for a message queue."
+
+logging.basicConfig(format="%(levelname)s %(message)s")
+log = logging.getLogger("bedrock-cris")
+log.setLevel(logging.INFO)
+
+# provide_token mints a short-term key from your AWS credentials, valid up to 12 hours.
+client = OpenAI(
+    base_url=f"https://bedrock-runtime.{REGION}.amazonaws.com/openai/v1",
+    api_key=provide_token(region=REGION),
+)
+
+response = client.chat.completions.create(
+    model=PROFILE_ID,
+    messages=[{"role": "user", "content": PROMPT}],
+    max_completion_tokens=256,
+)
+
+log.info("Called %s from %s", PROFILE_ID, REGION)
+log.info("Response:\n%s", response.choices[0].message.content)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;When migrating an existing OpenAI client:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;Set the model parameter on every request, including those referencing a previous response.&lt;/li&gt;
+ &lt;li&gt;Use supported tool types: &lt;code&gt;function&lt;/code&gt;, &lt;code&gt;mcp&lt;/code&gt;, &lt;code&gt;custom&lt;/code&gt;, &lt;code&gt;namespace&lt;/code&gt;, and &lt;code&gt;tool_search&lt;/code&gt;.&lt;/li&gt;
+ &lt;li&gt;Configure the inference profile ID directly in your client rather than querying the models endpoint.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="set-up-the-chatgpt-desktop-app-and-codex-cli"&gt;Set up the ChatGPT desktop app and Codex CLI&lt;/h3&gt;
+&lt;p&gt;The ChatGPT desktop app and the Codex CLI share &lt;code&gt;~/.codex/config.toml&lt;/code&gt;, so one change covers both. Of the two built-in Amazon Bedrock providers, only &lt;code&gt;amazon-bedrock-runtime&lt;/code&gt; accepts an inference profile.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-toml"&gt;model = "global.openai.gpt-6-astra"
+model_provider = "amazon-bedrock-runtime"
+[model_providers.amazon-bedrock-runtime.aws]
+region = "ap-southeast-1"&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;SigV4 signing means there is no key to rotate. Add &lt;code&gt;profile = "&amp;lt;your-profile&amp;gt;"&lt;/code&gt; for a non-default profile, and set &lt;code&gt;region&lt;/code&gt; explicitly, because the client otherwise falls back to &lt;code&gt;AWS_REGION&lt;/code&gt;. Substitute another profile ID for &lt;code&gt;model&lt;/code&gt; to change models.&lt;/p&gt;
+&lt;p&gt;Codex reports a 272,000-token window for these profiles, which is its own bundled figure rather than a service limit. Raise it with &lt;code&gt;model_context_window&lt;/code&gt;. This configuration needs Codex CLI 0.148 or later.&lt;/p&gt;
+&lt;p&gt;Figure 2 shows the result in the app.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-2-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-2-1.png" alt="The ChatGPT desktop app running GPT-6 Astra on Amazon Bedrock." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 2: The ChatGPT desktop app running GPT-6 Astra on Amazon Bedrock&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="security-and-permissions"&gt;Security and permissions&lt;/h2&gt;
+&lt;p&gt;Amazon Bedrock offers a range of controls over inference. Two of them matter here. AWS Identity and Access Management (IAM) policies control which roles can invoke which profiles, and service control policies (SCPs) apply organization-wide controls, including Region scope. This section covers both, and where request data lands.&lt;/p&gt;
+&lt;h3 id="iam-permissions-for-global-cross-region-inference"&gt;IAM permissions for global cross-Region inference&lt;/h3&gt;
+&lt;p&gt;To call any of these models through a global cross-Region inference profile, your IAM policy needs four statements:&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Access to the inference profile and the project/default resource in your source Region.&lt;/li&gt;
+ &lt;li&gt;Access to the foundation model in your source Region, scoped to the inference profile.&lt;/li&gt;
+ &lt;li&gt;The Region-agnostic Amazon Resource Name (ARN) for the foundation model, &lt;code&gt;arn:aws:bedrock:::foundation-model/openai.gpt-6-sol&lt;/code&gt;, with &lt;code&gt;aws:RequestedRegion&lt;/code&gt; set to &lt;code&gt;unspecified&lt;/code&gt; to permit cross-Region routing.&lt;/li&gt;
+ &lt;li&gt;&lt;code&gt;bedrock:CallWithBearerToken&lt;/code&gt; for API-key authentication.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This IAM policy grants permission to invoke GPT-6 Sol through global cross-Region inference from &lt;code&gt;ap-southeast-1&lt;/code&gt;. Replace with your AWS account ID and &lt;code&gt;ap-southeast-1&lt;/code&gt; with your source Region.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GrantGlobalCrisProfileAndProjectAccess",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel"],
+      "Resource": [
+        "arn:aws:bedrock:ap-southeast-1:&amp;lt;ACCOUNT&amp;gt;:inference-profile/global.openai.gpt-6-sol",
+        "arn:aws:bedrock:ap-southeast-1:&amp;lt;ACCOUNT&amp;gt;:project/default"
+      ],
+      "Condition": {
+        "StringEquals": { "aws:RequestedRegion": "ap-southeast-1" }
+      }
+    },
+    {
+      "Sid": "GrantGlobalCrisInRegionModelAccess",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel"],
+      "Resource": ["arn:aws:bedrock:ap-southeast-1::foundation-model/openai.gpt-6-sol"],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "ap-southeast-1",
+          "bedrock:InferenceProfileArn": "arn:aws:bedrock:ap-southeast-1:&amp;lt;ACCOUNT&amp;gt;:inference-profile/global.openai.gpt-6-sol"
+        }
+      }
+    },
+    {
+      "Sid": "GrantGlobalCrisGlobalModelAccess",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel"],
+      "Resource": ["arn:aws:bedrock:::foundation-model/openai.gpt-6-sol"],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "unspecified",
+          "bedrock:InferenceProfileArn": "arn:aws:bedrock:ap-southeast-1:&amp;lt;ACCOUNT&amp;gt;:inference-profile/global.openai.gpt-6-sol"
+        }
+      }
+    },
+    {
+      "Sid": "AllowBearerTokenAuth",
+      "Effect": "Allow",
+      "Action": ["bedrock:CallWithBearerToken"],
+      "Resource": "*"
+    }
+  ]
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;If you use streaming (&lt;code&gt;converse_stream&lt;/code&gt; or &lt;code&gt;stream=True&lt;/code&gt;), add &lt;code&gt;bedrock:InvokeModelWithResponseStream&lt;/code&gt; to the Action in the first three statements. Converse authorizes as &lt;code&gt;bedrock:InvokeModel&lt;/code&gt;. If you only call Converse with SigV4 credentials, drop the fourth statement.&lt;/p&gt;
+&lt;p&gt;To switch models, replace &lt;code&gt;openai.gpt-6-sol&lt;/code&gt; with &lt;code&gt;openai.gpt-6-luna&lt;/code&gt; or &lt;code&gt;openai.gpt-6-astra&lt;/code&gt; throughout. For the complete reference, see &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/global-cross-region-inference.html" target="_blank" rel="noopener"&gt;IAM policy requirements for global cross-Region inference&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="service-control-policy-considerations-for-global-cross-region-inference"&gt;Service control policy considerations for global cross-Region inference&lt;/h3&gt;
+&lt;p&gt;A global cross-Region inference request carries no Region name. Amazon Bedrock sets &lt;code&gt;aws:RequestedRegion&lt;/code&gt; to &lt;code&gt;unspecified&lt;/code&gt;, so a Region allowlist in an SCP denies the call, and the error names only the policy type, not which policy. That is a common reason a first call fails in an enterprise account.&lt;/p&gt;
+&lt;p&gt;Rather than widening the allowlist, scope the exception. Amazon Bedrock populates the &lt;code&gt;bedrock:InferenceProfileArn&lt;/code&gt; condition key during authorization, so an SCP can allow these profiles while keeping Region controls for everything else. The following SCP does that.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyOutsideApprovedRegionsExceptBedrockInvoke",
+      "Effect": "Deny",
+      "NotAction": [
+        "iam:*", "sts:*", "organizations:*", "account:*",
+        "route53:*", "cloudfront:*", "waf:*", "wafv2:*", "shield:*",
+        "support:*", "trustedadvisor:*", "health:*",
+        "budgets:*", "ce:*", "cur:*", "tax:*", "billing:*",
+        "bedrock:Invoke*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": { "aws:RequestedRegion": ["ap-southeast-1"] }
+      }
+    },
+    {
+      "Sid": "DenyBedrockInferenceOutsideApprovedRegionsUnlessCris",
+      "Effect": "Deny",
+      "Action": ["bedrock:Invoke*"],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": { "aws:RequestedRegion": ["ap-southeast-1"] },
+        "ArnNotLike": {
+          "bedrock:InferenceProfileArn": [
+            "arn:aws:bedrock:*:*:inference-profile/global.*"
+          ]
+        }
+      }
+    }
+  ]
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The first statement enforces your Region allowlist for every service except Amazon Bedrock inference. The second denies that inference outside those Regions unless it routes through a global cross-Region inference profile. For geographic profiles, add their prefix (for example &lt;code&gt;inference-profile/us.*&lt;/code&gt;) to the &lt;code&gt;ArnNotLike&lt;/code&gt; list, because geographic requests carry a real Region name. Keep your source Region in the allowlist, and add the global services your organization uses to &lt;code&gt;NotAction&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;A blunter alternative is to add &lt;code&gt;unspecified&lt;/code&gt; to your existing allowlist, which works but opens the same exception to every other service. For a ready-to-use policy file, see the &lt;a href="https://github.com/aws-samples/service-control-policy-examples/blob/main/Region-controls/Deny-access-to-AWS-based-on-the-requested-AWS-region-with-Bedrock-CRIS.json" target="_blank" rel="noopener"&gt;aws-samples service-control-policy-examples repository&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id="data-retention-and-abuse-detection"&gt;Data retention and abuse detection&lt;/h3&gt;
+&lt;p&gt;For automated offline abuse detection, classifier-flagged traffic is retained by AWS for up to 30 days and processed programmatically. Under cross-Region inference that retention happens in the destination Region, which for a global profile is any supported commercial AWS Region where the model is deployed. Eligible customers might request full zero data retention through their AWS account team. For more information, see &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/abuse-detection.html" target="_blank" rel="noopener"&gt;Amazon Bedrock abuse detection&lt;/a&gt; and &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-retention.html" target="_blank" rel="noopener"&gt;Data retention&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If your organization has data residency requirements, take this to your risk and compliance team early. See the &lt;a href="https://aws.amazon.com/financial-services/security-compliance/compliance-center/" target="_blank" rel="noopener"&gt;AWS Financial Services Compliance Center&lt;/a&gt; country pages for these five countries. We recommend you obtain your own advice on compliance with the requirements relevant to your business.&lt;/p&gt;
+&lt;h2 id="quota-management"&gt;Quota management&lt;/h2&gt;
+&lt;p&gt;GPT-6 quotas on &lt;code&gt;bedrock-runtime&lt;/code&gt; are measured in tokens per minute (TPM), tracked against the source Region you call from. Input and cache-write tokens count 1:1, and each output token consumes 10 tokens of quota. For example, a request with 2,000 input tokens and 1,000 output tokens depletes 12,000 tokens from your quota.&lt;/p&gt;
+&lt;p&gt;Amazon Bedrock reserves the full &lt;code&gt;max_tokens&lt;/code&gt; up front, so set it close to the completions you expect. One quota covers &lt;code&gt;InvokeModel&lt;/code&gt;, Converse, Responses, and Chat Completions. Review and raise it on the &lt;a href="https://console.aws.amazon.com/servicequotas/" target="_blank" rel="noopener"&gt;Service Quotas console&lt;/a&gt; from your source Region. Before production, request increases early and alarm on &lt;code&gt;EstimatedTPMQuotaUsage&lt;/code&gt; in the &lt;code&gt;AWS/Bedrock&lt;/code&gt; namespace at 70–80 percent of your allocation. See &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/quotas-token-burndown.html" target="_blank" rel="noopener"&gt;How tokens are counted in Amazon Bedrock&lt;/a&gt; and &lt;a href="https://docs.aws.amazon.com/general/latest/gr/bedrock.html" target="_blank" rel="noopener"&gt;Amazon Bedrock endpoints and quotas&lt;/a&gt; for current values.&lt;/p&gt;
+&lt;h2 id="monitoring-and-logging"&gt;Monitoring and logging&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Your operational surface stays in your source Region.&lt;/strong&gt; Amazon CloudWatch metrics, AWS CloudTrail events, model invocation logs, quota accounting, and billing all remain in the Region you called from. You pay that Region’s rates, not the processing Region’s.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;CloudTrail records where each request was processed.&lt;/strong&gt; AWS documents a global cross-Region inference profile’s destinations as its commercial Regions rather than enumerating them. &lt;code&gt;GetInferenceProfile&lt;/code&gt; returns the Region-agnostic and source-Region model ARNs rather than a destination list. Your per-request record is &lt;code&gt;additionalEventData.inferenceRegion&lt;/code&gt; in CloudTrail in your source Region. Inference on this endpoint is a management event, logged by default at no extra cost. CloudTrail Event History retains 90 days, so longer horizons need a trail or model invocation logging. Retrieve the CloudTrail events with this command.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;aws cloudtrail lookup-events \
+  --region ap-southeast-1 \
+  --lookup-attributes AttributeKey=EventSource,AttributeValue=bedrock.amazonaws.com \
+  --start-time &amp;lt;START&amp;gt; \
+  --end-time &amp;lt;END&amp;gt; \
+  --max-results 1 \
+  --query 'Events[0].CloudTrailEvent' --output text | python3 -m json.tool&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Set the window around a call you just made, because CloudTrail delivery lags by a few minutes. If the most recent event was a failed call, it carries an &lt;code&gt;errorCode&lt;/code&gt; and no &lt;code&gt;inferenceRegion&lt;/code&gt;. Raise &lt;code&gt;--max-results&lt;/code&gt; and pick an event without &lt;code&gt;errorCode&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "eventName": "Converse",
+  "eventSource": "bedrock.amazonaws.com",
+  "awsRegion": "ap-southeast-1",
+  "managementEvent": true,
+  "requestParameters": {
+    "modelId": "global.openai.gpt-6-sol",
+    "inferenceConfig": { "maxTokens": 1024 }
+  },
+  "additionalEventData": {
+    "inferenceRegion": "us-east-1"
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Metrics and coding-agent usage stay in CloudWatch.&lt;/strong&gt; Where developers reach GPT-6 through a coding agent, CloudWatch &lt;a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/coding-agents-insights.html" target="_blank" rel="noopener"&gt;Coding Agent Insights&lt;/a&gt; adds ready-made dashboards under GenAI Observability that break token use down by user, team, and cost center. The agents emit OpenTelemetry metrics natively. For Codex, see &lt;a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/coding-agents-codex.html" target="_blank" rel="noopener"&gt;Set up OpenTelemetry for OpenAI Codex&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id="clean-up"&gt;Clean up&lt;/h2&gt;
+&lt;p&gt;This post adds an IAM policy and optionally an SCP statement and a logging destination. Detach or delete the IAM policy you attached, and revert the SCP entry if you added one. Delete the model invocation logging destination in &lt;a href="https://aws.amazon.com/s3/" target="_blank" rel="noopener"&gt;Amazon Simple Storage Service&lt;/a&gt; (Amazon S3) or Amazon CloudWatch Logs if you created one, to avoid storage charges. The global cross-Region inference profiles are system-defined, so there is nothing to delete.&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;This post showed how to invoke GPT-6 Sol and GPT-6 Luna from five Asia Pacific source Regions, and GPT-6 Astra from Asia Pacific (Singapore), through global cross-Region inference on &lt;code&gt;bedrock-runtime&lt;/code&gt;. Pass a global cross-Region inference profile ID as the &lt;code&gt;model&lt;/code&gt; parameter, and configure the IAM policy and SCP exception from this post. The same endpoint serves the OpenAI-compatible APIs, so an existing OpenAI integration moves across by changing a base URL and a key.&lt;/p&gt;
+&lt;p&gt;To get started, attach the IAM policy from this post, and send a first request through &lt;code&gt;global.openai.gpt-6-sol&lt;/code&gt;. Size your tokens-per-minute quota at the 10x burndown rate, and confirm in CloudTrail that &lt;code&gt;additionalEventData.inferenceRegion&lt;/code&gt; appears on your calls.&lt;/p&gt;
+&lt;p&gt;For more information, see the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html" target="_blank" rel="noopener"&gt;Amazon Bedrock User Guide&lt;/a&gt;, &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html" target="_blank" rel="noopener"&gt;Route model inference requests across AWS Regions with cross-Region inference&lt;/a&gt;, and &lt;a href="https://aws.amazon.com/bedrock/pricing/" target="_blank" rel="noopener"&gt;Amazon Bedrock pricing&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p style="clear: both"&gt;&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-3-1.jpg" alt="Traci Lim" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Traci Lim&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Traci is a Senior AI/ML Specialist Technical Account Manager at AWS based in Singapore. A machine learning engineer by trade, he works with startups and enterprises to operationalize and scale AI/ML applications in production, with a focus on GenAIOps, Agentic Ops, operational excellence, and cost and performance optimization. Prior to AWS, Traci led engineering teams in the tech and financial industries, scaling distributed AI systems across AWS, Azure, GCP, and SAP. He is a builder at heart, always looking for ways to create meaningful impact through technology.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-4-1.jpg" alt="Karan Jhaveri" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Karan Jhaveri&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Karan is a Senior Technical Account Manager at AWS based in Singapore. He works with public sector and enterprise customers to take generative AI from experimentation to production at scale. He likes to stay hands-on, getting into the details and building out solutions that solve real operational problems.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-5-1.jpg" alt="Melanie Li" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Melanie Li&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Melanie, PhD, is a Senior Generative AI Specialist Solutions Architect at AWS based in Sydney, Australia, where her focus is on working with customers to build solutions using state-of-the-art AI/ML tools. She has been actively involved in multiple generative AI initiatives across APJ, harnessing the power of LLMs. Prior to joining AWS, Dr.&amp;nbsp;Li held data science roles in the financial and retail industries.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-6-1.jpg" alt="Zohreh Norouzi" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Zohreh Norouzi&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Zohreh is a Senior Security Solutions Architect at Amazon Web Services (AWS). She helps customers make good security choices and accelerate their journey to the AWS Cloud. She has been actively involved in AI security initiatives, using her expertise to help customers build secure AI solutions at scale.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-7-1.jpg" alt="Saurabh Trikande" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Saurabh Trikande&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Saurabh is a Senior Product Manager for Amazon Bedrock and Amazon SageMaker Inference. He is passionate about working with customers and partners, motivated by the goal of democratizing AI. He focuses on core challenges related to deploying complex AI applications, inference with multi-tenant models, cost optimizations, and making the deployment of generative AI models more accessible. In his spare time, Saurabh enjoys hiking, learning about innovative technologies, following TechCrunch, and spending time with his family.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-21759-8-1.jpg" alt="Chris Dickens" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Chris Dickens&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Chris is a Member of Product Staff at OpenAI focused on the OpenAI APIs. His work includes collaboration with AWS on Amazon Bedrock to make OpenAI’s frontier models widely accessible to developers.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Deploy decision models with llama.cpp on Amazon SageMaker AI</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/deploy-decision-models-with-llama-cpp-on-amazon-sagemaker-ai/</link>
+		
+		<dc:creator><![CDATA[Jyothirmai Kottu]]></dc:creator>
+		<pubDate>Mon, 12 Oct 2026 15:51:46 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon SageMaker AI]]></category>
+		<category><![CDATA[Technical How-to]]></category>
+		<guid isPermaLink="false">f8a20bd6f8bcd8037ef8136ecd594ea98c83c9d3</guid>
+
+					<description>Learn how to deploy decision models with llama.cpp on Amazon SageMaker AI. This technical how-to serves OpenAI-compatible chat completions with the AWS Deep Learning Container for llama.cpp, then extends the runtime with SemIf to return probabilities over declared options on CPU or GPU.</description>
+										<content:encoded>&lt;p&gt;Applications that route requests, select agent actions, or assign policy outcomes often need scores over a fixed set of choices instead of free-form text. Deploying these decision models with &lt;a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener"&gt;llama.cpp&lt;/a&gt; on &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints.html" target="_blank" rel="noopener"&gt;Amazon SageMaker AI&lt;/a&gt; gives you a managed path for serving quantized models on CPU or GPU infrastructure.&lt;/p&gt;
+&lt;p&gt;This post continues a series on specialized AWS Deep Learning Containers (DLCs) for generative AI inference. Previous posts cover &lt;a href="https://aws.amazon.com/blogs/machine-learning/speaker-labeled-transcription-with-whisperx-on-sagemaker-ai/" target="_blank" rel="noopener"&gt;WhisperX&lt;/a&gt;, &lt;a href="https://aws.amazon.com/blogs/machine-learning/build-real-time-voice-applications-with-vllm-omni-on-sagemaker-ai-part-1/" target="_blank" rel="noopener"&gt;vLLM-Omni – Part 1&lt;/a&gt;, and &lt;a href="https://aws.amazon.com/blogs/machine-learning/generate-images-and-video-with-vllm-omni-on-sagemaker-ai-part-2/" target="_blank" rel="noopener"&gt;vLLM-Omni – Part 2&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;In this post, you first use the &lt;a href="https://aws.github.io/deep-learning-containers/llama-cpp/" target="_blank" rel="noopener"&gt;AWS DLC for llama.cpp&lt;/a&gt; to serve OpenAI-compatible chat completions through SageMaker AI &lt;code&gt;InvokeEndpoint&lt;/code&gt;. You then extend the same runtime with &lt;a href="https://github.com/TheoLeeCJ/SemIf-OpenJev" target="_blank" rel="noopener"&gt;SemIf&lt;/a&gt;, formerly OpenJev, which returns probabilities over declared options without decoding an answer token. The accompanying &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/03-features/semif-decision-model" target="_blank" rel="noopener"&gt;code sample&lt;/a&gt; includes CPU and GPU deployment options.&lt;/p&gt;
+&lt;h2 id="solution-overview"&gt;Solution overview&lt;/h2&gt;
+&lt;p&gt;Figure 1 shows two deployment paths from the same packaged model. The text-generation path uses the AWS DLC for llama.cpp and returns generated responses through the OpenAI-compatible API. The structured-decision path builds a child image that replaces the default server with a SemIf adapter and returns probabilities for declared options.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22079-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22079-1.png" alt="An application invokes an Amazon SageMaker AI real-time endpoint that can use the AWS Deep Learning Container for llama.cpp for generated text or a SemIf child image for option probabilities. Either serving mode can run on CPU or GPU." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: Run the AWS DLC for llama.cpp or the SemIf child image on CPU or GPU, depending on the API and latency requirements of your workload&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;For the standard path, package the model as &lt;code&gt;model.tar.gz&lt;/code&gt; in &lt;a href="https://aws.amazon.com/s3/" target="_blank" rel="noopener"&gt;Amazon Simple Storage Service (Amazon S3)&lt;/a&gt; and reference the published DLC image directly. The container finds the first &lt;code&gt;.gguf&lt;/code&gt; file under &lt;code&gt;/opt/ml/model&lt;/code&gt;, maps &lt;code&gt;POST /invocations&lt;/code&gt; to &lt;code&gt;llama-server&lt;/code&gt; at &lt;code&gt;/v1/chat/completions&lt;/code&gt;, and passes &lt;code&gt;SM_LLAMA_CPP_*&lt;/code&gt; environment variables to llama.cpp arguments.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;llama-server&lt;/code&gt; HTTP API doesn’t expose the final-position logits and state operations that SemIf uses. The structured-decision path therefore uses &lt;a href="https://aws.amazon.com/codebuild/" target="_blank" rel="noopener"&gt;AWS CodeBuild&lt;/a&gt; to build a child image and store it in &lt;a href="https://aws.amazon.com/ecr/" target="_blank" rel="noopener"&gt;Amazon Elastic Container Registry (Amazon ECR)&lt;/a&gt;. The child image keeps the DLC’s compiled CPU or CUDA libraries while replacing its entry point with a SageMaker-compatible adapter.&lt;/p&gt;
+&lt;h2 id="understand-the-input-and-output-schemas"&gt;Understand the input and output schemas&lt;/h2&gt;
+&lt;p&gt;The AWS DLC for llama.cpp accepts the OpenAI Chat Completions schema. Send a &lt;code&gt;messages&lt;/code&gt; array with &lt;code&gt;role&lt;/code&gt; and &lt;code&gt;content&lt;/code&gt;, plus generation controls such as &lt;code&gt;max_tokens&lt;/code&gt; and &lt;code&gt;stream&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "messages": [
+    {
+      "role": "user",
+      "content": "A customer cannot receive a password reset email. Reply with the best support queue."
+    }
+  ],
+  "max_tokens": 64,
+  "stream": false
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The response uses the OpenAI-compatible &lt;code&gt;choices&lt;/code&gt; array. Read generated text from &lt;code&gt;choices[0].message.content&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;SemIf uses a constrained decision schema instead of chat messages. The request contains a caller-defined ID, unstructured state, a question, and an ordered list of allowed options:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "decision": {
+    "id": "support-route",
+    "state": "The customer cannot receive a password reset email.",
+    "question": "Which queue should handle this request?",
+    "options": [
+      {"id": "account_access", "description": "Account access support."},
+      {"id": "billing", "description": "Billing support."}
+    ]
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The response returns &lt;code&gt;option_ids&lt;/code&gt;, &lt;code&gt;probabilities&lt;/code&gt;, and raw &lt;code&gt;option_logits&lt;/code&gt; in the same order, along with prompt, timing, and pinned model metadata. With stable option IDs, your application can apply thresholds, fallbacks, and policy checks without parsing generated prose.&lt;/p&gt;
+&lt;p&gt;SemIf belongs to a broader class of decision models that score application-defined outcomes from unstructured state. Other implementations include &lt;a href="https://docs.typesafe.ai/introduction" target="_blank" rel="noopener"&gt;Jev&lt;/a&gt;, TypeSafe’s decision model and &lt;code&gt;/v1/systemone&lt;/code&gt; API; &lt;a href="https://github.com/jaredpalmer/kev" target="_blank" rel="noopener"&gt;Kev&lt;/a&gt;, a model server designed for TypeSafe API compatibility; and &lt;a href="https://github.com/strands-labs/strands-decider" target="_blank" rel="noopener"&gt;Strands Decider 2B&lt;/a&gt;, a purpose-built model for agent workflows with calibrated outputs.&lt;/p&gt;
+&lt;h2 id="choose-the-right-decision-workflows"&gt;Choose the right decision workflows&lt;/h2&gt;
+&lt;p&gt;Use this pattern when your application defines the allowed choices at request time and needs a model to interpret unstructured context. Examples include routing a case to a queue, extracting one value from a known set, assigning an incident priority, checking a policy outcome, or selecting an agent action. Keep authorization and deterministic business rules outside the model, and validate model probabilities before treating them as operational confidence.&lt;/p&gt;
+&lt;p&gt;Use the standard SageMaker AI text-generation path when you need OpenAI-compatible chat completions through &lt;code&gt;InvokeEndpoint&lt;/code&gt;. The SageMaker AI image maps &lt;code&gt;POST /invocations&lt;/code&gt; to the &lt;code&gt;llama-server&lt;/code&gt; &lt;code&gt;/v1/chat/completions&lt;/code&gt; endpoint. Build a child image only when your application needs behavior that this interface doesn’t provide, such as SemIf’s direct logits and state access.&lt;/p&gt;
+&lt;p&gt;Removing answer-token generation doesn’t remove model inference. The model still processes the complete state, question, and option descriptions before SemIf reads the final logits. Keep prompts focused, and evaluate the selected model with labeled decisions from your application before production use.&lt;/p&gt;
+&lt;h2 id="tune-for-your-latency-and-quality-targets"&gt;Tune for your latency and quality targets&lt;/h2&gt;
+&lt;p&gt;The following benchmark applies to the SemIf extension, not the text-generation endpoint. Model size, quantization, prompt length, runtime, and CPU thread count affect each decision. To quantify these trade-offs, we sent the same 231 public &lt;a href="https://github.com/fstandhartinger/jevbench" target="_blank" rel="noopener"&gt;JevBench&lt;/a&gt; tasks serially to one CPU endpoint and one GPU endpoint.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Configuration&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;AWS DLC for llama.cpp&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Valid responses&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Accuracy&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Client p50&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Client p95&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Qwen3.5-4B &lt;code&gt;Q4_K_M&lt;/code&gt;, &lt;code&gt;ml.c6i.8xlarge&lt;/code&gt;, 32 threads&lt;/td&gt;
+   &lt;td&gt;&lt;a href="https://aws.github.io/deep-learning-containers/llama-cpp/" target="_blank" rel="noopener"&gt;llama-cpp:server-sagemaker-cpu-v1&lt;/a&gt;&lt;/td&gt;
+   &lt;td&gt;231/231&lt;/td&gt;
+   &lt;td&gt;179/231 (77.5%)&lt;/td&gt;
+   &lt;td&gt;1.715 seconds&lt;/td&gt;
+   &lt;td&gt;19.291 seconds&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Qwen3.5-4B &lt;code&gt;Q4_K_M&lt;/code&gt;, &lt;code&gt;ml.g6e.xlarge&lt;/code&gt;, full GPU offload&lt;/td&gt;
+   &lt;td&gt;&lt;a href="https://aws.github.io/deep-learning-containers/llama-cpp/" target="_blank" rel="noopener"&gt;llama-cpp:server-sagemaker-cuda-v1&lt;/a&gt;&lt;/td&gt;
+   &lt;td&gt;231/231&lt;/td&gt;
+   &lt;td&gt;180/231 (77.9%)&lt;/td&gt;
+   &lt;td&gt;0.352 seconds&lt;/td&gt;
+   &lt;td&gt;0.599 seconds&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Compared with the CPU configuration, the GPU endpoint was 4.9 times faster at p50 and 32.2 times faster at p95. The sample uses the SageMaker AI instance pools feature to list compatible GPU instance types in priority order, so SageMaker can select an alternative when the first preference isn’t available. The pool ordered &lt;code&gt;g6e&lt;/code&gt;, &lt;code&gt;g6&lt;/code&gt;, &lt;code&gt;g5&lt;/code&gt;, then &lt;code&gt;g4dn&lt;/code&gt;. SageMaker selected &lt;code&gt;ml.g6e.xlarge&lt;/code&gt;, and startup logs confirmed that llama.cpp offloaded all 34 model layers to an NVIDIA L40S. The CPU and GPU images used different llama.cpp builds and produced different predictions on six hard tasks. Treat the one-answer accuracy difference as runtime variation, not evidence that GPU offload improves model quality.&lt;/p&gt;
+&lt;p&gt;Smaller models reduced median latency, but the 2B and 0.8B candidates achieved 66.7 percent and 58.4 percent accuracy. The sample therefore keeps the 4B &lt;code&gt;Q4_K_M&lt;/code&gt; model as its quality-first default. These measurements include network latency and aren’t service guarantees.&lt;/p&gt;
+&lt;p&gt;Benchmark the complete model and infrastructure configuration against your own decisions. Use CPU for background, offline, or low-throughput workloads that aren’t latency-sensitive and can tolerate seconds of response time. Use GPU for interactive decisions, long prompts, or workloads with tight tail-latency targets. Keep state and option descriptions concise, group decisions that share the same state into one request, and scale endpoint instances for concurrency. Shared-state scoring reuses the common prompt prefix, while the adapter returns retryable HTTP &lt;code&gt;503&lt;/code&gt; responses instead of allowing an unbounded queue around its stateful llama.cpp context.&lt;/p&gt;
+&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
+&lt;p&gt;You need:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;An AWS account and an S3 bucket in your deployment AWS Region.&lt;/li&gt;
+ &lt;li&gt;Python 3.10 or later, Git, and the AWS Command Line Interface (AWS CLI).&lt;/li&gt;
+ &lt;li&gt;A purpose-specific CodeBuild service role for the optional SemIf extension.&lt;/li&gt;
+ &lt;li&gt;An &lt;a href="https://aws.amazon.com/iam/" target="_blank" rel="noopener"&gt;AWS Identity and Access Management (IAM)&lt;/a&gt; role that SageMaker AI can assume.&lt;/li&gt;
+ &lt;li&gt;Permissions for SageMaker AI, Amazon ECR, Amazon S3, CodeBuild, IAM pass-role actions, and &lt;a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html" target="_blank" rel="noopener"&gt;Amazon CloudWatch Logs&lt;/a&gt;.&lt;/li&gt;
+ &lt;li&gt;Quota for a compatible x86 CPU or NVIDIA GPU SageMaker real-time endpoint.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The text-generation example uses the CPU DLC and a fixed CPU instance. The SemIf extension keeps CPU as the default for workloads that aren’t latency-sensitive and offers an optional CUDA image with ordered instance pools. Review &lt;a href="https://aws.amazon.com/sagemaker/ai/pricing/" target="_blank" rel="noopener"&gt;SageMaker AI pricing&lt;/a&gt; before creating an endpoint.&lt;/p&gt;
+&lt;h2 id="deploy-a-decision-model-and-extend-it-with-semif"&gt;Deploy a decision model and extend it with SemIf&lt;/h2&gt;
+&lt;p&gt;Use the following procedure to deploy the standard text-generation endpoint, then build the optional SemIf extension for structured decisions on CPU or GPU.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;&lt;strong&gt;Clone the code sample and install its dependencies.&lt;/strong&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;git clone https://github.com/aws-samples/sagemaker-genai-hosting-examples.git
+cd sagemaker-genai-hosting-examples/03-features/semif-decision-model
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -r deploy/requirements.txt&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Set the deployment values for your account.&lt;/strong&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;export AWS_REGION="&amp;lt;your-region&amp;gt;"
+export ARTIFACT_BUCKET=amzn-s3-demo-semif-artifacts
+export CODEBUILD_ROLE_ARN=arn:aws:iam::111122223333:role/semif-codebuild-role
+export SAGEMAKER_ROLE_ARN=arn:aws:iam::111122223333:role/semif-sagemaker-role
+export STANDARD_ENDPOINT_NAME=llamacpp-gguf
+export SEMIF_ENDPOINT_NAME=semif-decision-workflows&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Package the pinned GGUF model and tokenizer with CodeBuild.&lt;/strong&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/prepare_model_build.py \
+  --region "$AWS_REGION" \
+  --bucket "$ARTIFACT_BUCKET" \
+  --codebuild-role-arn "$CODEBUILD_ROLE_ARN" \
+  --model-s3-uri "s3://$ARTIFACT_BUCKET/semif-llamacpp/model.tar.gz"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Wait for the returned build ID to reach &lt;code&gt;SUCCEEDED&lt;/code&gt;. The build records the source revisions and checksums in &lt;code&gt;model-manifest.json&lt;/code&gt; and stops if the GGUF checksum differs from the validated value.&lt;/p&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Deploy the GGUF model with the AWS DLC for llama.cpp.&lt;/strong&gt;
+  &lt;p&gt;Resolve a digest-pinned &lt;code&gt;server-sagemaker-cpu-v1&lt;/code&gt; image from the &lt;a href="https://aws.github.io/deep-learning-containers/llama-cpp/" target="_blank" rel="noopener"&gt;AWS DLC for llama.cpp documentation&lt;/a&gt;, then create the SageMaker AI model, endpoint configuration, and endpoint:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;export STANDARD_IMAGE_URI="&amp;lt;published-llama-cpp-cpu-image&amp;gt;@sha256:&amp;lt;digest&amp;gt;"
+
+python deploy/deploy_standard_endpoint.py \
+  --region "$AWS_REGION" \
+  --image-uri "$STANDARD_IMAGE_URI" \
+  --model-data-url "s3://$ARTIFACT_BUCKET/semif-llamacpp/model.tar.gz" \
+  --role-arn "$SAGEMAKER_ROLE_ARN" \
+  --instance-type ml.c6i.2xlarge \
+  --name "$STANDARD_ENDPOINT_NAME"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Select a &lt;code&gt;server-sagemaker-cpu-v1&lt;/code&gt; or &lt;code&gt;server-sagemaker-cuda-v1&lt;/code&gt; image rather than the corresponding EC2 image. The SageMaker AI images implement the &lt;code&gt;/ping&lt;/code&gt; and &lt;code&gt;/invocations&lt;/code&gt; container contract and map invocation payloads to chat completions.&lt;/p&gt;
+  &lt;p&gt;This walkthrough supplies the GGUF model through the SageMaker AI model artifact in Amazon S3. As an alternative, you can configure &lt;code&gt;SM_LLAMA_CPP_HF_REPO&lt;/code&gt; and &lt;code&gt;SM_LLAMA_CPP_HF_FILE&lt;/code&gt; to download a GGUF file from Hugging Face when the endpoint has network egress.&lt;/p&gt;
+  &lt;p&gt;You don’t need a Dockerfile or an ECR repository for this path. Wait for the endpoint to enter &lt;code&gt;InService&lt;/code&gt;, then send an OpenAI-compatible chat request:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/invoke_standard_endpoint.py \
+  --region "$AWS_REGION" \
+  --endpoint-name "$STANDARD_ENDPOINT_NAME"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Build the optional SemIf child image and resolve its immutable digest.&lt;/strong&gt;
+  &lt;p&gt;For CPU:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/prepare_build.py \
+  --region "$AWS_REGION" \
+  --bucket "$ARTIFACT_BUCKET" \
+  --codebuild-role-arn "$CODEBUILD_ROLE_ARN"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;For GPU, build the CUDA child image instead:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/prepare_build.py \
+  --region "$AWS_REGION" \
+  --bucket "$ARTIFACT_BUCKET" \
+  --codebuild-role-arn "$CODEBUILD_ROLE_ARN" \
+  --dockerfile Dockerfile.gpu \
+  --image-tag "gpu-$(date +%Y%m%d%H%M%S)"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;After the build succeeds, construct the immutable image URI:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;ECR_REPOSITORY_URI=$(aws ecr describe-repositories \
+  --region "$AWS_REGION" \
+  --repository-names semif-llamacpp-dlc \
+  --query 'repositories[0].repositoryUri' \
+  --output text)
+IMAGE_DIGEST=$(aws ecr describe-images \
+  --region "$AWS_REGION" \
+  --repository-name semif-llamacpp-dlc \
+  --query 'sort_by(imageDetails,&amp;amp;imagePushedAt)[-1].imageDigest' \
+  --output text)
+export IMAGE_URI="${ECR_REPOSITORY_URI}@${IMAGE_DIGEST}"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;The deployment script rejects mutable image tags.&lt;/p&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Deploy the SemIf endpoint.&lt;/strong&gt;
+  &lt;p&gt;The CPU configuration uses a fixed instance type:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/deploy_endpoint.py \
+  --region "$AWS_REGION" \
+  --image-uri "$IMAGE_URI" \
+  --model-data-url "s3://$ARTIFACT_BUCKET/semif-llamacpp/model.tar.gz" \
+  --role-arn "$SAGEMAKER_ROLE_ARN" \
+  --instance-type ml.c6i.8xlarge \
+  --threads 32 \
+  --name "$SEMIF_ENDPOINT_NAME"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Wait for the returned endpoint name to enter &lt;code&gt;InService&lt;/code&gt;. This path sets &lt;code&gt;n_gpu_layers=0&lt;/code&gt;. The adapter serializes scoring around one stateful llama.cpp context, so scale out with endpoint instances after measuring your workload rather than assuming parallel scoring inside one container.&lt;/p&gt;
+  &lt;p&gt;For the GPU image, provide ordered instance pools and request full model offload:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/deploy_endpoint.py \
+  --region "$AWS_REGION" \
+  --image-uri "$IMAGE_URI" \
+  --model-data-url "s3://$ARTIFACT_BUCKET/semif-llamacpp/model.tar.gz" \
+  --role-arn "$SAGEMAKER_ROLE_ARN" \
+  --instance-pool ml.g6e.xlarge \
+  --instance-pool ml.g6.2xlarge \
+  --instance-pool ml.g5.2xlarge \
+  --instance-pool ml.g4dn.2xlarge \
+  --gpu-layers=-1 \
+  --provision-timeout 1200 \
+  --name "$SEMIF_ENDPOINT_NAME"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Instance pools are ordered placement fallbacks, not inference load balancing. SageMaker selects one available type for the variant. Endpoint creation can take longer while SageMaker AI works through the pool. Check the startup logs for the selected GPU and a message confirming that all model layers were offloaded.&lt;/p&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Invoke the SemIf endpoint with the example decision.&lt;/strong&gt;
+  &lt;p&gt;The request declares stable IDs for each allowed option:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "decision": {
+    "id": "support-route",
+    "state": "Customer asks to reset a forgotten password and says the reset email never arrived.",
+    "question": "Which queue should handle this request?",
+    "options": [
+      {"id": "account_access", "description": "Account access and authentication support."},
+      {"id": "billing", "description": "Billing and payment support."},
+      {"id": "sales", "description": "Sales and product evaluation."}
+    ]
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/invoke_endpoint.py \
+  --region "$AWS_REGION" \
+  --endpoint-name "$SEMIF_ENDPOINT_NAME"&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;The response preserves the option order and includes conditional probabilities, raw logits, token and prompt metadata, and the pinned model identity:&lt;/p&gt;
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-json"&gt;{
+  "result": {
+    "id": "support-route",
+    "option_ids": ["account_access", "billing", "sales"],
+    "probabilities": [0.99996, 0.00003, 0.00001],
+    "option_logits": [28.47, 17.92, 17.04],
+    "prompt_sha256": "016267542103ab91422c425d2234ec7e1b9aef77f9d3e481b96db2de7cca470a",
+    "readout": "quantized last-position logits restricted to declared answer slots; no generated tokens"
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Apply application-level thresholds and fallbacks. Don’t use a model decision as a substitute for authorization.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="clean-up"&gt;Clean up&lt;/h2&gt;
+&lt;p&gt;Delete the SageMaker AI endpoint, endpoint configuration, and model:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;python deploy/cleanup_endpoint.py \
+  --region "$AWS_REGION" \
+  --name "$STANDARD_ENDPOINT_NAME"
+
+python deploy/cleanup_endpoint.py \
+  --region "$AWS_REGION" \
+  --name "$SEMIF_ENDPOINT_NAME"&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The script deletes only those explicitly named SageMaker AI resources. Delete the CodeBuild projects, ECR repository, model and source objects in Amazon S3, logs, and purpose-specific IAM roles when you no longer need them.&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;The AWS DLC for llama.cpp gives you a managed foundation for serving decision models on SageMaker AI across CPU and GPU instances. It can load GGUF models from SageMaker AI model artifacts or a configured Hugging Face repository, then serve OpenAI-compatible chat completions through &lt;code&gt;InvokeEndpoint&lt;/code&gt; without requiring a custom container. When your application needs direct logits and model state operations, you can extend the DLC with a SemIf adapter. Choose CPU for workloads that aren’t latency-sensitive, and choose GPU when prompt prefill and tail latency affect the application experience.&lt;/p&gt;
+&lt;p&gt;Review the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/03-features/semif-decision-model" target="_blank" rel="noopener"&gt;code sample&lt;/a&gt;, &lt;a href="https://aws.github.io/deep-learning-containers/llama-cpp/" target="_blank" rel="noopener"&gt;AWS DLC for llama.cpp documentation&lt;/a&gt;, and &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/your-algorithms-inference-code.html" target="_blank" rel="noopener"&gt;SageMaker AI custom inference container contract&lt;/a&gt; to adapt the deployment for your workload.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p style="clear: both"&gt;&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2025/07/09/ML-19067-image-19-1.jpeg" alt="Jyothirmai Kottu" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Jyothirmai Kottu&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/jyothirmaikottu/" target="_blank" rel="noopener"&gt;Jyothirmai&lt;/a&gt; is a Software Development Engineer on the AWS Deep Learning Containers team. She builds AI and machine learning infrastructure with a focus on container performance, reliability, and developer usability. Outside of work, she enjoys coffee, yoga, and exploring new places with family and friends.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/01/26/ml19026-wirjo.jpeg" alt="Daniel Wirjo" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Daniel Wirjo&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://linkedin.com/in/wirjo" target="_blank" rel="noopener"&gt;Daniel&lt;/a&gt; is a Solutions Architect at AWS, focused on frontier AI startups. As a former startup CTO, he enjoys collaborating with founders and engineering leaders to drive growth and innovation on AWS. Outside of work, Daniel enjoys taking walks with a coffee in hand, appreciating nature, and learning new ideas.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/08/25/ML-21711-16.jpg" alt="Daniel Quang" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Daniel Quang&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/dxq/" target="_blank" rel="noopener"&gt;Daniel&lt;/a&gt; is a Solutions Architect on the Frontier AI Startups team at AWS, where he helps the world’s largest and most strategic generative AI startups scale their infrastructure on the cloud. He holds a PhD in Computer Science from the University of California, Irvine, with a research focus on machine learning and bioinformatics.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/06/16/ML-21172-6.png" alt="Dmitry Soldatkin" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Dmitry Soldatkin&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/dmitry-soldatkin/" target="_blank" rel="noopener"&gt;Dmitry&lt;/a&gt; is the Worldwide Leader for Specialist Solutions Architecture, SageMaker Inference at AWS. He helps customers design, build, and optimize generative AI and machine learning solutions, with interests in deep learning and deploying machine learning at scale. He has a passion for continuous innovation and using data to drive business outcomes.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Run multi-node inference workloads using Ray LLM Deep Learning Containers</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/run-multi-node-inference-workloads-using-ray-llm-deep-learning-containers/</link>
+		
+		<dc:creator><![CDATA[Ananth Raghavendra]]></dc:creator>
+		<pubDate>Mon, 12 Oct 2026 15:50:14 +0000</pubDate>
+				<category><![CDATA[Amazon Elastic Kubernetes Service]]></category>
+		<category><![CDATA[Intermediate (200)]]></category>
+		<category><![CDATA[Technical How-to]]></category>
+		<guid isPermaLink="false">b4bf8b1e23545b34c9db567b51d0eb1551605184</guid>
+
+					<description>Learn how to deploy one large language model across two GPU nodes on Amazon EKS using the multi-node Ray LLM Deep Learning Containers, with separate prefill and decode nodes behind one OpenAI-compatible endpoint. The pre-built container ships the full inference stack, so you configure the deployment instead of assembling it.</description>
+										<content:encoded>&lt;p&gt;This post shows how to deploy one large language model (LLM) across two GPU nodes on Amazon Elastic Kubernetes Service (Amazon EKS) with the multi-node &lt;a href="https://aws.github.io/deep-learning-containers/ray-llm/" target="_blank" rel="noopener"&gt;Ray LLM Deep Learning Containers&lt;/a&gt;. It uses separate prefill and decode nodes behind one OpenAI-compatible endpoint. This kind of multi-node setup is common for tensor, pipeline, and data parallelism, as well as prefill/decode disaggregation inference workloads. In a &lt;a href="https://aws.amazon.com/blogs/machine-learning/simplify-and-support-your-torchserve-workloads-using-ray-serve-deep-learning-containers/" target="_blank" rel="noopener"&gt;previous post&lt;/a&gt;, we introduced the &lt;a href="https://aws.github.io/deep-learning-containers/ray/" target="_blank" rel="noopener"&gt;Ray Serve DLC&lt;/a&gt; and used it to stand up a small model behind an HTTP endpoint on a single GPU node. You had a working inference endpoint, and the container keeps the GPU stack compatible, including CUDA libraries, so you did not need to write boilerplate code.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://docs.ray.io/en/latest/ray-overview/index.html" target="_blank" rel="noopener"&gt;Ray&lt;/a&gt; is a distributed compute framework, so Ray Serve deployments can span multiple nodes. Customers use multi-node Ray Serve for several reasons. Some want to run foundation or open-weight models that are too large for a single GPU. Others need more throughput than one replica can deliver. Still others want to separate the two phases of inference to improve performance. In each case, customers must build the dependency chain themselves: choosing compatible libraries for the GPU stack and debugging issues when a component drifts out of alignment. This is undifferentiated work that takes time and effort away from delivering models.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://aws.amazon.com/ai/machine-learning/containers/" target="_blank" rel="noopener"&gt;AWS Deep Learning Containers&lt;/a&gt; (DLCs) have long solved this kind of problem for training and inferencing workloads. DLCs are pre-built, performance-optimized Docker images that bundle a framework, its dependencies, and the GPU stack into a tested, patched combination you can pull and use immediately. With the launch of the &lt;a href="https://aws.github.io/deep-learning-containers/ray-llm/" target="_blank" rel="noopener"&gt;Ray LLM DLC&lt;/a&gt; for multi-node deployments, that same approach now extends to multi-node inference. You get a container purpose-built for serving models behind an HTTP endpoint, maintained and tested by AWS, with the full inference stack already assembled.&lt;/p&gt;
+&lt;p&gt;This post walks through implementing multi-node disaggregated inference using multi-node Ray LLM DLC: deploying a single large language model across two GPU-powered nodes on &lt;a href="https://aws.amazon.com/eks/" target="_blank" rel="noopener"&gt;Amazon EKS&lt;/a&gt; cooperating behind a single endpoint. While one of the GPU nodes handles the prefill phase, the other GPU node handles the decode phase. Separating the phases prevents compute-heavy long prompts from stalling token generation for requests already in progress. This approach is well suited for workloads such as Retrieval Augmented Generation (RAG), document summarization, and agentic applications. We use the multi-node Ray LLM DLC, which ships &lt;a href="https://docs.ray.io/en/latest/serve/llm/index.html" target="_blank" rel="noopener"&gt;Ray Serve LLM&lt;/a&gt;, &lt;a href="https://github.com/ai-dynamo/nixl" target="_blank" rel="noopener"&gt;NVIDIA Inference Transfer Library (NIXL)&lt;/a&gt;, and the &lt;a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html" target="_blank" rel="noopener"&gt;Elastic Fabric Adapter (EFA)&lt;/a&gt; stack, and exposes an OpenAI-compatible API with no application code. The complete code is available in the &lt;a href="https://github.com/aws-samples/sample-aws-deep-learning-containers/tree/main/inference/ray-serve/ray-serve-multi-node" target="_blank" rel="noopener"&gt;accompanying repository&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id="why-prefilldecode-pd-disaggregation"&gt;Why prefill/decode (PD) disaggregation&lt;/h2&gt;
+&lt;p&gt;LLM inference has two distinct phases. &lt;strong&gt;Prefill&lt;/strong&gt; processes the entire input prompt in parallel and builds the key-value (KV) cache. &lt;strong&gt;Decode&lt;/strong&gt; then generates the response one token at a time, reading and extending that cache. Prefill is compute bound, and Decode is bound by memory bandwidth. When both phases share one GPU, they contend for the same resources, and the bursty, compute-heavy prefill work interferes with the steady, latency-sensitive decode work. Separating the prefill phase from the decode phase means you can select the hardware and serving properties for each phase, improving overall performance at scale.&lt;/p&gt;
+&lt;p&gt;PD disaggregation places the two phases on separate nodes, so each phase runs without interfering with the other and can be scaled independently. The trade-off is that the KV cache built during prefill must be handed to the decode node, and that transfer should be fast enough not to erase the benefit. That is exactly why the interconnect between the nodes matters.&lt;/p&gt;
+&lt;h2 id="what-the-ray-llm-dlc-provides"&gt;What the Ray LLM DLC provides&lt;/h2&gt;
+&lt;p&gt;AWS DLCs are pre-built, performance-optimized Docker images that bundle a framework, its dependencies, and the GPU stack into a tested, patched combination you can pull and use immediately. All components are validated together before each release, so there is no version drift between the CUDA runtime, the framework, and the serving layer. Security patches are applied at build time.&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://aws.github.io/deep-learning-containers/ray-llm/" target="_blank" rel="noopener"&gt;Ray LLM DLC&lt;/a&gt; extends this to distributed LLM serving. It ships &lt;a href="https://github.com/vllm-project/vllm" target="_blank" rel="noopener"&gt;vLLM&lt;/a&gt; as the inference engine, Ray Serve’s HTTP as the serving layer, NIXL for KV-cache transfer between nodes, and the EFA stack (&lt;a href="https://aws.amazon.com/hpc/efa/" target="_blank" rel="noopener"&gt;libfabric&lt;/a&gt; and &lt;a href="https://github.com/aws/aws-ofi-nccl" target="_blank" rel="noopener"&gt;aws-ofi-nccl&lt;/a&gt;) for high-bandwidth node-to-node communication. Because the &lt;a href="https://docs.ray.io/en/latest/serve/llm/index.html" target="_blank" rel="noopener"&gt;Ray Serve LLM library&lt;/a&gt; includes a built-in application builder, the entire serving application is a block of YAML. There’s no handler class, no model archiver, and no custom image to build. A single helper, &lt;code&gt;build_pd_openai_app&lt;/code&gt;, takes a prefill configuration and a decode configuration and wires the KV-cache transfer between them behind one OpenAI-compatible endpoint.&lt;/p&gt;
+&lt;h2 id="architecture"&gt;Architecture&lt;/h2&gt;
+&lt;p&gt;The following diagram shows how the deployment is laid out on Amazon EKS. A user request reaches the Ray head on the CPU system node, and the two GPU worker nodes run the prefill and decode phases of the model.&lt;/p&gt;
+&lt;div style="width: 741px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22045-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22045-1.png" alt="Architecture diagram: a user request reaches the Ray head on a CPU system node, and two GPU worker nodes run the prefill and decode phases on Amazon EKS" width="731"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: Multi-node inference architecture on Amazon EKS, with the Ray head on a CPU system node and the prefill and decode phases on two GPU worker nodes&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;The deployment is an EKS cluster inside a virtual private cloud (VPC). Nodes run in private subnets with outbound access through a NAT Gateway. A CPU &lt;strong&gt;system node&lt;/strong&gt; (m7i.xlarge) hosts system workloads, the &lt;a href="https://docs.ray.io/en/latest/cluster/kubernetes/index.html" target="_blank" rel="noopener"&gt;KubeRay&lt;/a&gt; operator, and the Ray head pod, which is CPU-only. Two GPU &lt;strong&gt;worker nodes&lt;/strong&gt; (g6.8xlarge) run the Ray workers: one serving the prefill phase, and the other serving the decode phase. Both nodes pull the Ray LLM DLC from &lt;a href="https://aws.amazon.com/ecr/" target="_blank" rel="noopener"&gt;Amazon Elastic Container Registry (Amazon ECR)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;KubeRay watches the RayService you apply and wires the head-to-worker join automatically. Ray Serve places the prefill and decode deployments on the two GPU workers. The KV cache flows from the prefill worker to the decode worker over NIXL, using EFA through NIXL’s libfabric backend. The GPU node group is pinned to a single Availability Zone (AZ) because EFA cannot cross AZs.&lt;/p&gt;
+&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
+&lt;p&gt;To follow along with this post, you need:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;An AWS account with billing enabled.&lt;/li&gt;
+ &lt;li&gt;Sufficient service quota for running two g6.8xlarge instances (at least 64 vCPU) in your target Region.&lt;/li&gt;
+ &lt;li&gt;AWS &lt;a href="https://aws.amazon.com/cli/" target="_blank" rel="noopener"&gt;Command Line Interface (AWS CLI)&lt;/a&gt; with credentials configured.&lt;/li&gt;
+ &lt;li&gt;kubectl CLI for communicating with a Kubernetes cluster’s control plane.&lt;/li&gt;
+ &lt;li&gt;eksctl CLI for creating and managing clusters on EKS.&lt;/li&gt;
+ &lt;li&gt;helm (package manager for Kubernetes) to install KubeRay operator.&lt;/li&gt;
+ &lt;li&gt;envsubst utility (part of the GNU gettext) to render the manifest.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Verify that your AWS credentials are active with the following command:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;aws sts get-caller-identity&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id="use-the-pre-built-application-to-serve-inference"&gt;Use the pre-built application to serve inference&lt;/h2&gt;
+&lt;p&gt;The application is the &lt;code&gt;serveConfigV2&lt;/code&gt; block in &lt;code&gt;manifest/rayservice.yaml&lt;/code&gt;. It uses &lt;code&gt;build_pd_openai_app&lt;/code&gt;, which takes a &lt;code&gt;prefill_config&lt;/code&gt; and a &lt;code&gt;decode_config&lt;/code&gt; and connects the KV-cache transfer between them:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-yaml"&gt;applications:
+- name: qwen
+  import_path: ray.serve.llm:build_pd_openai_app # OpenAI-compatible PD app, built in
+  route_prefix: /
+  args:
+    prefill_config:
+      model_loading_config: { model_id: qwen3.5-9b, model_source: Qwen/Qwen3.5-9B }
+      engine_kwargs:
+        max_model_len: 4096
+        dtype: bfloat16
+        gpu_memory_utilization: 0.90
+        enforce_eager: true # Skip CUDA graph capture to reduce peak GPU memory
+      kv_transfer_config:
+        kv_connector: NixlConnector
+        kv_role: kv_both
+        engine_id: prefill
+        kv_connector_extra_config: { backends: ["LIBFABRIC"] }
+      deployment_config: { num_replicas: 1 }
+    decode_config:
+      model_loading_config: { model_id: qwen3.5-9b, model_source: Qwen/Qwen3.5-9B }
+      engine_kwargs:
+        max_model_len: 4096
+        dtype: bfloat16
+        gpu_memory_utilization: 0.90
+        enforce_eager: true
+      kv_transfer_config:
+        kv_connector: NixlConnector
+        kv_role: kv_both
+        engine_id: decode
+        kv_connector_extra_config: { backends: ["LIBFABRIC"] }
+      deployment_config: { num_replicas: 1 }&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;A few settings carry most of the weight. &lt;code&gt;max_model_len: 4096&lt;/code&gt; sizes the context to fit the measured KV cache on the GPU. &lt;code&gt;dtype: bfloat16&lt;/code&gt; and &lt;code&gt;gpu_memory_utilization: 0.90&lt;/code&gt; set precision and how much VRAM vLLM can claim. &lt;code&gt;enforce_eager: true&lt;/code&gt; skips CUDA graph capture to reduce peak GPU memory (model- and input-dependent). The &lt;code&gt;kv_transfer_config&lt;/code&gt; setting is what makes disaggregation work: both phases use &lt;code&gt;NixlConnector&lt;/code&gt; with &lt;code&gt;kv_role: kv_both&lt;/code&gt; and a distinct &lt;code&gt;engine_id&lt;/code&gt; (prefill on one, decode on the other). The critical setting is &lt;code&gt;kv_connector_extra_config: { backends: ["LIBFABRIC"] }&lt;/code&gt;. Without that line, NIXL defaults to UCX, which runs at TCP speed even on EFA.&lt;/p&gt;
+&lt;p&gt;The rest of the manifest, in &lt;code&gt;rayClusterConfig&lt;/code&gt;, describes the pods. The head pod is CPU-only (&lt;code&gt;num-gpus: "0"&lt;/code&gt;) and pinned to the system node group. Each worker pod requests one GPU and one EFA interface (&lt;code&gt;nvidia.com/gpu: "1", vpc.amazonaws.com/efa: "1"&lt;/code&gt;) and targets the GPU nodes through &lt;code&gt;nodeSelector: { role: gpu-worker }&lt;/code&gt;. It runs &lt;code&gt;privileged: true&lt;/code&gt; because NIXL registers CUDA VRAM with the EFA NIC. The &lt;code&gt;IPC_LOCK&lt;/code&gt; capability alone isn’t enough. The workers set &lt;code&gt;FI_PROVIDER=efa&lt;/code&gt;, read &lt;code&gt;VLLM_HOST_IP&lt;/code&gt; from the pod IP, and mount a shared-memory volume. Memory limits sit well above the roughly 18 GiB checkpoint so the OS page cache can hold it. For Qwen3.5-9B model loading on g6.8xlarge with the preceding cache configuration, the model weights loading drops from around 145 seconds to about 2 seconds on restart.&lt;/p&gt;
+&lt;h2 id="deploy-on-amazon-eks"&gt;Deploy on Amazon EKS&lt;/h2&gt;
+&lt;p&gt;All scripts share a single configuration file, &lt;code&gt;scripts/env.sh&lt;/code&gt;. The script contains defaults for &lt;code&gt;CLUSTER_NAME&lt;/code&gt;, &lt;code&gt;REGION&lt;/code&gt;, &lt;code&gt;K8S_VERSION&lt;/code&gt;, and &lt;code&gt;NAMESPACE&lt;/code&gt;. Other defaults cover the system and GPU node groups, the KubeRay version, and the model. Override any variable by exporting it before running a script.&lt;/p&gt;
+&lt;p&gt;From the project root, set a base directory, then load the variables:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;CURRENT_DIR=$(pwd)
+cd $CURRENT_DIR/ray-serve-multi-node/scripts
+source ./env.sh&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id="step-1-create-the-eks-cluster"&gt;Step 1: Create the EKS cluster&lt;/h3&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;./deploy_cluster.sh&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This provisions the EKS cluster (VPC, OIDC provider, core add-ons) and a CPU system node group that runs system workloads, the KubeRay operator, and the Ray head. Nodes run in private subnets with egress through a NAT Gateway, and cluster subnets are placed in the AZs that offer the GPU instance type. The script is idempotent and takes 15–20 minutes on a fresh run.&lt;/p&gt;
+&lt;h3 id="step-2-add-gpu-worker-nodes"&gt;Step 2: Add GPU worker nodes&lt;/h3&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;./deploy_node_group.sh&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This creates the GPU node group: two g6.8xlarge instances with EFA enabled, pinned to a single AZ and labeled &lt;code&gt;role=gpu-worker&lt;/code&gt; so the Ray workers target them. Enabling EFA also installs the EFA device plugin, which advertises &lt;code&gt;vpc.amazonaws.com/efa&lt;/code&gt; on each node. This step takes about 5-20 minutes, usually longer on a first run.&lt;/p&gt;
+&lt;h3 id="step-3-install-the-kuberay-operator"&gt;Step 3: Install the KubeRay operator&lt;/h3&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;./install_kuberay.sh&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This installs the KubeRay operator using Helm, pinned to the system node group to keep the GPU nodes available for inference. KubeRay watches the RayService you apply next and wires the head-to-worker join automatically. This step takes about 1–2 minutes.&lt;/p&gt;
+&lt;h3 id="step-4-deploy-the-rayservice"&gt;Step 4: Deploy the RayService&lt;/h3&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;./deploy_ray_service.sh&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This renders &lt;code&gt;manifest/rayservice.yaml&lt;/code&gt; with your image, model, and naming variables using envsubst and applies it. KubeRay creates the head and two worker pods, and Ray Serve LLM brings up the prefill and decode deployments. The script waits for the head to be Ready, both workers to be Running, and finally for the Serve app to report RUNNING. Because each node loads the model, expect this step to take several minutes.&lt;/p&gt;
+&lt;p&gt;Check status at any time, including which node each pod landed on and the GPU capacity available:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;./deploy_ray_service.sh status&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id="invoke-the-model"&gt;Invoke the model&lt;/h2&gt;
+&lt;p&gt;After the Serve app is healthy, KubeRay creates a stable &lt;code&gt;&amp;lt;rayservice-name&amp;gt;-serve-svc&lt;/code&gt; Service. Port-forward to it:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;kubectl port-forward -n inference svc/ray-llm-serve-svc 8000:8000&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Because the DLC exposes an OpenAI-compatible API, you can list models and send a standard chat-completion request with no custom schema:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;curl --silent http://127.0.0.1:8000/v1/models
+curl --fail --silent --show-error \
+  --request POST "http://127.0.0.1:8000/v1/chat/completions" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "qwen3.5-9b",
+    "messages": [
+      {"role": "user", "content": "Explain the benefits of prefill/decode disaggregation."}
+    ],
+    "max_tokens": 200,
+    "temperature": 0.7
+  }'&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id="verify-efa-is-being-used"&gt;Verify EFA is being used&lt;/h2&gt;
+&lt;p&gt;NIXL falls back to a TCP-speed transport if it cannot use libfabric, and it does so without raising an error, so it’s worth confirming the backend it picked. Grep the worker logs:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;for POD in $(kubectl get pods -n inference -l ray.io/node-type=worker \
+  -o jsonpath='{.items[*].metadata.name}'); do
+  kubectl exec -n inference "$POD" -c ray-worker -- \
+    grep -rhoE "Backend (LIBFABRIC|UCX) was instantiated" /tmp/ray/session_latest/logs/ 2&amp;gt;/dev/null
+done | sort | uniq -c&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;deploy_node_group.sh&lt;/code&gt; already prints the &lt;code&gt;vpc.amazonaws.com/efa&lt;/code&gt; count per node when it creates the group. For a cross-node bandwidth number, the DLC ships a prebuilt NVIDIA Collective Communications Library (NCCL) benchmark at &lt;code&gt;/usr/local/bin/all_reduce_perf&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id="clean-up"&gt;Clean up&lt;/h2&gt;
+&lt;p&gt;To avoid ongoing charges, tear down the resources in reverse order:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-bash"&gt;./delete_ray_service.sh # Remove the RayService
+./install_kuberay.sh cleanup # Uninstall the KubeRay operator
+./delete_node_group.sh # Remove the GPU node group
+./delete_cluster.sh # Delete the EKS cluster&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id="conclusion-and-next-steps"&gt;Conclusion and next steps&lt;/h2&gt;
+&lt;p&gt;You served a single model across two GPU nodes with prefill/decode disaggregation, and the entire application was a block of YAML, with no handler code, no model archiver, and no hand-assembled GPU and EFA stack. The multi-node Ray LLM DLC supplied the tested inference stack, KubeRay orchestrated the Ray cluster, and NIXL over EFA carried the KV cache between nodes. Your job was to configure it, not to build it.&lt;/p&gt;
+&lt;p&gt;Common patterns for running multi-node inference include tensor and pipeline parallelism (sharding a model too big for one instance), data parallelism (replicating a model for throughput), and prefill/decode disaggregation (separating the two phases of inference onto different nodes).&lt;/p&gt;
+&lt;p&gt;From here you can scale the decode replicas for more throughput, move to larger models with tensor or pipeline parallelism on larger GPU instances, or layer extra libraries onto the same tested base for models that need them. For the full code, the current list of image tags, and the underlying mechanics, see the &lt;a href="https://github.com/aws-samples/sample-aws-deep-learning-containers/tree/main/inference/ray-serve/ray-serve-multi-node" target="_blank" rel="noopener"&gt;accompanying repository&lt;/a&gt;, the &lt;a href="https://aws.github.io/deep-learning-containers/reference/available_images/#ray-llm" target="_blank" rel="noopener"&gt;Ray LLM DLC available images page&lt;/a&gt;, the &lt;a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html" target="_blank" rel="noopener"&gt;Ray Serve LLM prefill/decode documentation&lt;/a&gt;, and the &lt;a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html" target="_blank" rel="noopener"&gt;EFA documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p style="clear: both"&gt;&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22045-2.jpg" alt="Ananth Raghavendra" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Ananth Raghavendra&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Ananth is a Senior AI Solutions Architect at AWS. He specializes in architecting distributed Gen AI applications running on NVIDIA GPUs, AWS Trainium and AWS Inferentia using platforms and orchestrators such as Amazon SageMaker HyperPod, Amazon EKS, Ray, SageMaker Serverless Inference, Amazon Nova Forge, and Slurm.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22045-3.jpg" alt="Jinyan Li" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Jinyan Li&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Jinyan is a Software Development Engineer at AWS on the Deep Learning Containers team, where she builds and maintains the ML container images that ship PyTorch, vLLM, Ray, and other frameworks to customers running workloads on Amazon SageMaker, Amazon Elastic Compute Cloud (Amazon EC2), and Amazon EKS, including the Ray LLM DLC used in this post.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/09/ML-22045-4.jpg" alt="Felipe Lopez" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Felipe Lopez&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;Felipe is a Principal AI/ML Specialist Solutions Architect at AWS. Prior to joining AWS, Felipe worked with GE Digital and SLB, where he focused on modeling and optimization products for industrial applications.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>ICYMI: What landed for AI builders in September 2026</title>
 		<link>https://aws.amazon.com/blogs/machine-learning/icymi-what-landed-for-ai-builders-in-september-2026/</link>
 		
@@ -54,7 +897,7 @@
 &lt;footer&gt;
  &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
   &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-22094-1.jpg" alt="Prachi Mishra" width="100" height="133"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/06/ML-22094-1.jpg" alt="Prachi Mishra" width="100" height="133"&gt;
   &lt;/div&gt;
   &lt;h3 class="lb-h4"&gt;Prachi Mishra&lt;/h3&gt;
   &lt;p style="overflow: hidden"&gt;Prachi is a Senior Product Marketing Manager for Amazon Bedrock AgentCore at Amazon Web Services (AWS), where she helps bring the power of production-ready AI agents to developers and enterprises worldwide.&lt;/p&gt;
@@ -2914,562 +3757,6 @@ export STRIX_LLM="bedrock/converse/arn:aws:bedrock:{AWS_REGION}:{AWS_ACCOUNT_ID}
 		
 		<enclosure length="353017803" type="video/mp4" url="https://d2908q01vomqb2.cloudfront.net/artifacts/DBSBlogs/ML-22047/Strix+Demo+Video+Censored.mp4"/>
 
-			</item>
-		<item>
-		<title>Supercharge regulated workloads with Claude Code and Amazon Bedrock</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/supercharge-regulated-workloads-with-claude-code-and-amazon-bedrock/</link>
-		
-		<dc:creator><![CDATA[Bradley Wyman]]></dc:creator>
-		<pubDate>Mon, 05 Oct 2026 17:25:20 +0000</pubDate>
-				<category><![CDATA[Amazon Bedrock]]></category>
-		<category><![CDATA[Intermediate (200)]]></category>
-		<category><![CDATA[Technical How-to]]></category>
-		<guid isPermaLink="false">0cbe16ca98bef589de7fcf6ba5ec623095bdb76d</guid>
-
-					<description>Anthropic Claude Opus 5.5 and Claude Sonnet 5.5 are available on Amazon Bedrock in the AWS GovCloud (US) Regions. Learn how to use them with Claude Code, Anthropic's agentic coding tool, for compliance-aligned, AI-assisted development on regulated and ITAR workloads.</description>
-										<content:encoded>&lt;p&gt;&lt;em&gt;Please note that the following post is intended for informational purposes only. The approach detailed below may not be suitable for all organizations or compliance programs. It is important to evaluate this potential solution against the compliance requirements of your organization and any applicable regulatory obligations you may have.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;The availability of Anthropic Claude Opus 5.5 and Claude Sonnet 5.5 in the AWS GovCloud (US) Regions introduces an on-ramp for AI-assisted development for workloads with regulatory or compliance requirements, including International Traffic in Arms Regulations (ITAR). Claude Sonnet 5 holds FedRAMP Class D (formerly High) certification and DoD Impact Level 4 and 5 (IL4/IL5) authorization, and Claude Opus 5.5 and Claude Sonnet 5.5 hold FedRAMP Class D certification on Amazon Bedrock (&lt;a href="https://aws.amazon.com/compliance/services-in-scope/FedRAMP/amazon-bedrock-models/" target="_blank" rel="noopener"&gt;verify current model certification status&lt;/a&gt;).&lt;/p&gt;
-&lt;p&gt;In this post, we explore how to use these models on &lt;a href="https://aws.amazon.com/bedrock" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; in AWS GovCloud (US) with &lt;a href="https://code.claude.com" target="_blank" rel="noopener"&gt;Claude Code&lt;/a&gt;, Anthropic’s agentic coding tool. With this solution, you can run AI-assisted workflows that speed up everyday development tasks while maintaining compliance alignment.&lt;/p&gt;
-&lt;h2 id="amazon-bedrock-in-aws-govcloud-us"&gt;Amazon Bedrock in AWS GovCloud (US)&lt;/h2&gt;
-&lt;p&gt;&lt;a href="https://aws.amazon.com/govcloud-us/" target="_blank" rel="noopener"&gt;AWS GovCloud (US) Regions&lt;/a&gt; are designed specifically for US customers with elevated &lt;a href="https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-compliance.html" target="_blank" rel="noopener"&gt;compliance needs&lt;/a&gt;. You can deploy generative AI workloads to sensitive environments while maintaining compliance controls. &lt;a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; is built with security-focused features, including:&lt;/p&gt;
-&lt;p&gt;&lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html" target="_blank" rel="noopener"&gt;Built-in data protection&lt;/a&gt; where customer content isn’t stored, logged, or used to train AWS models or shared with third parties.&lt;/p&gt;
-&lt;p&gt;FedRAMP Class D (formerly High) certification and DoD Cloud Service Provider (CSP) SRG IL4/IL5 authorization pathways, supporting government agencies’ compliance requirements. See the &lt;a href="https://aws.amazon.com/compliance/services-in-scope/FedRAMP/amazon-bedrock-models/" target="_blank" rel="noopener"&gt;Amazon Bedrock models compliance page&lt;/a&gt; for current model-level certification status.&lt;/p&gt;
-&lt;p&gt;Integration with existing security controls and compliance frameworks available in AWS GovCloud (US), maintaining the same high security standards as other AWS Regions while providing additional authorization pathways.&lt;/p&gt;
-&lt;p&gt;Amazon Bedrock in AWS GovCloud (US) supports two endpoint surfaces, bedrock-runtime and bedrock-mantle, both powered by the same underlying Mantle inference engine with Zero Operator Access (ZOA) architecture. The &lt;strong&gt;bedrock-runtime&lt;/strong&gt; endpoint uses the AWS SDK (InvokeModel and Converse APIs) and supports Amazon Bedrock Guardrails, Amazon Bedrock Knowledge Bases, Agents, and invocation logging. This makes it the recommended choice for most new applications, particularly those requiring audit trails. The &lt;strong&gt;bedrock-mantle&lt;/strong&gt; endpoint supports the Anthropic Messages API natively and provides access to capabilities currently available only on that surface, such as &lt;a href="https://aws.amazon.com/blogs/machine-learning/exploring-the-zero-operator-access-design-of-mantle/" target="_blank" rel="noopener"&gt;server-side tools, background inference, and Projects&lt;/a&gt;. Both endpoints are available for Claude Opus 5.5, Claude Sonnet 5.5, and Claude Sonnet 5, with bedrock-runtime available in both AWS GovCloud (US) Regions (US-West and US-East) and bedrock-mantle available in AWS GovCloud (US-West).&lt;/p&gt;
-&lt;h2 id="claude-code"&gt;Claude Code&lt;/h2&gt;
-&lt;p&gt;&lt;a href="https://code.claude.com" target="_blank" rel="noopener"&gt;Claude Code&lt;/a&gt; is Anthropic’s agentic coding tool that reads your codebase, edits files, runs commands, and integrates with your development tools. Powered by models such as Claude Opus 5.5 and Claude Sonnet 5.5 on Amazon Bedrock in AWS GovCloud (US), it operates directly in your terminal, your preferred integrated development environments (&lt;a href="https://docs.anthropic.com/en/docs/claude-code/ide-integrations" target="_blank" rel="noopener"&gt;IDEs&lt;/a&gt;) such as VS Code and JetBrains, and in the background with the &lt;a href="https://docs.anthropic.com/en/docs/claude-code/agent-sdk/overview" target="_blank" rel="noopener"&gt;Claude Agent SDK&lt;/a&gt;. Claude Code understands your entire codebase and can work across multiple files and tools to get things done. Claude Code can:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Write code and fix bugs spanning multiple files across your codebase.&lt;/li&gt;
- &lt;li&gt;Answer questions about your code’s architecture and logic.&lt;/li&gt;
- &lt;li&gt;Execute and fix tests, linting, and other commands.&lt;/li&gt;
- &lt;li&gt;Search through Git history, resolve merge conflicts, and create commits and pull requests.&lt;/li&gt;
- &lt;li&gt;Connect to external tools and data sources with the &lt;a href="https://docs.anthropic.com/en/docs/claude-code/mcp" target="_blank" rel="noopener"&gt;Model Context Protocol (MCP)&lt;/a&gt;, including the &lt;a href="https://aws.amazon.com/cli" target="_blank" rel="noopener"&gt;AWS Command Line Interface (AWS CLI)&lt;/a&gt;, Terraform, and Kubernetes.&lt;/li&gt;
- &lt;li&gt;Spawn &lt;a href="https://docs.anthropic.com/en/docs/claude-code/sub-agents" target="_blank" rel="noopener"&gt;sub-agents&lt;/a&gt; that work on different parts of a task simultaneously.&lt;/li&gt;
- &lt;li&gt;Customize behavior with &lt;a href="https://docs.anthropic.com/en/docs/claude-code/memory" target="_blank" rel="noopener"&gt;CLAUDE.md&lt;/a&gt; memory files, &lt;a href="https://docs.anthropic.com/en/docs/claude-code/skills" target="_blank" rel="noopener"&gt;skills&lt;/a&gt; for repeatable workflows, and &lt;a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank" rel="noopener"&gt;hooks&lt;/a&gt; for pre/post-action automation.&lt;/li&gt;
- &lt;li&gt;Automate recurring tasks and integrate with continuous integration and continuous delivery (CI/CD) through &lt;a href="https://docs.anthropic.com/en/docs/claude-code/github-actions" target="_blank" rel="noopener"&gt;GitHub Actions&lt;/a&gt; or &lt;a href="https://docs.anthropic.com/en/docs/claude-code/gitlab-ci-cd" target="_blank" rel="noopener"&gt;GitLab CI/CD&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;To learn more, see Anthropic’s articles: &lt;a href="https://docs.anthropic.com/en/docs/claude-code/tutorials" target="_blank" rel="noopener"&gt;Claude Code tutorials&lt;/a&gt; and &lt;a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener"&gt;Claude Code: Best practices for agentic coding&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id="solution-overview-try-claude-code-with-amazon-bedrock-in-aws-govcloud-us"&gt;Solution overview: Try Claude Code with Amazon Bedrock in AWS GovCloud (US)&lt;/h2&gt;
-&lt;p&gt;This section provides step-by-step instructions for setting up and configuring Claude Code to work with Amazon Bedrock in AWS GovCloud (US), including prerequisites, installation commands, environment configuration, and verification steps.&lt;/p&gt;
-&lt;h3 id="prerequisites"&gt;Prerequisites&lt;/h3&gt;
-&lt;p&gt;Before you get started, make sure that you have the following in place:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;An &lt;a href="https://signin.amazonaws-us-gov.com/" target="_blank" rel="noopener"&gt;AWS GovCloud (US) account&lt;/a&gt; with access to Amazon Bedrock.&lt;/li&gt;
- &lt;li&gt;Appropriate &lt;a href="https://aws.amazon.com/iam/" target="_blank" rel="noopener"&gt;AWS Identity and Access Management (IAM)&lt;/a&gt; roles and permissions for Amazon Bedrock. At minimum, your IAM policy should include:
-  &lt;ul&gt;
-   &lt;li&gt;For bedrock-runtime: &lt;code&gt;bedrock:InvokeModel&lt;/code&gt;, &lt;code&gt;bedrock:InvokeModelWithResponseStream&lt;/code&gt;, &lt;code&gt;bedrock:ListInferenceProfiles&lt;/code&gt;, and &lt;code&gt;bedrock:GetInferenceProfile&lt;/code&gt;.&lt;/li&gt;
-   &lt;li&gt;For bedrock-mantle (if using the Mantle endpoint): &lt;code&gt;bedrock-mantle:CreateInference&lt;/code&gt;, &lt;code&gt;bedrock-mantle:GetProject&lt;/code&gt;, &lt;code&gt;bedrock-mantle:ListProjects&lt;/code&gt;, and &lt;code&gt;bedrock-mantle:ListModels&lt;/code&gt;.&lt;/li&gt;
-   &lt;li&gt;Alternatively, attach the &lt;code&gt;AmazonBedrockMantleInferenceAccess&lt;/code&gt; managed policy.&lt;/li&gt;
-  &lt;/ul&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html" target="_blank" rel="noopener"&gt;Amazon Bedrock model access&lt;/a&gt; to Claude Opus 5.5, Claude Sonnet 5.5, and Claude Sonnet 5 enabled in your AWS GovCloud (US) account.&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener"&gt;AWS CLI&lt;/a&gt; configured with valid AWS session credentials using short-term API keys or AWS SSO login.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id="set-up-claude-code-with-amazon-bedrock-in-aws-govcloud-us"&gt;Set up Claude Code with Amazon Bedrock in AWS GovCloud (US)&lt;/h3&gt;
-&lt;p&gt;After configuring AWS CLI with your credentials, install Claude Code using one of the following methods:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;macOS, Linux, WSL:&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;curl -fsSL https://claude.ai/install.sh | bash&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Windows PowerShell:&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-powershell"&gt;irm https://claude.ai/install.ps1 | iex&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Windows CMD:&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-dosbat"&gt;curl -fsSL https://claude.ai/install.cmd -o install.cmd &amp;amp;&amp;amp; install.cmd &amp;amp;&amp;amp; del install.cmd&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Homebrew (macOS/Linux):&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;brew install --cask claude-code&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;For additional installation methods, see &lt;a href="https://code.claude.com/docs/en/quickstart" target="_blank" rel="noopener"&gt;Claude Code installation docs&lt;/a&gt;.&lt;/p&gt;
-&lt;h4 id="option-a-interactive-setup-wizard-recommended"&gt;Option A: Interactive setup wizard (recommended)&lt;/h4&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;Navigate to your project:
-  &lt;div class="hide-language"&gt;
-   &lt;pre&gt;&lt;code class="language-bash"&gt;cd your-code-project&lt;/code&gt;&lt;/pre&gt;
-  &lt;/div&gt;&lt;/li&gt;
- &lt;li&gt;Launch Claude Code:
-  &lt;div class="hide-language"&gt;
-   &lt;pre&gt;&lt;code class="language-bash"&gt;claude&lt;/code&gt;&lt;/pre&gt;
-  &lt;/div&gt;&lt;/li&gt;
- &lt;li&gt;Run through the login wizard:
-  &lt;div class="hide-language"&gt;
-   &lt;pre&gt;&lt;code class="language-plaintext"&gt;/login&lt;/code&gt;&lt;/pre&gt;
-  &lt;/div&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;At the login prompt, select &lt;strong&gt;3rd-party platform&lt;/strong&gt;, then &lt;strong&gt;Amazon Bedrock&lt;/strong&gt;. Follow the wizard prompts to choose your authentication method, region (us-gov-west-1), and pin your models. The wizard saves configuration to your settings file automatically.&lt;/p&gt;
-&lt;p&gt;If you have previously configured Claude Code, run &lt;code&gt;/setup-bedrock&lt;/code&gt; to reopen the wizard and update your credentials, region, or model pins.&lt;/p&gt;
-&lt;h4 id="option-b-manual-environment-variable-configuration"&gt;Option B: Manual environment variable configuration&lt;/h4&gt;
-&lt;p&gt;For scripted or enterprise deployments, set the following environment variables:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION='us-gov-west-1'
-export ANTHROPIC_MODEL='us-gov.anthropic.claude-sonnet-5-5'&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;To use Claude Opus 5.5 as the primary model instead:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;export ANTHROPIC_MODEL='us-gov.anthropic.claude-opus-5-5'&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;To pin specific model versions for consistent team deployments:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;export ANTHROPIC_DEFAULT_OPUS_MODEL='us-gov.anthropic.claude-opus-5-5'
-export ANTHROPIC_DEFAULT_SONNET_MODEL='us-gov.anthropic.claude-sonnet-5-5'&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Then navigate to your project and launch Claude Code:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;cd your-code-project
-claude&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h4 id="option-c-using-the-bedrock-mantle-endpoint"&gt;Option C: Using the Bedrock Mantle endpoint&lt;/h4&gt;
-&lt;p&gt;Bedrock Mantle supports the Anthropic Messages API natively and is available in AWS GovCloud (US-West). To route Claude Code through Mantle:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;export CLAUDE_CODE_USE_MANTLE=1
-export AWS_REGION='us-gov-west-1'&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;When both bedrock-runtime and bedrock-mantle are needed in the same session:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;export CLAUDE_CODE_USE_BEDROCK=1
-export CLAUDE_CODE_USE_MANTLE=1&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Note: Guardrails and invocation logging are available exclusively through the bedrock-runtime endpoint. For deployments requiring these compliance features, use the bedrock-runtime endpoint (Option A or B).&lt;/p&gt;
-&lt;h4 id="verify-your-configuration"&gt;Verify your configuration&lt;/h4&gt;
-&lt;p&gt;Verify that Claude Code is running by checking for the &lt;strong&gt;Welcome to Claude Code!&lt;/strong&gt; message in your terminal. Run the &lt;code&gt;/status&lt;/code&gt; command to confirm your model and provider. The provider line should show Amazon Bedrock or Amazon Bedrock (Mantle) depending on your configuration.&lt;/p&gt;
-&lt;p&gt;To learn more about configuring Claude Code for Amazon Bedrock, see &lt;a href="https://code.claude.com/docs/en/amazon-bedrock" target="_blank" rel="noopener"&gt;Claude Code on Amazon Bedrock&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id="considerations-when-deploying-claude-code-to-your-organization"&gt;Considerations when deploying Claude Code to your organization&lt;/h2&gt;
-&lt;p&gt;With Claude Code now generally available, the next step is deciding how to deploy it across your organization. Consider your foundational architecture for security, governance, and compliance:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Use&lt;/strong&gt; &lt;a href="https://aws.amazon.com/iam/identity-center/" target="_blank" rel="noopener"&gt;AWS IAM Identity Center&lt;/a&gt; to centrally govern identity and access to Claude Code. This verifies that only authorized developers have access. Additionally, using IAM Identity Center, developers can access resources with &lt;a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/howtogetcredentials.html" target="_blank" rel="noopener"&gt;temporary, role-based credentials&lt;/a&gt;, alleviating the need for static access keys and helping enhance security. Prior to opening Claude Code, make sure that you configure AWS CLI to use an IAM Identity Center profile by using &lt;code&gt;aws configure sso --profile &amp;lt;PROFILE_NAME&amp;gt;&lt;/code&gt;. Then log in using the profile you created: &lt;code&gt;aws sso login --profile &amp;lt;PROFILE_NAME&amp;gt;&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Consider automated configuration of default environment variables.&lt;/strong&gt; This includes the environment variables outlined in this post, such as &lt;code&gt;AWS_REGION&lt;/code&gt;, &lt;code&gt;CLAUDE_CODE_USE_BEDROCK&lt;/code&gt;, &lt;code&gt;ANTHROPIC_MODEL&lt;/code&gt;, &lt;code&gt;ANTHROPIC_DEFAULT_OPUS_MODEL&lt;/code&gt;, and &lt;code&gt;ANTHROPIC_DEFAULT_SONNET_MODEL&lt;/code&gt;. This will configure Claude Code to automatically connect to Amazon Bedrock, providing a consistent baseline for development across teams. Organizations can start by providing developers with self-service instructions, or use &lt;a href="https://docs.anthropic.com/en/docs/claude-code/settings" target="_blank" rel="noopener"&gt;settings files&lt;/a&gt; to manage configuration centrally.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Consider implementing&lt;/strong&gt; &lt;a href="https://aws.amazon.com/solutions/guidance/claude-code-with-amazon-bedrock/" target="_blank" rel="noopener"&gt;Guidance for Claude Code with Amazon Bedrock&lt;/a&gt; &lt;strong&gt;for large enterprise deployments.&lt;/strong&gt; The guidance helps organizations deploy Claude Code while maintaining strict control over AI resource access, connecting to existing identity infrastructure and providing observability for developer productivity and usage patterns.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Review&lt;/strong&gt; &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/quotas.html" target="_blank" rel="noopener"&gt;service quotas&lt;/a&gt; &lt;strong&gt;and set appropriate tokens per minute (TPM) and requests per minute (RPM) based on the number of active developers.&lt;/strong&gt; Make sure that you have enough TPM and RPM quotas to support your team’s usage. For guidance, follow the &lt;a href="https://docs.anthropic.com/en/docs/claude-code/costs" target="_blank" rel="noopener"&gt;rate limit recommendations&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Pin model versions for consistent team deployments.&lt;/strong&gt; Without pinning, model aliases such as &lt;code&gt;sonnet&lt;/code&gt; and &lt;code&gt;opus&lt;/code&gt; resolve to Claude Code’s built-in defaults, which may change between releases. Claude Code defaults to Claude Opus 5.5 as its primary model, so an unpinned deployment is billed at the Opus per-token rate. To keep teams on Claude Sonnet 5.5, set &lt;code&gt;ANTHROPIC_MODEL&lt;/code&gt; to its full model ID. Use &lt;code&gt;ANTHROPIC_DEFAULT_OPUS_MODEL&lt;/code&gt; and &lt;code&gt;ANTHROPIC_DEFAULT_SONNET_MODEL&lt;/code&gt; to control when your team moves to a new model. In AWS GovCloud (US), use the &lt;code&gt;us-gov.&lt;/code&gt; prefix for cross-region inference profile IDs.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Implement cost monitoring and per-user token guardrails.&lt;/strong&gt; Claude Code sessions can be token-intensive, particularly with Claude Opus 5.5, which carries a higher per-token cost than Claude Sonnet 5.5. According to Anthropic, Claude Opus 5.5 completes tasks using fewer tokens than Claude Opus 5, at a lower price per token. Consider the following:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;Implement &lt;a href="https://aws.amazon.com/blogs/publicsector/implementing-per-user-token-guardrails-for-amazon-bedrock-in-government-agencies/" target="_blank" rel="noopener"&gt;per-user token guardrails&lt;/a&gt; to enforce daily token limits per developer, with alerting at 80% and 100% thresholds. This pattern uses Amazon CloudWatch invocation logging, AWS Lambda, and Amazon DynamoDB to track and enforce limits in near real time.&lt;/li&gt;
- &lt;li&gt;Use prompt caching to reduce costs and improve response times. Both 5-minute and &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/01/amazon-bedrock-one-hour-duration-prompt-caching/" target="_blank" rel="noopener"&gt;1-hour TTL&lt;/a&gt; options are available for supported models.&lt;/li&gt;
- &lt;li&gt;Consider defaulting teams to Claude Sonnet 5.5 (lower cost than Claude Opus 5.5) and reserving Claude Opus 5.5 for tasks requiring deeper reasoning or longer autonomous runs. For workloads that require IL4/IL5 authorization, default to Claude Sonnet 5.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;See the &lt;a href="https://github.com/aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock/blob/main/assets/docs/MONITORING.md" target="_blank" rel="noopener"&gt;Claude Code Monitoring Implementation guide&lt;/a&gt; for additional observability patterns.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Consider permissions, memory, and MCP servers for your organization.&lt;/strong&gt; Security teams can configure managed &lt;a href="https://docs.anthropic.com/en/docs/claude-code/security" target="_blank" rel="noopener"&gt;permissions&lt;/a&gt; for what Claude Code is and is not allowed to do, which cannot be overwritten by local configuration. In addition, you can configure &lt;a href="https://docs.anthropic.com/en/docs/claude-code/memory" target="_blank" rel="noopener"&gt;CLAUDE.md memory files&lt;/a&gt; across projects to auto-add common workflows, style conventions, and coding standards to align with your organization’s preferences. Deploy your CLAUDE.md file into an enterprise directory so all developers inherit the same baseline. Use &lt;a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank" rel="noopener"&gt;hooks&lt;/a&gt; to enforce pre/post-action automation such as auto-formatting or lint checks.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Choose the appropriate endpoint for your compliance requirements.&lt;/strong&gt; The bedrock-runtime endpoint supports Guardrails, invocation logging, and cross-region inference within both AWS GovCloud (US) Regions (US-West and US-East). The bedrock-mantle endpoint supports the Anthropic Messages API natively and is available in AWS GovCloud (US-West). Guardrails and invocation logging are exclusive to bedrock-runtime today, so for deployments requiring comprehensive audit trails and content filtering, bedrock-runtime is recommended.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Conduct a thorough security assessment before deployment.&lt;/strong&gt; Evaluate Claude Code’s capabilities against your organization’s security policies. Amazon Bedrock secures the inference layer, but Claude Code runs on local developer machines and requires separate evaluation and risk management. Apply controls such as managed permissions, invocation logging, and per-user token limits, as you would for other third-party software running in your environment.&lt;/p&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;The availability of Claude Opus 5.5 and Claude Sonnet 5.5 on Amazon Bedrock in AWS GovCloud (US) provides organizations with a compliance-aligned path to AI-assisted development for regulated workloads. Claude Sonnet 5, with FedRAMP Class D (formerly High) certification and DoD IL4/IL5 authorization, offers the strongest compliance coverage for sensitive environments. Claude Sonnet 5.5, with FedRAMP Class D certification, is a step up from Claude Sonnet 5 on coding and knowledge work at a lower cost per task. Claude Opus 5.5, with FedRAMP Class D certification, brings deeper reasoning and longer autonomous task capabilities for workloads where that certification level is sufficient.&lt;/p&gt;
-&lt;p&gt;Combined with Claude Code, teams can adopt agentic coding workflows directly in their terminal, IDE, or CI/CD pipelines while data remains within AWS GovCloud (US) infrastructure. Whether you choose the bedrock-runtime endpoint for full Guardrails and logging support, or the bedrock-mantle endpoint for native Anthropic Messages API access, you can tailor the deployment to your organization’s compliance and operational requirements.&lt;/p&gt;
-&lt;h3 id="for-more-information"&gt;For more information&lt;/h3&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-bedrock.html" target="_blank" rel="noopener"&gt;Amazon Bedrock in AWS GovCloud (US)&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://code.claude.com/docs/en/amazon-bedrock" target="_blank" rel="noopener"&gt;Claude Code on Amazon Bedrock&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/solutions/guidance/claude-code-with-amazon-bedrock/" target="_blank" rel="noopener"&gt;Guidance for Claude Code with Amazon Bedrock&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/compliance/services-in-scope/FedRAMP/amazon-bedrock-models/" target="_blank" rel="noopener"&gt;Amazon Bedrock model FedRAMP certification and DoD authorization status&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/blogs/publicsector/implementing-per-user-token-guardrails-for-amazon-bedrock-in-government-agencies/" target="_blank" rel="noopener"&gt;Per-user token guardrails for Amazon Bedrock in government agencies&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/claude-sonnet-5-5-aws-govcloud-us/" target="_blank" rel="noopener"&gt;Claude Sonnet 5.5 in AWS GovCloud (US)&lt;/a&gt;&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/09/claude-opus-5-5-aws-govcloud/" target="_blank" rel="noopener"&gt;Claude Opus 5.5 in AWS GovCloud (US)&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;p&gt;&lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/23/ML-19466-1.jpg" alt="Bradley Wyman" width="100" height="133"&gt;&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Bradley Wyman&lt;/h3&gt;
-  &lt;p&gt;Bradley is a Solutions Architect on the AWS Aerospace &amp;amp; Satellite team, where he helps Aerospace &amp;amp; Satellite customers leverage cutting-edge technologies to solve complex business challenges. With a deep passion for Generative AI, Agentic Development, and workload modernization, Bradley brings specialized expertise in helping organizations transform their operations through innovative cloud solutions. He is dedicated to making advanced AI technologies accessible and impactful for aerospace and satellite customers, enabling them to push the boundaries of what’s possible in their industry.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;p&gt;&lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/23/ML-19466-2.jpg" alt="Doug Hairfield" width="100" height="133"&gt;&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Doug Hairfield&lt;/h3&gt;
-  &lt;p&gt;Doug is a senior solutions architect who helps organizations harness the power of AI to solve real-world problems. He brings a depth of experience helping public sector customers design their workloads in high compliance environments. When he’s not architecting cloud solutions, you’ll find him being a girl dad and enjoying time with his family.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;p&gt;&lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/23/ML-19466-3.jpg" alt="Jonathan Evans" width="100" height="133"&gt;&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Keith Martin&lt;/h3&gt;
-  &lt;p&gt;Keith began his career as a software engineer at NASA Mission Control, where system reliability in human spaceflight operations is non-negotiable. He has since applied that discipline to architecting trading systems in the energy sector, guiding AWS Aerospace &amp;amp; Satellite customers through AWS GovCloud (US) and high-compliance deployments, and now leading automation and AI solutions at AWS Infrastructure Systems in Supply Chain Operations Excellence. His perspective on AI is straightforward: it is one tool among many, delivering value only when supported by solid data foundations and well-defined objectives.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>New agent skill: Amazon SageMaker optimized generative AI inference for your coding agent</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/new-agent-skill-amazon-sagemaker-optimized-generative-ai-inference-for-your-coding-agent/</link>
-		
-		<dc:creator><![CDATA[Mona Mona]]></dc:creator>
-		<pubDate>Mon, 05 Oct 2026 17:23:19 +0000</pubDate>
-				<category><![CDATA[Advanced (300)]]></category>
-		<category><![CDATA[Amazon SageMaker AI]]></category>
-		<category><![CDATA[Announcements]]></category>
-		<guid isPermaLink="false">cf6f95ea7bf1aafa4505939aad0e550912dc69a2</guid>
-
-					<description>Amazon SageMaker optimized generative AI inference introduces the aws-ai-ml skill through the Agent Toolkit for AWS, giving coding agents like Kiro, Claude Code, and Codex deep expertise in inference optimization and benchmarking. Describe what you want, and your agent generates executable SageMaker Python SDK v3 code to benchmark, recommend, and compare deployments.</description>
-										<content:encoded>&lt;p&gt;Engineers increasingly use coding assistance tools to accelerate their development workflows. Today, &lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-ai-now-supports-optimized-generative-ai-inference-recommendations/" target="_blank" rel="noopener"&gt;Amazon SageMaker AI optimized generative AI inference&lt;/a&gt; introduces the &lt;code&gt;aws-ai-ml&lt;/code&gt; skill, available through the &lt;a href="https://aws.amazon.com/products/developer-tools/agent-toolkit-for-aws/" target="_blank" rel="noopener"&gt;Agent Toolkit for AWS&lt;/a&gt;. This skill gives coding agents like &lt;a href="https://kiro.dev/" target="_blank" rel="noopener"&gt;Kiro&lt;/a&gt;, Claude Code, and Codex deep expertise in inference optimization and benchmarking. Install the skill, and your existing agent can benchmark endpoints, recommend deployment configurations, compare performance runs, and generate executable SageMaker Python SDK v3 code on your behalf. The &lt;code&gt;aws-ai-ml&lt;/code&gt; skill is a toolkit that plugs into any coding agent that supports the Model Context Protocol (MCP), turning it into a SageMaker AI inference optimization expert.&lt;/p&gt;
-&lt;p&gt;In this post, we walk through what the skill enables, how to set it up, and how it helps you move faster from model to production.&lt;/p&gt;
-&lt;h2 id="the-challenge-bridging-intent-and-infrastructure"&gt;The challenge: Bridging intent and infrastructure&lt;/h2&gt;
-&lt;p&gt;Amazon SageMaker AI supports serverful hosting across real-time, batch, and asynchronous modes. It offers on-demand and reserved capacity, heterogeneous instances, virtual private cloud (VPC) isolation, automatic scaling, and integration with every SageMaker AI training path. The surface area is broad and deep, but most engineers do not arrive knowing which instance family or serving container will best serve their needs. They arrive with a use case: a performance target they want to hit, a cost envelope they need to stay within, or a model they need to evaluate before committing to production.&lt;/p&gt;
-&lt;p&gt;The agentic experience for SageMaker AI optimized generative AI inference closes this gap. You tell the agent what you want to accomplish, and it produces executable SageMaker Python SDK v3 code that you can review, modify, and run in your own environment. The agent asks targeted clarifying questions, generates code grounded in real benchmarks and measured performance data, and adapts to your business constraints the way a solutions architect would.&lt;/p&gt;
-&lt;p&gt;Throughout, you stay in control. Every step is visible in real time and expressed as code you can read and question. Nothing happens behind an opaque UI.&lt;/p&gt;
-&lt;h2 id="getting-started"&gt;Getting started&lt;/h2&gt;
-&lt;p&gt;You can install the &lt;code&gt;aws-ai-ml&lt;/code&gt; skill through the &lt;a href="https://aws.amazon.com/products/developer-tools/agent-toolkit-for-aws/" target="_blank" rel="noopener"&gt;Agent Toolkit for AWS&lt;/a&gt; on your local machine, or use it within an Amazon SageMaker Studio JupyterLab space. Either way, you can go from zero to a working conversation in 10 minutes.&lt;/p&gt;
-&lt;h3 id="option-a-use-with-any-coding-agent-kiro-claude-code-codex-or-any-mcp-compatible-agent"&gt;Option A: Use with any coding agent (Kiro, Claude Code, Codex, or any MCP-compatible agent)&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;Step 1: Install the Agent Toolkit for AWS.&lt;/strong&gt; If you haven’t already, set up the Agent Toolkit. This requires AWS Command Line Interface (AWS CLI) 2.35+ and &lt;a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener"&gt;uv&lt;/a&gt; installed.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;aws configure agent-toolkit&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;This auto-detects your agents, installs skills, and configures the AWS MCP Server. For agent-specific setup (plugin install commands, MCP config), see the &lt;a href="https://aws.amazon.com/products/developer-tools/agent-toolkit-for-aws/" target="_blank" rel="noopener"&gt;Agent Toolkit for AWS getting started guide&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Step 2: Install the &lt;code&gt;aws-ai-ml&lt;/code&gt; skill.&lt;/strong&gt; Add the SageMaker AI optimized generative AI inference skill to your agent:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;npx skills add aws/agent-toolkit-for-aws/skills/aws-ai-ml&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Step 3: Confirm and begin.&lt;/strong&gt; Open your coding agent’s chat panel and ask: “What skills are available?” You should see &lt;code&gt;aws-ai-ml&lt;/code&gt; listed. After you confirm, describe your intent in natural language. Your coding agent now has SageMaker AI inference optimization expertise built in.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Prerequisites:&lt;/strong&gt; Your AWS credentials must have permissions to call SageMaker AI APIs (creating endpoints, running benchmark and recommendation jobs). The skill generates code that runs under your credentials. No additional AWS Identity and Access Management (IAM) configuration is needed for the skill itself.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; For Kiro and Claude Code, agents can discover skills at runtime. They can search for and load skills on demand through the &lt;a href="https://aws.amazon.com/blogs/aws/the-aws-mcp-server-is-now-generally-available/" target="_blank" rel="noopener"&gt;AWS MCP Server&lt;/a&gt;, without any local installation. Ask your agent: “Search for AWS skills related to databases.” Refer to the &lt;a href="https://github.com/aws/agent-toolkit-for-aws/tree/main/skills" target="_blank" rel="noopener"&gt;readme&lt;/a&gt; for discovering skills at runtime.&lt;/p&gt;
-&lt;h3 id="option-b-use-within-amazon-sagemaker-studio"&gt;Option B: Use within Amazon SageMaker Studio&lt;/h3&gt;
-&lt;p&gt;If you prefer to work inside a managed JupyterLab environment, you can use the skill in Amazon SageMaker Studio with a pre-configured image.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Step 1: Open Amazon SageMaker Studio.&lt;/strong&gt; Navigate to Amazon SageMaker Studio in your target AWS account and AWS Region. Select your Studio domain and launch the Studio IDE from your user profile.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Step 2: Create a JupyterLab space.&lt;/strong&gt; From the Studio landing page, choose &lt;strong&gt;JupyterLab&lt;/strong&gt;, then choose &lt;strong&gt;Create JupyterLab space&lt;/strong&gt;. Name the space (for example, &lt;code&gt;my-inference-opt&lt;/code&gt;) and keep the sharing setting &lt;strong&gt;Private&lt;/strong&gt; (skills only sync on private spaces). Under the &lt;strong&gt;Image&lt;/strong&gt; menu, select the image that includes the SageMaker AI optimized generative AI inference skill. This image ships pre-configured with the &lt;code&gt;aws-ai-ml&lt;/code&gt; agent skill and all necessary dependencies. Choose &lt;strong&gt;Run space&lt;/strong&gt; and wait for it to boot (5–10 minutes the first time).&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; Use a fresh space. A reused space with a locally modified skill version may not pick up the pre-configured image.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Step 3: Open JupyterLab and launch a terminal.&lt;/strong&gt; After the space boots, open JupyterLab and choose &lt;strong&gt;Terminal&lt;/strong&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Step 4: Authorize your coding agent.&lt;/strong&gt; In the terminal, authenticate with your coding agent using your identity provider. For example, with Kiro:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;kiro-cli login --license pro --identity-provider &amp;lt;your-IdP-start-URL&amp;gt; --region us-east-1 --use-device-flow&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;Step 5: Confirm and begin.&lt;/strong&gt; Open your coding agent’s chat panel and ask: “What skills are available?” You should see &lt;code&gt;aws-ai-ml&lt;/code&gt; listed. Once confirmed, describe your intent in natural language.&lt;/p&gt;
-&lt;blockquote&gt;
- &lt;p&gt;&lt;strong&gt;Troubleshooting:&lt;/strong&gt;&lt;/p&gt;
- &lt;p&gt;If the agent reports no skills are available, verify that your space is set to &lt;strong&gt;Private&lt;/strong&gt;. You can also check from the terminal:&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-bash"&gt;ls ~/.kiro/skills/&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;blockquote&gt;
- &lt;p&gt;If that directory is empty but &lt;code&gt;/etc/sagemaker/skills/&lt;/code&gt; contains the skill files, run &lt;code&gt;restart-jupyter-server&lt;/code&gt;, refresh the page, and retry.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id="what-you-can-do"&gt;What you can do&lt;/h2&gt;
-&lt;p&gt;The agentic experience covers the following capabilities across the inference optimization lifecycle. You don’t need to know which capability to invoke. Describe what you want, and your agent figures out the next step or asks clarifying questions if anything is unclear.&lt;/p&gt;
-&lt;h3 id="benchmark-an-existing-endpoint"&gt;Benchmark an existing endpoint&lt;/h3&gt;
-&lt;p&gt;If you already have a model deployed on a SageMaker AI endpoint, you can ask the agent to benchmark it. Tell the agent which endpoint you want to test, and it generates a Python notebook that runs a load test using the &lt;code&gt;Workload.synthetic()&lt;/code&gt; and &lt;code&gt;start_benchmark()&lt;/code&gt; APIs from the SageMaker Python SDK.&lt;/p&gt;
-&lt;p&gt;Before running any benchmark, the agent confirms that your endpoint is safe to load-test, because benchmarking drives real traffic to a live endpoint.&lt;/p&gt;
-&lt;p&gt;When the benchmark completes, you get a quantitative performance report with:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Throughput&lt;/strong&gt;: requests per second, output tokens per second.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Latency&lt;/strong&gt;: p50, p99, time-to-first-token, inter-token latency.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Concurrency&lt;/strong&gt;: number of simultaneous requests supported.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;These are measured values from real load on real infrastructure, not estimates. The agent also recommends improvement mechanisms (such as prefill decoding) to boost performance.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Example prompt:&lt;/strong&gt; &lt;em&gt;“Benchmark my Llama endpoint on SageMaker AI.”&lt;/em&gt;&lt;/p&gt;
-&lt;h3 id="find-the-right-instance-type-for-your-model"&gt;Find the right instance type for your model&lt;/h3&gt;
-&lt;p&gt;If you have a model and need to find the right instance type to deploy it on SageMaker AI, tell your agent. It doesn’t matter where your model lives or how you obtained it:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Fine-tuned or custom model in Amazon Simple Storage Service (Amazon S3)&lt;/strong&gt;: You trained or downloaded a model and stored it in S3. Provide the S3 URI and your optimization goal. Example prompt: &lt;em&gt;“I want to find the cheapest instance type to deploy my fine-tuned model on SageMaker.”&lt;/em&gt;&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Publicly available foundation model from &lt;a href="https://aws.amazon.com/sagemaker/jumpstart/" target="_blank" rel="noopener"&gt;Amazon SageMaker JumpStart&lt;/a&gt;&lt;/strong&gt;: You want to deploy a foundation model (FM) from the JumpStart catalog then provide the model ID. Example prompt: &lt;em&gt;“Find the best instance for model huggingface-reasoning-qwen3-8b on SageMaker AI.”&lt;/em&gt;&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Model on the &lt;a href="https://huggingface.co/models" target="_blank" rel="noopener"&gt;Hugging Face Hub&lt;/a&gt;&lt;/strong&gt;: You want to use a model hosted on Hugging Face. Provide the model name. For gated models (such as Llama variants), your agent surfaces the license terms and asks you to accept them and provide your Hugging Face token. Example prompt: &lt;em&gt;“I want to deploy a Llama model from Hugging Face Hub. What’s the cheapest option?”&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;In every case, your agent generates code that evaluates your model against candidate instances and configurations, then presents ranked deployment options with concrete performance metrics: throughput, latency percentiles, time-to-first-token, and concurrency. You choose based on your cost and performance requirements.&lt;/p&gt;
-&lt;h3 id="compare-benchmark-runs"&gt;Compare benchmark runs&lt;/h3&gt;
-&lt;p&gt;If you ran multiple benchmarks (for example, before and after a configuration change, or across two instance types), you can ask the agent to compare them. Provide the two benchmark job names, and the agent generates a comparison that computes deltas across key metrics: throughput, latency percentiles, and time-to-first-token.&lt;/p&gt;
-&lt;p&gt;The results show percentage changes where positive means better, giving you a single, interpretable summary of whether your change improved performance, degraded it, or had no meaningful effect.&lt;/p&gt;
-&lt;p&gt;If one of the benchmark runs doesn’t exist, the agent offers to run it first before proceeding with the comparison.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Example prompt:&lt;/strong&gt; &lt;em&gt;“I have two benchmark runs and I want to compare them. Which one is faster?”&lt;/em&gt;&lt;/p&gt;
-&lt;h2 id="benchmark-results"&gt;Benchmark results&lt;/h2&gt;
-&lt;p&gt;This table compares two deployed models on the same benchmark workload (512/256 tokens, concurrency 4). The Δ% column shows how much faster Model B (Qwen3-8B) is than Model A (Qwen3-1.7B) on each metric. A positive value means Model B is better.&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Metric&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Qwen3-1.7B (Model A)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Qwen3-8B (Model B)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Δ%&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Output token throughput&lt;/td&gt;
-   &lt;td&gt;188.2 tokens/s&lt;/td&gt;
-   &lt;td&gt;271.2 tokens/s&lt;/td&gt;
-   &lt;td&gt;+44.1% &lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/2705.png" alt="✅" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Per-user throughput&lt;/td&gt;
-   &lt;td&gt;47.5 tokens/s&lt;/td&gt;
-   &lt;td&gt;69.4 tokens/s&lt;/td&gt;
-   &lt;td&gt;+45.9% &lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/2705.png" alt="✅" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Request throughput&lt;/td&gt;
-   &lt;td&gt;0.736 req/s&lt;/td&gt;
-   &lt;td&gt;1.08 req/s&lt;/td&gt;
-   &lt;td&gt;+46.7% &lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/2705.png" alt="✅" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Inter-token latency&lt;/td&gt;
-   &lt;td&gt;20.9 ms&lt;/td&gt;
-   &lt;td&gt;14 ms&lt;/td&gt;
-   &lt;td&gt;+33.0% &lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/2705.png" alt="✅" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Request latency&lt;/td&gt;
-   &lt;td&gt;5,382 ms&lt;/td&gt;
-   &lt;td&gt;3,658 ms&lt;/td&gt;
-   &lt;td&gt;+32.0% &lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/2705.png" alt="✅" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;Time to first token&lt;/td&gt;
-   &lt;td&gt;67.5 ms&lt;/td&gt;
-   &lt;td&gt;166.3 ms&lt;/td&gt;
-   &lt;td&gt;−146.5% &lt;img src="https://s.w.org/images/core/emoji/14.0.0/72x72/274c.png" alt="❌" class="wp-smiley" style="height: 1em; max-height: 1em;"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;The two models run on different hardware. Qwen3-8B uses a 4-GPU &lt;code&gt;ml.g5.12xlarge&lt;/code&gt; (4x A10G), while Qwen3-1.7B uses a single L4 GPU (&lt;code&gt;ml.g6.4xlarge&lt;/code&gt;). The deltas reflect approximately 4x the compute, not just the models themselves.&lt;/p&gt;
-&lt;p&gt;The takeaway: Qwen3-8B delivers approximately 44–47 percent higher throughput and lower end-to-end latency, largely thanks to the additional GPU compute. Qwen3-1.7B wins only on time-to-first-token, the expected advantage of a smaller model on a single GPU.&lt;/p&gt;
-&lt;h2 id="putting-it-all-together"&gt;Putting it all together&lt;/h2&gt;
-&lt;p&gt;You don’t need to memorize capability names or know which workflow to request. The following table shows how common requests map to outcomes.&lt;/p&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;You say&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;What you get&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;“I already deployed a model and want to know how fast it is.”&lt;/td&gt;
-   &lt;td&gt;Quantitative performance report: throughput, latency percentiles, concurrency metrics from real load.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;“I have a model in S3 and I don’t know what instance to deploy on.”&lt;/td&gt;
-   &lt;td&gt;Ranked deployment options with cost, throughput, and latency for each candidate configuration.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;“I want to deploy a JumpStart model and find the cheapest instance. I only have the model ID.”&lt;/td&gt;
-   &lt;td&gt;Ranked deployment options, no S3 staging required. Gated-model alternative surfaced if needed.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;“I ran a benchmark before and after a change. Which one is faster?”&lt;/td&gt;
-   &lt;td&gt;Percentage change across all metrics indicating improvement or regression.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;“I want to optimize a Llama model from Hugging Face Hub.”&lt;/td&gt;
-   &lt;td&gt;License surfaced, model staged to S3, then standard recommendation output.&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;If your request spans multiple capabilities (for example, staging a Hugging Face model and then getting deployment recommendations), the agent chains them naturally within the same conversation.&lt;/p&gt;
-&lt;h2 id="what-to-expect-from-the-agent"&gt;What to expect from the agent&lt;/h2&gt;
-&lt;p&gt;Your agent, equipped with the &lt;code&gt;aws-ai-ml&lt;/code&gt; skill, follows a few behaviors that make the experience predictable and safe:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;It asks for what it needs.&lt;/strong&gt; If information is missing (such as an endpoint name or S3 URI), the agent asks you to provide it rather than guessing.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;It confirms before impactful actions.&lt;/strong&gt; Before running a benchmark that drives real traffic to a live endpoint, the agent warns you about the impact and asks for explicit confirmation.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;It tells you when something is out of scope.&lt;/strong&gt; If you ask for something the agent can’t do (such as deploying a model), it explains what it can offer instead, such as generating the deployment configuration that you need.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;It generates SageMaker Python SDK v3 code.&lt;/strong&gt; Every output is executable code you can inspect, modify, and run in your own environment.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="clean-up"&gt;Clean up&lt;/h2&gt;
-&lt;p&gt;To avoid ongoing charges, delete the resources you created:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-delete.html" target="_blank" rel="noopener"&gt;Delete SageMaker AI endpoints&lt;/a&gt; created during benchmarking or recommendations.&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/studio-updated-jl-user-guide-shutdown.html" target="_blank" rel="noopener"&gt;Stop or delete your JupyterLab space&lt;/a&gt; if you used SageMaker Studio.&lt;/li&gt;
- &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/DeletingObjects.html" target="_blank" rel="noopener"&gt;Remove S3 objects&lt;/a&gt; stored by benchmark and recommendation jobs in your SageMaker AI default bucket.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;The &lt;code&gt;aws-ai-ml&lt;/code&gt; skill for Amazon SageMaker AI optimized generative AI inference turns your existing coding agent into a SageMaker AI inference optimization expert. Whether you need to benchmark a live endpoint, find the cheapest instance for your model, compare configurations, or stage a Hugging Face model for evaluation, you describe what you want and your agent delivers measurable results.&lt;/p&gt;
-&lt;p&gt;To get started, install the skill through the &lt;a href="https://aws.amazon.com/products/developer-tools/agent-toolkit-for-aws/" target="_blank" rel="noopener"&gt;Agent Toolkit for AWS&lt;/a&gt; and add it to the coding agent you already use, or launch a pre-configured JupyterLab space in Amazon SageMaker Studio. For more information, see the &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html" target="_blank" rel="noopener"&gt;Amazon SageMaker AI documentation&lt;/a&gt;.&lt;/p&gt;
-&lt;p style="clear: both"&gt;&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21968-2.jpg" alt="Mona Mona" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Mona Mona&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/mona-mona/" target="_blank" rel="noopener"&gt;Mona&lt;/a&gt; currently works as Sr AI/ML specialist Solutions Architect at Amazon SageMaker AI Team. She is a published author of three books and her latest book is AI Agents on AWS. She has authored 20+ blogs on AI/ML and cloud technology and a co-author on a research paper on CORD19 Neural Search which won an award for Best Research Paper at the prestigious AAAI (Association for the Advancement of Artificial Intelligence) conference.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21968-3.jpg" alt="Aryaman Kothari" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Aryaman Kothari&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/aryaman-kothari/" target="_blank" rel="noopener"&gt;Aryaman&lt;/a&gt; is a Sr Product Manager at Amazon SageMaker AI, with a focus on enabling generative AI model inference and deployment on Amazon SageMaker HyperPod. A Chicago Booth graduate, Aryaman previously led product and go-to-market for Quantiphi’s Conversational AI business.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21968-4.jpg" alt="Muzart Tuman" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Muzart Tuman&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Muzart is a software engineer using his experience in fields like deep learning, machine learning optimization, and AI-driven applications to help solve real-world problems in a scalable, efficient, and accessible manner. His goal is to create impactful tools that not only advance technical capabilities but also inspire meaningful change across industries and communities.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Making Amazon Quick enterprise-ready: Automated, auditable cross-account resource promotion</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/making-amazon-quick-enterprise-ready-automated-auditable-cross-account-resource-promotion/</link>
-		
-		<dc:creator><![CDATA[Keshav Ganesh]]></dc:creator>
-		<pubDate>Mon, 05 Oct 2026 15:56:28 +0000</pubDate>
-				<category><![CDATA[Advanced (300)]]></category>
-		<category><![CDATA[Amazon Quick Suite]]></category>
-		<category><![CDATA[Technical How-to]]></category>
-		<guid isPermaLink="false">e22db81f9de569eb9635812b9194903d60b6defd</guid>
-
-					<description>Promoting Amazon Quick resources (agents, action connectors, knowledge bases, flows, and spaces) from a development to a production AWS account has been a manual, error-prone chore. This post shows how to automate cross-account promotion with an idempotent, auditable MCP server on Amazon Bedrock AgentCore.</description>
-										<content:encoded>&lt;p&gt;Amazon Quick is Amazon’s agentic AI companion built for work. You build agents that reason over your data, call action connectors, and carry multi-step tasks to completion. Promoting those resources (chat agents, action connectors, knowledge bases, flows, and spaces) from a development to a production AWS account, the way you would any other application, has been a manual and error-prone chore. This post shows how to automate it with an idempotent, auditable Model Context Protocol (MCP) server on Amazon Bedrock AgentCore.&lt;/p&gt;
-&lt;p&gt;The building blocks of an agentic solution are its &lt;strong&gt;agents, action connectors, knowledge bases, and spaces&lt;/strong&gt;: chat agents configured with custom instructions, connectors for Slack, Jira, and other integrations, knowledge bases grounded in your own documents, and the Space that binds them together. Teams assemble and iterate on them quickly in a development account.&lt;/p&gt;
-&lt;p&gt;Most enterprises run separate AWS accounts for development and production, sometimes with quality assurance (QA) in between. When agents, action connectors, and knowledge bases are validated in a development account, there is no native, one-click way to promote them into the next account. Teams rebuild each resource by hand: recreate each agent with the same instructions and starter prompts, re-attach each agent’s action connectors, re-grant resource permissions, and reprovision the Amazon Simple Storage Service (Amazon S3) bucket, bucket policy, and data source behind each knowledge base. The work is slow, difficult to audit, and easy to get subtly wrong, which undermines the governance story enterprises need.&lt;/p&gt;
-&lt;h2 id="manage-amazon-quick-resources-through-an-api"&gt;Manage Amazon Quick resources through an API&lt;/h2&gt;
-&lt;p&gt;Amazon Quick resources are programmable. Spaces, agents, action connectors, knowledge bases, and flows are managed through the Amazon Quick API (part of the &lt;a href="https://docs.aws.amazon.com/cli/latest/reference/quicksight/" target="_blank" rel="noopener"&gt;Amazon Quick Sight API surface&lt;/a&gt;), which provides the full resource lifecycle, create, read, update, delete, and list. Anything a business user configures in Amazon Quick, an agent with its instructions and starter prompts, a connector, a knowledge base, or a flow, we can inspect, recreate, update, and govern programmatically, permissions included.&lt;/p&gt;
-&lt;p&gt;This programmable surface is what makes governed promotion possible. Instead of recreating each resource by hand, we read a resource and its permissions through the API and reapply them in another account exactly as they were. The migrator in this post composes the create, read, update, and list operations into one repeatable workflow, and it never issues a delete against the target, so a run only adds or updates.&lt;/p&gt;
-&lt;p&gt;In this post, we walk through the Quick Resource Migrator, a sample MCP server hosted on Amazon Bedrock AgentCore runtime, a capability of Amazon Bedrock AgentCore, that automates cross-account promotion of Amazon Quick resources in a single tool call. It’s resource-driven: you pick a resource type (agent, connector, knowledge base, flow, or space) and select by id, by name, or all. It’s idempotent (safe to re-run), and it copies permissions faithfully by describing the source and replaying the same actions in the target. The full source code is available in the &lt;a href="https://github.com/aws-samples/sample-amazon-quick-suite-knowledge-hub/tree/main/infrastructure/multi-tenant-assets-deployment" target="_blank" rel="noopener"&gt;aws-samples repository&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id="solution-overview"&gt;Solution overview&lt;/h2&gt;
-&lt;p&gt;The migrator promotes a chosen set of resources in a single call. It is an upsert: a resource that does not yet exist in the target is created, and one that already exists is updated in place. Every update is protected by a versioned backup written to Amazon S3 before the change, so each resource keeps a full history you can review and roll back to. A read-only preview reports exactly what a run would create or update before you commit, and the migration itself runs on Amazon Bedrock AgentCore, so it can be driven from Amazon Quick or any MCP-compatible client.&lt;/p&gt;
-&lt;h3 id="what-gets-migrated"&gt;What gets migrated&lt;/h3&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;&lt;strong&gt;Selection model:&lt;/strong&gt; Pick a resource type (agent, connector, knowledge base, flow, or space) and choose resources by id, by name, or all. Selection is resource-driven. Migrate a resource type directly, or migrate a space to bring its linked resources across with it.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Chat agents:&lt;/strong&gt; Recreated with their custom instructions, identity, tone, starter prompts, and welcome message, with their action connectors re-attached (remapped to the target account). When a space is migrated, its agents are re-linked to it automatically.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Action connectors:&lt;/strong&gt; Recreated with their configuration. Secret values are never read from the source. Connectors are created with placeholder credentials and re-authenticated in the target.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Knowledge bases:&lt;/strong&gt; The knowledge base is registered in the target account, its data source is recreated, and its permissions are copied. For S3-backed knowledge bases the migrator also provisions the target bucket and its bucket policy (a distinct output of the migration). The documents (S3 objects) themselves are not copied.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Flows:&lt;/strong&gt; Recreated in the target account from their definition. Because flow IDs differ across accounts, flows are matched by name: a same-named target flow is updated, otherwise a new one is created. Flow permissions are copied.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Spaces:&lt;/strong&gt; Recreated in the target account and re-linked to their agents, connectors, and knowledge bases (with resource Amazon Resource Names (ARNs) remapped to the target). Migrate the linked resources first so the target ARNs resolve. Space permissions are copied.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id="key-design-principles"&gt;Key design principles&lt;/h3&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;&lt;strong&gt;Resource-driven selection.&lt;/strong&gt; You migrate one resource type at a time (agent, connector, knowledge base, flow, or space), selecting by id, by name, or all. Agents are recreated with their action connectors re-attached. Spaces are recreated and re-linked to their agents, connectors, and knowledge bases, with ARNs remapped to the target account.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Permission fidelity.&lt;/strong&gt; Permissions aren’t hard-coded. The server calls the relevant &lt;code&gt;Describe*Permissions&lt;/code&gt; API on each source resource and replays the identical action list in the target, remapping principals to registered users in the target account.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Idempotency.&lt;/strong&gt; Every resource is created-or-updated. The server describes the target first and decides whether to create or update, so re-running a migration converges on the same state instead of producing duplicates or failing.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Least privilege and isolation.&lt;/strong&gt; The source role is read-only. The target role holds only the actions the migration needs. The runtime authenticates callers with a Cognito JSON Web Token (JWT) and can run in virtual private cloud (VPC) network mode.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Safe, reversible updates.&lt;/strong&gt; Before the migrator updates any existing target resource, it writes a versioned snapshot of that resource, and its dependencies, to a dedicated backup bucket. If that backup can’t be written, the update is aborted. Every created or updated resource is also snapshotted, and a restore tool can roll any resource back to an earlier version.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id="architecture"&gt;Architecture&lt;/h2&gt;
-&lt;p&gt;The solution uses a three-account model. A central runner account hosts the MCP server on Amazon Bedrock AgentCore runtime. The server assumes a read-only role in the source account and a read-write role in the target account using AWS Security Token Service (AWS STS), so no long-lived credentials are stored anywhere.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-1-8.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-1-8.png" alt="Three-account architecture: a runner account hosts the MCP server on Amazon Bedrock AgentCore and assumes roles into the source and target accounts" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: Architecture of the Amazon Quick Resource Migrator MCP server&lt;/p&gt;
-&lt;/div&gt;
-&lt;h3 id="component-responsibilities"&gt;Component responsibilities&lt;/h3&gt;
-&lt;table border="1px" width="100%" cellpadding="10px"&gt;
- &lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Component&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;&lt;strong&gt;Responsibility&lt;/strong&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;AgentCore runtime (runner account)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;Hosts the MCP server (&lt;code&gt;server.py&lt;/code&gt;). Assumes roles into the source and target accounts and orchestrates the migration. Runs in VPC network mode with a Cognito JWT authorizer.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Amazon Cognito (runner account)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;User pool, resource server, and a machine-to-machine app client. Issues the JWT (client-credentials grant, scope &lt;code&gt;invoke&lt;/code&gt;) that callers present to AgentCore.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Runner execution role&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;The AgentCore execution role: Amazon CloudWatch Logs, telemetry, and &lt;code&gt;sts:AssumeRole&lt;/code&gt; into the source and target roles.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Migrator role (source account)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;Read-only Quick Sight describe/list permissions plus knowledge base read.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Migrator role (target account)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;Read-write Quick Sight create/update permissions, knowledge base and S3 write, and &lt;code&gt;ListUsers&lt;/code&gt; for principal resolution.&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td&gt;&lt;strong&gt;Backup bucket (runner account)&lt;/strong&gt;&lt;/td&gt;
-   &lt;td&gt;Encrypted S3 bucket that stores versioned pre-update and post-migration snapshots of target resources. The runtime writes to it directly. Restore reads from it. Optional (disabled when unset).&lt;/td&gt;
-  &lt;/tr&gt;
- &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;&lt;em&gt;Table 1: Architectural components&lt;/em&gt;&lt;/p&gt;
-&lt;h3 id="migration-flow"&gt;Migration flow&lt;/h3&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;Resolve resources: from the resource type and selector (id, name, or all), resolve the concrete resource IDs in the source account.&lt;/li&gt;
- &lt;li&gt;Describe the source: describe each selected resource to capture its configuration and permissions.&lt;/li&gt;
- &lt;li&gt;Connectors: recreate each connector. The authentication config is sanitized to the create (write) model with placeholder secrets, then re-authenticated in the target. Copy permissions.&lt;/li&gt;
- &lt;li&gt;Knowledge bases: create the target bucket (&lt;code&gt;knowledge-base-&amp;lt;env&amp;gt;-&amp;lt;account&amp;gt;&lt;/code&gt;), bucket policy, data source, and knowledge base, then copy knowledge base permissions. S3 objects are not copied.&lt;/li&gt;
- &lt;li&gt;Agents: recreate each agent with its action connectors attached (remapped to the target account), then copy agent permissions. Agent-to-space linkage is restored when the space itself is migrated (see the space step).&lt;/li&gt;
- &lt;li&gt;Flows: recreate each flow from its definition, matched by name (flow IDs differ across accounts): update a same-named target flow or create a new one, then copy flow permissions.&lt;/li&gt;
- &lt;li&gt;Spaces: recreate each space and re-link its agents, connectors, and knowledge bases with ARNs remapped to the target account (migrate those resources first), then copy space permissions.&lt;/li&gt;
- &lt;li&gt;Report: return a JSON report of the created or updated resources, buckets, backups, skipped permissions, and any errors.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id="tools-exposed-by-the-mcp-server"&gt;Tools exposed by the MCP server&lt;/h2&gt;
-&lt;p&gt;The server exposes five tools, all defined in &lt;code&gt;server.py&lt;/code&gt;.&lt;/p&gt;
-&lt;h3 id="preview_migration-read-only"&gt;preview_migration (read-only)&lt;/h3&gt;
-&lt;p&gt;&lt;code&gt;preview_migration&lt;/code&gt; takes a source account ID, a resource type (agent, connector, knowledge base, flow, space, or all), a selector (id, name, or all), and an AWS Region. It returns an inventory of the agents, action connectors, knowledge bases, and flows that would be migrated, with names and types, without making any change. Use it as a dry run to confirm scope and to support a change-management approval step before promotion. When you also pass a target account ID, the response adds a source-to-target mapping that marks each resource CREATE or UPDATE, so you can see exactly what a migration would change before running it.&lt;/p&gt;
-&lt;h3 id="migrate_resources-full-migration"&gt;migrate_resources (full migration)&lt;/h3&gt;
-&lt;p&gt;&lt;code&gt;migrate_resources&lt;/code&gt; takes source and target account IDs, a resource type (agent, connector, knowledge base, flow, or space), a selector (id, name, or all), a region, source and target environment names (used in the knowledge base bucket name), and the Quick Sight service role name. It performs the full create-or-update migration described above and returns a structured report of everything it created, updated, and granted, along with any errors. Because it’s idempotent, you can run it repeatedly, for example on every release, and it converges on the same target state.&lt;/p&gt;
-&lt;h3 id="list_backups-read-only"&gt;list_backups (read-only)&lt;/h3&gt;
-&lt;p&gt;&lt;code&gt;list_backups&lt;/code&gt; searches the backup catalog and lists the available versions for each asset. Backups are the pre-update snapshots the migrator writes to the backup bucket, one versioned object per update, so you can see the full history for any migrated resource.&lt;/p&gt;
-&lt;h3 id="get_backup-read-only"&gt;get_backup (read-only)&lt;/h3&gt;
-&lt;p&gt;&lt;code&gt;get_backup&lt;/code&gt; returns the full stored backup for a given asset and version (the latest by default), including the captured resource configuration and its dependencies.&lt;/p&gt;
-&lt;h3 id="restore_backup"&gt;restore_backup&lt;/h3&gt;
-&lt;p&gt;&lt;code&gt;restore_backup&lt;/code&gt; re-applies a stored backup version onto the target resource, updating it in place, or recreating it if it no longer exists. It first takes a fresh pre-restore backup, so the revert is itself reversible.&lt;/p&gt;
-&lt;h2 id="deploy-the-solution"&gt;Deploy the solution&lt;/h2&gt;
-&lt;p&gt;The full source and step-by-step deployment instructions live in the &lt;a href="https://github.com/aws-samples/sample-amazon-quick-suite-knowledge-hub/tree/main/infrastructure/multi-tenant-assets-deployment" target="_blank" rel="noopener"&gt;aws-samples repository&lt;/a&gt; README. At a high level you deploy three AWS CloudFormation stacks, the cross-account AWS Identity and Access Management (IAM) roles, the VPC network, and the Cognito-authenticated AgentCore runtime that hosts the MCP server, then register that runtime as an action connector in Amazon Quick.&lt;/p&gt;
-&lt;h2 id="use-the-migrator-through-a-quick-app"&gt;Use the migrator through a Quick App&lt;/h2&gt;
-&lt;p&gt;By registering the runtime as an action connector, you can drive the migrator from Amazon Quick in natural language, and you can also build a Quick App: a point-and-click web experience layered on the same MCP tools. You don’t build that UI by hand. The repository includes a ready-to-use &lt;a href="https://github.com/aws-samples/sample-amazon-quick-suite-knowledge-hub/blob/main/infrastructure/multi-tenant-assets-deployment/docs/quick-app-integration.md" target="_blank" rel="noopener"&gt;app-builder prompt&lt;/a&gt; that you paste into the Amazon Quick app builder, replacing the placeholder connector and action IDs with your own to generate the app. The app turns the workflow into a guided flow: choose a source and target account and the resources to promote, preview what will be created or updated, run the migration, and review a history of every past migration, each backed by the versioned S3 snapshots the server writes. The following screens show that experience.&lt;/p&gt;
-&lt;h3 id="an-example-quick-app"&gt;An example Quick App&lt;/h3&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;Because the app is generated from a prompt, each build differs. The following screens show one such example. In it, the landing page prompts for the Source Account ID, Target Account ID, resource type (agent, connector, knowledge base, flow, or space), and selector (id, name, or all), with additional options available as needed.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-2-8.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-2-8.png" alt="Quick App landing page with fields for source and target account IDs, resource type, and selector"&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-3-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-3-3.png" alt="Additional migration options on the Quick App landing page" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 3: Additional migration options available on the landing page&lt;/p&gt;
-&lt;/div&gt;
-&lt;ol start="2" type="1"&gt;
- &lt;li&gt;After you choose &lt;strong&gt;Confirm &amp;amp; migrate&lt;/strong&gt;, you see a response like the following:&lt;/li&gt;
-&lt;/ol&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-4-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-4-3.png" alt="Confirmation view shown after choosing Confirm and migrate" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 4: The confirmation response after you choose Confirm and migrate&lt;/p&gt;
-&lt;/div&gt;
-&lt;ol start="3" type="1"&gt;
- &lt;li&gt;After you confirm and migrate, you should see the response from the MCP server returning the resources that were created/updated.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-5-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-5-3.png" alt="MCP server response listing the resources that were created or updated" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 5: The MCP server response listing the resources that were created or updated&lt;/p&gt;
-&lt;/div&gt;
-&lt;ol start="4" type="1"&gt;
- &lt;li&gt;Open the History tab to see every past migration. Each entry is backed by the versioned snapshot the migrator wrote to Amazon S3, so you get a full, auditable record of what was promoted and when, with the option to inspect any earlier version.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-6-3.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-6-3.png" alt="History tab showing a record of past migrations" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 6: The History tab showing an auditable record of past migrations&lt;/p&gt;
-&lt;/div&gt;
-&lt;ol start="5" type="1"&gt;
- &lt;li&gt;To roll back, select a resource’s backup version and choose &lt;strong&gt;Restore&lt;/strong&gt;. The app re-applies that saved version to the target. Because it first captures a fresh backup before restoring, the revert is itself reversible.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-7.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/Figure-7.png" alt="Restoring a resource to an earlier backup version" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 7: Rolling back a resource to an earlier backup version&lt;/p&gt;
-&lt;/div&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;Cross-account promotion is a baseline expectation for enterprise software, and until now it has been the missing piece for Amazon Quick. The Quick Resource Migrator turns a slow, manual, hard-to-audit task into a fast, repeatable, and governed one: a single tool call recreates agents, connectors, and knowledge bases in a target account and copies permissions faithfully, all idempotently, so you can run it on every release.&lt;/p&gt;
-&lt;p&gt;Clone the &lt;a href="https://github.com/aws-samples/sample-amazon-quick-suite-knowledge-hub/tree/main/infrastructure/multi-tenant-assets-deployment" target="_blank" rel="noopener"&gt;sample repository&lt;/a&gt;, deploy it into a runner account, and try promoting an agent or knowledge base from development to production. Then adapt the pattern to your own governance and hardening requirements.&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21611-8.jpg" alt="Keshav Ganesh" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Keshav Ganesh&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Keshav is an AI &amp;amp; Cloud Solutions Engineer at AWS specializing in agentic systems, DevOps, and platform engineering. He partners with customers and organizations to design and operationalize agentic AI: autonomous, tool-using agents that reason and act, alongside the scalable cloud platforms that run them, helping teams move securely from proof of concept to production at enterprise scale. He is passionate about turning emerging agentic patterns into practical, secure, and enterprise-ready solutions.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/29/ML-21611-9.jpg" alt="Vineet Kachhawaha" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Vineet Kachhawaha&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Vineet is a Sr.&amp;nbsp;Worldwide Agentic AI Solution Architect at AWS, focused on Amazon Quick. He works closely with enterprise customers and partners to design, deploy, and scale AI-driven solutions. Vineet also co-led the AWS for Legal Tech initiative, helping legal and compliance organizations harness AI/ML to drive business value. He loves building and tinkering with agentic AI solutions and considers himself a lifelong learner. Vineet regularly speaks at AWS events and industry conferences, sharing his expertise on generative AI and agentic architectures.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
 			</item>
 	</channel>
 </rss>
