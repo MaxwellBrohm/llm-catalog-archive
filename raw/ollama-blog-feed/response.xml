@@ -3,8 +3,15 @@
     <title><![CDATA[Ollama]]></title>
     <description><![CDATA[Ollama]]></description>
     <link>https://ollama.com/blog</link>
-    <lastBuildDate>Wed, 30 Sep 2026 05:32:55 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 14 Oct 2026 04:54:26 +0000</lastBuildDate>
     <atom:link href="https://ollama.com/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title><![CDATA[Run AI agents safely with Ollama and Fly.io]]></title>
+      <description><![CDATA[AI agents can now use Ollama's cloud models safely inside Fly.io's cloud computers.]]></description>
+      <link>https://ollama.com/blog/fly-io-sprites</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://ollama.com/blog/fly-io-sprites</guid>
+    </item>
     <item>
       <title><![CDATA[Ollama now supports Jev-style decision models]]></title>
       <description><![CDATA[Ollama now supports decision models, based on TypeSafe's Jev API for fast, typed decisions. Decision models can now be run at no cost with low latency. Based on text, decision models answer yes-or-no questions, choices and scores about it, with a probability for every option.]]></description>
