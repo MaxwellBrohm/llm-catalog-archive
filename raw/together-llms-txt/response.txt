@@ -90,7 +90,7 @@
 - [Supported models](https://docs.together.ai/docs/post-training/supported-models.md): Every base model available for post-training, with training modes, context lengths, GPU types, and adapter capacity.
 - [Overview](https://docs.together.ai/docs/post-training/training-methods.md): Match a post-training method to your data, choose between adapter and full-weight training, and combine methods.
 - [Supervised fine-tuning](https://docs.together.ai/docs/post-training/sft.md): Train a model on example conversations with supervised fine-tuning.
-- [Direct preference optimization](https://docs.together.ai/docs/post-training/dpo.md): Train on preference pairs with direct preference optimization, the worked example for any loss function you run client-side.
+- [Direct preference optimization](https://docs.together.ai/docs/post-training/dpo.md): Train on preference pairs with a custom loss function that runs in your own process.
 - [Reinforcement learning with GRPO](https://docs.together.ai/docs/post-training/grpo.md): Train a model against a reward function with group relative policy optimization.
 - [Write a reward function](https://docs.together.ai/docs/post-training/reward-functions.md): How to write a reward function for GRPO, register it with your dataset, and test it before you start training.
 - [Train in multi-turn environments](https://docs.together.ai/docs/post-training/multi-turn-environments.md): Train tool-use agents with GRPO over whole episodes, where the model acts, an environment responds, and a reward scores the outcome.
@@ -417,7 +417,9 @@
 - [Training](https://docs.together.ai/reference/cli/training.md): Inspect post-training resources, sessions, and checkpoints, and prepare trained LoRA adapters for FP4 inference from your terminal.
 - [Evals](https://docs.together.ai/reference/cli/evals.md): Create and manage model-evaluation jobs from your terminal, including classify, score, and compare evals.
 - [Batches](https://docs.together.ai/reference/cli/batches.md): Submit, monitor, download, and cancel batch inference jobs from your terminal.
-- [Whoami](https://docs.together.ai/reference/cli/whoami.md): Show the project and organization for the API key used by the Together CLI.
+- [Login](https://docs.together.ai/reference/cli/auth.md): Log in to the Together CLI with your browser.
+- [Projects](https://docs.together.ai/reference/cli/projects.md): List the Together AI projects the CLI's credentials can access.
+- [Whoami](https://docs.together.ai/reference/cli/whoami.md): Show the project and organization for the credentials the Together CLI uses.
 - [Models](https://docs.together.ai/reference/cli/models-beta.md): Register, upload, and inspect models and adapters for dedicated model inference from your terminal.
 - [Endpoints](https://docs.together.ai/reference/cli/endpoints-beta.md): Deploy and manage dedicated inference endpoints from your terminal.
 - [Clusters](https://docs.together.ai/reference/cli/clusters.md): Reserve, configure, and manage GPU clusters from your terminal.
