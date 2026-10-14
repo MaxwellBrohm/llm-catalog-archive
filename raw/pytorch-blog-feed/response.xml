@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Thu, 08 Oct 2026 19:36:43 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 13 Oct 2026 14:04:23 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,121 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Extending Inductor for the IBM Spyre Accelerator</title>
+		<link>https://pytorch.org/blog/extending-inductor-for-the-ibm-spyre-accelerator/</link>
+		
+		<dc:creator><![CDATA[Dave Grove, Olivier Tardieu, IBM Spyre Team]]></dc:creator>
+		<pubDate>Tue, 13 Oct 2026 12:45:30 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=187647</guid>
+
+					<description><![CDATA[<p>TL;DR The PyTorch-based software stack for IBM&#8217;s Spyre accelerator recently moved its torch.compile backend from sendnn, a separate compilation stack built entirely from scratch, to backend=inductor, an open-source backend built...</p>
+<p>The post <a href="https://pytorch.org/blog/extending-inductor-for-the-ibm-spyre-accelerator/">Extending Inductor for the IBM Spyre Accelerator</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h3><span style="font-weight: 400;">TL;DR</span></h3>
+<p><span style="font-weight: 400;">The PyTorch-based software stack for IBM&#8217;s Spyre accelerator recently moved its torch.compile backend from sendnn, a separate compilation stack built entirely from scratch, to backend=inductor, an open-source backend built by extending PyTorch&#8217;s own Inductor. Most of Inductor carried over untouched. The real work concentrated in three places where Spyre&#8217;s hardware asks a fundamentally different question of the compiler than a GPU does. Inductor turned out to be exactly the right substrate for this work, and the result is a compiler roughly 7x smaller than what it replaced.</span></p>
+<p><span style="font-weight: 400;">IBM designed Spyre as a clean-sheet AI accelerator for enterprise inference workloads, prioritizing power efficiency. It&#8217;s a 75-watt, PCIe-attached accelerator that requires no custom power delivery or cooling.</span></p>
+<p><span style="font-weight: 400;">Spyre is a dataflow accelerator architected for the reduced-precision arithmetic of inference. It&#8217;s built from 32 small cores wired together over a ring, each with its own local 2 MB scratchpad rather than a shared cache. It moves data around in fixed-size chunks called sticks &#8211; 128 bytes, or 64 values in fp16.</span></p>
+<p><span style="font-weight: 400;">Torch-spyre is the PyTorch integration that targets it, and this post is about growing torch-spyre&#8217;s compiler, on top of Inductor, into something that understands that hardware well.</span></p>
+<p><span style="font-weight: 400;">Three things stood out as we made that move:</span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">We gained real leverage from Inductor &#8211; but we still needed substantial out-of-tree extensions at Inductor&#8217;s lower levels and in code generation. This wasn&#8217;t a drop-in swap. (The leverage is concrete enough to measure &#8211; see the code-size numbers in Evaluation.)</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Most of Inductor just worked. The effort concentrated on a small number of places where Spyre&#8217;s dataflow design diverges from the GPU-shaped assumptions built into Inductor &#8211; specifically, how Spyre moves data around, manages on-chip storage, and distributes work to cores.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Inductor&#8217;s extension points made this tractable. We&#8217;re now working with the upstream PyTorch project to formalize the points we leaned on most heavily, so other out-of-tree hardware backends can benefit from the same leverage.</span></li>
+</ol>
+<p><span style="font-weight: 400;">The rest of this post walks through the backend&#8217;s overall structure, the hardware differences that drove its design, how the compiler bridges them, and what we&#8217;ve measured so far.</span></p>
+<h2><b>Overall structure of the Spyre Inductor backend</b></h2>
+<p><span style="font-weight: 400;">Torch-spyre&#8217;s compiler implementation consists of two stages. The first stage uses Inductor extensions (living in the torch-spyre repository) to lower a torch.compile&#8217;d graph down to an intermediate representation called SuperDSC. The second stage uses a proprietary compiler called DeepTools to translate SuperDSC into the instructions that run on the Spyre hardware.</span></p>
+<p><span style="font-weight: 400;">Everything in this post focuses on the first stage: the Inductor extensions.</span></p>
+<p><span style="font-weight: 400;">The Inductor side plugs into the standard torch.compile pipeline &#8211; Dynamo traces the model, AOTAutograd partitions it, and Inductor lowers the resulting FX graph into its LoopLevelIR before generating code. Torch-spyre&#8217;s extensions augment this pipeline.</span></p>
+<table>
+<tbody>
+<tr>
+<td><b>Extension point</b></td>
+<td><b>Stage</b></td>
+<td><b>What torch-spyre does there</b></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Decompositions</span></td>
+<td><span style="font-weight: 400;">FX graph</span></td>
+<td><span style="font-weight: 400;">Spyre-specific op decompositions</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">Lowerings</span></td>
+<td><span style="font-weight: 400;">FX graph to LoopLevelIR</span></td>
+<td><span style="font-weight: 400;">Spyre-specific op lowerings</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">CustomPreSchedulingPasses</span></td>
+<td><span style="font-weight: 400;">LoopLevelIR</span></td>
+<td><span style="font-weight: 400;">The bulk of the Spyre-specific compiler: layout assignment, tiling, work division, scratchpad allocation</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-weight: 400;">Torch-spyre registers a number of device-specific operation decompositions to map PyTorch operations such as layernorm to optimized sequences of primitive Spyre operations. It then registers a number of lowerings to teach Inductor about these primitive operations.</span></p>
+<p><span style="font-weight: 400;">Most of the interesting work happens in CustomPreSchedulingPasses &#8211; it&#8217;s where tiling, layout assignment, work division, and scratchpad allocation actually get decided. It&#8217;s also the point that is, today, wired in via a monkey-patch on Inductor&#8217;s GraphLowering.codegen() rather than a first-class extension hook &#8211; the concrete formalization we&#8217;re pursuing with upstream, which we come back to at the end of this post.</span></p>
+<p><span style="font-weight: 400;">LoopLevelIR is the right level for that work, but Inductor&#8217;s own hook there, _pre_fusion_custom_pass, comes too late: it only runs after LoopLevelIR has already been turned into SchedulerNodes, and Inductor doesn&#8217;t support rewriting the graph at scale once those nodes exist. Torch-spyre&#8217;s passes need exactly that kind of large-scale rewriting, which is why CustomPreSchedulingPasses hooks GraphLowering one step earlier &#8211; before Inductor has committed to SchedulerNodes and closed off large-scale transformation.</span></p>
+<p><span style="font-weight: 400;">While these Spyre-specific extensions are the focus of this post, we leverage other torch.compile extension hooks too, for instance, to pool many on-device tensors into few memory allocations or to parse and propagate work division hints from source code to related compiler passes.</span></p>
+<h2><b>Three hardware differences that drive the design</b></h2>
+<p><span style="font-weight: 400;">Inductor was built against a mental model of the hardware underneath it &#8211; one shaped, understandably, by GPUs. Most of that model travels well to Spyre; three pieces of it don&#8217;t, and those three pieces account for nearly everything that had to be built out-of-tree.</span></p>
+<h3><b>Tensor layouts and sticks</b></h3>
+<p><span style="font-weight: 400;">Spyre doesn&#8217;t let a kernel address memory at the individual-element granularity that GPUs do. On a GPU, a kernel can request an individual element, even though the hardware may satisfy that request by fetching a larger cache line. The GPU exposes individual elements as the programming abstraction, while Spyre exposes the stick &#8211; a 128-byte aligned chunk of memory &#8211; as the fundamental unit of data movement and computation. A Spyre kernel must move data in sticks, with no equivalent path for moving an individual element on its own.</span></p>
+<p><span style="font-weight: 400;">For a compiler that inherited GPU-shaped assumptions, that&#8217;s not a minor footnote. The index arithmetic Inductor uses to determine which tensor element a given loop iteration touches now has to reason in terms of sticks instead of elements. Beyond that indexing problem, sticks create additional challenges that GPU-focused compilers never had to face.</span></p>
+<p><span style="font-weight: 400;">Each operation has specific constraints on how input and output tensor elements can be assembled into sticks. A pointwise op, for instance, requires all of its inputs and its output to agree on one shared stick dimension &#8211; the innermost dimension. When an op&#8217;s inputs arrive with incompatible sticks, the compiler has to insert a restickify: a data-movement op that physically reorders the tensor elements not just by permuting sticks but also reforming the sticks themselves. The restickify op is the one exception to the stick-immutability law. Finding an assignment of stick dimensions across a whole graph that minimizes the total cost of data movement is a global optimization problem.</span></p>
+<p><span style="font-weight: 400;">Even once every stick constraint is satisfied, the on-device tensor layouts torch-spyre picks also determine performance. Suboptimal layouts have a direct impact on wall-clock time. On a batched matmul with all tensors already resident in device memory, changing how the input and output tensors are tiled cut kernel time by 29-69% across a range of batch sizes and shapes.</span></p>
+<p><span style="font-weight: 400;">Together, these constraints turn layout into a graph-wide optimization problem &#8211; one that Inductor&#8217;s GPU backend was never designed to solve.</span></p>
+<h3><b>Scratchpad memories</b></h3>
+<p><span style="font-weight: 400;">The second difference has to do with memory hierarchies. Each of Spyre&#8217;s cores carries its own small local scratchpad &#8211; fast, but modest. Behind it there&#8217;s nothing but the global device memory. Nothing moves on its own: every trip from device memory into scratchpad, and every trip from scratchpad into a core&#8217;s compute engines, happens because the compiler emitted an explicit instruction to move it there. There&#8217;s no hardware-managed layer deciding on its own what&#8217;s worth keeping close &#8211; if the compiler doesn&#8217;t plan for a value to stay in scratchpad, it has to issue the instructions to write it back out to device memory and fetch it again the next time it&#8217;s needed. Workloads on Spyre are frequently memory-bound rather than compute-bound, so that round trip is very often where the time actually goes.</span></p>
+<p><span style="font-weight: 400;">That&#8217;s a difference of degree from a GPU, not of kind &#8211; GPUs also have memory hierarchies, and plenty of the burden of using them well already falls on the programmer or compiler. But Spyre pushes further in the same direction with no automatic fallback at all. The compiler has to decide ahead of time when and where to move data to support the computation. That&#8217;s the job of the scratchpad-planning machinery described below.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/memory-hierarchy.svg"><img decoding="async" class="alignnone size-full wp-image-187648" src="https://pytorch.org/wp-content/uploads/2026/10/memory-hierarchy.svg" alt="memory-hierarchy" /></a>Spyre&#8217;s per-core scratchpad and shared device memory</span></i></p>
+<h3><b>Core assignment</b></h3>
+<p><span style="font-weight: 400;">There&#8217;s a related, third difference: Spyre&#8217;s cores execute as a static dataflow machine. No GPU-style runtime scheduler balances load across streaming multiprocessors on the fly. That means the division of work across cores has to be decided at compile time too &#8211; which is the first theme below.</span></p>
+<p><span style="font-weight: 400;">In GPU terminology, this means that Spyre kernels are naturally persistent kernels: the division of work is fixed a priori, but the scratchpad of each core can persist valuable data across many rounds of computation.</span></p>
+<h2><b>Key compiler phases</b></h2>
+<h3><b>Spreading work across the cores</b></h3>
+<p><span style="font-weight: 400;">The first theme is dividing a single operation&#8217;s work across Spyre&#8217;s cores. Because Spyre runs as a static dataflow machine rather than relying on a runtime scheduler to balance load, this division has to be decided at compile time, per operation, before anything runs.</span></p>
+<p><span style="font-weight: 400;">Torch-spyre&#8217;s work-division planner does this in three passes. First, a mandatory pass enforces a hard per-core limit on how much device memory a single core can address, committing the minimum splits needed to bring any oversized tensor back under that limit. Second, a cost-model pass specifically for matrix multiplications enumerates plausible ways to split the operation&#8217;s three dimensions, estimates the runtime of each, and picks the cheapest. A third pass handles everything else.</span></p>
+<p><span style="font-weight: 400;">Take a matmul with a [8192, 32768] input, a [32768, 4096] weight, and a [8192, 4096] output, all fp16. Left unsplit, the input tensor&#8217;s memory span would exceed what a single core is allowed to address. So the first pass immediately commits a 2-way split along the reduction dimension. From there, the second pass estimates that a 16-way split along the output dimension is the most beneficial. The planner isn&#8217;t just picking a valid division. It&#8217;s picking one that minimizes the projected execution time.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/work-division-matmul.svg"><img decoding="async" class="alignnone size-full wp-image-187651" src="https://pytorch.org/wp-content/uploads/2026/10/work-division-matmul.svg" alt="work-division-matmul" /></a>Before/after for the worked matmul example: unsplit vs. a 2×4 slice of the full 2×16 core grid, showing how each core&#8217;s (K,N) coordinate picks out its A row-tile and B column-tile</span></i></p>
+<p><span style="font-weight: 400;">The planner prioritizes matrix multiplications because they typically dominate the end-to-end computation time.</span></p>
+<p><span style="font-weight: 400;">Splitting work across cores also splits the data those cores touch. A [1024, 2048] fp16 tensor is 4 MB &#8211; too big for any single core&#8217;s scratchpad &#8211; but split by rows across four cores, each core&#8217;s slice is a comfortably-sized 1 MB.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/multicore-tiling.svg"><img decoding="async" class="alignnone size-full wp-image-187652" src="https://pytorch.org/wp-content/uploads/2026/10/multicore-tiling.svg" alt="multicore-tiling" /></a>A 4 MB tensor split by rows across four cores so each core&#8217;s slice fits in scratchpad</span></i></p>
+<p><span style="font-weight: 400;">Multi-core scratchpad residency isn&#8217;t free, though. It depends on every operation touching that tensor or tile (a buffer) agreeing on how it&#8217;s split &#8211; and nothing so far has guaranteed that agreement.</span></p>
+<h3><b>Scratchpad planning</b></h3>
+<p><span style="font-weight: 400;">The second theme picks up once that division of work is in place. Intermediate tensors too large for a core&#8217;s local scratchpad force a choice. Either round-trip them through device memory, or reorganize a sequence of ops to work on tensor tiles, and wrap such sequences with loops iterating over tiles. Whether tiling belongs to PyTorch or specialized programming languages such as Triton and Helion is an open question. While building torch-spyre, though, we observed that torch.scan is a powerful enough construct to express tiled loops, albeit somewhat awkwardly. Built on top of torch.scan, torch-spyre&#8217;s own for_each_tile construct makes it easy to express tiled loops, giving the programmer control about the space-time trade-off &#8211; iteration count vs. memory footprint &#8211; for instance by tiling the reduction dimension of a matrix multiplication.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/foreach-tile-splitk.svg"><img decoding="async" class="alignnone size-full wp-image-187657" src="https://pytorch.org/wp-content/uploads/2026/10/foreach-tile-splitk.svg" alt="foreach-tile-splitk" /></a>for_each_tile tiling the reduction dimension of a split-K matmul, so only one K-slice of each operand is ever resident at once</span></i></p>
+<p><span style="font-weight: 400;">Once a kernel has been tiled and tiles have been assigned to cores, the scratchpad allocator decides what actually stays resident in the core&#8217;s scratchpad and at what address. It offers a choice of solvers, from a simple greedy algorithm up to CP-SAT and simulated-annealing options for harder cases.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/allocator-architecture.svg"><img decoding="async" class="alignnone size-full wp-image-187658" src="https://pytorch.org/wp-content/uploads/2026/10/allocator-architecture.svg" alt="allocator-architecture" /></a>ScratchpadAllocator&#8217;s pass pipeline, with a pluggable choice of layout solver</span></i></p>
+<p><span style="font-weight: 400;">The payoff is measurable. Torch-spyre&#8217;s documentation walks through a single-core softmax over a modestly sized fp16 tensor &#8211; the lowered sequence is max → sub → exp → sum → div &#8211; and shows what happens as scratchpad-aware scheduling is added one capability at a time: first pinning small reduction outputs on-core, then reusing scratchpad addresses in place for pointwise steps, then cloning the input into scratchpad once instead of re-fetching it from device memory for every reader. End to end, median kernel runtime on this example drops from 32.51 µs to 23.67 µs — a 27% reduction, purely from deciding what stays on-chip and when.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/softmax-stages.svg"><img decoding="async" class="alignnone size-full wp-image-187659" src="https://pytorch.org/wp-content/uploads/2026/10/softmax-stages.svg" alt="softmax-stages" /></a>Four stages of scratchpad-aware scheduling for a softmax kernel, with total device-memory traffic per stage in units of the tensor size, from device-memory-only to fully optimized</span></i></p>
+<h3><b>When the two decisions fight each other</b></h3>
+<p><span style="font-weight: 400;">Scratchpad allocation and work division are described above as two separate passes, and torch-spyre&#8217;s first implementation ran them that way: work division picked each operation&#8217;s core split independently, and scratchpad allocation placed buffers afterward, treating those splits as fixed. That turned out to be limiting, which is why torch-spyre is moving toward the co-optimization approach described in detail below.</span></p>
+<p><span style="font-weight: 400;">The problem shows up whenever two adjacent operations that share a buffer pick different core splits. Work division optimizes each operation on its own terms: a matmul wants the split that keeps its compute engines busy; a neighboring reduction or pointwise op wants whatever split matches its own shape. Nothing forces those choices to agree. When they don&#8217;t, the buffer between them is sliced differently by its producer than by its consumer &#8211; one core&#8217;s scratchpad has a piece of the data, the next op expects a different piece. Torch-spyre calls this a work-division mismatch. Historically the only way to handle it was to disqualify the buffer from scratchpad residency outright: the producer writes it out to device memory, and the consumer reads it back from there, paying for the round trip in both directions &#8211; exactly the traffic scratchpad allocation intends to avoid.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/work-div-mismatch-spill.svg"><img decoding="async" class="alignnone size-full wp-image-187660" src="https://pytorch.org/wp-content/uploads/2026/10/work-div-mismatch-spill.svg" alt="work-div-mismatch-spill" /></a>Cost of a work-division mismatch: matching splits keep a buffer on scratchpad for free, mismatched splits spill it to device memory twice over</span></i></p>
+<p><span style="font-weight: 400;">Next, torch-spyre explored a promising alternative: decide optimal work division for each matrix multiplication in isolation but derive work division for intermediate ops from the preceding matrix multiplication, hence the decoupling of the second and third work-division passes. Device memory round trips remained the fallback when mismatches could not be avoided.</span></p>
+<p><span style="font-weight: 400;">That&#8217;s no longer the only option. Spyre&#8217;s scratchpad hardware supports a core-to-core relayout &#8211; a shuffle that moves data directly from one core&#8217;s scratchpad slice to another&#8217;s, without ever touching device memory. Torch-spyre has begun turning that capability on under the name lx_relayout. A relayout doesn&#8217;t make a mismatch free: reshuffling data between cores still costs real time. And because the old layout and the new one have to coexist in scratchpad while the shuffle happens, it costs scratchpad space too. What it changes is the shape of the choice. A mismatch used to mean an all-or-nothing fallback to device memory; now it can instead mean a reasonably priced, on-chip shuffle, and the compiler gets to decide.</span></p>
+<p><span style="font-weight: 400;">A better shuffle is still a shuffle, though. There is another option: moving from independent work division decisions to coordinated decisions accurately accounting for both the benefits and drawbacks of consistent scratchpad allocation across adjacent ops. Torch-spyre&#8217;s new co-optimizing allocator folds the standalone work-division pass into scratchpad planning instead of treating its output as fixed. This allocator compares the data shuffle cost resulting from optimal but mismatched work division decisions across adjacent ops to the cost of aligned but suboptimal work division decisions.</span></p>
+<p><span style="font-weight: 400;">In the end, the co-optimizer has many decisions to make and many options to consider; two solver backends do that search differently. The pruned, greedy path narrows the space with hardware-specific heuristics &#8211; for a matmul, anchoring on the divisions its own cost-model pass already favors &#8211; and then places buffers with best-fit packing, keeping the search fast enough for every graph. An exhaustive constraint-programming path (torch-spyre uses OR-Tools CP-SAT) instead considers the full space of candidate divisions and relayout choices in one pass: which candidate division each operation takes, and whether any given producer-consumer pair pays for a relayout between them, tied together by hard constraints &#8211; does a buffer&#8217;s chosen division match every consumer&#8217;s, directly or via a paid-for relayout; does everything actually fit in scratchpad, including both copies while a relayout is live &#8211; with a cost to minimize once those constraints are satisfied. That relayout cost is a plain term built from the same hardware-fitted cost model that prices ordinary device-memory traffic, so the solver is never comparing a real cost against an assumed-free one. The exhaustive path can afford to fully subsume work division precisely because it isn&#8217;t pruning; the greedy path still needs the cost-model pass&#8217;s heuristics to keep its own search tractable.</span></p>
+<p><i><span style="font-weight: 400;"><a href="https://pytorch.org/wp-content/uploads/2026/10/co-optimization.svg"><img decoding="async" class="alignnone size-full wp-image-187661" src="https://pytorch.org/wp-content/uploads/2026/10/co-optimization.svg" alt="co-optimization" /></a>The co-optimizing allocator folding work division into scratchpad planning, with a pruned greedy path and an exhaustive constraint-solver path</span></i></p>
+<p><span style="font-weight: 400;">The payoff shows up concretely on real kernels. On a fused MLP-style kernel, letting a pointwise operation adopt a neighboring matmul&#8217;s core split &#8211; rather than insisting on its own locally optimal one &#8211; lifted core utilization from roughly two-thirds to about 80% and cut kernel time by around 17%. That translates into roughly a 2x improvement over the equivalent sendnn-compiled kernel.</span></p>
+<p><span style="font-weight: 400;">On a multi-head-attention kernel, two matmuls around a softmax contract along different axes, so they can never simply adopt each other&#8217;s split outright. Offering both of them &#8211; and the softmax reduction sitting between them &#8211; a shared batch-and-output-dimension tiling let the whole chain converge on one consistent division. That pinned what would otherwise have been a device-memory round trip for the attention scores matrix.</span></p>
+<p><span style="font-weight: 400;">And on a small synthetic graph built specifically to put work division and scratchpad placement in tension, letting the solver choose a relayout instead of forcing a spill replaced an 80 microsecond device-memory round trip with a 1.1 microsecond on-chip shuffle. The old strict-match gate would have paid 70x more than the problem actually required.</span></p>
+<p><span style="font-weight: 400;">This is still a young part of the compiler. The search space grows quickly with the kernel size. The exhaustive solver considers that whole space. Therefore, we bound its execution time, and continue to explore smart pruning heuristics that accelerate the search for solutions without jeopardizing quality.</span></p>
+<h2><b>Evaluation</b></h2>
+<p><span style="font-weight: 400;">The software-engineering case for this move is easiest to see in raw size. sendnn, the compilation stack that this Inductor backend replaced, was built independently of torch-spyre and of Inductor alike. Measured with lizard (non-comment lines of code, tests excluded), it totals roughly 273,000 lines of C++ and Python across 6,170 functions, with an average per-function cyclomatic complexity around 10. The Inductor extension that replaces it, living under torch_spyre/_inductor, comes in at roughly 38,600 lines of Python across 1,878 functions, averaging a cyclomatic complexity of 5.6 per function: about 7x fewer lines, a third as many functions, and simpler ones at that.</span></p>
+<p><span style="font-weight: 400;">That&#8217;s not quite an apples-to-apples &#8220;we wrote less code to do the same thing from scratch&#8221; comparison, since the Inductor extension leans on all of Inductor&#8217;s own machinery underneath it in a way sendnn never could. But that asymmetry is the point: a 7x smaller, less complex codebase is what &#8220;real leverage from an existing compiler&#8221; looks like in practice.</span></p>
+<p><span style="font-weight: 400;">On performance, the fuller story is still being assembled, but two real, measured data points show up at opposite ends of the memory hierarchy. On-core, the softmax example above gives us a 27% drop in median kernel time purely from better use of scratchpad. Off-core, the matmul layout example gives us a 29-69% cut in kernel time purely from how tiling determines whether sticks land contiguously in device memory. Neither number depends on the other. Together they&#8217;re evidence that Spyre&#8217;s unique architecture poses real demands on the compiler, and that Inductor and torch-spyre can successfully tackle this challenge.</span></p>
+<h2><b>Wrapping up</b></h2>
+<p><span style="font-weight: 400;">Torch-spyre&#8217;s move to backend=inductor bought real leverage: a compiler roughly 7x smaller than what it replaced, and measurably less complex per function. That&#8217;s despite the fact that bridging three specific hardware gaps &#8211; stick-granularity data movement, a scratchpad-only memory hierarchy with no shared cache, a static core allocation &#8211; took substantial work outside Inductor&#8217;s own tree. What made that work tractable at all is that Inductor exposes extension points that let a backend like torch-spyre plug in without forking the compiler underneath it.</span></p>
+<p><span style="font-weight: 400;">That relationship runs in both directions. Torch-spyre&#8217;s need to register device-specific decompositions &#8211; a concrete requirement that fell out of adapting Inductor to Spyre&#8217;s op set &#8211; helped drive improvements to out-of-tree Inductor backend support that landed upstream in PyTorch 2.12. We proposed the change as an RFC, and it shipped as two merged PRs: #176811 and #185909. Two design documents describing further extension points that torch-spyre relies on are also public &#8211; one proposing a tiled-layout abstraction for stick-granularity memory, one on a new MLIR-based intermediate representation (KTIR) &#8211; and we&#8217;ve already shared and discussed them with upstream Inductor maintainers: RFC 0047 &#8211; tiled tensors, RFC 0682 &#8211; KTIR. And the extension point most central to this post, CustomPreSchedulingPasses, is next in line. Turning it from today&#8217;s monkey-patch into a supported hook is an active, ongoing conversation with upstream.</span></p>
+<p><span style="font-weight: 400;">We think torch-spyre is a useful proof point that Inductor&#8217;s extension-point model generalizes well beyond GPU-shaped hardware. If you&#8217;re building an out-of-tree backend for hardware that doesn&#8217;t look like a GPU, we&#8217;d like to hear from you &#8211; and, together with upstream, we&#8217;re working to make the path we took easier to follow next time.</span></p>
+<p>The post <a href="https://pytorch.org/blog/extending-inductor-for-the-ibm-spyre-accelerator/">Extending Inductor for the IBM Spyre Accelerator</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Session-Aware Agentic Inference with NVIDIA Dynamo</title>
 		<link>https://pytorch.org/blog/session-aware-agentic-inference-with-nvidia-dynamo/</link>
 		
@@ -1196,256 +1311,7 @@ aligned = (klen // BLOCK_N) * BLOCK_N
 		
 		
 			</item>
-		<item>
-		<title>From Upstream Changes to Downstream Confidence: Inside Torch Spyre&#8217;s Integration with PyTorch CRCR</title>
-		<link>https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/</link>
-		
-		<dc:creator><![CDATA[Mehant Kammakomati (IBM), Jewel K M (Red Hat), Anubhav Jana (IBM), Padmanabha Venkatagiri Seshadri (IBM)]]></dc:creator>
-		<pubDate>Wed, 30 Sep 2026 13:40:56 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=171223</guid>
-
-					<description><![CDATA[<p>TL;DR PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s...</p>
-<p>The post <a href="https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/">From Upstream Changes to Downstream Confidence: Inside Torch Spyre&#8217;s Integration with PyTorch CRCR</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<h2>TL;DR</h2>
-<p>PyTorch&#8217;s Cross-Repository CI Relay (CRCR) gives out-of-tree accelerators a clean, scalable way to plug into upstream CI &#8211; and it leaves each backend free to decide which of PyTorch&#8217;s tens of thousands of tests actually matter for its hardware, and how to keep that answer current as PyTorch, the backend, and the test suite all evolve. This post walks through how Torch Spyre built on top of that foundation to reach CRCR&#8217;s L2 integration, using an agentic pipeline that selects and re-buckets tests from code and execution evidence, a declarative YAML framework that adapts upstream tests without patching them, and a set of workflow patterns for reliability and reproducibility at scale. Most of this is applicable for any generic privateuse1 device, and we&#8217;re looking to work with the pytorch community to make it reusable and upstream where relevant.</p>
-<h2>Introduction</h2>
-<p>PyTorch&#8217;s <a href="https://pytorch.org/blog/introducing-cross-repository-ci-relay-scalable-ci-for-pytorchs-out-of-tree-backends/">Cross-Repository CI Relay</a> (CRCR) closes the coordination gap between PyTorch and out-of-tree (OOT) accelerator repositories by providing a standardized way to trigger downstream CI on upstream changes, surface results directly to PyTorch reviewers, and present regressions into a unified view through <a href="https://hud.pytorch.org/crcr">PyTorch CI CRCR HUD</a>. This is done by allowing OOT accelerator repositories to receive dispatches from <a href="https://github.com/pytorch/pytorch">pytorch/pytorch</a> and report results back to the HUD with minimal integration burden consisting of an allowlist entry, a workflow that listens for repository_dispatch, and performs a composite callback action. Further, CRCR provides four levels of integration, enabling downstream projects to incrementally onboard from receiving upstream dispatch notifications to reporting results through HUD and ultimately participating in non-blocking or blocking upstream PR validation.</p>
-<p>The interesting engineering starts one step later, in the decisions the relay leaves to each backend: what are the test candidates, which dispatches deserve a build, which of PyTorch&#8217;s tens of thousands of tests are meaningful on your hardware, how to adapt tests written for CUDA without forking them, and what &#8220;green&#8221; is allowed to mean. Those are the right decisions to own, because only the backend can make them. This post describes the mechanisms we built to make them, consisting of an agentic test-selection pipeline, a declarative test-reuse framework, and reliable workflows. These together took <a href="https://github.com/torch-spyre/torch-spyre">Torch Spyre</a> to L2 integration. None of it is Spyre-specific by design, that is the accelerator sits behind the config, not inside the CI logic, so rather than leave these as patterns for each backend to reimplement, we intend to work with the PyTorch team to upstream the reusable parts, with <a href="https://pytorch.org/blog/openreg-a-self-contained-pytorch-accelerator-simulator/">PyTorch OpenReg</a> as the natural reference point.</p>
-<h2>Three Evolving Candidates under Test: OOT Accelerator PyTorch Backend, PyTorch Core, Test Suite</h2>
-<p><!-- IMAGE PLACEHOLDER: Figure 1 - Testing Surface in PyTorch and Torch Spyre (re-upload via WP media library) --></p>
-<p><em><img decoding="async" class="alignnone wp-image-171228 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png" alt="" width="1886" height="828" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-1-1.png 1886w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-300x132.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-1-1-1024x450.png 1024w" sizes="(max-width: 1886px) 100vw, 1886px" /></em></p>
-<p><em>Figure 1: Testing Surface in PyTorch and Torch Spyre</em></p>
-<h3>Challenge 1: Deciding what to test: three moving targets, and which combination to run</h3>
-<p>Often, OOT accelerators have to deal with three evolving candidates to test after receiving a dispatch from <a href="https://pytorch.org/blog/introducing-cross-repository-ci-relay-scalable-ci-for-pytorchs-out-of-tree-backends/">PyTorch CRCR</a>. First, an OOT accelerator PyTorch backend codebase, such as <a href="https://github.com/torch-spyre/torch-spyre">Torch Spyre</a>. As the PyTorch backend for the IBM Spyre Accelerator, Torch Spyre relies on deep integration through PyTorch&#8217;s OOT extension interfaces. This exposes a broad testing surface across hooks into PyTorch core, including operators and runtime behaviour. The second candidate is the PyTorch core itself, where changes to runtime components, or other core functionality can introduce regressions in the OOT backend. Finally, there is the evolving test suite, where tests could have been modified, potentially uncovering regressions. Regressions could be introduced by any of these candidates. Testing the OOT accelerator backend against the PyTorch test suite helps surface regressions across all three candidates.</p>
-<p>Knowing the three candidates leads directly to the next decision: which combination of them to actually run. When a dispatch arrives, the OOT accelerator backend may have progressed since the last one, PyTorch core has new commits, and the test suite itself may have changed. The primary combination is the latest of all three that is the newest backend code, the newest PyTorch core, and the test suite as it stands at the time of the dispatch. That is what makes a regression attributable: when the only thing that moved since the last green run is upstream, a new failure points at upstream.</p>
-<p>Optionally, this can be expanded to include other useful combinations, such as testing a range of OOT accelerator backend versions against a moving PyTorch core and test suite. This can help uncover forward- and backward-compatibility issues for each OOT accelerator backend version. Further, each combination can be reported to HUD as a separate job, making the results and regressions associated with each combination easier to track.</p>
-<h2>Taming the PyTorch Test Suite</h2>
-<h3>Challenge 2: Identifying the candidate tests for your OOT accelerator backend</h3>
-<p><!-- IMAGE PLACEHOLDER: Figure 2 - Agentic Workflow for Test Selection (re-upload via WP media library) --></p>
-<p><em><img decoding="async" class="alignnone wp-image-171231 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-2-1.png" alt="" width="1468" height="520" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-2-1.png 1468w, https://pytorch.org/wp-content/uploads/2026/09/image-2-1-300x106.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-2-1-1024x363.png 1024w" sizes="(max-width: 1468px) 100vw, 1468px" /></em></p>
-<p><em>Figure 2: Agentic Workflow for Test Selection</em></p>
-<p>PyTorch has tens of thousands of tests. Manually identifying which ones are relevant to your backend doesn&#8217;t scale and keeping that selection current as both PyTorch and your backend evolve is worse. Hence, we built an agentic pipeline to do it.</p>
-<p>The pipeline runs in four stages (refer Figure 2). The first two stages build context; the last two make decisions: first from code, then from execution.</p>
-<ol>
-<li>High-level selection. A first agent narrows the search space from the whole test tree to the folders and top-level files worth analysing, using two inputs: which PyTorch extension points the backend actually hooks into, and plain-language preferences about scope. A backend that does not hook <code>torch.dynamo</code>, or that is not ready to take on autograd, says so here and skips those trees entirely.</li>
-<li>Repository memory. A Repository Memory Generator turns that shortlist into a queryable index which includes symbols, files, LLM-written summaries and per-test embeddings. This lets the selection agent in the next phase to reason over the whole candidate set at once instead of being limited to whatever fits in a single context window.</li>
-<li>Low-level selection. The second agent then reads the backend&#8217;s own codebase, its documentation, and metadata (e.g., supported operators), then queries the repository exact tests to run and buckets them into <code>mandatory_success</code> or <code>skip</code>. Every decision is recorded with the reasoning behind it.</li>
-<li>Refinement from real execution. The selected tests run on real hardware. The agent takes a second pass using execution logs that leads to catching runtime failures and numerical differences that static analysis misses. The output is a corrected, re-bucketed test set with updated reasoning.</li>
-</ol>
-<p>This pipeline currently produces a per-file config for each upstream test file we run, covering thousands of individually named test cases, and a merge run exercises them on real hardware. Coverage grows automatically enabling a new op in the backend to admit every test that was waiting on it, with no manual list maintenance.</p>
-<p>Auditability matters: Every bucketing choice is written back into the config as a comment explaining why. When someone asks &#8220;why is this test skipped?&#8221;, the answer is in the file, not in a model&#8217;s memory. The agent proposes; the config is the reviewable artifact of record.</p>
-<p>Furthermore, the agentic pipeline can be customized for specific use cases. Two such use cases are discussed below.</p>
-<h3>Use Case A: Enabling a New Op</h3>
-<p><em>When a new op is enabled in the backend, which tests should I turn on?</em></p>
-<p>This involves preparing a test-to-op mapping, where, for each test, we record the operators it exercises and build a reverse index that maps each operator to the complete list of tests that exercise it. The Repository Memory Generator captures this metadata during a one-time execution pass:</p>
-<ol>
-<li>Eager path: captured via TorchDispatchMode</li>
-<li>Compile path: captured via TORCH_LOGS</li>
-</ol>
-<p>However, the tests captured through this process cannot be added directly to the test suite. Although a test may exercise a desired operator, it may also exercise other PyTorch features that are either not relevant to the OOT accelerator or are not currently supported. Therefore, the operator information, along with the identified test files, is passed to the low-level selection agent. The agent uses this information to further filter the candidates and generate the final set of tests and files that can be added to the test suite.</p>
-<p>Result: Enabling one op surfaces all relevant tests without any manual curation.</p>
-<h3>Use Case B: Upgrading PyTorch Versions</h3>
-<p><em>When upgrading to a new PyTorch version, how can test selection be updated without reprocessing everything?</em></p>
-<p>Across PyTorch versions, the test suite can evolve as new tests are added and existing tests are modified or removed. These changes can be incorporated into the repository memory to reflect the updated test suite. The low-level selection agent can then be run only on the delta that is the newly added and modified tests, to identify the changes relevant to the OOT accelerator and generate a revised test suite. This avoids reprocessing the entire test suite while keeping the selected tests aligned with the updated PyTorch version.</p>
-<p>Result: Version upgrades become config diffs, not full reprocessing. For example, upgrading from PyTorch 2.13 to 2.14 meant evaluating ~4000 changed tests instead of tens of thousands.</p>
-<h3>Challenge 3: Adapting the candidate tests</h3>
-<p>PyTorch tests are often parameterized across dtypes, shapes, and operators. Skipping an entire test because one dtype isn&#8217;t supported is too coarse, in such cases, only that dtype is excluded while the rest run. Deeper adaptations (e.g., removing CUDA-specific hardcoding) traditionally require patching upstream. To avoid that, Torch Spyre maintains a declarative test reuse framework that expresses all adaptations through YAML config.</p>
-<p>The framework provides three controls:</p>
-<ol>
-<li>Parameter-level knobs: Subselect dtypes, exclude specific shapes, add coverage for a dtype of interest.</li>
-<li>Outcome bucketing: Assign each test to mandatory_success (must pass), xfail (expected to fail), xfail_strict (expected to fail, and an unexpected pass is treated as failure), or skip.</li>
-<li>Capability-driven inclusion: Declare supported ops/dtypes globally; enabling a new op automatically admits all tests waiting on it.</li>
-</ol>
-<p>Concretely, this is what the declarative interface looks like in practice. A file entry sets a default policy for anything not explicitly listed, then lists tests in buckets, and an edits: block adapts individual cases without touching upstream source:</p>
-<pre><code class="language-yaml">test_suite_config:
-  labels: [trunk]
-  files:
-    - path: ${TORCH_ROOT}/test/test_view_ops.py
-      unlisted_test_mode: skip        # default policy for unlisted tests
-      tests:
-        # Basic tensor metadata manipulation which is fully supported on Spyre.
-        - names:
-            - TestOldViewOps::test_broadcast_tensors
-            - TestViewOps::test_contiguous_self
-          mode: mandatory_success
-        # bool/int64 fail only because test setup uses aten::random_.from.
-        - names:
-            - TestOldViewOps::test_broadcast_to
-          mode: mandatory_success
-          edits:
-            dtypes:
-              exclude:
-                - name: bool
-                - name: int64
-  global:
-    supported_dtypes: [{name: bfloat16}, {name: float16}, {name: float32}]
-    supported_ops:
-      - name: _scaled_mm
-        dtypes: [{name: bfloat16}]
-</code></pre>
-<p>Given these additional user-facing controls, the agentic workflow can be extended to generate the corresponding configuration files that can be consumed by the OOT test reuse framework. The low-level agent along with test repository memory can then capture not only test outcomes (e.g., <code>mandatory_success</code>), but also identify supported dtypes and other test parameters, enabling tests to be bucketed at the individual test-case level.</p>
-<p>Four properties of the schema do most of the work:</p>
-<ol>
-<li>A declared default. <code>unlisted_test_mode</code> sets the outcome for anything unlisted, so a test added upstream tomorrow has a defined result instead of breaking CI the day it lands.</li>
-<li>Four outcome buckets. <code>mandatory_success</code>, <code>xfail</code>, <code>xfail_strict</code> and <code>skip</code>. The strict variant earns its place: an unexpected pass surfaces as a signal to promote the test, not silence.</li>
-<li>Per-case adaptation. <code>edits:</code> applies to individual dtypes, ops and modules, so an unsupported dtype costs one dtype rather than the whole test.</li>
-<li>Capability declared once. <code>global.supported_ops</code> and <code>supported_dtypes</code> are declared per file, so enabling an operator in the backend is a one-line change that admits every test waiting on it.</li>
-</ol>
-<p>How it works: The framework patches upstream&#8217;s <code>@ops</code>, <code>@modules</code>, and <code>@dtypes</code> decorators at collection time, emitting pytest marks (<code>op__</code>, <code>dtype__</code>). This means the same config drives both adaptation and selection: <code>-m op__add</code> runs exactly the tests exercising that operator.</p>
-<p>Key guarantee: The upstream test tree stays pristine. No patches against PyTorch&#8217;s tests. A version bump becomes a config delta, not a merge conflict. The framework targets the generic privateuse1 device, so nothing is hardware-specific.</p>
-<h2>CRCR Integration into Existing Workflows</h2>
-<p><!-- IMAGE PLACEHOLDER: Figure 3 - Workflow with CRCR Integration for Torch Spyre (re-upload via WP media library) --></p>
-<p><em><img decoding="async" class="alignnone wp-image-171232 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-3-1-scaled.png" alt="" width="2560" height="1147" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-3-1-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/09/image-3-1-300x134.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-3-1-1024x459.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></em></p>
-<p><em>Figure 3: Workflow with CRCR Integration for Torch Spyre</em></p>
-<h3>Challenge 4: Consuming the dispatch: gate on the payload, resolve the SHA yourself</h3>
-<table>
-<thead>
-<tr>
-<th>Dispatch Field</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SHA</td>
-<td>Identifies the exact upstream commit to validate.</td>
-</tr>
-<tr>
-<td>PR Number</td>
-<td>Associates downstream test results with a specific upstream PR.</td>
-</tr>
-<tr>
-<td>Action</td>
-<td>Specifies whether the PR was opened, updated (synchronize), or closed/merged.</td>
-</tr>
-<tr>
-<td>Base Branch (<code>pull_request.base.ref</code>)</td>
-<td>Identifies the target branch and enables filtering for main and release branches such as <code>release/{version}</code>.</td>
-</tr>
-<tr>
-<td>PR Label (<code>pull_request.labels</code>)</td>
-<td>Labels used with the pull request. Can be used to identify merged PRs through label &#8220;Merged&#8221;.</td>
-</tr>
-</tbody>
-</table>
-<p><em>Table 1: Key Dispatch Fields</em></p>
-<p>Integrating CRCR starts with consuming the dispatch from PyTorch. The dispatch payload contains key pieces of information as shown in the Table 1. Dispatches can be filtered by consuming these pieces of information for various use cases. Filtering dispatches for pull requests merged to main requires action to be closed with a merge signal and base branch as main. The merge signal is indirect. PyTorch doesn&#8217;t use GitHub&#8217;s merge button that means PRs are closed, then PyTorchBot squash-merges and applies a &#8220;Merged&#8221; label. So detecting a landed PR requires checking for that label:</p>
-<pre><code class="language-bash">HAS_MERGED=$(echo "$PAYLOAD_JSON" | jq -r '.payload.pull_request.labels // [] | map(.name) | index("Merged") // ""')
-</code></pre>
-<p>Edge case: A race condition can cause the label to be applied after the dispatch, or a manual merge may skip the label entirely. Defensive handling (e.g., polling or a fallback heuristic) may be needed for critical workflows.</p>
-<p>Apart from this dispatch-driven use case, there are two other use cases that may be of interest to OOT accelerators: testing against PyTorch nightly builds and testing against PyTorch releases.</p>
-<h3>Use Case C: Nightly Testing</h3>
-<p>CRCR doesn&#8217;t dispatch for nightlies, but HUD supports reporting nightly results. The workflow runs on a schedule and resolves the SHA directly as below:</p>
-<pre><code class="language-bash">NIGHTLY_SHA=$(curl -fsSL "https://api.github.com/repos/pytorch/pytorch/commits?sha=nightly&amp;per_page=1" | jq -r '.[0].sha // empty')
-
-if [ -z "${NIGHTLY_SHA}" ]; then
-  echo "::error::Could not resolve HEAD for pytorch/pytorch/nightly"
-  exit 1
-fi
-
-COMMIT_MSG=$(curl -fsSL "https://api.github.com/repos/pytorch/pytorch/commits/${NIGHTLY_SHA}" | jq -r '.commit.message')
-
-SOURCE_SHA=$(echo "$COMMIT_MSG" | grep -oP '\(([a-f0-9]{40})\)' | tr -d '()')
-
-if [ -z "${SOURCE_SHA}" ]; then
-  echo "::error::Could not extract source SHA from latest nightly commit"
-  exit 1
-fi
-
-echo "Resolved pytorch/pytorch@nightly -&gt; source ${SOURCE_SHA}"
-</code></pre>
-<h3>Use Case D: Release Testing</h3>
-<p>No dispatch is sent when a PyTorch release is published. Release testing is triggered manually via workflow_dispatch, passing the release branch (e.g., release/v2.14). SHA resolution follows the same pattern as nightly.</p>
-<p>Note: HUD does not currently have a dedicated view for release test results.</p>
-<h3>Challenge 5: Enhancing workflow efficiency: test splitting, parallelization, and build-once-test-many</h3>
-<p>Thousands of tests need to run fast. Splitting happens at three levels:</p>
-<ol>
-<li>Feature-level: Group tests by area (Inductor, operators, eager, etc.)</li>
-<li>Duration-constrained: Subdivide each feature group to stay under a max job duration (e.g., 30 min)</li>
-<li>Balanced bucketing: Distribute individual tests across splits to avoid stragglers</li>
-</ol>
-<p>Building this requires a one-pass timing run to measure per-test and per-feature durations. The result: parallel jobs that finish together, not one job holding up the rest.</p>
-<p>Build-once, test-many: Build PyTorch and backend wheels once, publish as workflow artifacts, consume across all test splits. This avoids redundant builds and guarantees all jobs test the same artifacts.</p>
-<h3>Challenge 6: Enhancing workflow reliability</h3>
-<p><!-- IMAGE PLACEHOLDER: Figure 4 - Retry Patterns for Workflow Resilience (re-upload via WP media library) --></p>
-<p><em><img decoding="async" class="alignnone wp-image-171235 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/image-4-1.png" alt="" width="1374" height="822" srcset="https://pytorch.org/wp-content/uploads/2026/09/image-4-1.png 1374w, https://pytorch.org/wp-content/uploads/2026/09/image-4-1-300x179.png 300w, https://pytorch.org/wp-content/uploads/2026/09/image-4-1-1024x613.png 1024w" sizes="(max-width: 1374px) 100vw, 1374px" /></em></p>
-<p><em>Figure 4: Retry Patterns for Workflow Resilience</em></p>
-<p>The final state of the workflow in HUD should focus on surfacing regressions introduced by the evolving PyTorch and OOT accelerator codebases, rather than workflow stability failures such as transient infrastructure issues that may not be meaningful to the broader community.</p>
-<p>While infrastructure and platform layers could be equipped with multiple reliability measures to improve workflow stability, developers can further strengthen the workflow by adopting additional reliability patterns, as shown in Table 2. The patterns listed here are not intended to be exhaustive, but provide a practical baseline for OOT accelerators to build reliable CRCR workflows.</p>
-<table>
-<thead>
-<tr>
-<th>Reliability Dimension</th>
-<th>Pattern</th>
-<th>Impact from CRCR PoV</th>
-<th>Implementation Detail</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Fault tolerance</td>
-<td>Parallel and isolated execution pattern</td>
-<td>Non-faulty test jobs continue to complete and report their status even when another job fails.</td>
-<td>GitHub Actions matrix jobs with pods/containers at the platform layer for execution isolation.</td>
-</tr>
-<tr>
-<td>Fault tolerance</td>
-<td>Continue on error pattern</td>
-<td>Failures in non-critical paths do not cause the overall workflow to be reported as failed in HUD.</td>
-<td>Use GitHub Actions <code>continue-on-error</code> for non-critical jobs or steps.</td>
-</tr>
-<tr>
-<td>Resilience</td>
-<td>Retry pattern</td>
-<td>Transient failures can be recovered without surfacing persistent failures in HUD.</td>
-<td>As shown in Figure 4, use workflow-level retries and finer-grained in-job retries based on test logs and failure heuristic.</td>
-</tr>
-<tr>
-<td>Resilience</td>
-<td>Logging and failure classification</td>
-<td>Distinguishes actionable test regressions from transient infrastructure or platform failures not recoverable from retry pattern.</td>
-<td>Verbose logging with summaries can help classify failures (that passed through retry pattern) and act for recovery.</td>
-</tr>
-<tr>
-<td>Consistency</td>
-<td>Build-once, use-many</td>
-<td>Parallel jobs test the same PyTorch and OOT accelerator artifacts, reducing inconsistencies across splits.</td>
-<td>Build wheels once, publish them as GitHub workflow artifacts, and consume the same artifacts across all test jobs.</td>
-</tr>
-</tbody>
-</table>
-<p><em>Table 2: Workflow Reliability Patterns</em></p>
-<h3>Challenge 7: CRCR Callbacks with Matrix Jobs</h3>
-<p>Github provides the ability to run a set of jobs based on a combination of variables and refers to that as a matrix strategy. Individual jobs as part of a matrix strategy are called legs.</p>
-<p>The constraint: A matched in_progress/completed callback pair must originate from the same job. CRCR uses check_run_id to track retries, and each matrix leg gets its own check_run_id. This means callbacks cannot be sent from a parent job that spawns a matrix.</p>
-<p>Two workarounds:</p>
-<p>Option A: Per-leg callbacks. Each matrix job sends its own in_progress and completed. Simple, but can clutter HUD for large matrices and may not be ideal for dynamic jobs.</p>
-<p>Option B: Dispatch + poll. The parent job dispatches a separate workflow containing the matrix, then polls for completion. This pattern also applies to heterogeneous CI such as triggering Jenkins or other platforms from a GitHub Actions parent job.</p>
-<h3>Challenge 8: Making a run reproducible weeks later</h3>
-<p>Debugging a failure from two weeks ago requires knowing exactly what ran. Capture this metadata as workflow artifacts:</p>
-<ol>
-<li>Dispatch payload (PR number, SHA, action)</li>
-<li>PyTorch and backend wheel versions (or commit SHAs)</li>
-<li>Runtime environment (Python, CUDA, OS, CPU arch)</li>
-<li>Per-test results (pass/fail/skip, duration)</li>
-</ol>
-<p>Combined with build-once artifacts, this ensures any run can be reproduced or bisected weeks later.</p>
-<h2>Conclusion</h2>
-<p>CRCR handles distribution and reporting. The decisions it leaves to the downstream repo are the right ones to own: which dispatches matter, which tests are meaningful, and what &#8220;green&#8221; means on a given platform.</p>
-<p>Owning those decisions meant keeping three moving targets in sync: the backend, PyTorch core, and the test suite. That&#8217;s where the engineering in this post went: an agentic test-selection pipeline, a declarative test-reuse framework, build-once-promote-many, and layered retries.</p>
-<p>None of this is hardware-specific. The test-reuse framework targets the generic privateuse1 device. We intend to work with the PyTorch team to upstream it — most naturally alongside Torch OpenReg, the in-tree reference backend that accelerator authors already use to learn the extension points.</p>
-<p>If any of these patterns would help your integration, we&#8217;d like to hear which ones matter most before shaping that proposal. Reach out by opening an issue at <a href="https://github.com/torch-spyre/torch-spyre">torch-spyre/torch-spyre</a>.</p>
-<h2>Acknowledgements</h2>
-<p>We would like to thank the IBM Spyre Team for their support in this effort.</p>
-<p>The post <a href="https://pytorch.org/blog/from-upstream-changes-to-downstream-confidence-inside-torch-spyres-integration-with-pytorch-crcr/">From Upstream Changes to Downstream Confidence: Inside Torch Spyre&#8217;s Integration with PyTorch CRCR</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4643 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1450747 metric#prefetches=246 metric#store-reads=36 metric#store-writes=12 metric#store-hits=255 metric#store-misses=15 metric#sql-queries=24 metric#ms-total=518.08 metric#ms-cache=28.71 metric#ms-cache-avg=0.6109 metric#ms-cache-ratio=5.5 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4699 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1473116 metric#prefetches=254 metric#store-reads=36 metric#store-writes=13 metric#store-hits=263 metric#store-misses=15 metric#sql-queries=24 metric#ms-total=546.49 metric#ms-cache=24.78 metric#ms-cache-avg=0.5163 metric#ms-cache-ratio=4.5 sample#redis-hits=579494671 sample#redis-misses=126557188 sample#redis-hit-ratio=82.1 sample#redis-ops-per-sec=734 sample#redis-evicted-keys=1414838 sample#redis-used-memory=961819512 sample#redis-used-memory-rss=1063944192 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=3 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=844733 -->
