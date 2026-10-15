@@ -1,5 +1,427 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 13 Oct 2026 17:06:10 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Gemini 4 Argon available on Google Cloud, built to help solve your business’ hardest problems</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Last week we announced that Gemini Enterprise has evolved to make it even simpler to get work done, and introduced the &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini agent&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, your new universal agent for work. It's always on and ready to answer your questions. It will write code, complete longer and more complex tasks, or perform whatever you need to get the job done, all from a single prompt box. And model intelligence underpins it all.&lt;/span&gt;&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Wed, 14 Oct 2026 16:00:07 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Predictable AI spend in BigQuery: Introducing cost management for generative AI functions</title><link>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/generative-ai-overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;generative AI functions in BigQuery&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (&lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.GENERATE&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.IF&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.CLASSIFY&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.SCORE&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, and more) bring large language models (LLMs) directly into your SQL, so a single query can classify millions of support tickets or score each product review for sentiment. However, because these functions are billed by the token, scaling them across massive datasets highlights the importance of managing your budget proactively. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We recently announced the general availability (GA) of &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;token-based &lt;/strong&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;cost management&lt;/strong&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt; for BigQuery generative AI functions&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;: daily quotas that let administrators set self-serve guardrails on AI token consumption, so teams can innovate while staying within your budget. In this blog, we provide an overview of cost management for BigQuery generative AI functions, walk through a few practical examples, and share resources to help you get started. Let’s jump in.  &lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Quotas for managing costs&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Four daily quotas, managed through the Google Cloud Identity and Access Management (IAM) quota system, provide controls at the &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;project&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; level and the &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;per-user&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; level. Per-user limits apply to each user within a project, not across your organization.&lt;br/&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;div align="left"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;&lt;table&gt;&lt;colgroup&gt;&lt;col/&gt;&lt;col/&gt;&lt;col/&gt;&lt;col/&gt;&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Quota name&lt;/strong&gt;&lt;/p&gt;
+&lt;/th&gt;
+&lt;th scope="col" style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Metric&lt;/strong&gt;&lt;/p&gt;
+&lt;/th&gt;
+&lt;th scope="col" style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Scope&lt;/strong&gt;&lt;/p&gt;
+&lt;/th&gt;
+&lt;th scope="col" style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Default value&lt;/strong&gt;&lt;/p&gt;
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day&lt;/strong&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Input tokens used by the LLM&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Per day, per project&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;200 billion&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day per user&lt;/strong&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Input tokens used by the LLM&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Per day, per project, per user&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;150 billion&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;AI output tokens per day&lt;/strong&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Output and thinking tokens used by the LLM&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Per day, per project, per project&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;20 billion&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;AI output tokens per day per user&lt;/strong&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Output and thinking tokens used by the LLM&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Per day, per project, per user&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;15 billion&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Key details:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;The quotas are global.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Usage is summed across all regions, so costs can't pile up unnoticed in a region you weren't watching.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Output quotas include "thinking" tokens.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Reasoning tokens count toward your output quota, just as they count toward your Gemini platform bill.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Which functions are covered?&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The quotas apply to these BigQuery functions that perform LLM-backed generation:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-generate"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.GENERATE&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-generate-table"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.GENERATE_TABLE&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-generate-text"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.GENERATE_TEXT&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (and its alias &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-generate-text"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;ML.GENERATE_TEXT&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;)&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-classify"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.CLASSIFY&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-if"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.IF&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-score"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.SCORE&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-agg"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.AGG&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;What's not covered:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Embedding functions such as &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-generate-text"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.GENERATE_EMBEDDING&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (also available as &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-generate-embedding"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;ML.GENERATE_EMBEDDING&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;) and &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-embed"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.EMBED&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; are &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;not&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; subject to these quotas, because they run on different, substantially cheaper models.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Managing your quotas&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Administrators can view and adjust the quotas directly in the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud console&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; as workloads change, with no support case required.&lt;/span&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Navigate to &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;IAM &amp;amp; Admin → &lt;/strong&gt;&lt;a href="https://console.cloud.google.com/iam-admin/quotas/list"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Quotas &amp;amp; System Limits&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Filter by service and select &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;BigQuery API&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Sort by the &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Name&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; column to bring the four AI quotas to the top.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_dxxy8WS.max-1000x1000.png"
+        
+          alt="1"&gt;
+        
+        &lt;/a&gt;
+      
+        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="w7qjz"&gt;Locating the gen AI token quotas in IAM &amp;amp; Admin → Quotas &amp;amp; System Limits.&lt;/p&gt;&lt;/figcaption&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;4. Find the quota, for example &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;5. Open the three-dot menu and choose &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Edit quota&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;From there:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;To tighten cost control,&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; lower a quota. This takes effect immediately with no approval needed.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;To support higher usage,&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; request an increase from the same page. Many requests are auto-approved; larger increases may go through a quick review.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/2_7NmvWbT.max-1000x1000.png"
+        
+          alt="2"&gt;
+        
+        &lt;/a&gt;
+      
+        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="w7qjz"&gt;Editing a gen AI token quota in IAM &amp;amp; Admin → Quotas &amp;amp; System Limits.&lt;/p&gt;&lt;/figcaption&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;You'll need the right permissions.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; You need one of: &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Owner&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Editor, &lt;/strong&gt;&lt;a href="https://docs.cloud.google.com/iam/docs/roles-permissions/servicemanagement#servicemanagement.quotaAdmin"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Quota Administrator&lt;/strong&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt; &lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;(&lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;roles/servicemanagement.quotaAdmin&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;), or &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/iam/docs/roles-permissions/serviceusage#serviceusage.serviceUsageAdmin"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Service Usage Admin&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (&lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;roles/serviceusage.serviceUsageAdmin&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;).&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Prefer automation?&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; You can also &lt;/span&gt;&lt;a href="https://medium.com/google-cloud/bigquery-ai-cost-guardrails-how-to-set-daily-token-limits-programmatically-02d7a35f843a" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;manage these quotas programmatically&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; through the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/docs/quotas"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Cloud Quotas API&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, the &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gcloud&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; CLI, and Terraform to apply consistent guardrails across projects.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Monitoring usage&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Beyond setting limits, the &lt;/span&gt;&lt;a href="https://console.cloud.google.com/iam-admin/quotas/list"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Quotas &amp;amp; System Limits&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; page displays your historical token consumption so you can quickly detect spikes and right-size your budgets. Use these trends to see how new generative AI workloads and data pipelines affect your overall token usage.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/3_sSNHw57.max-1000x1000.png"
+        
+          alt="3"&gt;
+        
+        &lt;/a&gt;
+      
+        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="w7qjz"&gt;Daily project-level token usage for a gen AI token quota in IAM &amp;amp; Admin → Quotas &amp;amp; System Limits.&lt;/p&gt;&lt;/figcaption&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/4_iYgfR4l.max-1000x1000.png"
+        
+          alt="4"&gt;
+        
+        &lt;/a&gt;
+      
+        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="w7qjz"&gt;Longer-term usage graph with selectable 7-day, 14-day, 30-day, and custom ranges.&lt;/p&gt;&lt;/figcaption&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For a step-by-step walkthrough, see the BigQuery documentation on &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;controlling costs with token quotas&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Token quotas vs. billing spend caps&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Token quotas aren't the only cost guardrail in Google Cloud.&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Token quotas (this feature)&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; are &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;preventive&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;AI-specific&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;. BigQuery tracks token usage during query execution and stops work close to the limit, with separate limits per project and per user.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Cloud Billing &lt;/strong&gt;&lt;a href="https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps#eligible-services"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;spend caps&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; operate on &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;dollars&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; at the project and service level and can automatically block usage when a threshold is reached. They're a broad, financial backstop rather than a precise usage control, and because enforcement is not instant, some overages are incurred.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Use token quotas as your first line of defense for AI spend, and a spend cap as a project-wide safety net.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;How enforcement works&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Quotas are enforced by stopping work rather than letting a query run past your limit. A query is rejected up front with a &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;QuotaExceeded&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; error only if a quota it needs is already exhausted. Otherwise, it starts, and if a quota runs out mid-query, BigQuery stops sending new LLM calls:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Functions that support &lt;/strong&gt;&lt;code&gt;&lt;strong style="vertical-align: baseline;"&gt;max_error_ratio&lt;/strong&gt;&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; (such as &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.IF&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;) return partial results if unprocessed rows stay within the ratio, and otherwise fail.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;General-purpose functions&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; (such as &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.GENERATE&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;) still succeed. Skipped rows have no generated value, and their &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;status&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; field contains the quota-exceeded error.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For details, see &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs#quota_enforcement_behavior"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;quota enforcement behavior&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; in the documentation.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Sizing your input data: &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To choose quota values, it helps to know how much text your workloads send to a model. The &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-count-tokens"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; function helps with this.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code style="vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; returns the number of tokens a model's tokenizer produces for a text string, without making a billable generation call. Run it over a column to measure your input data:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-code"&gt;&lt;dl&gt;
+    &lt;dt&gt;code_block&lt;/dt&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37f5512f90&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+&lt;/dl&gt;&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The count is a lower bound on input tokens. It doesn't include output or thinking tokens, the instructions each AI function adds around your input, or non-text inputs such as images. Use it to:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Gauge the input side of a workload&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; before you launch it.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Right-size your quotas&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; together with a small sample run that measures actual input and output usage.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Translate tokens into dollars&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; using the published &lt;/span&gt;&lt;a href="https://cloud.google.com/vertex-ai/generative-ai/pricing"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini platform pricing&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; for your model.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;From tokens to budget: a worked example&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Suppose you want to keep a project's daily AI spend around &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;$100&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; with the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.1 Flash-Lite&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; model. As of today's published pricing (BigQuery processes in batch which provides a 50% discount):&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Input tokens:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; $0.125 per 1 million tokens&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Output tokens (response + reasoning):&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; $0.75 per 1 million tokens&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If a small sample run shows an average &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;100:1 input-to-output token ratio&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, you can solve for a daily budget:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-code"&gt;&lt;dl&gt;
+    &lt;dt&gt;code_block&lt;/dt&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37f6b247d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+&lt;/dl&gt;&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Solving gives about &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;754 million input tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;7.54 million output tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; per day. Set &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI output tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; to these values to hold the project near $100/day. If a project uses models with different prices, budget per model or blend the rates.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Best practices for managing AI cost&lt;/span&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Start with per-user quotas.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; They stop one user or runaway experiment from draining the project's budget.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Measure before you scale.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Use &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; to size your input, then check a small sample run in the usage chart before setting limits.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Mind the output side.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Output tokens cost more. Where a function accepts &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;max_output_tokens&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, set it to bound generation length.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Monitor and iterate.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Adjust limits as real usage and budgets change.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Get started&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Token-based cost management is available now. To begin:&lt;/span&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Open &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;IAM &amp;amp; Admin → &lt;/strong&gt;&lt;a href="https://console.cloud.google.com/iam-admin/quotas/list"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Quotas &amp;amp; System Limits&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; in the Google Cloud Console and filter by &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;BigQuery API&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Review the four &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI-related&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;token quotas&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and set limits that match your budget.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Use &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/bigqueryml-syntax-ai-count-tokens"&gt;&lt;code style="text-decoration: underline; vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to size your input data.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For the full details, see the documentation on &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;controlling generative AI costs&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;With token-based guardrails in place, your teams can use generative AI in BigQuery with the cost predictability your organization needs.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 14 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</guid><category>AI &amp; Machine Learning</category><category>BigQuery</category><category>Data Analytics</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Predictable AI spend in BigQuery: Introducing cost management for generative AI functions</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Tushar Jaiswal</name><title>Software Engineer</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Alicia Williams</name><title>Developer Advocate</title><department></department><company></company></author></item><item><title>Gemini 4 Argon available on Google Cloud, built to help solve your business’ hardest problems</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Last week we announced that Gemini Enterprise has evolved to make it even simpler to get work done, and introduced the &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini agent&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, your new universal agent for work. It's always on and ready to answer your questions. It will write code, complete longer and more complex tasks, or perform whatever you need to get the job done, all from a single prompt box. And model intelligence underpins it all.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To enable a new frontier of work, we are making our new frontier model, &lt;/span&gt;&lt;a href="https://deepmind.google/models/gemini/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 4 Argon&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, available on Google Cloud. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We trained Argon to work with both depth and precision, which allows it to maintain context across long, multi-step tasks which are reinforced with strong domain expertise along the way. Whether your team is running complex software builds, handling detailed financial and legal work, or deploying cybersecurity tools like &lt;/span&gt;&lt;a href="https://cloud.google.com/security/codemender"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;CodeMender&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, Argon helps your teams maintain focus from start to finish.&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-image_full_width"&gt;
@@ -977,7 +1399,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Integrating cloud management into your agents no longer requires packaging Google Cloud CLI binaries, managing local execution runtimes, or maintaining dependencies inside agent container images. Because the Google Cloud CLI remote MCP server implements the standard Model Context Protocol, any MCP-compatible agent platform or orchestration runtime can connect immediately via standard configuration:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;{\r\n  &amp;quot;mcpServers&amp;quot;: {\r\n    &amp;quot;google-cloud-cli&amp;quot;: {\r\n      &amp;quot;uri&amp;quot;: &amp;quot;https://cloudcli.googleapis.com/mcp&amp;quot;,\r\n      ...\r\n    }\r\n  }\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe8451b12d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;{\r\n  &amp;quot;mcpServers&amp;quot;: {\r\n    &amp;quot;google-cloud-cli&amp;quot;: {\r\n      &amp;quot;uri&amp;quot;: &amp;quot;https://cloudcli.googleapis.com/mcp&amp;quot;,\r\n      ...\r\n    }\r\n  }\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37eb452010&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Your agent immediately gains access to execute gcloud and bq commands in a secure, network-isolated cloud sandbox.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Authentication is handled via keyless Agent Identity for hosted Google Cloud platforms, or standard OAuth 2.0 for external runtimes. For authentication options, see the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;MCP Authentication Guide&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
@@ -1191,7 +1613,7 @@
 &lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Redirect your runway:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Take the capital and engineering hours you save on compute and invest them back into your core differentiators.&lt;/span&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;You can download the Gemma weights directly or deploy them through Model Garden. If you need compute credits and technical architecture reviews to get up and running, the Google for Startups team is ready to help you build - &lt;/span&gt;&lt;a href="https://startup.google.com/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;learn more&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Mon, 28 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/why-your-startup-needs-open-models-alongside-frontier-apis/</guid><category>AI &amp; Machine Learning</category><category>Open Source</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/open-models-for-startups-gemma-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Why your startup needs open models alongside frontier APIs</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/open-models-for-startups-gemma-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/why-your-startup-needs-open-models-alongside-frontier-apis/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Darren Mowry</name><title>VP, Global Startups and Investor Ecosystem, Google</title><department></department><company></company></author></item><item><title>Best practices guide for customizing Gemini models via Reinforcement Learning (RL)</title><link>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Reinforcement learning (RL) has been a keystone of modern LLM post-training, but it demands large training clusters and access to model internals that external customers can't have with proprietary models like Gemini. So here at Google Cloud, we packaged it into &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;a managed RL fine-tuning service (RLFT service) &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;— you bring prompts and a reward function; we handle the infrastructure and the proprietary model internals. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;You can download the Gemma weights directly or deploy them through Model Garden. If you need compute credits and technical architecture reviews to get up and running, the Google for Startups team is ready to help you build - &lt;/span&gt;&lt;a href="https://startup.google.com/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;learn more&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Mon, 28 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/why-your-startup-needs-open-models-alongside-frontier-apis/</guid><category>AI &amp; Machine Learning</category><category>Open Source</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/open-models-for-startups-gemma-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Why your startup needs open models alongside frontier APIs</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/open-models-for-startups-gemma-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/why-your-startup-needs-open-models-alongside-frontier-apis/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Darren Mowry</name><title>VP, Global Startups &amp; Investor Ecosystem, Google</title><department></department><company></company></author></item><item><title>Best practices guide for customizing Gemini models via Reinforcement Learning (RL)</title><link>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Reinforcement learning (RL) has been a keystone of modern LLM post-training, but it demands large training clusters and access to model internals that external customers can't have with proprietary models like Gemini. So here at Google Cloud, we packaged it into &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;a managed RL fine-tuning service (RLFT service) &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;— you bring prompts and a reward function; we handle the infrastructure and the proprietary model internals. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Now, you can adapt Gemini with the service — teaching the model from a reward signal you define, rather than from a fixed set of labeled answers. This unlocks a class of problems that supervised fine-tuning (SFT) struggles with: tasks that are hard to demonstrate but easy to score.  &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In this guide, we will walk through practical best practices for using RL fine-tuning service. We'll start with a short tour of the RL training loop, how to decide if and when to use RL, and introduce how to get the most value from this approach.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;What is RLFT? &lt;/span&gt;&lt;/h3&gt;
@@ -1998,7 +2420,7 @@
 &lt;li role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;a href="https://scifin.ai/" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;SciFin&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is a startup that helps revenue teams uncover "revenue reality" by converging fragmented sales context across CRM systems, documents, emails, and other sources. They are utilizing Gemini models, infrastructure, and Gemini Enterprise to build and run their platform.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;These new and expanding customers represent some of the most exciting names in AI and are demonstrative of the type of successes that startups are having with Google Cloud’s uniquely complete stack for building AI.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about Google Cloud’s work with leading AI startups, or to get started building with us, visit &lt;/span&gt;&lt;a href="https://cloud.google.com/startup"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 24 Sep 2026 13:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</guid><category>AI &amp; Machine Learning</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>The three things today's hottest startups are looking for in their AI stack</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Darren Mowry</name><title>VP, Global Startups and Investor Ecosystem, Google</title><department></department><company></company></author></item><item><title>Changing the game: Using agentic AI to secure infrastructure code</title><link>https://cloud.google.com/blog/topics/systems/using-ai-agents-to-secure-google-infrastructure/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;Blog authors: &lt;em&gt;Andrés Lagar-Cavilla, Distinguished Engineer; Stella Voutsina, Sr. Technical Program Manager; Parthasarathy Ranganathan, VP, Engineering Fellow&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about Google Cloud’s work with leading AI startups, or to get started building with us, visit &lt;/span&gt;&lt;a href="https://cloud.google.com/startup"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 24 Sep 2026 13:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</guid><category>AI &amp; Machine Learning</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>The three things today's hottest startups are looking for in their AI stack</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Darren Mowry</name><title>VP, Global Startups &amp; Investor Ecosystem, Google</title><department></department><company></company></author></item><item><title>Changing the game: Using agentic AI to secure infrastructure code</title><link>https://cloud.google.com/blog/topics/systems/using-ai-agents-to-secure-google-infrastructure/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;Blog authors: &lt;em&gt;Andrés Lagar-Cavilla, Distinguished Engineer; Stella Voutsina, Sr. Technical Program Manager; Parthasarathy Ranganathan, VP, Engineering Fellow&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;AI is accelerating software development at an unprecedented pace. But as code generation scales, so do the challenges of securing the code, especially emerging AI-based vulnerability exploitations. To meet these challenges, the Google AI and Infrastructure team is transforming how we approach security. In this article, we discuss new AI-native agentic methods that we’ve developed that systematically embed high-precision, pervasive vulnerability scanning and patching directly into Google’s software development lifecycle. By continuously scanning every code change across hundreds of millions of lines of code that we deploy onto our infrastructure, we are preventing hundreds of vulnerabilities per month from ever reaching our code base or production, defending our global network, AI infrastructure and our users. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Solution architecture and implementation &lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-image_full_width"&gt;
@@ -2163,7 +2585,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Orange's numbers came out of the community work. Building that foundation is the part worth copying first. When you're ready to extend it, &lt;/span&gt;&lt;a href="https://cloud.google.com/consulting" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud Consulting&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; can help you shape the community practice, and the Gemini Enterprise App is a low-lift way to put your first read-only agent in front of your teams.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 16 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Google Cloud Consulting</category><category>Telecommunications</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/orange-finops-shared-responsibility.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>How Orange built FinOps accountability, and why agents are next</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/orange-finops-shared-responsibility.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Samuel Moss</name><title>AI Transformation and FinOps Consultant, Google</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Celine Devie</name><title>AI Transformation Consultant, Google</title><department></department><company></company></author></item><item><title>Cloud CISO Perspectives: How Google monitors AI threats and advances AI defenses</title><link>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-monitors-ai-threats-advances-ai-defenses/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="eucpw"&gt;Welcome to the first Cloud CISO Perspectives for September 2026. Today, Sandra Joyce shares the latest details on Google’s visibility into how attackers are using AI, and how we’re using AI to stop them.&lt;/p&gt;&lt;p data-block-key="8i90k"&gt;As with all Cloud CISO Perspectives, the contents of this newsletter are posted to the &lt;a href="https://cloud.google.com/blog/products/identity-security/"&gt;Google Cloud blog&lt;/a&gt;. If you’re reading this on the website and you’d like to receive the email version, you can &lt;a href="https://cloud.google.com/resources/google-cloud-ciso-newsletter-signup"&gt;subscribe here&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Get vital board insights with Google Cloud&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe8466b8e90&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Visit the hub&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://cloud.google.com/solutions/security/board-of-directors?utm_source=cgc-site&amp;amp;utm_medium=et&amp;amp;utm_campaign=FY26-Q2-GLOBAL-GCP39634-email-dl-dgcsm-CISOP-NL-177159&amp;amp;utm_content=-&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Get vital board insights with Google Cloud&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37f44e3510&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Visit the hub&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://cloud.google.com/solutions/security/board-of-directors?utm_source=cgc-site&amp;amp;utm_medium=et&amp;amp;utm_campaign=FY26-Q2-GLOBAL-GCP39634-email-dl-dgcsm-CISOP-NL-177159&amp;amp;utm_content=-&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="hswvv"&gt;&lt;b&gt;‘Spellcheck for cybersecurity’ and beyond: How Google monitors AI threats and advances AI defenses&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="61crd"&gt;&lt;i&gt;By Sandra Joyce, VP, Google Threat Intelligence&lt;/i&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
@@ -2366,12 +2788,12 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about our approach to securing the AI era, please check out our new &lt;/span&gt;&lt;a href="https://cloud.google.com/security/resources/ai-risk-and-resilience-2026"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Mandiant AI Risk and Resilience report&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Learn something new&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe84548ebd0&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Watch now&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://x.com/googlecloud/status/2090213589558698309?s=20&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: Cloud-CISO-Perspectives-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Learn something new&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37ebfc1750&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Watch now&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://x.com/googlecloud/status/2090213589558698309?s=20&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: Cloud-CISO-Perspectives-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="4bd61"&gt;&lt;b&gt;In case you missed it&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="cvt34"&gt;Here are the latest updates, products, services, and resources from our security teams so far this month:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="7litu"&gt;&lt;b&gt;A manufacturing blueprint for secure agentic AI&lt;/b&gt;: AI and agents have arrived on the factory floor. Today’s CISOs and business leaders must balance innovation with precision, physical safety, and operational resilience. &lt;a href="https://cloud.google.com/transform/a-manufacturing-blueprint-for-secure-agentic-ai"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="91kp2"&gt;&lt;b&gt;Proactive cyber defense for governments and enterprises&lt;/b&gt;: Our new Fairwind Program is a limited access program for governments and trusted partners to use our most advanced cyber defense capabilities. &lt;a href="https://blog.google/innovation-and-ai/technology/safety-security/fairwind-program/" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="b72dh"&gt;&lt;b&gt;Getting started with the Mantis harness to find and fix bugs&lt;/b&gt;: Mantis is part of how Google finds and fixes vulnerabilities at machine-speed. The open-source AI harness creates a more effective repository analysis. &lt;a href="https://cloud.google.com/blog/products/identity-security/getting-started-with-the-mantis-harness-to-find-and-fix-bugs"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="3j0ag"&gt;&lt;b&gt;Breaking into Google's GFile for $100,000&lt;/b&gt;: Learn about how a vulnerability — that was not exploited and has now been patched — could have allowed attackers to chain unauthenticated, undocumented internal APIs with overly-permissive shared file libraries to achieve unrestricted data access across core infrastructure. &lt;a href="https://bughunters.google.com/blog/breaking-into-googles-gfile-for-100k" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="3sf9n"&gt;&lt;b&gt;Introducing new session management tools with native, granular controls&lt;/b&gt;: New Google Cloud session controls are deeply integrated and a granular feature of Context-Aware Access. Here’s what you need to know. &lt;a href="https://cloud.google.com/blog/products/identity-security/introducing-new-session-management-tools-with-native-granular-controls"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="4n9rm"&gt;&lt;b&gt;How Blackline prevents data exfiltration with VPC Service Controls&lt;/b&gt;: We’re excited to share new policy intelligence capabilities in VPC-SC that help drive operational simplicity: Violation analyzer and violation dashboard. &lt;a href="https://cloud.google.com/blog/topics/customers/how-blackline-prevents-data-exfiltration-with-vpc-service-controls"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="93csl"&gt;&lt;b&gt;Introducing Continuous Vulnerability Assessment&lt;/b&gt;: You can detect exposure to new vulnerabilities the moment they’re published with Wiz CVA. &lt;a href="https://www.wiz.io/blog/introducing-cva" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="fblu6"&gt;&lt;b&gt;How developers prevent production risk at the source&lt;/b&gt;: Fixing security vulnerabilities in code takes seconds, while patching in production creates high operational costs and risk. Discover how empowering developers as your first line of defense eliminates exposure across every phase of your software pipeline. &lt;a href="https://www.wiz.io/blog/prevent-production-risk-at-code-stage" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="7bin3"&gt;&lt;b&gt;Wiz achieves GovRAMP High authorization&lt;/b&gt;: Delivering unified cloud security and accelerating secure modernization to protect citizen data and critical infrastructure. &lt;a href="https://www.wiz.io/blog/wiz-govramp-high" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="36jbq"&gt;Please visit the Google Cloud blog for more security stories &lt;a href="https://cloud.google.com/blog/products/identity-security"&gt;published this month&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Join the Google Cloud CISO Community&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe84548d4d0&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Learn more&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://rsvp.withgoogle.com/events/google-cloud-ciso-community-interest-form-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY25-Q1-global-GCP30328-physicalevent-er-dgcsm-parent-CISO-community-2025&amp;amp;utm_content=cisop_&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;Join the Google Cloud CISO Community&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37ebf9db10&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Learn more&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;https://rsvp.withgoogle.com/events/google-cloud-ciso-community-interest-form-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY25-Q1-global-GCP30328-physicalevent-er-dgcsm-parent-CISO-community-2025&amp;amp;utm_content=cisop_&amp;amp;utm_term=-&amp;#x27;), (&amp;#x27;image&amp;#x27;, &amp;lt;GAEImage: GCAT-replacement-logo-A&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="29tyz"&gt;&lt;b&gt;Threat Intelligence news&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="2prfo"&gt;&lt;b&gt;AI Threat Tracker: From prompting to autonomy&lt;/b&gt;: In the newest Google Threat Intelligence Group (GTIG) report on the adversarial misuse of AI, we’ve observed adversaries transition from basic prompting to agentic AI workflows and AI-enabled automation, including threat actors compromise a cloud resource, then plan, build, and execute an agent-enabled mass credential harvesting campaign in under six hours. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/from-prompting-to-autonomy-the-evolution-of-adversarial-ai"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="drch6"&gt;&lt;b&gt;Financially-motivated threat actor BREEZE COMET targets Brazil&lt;/b&gt;: Learn about BREEZE COMET’s tactics and toolkit, and our mitigation recommendations and detections to support organizations in defending against this active and developing threat. &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/financially-motivated-threat-actor-breeze-comet-targets-brazil"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="5kgjp"&gt;&lt;b&gt;JFrog Artifactory under attack&lt;/b&gt;: Wiz Research has identified active, in-the-wild exploitation of three critical and high-severity vulnerabilities impacting JFrog Artifactory. Attackers are chaining these vulnerabilities to bypass authentication and gain administrative control. &lt;a href="https://www.wiz.io/blog/artifactory-under-attack-in-the-wild-exploitation-of-cve-2026-42016-cve-2026-4201" target="_blank"&gt;&lt;b&gt;Read more&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="7oq8v"&gt;Please visit the Google Cloud blog for more threat intelligence stories &lt;a href="https://cloud.google.com/blog/topics/threat-intelligence/"&gt;published this month&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="rcfc5"&gt;&lt;b&gt;Now hear this: Podcasts from Google Cloud&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="d67qn"&gt;&lt;b&gt;Cloud Security Podcast: Patching browsers with AI, agents, Rust, and your tabs&lt;/b&gt;: Jasika Bawa and Doug Turner of Chrome Security explore how Google Chrome now uses AI agents to autonomously identify and patch security vulnerabilities at an unprecedented scale, significantly accelerating the browser's update cadence. &lt;a href="https://www.youtube.com/watch?v=pCXT8lQqg_U" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="4n541"&gt;&lt;b&gt;Cloud Security Podcast: All about Project Atlas, Wiz's AI vulnerability research&lt;/b&gt;: Nir Orfeld, head of vulnerability research, Wiz, discusses how his team uses multi-agent AI systems for discovering high-impact zero-day vulnerabilities in cloud infrastructure. &lt;a href="https://www.youtube.com/watch?v=qRJJ9ekpuVg" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;li data-block-key="4p9rh"&gt;&lt;b&gt;Cloud Security Podcast: How Google eliminates classes of vulnerabilities at scale&lt;/b&gt;: How do you build the foundations for a secure Google-scale enterprise that stays secure even if an AI is writing the code and nobody has time to review it? Christoph Kern, principal security engineer, Google, explores what secure-by-design really means in the AI era. &lt;a href="https://www.youtube.com/watch?v=43imRRfgLgc" target="_blank"&gt;&lt;b&gt;Listen here&lt;/b&gt;&lt;/a&gt;.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="d008g"&gt;To have our Cloud CISO Perspectives post delivered twice a month to your inbox, &lt;a href="https://cloud.google.com/resources/google-cloud-ciso-newsletter-signup"&gt;sign up for our newsletter&lt;/a&gt;. We’ll be back in a few weeks with more security-related updates from Google Cloud.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 16 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-monitors-ai-threats-advances-ai-defenses/</guid><category>Cloud CISO</category><category>AI &amp; Machine Learning</category><category>Security &amp; Identity</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud_CISO_Perspectives_header_4_Blue.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Cloud CISO Perspectives: How Google monitors AI threats and advances AI defenses</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Cloud_CISO_Perspectives_header_4_Blue.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-monitors-ai-threats-advances-ai-defenses/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Sandra Joyce</name><title>VP, Google Threat Intelligence</title><department></department><company></company></author></item><item><title>Google is a Leader in the 2026 Gartner® Magic Quadrant™ for Enterprise AI Assistants</title><link>https://cloud.google.com/blog/products/ai-machine-learning/google-is-a-leader-in-2026-gartner-magic-quadrant-for-enterprise-ai-assistants/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We are excited to share that Gartner has named Google a Leader in its inaugural &lt;/span&gt;&lt;a href="https://cloud.google.com/resources/content/2026-gartner-magic-quadrant-enterprise-ai-assistants"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;2026 Magic Quadrant for Enterprise AI Assistants&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;In this comprehensive evaluation of top enterprise AI assistant vendors, Gartner placed Google in the Leaders quadrant for its evaluation across both Completeness of Vision and Ability to Execute.&lt;/span&gt;&lt;/p&gt;
@@ -2677,7 +3099,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Instead of embedding raw Spanner table names and column assignments directly inside core DAO business logic, we isolate Spanner schema translation into dedicated converter units:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;// Example of the standardized pattern generated by our pipeline\r\n\r\ntype BpcTransferAmountsMutationConverter interface {\r\n    ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n    ToUpdateMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n}\r\n\r\ntype bpcTransferAmountsMutationConverterImpl struct {\r\n    tableName string\r\n}\r\n\r\nfunc (c *bpcTransferAmountsMutationConverterImpl) ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error) {\r\n    if entity == nil {\r\n        return nil, errors.New(&amp;quot;entity cannot be nil&amp;quot;)\r\n    }\r\n    \r\n    // Map domain fields to Cloud Spanner table schema\r\n    cols := []string{&amp;quot;TransferId&amp;quot;, &amp;quot;AmountCents&amp;quot;, &amp;quot;CurrencyCode&amp;quot;, &amp;quot;LastModifiedTimestamp&amp;quot;}\r\n    vals := []interface{}{\r\n        entity.TransferId,\r\n        entity.AmountCents,\r\n        entity.CurrencyCode,\r\n        spanner.CommitTimestamp, // Use Spanner commit timestamps\r\n    }\r\n    \r\n    return spanner.Insert(c.tableName, cols, vals), nil\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe846786f10&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;// Example of the standardized pattern generated by our pipeline\r\n\r\ntype BpcTransferAmountsMutationConverter interface {\r\n    ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n    ToUpdateMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error)\r\n}\r\n\r\ntype bpcTransferAmountsMutationConverterImpl struct {\r\n    tableName string\r\n}\r\n\r\nfunc (c *bpcTransferAmountsMutationConverterImpl) ToInsertMutation(entity *model.BpcTransferAmount) (*spanner.Mutation, error) {\r\n    if entity == nil {\r\n        return nil, errors.New(&amp;quot;entity cannot be nil&amp;quot;)\r\n    }\r\n    \r\n    // Map domain fields to Cloud Spanner table schema\r\n    cols := []string{&amp;quot;TransferId&amp;quot;, &amp;quot;AmountCents&amp;quot;, &amp;quot;CurrencyCode&amp;quot;, &amp;quot;LastModifiedTimestamp&amp;quot;}\r\n    vals := []interface{}{\r\n        entity.TransferId,\r\n        entity.AmountCents,\r\n        entity.CurrencyCode,\r\n        spanner.CommitTimestamp, // Use Spanner commit timestamps\r\n    }\r\n    \r\n    return spanner.Insert(c.tableName, cols, vals), nil\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37f471ad50&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;By establishing a rigid, deterministic contract between the DAO and the Spanner SDK (&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;spanner.Mutation&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;), we created an exact target specification that an AI coding agent could reason about and generate reliably.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Why use Antigravity&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;CLI in headless mode?&lt;/span&gt;&lt;/h3&gt;
@@ -2742,7 +3164,7 @@
 &lt;/ul&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;git clone https://github.com/google/mantis.git&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe8467c2650&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;git clone https://github.com/google/mantis.git&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37f6bed050&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
 &lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
@@ -2846,7 +3268,7 @@
 &lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="srfvr"&gt;&lt;b&gt;News you can use&lt;/b&gt;&lt;/h3&gt;&lt;ul&gt;&lt;li data-block-key="9l4gp"&gt;&lt;a href="https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models?e=48754805"&gt;&lt;b&gt;Best practices guide for customizing Gemini models via Reinforcement Learning (RL):&lt;/b&gt;&lt;/a&gt; In this guide, we will walk through practical best practices for using RL fine-tuning service. We'll start with a short tour of the RL training loop, how to decide if and when to use RL, and introduce how to get the most value from this approach.&lt;/li&gt;&lt;li data-block-key="9jrhp"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-cli-remote-mcp-server-in-preview?e=48754805"&gt;&lt;b&gt;Empower your agents with the Google Cloud CLI remote MCP server:&lt;/b&gt;&lt;/a&gt; Powered by the popular gcloud and bq (BigQuery) command-line tools, this new server gives AI agents immediate, broad access to command-line operations for managing Google Cloud infrastructure and working with advanced BigQuery workflows securely and seamlessly.&lt;/li&gt;&lt;li data-block-key="clpv9"&gt;&lt;a href="https://cloud.google.com/blog/topics/developers-practitioners/graph-workflows-in-adk-everything-you-need-to-know?e=48754805"&gt;&lt;b&gt;Graph Workflows in ADK: Everything you need to know:&lt;/b&gt;&lt;/a&gt; Using a refund workflow in ADK, we'll cover fan-out and fan-in, deterministic and agent routers, human-in-the-loop pauses, parallel workers, and dynamic orchestration— along with when to use a static graph or let Python decide what runs next.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="jj3q"&gt;Stay tuned for monthly updates on Google Cloud’s AI announcements, news, and best practices. For a deeper dive into the latest from Google Cloud customers, read our monthly recap, &lt;a href="https://cloud.google.com/blog/topics/customers/cool-stuff-google-cloud-customers-built-monthly-round-up?e=48754805"&gt;Cool stuff customers built.&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;$300 in free credit to try Google Cloud AI and ML&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fe8467e7910&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Start building for free&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;http://console.cloud.google.com/freetrial?redirectPath=/vertex-ai/&amp;#x27;), (&amp;#x27;image&amp;#x27;, None)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;$300 in free credit to try Google Cloud AI and ML&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f37f4441350&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Start building for free&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;http://console.cloud.google.com/freetrial?redirectPath=/vertex-ai/&amp;#x27;), (&amp;#x27;image&amp;#x27;, None)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;h2 style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;August&lt;/span&gt;&lt;/h2&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This month, we focused on making AI highly practical for your business, including its associated costs. This meant tailoring our models for specialized industries – starting with Financial Services and Legal –  and helping you keep your budgets under control. Let’s dive in! &lt;/span&gt;&lt;/p&gt;
@@ -3510,327 +3932,4 @@
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;&lt;strong style="vertical-align: baseline;"&gt;Ready to build your AI operating model?&lt;/strong&gt;&lt;/h2&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Scaling AI demands more than tool-level experimentation. It also requires an end-to-end AI operating model. Learn how Pythian pairs with Google Cloud to operationalize strategy, streamline XOps, and fast-track your Gemini Enterprise journey.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 27 Aug 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/how-pythians-internal-ai-playbook-delivers-customer-roi/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/pythian-ai-framework-blog-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Reimagining work: How Pythian’s internal AI playbook delivers customer ROI</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/pythian-ai-framework-blog-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/how-pythians-internal-ai-playbook-delivers-customer-roi/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Paul Lewis</name><title>Chief Technology Officer, Pythian</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Vanessa Simmons</name><title>SVP, Business Development, Pythian</title><department></department><company></company></author></item><item><title>FinOps for the AI era: New flexible billing and cost controls for agents</title><link>https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;strong&gt;&lt;span style="vertical-align: baseline;"&gt;Editor's note:&lt;/span&gt;&lt;/strong&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt; A product image was updated after initial publication.&lt;/span&gt;&lt;/em&gt;&lt;/p&gt;
-&lt;hr/&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;As AI takes on more complex work, business leaders face a new challenge: enabling rapid innovation using agents while protecting their margins and budgets. To get a real return on AI, financial operations (FinOps) and cost management must evolve alongside technology, giving you clear visibility, proactive cost controls, and flexible payment models that fit your needs. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;That’s why today we’re introducing &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;expanded billing flexibility and new cost management tools for agent workloads &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;across Gemini Enterprise and developer tools like &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Antigravity in Gemini Enterprise &lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;and &lt;/span&gt;&lt;a href="http://d.android.com/gemini-in-android" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Android Studio&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Flexible payment options:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; You can mix our existing, predictable per-user seat subscriptions with a &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise#gemini-enterprise-app-editions"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;new pay-as-you-go option&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; in Gemini Enterprise app that lets you run agent workloads without hitting quota limits mid-task.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Developer access, one place to manage your AI: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Google Antigravity and Android Studio AI use is now included in your Gemini Enterprise subscription (available for select customers and rolling out broadly soon), giving your developers more without giving you more to manage. Usage across Antigravity, the platform, and the app rolls up into a single view instead of separate licenses and billing silos.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Pay less as your usage grows:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; If your AI workloads are steady or climbing, &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/docs/cuds-flexible-savings-plans"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Flexible Savings Plans&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; let you commit to a monthly spend you're comfortable with and take 10–20% off your token costs — no minimums, no maximums, and no new billing silo to manage.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Consolidated spend guardrails: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;You can now set hard monthly caps on AI spend and projects, estimate agent runtime costs, and catch sudden budget spikes before they hit your invoice.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;Give your teams flexibility without losing control over spend in Gemini Enterprise&lt;/span&gt;&lt;/h2&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Every organization operates differently. Even within the same business, no two teams consume AI &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;in the same way&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;. Your business users might rely on steady, everyday productivity tools. Meanwhile, your technical teams might run AI agent workloads in bursts. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To help align costs with how work actually gets done, you can combine these payment and licensing choices and features across Gemini Enterprise:&lt;br/&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;div align="left"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;&lt;table&gt;&lt;colgroup&gt;&lt;col/&gt;&lt;col/&gt;&lt;col/&gt;&lt;/colgroup&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Option&lt;/strong&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;How it works&lt;/strong&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Why it helps optimize spend&lt;/strong&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Gemini Enterprise app per-user seat subscription&lt;/strong&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;You pay a fixed monthly fee per user, which includes daily quota pools that are shared across your entire project.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Predictable budgeting.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; It provides finance teams with a clear, steady monthly baseline for teams with consistent daily productivity needs.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;[New] Gemini Enterprise app pay-as-you-go consumption edition&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;*available for select customers and rolling out broadly soon&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;There is no upfront commitment or base subscription fee, meaning you pay strictly for the compute and tokens your teams consume at standard model API rates.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Only pay for what you use.&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Your spend scales up and down automatically with real usage, ensuring you never pay for empty seats when project demand dips.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;[New for Antigravity in Gemini Enterprise] Consolidated pooled quotas&lt;/strong&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Usage quotas are pooled across users in the same edition within a project and location. Pooled quota is always exhausted first, and admins can control if overages are allowed, at which point it’s charged at pay-as-you-go rates. &lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Maximized resource usage:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Unused daily allowances from business users automatically absorb heavy developer or custom API agent demands, so no quota allowance goes to waste.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;[Coming soon] &lt;/strong&gt;&lt;strong style="vertical-align: baseline;"&gt;Deferred execution pricing&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;*available for select workloads soon&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Mark eligible agent workloads as deferred, and our intelligent scheduler in the Gemini Enterprise Agent Platform runs them during off-peak capacity windows.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Substantial discounts for work that can wait: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;AI workloads can run on separate, off-peak capacity, you pay up to half the inference cost and bypass standard quota limits entirely – letting you run substantially more agentic volume under the same budget.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Equip developers with advanced agentic tooling under a single Gemini Enterprise subscription&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We’re rolling out access to &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Google Antigravity in Gemini Enterprise&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, an agent-first developer platform that brings powerful agentic coding and agent-building capabilities to technical teams, included with Gemini Enterprise subscriptions for &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini/enterprise/docs/ai-developer-tools-overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;eligible customers&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. In addition, Android developers can leverage the Google Antigravity quota included in their Gemini Enterprise subscriptions natively in &lt;/span&gt;&lt;a href="http://d.android.com" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Android Studio&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, the agentic IDE for professional Android development.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To be more efficient with agentic coding costs, we are pooling developer tools quota included in each Gemini Enterprise subscription and making it available across the whole Google Cloud project so your teams can benefit from the capacity you’re already purchasing. Your developers get access to advanced agentic tools, while you maintain centralized governance and control.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For a closer look into what’s new with Antigravity in Gemini Enterprise and how customers are putting it to work in production, take a look at our &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;deep-dive&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Budget smarter with Gemini Enterprise Flexible Savings Plans (FSPs) &lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If your organization has steady or growing AI workloads, Gemini Enterprise Flexible Savings Plans offer a simple, spend-based commitment model across Gemini Enterprise usage. FSPs are designed to lower token costs while keeping budgets flexible:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Programmatic savings: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Receive 10% off for 1-year or 20% off for 3-year commitments for monthly spending across Gemini Enterprise.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Tailored to your pace&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;: With no minimum or maximum spend requirements, you can determine a monthly commitment that fits your current traffic and make adjustments as your usage increases over time. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Enterprise Agreement (EA) friendly:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; FSP spend seamlessly draws down against your existing Google Cloud EA, giving lines of business dedicated budget control without fragmenting your broader cloud commitments.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;a href="https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise Flexible Savings Plans&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; are already available for self-serve customers and customers on enterprise agreements.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Give your teams the freedom to build while maintaining financial discipline&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;As a leader, your goal isn't to restrict the potential value of AI  – it's to remove the financial and operational risk that you face without managed AI costs. You should be able to give engineering, marketing, and operational teams the freedom to innovate with agents, but you should also have the visibility to trust what those agents are doing and the safety nets to protect your budget.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To bridge this gap, we've built robust, native governance tooling directly into the Google Cloud Billing Console around three simple goals:&lt;/span&gt;&lt;/p&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;1. Plan before you scale: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;The &lt;/span&gt;&lt;a href="https://cloud.google.com/products/calculator"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud Pricing Calculator&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; lets you estimate anticipated costs in Gemini Enterprise across per-user licenses, developer tools, and background agent runtimes. It gives you the numbers you need to build clear business cases upfront before project work begins&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;.&lt;/strong&gt;&lt;/p&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;2. Enforce boundaries without micromanaging spend: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Instead of spending time tracking daily usage variations across project teams, let these tools do the monitoring for you:&lt;/span&gt;&lt;/p&gt;
-&lt;ol start="2"&gt;
-&lt;ul&gt;
-&lt;li aria-level="2" style="list-style-type: circle; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Early anomaly detection: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;If a project’s AI spending trends higher than normal, the system flags the deviation with root cause analysis and pinpoints the top 3 SKUs driving the increase so you can see exactly what changed.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/ol&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_Jul22_Anomalies_Image1.max-1000x1000.png"
-        
-          alt="1 Jul22_Anomalies_Image1"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="eqcz8"&gt;Billing Console showing an Early Anomaly alert with the Root Cause Analysis (RCA) breakdown highlighting the driving SKUs&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
-&lt;li style="list-style-type: none;"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong style="vertical-align: baseline;"&gt;Project-level spend caps:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; When a project needs defined financial boundaries, you can set a firm monthly spend limit directly in the Google Cloud Billing Console. If a project hits its limit, the agent's API calls temporarily pause – protecting your budget without affecting the rest of your production infrastructure. Automated email alerts at 50%, 80% and 100% of the budget keep you informed of your progress against the spend limit. &lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
-&lt;li style="list-style-type: none;"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong style="vertical-align: baseline;"&gt;Overage controls:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; If a spend cap triggers, you can choose to resume work with a single click in the console. Alternatively, if your priority is continuous operation, you can turn on overages so excess usage smoothly transitions to consumption rates, which can draw directly against your FSP to keep overage unit costs heavily discounted.&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/3_PAYG_Overage_Enabled.max-1000x1000.png"
-        
-          alt="3 PAYG Overage Enabled"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="eqcz8"&gt;Enabling overage pay-as-you-go for a project.&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;3. Get visibility into business value:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Use centralized billing reports paired with the FinOps agent to generate natural-language cost insight summaries of where your budget went, making it simple to show ROI to leadership.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Billing_overage_-_dashboard_-_new_afternoo.max-1000x1000.png"
-        
-          alt="Cost overview FinOps"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="a5o2c"&gt;AI spending reporting in Google Cloud Console&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Go deeper with AI cost optimization&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To build a full-stack FinOps strategy that optimizes the cost, latency, and performance of your models and infrastructure, explore our detailed architecture specifications and frameworks:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/blog/topics/ai-infrastructure/best-practices-for-dynamic-capacity-management"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;How to outsmart infrastructure constraints with dynamic capacity management&lt;/strong&gt;&lt;/a&gt;&lt;strong&gt;&lt;span style="vertical-align: baseline;"&gt;:&lt;/span&gt;&lt;/strong&gt; Discover how to optimize your compute investments with capabilities in Google Kubernetes Engine and Google Compute Engine that automatically schedule and reallocate resources to avoid interruptions, over-provisioning, and over-reliance on any one hardware configuration.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/expanding-google-antigravity-for-enterprise-customers"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Expanding Google Antigravity for Enterprise Customers&lt;/strong&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Read our developer tooling deep-dive to see how technical teams are accelerating software delivery with agent-first workflows.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/transform/gemini-enterprise-optimize-ai-token-spend"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;What sports cars can teach us about optimizing AI spend&lt;/strong&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;: &lt;/strong&gt;&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;More tokens doesn't always mean better AI. Read our conversation with Mike Clark, Director of Product Management for Gemini Enterprise Agent Platform, on how to balance horsepower with efficiency and get the highest return out of every dollar you spend on AI. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/provisioned-throughput"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Protection during usage spikes&lt;/strong&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Your heavy workloads can surge during peak hours without forcing you to pay for expensive, dedicated infrastructure that sits idle the rest of the time. As your AI usage grows, Gemini models can automatically scale on demand without hitting artificial rate limits – processing up to 50 million tokens per minute.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Wed, 26 Aug 2026 13:30:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud/</guid><category>Cost Management</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/FinOps_for_the_AI_era_.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>FinOps for the AI era: New flexible billing and cost controls for agents</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/FinOps_for_the_AI_era_.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Pravir Gupta</name><title>VP, Google Business Platform</title><department></department><company></company></author></item></channel></rss>
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Scaling AI demands more than tool-level experimentation. It also requires an end-to-end AI operating model. Learn how Pythian pairs with Google Cloud to operationalize strategy, streamline XOps, and fast-track your Gemini Enterprise journey.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 27 Aug 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/how-pythians-internal-ai-playbook-delivers-customer-roi/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/pythian-ai-framework-blog-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Reimagining work: How Pythian’s internal AI playbook delivers customer ROI</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/pythian-ai-framework-blog-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/how-pythians-internal-ai-playbook-delivers-customer-roi/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Paul Lewis</name><title>Chief Technology Officer, Pythian</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Vanessa Simmons</name><title>SVP, Business Development, Pythian</title><department></department><company></company></author></item></channel></rss>
