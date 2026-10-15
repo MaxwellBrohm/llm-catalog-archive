@@ -4,7 +4,7 @@
 
 - [Overview](https://docs.together.ai/intro.md): Run, train, and serve open-source AI models on Together AI.
 - [Quickstart](https://docs.together.ai/docs/quickstart.md): Make your first request to Together AI in a few minutes.
-- [Coding agent setup](https://docs.together.ai/docs/agent-skills.md): Make your AI coding agent Together-AI-aware with ready-made skills for code generation and an MCP server for live docs lookup.
+- [Coding agent setup](https://docs.together.ai/docs/agent-skills.md): Make your AI coding agent Together-AI-aware with a ready-made skill for code generation and an MCP server for live docs lookup.
 - [Configure Claude Code, Codex, OpenCode & Pi Code with OSS models](https://docs.together.ai/docs/togetherlink.md): Use Together Link to run Claude Code, Codex, OpenCode, Pi Code, Claude Desktop and Cowork, and ChatGPT Desktop with models hosted by Together AI.
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
@@ -221,6 +221,7 @@
 - [Create image](https://docs.together.ai/reference/post-images-generations.md): Use an image model to generate an image for a given prompt.
 - [Create audio generation request](https://docs.together.ai/reference/audio-speech.md): Generate audio from input text
 - [Create realtime text-to-speech](https://docs.together.ai/reference/audio-speech-websocket.md): Establishes a WebSocket connection for real-time text-to-speech generation. This endpoint uses WebSocket protocol (wss://api.together.ai/v1/audio/speech/websocket) for bidirectional streaming communication.
+- [List voices](https://docs.together.ai/reference/voices-list.md): Fetch available voices for each model
 - [Create audio transcription request](https://docs.together.ai/reference/audio-transcriptions.md): Transcribes audio into text
 - [Create audio translation request](https://docs.together.ai/reference/audio-translations.md): Translates audio into English
 - [Real-time audio transcription via WebSocket](https://docs.together.ai/reference/audio-transcriptions-realtime.md): Establishes a WebSocket connection for real-time audio transcription. This endpoint uses WebSocket protocol (wss://api.together.ai/v1/realtime) for bidirectional streaming communication.
@@ -270,6 +271,7 @@
 - [List FP4 preparation job events](https://docs.together.ai/reference/post-training/shaping-jobs-list-events.md): List events for a shaping job owned by the caller's project.
 - [Create job](https://docs.together.ai/reference/post-fine-tunes.md): Create a fine-tuning job with the provided model and training data.
 - [Estimate price](https://docs.together.ai/reference/post-fine-tunes-estimate-price.md): Estimate the price of a fine-tuning job.
+- [Preview tokenized data](https://docs.together.ai/reference/post-fine-tunes-preview.md): Preview how sampled rows from a fine-tuning training file will be tokenized before packing.
 - [List all jobs](https://docs.together.ai/reference/get-fine-tunes.md): List the metadata for all fine-tuning jobs. Returns a list of FinetuneResponseTruncated objects.
 - [List job](https://docs.together.ai/reference/get-fine-tunes-id.md): List the metadata for a single fine-tuning job.
 - [List job events](https://docs.together.ai/reference/get-fine-tunes-id-events.md): List the events for a single fine-tuning job.
@@ -279,6 +281,7 @@
 - [Download model](https://docs.together.ai/reference/get-finetune-download.md): Receive a compressed fine-tuned model or checkpoint.
 - [Cancel job](https://docs.together.ai/reference/post-fine-tunes-id-cancel.md): Cancel a currently running fine-tuning job. Returns a FinetuneResponseTruncated object.
 - [Delete a fine-tune job](https://docs.together.ai/reference/delete-fine-tunes-id.md): Delete a fine-tuning job.
+- [List supported models](https://docs.together.ai/reference/get-fine-tunes-models-supported.md): List models supported for fine-tuning.
 - [Get model limits](https://docs.together.ai/reference/get-fine-tunes-models-limits.md): Get model limits for a specific fine-tuning model.
 - [Create an evaluation job](https://docs.together.ai/reference/create-evaluation.md)
 - [Get all evaluation jobs](https://docs.together.ai/reference/list-evaluations.md)
@@ -301,7 +304,7 @@
 - [Update a shared volume](https://docs.together.ai/reference/clusters_storages-update.md): Update the configuration of an existing shared volume.
 - [Delete a shared volume by ID](https://docs.together.ai/reference/clusters_storages-delete.md): Delete a shared volume. Note that if this volume is attached to a cluster, deleting will fail.
 - [Remediation get](https://docs.together.ai/reference/remediation-get.md): Retrieve the status of a specific remdiation on a specific instance in a specific cluster.
-- [Remediation list](https://docs.together.ai/reference/remediation-list.md)
+- [List remediations](https://docs.together.ai/reference/remediation-list.md): Lists remediations for an instance or cluster.
 - [Remediation create](https://docs.together.ai/reference/remediation-create.md): Creates a new remediation for an instance.
 - [Remediation approve](https://docs.together.ai/reference/remediation-approve.md): Approves a pending remediation.
 - [Remediation cancel](https://docs.together.ai/reference/remediation-cancel.md): Cancels a pending remediation.
@@ -330,6 +333,7 @@
 - [Clear a model's pending jobs](https://docs.together.ai/reference/queue-clear.md): Cancel all pending jobs for the given model. Running jobs are left untouched. Returns the number of jobs that were canceled.
 - [Get queue metrics](https://docs.together.ai/reference/queue-metrics.md): Get the current queue statistics for a model, including pending and running job counts.
 - [Get API key identity](https://docs.together.ai/reference/whoami.md): Returns identity information about the authenticated API key. Useful for confirming which project and organization a key is scoped to, and for obtaining the project slug used to compose the `model` value (`<project_slug>/<endpoint_slug>`) in dedicated endpoint inference calls. Requires a Bearer API…
+- [List projects](https://docs.together.ai/reference/projects-list.md): Retrieve a list of accessible projects.
 - [Get billing usage](https://docs.together.ai/reference/billing-usage.md): Returns an organization's billing usage for a month as cost-annotated line items grouped into time windows. Finalized windows are returned through the end of yesterday at daily granularity, or the last completed hour at hourly granularity (UTC).
 - [List endpoints](https://docs.together.ai/reference/dmi/endpoints-list.md): Lists the dedicated inference endpoints owned by the specified project.
 - [Create an endpoint](https://docs.together.ai/reference/dmi/endpoints-create.md): Creates a stable, inference-addressable endpoint. Add one or more deployments and configure its traffic split before sending inference requests to the endpoint name.
@@ -369,6 +373,7 @@
 - [Update a shadow experiment target](https://docs.together.ai/reference/dmi/shadow-experiment-targets-update.md): Updates a shadow target's name, deployment, or description. `updateMask` is required and must select at least one mutable field.
 - [Delete a shadow experiment target](https://docs.together.ai/reference/dmi/shadow-experiment-targets-delete.md): Removes a target from a shadow experiment without deleting the underlying deployment.
 - [List endpoint rollouts](https://docs.together.ai/reference/dmi/rollouts-list.md): Lists rollout histories for an endpoint. Use `filter=ROLLOUT_FILTER_ACTIVE` to return only the active rollout, if one exists.
+- [Preview rollout defaults](https://docs.together.ai/reference/dmi/rollouts-preview-defaults.md): Returns the values a create request would pick for any field left unset, plus the capacity context needed to display them, without creating a rollout. Responses are display state only and re-validated authoritatively at create and start; do not copy response values back into a create request.
 - [Create a rollout](https://docs.together.ai/reference/dmi/rollouts-create.md): Creates a rollout in the pending state without shifting traffic. Start the rollout in a separate request after reviewing its strategy and metric gates.
 - [Get a rollout](https://docs.together.ai/reference/dmi/rollouts-get.md): Retrieves a rollout's strategy, lifecycle state, current traffic percentage, step history, and metric-gate results.
 - [Delete a rollout](https://docs.together.ai/reference/dmi/rollouts-delete.md): Deletes a rollout record. An active rollout must be aborted or completed before it can be deleted.
@@ -386,6 +391,7 @@
 - [Delete a model](https://docs.together.ai/reference/dmi/models-delete.md): Permanently deletes a custom model resource. The model must not be in use by an active deployment.
 - [List model files](https://docs.together.ai/reference/dmi/models-list-files.md): Lists files in the latest or specified revision of a model, including paths, sizes, and content hashes.
 - [List model revisions](https://docs.together.ai/reference/dmi/models-list-revisions.md): Lists the immutable file revisions available for a custom model, newest first.
+- [Get a model revision](https://docs.together.ai/reference/dmi/models-get-revision.md): Retrieves metadata for one immutable revision of a custom model's files.
 - [List organization models](https://docs.together.ai/reference/dmi/models-list-organization.md): Lists custom models shared with every project in the specified organization. Project-private and public models are not included.
 - [Create a remote model upload](https://docs.together.ai/reference/dmi/model-uploads-create.md): Starts an asynchronous job that imports model files from Hugging Face or a presigned URL into a registered model and creates a model revision when the import completes.
 - [List remote model uploads](https://docs.together.ai/reference/dmi/model-uploads-list.md): Lists asynchronous jobs that import model files from Hugging Face or a presigned remote URL.
@@ -399,6 +405,7 @@
 - [Error codes](https://docs.together.ai/docs/error-codes.md): An overview on error status codes, causes, and quick fix solutions.
 - [List all endpoints](https://docs.together.ai/reference/listendpoints.md): Returns a list of all endpoints associated with your account. You can filter the results by type (dedicated or serverless).
 - [List available hardware configurations](https://docs.together.ai/reference/listhardware.md): Returns a list of available hardware configurations for deploying models. When a model parameter is provided, it returns only hardware configurations compatible with that model, including their current availability status.
+- [List availability zones](https://docs.together.ai/reference/availability-zones.md): List all available availability zones.
 - [Create a dedicated endpoint](https://docs.together.ai/reference/createendpoint.md): Creates a new dedicated endpoint for serving models. The endpoint starts automatically after creation. You can deploy any supported model on hardware configurations that meet the model's requirements.
 - [Get endpoint by ID](https://docs.together.ai/reference/getendpoint.md): Retrieves details about a specific endpoint, including its current state, configuration, and scaling settings.
 - [Update endpoint, this can also be used to start or stop a dedicated endpoint](https://docs.together.ai/reference/updateendpoint.md): Updates an existing endpoint's configuration. You can modify the display name, autoscaling settings, or change the endpoint's state (start/stop).
@@ -408,6 +415,8 @@
 - [Remove a LoRA adapter from an endpoint](https://docs.together.ai/reference/removeadapter.md): Removes the routing rule that binds an adapter to an endpoint. The adapter must be currently bound to this specific endpoint.
 - [List all models](https://docs.together.ai/reference/models.md): Lists all of Together's open-source models and metadata including pricing, chat template, and context.
 - [Upload a custom model or adapter](https://docs.together.ai/reference/upload-model.md): Upload a custom model or adapter from Hugging Face or S3
+- [List model upload jobs](https://docs.together.ai/reference/jobs-list.md): List all jobs and their statuses
+- [Get a model upload job](https://docs.together.ai/reference/jobs-get.md): Get the status of a specific job
 - [Get started](https://docs.together.ai/reference/cli/getting-started.md): Install the Together CLI to deploy endpoints, fine-tune models, and manage GPU clusters from your terminal.
 - [Telemetry](https://docs.together.ai/reference/cli/telemetry.md): Understand what the Together CLI tracks, how to opt out, and where the local config file lives.
 - [Models](https://docs.together.ai/reference/cli/models.md): List Together AI models and upload your own from Hugging Face or S3.
