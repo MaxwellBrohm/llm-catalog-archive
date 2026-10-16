@@ -79,6 +79,10 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Z.ai GLM 5.3](https://docs.mistral.ai/models/zai-glm-5-3.md): A third-party open weight text model from Z.ai with a 1M-token context window.
 - [Z.ai GLM 5.2](https://docs.mistral.ai/models/zai-glm-5-2.md): A third-party open weight text model from Z.ai with a 1M-token context window.
 - [Shieldstral 1.0](https://docs.mistral.ai/models/shieldstral-1-0.md): Compact multimodal moderation model for text and image safety classification.
+- [Timestral 1.0](https://docs.mistral.ai/models/timestral-1-0.md): A time series foundation model for zero-shot forecasting with covariate support and probabilistic outputs.
+- [Timestral 1.0 123M](https://docs.mistral.ai/models/timestral-1-0-123m.md): A time series foundation model for zero-shot forecasting with covariate support and probabilistic outputs.
+- [Timestral 1.0 28M](https://docs.mistral.ai/models/timestral-1-0-28m.md): A time series foundation model for zero-shot forecasting with covariate support and probabilistic outputs.
+- [Timestral 1.0 5M](https://docs.mistral.ai/models/timestral-1-0-5m.md): A time series foundation model for zero-shot forecasting with covariate support and probabilistic outputs.
 - [Mistral Medium 3.5](https://docs.mistral.ai/models/mistral-medium-3-5-26-04.md): Our frontier-class multimodal model optimized for agentic and coding use cases.
 - [Voxtral TTS](https://docs.mistral.ai/models/voxtral-tts-26-03.md): State-of-the-art TTS with zero-shot voice cloning and multilingual support.
 - [Mistral Small 4](https://docs.mistral.ai/models/mistral-small-4-0-26-03.md): Hybrid model unifying instruct, reasoning, and coding in a single efficient model.
