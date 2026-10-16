@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Tue, 13 Oct 2026 14:04:23 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 15 Oct 2026 19:18:47 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,337 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Muse Spark Is Now an Open-Weights Model</title>
+		<link>https://pytorch.org/blog/muse-spark-open/</link>
+		
+		<dc:creator><![CDATA[PyTorch Team at Meta]]></dc:creator>
+		<pubDate>Thu, 15 Oct 2026 17:55:52 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=188144</guid>
+
+					<description><![CDATA[<p>Today, Meta is releasing the weights for Muse Spark Open, the most capable US open-weights model to date. It’s available today on Hugging Face under the Muse Model License. Muse...</p>
+<p>The post <a href="https://pytorch.org/blog/muse-spark-open/">Muse Spark Is Now an Open-Weights Model</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;">Today, Meta is releasing the weights for </span><a href="https://research.meta.ai/blog/muse-spark-open"><span style="font-weight: 400;">Muse Spark Open</span></a><span style="font-weight: 400;">, the most capable US open-weights model to date. It’s available today on Hugging Face under the Muse Model License. Muse Spark Open runs optimized on the SGLang and vLLM inference engines, with optimization for NVIDIA, AMD, and Intel.</span></p>
+<p><span style="font-weight: 400;">Building on our </span><a href="https://research.meta.ai/blog/introducing-muse-code-and-muse-spark-1-2"><span style="font-weight: 400;">August release</span></a><span style="font-weight: 400;"> of Muse Spark, this open weights version has additional safety post-training to make it more robust against misuse as a standalone model without system guardrails. The result is a model that is a top open source choice for safety. Muse Spark Open is an 816B total/42B active parameter model with a context window of 1M tokens. Built for coding and agentic work, Muse Spark Open is natively multimodal and shares the same base model as Muse Spark 1.3.</span></p>
+<p><span style="font-weight: 400;">Meta loves open source, and as the creators of PyTorch, we’re committed to giving back to ensure the entire ecosystem fully supports Muse Spark Open. First, we’ve integrated </span><a href="https://pytorch.org/blog/helion/"><span style="font-weight: 400;">Helion</span></a><span style="font-weight: 400;">, our exciting new PyTorch-native high-level DSL for performant and portable ML kernels, to ship high-performance operations. Additionally, </span><a href="https://github.com/pytorch/torchtitan"><span style="font-weight: 400;">TorchTitan</span></a><span style="font-weight: 400;"> already supports Muse Spark out of the box for supervised fine-tuning and RL in the open, and we’re excited to see how far the PyTorch community can take it!</span></p>
+<h2><span style="font-weight: 400;">Muse Spark Open</span></h2>
+<p><span style="font-weight: 400;">Muse Spark Open is a coding-optimized open-weight model. Trained specifically for agentic coding workflows, it delivers higher first-attempt accuracy, reliable tool calling, and deep codebase understanding across the repos developers actually work in. You can read more in our previous model release blog </span><a href="https://research.meta.ai/blog/introducing-muse-code-and-muse-spark-1-2"><span style="font-weight: 400;">here</span></a><span style="font-weight: 400;">.</span></p>
+<h3><span style="font-weight: 400;">Enhanced Coding Capabilities</span></h3>
+<p><span style="font-weight: 400;">Strong at code generation, debugging, and codebase understanding. Trained on real developer workflows — multi-file refactors, debugging sessions, and long-running tasks — so the model keeps up with how you actually work. 1M context window means it handles your entire project including complex dependencies, legacy code, and thousands of files without needing to break your task into pieces</span></p>
+<h3><span style="font-weight: 400;">Multimodal Understanding</span></h3>
+<p><span style="font-weight: 400;">Muse Spark Open has audio and audio-video perception — alongside image and document understanding. As a reasoning model, it processes image, audio, and text inputs — natively and reliably.</span></p>
+<h3><span style="font-weight: 400;">Agentic</span></h3>
+<p><span style="font-weight: 400;">Muse Spark Open is built from the ground up as an agentic model. It maps out steps, acts, observes, and self-corrects over long horizons — not just single-shot tool calls. It’s trained to browse the web (including multimodal browsing), and use an agentic harness to: spawn and coordinate subagents for decomposable work; and leverage computer use capabilities unified across desktop, mobile, and browser.  It’s trained on long-horizon, multi-site tasks, and generates separate commentary that lets the model state intent before acting—so you can always know what it&#8217;s doing and why.</span></p>
+<h2><span style="font-weight: 400;">Why Helion kernels?</span></h2>
+<p><span style="font-weight: 400;">Helion is a PyTorch native kernel authoring language designed for writing high-performance kernels across heterogeneous hardware platforms. Following early adoption from the open-source ecosystem, Helion became a part of the </span><a href="https://pytorch.org/blog/pytorch-foundation-welcomes-helion-as-a-foundation-hosted-project-to-standardize-open-portable-and-accessible-ai-kernel-authoring/"><span style="font-weight: 400;">PyTorch Foundation</span></a><span style="font-weight: 400;"> in April 2026. Muse Spark Open ships with Helion implementations of operations such as RoPE, RMSNorm, quantization, etc., delivering 1.03 &#8211; 3.95x speedups compared to custom kernels written in hardware specific languages (e.g. NVIDIA CUDA and CuTe DSL) on NVIDIA GB300. These same kernels were directly portable for AMD, scoring similar performance improvements on AMD Mi350 with an overall 3% improvement in end-to-end throughput.</span><span style="font-weight: 400;"><br />
+</span></p>
+<p><span style="font-weight: 400;">In addition, we also launched Helion megakernels for Muse Spark Open in SGLang. Written entirely in Helion, these kernels fuse multiple operations into a single persistent kernel to improve low latency inference, and can likewise be autotuned for different shapes and hardware.</span></p>
+<p><span style="font-weight: 400;">Helion kernels can be further autotuned by users for broader hardware platforms and workloads – including different accelerator architectures (NVIDIA, AMD, Google TPU, etc.), quantization formats, tensor shapes, and parallelism strategies – without maintaining separate hand-tuned implementations for every configuration. Together, these capabilities make it easier to achieve portable performance while reducing the cost of developing and maintaining specialized kernels.</span></p>
+<h2><span style="font-weight: 400;">Post-training  with TorchTitan</span></h2>
+<p><span style="font-weight: 400;">TorchTitan is a PyTorch native platform designed for rapid experimentation and large-scale training of generative AI models. Starting today, TorchTitan adds a model definition for Meta’s Muse Spark Open , so developers can tune it to their needs. </span></p>
+<p><span style="font-weight: 400;">TorchTitan features native support for multi-turn SFT and LoRA out-of-the-box, as well as reinforcement learning capabilities (TitanRL) that allow users to fine-tune Muse Spark Open.</span></p>
+<h2><span style="font-weight: 400;">Get Started</span></h2>
+<p><span style="font-weight: 400;">We’re sharing this work because we want everyone to have access to the best AI models. Muse Spark Open ships with custom, auto-tunable Helion GPU kernels in SGLang, delivering 1.03–3.95× kernel-level speedups on NVIDIA and AMD GPUs and a 3% end-to-end speedup on AMD MI350. You can also customize it for your use case by leveraging PyTorch’s </span><a href="https://github.com/pytorch/torchtitan/"><span style="font-weight: 400;">TorchTitan</span></a><span style="font-weight: 400;"> to further tune the model.</span></p>
+<p><span style="font-weight: 400;">Start Building Today: <a href="https://huggingface.co/meta-models/Muse-Spark-open-816B-A42B">https://huggingface.co/meta-models/Muse-Spark-open-816B-A42B</a></span></p>
+<p><i><span style="font-weight: 400;">Muse Spark is the full size model from our model family. We previously released Muse Glimmer, a small dense model. Start using it today, with </span></i><a href="https://pytorch.org/blog/fast-ondevice-agentic-ai-with-executorch/"><i><span style="font-weight: 400;">ExecuTorch</span></i></a><span style="font-weight: 400;">.</span></p>
+<p>The post <a href="https://pytorch.org/blog/muse-spark-open/">Muse Spark Is Now an Open-Weights Model</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Bringing ExecuTorch to Arm Cortex-M CPUs</title>
+		<link>https://pytorch.org/blog/bringing-executorch-to-arm-cortex-m-cpus/</link>
+		
+		<dc:creator><![CDATA[RJ Ascani (Meta), Adrian Lundell (Arm), Siddartha Pothapragada (Meta), Digant Desai (Meta), Zingo Andersen (Arm), Måns Nilsson (Arm), Erik Lundell (Arm)]]></dc:creator>
+		<pubDate>Thu, 15 Oct 2026 14:40:35 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=188033</guid>
+
+					<description><![CDATA[<p>TL;DR Deploying PyTorch models on microcontrollers has historically required converting to other framework formats, maintaining separate toolchains, and debugging cross-framework numerical mismatches. ExecuTorch eliminates this conversion step entirely. The Cortex-M...</p>
+<p>The post <a href="https://pytorch.org/blog/bringing-executorch-to-arm-cortex-m-cpus/">Bringing ExecuTorch to Arm Cortex-M CPUs</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h2>TL;DR</h2>
+<ul>
+<li>Deploying PyTorch models on microcontrollers has historically required converting to other framework formats, maintaining separate toolchains, and debugging cross-framework numerical mismatches. <strong>ExecuTorch eliminates this conversion step entirely.</strong></li>
+<li>The Cortex-M backend enables PyTorch models to run directly on Arm Cortex-M CPUs with Arm CMSIS-NN acceleration. It supports <strong>all capability tiers</strong> (Scalar, DSP, and MVE/Helium) from a single workflow.</li>
+<li>We benchmark four of the five models from the <strong>MLPerf Tiny suite</strong> on the Alif Ensemble E8. Each model runs in 21.5 ms or less and uses under 90 KiB of RAM on a single Cortex-M55 core.</li>
+<li>For heterogeneous SoCs, the Cortex-M backend also provides the <strong>CPU execution path alongside Ethos-U NPU</strong> delegation.</li>
+<li><strong>Minimal binary footprint.</strong> The ExecuTorch core runtime is under 20 KiB of flash, and operator selective build links only the operators your model needs, so total code size scales with the model rather than the framework.</li>
+</ul>
+<h2>Background</h2>
+<p>Microcontrollers power billions of always-on devices: wearables, industrial sensors, voice interfaces, and smart home appliances. These devices operate under extreme constraints: often less than 1 MB of SRAM, single-digit megabytes of flash, and power budgets measured in milliwatts. Despite these limitations, there&#8217;s growing demand to run meaningful ML workloads on these platforms and the hardware is evolving to meet it. Modern Cortex-M based microcontroller units (MCUs) now include DSP &amp; vector ISAs, large tightly-coupled memories (TCMs), and power-efficient NPUs such as the Arm Ethos-U NPU that make ML inference more practical in resource constrained devices.</p>
+<p>Until now, deploying ML on Cortex-M meant leaving the PyTorch ecosystem. Developers had to convert models to alternative formats, maintain separate toolchains for training and deployment, and debug numerical mismatches introduced during conversion. For teams that train in PyTorch, which accounts for over 90% of the research code published at top ML conferences, this translation step adds friction to every iteration cycle.</p>
+<p><a href="https://pytorch.org/blog/introducing-executorch-1-0/">ExecuTorch</a> was <a href="https://arxiv.org/abs/2605.08195">designed</a> to eliminate this gap. Arm MCU support has been available through the Ethos-U NPU, and the Cortex-M backend extends it to Cortex-M CPUs, so a model can run on parts with or without an accelerator. The trained PyTorch model is exported, quantized and lowered for the device within the same stack that serves models on mobile, desktop and server.</p>
+<h2>The Cortex-M Backend</h2>
+<p><!-- IMAGE PLACEHOLDER: Image 1 – Cortex-M backend diagram. Download from the Google Doc and re-upload via the WordPress Media Library. --></p>
+<p><a href="https://pytorch.org/wp-content/uploads/2026/10/cortex-m-lowering-flow.svg"><img decoding="async" class="alignnone size-full wp-image-188039" src="https://pytorch.org/wp-content/uploads/2026/10/cortex-m-lowering-flow.svg" alt="" /></a></p>
+<p>The ExecuTorch Cortex-M backend replaces standard PyTorch operators with <strong>CMSIS-NN-backed custom operators</strong> through ahead-of-time compiler passes. At inference time, these operators call directly into Arm&#8217;s <a href="https://arm-software.github.io/CMSIS-NN/latest/">CMSIS-NN library</a>, an open source collection of optimized neural network kernels for Cortex-M processors.</p>
+<p>Key properties:</p>
+<ul>
+<li><strong>CMSIS-NN accelerated.</strong> Quantized operations (linear, conv, add, mul, softmax, activations, etc.) are replaced with optimized implementations that call CMSIS-NN functions and additional optimized Cortex-M implementations directly.</li>
+<li><strong>Target-aware compilation.</strong> The CPU variant (M0 through M85) and ISA tier are specified at compile time, so the correct CMSIS-NN backend is selected, eliminating runtime dispatch overhead.</li>
+<li><strong>Purpose-built quantizer.</strong> Produces INT8 quantized graphs matching the data layout requirements of CMSIS-NN kernels, using PyTorch&#8217;s PT2E quantization framework.</li>
+<li><strong>Single compiler toolchain.</strong> The Cortex-M lowering path operates directly on the ExecuTorch edge dialect, keeping the compilation pipeline simple and debuggable.</li>
+</ul>
+<h3>Cortex-M Capability Tiers</h3>
+<p>The backend targets the full Cortex-M spectrum:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Cores</th>
+<th>Key Feature</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scalar</strong></td>
+<td>M0, M0+, M3, M23</td>
+<td>Standard ARM instructions</td>
+<td>Ultra-low-cost, minimal silicon</td>
+</tr>
+<tr>
+<td><strong>DSP</strong></td>
+<td>M4, M7, M33, M35P</td>
+<td>SIMD multiply-accumulate</td>
+<td>Mid-range MCUs, signal processing</td>
+</tr>
+<tr>
+<td><strong>MVE (aka Helium)</strong></td>
+<td>M55, M85</td>
+<td>128-bit vector ops, beat-based execution</td>
+<td><strong>High-performance MCU ML inference</strong></td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://www.arm.com/technologies/helium">Arm Helium technology</a> is where the biggest performance gains are. CMSIS-NN leverages Helium&#8217;s beat-based execution model to pipeline data movement and compute, providing significant throughput gains for the depthwise and pointwise convolutions common in edge ML architectures. That said, the same workflow targets all variants. The target configuration selects the appropriate backend automatically.</p>
+<h2>ExecuTorch is Embedded Friendly</h2>
+<p>Unlike mobile or cloud environments that must accommodate varied hardware at runtime, microcontroller deployments target a fixed hardware profile. Embedded developers possess precise knowledge of their deployment target, including the exact CPU core, available ISA extensions, SRAM allocation, and flash capacity.</p>
+<p>ExecuTorch&#8217;s ahead-of-time stack is designed to exploit this. ExecuTorch makes target-specific decisions at compile time: graph-level optimizations, memory planning, weight packing, and kernel selection are all target-aware at compile time.</p>
+<p>Concretely, for Cortex-M this means:</p>
+<ul>
+<li><strong>Graph-level compute elimination.</strong> Redundant dtype conversions, quantize/dequantize pairs, and memory format transposes are removed during lowering, so only necessary compute reaches the device.</li>
+<li><strong>Quantization parameter folding.</strong> Scale and zero-point arithmetic is precomputed into integer multiplier/shift form at export, so quantized kernel inference stays entirely in fixed-point.</li>
+<li><strong>AOT weight layout transposition.</strong> Convolution weights are transposed from PyTorch&#8217;s native layout (OIHW) to CMSIS-NN&#8217;s expected format (OHWI) at export time. The permute cost is paid once during compilation and never at inference.</li>
+<li><strong>Static memory planning across heterogeneous memories.</strong> All tensor and scratch buffers are allocated and laid out ahead of time, with support for spanning multiple memory regions (e.g., TCM and SRAM). Developers can also customize placement to put latency-critical buffers in fast local memory. No heap allocator, no fragmentation, and no runtime memory management required.</li>
+<li><strong>Target-specific operator replacement.</strong> The CortexMPassManager selects CMSIS-NN kernel variants matched to your core’s ISA tier (Scalar, DSP, or MVE) at compile time, not at runtime.</li>
+</ul>
+<h3>Developer Workflow</h3>
+<pre><code class="language-python">import torch
+from torchao.quantization.pt2e.quantize_pt2e import convert_pt2e, prepare_pt2e
+
+from executorch.backends.cortex_m.edge_compile_config import cortex_m_edge_compile_config
+from executorch.backends.cortex_m.passes.cortex_m_pass_manager import CortexMPassManager
+from executorch.backends.cortex_m.quantizer.quantizer import CortexMQuantizer
+from executorch.backends.cortex_m.target_config import CortexM, CortexMTargetConfig
+from executorch.exir import to_edge_transform_and_lower
+
+# 1. Export
+model = MyModel().eval()
+example_inputs = (torch.randn(1, 1, 49, 10),)
+exported = torch.export.export(model, example_inputs)
+
+# 2. Quantize and calibrate
+quantizer = CortexMQuantizer(use_explicit_layout=True)
+prepared = prepare_pt2e(exported.module(), quantizer)
+for sample in calibration_data:
+    prepared(sample)
+quantized = convert_pt2e(prepared)
+
+# 3. Re-export the quantized model
+quantized_exported = torch.export.export(quantized, example_inputs)
+
+# 4. Lower to Edge and apply the Cortex-M passes
+pass_manager = CortexMPassManager(
+    target_config=CortexMTargetConfig(cpu=CortexM.M55),
+    use_explicit_layout=True,
+)
+edge = to_edge_transform_and_lower(
+    quantized_exported,
+    compile_config=cortex_m_edge_compile_config(),
+    transform_passes=pass_manager,
+)
+
+# 5. Serialize for integration into firmware
+et_program = edge.to_executorch()
+with open("model.pte", "wb") as f:
+    f.write(et_program.buffer)
+</code></pre>
+<p>The resulting .pte binary is linked into firmware alongside the ExecuTorch runtime and CMSIS-NN library, then flashed to the device. At runtime, inference executes the precompiled graph with minimal runtime overhead and no dynamic memory allocation for tensors.</p>
+<h2>Using the Cortex-M Backend Alongside Ethos-U</h2>
+<p>Many Cortex-M MCUs pair the CPU with an Arm Ethos-U NPU such as the U55, U65, or U85. ExecuTorch&#8217;s <code>EthosUPartitioner</code> delegates supported operations to the NPU via the Vela compiler, and operations left outside the partition run on the Cortex-M CPU within the same graph.</p>
+<p>The Cortex-M passes run after Ethos-U partitioning and reuse the quantization parameters already in the graph. This allows a model quantized with <code>EthosUQuantizer</code> to use CMSIS-NN for CPU operations whose quantization, layout and shape constraints meet the Cortex-M backend requirements. Otherwise they fall back to ExecuTorch&#8217;s portable kernels, which are functional but not accelerated.</p>
+<p>The practical benefit is that NPU operator coverage is not an all-or-nothing gate. A model with a handful of undelegated operations can ship today on mixed CPU/NPU execution, and move more of the graph onto the NPU as coverage grows.</p>
+<h2>MLPerf Tiny Benchmark Suite</h2>
+<p>We measured inference latency and memory usage across four of the five <a href="https://mlcommons.org/working-groups/benchmarks/tiny/">MLPerf Tiny Inference</a> benchmark models on the <a href="https://alifsemi.com/ensemble-e8-series/">Alif Ensemble E8</a>. These benchmark models represent a set of common deep neural networks representative of TinyML workloads. The Alif E8 integrates multiple Cortex-M55 cores alongside Ethos-U55 and U85 NPUs; we measured on a single M55 high performance core running at 400 MHz, with the Ethos-U NPUs unused. ExecuTorch&#8217;s ahead-of-time memory planning means RAM usage is deterministic and bounded, with no fragmentation risk under sustained workloads. ExecuTorch’s operator selective build was used to only include those necessary for inference, creating a minimal flash footprint. All models were INT8 quantized using the <code>CortexMQuantizer</code> and the <a href="https://github.com/alifsemi/alif_ml-embedded-evaluation-kit">Alif ML Embedded Evaluation Kit</a> was used as a test harness. These are our own measurements rather than an official MLPerf Tiny submission, so they are not directly comparable to published results on the MLCommons leaderboard.</p>
+<p>All four models run in under 90 KiB of RAM, three of them in under 60 KiB, and the anomaly detection autoencoder in 5.2 KiB. Code footprint stays between 15 and 37 KiB because operator selective build links only the operators each model uses.</p>
+<table>
+<thead>
+<tr>
+<th rowspan="2">Model</th>
+<th rowspan="2">Task</th>
+<th rowspan="2">Latency (ms)</th>
+<th rowspan="2">Inferences per second</th>
+<th rowspan="2">Peak RAM (KiB)</th>
+<th colspan="3">Flash (KiB)</th>
+</tr>
+<tr>
+<th>Model</th>
+<th>Code *</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DS-CNN</strong></td>
+<td>Keyword Spotting</td>
+<td style="text-align: right;">5.825</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">26.00</td>
+<td>37.67</td>
+<td>36.03</td>
+<td><strong>73.70</strong></td>
+</tr>
+<tr>
+<td><strong>MobileNet v1 0.25</strong></td>
+<td>Visual Wake Words</td>
+<td style="text-align: right;">21.450</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">85.15</td>
+<td>253.07</td>
+<td>36.03</td>
+<td><strong>289.10</strong></td>
+</tr>
+<tr>
+<td><strong>ResNet-8</strong></td>
+<td>Image Classification</td>
+<td style="text-align: right;">15.290</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">55.14</td>
+<td>89.77</td>
+<td>29.82</td>
+<td><strong>119.59</strong></td>
+</tr>
+<tr>
+<td><strong>Autoencoder</strong></td>
+<td>Anomaly Detection</td>
+<td style="text-align: right;">1.208</td>
+<td style="text-align: right;">828</td>
+<td style="text-align: right;">5.20</td>
+<td>272.03</td>
+<td>14.97</td>
+<td><strong>287.00</strong></td>
+</tr>
+</tbody>
+</table>
+<p><em>* Code compiled with GCC 15.2.1 includes ExecuTorch core runtime (-Oz) and kernels (-O3) with logging disabled.</em></p>
+<h2>Demo: Real-time Person Detector</h2>
+<p><!-- IMAGE PLACEHOLDER: Image 2 – Person detector demo on Renesas EK-RA8D1. Download from the Google Doc and re-upload via the WordPress Media Library. --></p>
+<p><img fetchpriority="high" decoding="async" class="wp-image-188134 size-full aligncenter" src="https://pytorch.org/wp-content/uploads/2026/10/IMG_5203.gif" alt="" width="480" height="854" /></p>
+<p>To show what the Cortex-M backend enables in practice, we deployed a µYOLO person detection model on a Renesas EK-RA8D1 board, powered by the Arm Cortex-M85. The deployment fits comfortably within MCU-class memory constraints:</p>
+<ul>
+<li><strong>Task:</strong> Real-time person detection</li>
+<li><strong>Model:</strong> µYOLO, pruned depthwise separable CNN backbone with linear predictor head</li>
+<li><strong>Model size:</strong> 452 KiB (INT8 .pte file)</li>
+<li><strong>Total flash:</strong> 640 KiB</li>
+<li><strong>Peak RAM:</strong> 254 KiB</li>
+<li><strong>Inference latency:</strong> 24 ms per frame inference @ 480 MHz</li>
+<li><strong>End-to-end throughput:</strong> 12.7 FPS</li>
+<li><strong>Input:</strong> 128×128 RGB camera frame</li>
+</ul>
+<p>This example of resource-constrained, always-on vision on the edge supports applications such as robotics sensing, occupancy monitoring, safety systems, smart cameras, and presence-triggered devices.</p>
+<p>Just as importantly, the example demonstrates the development workflow enabled by ExecuTorch. The model definition, training code, export flow, and embedded deployment live within the same PyTorch-based ecosystem. Intermediate representations remain executable, making it possible to compare model outputs throughout export and lowering rather than treating deployment as a black box. The resulting graphs can also be inspected with tools such as <a href="https://github.com/arm/executorch-extension-model-explorer">Model Explorer</a>, while <a href="https://docs.pytorch.org/executorch/stable/etdump.html">ETDump</a> exposes per-operator execution costs for profiling on the target. Together, these tools make it possible to iterate on model architecture, accuracy, memory use, and latency while continuously checking that transformations have preserved model behaviour. Instead of exporting a model and only discovering numerical or performance regressions after deployment, developers can inspect and execute intermediate stages of the transformation pipeline.</p>
+<p>The model definition, training and export flow are available in the <a href="https://github.com/pytorch/executorch/tree/main/examples/arm/person_detection_example_cortex_m">ExecuTorch repository</a>. To facilitate an easy bring-up of the demo without the need for a physical target, the in-tree application is targeted for the <a href="https://www.arm.com/products/development-tools/simulation/fixed-virtual-platforms">Corstone FVP</a>. Board-specific bring-up for the on-device demo was based on code from the <a href="https://github.com/renesas/ra-fsp-examples">ra-fsp-examples repo</a>, configured with the <a href="https://www.renesas.com/en/software-tool/ra-smart-configurator">RA Smart Configurator</a>, built using the <a href="https://developer.arm.com/tools-and-software/gnu-toolchain">Arm GNU Toolchain</a>, and flashed using <a href="https://www.segger.com/products/debug-probes/j-link/technology/flash-download/">J-Link Flash</a>. For measurements above, the weights of the most expensive operators were placed in DTCM, and the instruction cache was enabled. This resulted in an inference latency reduction from 191 ms to 24 ms, a nearly 8x improvement.</p>
+<h2>Getting Started</h2>
+<p>The Cortex-M backend is available today in the ExecuTorch repository:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.pytorch.org/executorch/main/backends/arm-cortex-m/arm-cortex-m-overview.html">Cortex-M Backend Documentation</a></td>
+<td>Supported operators, target configuration, and build setup</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pytorch/executorch/tree/main/examples/arm">Arm Backend Examples</a></td>
+<td>Full example directory with setup scripts</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Arm-Examples/cmsis-executorch">CMSIS-ExecuTorch Project Template</a></td>
+<td>Docker build + Keil Studio + AVH simulation</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Arm-Examples/cmsis-zephyr-executorch">Zephyr RTOS Integration</a></td>
+<td>ExecuTorch on Zephyr with CMSIS Toolbox</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pytorch/executorch/tree/main/examples/raspberry_pi/pico2">Raspberry Pi Pico 2 Example</a></td>
+<td>Cortex-M33, MNIST digit classification</td>
+</tr>
+</tbody>
+</table>
+<h3>Platforms</h3>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>CPU</th>
+<th>Available via</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Arm Corstone-300 FVP</strong></td>
+<td>Cortex-M55 + Ethos-U55</td>
+<td>In-tree examples, exercised in CI</td>
+</tr>
+<tr>
+<td><strong>Arm Corstone-320 FVP</strong></td>
+<td>Cortex-M85 + Ethos-U85</td>
+<td>In-tree examples, exercised in CI</td>
+</tr>
+<tr>
+<td><strong>Alif Ensemble E8</strong></td>
+<td>Cortex-M55 (MVE)</td>
+<td><a href="https://github.com/alifsemi/alif_ml-embedded-evaluation-kit">Alif ML Embedded Evaluation Kit</a></td>
+</tr>
+<tr>
+<td><strong>Raspberry Pi Pico 2</strong></td>
+<td>Cortex-M33 (DSP)</td>
+<td>In-tree example</td>
+</tr>
+<tr>
+<td><strong>Renesas EK-RA8D1</strong></td>
+<td>Cortex-M85</td>
+<td>Out-of-tree board port; in-tree demo runs on Corstone FVP</td>
+</tr>
+</tbody>
+</table>
+<h2>What&#8217;s Next</h2>
+<ul>
+<li><strong>Expanded mixed-precision support.</strong> Extending A8W4 and A16W8 mixed-precision support across the full operator set.</li>
+<li><strong>Floating-point kernels.</strong> CMSIS-NN 8.0.0 introduced fp32 and fp16 MVE kernels. Exposing them via the Cortex-M backend enables non-fully quantized models to use the same lowering path without separate deployment flows.</li>
+<li><strong>Broader operator coverage.</strong> Adding support for attention operators, layer normalization, and other popular architecture patterns beyond traditional CNNs, along with CMSIS-DSP operators such as FFT so feature extraction can run as part of the graph.</li>
+<li><strong>More end-to-end examples.</strong> Voice activity detection, gesture recognition, predictive maintenance, and streaming wake word, the fifth MLPerf Tiny benchmark, which needs test infrastructure for multi-frame inference.</li>
+<li><strong>Additional hardware validation.</strong> Expanding the set of validated platforms and development kits.</li>
+</ul>
+<p>We&#8217;re excited about what this unlocks for the embedded ML community. If you&#8217;re deploying ML at the edge, whether on a $1 sensor node or a Cortex-M55 running voice commands, ExecuTorch now provides a direct path from PyTorch training to on-device inference.</p>
+<p>Learn more at <a href="https://docs.pytorch.org/executorch/main/index.html">ExecuTorch Documentation</a> | <a href="https://github.com/pytorch/executorch/">ExecuTorch repo</a> | <a href="https://github.com/pytorch/executorch/tree/main/backends/cortex_m">Cortex-M Backend</a> | <a href="https://discord.gg/Dh43CKSAdc">ExecuTorch Discord</a></p>
+<p>The post <a href="https://pytorch.org/blog/bringing-executorch-to-arm-cortex-m-cpus/">Bringing ExecuTorch to Arm Cortex-M CPUs</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Extending Inductor for the IBM Spyre Accelerator</title>
 		<link>https://pytorch.org/blog/extending-inductor-for-the-ibm-spyre-accelerator/</link>
 		
@@ -160,7 +491,7 @@
 <h2>Introduction</h2>
 <p>Agentic workloads have changed the shape of the traffic an inference server sees. A coding session opens with a large prefill, often tens of thousands of tokens of system prompt, tool definitions, and user-specific guidance, and every turn after that appends to a context the session resends in full. One task fans out into dozens of such calls, alongside short and long lived subagents running in parallel. Most of a session&#8217;s wall-clock time passes between tool calls, with its context sitting resident in the KV cache while nothing generates. Serving these well comes down to how much of that context a system keeps resident and reuses, and how many sessions it holds at once while still meeting latency targets This contrast between agentic workloads and that of a standard chatbot is shown in Figure one.</p>
 <p><!-- IMAGE PLACEHOLDER: Figure 1 (image1) - download from the Doc and upload via WP media library --></p>
-<p><em><img fetchpriority="high" decoding="async" class="alignnone wp-image-172935 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Agentic-Model-Chain-GIF-2-1.gif" alt="" width="1280" height="720" /></em></p>
+<p><em><img decoding="async" class="alignnone wp-image-172935 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Agentic-Model-Chain-GIF-2-1.gif" alt="" width="1280" height="720" /></em></p>
 <p><em>Figure 1: Compares the alternating user and model turns of a standard chatbot with an agentic workflow that includes tool calls and tool responses. In the agentic workflow, a single user request can trigger multiple inference calls, with subsequent steps depending on intermediate results.</em></p>
 <p>Most open-source serving stacks are still built for the model on top of the figure. They route, admit, and cache each request on its own, with no notion of the harness or the session that ties it to previous turns.</p>
 <p>Serving this shape optimally is something we have been building towards. In our previous post, <a href="https://developer.nvidia.com/blog/full-stack-optimizations-for-agentic-inference-with-nvidia-dynamo/">Full-Stack Optimizations for Agentic Inference</a>, we shared work across three layers of the NVIDIA Dynamo stack: the router, the inference engine, and the KV cache manager. Over the last few months we&#8217;ve unified this work around a single primitive: a common session-level identifier. Session-level ID (often called program or trajectory in papers and academia) turns request-aware infrastructure into program-aware infrastructure, and serves as the foundation for additional session-aware optimizations.</p>
@@ -1097,221 +1428,7 @@ python scripts/autotune_helion_kernels.py \
 		
 		
 			</item>
-		<item>
-		<title>Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</title>
-		<link>https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/</link>
-		
-		<dc:creator><![CDATA[Han Xu, Jacky Zhou, Jackie (Jiaqi) Xu, Hongtao Yu, Peng Chen (Dev Infra), Darren Liu, Dev (Devashish) Shankar, Max Leung, Nick Riasanovsky, Hao Yan, Manman Ren, Yuanwei (Kevin) Fang]]></dc:creator>
-		<pubDate>Thu, 01 Oct 2026 22:26:57 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=171511</guid>
-
-					<description><![CDATA[<p>TL;DR In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built...</p>
-<p>The post <a href="https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/">Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<h2><span style="font-weight: 400;">TL;DR</span></h2>
-<p><span style="font-weight: 400;">In this blog post, we present our work on Jagged Flash Attention (JFA) — the attention kernel behind Meta&#8217;s Generative Ads Model (GEM) — on NVIDIA Blackwell (B200), built with TLX (Triton Low-level Extensions), which add explicit, hardware-aware control on top of Triton&#8217;s high-level, tile-based programming model. </span></p>
-<p><span style="font-weight: 400;">Attention is the single slowest kernel in GEM, and reaching peak Blackwell performance has traditionally required hand-written CuteDSL or CUDA — slow to develop and hard to extend to new variants. We show that TLX closes this gap on both fronts. On development efficiency, the TLX attention kernel is about </span><b>3.2K lines of concise Triton-level code</b><span style="font-weight: 400;"> — roughly 3× less than the ~10K-line CuteDSL kernels of the state-of-the-art FlashAttention-4 (FA4). On performance, it outperforms FA4 (May 2026 version)  on the jagged shapes that matter for GEM — by </span><b>~13% on the forward pass and ~50% on the backward pass</b><span style="font-weight: 400;">. And by staying in Triton&#8217;s high-level model, the kernel is approachable enough for modeling engineers, not just kernel specialists, to read, extend, and fuse.</span></p>
-<p><span style="font-weight: 400;">We organize the work in two parts — the structural changes the TLX rewrite makes possible, and the optimizations we layer on top — all benchmarked in bfloat16 on B200 against FA4, the current state of the art on Blackwell.</span></p>
-<p><span style="font-weight: 400;">Code available at: </span><a href="https://github.com/facebookresearch/ads_model_kernel_library/tree/main/tlx_jfa"><span style="font-weight: 400;">https://github.com/facebookresearch/ads_model_kernel_library/tree/main/tlx_jfa</span></a></p>
-<h2><span style="font-weight: 400;">Introduction</span></h2>
-<p><span style="font-weight: 400;">Meta&#8217;s ads models, including the Generative Ads Model (GEM) [2] and the Kunlun architecture [5], run attention over jagged (variable-length or ragged) user sequences. As described in our </span><a href="https://engineering.fb.com/2026/08/03/ml-applications/training-gem-at-llm-scale-meta-ads-recommendation-foundation-model/"><span style="font-weight: 400;">GEM training deep dive</span></a><span style="font-weight: 400;">, padding these sequences to a fixed length can waste up to 50% of compute. GEM instead packs sequences contiguously and records each sequence&#8217;s boundaries in an offsets tensor.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-171512 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/1.png" alt="" width="1376" height="768" srcset="https://pytorch.org/wp-content/uploads/2026/09/1.png 1376w, https://pytorch.org/wp-content/uploads/2026/09/1-300x167.png 300w, https://pytorch.org/wp-content/uploads/2026/09/1-1024x572.png 1024w" sizes="(max-width: 1376px) 100vw, 1376px" />Jagged Flash Attention is the kernel-level mechanism that makes this padding-free representation efficient: it applies the FlashAttention algorithm directly to packed Q/K/V tensors and their offsets, without ever materializing padded tokens. The earlier GEM post described this challenge at the training-system level; here, we focus on optimizing the underlying attention kernel for Blackwell.</p>
-<p><span style="font-weight: 400;">Hitting peak throughput on Blackwell means keeping the tensor cores continuously fed. Plain Triton leaves most of these decisions to the compiler; TLX [1] exposes them as first-class primitives (explicit SMEM/TMEM allocation, async_task warp specialization, barriers, async TMA and MMA, and CLC). The rest of the post uses that control to turn a compiler-scheduled, memory-bound kernel into a tightly pipelined, warp-specialized one.</span></p>
-<h2><span style="font-weight: 400;">1. The Challenge: Performant and Extensible Attention on Blackwell</span></h2>
-<p><span style="font-weight: 400;">Optimizing attention on Blackwell means solving two problems at once. The first is performance: attention is the single slowest kernel in GEM, and it reaches peak throughput only when the global-memory loads, softmax, and matmuls are tightly overlapped. The second is iteration speed: attention is where new modeling ideas land (sliding window, block-sparse, and other variants), so the kernel is edited often — yet the state-of-the-art path to that performance is a hand-written CuteDSL/CUDA kernel that is hard to read, extend, or fuse. Our aim with TLX is to </span><b>strike the balance</b><span style="font-weight: 400;">: competitive performance in a kernel that stays easy to iterate on.</span></p>
-<p><b>Why a compiler-scheduled baseline falls short.</b><span style="font-weight: 400;"> Our starting point is a mature Triton-based JFA kernel — algorithmically correct, but it leaves all on-chip data movement and scheduling to the compiler: no control over shared-memory allocation or pipeline depth, no explicit barriers or warp specialization, and a single homogeneous warp group doing loads, softmax, and matmuls at once, so the tensor cores stall whenever it is not issuing an MMA. Breaking that ceiling is exactly what TLX&#8217;s explicit control enables.</span></p>
-<p><b>The production case, broadcast-Q, further shapes the design:</b><span style="font-weight: 400;"> a single dense Q is broadcast across every sequence in the batch, so its gradient </span><b>dQ must be summed across the entire batch</b><span style="font-weight: 400;"> — turning the dQ epilogue into a heavily contended cross-program reduction that several of our optimizations exist to make fast. Unless noted otherwise, the rest of the post assumes broadcast_q=True.</span></p>
-<h2><span style="font-weight: 400;">2. Optimizing Jagged Flash Attention with TLX</span></h2>
-<p><span style="font-weight: 400;">Our work falls into two categories. </span><b>Structural changes</b><span style="font-weight: 400;"> (§2.1) are the ground-up reorganization of the kernel that TLX makes possible — they change how work and memory are laid out across the CTA&#8217;s warps. </span><b>Optimizations</b><span style="font-weight: 400;"> (§2.2) keep that structure fixed and squeeze out additional performance, mostly by removing stalls and wasted work. We motivate each by the bottleneck it targets rather than the mechanics of its implementation.</span></p>
-<h3><span style="font-weight: 400;">2.1 Structural changes</span></h3>
-<p><span style="font-weight: 400;">Warp specialization, explicit shared-/tensor-memory management, and barrier pipelining are standard ingredients of any high-performance Blackwell attention kernel, so we keep this brief — what matters is that TLX lets us express them in high-level Triton code rather than hand-written CuteDSL or CUDA, which is what made the §2.2 optimizations fast to prototype. Concretely, we split the CTA into role-specialized async tasks — dedicated warps for TMA loads, tensor-core matmuls, softmax/correction math, and the epilogue store, plus a dedicated dQ-reduction warp in the backward — so the tensor cores stay fed with back-to-back MMAs while softmax runs concurrently, instead of one warp group stalling the matmuls as in the baseline.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-171513 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/2.png" alt="" width="1620" height="900" srcset="https://pytorch.org/wp-content/uploads/2026/09/2.png 1620w, https://pytorch.org/wp-content/uploads/2026/09/2-300x167.png 300w, https://pytorch.org/wp-content/uploads/2026/09/2-1024x569.png 1024w" sizes="(max-width: 1620px) 100vw, 1620px" /></p>
-<p><span style="font-weight: 400;">The same explicit control extends to memory and scheduling: we hand-allocate every on-chip buffer and choose its pipeline depth (e.g. triple-buffered K/V so the load warp runs ahead), alias TMEM buffers with non-overlapping lifetimes (QK scores, P, and the softmax statistics share one allocation while the PV accumulator keeps its own), hand data between warps through explicit producer/consumer barriers for a deterministic pipeline, and make both passes persistent — one CTA per SM looping over tiles. None of this is expressible in plain Triton, and the persistent structure in particular gives us a place to make our own scheduling decisions — the foundation for §2.2.</span></p>
-<h3><span style="font-weight: 400;">2.2 Optimizations</span></h3>
-<p><span style="font-weight: 400;">With the warp-specialized, persistent structure in place, the remaining work is to eliminate the stalls and wasted work that keep the tensor cores from staying busy. The following optimizations are largely independent and each targets a specific bottleneck.</span></p>
-<p><span style="font-weight: 400;">We found them with a consistent methodology: NVIDIA Nsight Compute (NCU) to read hardware counters such as tensor-core/TMEM pipeline utilization, SM-busy, and register spills (which show up as local-memory traffic); the ptxas dump logs to confirm spills; and TritonBench in profiler-measure mode for clean before/after A/B latency. The optimizations fall into two groups. Some we adopt from the FA4 implementation — which itself shows that TLX can express, in readable Python, the same techniques a hand-written CuteDSL kernel uses. Others we derive ourselves, from profiling and analysis of our own kernel, targeting the jagged broadcast-Q workload specifically.</span></p>
-<p><span style="font-weight: 400;">At a glance, the optimizations below are:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><b>Scheduling jagged tiles across SMs</b><span style="font-weight: 400;"> — software load balancing plus Cluster Launch Control keep every SM busy despite the order-of-magnitude length skew of jagged inputs (forward and backward).</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Multi-stage dQ staging</b><span style="font-weight: 400;"> — a double-buffered SMEM staging pipeline hides the heavily contended broadcast-Q dQ reduce-add, the #1 backward bottleneck.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Early tensor-memory release</b><span style="font-weight: 400;"> — freeing the dQ tensor-memory buffer before its final stores lets the MMA warp start the next tile&#8217;s dQ matmul sooner.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Loop peeling</b><span style="font-weight: 400;"> — splitting the KV loop into a branch-free bulk pass and a tiny masked tail removes per-iteration mask overhead and the register spills it causes.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>2-CTA collaborative MMA</b><span style="font-weight: 400;"> — two CTAs cooperate on a single matmul to raise tensor-core utilization in the matmul-heavy backward (adopted from FA4).</span></li>
-</ul>
-<h4>Scheduling jagged tiles across SMs</h4>
-<p><span style="font-weight: 400;">Jagged inputs create severe load imbalance across SMs: with sequence lengths varying by orders of magnitude, a naive tile-to-SM mapping leaves some SMs idle while others grind through the long sequences. An SM-occupancy heatmap (Triton-MPP) makes this visual — a few rows stay hot long after the rest go idle. A truly greedy rebalancing is near-optimal but cannot be vectorized, so it blows up host-side launch overhead.</span></p>
-<p><span style="font-weight: 400;">In the forward pass the outer loop is over the dense Q and the inner loop over the jagged K/V, so a tile&#8217;s cost is proportional to its batch&#8217;s key length — the tiles are highly non-uniform. Balancing this is our own idea for the jagged case: on the host we sort all tiles by KV workload (descending) and hand them to SMs in a zigzag (boustrophedon) pattern — even passes fill SMs left-to-right, odd passes right-to-left — so every SM ends up with a balanced mix of long and short tiles at negligible CPU cost. This recovered roughly 20% on the forward kernel.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-171516 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/3.png" alt="" width="1396" height="1038" srcset="https://pytorch.org/wp-content/uploads/2026/09/3.png 1396w, https://pytorch.org/wp-content/uploads/2026/09/3-300x223.png 300w, https://pytorch.org/wp-content/uploads/2026/09/3-1024x761.png 1024w" sizes="(max-width: 1396px) 100vw, 1396px" /></p>
-<p><span style="font-weight: 400;">The backward needs a different strategy. Its dK/dV pass loops over K/V blocks on the outside and the dense Q on the inside, so now the K/V blocks are the tiles: each one is roughly uniform in cost (a K/V block against the shared dense Q), but the number of tiles per batch varies with the jagged key length. Sorting by workload no longer helps — instead we precompute the list of valid (batch, head, K/V-block) tiles on the host and round-robin them across SMs, using a block-innermost ordering so consecutive tiles reuse the same K/V in L2, and padding each head&#8217;s block count to a multiple of the cluster size for the 2-CTA path. Distributing a variable count of equal-cost tiles this way keeps every SM busy without any sorting.</span></p>
-<p><span style="font-weight: 400;">Static balancing handles the skew we can predict ahead of time; the residual variance that only shows up at runtime is handled dynamically by Cluster Launch Control (CLC) [3]. A Blackwell feature, CLC hands out the next tile index on demand, so whichever SM finishes first grabs the next piece of work and no single long sequence stalls the grid.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-171519 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/4.png" alt="" width="1400" height="700" srcset="https://pytorch.org/wp-content/uploads/2026/09/4.png 1400w, https://pytorch.org/wp-content/uploads/2026/09/4-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/4-1024x512.png 1024w" sizes="(max-width: 1400px) 100vw, 1400px" /></p>
-<p style="text-align: center;"><i><span style="font-weight: 400;">CTAs workload heapmat without CLC</span></i></p>
-<p><img decoding="async" class="aligncenter wp-image-171522 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/5.png" alt="" width="1400" height="700" srcset="https://pytorch.org/wp-content/uploads/2026/09/5.png 1400w, https://pytorch.org/wp-content/uploads/2026/09/5-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/5-1024x512.png 1024w" sizes="(max-width: 1400px) 100vw, 1400px" /></p>
-<p style="text-align: center;"><i><span style="font-weight: 400;">CTAs workload heatmap with CLC</span></i></p>
-<p><span style="font-weight: 400;">We apply CLC to both the forward and backward kernels; in TLX it is a lightweight producer/consumer protocol over a shared scheduling context.</span></p>
-<p><span style="font-weight: 400;">Although software load balancing and CLC may look redundant — both spread work across SMs — they are complementary: CLC schedules dynamically yet cannot tell which tiles are empty, so on jagged (and especially sparse) inputs it still spends cycles handing out the sentinel/empty tiles that padding introduces, whereas our host-side valid-tile precompute prunes those up front. That is why software load balancing stays valuable even on a CLC-capable kernel.</span></p>
-<h4>Multi-stage dQ staging</h4>
-<p><span style="font-weight: 400;">Triton-MPP barrier analysis of the backward pinned the dQ epilogue as the #1 bottleneck: its reduce-add to HBM accounted for ~9–11% of lost tensor-core utilization, the single largest actionable gap. Two things make it slow. First, because dQ is summed across the whole batch, every SM issues reduce-adds into the same dQ locations — heavy contention. Second, the high-level reduce-add API serializes them — each column slice&#8217;s add must finish before the next begins, with no pipelining.</span></p>
-<p><span style="font-weight: 400;">We make the staging explicit and double-buffered so that one slice&#8217;s reduce-add to HBM overlaps the next slice&#8217;s copy out of TMEM, keeping a store in flight at all times:</span></p>
-<pre><code class="language-python">NCOL   = BLOCK_D // (EPILOGUE_SUBTILE * 2)   # narrow column slices, sized to fit SMEM
-STAGES = 2                                   # double-buffered staging
-dq_smem = tlx.local_alloc((BLOCK_M, NCOL), dq.dtype, STAGES)
-
-for s in range(BLOCK_D // NCOL):
-    # TMEM -&gt; registers
-    dq = tlx.local_load(dq_tmem[:, s * NCOL : (s + 1) * NCOL]) * LN2
-
-    # registers -&gt; SMEM (ping-pong)
-    tlx.local_store(dq_smem[s % STAGES], dq.to(dq.dtype))
-    tlx.fence_async_shared()
-
-    tlx.async_descriptor_store(desc_dq, dq_smem[s % STAGES],
-                               offsets, store_reduce="add")  # SMEM -&gt; HBM, accumulating
-
-    # keep at most 1 store in flight
-    tlx.async_descriptor_store_wait(STAGES - 1)</code></pre>
-<p>The technique generalizes to any shared-memory-bound reduce-store epilogue, not just attention.</p>
-<h4>Early tensor-memory release</h4>
-<p>The same analysis showed why that epilogue stalls the math from the TMEM side: the reduction warp holds the dQ tensor-memory buffer until all of its slices have been drained to HBM, so the MMA warp blocks on the dq-empty barrier before it can start the next tile&#8217;s dQ matmul. A waterfall test that simply removed the dQ store confirmed it, recovering +8–11% of tensor-core utilization across sequence lengths.</p>
-<p>The improvement is to pre-load the last one or two slices into registers and release the TMEM buffer before issuing their stores, so the MMA warp can begin reusing that memory while the reduction warp finishes writing to HBM:</p>
-<pre><code class="language-python"><span style="color: #993366;"># Drain most slices the normal way
-# (TMEM -&gt; SMEM -&gt; async reduce-add to HBM).
-<span style="color: #0000ff;">for</span></span> s <span style="color: #0000ff;">in range</span>(N_SLICES - EARLY_RELEASE_SUBTILES):
-    reduce_add_slice(s)
-<span style="color: #993366;">
-# Pre-load the final 1-2 slices into registers FIRST, then release
-# the dQ TMEM buffer immediately
-# so the MMA warp can start the next tile's dQ matmul.</span>
-dq_tail = tlx.local_load(dq_tmem[:, last_slice])   <span style="color: #993366;"># TMEM -&gt; registers</span>
-tlx.barrier_arrive(dq_empties[buf])                <span style="color: #993366;"># &lt;-- TMEM freed early</span>
-reduce_add_from_registers(dq_tail)</code></pre>
-<p>How many slices to release early is autotuned (1 or 2); the optimal choice is small because releasing more raises register pressure enough to hurt. Together with multi-stage staging, this lets the MMA warp begin the next dQ matmul while the previous tile&#8217;s dQ is still being written out.</p>
-<h4>Loop peeling</h4>
-<p><span style="font-weight: 400;">NCU profiling showed the forward was MMA-issue starved — not memory- or compute-bound — with the tensor-core (TMEM) pipeline at ~57% utilization versus FA4&#8217;s ~82% on the same shape, and the lost cycles coming from softmax-warp overhead bubbling into the MMA-issue gaps. Anything that shrinks or simplifies the softmax body therefore lets the MMA warp pick up work sooner.</span></p>
-<p><span style="font-weight: 400;">Two signals point at the culprit. First, the ptxas dumps and NCU show register spills (local-memory traffic) in the register-heavy softmax warp — in an earlier round, simply granting the warps more registers cut that traffic by ~40% for a ~6% forward gain, confirming the pressure is real. Second, the worst offender is a per-iteration mask branch in the KV loops that only ever matters on the partial last tile.</span></p>
-<p><span style="font-weight: 400;">The reason this branch is costly is subtle and specific to how the compiler allocates registers: Triton/TLX assign registers to variables </span><i><span style="font-weight: 400;">statically</span></i><span style="font-weight: 400;">, so a mask branch living inside the hot loop forces the compiler to reserve registers for the variables used only in the rarely-taken masked path (the column offsets, the mask tensor, the select) across the </span><i><span style="font-weight: 400;">entire</span></i><span style="font-weight: 400;"> loop. That permanent reservation raises register pressure and can trigger spills — especially damaging for the register-heavy softmax warp.</span></p>
-<p><span style="font-weight: 400;">The fix is to peel the loop into a branch-free bulk pass plus a tiny masked tail. Because the mask flag is a compile-time constant, the bulk body contains no mask variables at all, so the compiler frees those registers and can schedule a tighter MMA-issue cadence:</span></p>
-<pre><code class="language-python"><span style="color: #993366;"># APPLY_MASK is constexpr: with APPLY_MASK=False the compiler statically removes the
-# comparison, the offs_n / mask tensors, and the select -&gt; a branch-free body that
-# does not reserve registers for the (rare) masked path.</span>
-aligned = (klen // BLOCK_N) * BLOCK_N
-
-<span style="color: #0000ff;">for</span> start_n <span style="color: #0000ff;">in</span> tl.<span style="color: #0000ff;">range</span>(lo, aligned, BLOCK_N):  <span style="color: #993366;"># bulk: straight-line, no mask code</span>
-    softmax_iter(start_n, ..., APPLY_MASK=False)
-
-<span style="color: #0000ff;">for</span> start_n <span style="color: #0000ff;">in</span> tl.<span style="color: #0000ff;">range</span>(aligned, klen, BLOCK_N): <span style="color: #993366;"># tail: 0 or 1 iteration</span>
-    softmax_iter(start_n, ..., APPLY_MASK=True)  <span style="color: #993366;"># mask only the partial last tile</span></code></pre>
-<p>We apply the same peeling to the register-heavy paths in both the forward softmax loop and the backward, where the gain comes not from skipping a cheap runtime branch but from the reduced register pressure it unlocks; in the backward it specifically reclaims the ~9% latency that the correctness masks would otherwise add.</p>
-<h4>2-CTA collaborative MMA (backward)</h4>
-<p><span style="font-weight: 400;">The backward is matmul-heavy — computing dQ, dK, and dV takes five GEMMs per K/V block — and a single CTA does not fully utilize the Blackwell tensor cores on its own. We adopt FA4&#8217;s 2-CTA (paired-CTA tcgen05) scheme: two CTAs in a cluster cooperate on one wider collaborative matmul over two adjacent K/V blocks of the same (batch, head), splitting the accumulator rows across the two SMs and exchanging the dS intermediate on-chip over distributed shared memory (DSMEM) rather than through global memory. Feeding a single MMA from both SMs raises tensor-core utilization on the backward.</span></p>
-<p><span style="font-weight: 400;">What is ours here is the TLX implementation: porting the scheme to our jagged, broadcast-Q layout and running it under our persistent and CLC multi-tile schedulers.</span></p>
-<p><img decoding="async" class="aligncenter wp-image-171525 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/6.png" alt="" width="896" height="1200" srcset="https://pytorch.org/wp-content/uploads/2026/09/6.png 896w, https://pytorch.org/wp-content/uploads/2026/09/6-224x300.png 224w, https://pytorch.org/wp-content/uploads/2026/09/6-765x1024.png 765w" sizes="(max-width: 896px) 100vw, 896px" /></p>
-<p><span style="font-weight: 400;">Scoped to the production broadcast-Q, HEAD_DIM=128 case, it adds about +12% throughput (−11% latency) in the backward over the single-CTA path.</span></p>
-<h3><span style="font-weight: 400;">Performance</span></h3>
-<p><span style="font-weight: 400;">We benchmark on B200 (bf16) in two regimes: the production jagged case (Hierarchical Seed Pooling (HSP) — a broadcast dense Q against jagged K/V) and an LLM-style dense case (equal-length Q/K/V), both against FA4, the state-of-the-art open-source CuteDSL FlashAttention-4 [6] kernel (May 2026 version). On the jagged shapes — the ones that matter for Ads — TLX outperforms FA4 on both passes: the forward is faster across most shapes and sparsities (about +13% on average, trailing only on the longest sequences at high density), and the backward is faster everywhere, by about +50% on average. On the dense shapes the forward is competitive (~87% of FA4) while the backward again wins (~+17%). The jagged charts sweep sparsity from 0.1 (highly variable lengths) through 0.5 to 0.9 (nearly uniform lengths, with 1.0 meaning all sequences are the same length) — the range seen in production.</span></p>
-<p><b>Jagged (broadcast-Q) — forward TFLOPS (bf16, B200)</b></p>
-<p><img decoding="async" class="aligncenter wp-image-171530 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/7.png" alt="" width="1692" height="730" srcset="https://pytorch.org/wp-content/uploads/2026/09/7.png 1692w, https://pytorch.org/wp-content/uploads/2026/09/7-300x129.png 300w, https://pytorch.org/wp-content/uploads/2026/09/7-1024x442.png 1024w" sizes="(max-width: 1692px) 100vw, 1692px" /></p>
-<p><b>Jagged (broadcast-Q) — backward TFLOPS (bf16, B200)</b></p>
-<p><img decoding="async" class="aligncenter wp-image-171531 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/8.png" alt="" width="1926" height="792" srcset="https://pytorch.org/wp-content/uploads/2026/09/8.png 1926w, https://pytorch.org/wp-content/uploads/2026/09/8-300x123.png 300w, https://pytorch.org/wp-content/uploads/2026/09/8-1024x421.png 1024w" sizes="(max-width: 1926px) 100vw, 1926px" /></p>
-<p><b>LLM dense — forward TFLOPS (bf16, B200, B=768, H=4, head_dim=128)</b></p>
-<p><img decoding="async" class="aligncenter wp-image-171536 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/9.png" alt="" width="1358" height="680" srcset="https://pytorch.org/wp-content/uploads/2026/09/9.png 1358w, https://pytorch.org/wp-content/uploads/2026/09/9-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/9-1024x513.png 1024w" sizes="(max-width: 1358px) 100vw, 1358px" /></p>
-<p><b>LLM dense — backward TFLOPS (bf16, B200, B=768, H=4, head_dim=128)</b></p>
-<p><img decoding="async" class="aligncenter wp-image-171537 size-full" src="https://pytorch.org/wp-content/uploads/2026/09/10.png" alt="" width="1358" height="680" srcset="https://pytorch.org/wp-content/uploads/2026/09/10.png 1358w, https://pytorch.org/wp-content/uploads/2026/09/10-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/09/10-1024x513.png 1024w" sizes="(max-width: 1358px) 100vw, 1358px" /></p>
-<h2><span style="font-weight: 400;">3. Attention Variants: the flexibility of TLX</span></h2>
-<p><span style="font-weight: 400;">A practical benefit of building on TLX is that the kernel is structured enough to </span><i><span style="font-weight: 400;">fork</span></i><span style="font-weight: 400;"> for new requirements without a ground-up rewrite. Because the warp specialization, memory allocation, barriers, and scheduling are written once in readable Python-level code, retargeting the kernel to a new numerical format or a new attention pattern mostly comes down to changing the math, not the machinery. Two variants illustrate this.</span></p>
-<h4>Low-precision (MXFP8) attention</h4>
-<p><span style="font-weight: 400;">For FP8-tolerant training we built a microscaling-FP8 variant of both the forward and backward by swapping the BF16 matmuls for TLX&#8217;s block-scaled MMA (FP8 E4M3 data with E8M0 per-block scale factors), reusing the same warp-specialized skeleton, barriers, and TMEM layout. The softmax output P is quantized to FP8 on the fly and its scale factors are kept in tensor memory so the block-scaled MMA can consume them directly.</span></p>
-<p><span style="font-weight: 400;">After tuning, the MXFP8 forward lands above FA4&#8217;s own FP8 kernel and the backward reaches parity with FA4 at dense — both comfortably beating the BF16 baseline — a large throughput win obtained largely by changing the GEMM calls rather than the kernel structure.</span></p>
-<h4>Block-sparse attention</h4>
-<p><span style="font-weight: 400;">For long jagged histories where full O(N²) attention dominates, we built a two-stage sparse variant [4]. A cheap scoring kernel average-pools each Q and K block and selects the top-k most relevant KV blocks per Q block (a tunable selection ratio); a TLX attention kernel — forked from the dense one with per-tile sparse block iteration added — then runs attention over only the selected blocks.</span></p>
-<p><span style="font-weight: 400;">It reuses the same warp-specialized structure, CLC dispatch, and software load balancing (here used to skip unselected and empty tiles), stays PT2-friendly, and still supports broadcast-Q, GQA, and windowing. At a 0.5 selection ratio the forward is roughly 1.3–1.5× faster than dense across the sequence lengths we tested.</span></p>
-<p><span style="font-weight: 400;">In both cases the bulk of the kernel carried over unchanged; only the math — the GEMM precision, or the set of KV blocks each tile visits — differed. That reuse is the practical payoff of TLX: the same kernel can be re-targeted to new precisions and sparsity patterns while staying at the Python level, instead of dropping down to hand-written CUDA.</span></p>
-<h2><span style="font-weight: 400;">4. Summary and Future Work</span></h2>
-<p><span style="font-weight: 400;">The structural changes — warp specialization, persistent execution, explicit SMEM/TMEM allocation with reuse aliasing, and barrier-mediated pipelining — set the stage, and the optimizations layered on top — software load balancing, Cluster Launch Control, multi-stage dQ staging, early TMEM release, loop peeling, and 2-CTA collaborative MMA — recovered most of the remaining headroom. Together they let the TLX kernel match or beat FA4 on both passes for the production jagged shapes, while retaining full broadcast-Q, sliding-window, and GQA support.</span></p>
-<p><span style="font-weight: 400;">Beyond raw performance, the biggest win is development efficiency. Much of the low-level plumbing that CuteDSL writes by hand — async pipelines, barrier management, tcgen05 MMA setup — is instead handled by the TLX compiler, so we express intent rather than machinery, in a fraction of the code. That leverage lets the team prototype, profile, and land every optimization above quickly, and then fork the same kernel into MXFP8 and block-sparse variants with little extra code. Taken together — faster on both passes for the jagged Ads shapes, competitive on dense, and far cheaper to build and maintain — TLX JFA is a better fit than the SOTA open-source FA4 for our Ads models.</span></p>
-<h2><span style="font-weight: 400;">References</span></h2>
-<p><span style="font-weight: 400;">[1] TLX: Enabling Cluster Launch Control with Triton — </span><a href="https://pytorch.org/blog/enabling-cluster-launch-control-with-tlx/"><span style="font-weight: 400;">https://pytorch.org/blog/enabling-cluster-launch-control-with-tlx/</span></a></p>
-<p><span style="font-weight: 400;">[2] GEM: Meta&#8217;s Generative Ads Model — </span><a href="https://engineering.fb.com/2025/11/10/ml-applications/metas-generative-ads-model-gem-the-central-brain-accelerating-ads-recommendation-ai-innovation/"><span style="font-weight: 400;">https://engineering.fb.com/2025/11/10/ml-applications/metas-generative-ads-model-gem-the-central-brain-accelerating-ads-recommendation-ai-innovation/</span></a></p>
-<p><span style="font-weight: 400;">[3] NVIDIA Blackwell Tuning Guide (thread-block clusters) — </span><a href="https://docs.nvidia.com/cuda/blackwell-tuning-guide/index.html#thread-block-clusters"><span style="font-weight: 400;">https://docs.nvidia.com/cuda/blackwell-tuning-guide/index.html#thread-block-clusters</span></a></p>
-<p><span style="font-weight: 400;">[4] TLX Block Attention: A Warp-Specialized Blackwell Kernel for Fixed-Block Sparse Self-Attention — </span><a href="https://pytorch.org/blog/tlx-block-attention-a-warp-specialized-blackwell-kernel-for-fixed-block-sparse-self-attention/"><span style="font-weight: 400;">https://pytorch.org/blog/tlx-block-attention-a-warp-specialized-blackwell-kernel-for-fixed-block-sparse-self-attention/</span></a></p>
-<p><span style="font-weight: 400;">[5] Kunlun: Establishing Scaling Laws for Massive-Scale Recommendation Systems through Unified Architecture Design — </span><a href="https://arxiv.org/abs/2602.10016"><span style="font-weight: 400;">https://arxiv.org/abs/2602.10016</span></a></p>
-<p><span style="font-weight: 400;">[6] FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling — </span><a href="https://arxiv.org/abs/2603.05451"><span style="font-weight: 400;">https://arxiv.org/abs/2603.05451</span></a></p>
-<p>The post <a href="https://pytorch.org/blog/optimizing-jagged-flash-attention-with-tlx-the-road-toward-sota-fa4-on-blackwell/">Optimizing Jagged Flash Attention with TLX: The Road Toward SOTA FA4 on Blackwell</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>A Ray-Focused Guide to PyTorch Conference North America</title>
-		<link>https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Wed, 30 Sep 2026 16:45:20 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=171171</guid>
-
-					<description><![CDATA[<p>TL;DR In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve...</p>
-<p>The post <a href="https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/">A Ray-Focused Guide to PyTorch Conference North America</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<h3><span style="font-weight: 400;">TL;DR</span></h3>
-<p><span style="font-weight: 400;">In only a few weeks, PyTorch Conference North America 2026 will begin in San Jose, bringing together the open source AI community to share ideas and collaborate. If you’ve heard of Ray but never had a reason to dig in, this is the year as more teams seek to scale AI on top of their own secure and governed AI infrastructure. </span></p>
-<p><span style="font-weight: 400;">Ray is a distributed compute framework that helps teams scale any AI framework, library or model. It provides a consistent surface for developers to go from curating petabytes of multimodal data, to training a model across multiple nodes and then deploying it in production whether it&#8217;s on VMs or a Kubernetes-managed cluster. That coverage across the full AI lifecycle is also why Ray has become the standard substrate for post training and reinforcement learning (RL) at labs like Cursor, Microsoft AI and NVIDIA. Whether you&#8217;re new to distributed PyTorch or already running Ray in production, here&#8217;s your guide to the sessions worth blocking off on your schedule.</span></p>
-<h2><span style="font-weight: 400;">The open source AI compute stack</span></h2>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1298071"><b>Keynote: Evolving Ray and Kubernetes Together for the AI Era</b><b><br />
-</b></a> <i><span style="font-weight: 400;">Ion Stoica, Anyscale / Databricks / UC Berkeley · Tue 9:35 AM · Grand Ballroom</span></i></p>
-<p><span style="font-weight: 400;">Ray co-creator Ion Stoica will deliver a keynote on where Ray and Kubernetes are headed together in the AI era.</span></p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1256376"><b>Crossing the Divide: Co-Evolving Kubernetes and Ray for the AI Era</b><b><br />
-</b></a> <i><span style="font-weight: 400;">Jago Macleod, Google, Ion Stoica, Anyscale / Databricks / UC Berkeley · Tue 2:50 PM · Room 210BF</span></i></p>
-<p><span style="font-weight: 400;">The AI workload orchestration landscape is currently split across two massive, parallel universes: the CNCF (the bedrock of cloud native and modern infrastructure) and the PyTorch Foundation (the epicenter of AI/ML innovation). While these foundations operate independently, the end user does not have the luxury of choosing just one. PyTorch Foundation contains PyTorch, vLLM, Ray, and more, while CNCF owns Kubernetes, Envoy, OpenTelemetry, llm-d, containerd and more. To build, deploy, and scale modern AI applications, users require a seamless integration of projects from both ecosystems. This session will explore the critical bridge connecting these communities: the co-evolution of Kubernetes and Ray into a unified OSS AI Stack. We will discuss how Google and Anyscale, together with the broader community, are actively collaborating to build an open, vertically integrated stack that prevents ecosystem fragmentation.</span></p>
-<h2><span style="font-weight: 400;">Production-scale data curation and model training</span></h2>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1257598"><b>Ray All the Way Down: A Heterogeneous, Elastic PyTorch Training Stack at LinkedIn</b><b><br />
-</b></a> <i><span style="font-weight: 400;">Tommy Li, Tao Huang, LinkedIn · Tue 3:25 PM · Room 210AE</span></i></p>
-<p><span style="font-weight: 400;">If you want a concrete blueprint for scaling PyTorch past a single machine, this is the session to attend. LinkedIn&#8217;s team walks through a three-layer Ray-based training stack: a Ray-actor-based data loading library that streams Avro, Parquet, and Iceberg; a Ray Train framework layered with FSDP, HSDP, elastic scaling, and async checkpointing; and an on-demand cluster provisioning platform. The core lesson? Keep data loading off the GPUs by routing it through dedicated CPU nodes over a zero-copy bridge. This led to a 50–70% cut in dataloader memory and a scenario where they had to work </span><i><span style="font-weight: 400;">around</span></i><span style="font-weight: 400;"> Ray to reclaim 24% of their step time. This use case is practical, specific, and reusable well beyond LinkedIn&#8217;s stack.</span></p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1241540"><b>PyTorch-Native Feature Transformation and Training Framework for Uber Eats Recommendation</b></a><br />
-<i><span style="font-weight: 400;">Peng Zhang, Ke Chen, Xandra Zhu, Uber ·</span></i> <i><span style="font-weight: 400;">Oct 21 · 4:55–5:20 PM · Room LL20CD</span></i></p>
-<p><span style="font-weight: 400;">Uber&#8217;s talk on migrating the Eats recommendation stack from TensorFlow/Horovod to PyTorch leans on Ray Data as a core piece of the redesign, replacing legacy Spark-based preprocessing with distributed feature-stat computation and zero-copy batch transformations. The results are striking: a 5x speedup and 90% lower memory usage for data transformation, plus a 20x improvement in training throughput.</span></p>
-<h2><span style="font-weight: 400;">Scaling the LLM Serving Layer with Ray</span></h2>
-<p><span style="font-weight: 400;">Ray isn&#8217;t just powering dedicated training sessions this year, it&#8217;s also showing up as critical infrastructure inside talks with a different primary focus:</span></p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1228462"><b>Keeping GPUs Busy: High-Speed Storage for PyTorch via fsspec</b><b><br />
-</b></a> <i><span style="font-weight: 400;">Ankita Luthra, Trinadh Kotturu, Google · Tue 3:40 PM · Room LL21DEF</span></i></p>
-<p><span style="font-weight: 400;">A bottleneck has shifted from compute to storage: GPUs sitting idle while waiting on legacy REST-based data access. The proposed fix, Rapid Storage, brings a high-throughput gRPC-based protocol to PyTorch via fsspec. According to the team, the payoff extends across the fsspec ecosystem &#8211; including Ray, alongside Dask, HF Datasets, and vLLM. If your Ray Data pipelines are storage-bound, this session is worth a visit. </span></p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1256403"><b>From PyTorch to Production: Serving a Physics-Constrained Generative Model with ONNX, Ray, and vLLM</b></a><b><br />
-</b><i><span style="font-weight: 400;">Arun Sharma, University of Minnesota · Tue 2:50–3:15 PM · Room 210AE</span></i></p>
-<p><span style="font-weight: 400;">A deep engineering narrative following a physics-constrained generative model &#8211; PC-RF, a conditional rectified-flow model for climate downscaling &#8211; from training through to a served, production stack. The talk covers exporting to ONNX two different ways, running the flow-matching sampler outside the graph, and enforcing physics constraints at inference time. Ray shows up as part of the training recipe used to scale the model, with the serving path fanning out into ONNX Runtime, Temporal, and a vLLM agent.</span></p>
-<h2><span style="font-weight: 400;">Post-training and RL with Ray</span></h2>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1257963"><b>Building a Post-Training Platform for Teams That Don&#8217;t Own the Training Loop</b></a><br />
-<i><span style="font-weight: 400;">Gaurav Arora, Shunyao Li, Eric Wang, Pinterest · Weds 3:25–3:50 PM · Room LL20CD</span></i></p>
-<p><span style="font-weight: 400;">As post-training expanded across teams at Pinterest (SFT, DPO, GRPO on vision-language models), each built its own stack: different frameworks, data formats, and distributed strategies. Teams spent weeks integrating OSS frameworks with internal infra before training a single step. Our traditional ML platform (MLEnv) owned the PyTorch training loop and reached 95% adoption. Post-training broke that: the loop now lives inside fast-moving OSS frameworks releasing monthly with new techniques. We built PTEnv &#8211; a lifecycle harness for PyTorch-based post-training, owning everything around the loop (data, orchestration, scaling, eval, export) while delegating the inner loop to OSS frameworks. The same interface supports subprocess execution with Ray for RL and in-process with MS-Swift using PyTorch FSDP/DDP for SFT &#8211; framework choice is a config line, not a rewrite. This talk covers the harness architecture, production gotchas training VLMs at scale (weight sync bottlenecks, MoE workarounds), post training optimization on real workloads, and framework-agnostic eval with LLM-as-judge. A practical talk for platform teams supporting multiple post-training workloads.</span></p>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1345867"><b>SkyRL: Democratizing Scalable RL Training</b></a><br />
-<span style="font-weight: 400;">Sumanth Hedge, Eric Tang, Anyscale </span><i><span style="font-weight: 400;">· Oct 20 4:55 PM-5:20 PM · LL20A (Lower Level)</span></i></p>
-<p><span style="font-weight: 400;">Agents have taken center stage in 2026, with ever-growing interest from companies in training custom agents with reinforcement learning. As agents shift to longer horizon, multi-turn interactions, the systems challenges and requirements on underlying training infrastructure have also evolved. SkyRL is a modular, performant RL library built to meet this growing demand for customization and scalability. This talk traces where SkyRL started &#8211; a set of modular APIs decoupling training, inference, and environments orchestrated with Ray &#8211; and where it is today. The session will cover: </span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How SkyRL provides scalable fully async RL training on 350 billion+ parameter MoE models with Megatron and vLLM</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SkyRL&#8217;s multi-tenant Tinker Engine, which allows researchers to efficiently use their own hardware for RL training while using Tinker&#8217;s flexible training APIs to iterate on recipes</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">SkyRL&#8217;s redesign towards HTTP-based APIs for scalable inference, and our contributions of native RL APIs to vLLM</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Community recipes built on top of SkyRL including large MoE training on long-horizon tasks, custom recursive language models, and more.</span></li>
-</ul>
-<h2><span style="font-weight: 400;">Demo Theater</span></h2>
-<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/?id=1345871"><b>Evolving Ray Core for Post-Training at Scale</b></a><br />
-<span style="font-weight: 400;">Mengjin Yan, (Ray Core), Josh Lee, Anyscale </span><i><span style="font-weight: 400;">· </span></i><span style="font-weight: 400;">Oct 21 3:55 PM-4:05 PM </span><i><span style="font-weight: 400;">·</span></i><span style="font-weight: 400;"> Community Expo (Concourse Level)</span></p>
-<p><span style="font-weight: 400;">Before a post-training job trains a single step, its trainers and inference engines must be scheduled onto the cluster, and every step after that, fresh weights must move between them.  Ray Core evolves directly from the workloads it powers, shaped by the post-training community&#8217;s core requirements for higher scalability and stronger performance. Continuous engineering enhancements to Ray Core address these needs directly, establishing it as a key open source runtime underneath post-training frameworks such as SkyRL, Miles, and NeMo RL. The session introduces the underlying building blocks of Ray Core and demonstrates how they map onto an active post-training loop. Key scalability achievements are examined, highlighting how Ray scales scheduling across 10,000-node clusters, alongside performance optimizations like Ray Direct Transport, which moves PyTorch tensors directly between GPUs. The discussion concludes with an overview of the future development roadmap for Ray Core and practical ways for community members to contribute.</span></p>
-<h2><span style="font-weight: 400;">Meet the Developers</span></h2>
-<p><i><span style="font-weight: 400;">Tues ·  3:50 PM-4:25 PM · Community Expo</span></i></p>
-<p><span style="font-weight: 400;">Join Ray experts for an interactive “Meet the Developers” session for a chance to learn in a small group setting and ask your most pressing questions.</span></p>
-<h2><span style="font-weight: 400;">Learn more about Ray at PyTorch Conference North America</span></h2>
-<p><span style="font-weight: 400;">Taken together, these sessions tell a coherent story: Ray has moved from a scaling library you reach for to foundational infrastructure spanning orchestration, training, data loading, storage, and observability. If you&#8217;re building AI infrastructure on PyTorch, don’t miss the Ray sessions at PyTorch Conference North America.</span></p>
-<p><a href="https://hubs.ly/Q04tDx8f0"><span style="font-weight: 400;">View the complete schedule here</span></a></p>
-<p><a href="https://hubs.ly/Q04tDw_W0"><span style="font-weight: 400;">Register for PyTorch Conference North America today</span></a></p>
-<p>&nbsp;</p>
-<p>The post <a href="https://pytorch.org/blog/a-ray-focused-guide-to-pytorch-conference-north-america/">A Ray-Focused Guide to PyTorch Conference North America</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4699 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1473116 metric#prefetches=254 metric#store-reads=36 metric#store-writes=13 metric#store-hits=263 metric#store-misses=15 metric#sql-queries=24 metric#ms-total=546.49 metric#ms-cache=24.78 metric#ms-cache-avg=0.5163 metric#ms-cache-ratio=4.5 sample#redis-hits=579494671 sample#redis-misses=126557188 sample#redis-hit-ratio=82.1 sample#redis-ops-per-sec=734 sample#redis-evicted-keys=1414838 sample#redis-used-memory=961819512 sample#redis-used-memory-rss=1063944192 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=3 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=844733 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4630 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1428000 metric#prefetches=238 metric#store-reads=36 metric#store-writes=9 metric#store-hits=247 metric#store-misses=15 metric#sql-queries=20 metric#ms-total=506.36 metric#ms-cache=18.67 metric#ms-cache-avg=0.4243 metric#ms-cache-ratio=3.7 sample#redis-hits=736524848 sample#redis-misses=160466712 sample#redis-hit-ratio=82.1 sample#redis-ops-per-sec=76 sample#redis-evicted-keys=2143883 sample#redis-used-memory=962262072 sample#redis-used-memory-rss=1089376256 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=3 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=754202 -->
