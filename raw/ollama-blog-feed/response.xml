@@ -3,8 +3,15 @@
     <title><![CDATA[Ollama]]></title>
     <description><![CDATA[Ollama]]></description>
     <link>https://ollama.com/blog</link>
-    <lastBuildDate>Wed, 14 Oct 2026 04:54:26 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 17 Oct 2026 04:26:13 +0000</lastBuildDate>
     <atom:link href="https://ollama.com/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title><![CDATA[Reflection's Beam is freely available on Ollama for a limited time]]></title>
+      <description><![CDATA[Reflection's first open-weight model is now available on Ollama, and free for a limited time only. Beam is designed for software engineering, reasoning, and long-running agentic tasks. Access Beam through Ollama Cloud.]]></description>
+      <link>https://ollama.com/blog/reflection-beam</link>
+      <pubDate>Fri, 16 Oct 2026 00:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://ollama.com/blog/reflection-beam</guid>
+    </item>
     <item>
       <title><![CDATA[Run AI agents safely with Ollama and Fly.io]]></title>
       <description><![CDATA[AI agents can now use Ollama's cloud models safely inside Fly.io's cloud computers.]]></description>
