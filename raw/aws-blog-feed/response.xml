@@ -5,7 +5,7 @@
 	<atom:link href="https://aws.amazon.com/blogs/machine-learning/feed/" rel="self" type="application/rss+xml"/>
 	<link>https://aws.amazon.com/blogs/machine-learning/</link>
 	<description>Official Machine Learning Blog of Amazon Web Services</description>
-	<lastBuildDate>Thu, 15 Oct 2026 17:43:35 +0000</lastBuildDate>
+	<lastBuildDate>Fri, 16 Oct 2026 21:06:58 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -13,6 +13,735 @@
 	1	</sy:updateFrequency>
 	
 	<item>
+		<title>Building trust in AI agents: A production-ready evaluation framework with Amazon Bedrock AgentCore</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/building-trust-in-ai-agents-a-production-ready-evaluation-framework-with-amazon-bedrock-agentcore/</link>
+		
+		<dc:creator><![CDATA[Rui Li]]></dc:creator>
+		<pubDate>Fri, 16 Oct 2026 20:48:16 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon Bedrock AgentCore]]></category>
+		<category><![CDATA[Best Practices]]></category>
+		<guid isPermaLink="false">df0b1ae32a5ba63d5856db229a66706d4090e8ef</guid>
+
+					<description>Autonomous AI agents fail softly: latency stays flat while answer quality quietly erodes. This post shares a nine-stage evaluation framework, built on Amazon Bedrock AgentCore, that catches silent quality regressions across the full agent lifecycle, from first commit to live production.</description>
+										<content:encoded>&lt;h2 id="the-north-star"&gt;The North Star&lt;/h2&gt;
+&lt;p&gt;Every organization racing to deploy AI agents faces the same reckoning: an agent that demos beautifully can quietly degrade in production, and by the time a human notices, the trust is already broken. Where traditional software fails loudly, agents fail softly. They return an answer that looks confident, reads fluently, and is wrong. When that answer drives a real business decision, the cost is not a broken feature. It’s a broken relationship with the user.&lt;/p&gt;
+&lt;p&gt;That’s the quality problem at its core. The challenge is therefore not building agents that work once, but proving they keep working, at scale, across every sub-agent, every workflow, and every release. The teams that win the agent era will be the ones who treat quality not as a final QA step but as the operating system of the agent itself: continuously measured, automatically defended, and improved with every interaction. In this post, we show how we built a continuous quality loop for production-ready agentic solutions at scale using Amazon Bedrock AgentCore.&lt;/p&gt;
+&lt;h3 id="business-problem"&gt;Business problem&lt;/h3&gt;
+&lt;p&gt;The solution uses Amazon Bedrock AgentCore and other AWS services for internal use, so sellers and sales leaders can ask business questions in plain English from Amazon Quick. Behind that single experience, several specialized sub-agents work together: the Performance Insights Agent for territory-scoped revenue and performance, the Customer Insights Agent for customer intelligence, the Data Insights Agent for text-to-SQL over foundational datasets, and direct dashboard access. Answers are scoped to each user’s territory and role-level security. Field teams use these answers to assist in planning account strategy, prepare for customer meetings, so the numbers must be right. The most damaging failure is not a crash. It’s a fluent, confident answer that is quietly wrong. Before launch, when we evaluated the Customer Insights Agent, we found exactly that:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;It reported $410.08 of a customer’s three-month revenue on a service as “$410.08 Million.”&lt;/li&gt;
+ &lt;li&gt;It reported Sales Revenue labeled as Sales Revenue excluding Adjustments.&lt;/li&gt;
+ &lt;li&gt;It offered an Annual Recurring Revenue estimate that appeared nowhere in the data.&lt;/li&gt;
+ &lt;li&gt;It presented its own calculations as sourced facts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Through the different runs, monitoring stayed green. It told us the system had responded, not whether the answer was right.&lt;/p&gt;
+&lt;p&gt;Had these errors shipped uncaught, the field would have paid for them. A seller who repeats an inflated figure can lose credibility with the customer. This is exactly why we caught it before launch. The risk doesn’t end at launch: it grows with every new agent and every change to data, prompts, code, or models. It also grows without any release, because upstream pipelines refresh the data every week. Coordinated releases introduce a related risk: when a data change, a tool change, and a paired prompt update are meant to ship together but land apart, the system runs mismatched until all changes catch up. In one pre-production test, that mismatch window by itself dropped the pass rate from 78 percent to 38 percent. To catch failures like these, before every release and continuously in production, we need a framework that can show whether answers are grounded and correct, and trace each failure back to its root cause in the data, the prompt, or the agent’s code.&lt;/p&gt;
+&lt;p&gt;At AWS, the Sales, Marketing, and Global Services (SMGS) Operations team developed a production multi-agent system serving AWS Field Sales worldwide. It serves two distinct audiences. For field sales teams, it replaces hours of manual data analysis with on-demand, conversational intelligence, helping sellers understand the health of their business, surface risks and opportunities, and take action faster. For leadership, it powers business management cadences including Weekly Business Reviews (WBRs), surfacing the signals that matter across the portfolio without requiring manual report preparation. The same agentic system serves both the seller on the front line and the leader reviewing performance at scale.&lt;/p&gt;
+&lt;p&gt;The agentic system orchestrates a growing portfolio of specialized sub-agents, each owning a distinct capability domain. Among them: the &lt;a href="https://aws.amazon.com/blogs/machine-learning/how-aws-smgs-uses-an-ai-powered-conversational-assistant-to-transform-business-management-with-amazon-bedrock-agentcore/" target="_blank" rel="noopener"&gt;Performance Insights Agent&lt;/a&gt; generates natural-language business intelligence narratives from complex sales data, turning raw metrics into actionable seller insights. The &lt;a href="https://aws.amazon.com/blogs/machine-learning/build-unified-intelligence-with-amazon-bedrock-agentcore/" target="_blank" rel="noopener"&gt;Customer Insights Agent&lt;/a&gt; assembles a 360-degree view of each customer by synthesizing signals across product usage, support history, contract status, and engagement data, helping sellers understand where a customer is in their journey and what they need next. The &lt;a href="https://aws.amazon.com/blogs/machine-learning/text-to-sql-solution-powered-by-amazon-bedrock/" target="_blank" rel="noopener"&gt;Data Insights Agent&lt;/a&gt; is a text-to-SQL agent that account teams use to query structured analytics data in plain English without writing a single line of SQL. These three agents are the ones referenced throughout the rest of this post.&lt;/p&gt;
+&lt;p&gt;Coordinating these agents reliably at scale made one thing clear: agentic quality wasn’t an operational concern to manage later. It was the prerequisite for operating. A single degraded sub-agent can silently corrupt every response downstream, and traditional monitoring won’t catch it. That reality made a full lifecycle evaluation framework not optional but necessary. AgentCore Evaluations, a capability of Amazon Bedrock AgentCore, is the connective tissue powering it, alongside Amazon Bedrock Guardrails (safety), Amazon CloudWatch (metrics, alarms, tracing), Amazon Simple Storage Service (Amazon S3) and Amazon Redshift (evaluation persistence), Amazon Quick (dashboards), and AWS Lambda (custom evaluators).&lt;/p&gt;
+&lt;p&gt;In this post, we share how we tackled the hardest operational challenges in running AI agents at enterprise scale, and how Amazon Bedrock AgentCore Evaluations became the backbone of agent quality. Specifically, we cover:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;Agents play by different rules &lt;/strong&gt;–&amp;nbsp;Why agents demand a different operational discipline, and why traditional monitoring (latency, error rates, uptime) leaves you blind to the failures that matter most.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;A map for the whole journey &lt;/strong&gt;–&amp;nbsp;The nine-stage evaluation framework we built on AgentCore Evaluations, covering every phase of the agent development lifecycle from first commit to production.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;From theory to practice &lt;/strong&gt;–&amp;nbsp;Concrete patterns (continuous integration and continuous delivery (CI/CD) regression gates, canary scoring, drift detection, and automated feedback loops) and exactly how AgentCore Evaluations powers each one.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Metrics that actually matter &lt;/strong&gt;–&amp;nbsp;The measurable impact on deployment confidence, regression prevention, and iteration speed across our agent portfolio.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="why-agents-need-a-structured-evaluation-framework"&gt;Why agents need a structured evaluation framework&lt;/h2&gt;
+&lt;p&gt;Traditional software is deterministic: the same input produces the same output. Machine learning (ML) models introduced probabilistic outputs, and MLOps emerged to manage their training, versioning, monitoring, and re-training. AI agents add a third layer of operational complexity: autonomous, multi-step reasoning, where the question shifts from “did something break?” to “is the agent making sound decisions across its entire reasoning chain?”&lt;/p&gt;
+&lt;p&gt;Agents inherit the hard problems of both predecessors, and introduce some new ones. They’re non-deterministic, following different reasoning paths for identical inputs. They make cascading decisions across routing, tool selection, and synthesis, where a single step can fail quietly and corrupt everything downstream. Most critically, they degrade silently: latency stays low, error rates stay flat, yet the quality of agent response erodes, because the agent is still &lt;em&gt;responding&lt;/em&gt;. It is just responding &lt;em&gt;wrong&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Agent evaluation is the practice of catching exactly that. It spans five dimensions: &lt;strong&gt;safety&lt;/strong&gt; (is it behaving within defined boundaries?), &lt;strong&gt;quality&lt;/strong&gt; (is the agent producing correct, coherent, grounded responses?), &lt;strong&gt;performance&lt;/strong&gt; (is it fast and reliable enough?), &lt;strong&gt;cost&lt;/strong&gt; (is it running efficiently at scale?), and &lt;strong&gt;operational control&lt;/strong&gt; (can we detect, diagnose, and remediate issues quickly?). A mature evaluation practice addresses five continuously, throughout the full agent lifecycle.&lt;/p&gt;
+&lt;p&gt;In this post, we share how we operationalize five evaluation dimensions across a production multi-agent system. Safety and security is our first priority. No agent ships, and no agent keeps running, if it can’t meet its safety bar. Quality gets the most space in this post because it’s the hardest of the five to get right and benefits most from a dedicated framework, but it doesn’t outrank safety. Performance, cost, and operational control are woven into every stage of the lifecycle alongside both. Critically, this framework applies at every level of the agent hierarchy. At the &lt;strong&gt;tool level&lt;/strong&gt;, each capability (a customer disambiguation tool, graph retrieval tool) has its own evaluation contract. At the &lt;strong&gt;agent level&lt;/strong&gt;, each sub-agent is evaluated end-to-end. At the &lt;strong&gt;multi-agent level&lt;/strong&gt;, orchestration paths are evaluated for coherence, correct routing, and synthesis accuracy across agent boundaries.&lt;/p&gt;
+&lt;p&gt;The nine stages apply at three levels simultaneously, and this hierarchy is not specific to this product. It’s the right mental model when we build or integrate new production agents. Most teams start by evaluating at the agent level and stop there. But agent-level quality is only as good as the tools it relies on, and multi-agent systems introduce a third failure surface that neither level can see alone. A robust evaluation practice covers three, with each level running its own golden set, its own evaluators, and its own promotion criteria through the nine stages.&lt;/p&gt;
+&lt;h2 id="the-agent-evaluation-framework-nine-stages-one-closed-loop"&gt;The agent evaluation framework: nine stages, one closed loop&lt;/h2&gt;
+&lt;p&gt;These nine stages trace the agent lifecycle from first commit to live production, and each one answers a question teams face as their agents mature.&lt;/p&gt;
+&lt;h3 id="the-agent-lifecycle-and-the-nine-common-questions"&gt;The agent lifecycle and the nine common questions&lt;/h3&gt;
+&lt;p&gt;Every team building production agents encounters the following questions as their agent matures:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 1: The Foundation:&lt;/strong&gt; &lt;em&gt;“What does good look like?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 2: The Experiment:&lt;/strong&gt; &lt;em&gt;“Which version is better?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 3: The Merge (CI):&lt;/strong&gt; &lt;em&gt;“Did I break something?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 4: The Gate (CD):&lt;/strong&gt; &lt;em&gt;“Is it safe for production?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 5: The Canary:&lt;/strong&gt; &lt;em&gt;“Did something silently break?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 6: The Adversary:&lt;/strong&gt; &lt;em&gt;“What if someone tries to break it?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 7: The Drift:&lt;/strong&gt; &lt;em&gt;“Is quality drifting in live?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 8: The Pulse:&lt;/strong&gt; &lt;em&gt;“How do we know it’s working right now?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 9: The Feedback Loop:&lt;/strong&gt; &lt;em&gt;“How does it get better automatically?”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;We build one framework for every stage of the agent lifecycle using AgentCore Evaluations.&lt;/strong&gt; The nine stages are not separate tools stitched together after the fact. They’re nine points on a single, continuous evaluation surface, powered by AgentCore Evaluations from first commit to production response, as shown in &lt;strong&gt;Figure 1&lt;/strong&gt;.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/16/AgentCore-Evaluation-Journey.png" target="_blank" rel="noopener"&gt;&lt;img title="Figure 1 Workflow diagram showing 9-stage AgentCore evaluation journey from Define to Improve" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/16/AgentCore-Evaluation-Journey.png" alt="Figure 1 Workflow diagram showing 9-stage AgentCore evaluation journey from Define to Improve" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: The nine-stage AgentCore Evaluations journey, from Define through Improve&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Here’s how we tackle each one: the pattern that works, the AgentCore services behind it, and what it looks like running in production, shown in system design in Figure 2.&lt;/p&gt;
+&lt;div id="attachment_141567" style="width: 1976px" class="wp-caption alignnone"&gt;
+ &lt;img aria-describedby="caption-attachment-141567" loading="lazy" class="size-full wp-image-141567" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/16/Screenshot-2026-10-16-at-3.46.59 PM.png" alt="" width="1966" height="1038"&gt;
+ &lt;p id="caption-attachment-141567" class="wp-caption-text"&gt;Figure 2: System design of the AgentCore evaluation framework&lt;/p&gt;
+&lt;/div&gt;
+&lt;h3 id="stage-1-the-foundation.-define-quality"&gt;Stage 1: The Foundation. Define quality&lt;/h3&gt;
+&lt;p&gt;The foundation of evaluating an agent isn’t about choosing the right tools. It’s about asking the right question: what does success look like for this agent, and how do we know when it is failing? The answer must come from the customer, not from the model. This is an iterative process. Our definition of success has sharpened as we observe what the agent actually does in production. Everything defined here (failure thresholds, evaluator stack, golden set, safety rules, latency budgets, and cost targets) is the contract every subsequent stage enforces. If Stage 1 is vague, every downstream gate is guessing.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 1.1: Define your business metrics first.&lt;/strong&gt; Start by asking what the agent exists to deliver. The two end user personas define success differently:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;For sellers, success means walking into a customer conversation with accurate, current intelligence at the right detail level and at the right time.&lt;/li&gt;
+ &lt;li&gt;For leadership, success means reliable weekly and cross-business review inputs without lengthy manual preparation. These are business outcomes, not model properties.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Stage 1.2: Translate those business metrics into evaluation metrics.&lt;/strong&gt; For each outcome, identify the signal that confirms the agent delivered it. Each signal becomes a tracked metric with an explicit threshold and an alarm condition. Accurate account intelligence maps to entity resolution accuracy and grounding rate. Seller trust maps to faithfulness and hallucination rate. Seller action maps to helpfulness and scope adherence. Leadership review reliability maps to accuracy pass rate and response coverage. This translation must cover five dimensions: alongside quality thresholds, define safety guardrail policies, set p50, p90, and p99 latency targets per tool and per agent, establish cost-per-query budgets, and define the service level agreements (SLAs) that determine when an alarm fires and which runbook it triggers.&lt;/p&gt;
+&lt;p&gt;For accuracy specifically, because the solution directly informs revenue decisions, renewal strategies, and executive reviews, the bar is high. A confidently wrong answer does not only waste a seller’s time. It leads to a wrong decision in a real business moment. We define six failure types derived from real production errors, any one of which marks a response as inaccurate:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;Metric swap:&lt;/strong&gt; correct customer and period, wrong metric returned. Tracked as occurrences per 100 responses.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Wrong period:&lt;/strong&gt; data from one time window is labeled as another, for example a year-over-year (YoY) figure presented to the seller as month-over-month (MoM), or the reverse. Tracked as % citing the correct window.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Wrong entity:&lt;/strong&gt; conflated account names or subsidiaries. Tracked as entity resolution accuracy %.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Pure hallucination:&lt;/strong&gt; ungrounded figures with no traceable source. Tracked as grounding rate %.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Wrong symbols:&lt;/strong&gt; correct metric, wrong currency or unit symbol. Tracked as scope adherence rate %.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Unauthorized calculation:&lt;/strong&gt; unsanctioned derived figures not present in the source data. Tracked as occurrences per 100 responses.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The overall accuracy pass rate is the headline metric. Per-dimension tracking is what makes it actionable. Beyond accuracy, we also track &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/prompt-templates-builtin.html#response-relevance" target="_blank" rel="noopener"&gt;Response relevance&lt;/a&gt;, &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/prompt-templates-builtin.html#faithfulness" target="_blank" rel="noopener"&gt;Faithfulness&lt;/a&gt;, &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/prompt-templates-builtin.html#helpfulness" target="_blank" rel="noopener"&gt;Helpfulness&lt;/a&gt;, &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/prompt-templates-builtin.html#instruction-following" target="_blank" rel="noopener"&gt;Instruction Following&lt;/a&gt;,&lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/prompt-templates-builtin.html#tool-selection-accuracy" target="_blank" rel="noopener"&gt;Tool Selection Accuracy&lt;/a&gt;. A correct answer buried in three paragraphs, or arriving too late, has also failed the seller.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 1.3: Build an evaluator stack that reflects those metrics.&lt;/strong&gt; No single evaluator type covers the various failure modes possible. We combine four types:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;AgentCore built-in evaluators&lt;/strong&gt; for broad baseline coverage. Relevance, faithfulness, and helpfulness map directly to evaluation templates available natively in &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html" target="_blank" rel="noopener"&gt;AgentCore Evaluations&lt;/a&gt;.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Customized evaluators&lt;/strong&gt;, one per failure type in our taxonomy: a metric swap evaluator, a wrong period evaluator, a wrong customer evaluator, a pure hallucination evaluator, a wrong symbols evaluator, and an unauthorized calculation evaluator. None of the six are covered by native templates. They’re domain-specific signals we built on top of the AgentCore framework. Knowing upfront which metrics a native template already covers, and which require a customized evaluator, is itself part of the design decision.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Third-party evaluators,&lt;/strong&gt; we deployed the managed evaluators from third-party open source libraries DeepEval and AutoEval.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Deterministic evaluators&lt;/strong&gt; for ground truth checks where the correct answer is known exactly, such as revenue, renewal date, and contract status.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Where reasoning quality and helpfulness have no single correct answer, we use LLM-as-judge rubrics instead, with built-in rubrics for relevance, faithfulness, and helpfulness plus support for fully custom rubrics. AgentCore Evaluations provides both ground truth and LLM-as-judge evaluation natively, which is what let us stand up both evaluation paths without building either scoring engine ourselves. Deterministic gives precision on facts. LLM-as-judge gives breadth on reasoning.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stage 1.4: Build a golden set to exercise your evaluation metrics.&lt;/strong&gt; At the &lt;strong&gt;tool level&lt;/strong&gt;, each critical tool has its own deterministic ground truth pairs: customer identification must resolve to the exact canonical entity or fail. At the &lt;strong&gt;agent level&lt;/strong&gt;, topic analysis on real user queries produces a dataset across four question types (comprehensive, reporting, reasoning, and ambiguous), each requiring a different evaluation strategy, revisited monthly. At the &lt;strong&gt;multi-agent level&lt;/strong&gt;, end-to-end orchestration scenarios catch errors that only emerge when agents interact. The golden set is not only a quality dataset. It also includes safety test cases, latency benchmark cases, and cost reference cases, so Stages 3 and 4 can check five dimensions against the same curated dataset.&lt;/p&gt;
+&lt;p&gt;The golden set is a living document, built from three sources. Production-derived cases are sampled from real seller and leadership queries, including the low-scoring live sessions promoted in Stage 7. Failure-derived cases come from every regression caught in staging or production, including the sentinel cases promoted in Stage 3 and the permanent regression guards promoted in Stage 9. Synthetic edge cases are deliberately constructed to guarantee coverage of scenarios we know matter but can’t wait to encounter in the wild, such as the four question types above and the parent-subsidiary and ticker-symbol disambiguation cases in Stage 4. The set is version-controlled, reviewed, and continuously extended across three sources.&lt;/p&gt;
+&lt;h3 id="stage-2-the-experiment.-know-which-version-wins"&gt;Stage 2: The Experiment. Know which version wins&lt;/h3&gt;
+&lt;p&gt;Every change (a prompt update, a new tool, a model upgrade, a dataset refresh) raises the same question: &lt;em&gt;is this version actually better?&lt;/em&gt; In a system serving the AWS field at global scale, intuition isn’t an acceptable answer.&lt;/p&gt;
+&lt;p&gt;Before a change merges, we run an &lt;em&gt;AgentCore On-Demand Evaluation&lt;/em&gt;, scored against the same golden set with the same evaluator suite. The development team uses the quality, latency, cost metrics, and context token, to curate downstream comparisons which is evaluated across five dimensions simultaneously, as shown side by side in &lt;strong&gt;Figure 3&lt;/strong&gt;. A model that improves accuracy by 5 percent but doubles latency and triples cost doesn’t automatically win.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-3.png" target="_blank" rel="noopener"&gt;&lt;img title="Figure 3. Side-by-side comparison of two candidate agent responses in an AgentCore On-Demand Evaluation, scored across quality, latency, and cost. The numbers and values in the figure are illustrative." src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-3.png" alt="Figure 3. Side-by-side comparison of two candidate agent responses in an AgentCore On-Demand Evaluation, scored across quality, latency, and cost. The numbers and values in the figure are illustrative." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 3: Side-by-side comparison of two candidate agent responses in an AgentCore On-Demand Evaluation across quality, latency, and cost. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;We track quality as a comprehensive scorecard, not one single number.&lt;/strong&gt; A pass rate alone doesn’t tell you enough. Each eval run produces a full breakdown across every failure category in our taxonomy: not just whether quality improved, but where and why, as captured in the scorecard in Figure 4. Every evaluation is also fully recorded: inputs, outputs, retrieved context, scores and evaluation reasons are stored in S3 and our data lake, giving us a persistent observability layer to trace failure back to its root cause: what the agent saw, what it generated, and why it went wrong. Over three months of targeted iteration, this scorecard drove pass rate from 93 percent to a stable 96 percent: pure hallucinations dropped from 138 to under 52 per 10,000 responses, unauthorized calculations fell from 59 to under 44, confirming that retrieval was sound and the gains came from generation fixes. Without the per-category breakdown and the detailed trace data behind it, we would have been iterating blind.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-4.png" target="_blank" rel="noopener"&gt;&lt;img title="Figure 4. Evaluation scorecard showing per-category failure breakdown and pass rate trend. The numbers and values in the figure are illustrative." src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-4.png" alt="Figure 4. Evaluation scorecard showing per-category failure breakdown and pass rate trend. The numbers and values in the figure are illustrative." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 4: Evaluation scorecard with per-category failure breakdown and pass-rate trend. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;/div&gt;
+&lt;h3 id="stage-3-the-merge-ci.-prevent-regression-at-merge-time"&gt;Stage 3: The Merge (CI). Prevent regression at merge time&lt;/h3&gt;
+&lt;p&gt;Stage 3 is a pre-production gate. It runs in the staging environment, triggered by code and configuration changes, and its job is to block a bad change before it ever reaches production. If Stage 3 catches a regression, nothing ships.&lt;/p&gt;
+&lt;p&gt;Engineers or scientists change the system in many ways: the prompt, the underlying data, the tools, or the model. The change looks clean locally, tests pass, but a prompt that improves responses for technology accounts could silently degrade responses for financial services accounts. Without an automated gate, this ships.&lt;/p&gt;
+&lt;p&gt;Our CI evaluation is triggered automatically on every staging deployment using AgentCore On-Demand Evaluation. Engineers do not need to remember to run an evaluation. No deployment can silently skip the gate. The run completes in minutes because it evaluates only the sentinel set, not the full golden set. Speed is intentional: the sentinel is narrow enough to run on every deployment but representative enough to catch the failures that matter most.&lt;/p&gt;
+&lt;p&gt;The sentinel set is a curated selection of the highest-risk scenarios across five dimensions. Quality regressions beyond tolerance block the deployment. A safety boundary violation blocks just as hard. A change that doubles p90 latency does not proceed without a deliberate decision. Token cost spikes are flagged before they compound at scale. Every sentinel run publishes its scores to CloudWatch as custom metrics alongside quality scores, latency, cost per query, and safety pass rate are all emitted after every run, and CloudWatch alarms are configured to fire if any metric breaches its Stage 1 threshold. Every run is also logged and stored, feeding the audit trail Stage 8 and Stage 9 rely on. We maintain a separate sentinel at each level: tool, agent, and multi-agent. A change that improves agent-level quality but degrades a critical tool still blocks. The sentinel is reviewed monthly, and a regression that slips through to production is immediately promoted into a permanent case so it doesn’t reach users twice.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;One example of what this catches.&lt;/strong&gt; After a data normalization update, a disambiguation tool started returning unresolved entities for a subset of account name formats. The agent, receiving an unresolved entity, responded with a best-guess match, returning real data for the wrong customer. Our tool-level sentinel includes exactly this class of edge case: the entity resolution ground truth check failed for the affected account name formats, and the deployment was blocked automatically. The change never reached production.&lt;/p&gt;
+&lt;h3 id="stage-4-the-gate-cd.-ship-with-quantitative-confidence"&gt;Stage 4: The Gate (CD). Ship with quantitative confidence&lt;/h3&gt;
+&lt;p&gt;The sentinel covers 15 cases. Production covers tens of thousands of query patterns across hundreds of account types, geographies, and seller segments. Clearing the sentinel is necessary. It is not sufficient.&lt;/p&gt;
+&lt;p&gt;Before a candidate ships, we run an AgentCore On-Demand Evaluation against the full golden set across the evaluator dimensions. We call this the &lt;em&gt;Quality Gate. &lt;/em&gt;It replaces “it seems fine” with a quantitative shipping decision.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Sandboxed execution and tool mocking.&lt;/strong&gt; Think of it as a replay, not a live call. Ahead of time, we freeze a known, versioned dataset of correct tool behavior. Every tool call the candidate makes during the gate is intercepted and answered from that frozen dataset instead of a real system. We build that frozen dataset in two steps. First, we test each tool on its own: we send it a held-out set of inputs from our golden set where the correct answer is already known, and score what it actually returns against that known answer. This tells us whether the tool itself works (entity resolution, retrieval, SQL generation) before the agent is even involved. Second, after a tool’s responses are confirmed correct, we freeze those same validated answers into the replay dataset the agent sees during gate evaluation. That means the agent is tested purely on its own reasoning, not on live tool speed or availability, and because every candidate replays from the same frozen dataset, any score difference head-to-head is about the agent, not tool variance.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Aggregated end-to-end scoring.&lt;/strong&gt; The gate also runs a holistic pass: the full candidate agent answers 200 held-out questions end-to-end, scored by an LLM-as-judge rubric across all evaluator dimensions. Any one of three conditions shuts the gate automatically: the aggregate score regresses against the candidate’s own prior run, it fails to beat the current production baseline, or more than a defined percentage of the 200 questions falls below the per-question threshold. A candidate must clear all three, which catches what a simple average can hide: a model that improves the mean while quietly failing a larger share of individual questions doesn’t pass.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;One example of what this catches.&lt;/strong&gt; This is where mocking tests the agent’s own reasoning, not just the tools underneath it. Our golden set includes a hierarchy mismatch case: the Customer Insights Agent and Data Insights Agent return different, individually correct revenue figures for the same customer, one scoped to the parent account, the other to a subsidiary. Neither number is wrong. The case tests whether the agent infers the right scope from the query’s semantics and the requester’s persona (a seller likely wants the subsidiary, whereas a leadership query likely wants the parent rollup), rather than defaulting, averaging, or asking the seller to disambiguate. The candidate failed, returning the parent-level figure for a subsidiary-scoped question. The golden set’s ground truth for this case specifies which scope the question expects, so the Quality Gate flagged the mismatch immediately: not a wrong number, but the right number for the wrong scope.&lt;/p&gt;
+&lt;h3 id="stage-5-the-canary.-catch-silent-post-deploy-failures"&gt;Stage 5: The Canary. Catch silent post-deploy failures&lt;/h3&gt;
+&lt;p&gt;Stage 5 is a post-production monitor. It runs continuously in the production environment against live traffic and synthetic evaluation cases, and its job is to catch issues that no code change triggered and that Stage 3 therefore didn’t see. Stage 3 guards against what engineers change. Stage 5 guards against everything else like upstream data shifts, evolving model behavior, changes in third-party dependencies, or other conditions such as increased latency or shifting traffic patterns that only manifest under real-world load.&lt;/p&gt;
+&lt;p&gt;The product operates against a data estate fed by thousands of upstream schemas and data pipelines. On a given day, dozens of those pipelines refresh without triggering a deployment or CI gate. The agent code is unchanged, the model is unchanged, but the data it reasons over has changed, and quality can degrade silently as a result. We learned this the hard way: an upstream pipeline refreshed with a schema change, the agent started citing data from the wrong time window, and the first signal came through a seller inquiry rather than an automated alert. Stage 5 is how we catch this in the first 30-minute evaluation window instead.&lt;/p&gt;
+&lt;p&gt;We run AgentCore Batch Evaluation on two complementary schedules, and the choice of cadence was deliberate.&lt;/p&gt;
+&lt;p&gt;We settled on 30-minute cycles after learning from both directions: 15 minutes generated too many false alarms; 60 minutes let two hours pass before a real degradation registered. We call each 30-minute cycle an evaluation window. Thirty minutes catches a real trend within 90 minutes (three consecutive windows) while filtering out single-query noise. Each window scores a round-robin selection across the golden set, giving full coverage in 24 hours.&lt;/p&gt;
+&lt;p&gt;Thresholds are deliberately lower than CI/CD gates. A single window failure is an ops signal, not an incident. We only page oncall after three consecutive windows breach threshold. We learned this rule the hard way: the first month we used a single-window threshold, oncall stopped trusting the system entirely. Once per day, the full golden set runs at gate thresholds as the authoritative daily scorecard. The 30-minute windows surface the trend. The daily run confirms it and cuts a ticket.&lt;/p&gt;
+&lt;p&gt;Every run publishes to CloudWatch (accuracy, hallucination rates, grounding rate, latency, and cost), with alarm logic that distinguishes between the two cadences. The canary runs at three levels: tool-level scores surface a degraded retrieval tool before it corrupts agent-level responses.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Another example of what this catches.&lt;/strong&gt; After an upstream index refresh, a retrieval tool began returning loosely relevant chunks instead of the precise context needed to answer the query. Latency was nominal. Error rate was zero. The agent kept producing fluent, confident responses by reasoning over weakly grounded context, producing answers that looked correct but cited the wrong figures. No infra alarm fired. The canary caught it in the first 30-minute window: grounding rate and retrieval precision dropped across the tool-level sentinel, triggering a CloudWatch alarm before sellers acted on the degraded answers. The low evaluator score flagged the exact trace responsible. From there, the on-call engineer opened that trace in AgentCore and traced the degraded context back to the retrieval tool in minutes.&lt;/p&gt;
+&lt;h3 id="stage-6-the-adversary.-protect-against-misuse"&gt;Stage 6: The Adversary. Protect against misuse&lt;/h3&gt;
+&lt;p&gt;Not every bad output comes from a degraded model. Queries crafted to extract unauthorized account data, and prompt injections embedded in retrieved documents, are predictable patterns in a system serving thousands of users on sensitive business data.&lt;/p&gt;
+&lt;p&gt;Safety isn’t a stage. It runs through all nine stages. We apply Amazon Bedrock Guardrails at two points in every interaction. At input, we validate query scope and screen for prompt injection. At output, we verify that no sensitive data is surfaced to unauthorized users and that the agent has not been manipulated into a policy violation. These checks run on 100 percent of traffic, synchronously, before a response reaches the user.&lt;/p&gt;
+&lt;p&gt;We configure two guardrail layers, each covering a distinct threat class:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Content filters&lt;/strong&gt; detect and block harmful or inappropriate content in both inputs and outputs. We enforce filters across categories including &lt;code&gt;VIOLENCE&lt;/code&gt;, &lt;code&gt;HATE&lt;/code&gt;, &lt;code&gt;SEXUAL&lt;/code&gt;, &lt;code&gt;MISCONDUCT&lt;/code&gt;, and &lt;code&gt;INSULTS&lt;/code&gt;. A request or response that triggers these filters is blocked before it reaches the seller or is surfaced to the user.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Prompt security filters&lt;/strong&gt; protect the agent from adversarial manipulation under a single &lt;code&gt;PROMPT_ATTACK&lt;/code&gt; guardrail category, covering three sub-types: &lt;code&gt;JAILBREAK&lt;/code&gt; (attempts to override the agent’s system instructions or bypass its operational boundaries), &lt;code&gt;PROMPT_INJECTION&lt;/code&gt; (unintended instructions embedded in retrieved documents, tool outputs, or user queries), and &lt;code&gt;PROMPT_LEAKAGE&lt;/code&gt; (attempts to extract the system prompt or internal configuration). In a multi-agent system that uses Retrieval Augmented Generation (RAG), prompt injection through retrieved content is a real risk. An unintended document in a seller’s account data could attempt to redirect the agent’s behavior mid-reasoning.&lt;/p&gt;
+&lt;p&gt;Safety rules are defined at Stage 1, checked for regressions at Stages 3 and 4, and enforced continuously in production.&lt;/p&gt;
+&lt;h3 id="stage-7-the-drift.-sustain-quality-and-validate-with-live-traffic"&gt;Stage 7: The Drift. Sustain quality and validate with live traffic&lt;/h3&gt;
+&lt;p&gt;Quality degrades from multiple directions: upstream data changes without triggering a deployment, models grow stale, and users push boundaries with queries no golden set fully anticipates. Stage 7 detects it before sellers do, and validates candidates against real user traffic before full rollout.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Drift detection.&lt;/strong&gt; Using AgentCore Online Evaluation, we sample 10 percent of live traffic continuously through the different evaluators defined at Stage 1, so the drift is immediately visible as a deviation from the baselines established offline. Scores feed into a Quality-State Calculator monitoring quality, latency, and cost in the same window.&lt;/p&gt;
+&lt;p&gt;One production example. Our golden set for customer identification was built from synthetic edge cases: name variations, subsidiary lookups, abbreviations. It performed well offline. But in live traffic, sellers queried with stock ticker symbols (“what’s going on with AMZN?”), shorthand names, and typos the synthetic cases did not exercise. The Quality-State Calculator surfaced the drift across three consecutive 30-minute windows: 98 percent at 1:30am, 81 percent at 2:00am, 80 percent at 2:30am. CloudWatch paged oncall when the rolling threshold was crossed. The on-call engineer queried the agent: &lt;em&gt;“What happened to customer identification accuracy between 1am and 3am?”&lt;/em&gt; and received a trend summary pinpointing ticker symbol lookups and shorthand names as the failure driver. The agent’s trace made the root cause immediately visible. The fix: expand the golden set with the low-scoring live sessions, and update the disambiguation tool to normalize input formats before resolution. Accuracy recovered to baseline within the next evaluation cycle.&lt;/p&gt;
+&lt;p&gt;Live traffic feeds two continuous improvement loops: low-scoring sessions are promoted into the golden set as new edge cases, and clusters of low-scoring traces inform prompt revisions, tool updates, and routing adjustments.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;A/B testing:&lt;/strong&gt; After a candidate clears a quality gate, AgentCore Gateway, a capability of Amazon Bedrock AgentCore, routes a slice of real traffic between current and candidate agents. On-demand confirms no regression on known cases. Online confirms it holds up against the long-tail inputs and novel phrasings only real users produce. A candidate must win or draw across all evaluator dimensions before full rollout.&lt;/p&gt;
+&lt;h3 id="stage-8-the-pulse.-real-time-quality-visibility"&gt;Stage 8: The Pulse. Real-time quality visibility&lt;/h3&gt;
+&lt;p&gt;A single call to the agent might touch three sub-agents, five tools, and two retrieval paths. When a quality alarm fires, “something in the agent pipeline” is not a runbook. Stage 8 is where signals from Stages 5, 6, and 7 converge into an observability layer with enough resolution to act.&lt;/p&gt;
+&lt;p&gt;AgentCore Observability, a capability of Amazon Bedrock AgentCore, is the foundation. For agents hosted on the AgentCore runtime, a capability of Amazon Bedrock AgentCore, every execution is instrumented automatically through OpenTelemetry, emitting structured telemetry for every reasoning step: tools called, order, inputs and outputs, latency, and token consumption, published directly to CloudWatch as custom metrics and logs, after CloudWatch Transaction Search is enabled (a one-time setup step). Evaluator scores are a separate pipeline: they come from evaluation configs, not from execution instrumentation, and land in their own CloudWatch log group. Every evaluation run also persists its full outputs to S3 and our data lake, feeding two dashboards:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;A conversational dashboard to query evaluation and observability results.&lt;/li&gt;
+ &lt;li&gt;An Amazon Quick dashboard for trend analysis, scorecard tracking, and cross-agent comparisons across the full history.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Role-appropriate views sit on top. Oncall engineers get a trace-first view: one click from a CloudWatch alarm to the AgentCore Observability trace that triggered it. The trace shows every tool called, in what order, with latency per step, token consumption, cost, and the full reasoning context: everything needed to go from “alarm fired” to “root cause identified” without opening a second tool, as shown in Figure 5.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-5.png" target="_blank" rel="noopener"&gt;&lt;img title="Figure 5. AgentCore execution trace for the Customer Insights Agent. The left panel shows the full span tree across tool calls (illustrated through example tool names) and the invoke_agent Strands Agents step, with per-step latencies. The trajectory diagram shows the reasoning graph from invocation through tool dispatch. The right panel shows span-level metrics: model, latency (22.73s), token consumption (19,266 input / 2,164 output), and total cost ($0.033). The numbers and values in the figure are illustrative." src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-5.png" alt="Figure 5. AgentCore execution trace for the Customer Insights Agent. The left panel shows the full span tree across tool calls (illustrated through example tool names) and the invoke_agent Strands Agents step, with per-step latencies. The trajectory diagram shows the reasoning graph from invocation through tool dispatch. The right panel shows span-level metrics: model, latency (22.73s), token consumption (19,266 input / 2,164 output), and total cost ($0.033). The numbers and values in the figure are illustrative." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 5: AgentCore execution trace for the Customer Insights Agent, showing the span tree, trajectory, and span-level metrics. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Product managers get Amazon Quick trend dashboards: quality scores by sub-agent and feature, release-over-release. Leadership gets a single-page health summary aligned to weekly and cross-business reviews across all five dimensions, a one-minute spot check that answers “how are our agents performing?”&lt;/p&gt;
+&lt;p&gt;Figure 6 shows the top-line view of our weekly evaluation dashboard: one combined pass rate drawn from both custom evaluators and AgentCore built-in evaluators, alongside latency, for the week’s run. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-6.png" target="_blank" rel="noopener"&gt;&lt;img title="Dashboard screenshot showing agent evaluation metrics with 97.3% pass rate across 183 questions. Displays KPIs for latency, grounding rate, and error types. Includes custom evaluators tracking hallucinations, wrong customer/period errors, and support" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-6.png" alt="Dashboard screenshot showing agent evaluation metrics with 97.3% pass rate across 183 questions. Displays KPIs for latency, grounding rate, and error types. Includes custom evaluators tracking hallucinations, wrong customer/period errors, and support" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 6: Top-line weekly evaluation dashboard with combined pass rate and latency. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Figure 7 drills into that same run at the custom-evaluator, failure-category level, breaking down exactly which error types (metric swaps, hallucinations, customer ID misses, and others) are driving the gap and how many questions each one affects. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-7.png" target="_blank" rel="noopener"&gt;&lt;img title="Error reporting dashboard showing 183 evaluated questions with 97.3% pass rate. Bar chart displays error categories: Metric Swap 8 instances, Symbol Hallucination 5, Unauthorized Calc 5, and others. Includes week-over-week comparison with green" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-7.png" alt="Error reporting dashboard showing 183 evaluated questions with 97.3% pass rate. Bar chart displays error categories: Metric Swap 8 instances, Symbol Hallucination 5, Unauthorized Calc 5, and others. Includes week-over-week comparison with green" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 7: Weekly error-reporting dashboard breaking down failures by category. The numbers and values in the figure are illustrative.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Before Stage 8, mean time to detect (MTTD) was days to weeks. After Stage 8, it is under four hours, and the first signal is a CloudWatch alarm with an AgentCore trace attached.&lt;/p&gt;
+&lt;h3 id="stage-9-the-feedback-loop.-continuous-improvement"&gt;Stage 9: The Feedback Loop. Continuous improvement&lt;/h3&gt;
+&lt;p&gt;This stage turns observations into actions. The system compounds quality over time. We use AgentCore optimization, a capability of Amazon Bedrock AgentCore, to close the loop.&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;&lt;strong&gt;System prompt recommendation:&lt;/strong&gt; Analyzes agent traces and generates a data driven optimized system prompt that improves performance on the target evaluator. The solution uses failure patterns and adds specific behavioral instructions.&lt;/li&gt;
+ &lt;li&gt;&lt;strong&gt;Tool description recommendation:&lt;/strong&gt; Analyzes agent traces and generates sharpened tool descriptions that reduce tool selection confusion. Particularly when an agent selects the wrong tool for ambiguous requests.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Let’s look at an example:&lt;/p&gt;
+&lt;blockquote&gt;
+ &lt;p&gt;&lt;strong&gt;AgentCore optimization in action&lt;/strong&gt;&lt;/p&gt;
+ &lt;p&gt;&lt;strong&gt;What to improve on:&lt;/strong&gt;
+  &lt;br&gt;
+  &lt;strong&gt;Target evaluator:&lt;/strong&gt; &lt;strong&gt;hallucination&lt;/strong&gt;: model reproducing hardcoded values from few-shot examples verbatim in unrelated contexts.&lt;/p&gt;
+ &lt;p&gt;&lt;strong&gt;Why this happened:&lt;/strong&gt; Few-shot examples contain real dollar amounts and customer names (for example, “$4.2M”, “Acme Corp”) that the model memorizes and leaks into unrelated queries.&lt;/p&gt;
+ &lt;p&gt;&lt;strong&gt;How to fix:&lt;/strong&gt; Replace hardcoded values in few-shot examples with generic placeholders (for example, &lt;code&gt;$[AMOUNT]&lt;/code&gt;, &lt;code&gt;[CUSTOMER_NAME]&lt;/code&gt;) so the model learns response structure without memorizing specific data points.&lt;/p&gt;
+ &lt;p&gt;&lt;strong&gt;Impact and result:&lt;/strong&gt; Fix applied. Pure hallucination occurrences dropped from 138 to under 52 per 10,000 responses, and overall grounding rate improved from 93 percent to 96 percent.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;AgentCore optimization uses recommendations to produce data driven system prompt and tool descriptions changes based on real agent traces and a target evaluator. AgentCore optimization builds on &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html" target="_blank" rel="noopener"&gt;AgentCore Evaluations&lt;/a&gt; . Low-scoring traces are promoted into the golden set as permanent regression guards so each failure does not reach users twice.&lt;/p&gt;
+&lt;h2 id="agent-evaluation-key-metrics-at-a-glance"&gt;Agent evaluation key metrics at a glance&lt;/h2&gt;
+&lt;p&gt;The evaluation metrics are defined at Stage 1, enforced across the nine stages, and monitored continuously in production. This set is not static. As we learn from the agent in production, new failure patterns surface, new dimensions become measurable, and the metrics evolve accordingly. What follows is where we started and what we track today.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Level&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Metric&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;What it measures&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Tracked as&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Overall accuracy pass rate&lt;/td&gt;
+   &lt;td&gt;% of responses with zero taxonomy failures&lt;/td&gt;
+   &lt;td&gt;Headline scorecard metric&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Metric swap rate&lt;/td&gt;
+   &lt;td&gt;Correct customer and period, wrong metric returned&lt;/td&gt;
+   &lt;td&gt;Occurrences per 100 responses&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Wrong period rate&lt;/td&gt;
+   &lt;td&gt;Data from the wrong time window&lt;/td&gt;
+   &lt;td&gt;% citing the correct time window&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Wrong customer rate&lt;/td&gt;
+   &lt;td&gt;Conflated account names or subsidiaries&lt;/td&gt;
+   &lt;td&gt;Entity resolution accuracy %&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Grounding rate&lt;/td&gt;
+   &lt;td&gt;Figures traceable to a retrieved source&lt;/td&gt;
+   &lt;td&gt;% of reported figures grounded&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Scope adherence rate&lt;/td&gt;
+   &lt;td&gt;Responses that address the question asked&lt;/td&gt;
+   &lt;td&gt;% on-topic responses&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Unauthorized calculation rate&lt;/td&gt;
+   &lt;td&gt;Unsanctioned derived figures&lt;/td&gt;
+   &lt;td&gt;Occurrences per 100 responses&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Agent&lt;/td&gt;
+   &lt;td&gt;Relevance / Faithfulness / Helpfulness&lt;/td&gt;
+   &lt;td&gt;Response quality across AgentCore built-in dimensions&lt;/td&gt;
+   &lt;td&gt;AgentCore built-in evaluator score (0–1)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Tool&lt;/td&gt;
+   &lt;td&gt;Customer identification accuracy&lt;/td&gt;
+   &lt;td&gt;Tool resolves to the exact canonical entity&lt;/td&gt;
+   &lt;td&gt;% correct resolutions (deterministic)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Tool&lt;/td&gt;
+   &lt;td&gt;Tool selection accuracy&lt;/td&gt;
+   &lt;td&gt;Agent selects the correct tool for the query&lt;/td&gt;
+   &lt;td&gt;AgentCore built-in evaluator score (0–1)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Tool&lt;/td&gt;
+   &lt;td&gt;Retrieval precision&lt;/td&gt;
+   &lt;td&gt;Retrieved context contains the information needed&lt;/td&gt;
+   &lt;td&gt;% retrievals with relevant context&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Tool&lt;/td&gt;
+   &lt;td&gt;SQL generation accuracy&lt;/td&gt;
+   &lt;td&gt;Data Insights Agent generates correct SQL&lt;/td&gt;
+   &lt;td&gt;% correct result sets (deterministic)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Tool&lt;/td&gt;
+   &lt;td&gt;Tool pass rate&lt;/td&gt;
+   &lt;td&gt;% of tool calls returning a valid response&lt;/td&gt;
+   &lt;td&gt;% success per tool&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Multi-agent&lt;/td&gt;
+   &lt;td&gt;End-to-end accuracy pass rate&lt;/td&gt;
+   &lt;td&gt;Full orchestration path produces a correct response&lt;/td&gt;
+   &lt;td&gt;% of scenarios passing all evaluators&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Multi-agent&lt;/td&gt;
+   &lt;td&gt;Routing accuracy&lt;/td&gt;
+   &lt;td&gt;Orchestrator routes to the correct sub-agent(s)&lt;/td&gt;
+   &lt;td&gt;% correct routing (deterministic)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Multi-agent&lt;/td&gt;
+   &lt;td&gt;Synthesis faithfulness&lt;/td&gt;
+   &lt;td&gt;Sub-agent outputs combined without distortion&lt;/td&gt;
+   &lt;td&gt;LLM-as-judge score across agent boundaries&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Quality: Multi-agent&lt;/td&gt;
+   &lt;td&gt;Context propagation accuracy&lt;/td&gt;
+   &lt;td&gt;Context passed between agents is correct and complete&lt;/td&gt;
+   &lt;td&gt;% traces with no context loss&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Safety&lt;/td&gt;
+   &lt;td&gt;Guardrail block rate&lt;/td&gt;
+   &lt;td&gt;% of requests blocked at input or output&lt;/td&gt;
+   &lt;td&gt;Per 1,000 requests&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Safety&lt;/td&gt;
+   &lt;td&gt;Input / Output violation rate&lt;/td&gt;
+   &lt;td&gt;% of queries or responses flagged as policy-violating&lt;/td&gt;
+   &lt;td&gt;% of total requests / responses&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Safety&lt;/td&gt;
+   &lt;td&gt;Guardrail latency&lt;/td&gt;
+   &lt;td&gt;Latency overhead added by guardrail checks&lt;/td&gt;
+   &lt;td&gt;p99 (target: under 50ms)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Performance&lt;/td&gt;
+   &lt;td&gt;End-to-end latency&lt;/td&gt;
+   &lt;td&gt;Query received to response delivered&lt;/td&gt;
+   &lt;td&gt;p50, p90, p99&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Performance&lt;/td&gt;
+   &lt;td&gt;Per sub-agent / tool latency&lt;/td&gt;
+   &lt;td&gt;Per sub-agent and per tool execution&lt;/td&gt;
+   &lt;td&gt;p50, p90, p99 independently&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Performance&lt;/td&gt;
+   &lt;td&gt;Latency regression rate&lt;/td&gt;
+   &lt;td&gt;CI runs that breach the Stage 1 latency threshold&lt;/td&gt;
+   &lt;td&gt;% of CI runs&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Cost&lt;/td&gt;
+   &lt;td&gt;Cost per query&lt;/td&gt;
+   &lt;td&gt;Total token cost per end-to-end user request&lt;/td&gt;
+   &lt;td&gt;Input + output tokens × price&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Cost&lt;/td&gt;
+   &lt;td&gt;Cost per successful response&lt;/td&gt;
+   &lt;td&gt;Cost per query divided by pass rate&lt;/td&gt;
+   &lt;td&gt;Penalizes costly failures&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Cost&lt;/td&gt;
+   &lt;td&gt;Avg tool calls per query&lt;/td&gt;
+   &lt;td&gt;Reasoning efficiency. Rising calls signal degradation&lt;/td&gt;
+   &lt;td&gt;Average per query&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Ops control&lt;/td&gt;
+   &lt;td&gt;MTTD / MTTR&lt;/td&gt;
+   &lt;td&gt;Time to detect and remediate, per failure class&lt;/td&gt;
+   &lt;td&gt;Hours (MTTD target: under 4h)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Ops control&lt;/td&gt;
+   &lt;td&gt;Automation detection rate&lt;/td&gt;
+   &lt;td&gt;Incidents detected by evaluation compared to user complaints&lt;/td&gt;
+   &lt;td&gt;% (target: above 95%)&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;Ops control&lt;/td&gt;
+   &lt;td&gt;Alarm false positive rate&lt;/td&gt;
+   &lt;td&gt;Alarms not corresponding to real degradation&lt;/td&gt;
+   &lt;td&gt;% of total alarms&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;The impact of the nine-stage agent evaluation framework was concrete and measurable. Quality regressions that previously took days or weeks to surface, and usually arrived through a seller complaint, are now caught in under four hours by automated evaluation. Deployment decisions that once relied on subjective judgment now require every evaluator to pass a quantitative threshold. Prompt iteration cycles fell from days to minutes. Safety moved from periodic audits to 100 percent guardrail coverage on every request. Latency regressions are caught at the CI gate before they reach production. Cost surprises that once appeared weeks later in billing are now evaluated at Stage two and enforced by the quality gate before a change ships. And “something in the agent pipeline” became one click from a CloudWatch alarm to a full agent execution trace with every reasoning step visible.&lt;/p&gt;
+&lt;p&gt;The broader lesson is one the industry has learned before. DevOps taught us that shipping code without automated testing is reckless. MLOps taught us that deploying models without monitoring is dangerous. AgentOps teaches us the same thing about AI agents: operating them without continuous, multi-level evaluation is flying blind.&lt;/p&gt;
+&lt;p&gt;The nine-stage framework described here is not specific to sales intelligence agents. Team deploying multi-agent systems that reason, call sub-agents, tools, and synthesize responses will face these same questions across the same lifecycle. Your failure taxonomy will look different. Your golden set will reflect your domain. Your evaluator stack will be tuned to your users. What stays constant is the principle: evaluation is not a final QA step. It is the operating system of the agent itself, continuously measured, automatically defended, and improved with every interaction.&lt;/p&gt;
+&lt;p&gt;If you are building production agents and want to bring this kind of evaluation discipline to your system, Amazon Bedrock AgentCore Evaluations gives you the platform to do it: on-demand evaluation for experiments, batch evaluation for continuous monitoring, online evaluation for live traffic, built-in and customized evaluators, dataset evaluation(in public preview), CloudWatch integration, and the AgentCore optimization features recommendations and A/B tests to close the feedback loop. Start with Stage one, define what good looks like for your agent, and let the framework do the rest.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Ready to start?&lt;/strong&gt; See &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html" target="_blank" rel="noopener"&gt;Evaluate agent performance&lt;/a&gt; in the Amazon Bedrock AgentCore documentation. And if you’re building production agents and want to talk through how to apply this framework to your system, we’re happy to help. Reach out to us directly or through your AWS account team.&lt;/p&gt;
+&lt;p&gt;To learn more about Amazon Bedrock AgentCore Evaluations, see &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/evaluations.html" target="_blank" rel="noopener"&gt;Evaluate agent performance&lt;/a&gt; in the AWS documentation. For a technical introduction, read &lt;a href="https://aws.amazon.com/blogs/machine-learning/build-reliable-ai-agents-with-amazon-bedrock-agentcore-evaluations/" target="_blank" rel="noopener"&gt;Build reliable AI agents with AgentCore Evaluations&lt;/a&gt;. To see how we built the Performance Insights Agent, read &lt;a href="https://aws.amazon.com/blogs/machine-learning/how-aws-smgs-uses-an-ai-powered-conversational-assistant-to-transform-business-management-with-amazon-bedrock-agentcore/" target="_blank" rel="noopener"&gt;How AWS SMGS uses an AI-powered conversational assistant to transform business management with Amazon Bedrock AgentCore&lt;/a&gt;. To learn about AgentCore recommendation and optimization, read &lt;a href="https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/optimization.html" target="_blank" rel="noopener"&gt;AgentCore optimization: Improve agent quality loop with recommendations and A/B tests&lt;/a&gt;​&lt;/p&gt;
+&lt;h3 id="acknowledgement"&gt;Acknowledgement&lt;/h3&gt;
+&lt;p&gt;We extend our sincere gratitude to our executive sponsors and mentors whose vision and guidance made this initiative possible: &lt;a href="https://www.linkedin.com/in/dforthomme/" target="_blank" rel="noopener"&gt;Damien Forthomme&lt;/a&gt;, Manager III, Applied Science; &lt;a href="https://www.linkedin.com/in/akhand17/" target="_blank" rel="noopener"&gt;Akhand Singh&lt;/a&gt;, Head of Data Engineering; &lt;a href="https://www.linkedin.com/in/sujit-narapareddy/?isSelfProfile=false" target="_blank" rel="noopener"&gt;Sujit Narapareddy&lt;/a&gt;, Director AWS Insights; &lt;a href="https://www.linkedin.com/in/monicajain27/?isSelfProfile=false" target="_blank" rel="noopener"&gt;Monica Jain&lt;/a&gt;, Sr.&amp;nbsp;Product Manager – Tech and &lt;a href="https://www.linkedin.com/in/normanbraddock/?isSelfProfile=false" target="_blank" rel="noopener"&gt;Norman Braddock&lt;/a&gt;, Senior Manager of AI Product Management at AWS; &lt;a href="https://www.linkedin.com/in/m-umar-javed-65085374/?isSelfProfile=false" target="_blank" rel="noopener"&gt;Muhammad Umar Javed&lt;/a&gt;, Applied Scientist III, L6.&lt;/p&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-8.jpg" alt="Rui Li" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Rui Li&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/ruili2011/"&gt;Rui&lt;/a&gt; is an Applied Scientist in AWS Sales, Marketing, and Global Services (SMGS). She leads the science behind making AI agents trustworthy, so AWS sellers, leaders and customers can rely on them with confidence. Her work compares agent evaluation approaches and optimization methods, and turns them into a scalable, reusable evaluation framework for responsible multi-agent AI in production. Teams across AWS can adopt it to check agent quality from start to finish, ship updates with confidence, and catch problems before customers notice. By linking evaluation to continuous improvement, her work makes AWS AI agents more accurate and dependable over time, and builds customer trust in AWS as the platform for production-grade agentic AI.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-9.jpg" alt="Chandana Srinivas" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Chandana Srinivas&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/chandanasrinivas93"&gt;Chandana&lt;/a&gt; is a Senior Product Manager in AWS Sales, Marketing, and Global Services (SMGS). She leads the strategy and delivery of agentic AI products that give AWS sellers and leaders trusted customer intelligence at scale. Her portfolio includes customer intelligence agents built on knowledge graphs and natural-language query systems. She also drives the agent evaluation strategy for these products.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-10.jpg" alt="Mihir Gadgil" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Mihir Gadgil&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/mihirgadgil/"&gt;Mihir&lt;/a&gt; is a Senior Data Engineer in AWS Sales, Marketing, and Global Services (SMGS), specializing in enterprise-scale data solutions and generative AI applications. With over 9 years of experience and a Master’s in Information Technology &amp;amp; Management, he focuses on building robust data pipelines, complex data modeling, and ETL/ELT processes. His expertise drives business transformation through innovative data engineering solutions and advanced analytics capabilities.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-11.jpg" alt="Alok Singh" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Alok Singh&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/salok19/"&gt;Alok&lt;/a&gt; is a Senior Software Development Engineer at AWS, specializing in building scalable infrastructure, web services, and AI/ML solutions. With over 12+ years of experience, he has architected production-grade systems including an end-to-end ML platform on Amazon SageMaker that enables data scientists to deploy models to production within a week, agentic AI solutions for AWS sales teams, and a high-scale billing system processing billions of events for AWS customers worldwide. His expertise spans distributed systems, cloud architecture, and generative AI, with a focus on delivering measurable business impact through innovative engineering solutions.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-12.jpg" alt="Madhu Samhitha Vangara" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Madhu Samhitha Vangara&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/madhu-samhitha/"&gt;Madhu&lt;/a&gt; is a Worldwide Generative AI Specialist Solution Architect at AWS, focusing on agentic AI go-to-market for Amazon Bedrock AgentCore and Strands Agents. She brings a deep understanding of enterprise business value, with previous industry experience at Juniper Networks, VMware, Barclays, and IGCAR. She translates emerging AI capabilities and research into measurable outcomes for customers. She is a speaker at AI conferences such as AWS re:Invent, NVIDIA GTC, and AI Summit, where she specializes in agent optimization, agentic workloads , partner network, and production-grade agentic AI. She holds a master’s in computer science from UMass Amherst. Outside work, she’s a trained Indian classical dancer and an art enthusiast.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-21894-13.jpg" alt="Bharathi Srinivasan" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Bharathi Srinivasan&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/bharathi-srini"&gt;Bharathi&lt;/a&gt; is a Senior Generative AI Data Scientist at AWS. Bharathi works with enterprise customers on large‑scale generative AI challenges, including robustness and verification of non‑deterministic systems, governance of GenAI and agentic AI platforms, and the quality of dynamic agentic AI systems.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Introducing Reflection Beam: an open-weight model for agentic coding on AWS</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/introducing-reflection-beam-an-open-weight-model-for-agentic-coding-on-aws/</link>
+		
+		<dc:creator><![CDATA[Clement Perrot]]></dc:creator>
+		<pubDate>Fri, 16 Oct 2026 15:23:10 +0000</pubDate>
+				<category><![CDATA[Advanced (300)]]></category>
+		<category><![CDATA[Amazon SageMaker AI]]></category>
+		<category><![CDATA[Amazon SageMaker HyperPod]]></category>
+		<category><![CDATA[Amazon SageMaker JumpStart]]></category>
+		<category><![CDATA[Technical How-to]]></category>
+		<guid isPermaLink="false">cdaa150f662455f5a5b50cfecf81b2cdf715e1e7</guid>
+
+					<description>Reflection AI's Beam is an open-weight model for agentic coding and long-horizon tasks. This post shows how to deploy Beam on AWS: start with an Amazon SageMaker JumpStart real-time endpoint, or use Amazon SageMaker HyperPod Inference with JumpStart, SGLang, or vLLM for Kubernetes-native control over distributed GPU infrastructure.</description>
+										<content:encoded>&lt;p&gt;&lt;a href="https://reflection.ai/" target="_blank" rel="noopener"&gt;Reflection AI&lt;/a&gt; introduced Beam, an open-weight model for agentic coding and long-horizon tasks such as maintaining code, using tools, interpreting results, and completing multi-step workflows. The open-weight release gives developers and researchers control over the runtime, deployment environment, and customization process.&lt;/p&gt;
+&lt;p&gt;In this post, we explain Reflection’s vision and show how you can deploy Beam on AWS. Start with an Amazon SageMaker JumpStart real-time endpoint for a fully managed path. When you need Kubernetes-native control over distributed GPU infrastructure, use &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-model-deployment.html" target="_blank" rel="noopener"&gt;Amazon SageMaker HyperPod Inference&lt;/a&gt; with JumpStart, SGLang, or vLLM. We also explain how Beam’s 501 billion total parameters shape checkpoint storage, weight memory, sharding, and parallelism, while its 23 billion active parameters influence per-token compute.&lt;/p&gt;
+&lt;p&gt;At launch, Beam is available in Amazon SageMaker JumpStart in US East (N. Virginia) and US East (Ohio).&lt;/p&gt;
+&lt;h2 id="reflections-vision-for-open-intelligence"&gt;Reflection’s vision for open intelligence&lt;/h2&gt;
+&lt;p&gt;Reflection’s mission is to &lt;a href="https://reflection.ai/about" target="_blank" rel="noopener"&gt;make intelligence open and accessible to all&lt;/a&gt; through open model weights, published research, and open source software. Its &lt;a href="https://reflection.ai/solutions" target="_blank" rel="noopener"&gt;full AI stack&lt;/a&gt; spans models, core software, production infrastructure, and applications. Beam brings this approach to developers building software engineering and agentic systems.&lt;/p&gt;
+&lt;h2 id="about-reflection-beam"&gt;About Reflection Beam&lt;/h2&gt;
+&lt;p&gt;Beam is a sparse mixture-of-experts model for resolving software issues, modifying code, calling tools, and acting on intermediate results. It has 501 billion total parameters and 23 billion active parameters, and Reflection reports an effective context length of 1 million tokens.&lt;/p&gt;
+&lt;p&gt;Reflection releases Beam’s weights through Hugging Face under the Apache 2.0 license. Beam 1.0 is available in BF16, FP8, and NVFP4 checkpoint variants. These formats provide different memory footprints and hardware compatibility. You can deploy the model with the AWS managed JumpStart container configuration or inspect and customize the model with SGLang or vLLM in your AWS environment.&lt;/p&gt;
+&lt;h2 id="understand-the-deployment-architecture"&gt;Understand the deployment architecture&lt;/h2&gt;
+&lt;p&gt;Choose the serving path that meets your control and scaling requirements.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Start with a &lt;strong&gt;SageMaker JumpStart real-time endpoint&lt;/strong&gt; when you want an AWS managed model package, endpoint, and invocation API without operating Kubernetes.&lt;/li&gt;
+ &lt;li&gt;Use &lt;strong&gt;JumpStart on HyperPod Inference&lt;/strong&gt; when you want the AWS managed container and model configuration on a HyperPod cluster orchestrated by Amazon Elastic Kubernetes Service (Amazon EKS).&lt;/li&gt;
+ &lt;li&gt;Use &lt;strong&gt;SGLang or vLLM on HyperPod Inference&lt;/strong&gt; when you need to control the serving image, runtime arguments, quantization, or distributed execution.&lt;/li&gt;
+ &lt;li&gt;Size the deployment for checkpoint storage, weight memory, KV cache, context length, batching, runtime overhead, and the supported parallelism.&lt;/li&gt;
+ &lt;li&gt;Define the expected concurrency and latency targets, then configure replicas, caching, routing, and autoscaling from measured workload behavior.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The JumpStart real-time path packages the model, container, and endpoint behind a managed deployment workflow. The HyperPod path exposes the cluster and serving runtime so that you can control distributed execution, caching, routing, and scaling.&lt;/p&gt;
+&lt;p&gt;The following diagram shows the components used by the HyperPod path. Beam can be sourced through SageMaker JumpStart, Hugging Face Hub, or an optional Amazon Simple Storage Service (Amazon S3) mirror. The distributed workers use the AWS managed JumpStart container or a custom SGLang or vLLM runtime.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-1-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-1-1.png" alt="Architecture diagram showing Beam sourced from SageMaker JumpStart, Hugging Face Hub, or an optional Amazon S3 mirror into Amazon SageMaker HyperPod Inference, with the Inference Operator managing local model and image caching and the Inference Gateway and Endpoint Picker routing requests to distributed JumpStart, SGLang, or vLLM workers monitored by Amazon CloudWatch." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: Distributed Beam deployment with Amazon SageMaker HyperPod Inference&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="prerequisites"&gt;Prerequisites&lt;/h2&gt;
+&lt;p&gt;You need:&lt;/p&gt;
+&lt;ul&gt;
+ &lt;li&gt;An AWS account with permissions for your selected SageMaker deployment path and its supporting AWS Identity and Access Management (IAM), networking, and storage resources.&lt;/li&gt;
+ &lt;li&gt;Access to Beam through SageMaker JumpStart or one of the Beam 1.0 checkpoint repositories on Hugging Face.&lt;/li&gt;
+ &lt;li&gt;Acceptance of the model terms, the AWS Command Line Interface (AWS CLI), and Python 3.11 or later.&lt;/li&gt;
+ &lt;li&gt;GPU quota and capacity for a supported Beam configuration.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="plan-and-obtain-gpu-capacity"&gt;Plan and obtain GPU capacity&lt;/h2&gt;
+&lt;p&gt;Beam’s 501 billion total parameters require a multi-GPU deployment. BF16 has the largest weight-memory requirement, so plan a multi-node configuration with enough aggregate GPU memory for the weights and runtime overhead. For FP8, use &lt;code&gt;ml.p5.48xlarge&lt;/code&gt; with NVIDIA H100 GPUs or &lt;code&gt;ml.p5e.48xlarge&lt;/code&gt; and &lt;code&gt;ml.p5en.48xlarge&lt;/code&gt; with H200 GPUs. For NVFP4, use &lt;code&gt;ml.p6-b200.48xlarge&lt;/code&gt; with NVIDIA B200 GPUs. Confirm that the released checkpoint, runtime, and parallel layout support the selected instance type.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Calculate memory for weights, KV cache, and runtime overhead for one replica, then confirm the estimate with a load test.&lt;/li&gt;
+ &lt;li&gt;Choose an AWS Region that supports the required accelerated instance.&lt;/li&gt;
+ &lt;li&gt;Check the service quota and available capacity for the selected instance type. Use on-demand capacity when available, or use a &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/reserve-capacity-with-training-plans.html" target="_blank" rel="noopener"&gt;SageMaker training plan&lt;/a&gt; as a short-term reservation for scheduled work.&lt;/li&gt;
+ &lt;li&gt;Allow time for image transfer, weight download, shard loading, and runtime initialization.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="path-1-get-started-with-a-sagemaker-jumpstart-real-time-endpoint"&gt;Path 1: Get started with a SageMaker JumpStart real-time endpoint&lt;/h2&gt;
+&lt;p&gt;Use a JumpStart real-time endpoint first when you want the shortest path from the model catalog to a managed HTTPS endpoint. The sample supports the BF16, FP8, and NVFP4 model IDs through one variant-aware command. Its README and Python file are the source of truth for supported instance types, request schema, deployment command, and cleanup command.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Clone the sample repository.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;git clone https://github.com/aws-samples/sagemaker-genai-hosting-examples.git&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Enter the SageMaker JumpStart deployment sample directory.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;cd sagemaker-genai-hosting-examples/01-models/ReflectionAI/Beam-1.0-501B-A23B-NVFP4/&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Create and activate a Python virtual environment.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python3 -m venv .venv
+source .venv/bin/activate&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Install the sample dependency.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python -m pip install -r requirements.txt&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Run the bounded deployment, invocation, and cleanup lifecycle for FP8.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python jumpstart_real_time.py \
+--variant fp8 \
+--endpoint-name reflection-beam-fp8-smoke&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;The command deploys the FP8 endpoint, sends a short request, prints the response, and cleans up the endpoint. Use &lt;code&gt;bf16&lt;/code&gt;&amp;nbsp;or &lt;code&gt;nvfp4&lt;/code&gt;&amp;nbsp;to select another checkpoint variant; NVFP4 is the default when you omit &lt;code&gt;--variant&lt;/code&gt;. Use the Python functions in the README when you need to keep an endpoint running.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="path-2-deploy-with-sagemaker-hyperpod-inference"&gt;Path 2: Deploy with SageMaker HyperPod Inference&lt;/h2&gt;
+&lt;p&gt;Use HyperPod Inference when you need Kubernetes-native control over distributed GPU infrastructure. You can use the AWS managed JumpStart container configuration or deploy Beam with SGLang or vLLM. The &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/SageMakerHyperpod/reflection-beam" target="_blank" rel="noopener"&gt;HyperPod Inference deployment sample README&lt;/a&gt; and its configuration files are the source of truth for released manifests, model and image identifiers, supported runtime versions, and commands.&lt;/p&gt;
+&lt;p&gt;Before you begin, configure &lt;code&gt;kubectl&lt;/code&gt; access to an EKS-orchestrated HyperPod cluster with the HyperPod Inference Operator and required add-ons. You also need the cluster virtual private cloud (VPC), subnets, security groups, access to the selected Beam and runtime artifacts, and local NVMe capacity if you enable model caching. Use an isolated Hugging Face access token if the selected repository requires authentication.&lt;/p&gt;
+&lt;p&gt;Deploy a pinned Beam revision from Hugging Face Hub for development and experimentation. For production deployments and model caching, copy the checkpoint to Amazon S3 or Amazon FSx. &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-model-deployment-model-caching.html" target="_blank" rel="noopener"&gt;HyperPod model and image caching&lt;/a&gt; can preload weights onto node-local NVMe storage and pre-pull the serving image.&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-model-deployment-inference-gateway.html" target="_blank" rel="noopener"&gt;HyperPod Inference Gateway&lt;/a&gt; provides an OpenAI-compatible interface and routes requests across replicas. HyperPod Inference also supports &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-model-deployment-caching-routing.html" target="_blank" rel="noopener"&gt;managed tiered KV caching and intelligent routing&lt;/a&gt;. These are among the &lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-year-to-date-launches-in-review/" target="_blank" rel="noopener"&gt;Amazon SageMaker Inference capabilities introduced in 2026&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The next diagram expands the model preparation and runtime request flow. When model caching is enabled, the Inference Operator warms eligible nodes with the selected weights and serving image. At runtime, the Inference Gateway and Endpoint Picker can direct each request to a suitable JumpStart-managed, SGLang, or vLLM replica.&lt;/p&gt;
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-2-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-2-1.png" alt="Detailed HyperPod flow showing the Inference Gateway, Endpoint Picker, routing signals, Inference Operator, host-local model cache, and JumpStart-managed, SGLang, or vLLM replicas." width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 2: HyperPod model caching and request routing&lt;/p&gt;
+&lt;/div&gt;
+&lt;h3 id="prepare-deployment-artifacts"&gt;Prepare deployment artifacts&lt;/h3&gt;
+&lt;p&gt;Use immutable inputs so that you can reproduce deployment and performance results.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Use the JumpStart model release recorded in the deployment sample.&lt;/li&gt;
+ &lt;li&gt;Choose the BF16, FP8, or NVFP4 checkpoint for a custom runtime.&lt;/li&gt;
+ &lt;li&gt;For a custom runtime, keep the public Beam commit SHA and image digest in the sample release configuration.&lt;/li&gt;
+ &lt;li&gt;Mirror the released image into a private Amazon Elastic Container Registry (Amazon ECR) repository only when your cluster cannot pull the upstream image or your organization requires an approved registry.&lt;/li&gt;
+ &lt;li&gt;Keep tokens, generated secrets, private model IDs, registry credentials, and unpublished results out of the repository.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="choose-jumpstart-sglang-or-vllm"&gt;Choose a serving path&lt;/h3&gt;
+&lt;p&gt;Start with SageMaker JumpStart unless your workload requires a specific inference runtime or configuration.&lt;/p&gt;
+&lt;table border="1px" width="100%" cellpadding="10px"&gt;
+ &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt;&lt;strong&gt;Serving path&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;Use it when&lt;/strong&gt;&lt;/td&gt;
+   &lt;td&gt;&lt;strong&gt;What you manage&lt;/strong&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;SageMaker JumpStart&lt;/td&gt;
+   &lt;td&gt;You want an AWS-managed container and model configuration with less runtime maintenance.&lt;/td&gt;
+   &lt;td&gt;Select the Beam model version, supported instance type, endpoint configuration, and scaling policy.&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt;SGLang or vLLM&lt;/td&gt;
+   &lt;td&gt;You need a specific inference runtime or configuration, such as custom runtime arguments, parsers, quantization, or parallelism.&lt;/td&gt;
+   &lt;td&gt;Pin the supported runtime image, model revision, parser configuration, and distributed execution settings.&lt;/td&gt;
+  &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="deploy-with-sagemaker-jumpstart"&gt;Deploy with SageMaker JumpStart&lt;/h3&gt;
+&lt;p&gt;SageMaker JumpStart reduces container integration work while HyperPod retains control over cluster capacity, scaling, and observability.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;In SageMaker Studio, open the &lt;strong&gt;JumpStart model catalog&lt;/strong&gt;.&lt;/li&gt;
+ &lt;li&gt;Under &lt;strong&gt;All public models&lt;/strong&gt;, choose &lt;strong&gt;Beam&lt;/strong&gt;.&lt;/li&gt;
+ &lt;li&gt;Choose &lt;strong&gt;SageMaker HyperPod&lt;/strong&gt; as the deployment target.&lt;/li&gt;
+ &lt;li&gt;Select the cluster and Kubernetes namespace.&lt;/li&gt;
+ &lt;li&gt;Enter an endpoint name, and choose &lt;strong&gt;Deploy&lt;/strong&gt;.&lt;/li&gt;
+ &lt;li&gt;Confirm the deployment status before invoking the endpoint with the released JumpStart request schema.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;For an infrastructure-as-code workflow, use the released JumpStart configuration in the HyperPod sample. You can inspect the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/blob/main/SageMakerHyperpod/reflection-beam/reflection-beam-jumpstart.yaml" target="_blank" rel="noopener"&gt;reflection-beam-jumpstart.yaml manifest template&lt;/a&gt; before configuring the deployment.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Clone the sample repository, and enter the HyperPod Beam directory.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;git clone https://github.com/aws-samples/sagemaker-genai-hosting-examples.git
+cd sagemaker-genai-hosting-examples/SageMakerHyperpod/reflection-beam/&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Create the local configuration files described in the README.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;cp config/deployment.env.example config/deployment.env
+cp config/release.env.example config/release.env&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Validate the JumpStart configuration before changing the cluster.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python hyperpod_tool.py \
+  --config config/deployment.env \
+  --config config/release.env \
+  validate jumpstart&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Deploy the JumpStart configuration.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python hyperpod_tool.py \
+  --config config/deployment.env \
+  --config config/release.env \
+  deploy jumpstart \
+  --timeout-seconds 1800&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The helper renders and applies the released &lt;code&gt;JumpStartModel&lt;/code&gt; resource without writing populated release values to disk.&lt;/p&gt;
+&lt;h3 id="deploy-with-sglang-or-vllm"&gt;Deploy with SGLang or vLLM&lt;/h3&gt;
+&lt;p&gt;Choose SGLang or vLLM when you need direct control over the serving runtime. Before configuring the deployment, inspect the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/blob/main/SageMakerHyperpod/reflection-beam/reflection-beam-sglang.yaml" target="_blank" rel="noopener"&gt;reflection-beam-sglang.yaml manifest template&lt;/a&gt; or the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/blob/main/SageMakerHyperpod/reflection-beam/reflection-beam-vllm.yaml" target="_blank" rel="noopener"&gt;reflection-beam-vllm.yaml manifest template&lt;/a&gt;. The sample README remains the source of truth for released values and commands.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Clone the sample repository.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;git clone https://github.com/aws-samples/sagemaker-genai-hosting-examples.git&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Enter the HyperPod Beam directory.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;cd sagemaker-genai-hosting-examples/SageMakerHyperpod/reflection-beam/&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Create the local configuration files described in the README.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;cp config/deployment.env.example config/deployment.env
+cp config/release.env.example config/release.env&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Validate the selected configuration before changing the cluster.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python hyperpod_tool.py \
+  --config config/deployment.env \
+  --config config/release.env \
+  validate sglang&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Deploy Beam, and wait for a terminal deployment state.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python hyperpod_tool.py \
+  --config config/deployment.env \
+  --config config/release.env \
+  deploy sglang \
+  --timeout-seconds 1800&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Replace &lt;code&gt;sglang&lt;/code&gt; with &lt;code&gt;vllm&lt;/code&gt; to use vLLM. The helper validates the selected settings, applies the rendered manifest without writing release values to disk, waits with a fixed timeout, and prints diagnostics if deployment fails.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="invoke-and-validate-beam"&gt;Invoke Beam&lt;/h2&gt;
+&lt;p&gt;Invoke JumpStart endpoints with the released model request schema. For SGLang or vLLM, use the bounded smoke test included in the HyperPod sample.&lt;/p&gt;
+&lt;h3 id="invoke-the-deployed-endpoint"&gt;Invoke the deployed endpoint&lt;/h3&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Install the sample client dependency.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;&lt;/li&gt;
+ &lt;li&gt;Run a private health check and short request with the recommended starting sampling settings.
+  &lt;div class="hide-language"&gt;
+   &lt;pre&gt;&lt;code class="language-bash"&gt;python hyperpod_tool.py \
+--config config/deployment.env \
+smoke sglang \
+--prompt "List three checks for a healthy model deployment." \
+--temperature 1.0 \
+--top-p 0.7&lt;/code&gt;&lt;/pre&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Replace &lt;code&gt;sglang&lt;/code&gt; with &lt;code&gt;vllm&lt;/code&gt; for a vLLM deployment. The helper selects a ready worker, opens a temporary port-forward, checks endpoint health, sends the request, and closes the port-forward.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The response resembles the following:&lt;/p&gt;
+&lt;div class="hide-language"&gt;
+ &lt;pre&gt;&lt;code class="language-text"&gt;1. Confirm that the endpoint reports ready.
+2. Send a short inference request.
+3. Review the service logs for startup errors.&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;For an authenticated Inference Gateway, use the bearer-token procedure in the HyperPod sample README. Keep credentials out of source code, manifests, and command history.&lt;/p&gt;
+&lt;h2 id="measure-and-tune-performance"&gt;Measure and tune performance&lt;/h2&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;Test each serving path with repeated, representative coding and tool-use requests at the expected concurrency.&lt;/li&gt;
+ &lt;li&gt;Record the Beam model version, image digest, instance type, precision, context length, parallelism, serving arguments, cache state, and test repetitions.&lt;/li&gt;
+ &lt;li&gt;Measure request success rate, p50 and p95 time to first token, time per output token, end-to-end latency, and aggregate output tokens per second.&lt;/li&gt;
+ &lt;li&gt;Tune batch size, KV cache allocation, replica count, autoscaling, and model and image caching from those results.&lt;/li&gt;
+ &lt;li&gt;Recheck output quality after changing precision or quantization.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="clean-up"&gt;Clean up&lt;/h2&gt;
+&lt;p&gt;Delete resources when you finish testing to avoid ongoing charges.&lt;/p&gt;
+&lt;ol type="1"&gt;
+ &lt;li&gt;For a SageMaker JumpStart real-time endpoint, follow the cleanup instructions in the SageMaker JumpStart deployment sample README.&lt;/li&gt;
+ &lt;li&gt;For JumpStart, SGLang, or vLLM on Amazon SageMaker HyperPod Inference, follow the cleanup instructions in the HyperPod Inference deployment sample README.&lt;/li&gt;
+ &lt;li&gt;Delete a dedicated HyperPod or Amazon EKS cluster created for the walkthrough.&lt;/li&gt;
+ &lt;li&gt;Delete unused cached weights, mirrored artifacts, load balancers, log groups, temporary IAM roles, and captured inference data.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Reflection Beam gives developers an open-weight model designed for agentic coding and multi-step tasks. Start with a SageMaker JumpStart real-time endpoint for a fully managed deployment. Use SageMaker HyperPod Inference with JumpStart when you need Kubernetes-native infrastructure control without managing the serving container, or choose SGLang or vLLM when you need a custom runtime.&lt;/p&gt;
+&lt;p&gt;Use the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/01-models/ReflectionAI/Beam-1.0-501B-A23B" target="_blank" rel="noopener"&gt;SageMaker JumpStart deployment sample&lt;/a&gt; or the &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/SageMakerHyperpod/reflection-beam" target="_blank" rel="noopener"&gt;HyperPod Inference deployment sample&lt;/a&gt;, then follow the instructions.&lt;/p&gt;
+&lt;p&gt;To learn more about Reflection AI and its vision for open intelligence, visit &lt;a href="https://reflection.ai/about" target="_blank" rel="noopener"&gt;Reflection AI&lt;/a&gt; and read &lt;a href="https://reflection.ai/blog/introducing-beam" target="_blank" rel="noopener"&gt;Introducing Beam&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id="resources"&gt;Resources&lt;/h2&gt;
+&lt;ul&gt;
+ &lt;li&gt;Reflection Beam checkpoint variants: &lt;a href="https://huggingface.co/reflection/Beam-1.0-501B-A23B" target="_blank" rel="noopener"&gt;BF16&lt;/a&gt;, &lt;a href="https://huggingface.co/reflection/Beam-1.0-501B-A23B-FP8" target="_blank" rel="noopener"&gt;FP8&lt;/a&gt;, and &lt;a href="https://huggingface.co/reflection/Beam-1.0-501B-A23B-NVFP4" target="_blank" rel="noopener"&gt;NVFP4&lt;/a&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/01-models/ReflectionAI/Beam-1.0-501B-A23B" target="_blank" rel="noopener"&gt;SageMaker JumpStart deployment sample&lt;/a&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/SageMakerHyperpod/reflection-beam" target="_blank" rel="noopener"&gt;HyperPod Inference deployment samples with JumpStart, vLLM, and SGLang&lt;/a&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-model-deployment-deploy.html" target="_blank" rel="noopener"&gt;Deploy foundation models from SageMaker JumpStart to HyperPod Inference&lt;/a&gt;&lt;/li&gt;
+ &lt;li&gt;&lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-year-to-date-launches-in-review/" target="_blank" rel="noopener"&gt;Amazon SageMaker Inference 2026 year-to-date launches in review&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr style="width: 100%"&gt;
+&lt;h2&gt;About the authors&lt;/h2&gt;
+&lt;footer&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-3-1.jpg" alt="Clement Perrot" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Clement Perrot&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/clementperrot/?isSelfProfile=false" target="_blank" rel="noopener"&gt;Clement&lt;/a&gt; is Founding Applied AI at Reflection AI. Before joining Reflection AI, he worked in the Generative AI Innovation Center at AWS and founded AI and consumer hardware startups, two of which were acquired.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-4.jpg" alt="Florent Gbelidji" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Florent Gbelidji&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/florentgbelidji/" target="_blank" rel="noopener"&gt;Florent&lt;/a&gt; is Open Source Engineering Lead and Member of Technical Staff at Reflection AI. Before joining Reflection AI, he led Hugging Face’s cloud partnership with AWS and worked as a machine learning engineer helping companies build open-source AI solutions.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-5.jpg" alt="Daniel Quang" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Daniel Quang&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/dxq/" target="_blank" rel="noopener"&gt;Daniel&lt;/a&gt; is a Solutions Architect on the Frontier AI Startups team at AWS, where he helps the world’s largest and most strategic generative AI startups scale their infrastructure on AWS. He holds a PhD in Computer Science from the University of California, Irvine, with a research focus on machine learning and bioinformatics.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-6.jpg" alt="Hadrien Almela" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Hadrien Almela&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/hadrienalmela/?isSelfProfile=false" target="_blank" rel="noopener"&gt;Hadrien&lt;/a&gt; is a Senior Frontier AI Account Manager in the AWS Startup team, helping top AI startups build technical integrations and global go-to-market partnerships. He has eight years of experience in the startup landscape. Hadrien lives in San Francisco, California, and enjoys diving, surfing, and traveling to exotic places.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-7.jpg" alt="Dan Ferguson" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Dan Ferguson&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://aws.amazon.com/blogs/machine-learning/author/frgud/" target="_blank" rel="noopener"&gt;Dan&lt;/a&gt; is a Senior Worldwide Specialist Solutions Architect for Generative AI at AWS, based in New York. He helps customers integrate machine learning and generative AI workloads efficiently, effectively, and sustainably.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-8.jpg" alt="Daniel Wirjo" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Daniel Wirjo&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/wirjo/" target="_blank" rel="noopener"&gt;Daniel&lt;/a&gt; is a Solutions Architect at AWS, focused on AI and SaaS startups. As a former startup CTO, he enjoys collaborating with founders and engineering leaders to drive growth and innovation on AWS. Outside of work, Daniel enjoys taking walks with a coffee in hand, appreciating nature, and learning new ideas.&lt;/p&gt;
+ &lt;/div&gt;
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/15/ML-22133-9.jpg" alt="Sureshkumar Natarajan" width="100" height="133"&gt;
+  &lt;/div&gt;
+  &lt;h3 class="lb-h4"&gt;Sureshkumar Natarajan&lt;/h3&gt;
+  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/sureshkumar-natarajan-39a56523/" target="_blank" rel="noopener"&gt;Sureshkumar&lt;/a&gt; is a Senior Technical Account Manager at Amazon Web Services. He helps enterprise customers accelerate their cloud modernization journeys and is part of the Technical Field Community for Next Generation Developer Experience supporting AWS Transform custom.&lt;/p&gt;
+ &lt;/div&gt;
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Meta’s Muse Spark Open now available in Amazon SageMaker JumpStart</title>
 		<link>https://aws.amazon.com/blogs/machine-learning/metas-muse-spark-open-now-available-in-amazon-sagemaker-jumpstart/</link>
 		
@@ -3658,617 +4387,6 @@ response = bedrock_runtime.converse(
   &lt;/div&gt;
   &lt;h3 class="lb-h4"&gt;Chethan Shriyan&lt;/h3&gt;
   &lt;p style="overflow: hidden"&gt;Chethan is a Principal Product Manager, Technical at AWS, based in Seattle, WA. He brings nearly 13 years of experience in product and business management, including over 7 years at Amazon. He is passionate about building and delivering technology products that create meaningful impact in customers’ lives.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Share GPU clusters across teams with isolation and fairness using Amazon SageMaker HyperPod</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/share-gpu-clusters-across-teams-with-isolation-and-fairness-using-amazon-sagemaker-hyperpod/</link>
-		
-		<dc:creator><![CDATA[Giuseppe Angelo Porcelli]]></dc:creator>
-		<pubDate>Thu, 08 Oct 2026 16:20:04 +0000</pubDate>
-				<category><![CDATA[Amazon SageMaker HyperPod]]></category>
-		<category><![CDATA[Best Practices]]></category>
-		<category><![CDATA[Expert (400)]]></category>
-		<guid isPermaLink="false">4b49d02253b76bfce1c012d6f6062cfcdca7f739</guid>
-
-					<description>A reference architecture for securely sharing one Amazon SageMaker HyperPod EKS cluster across multiple teams, using AWS IAM Identity Center for authentication, per-team SageMaker Domains and Kubernetes namespaces for isolation, HyperPod Task Governance for fairness, and namespace-level cost allocation for chargeback.</description>
-										<content:encoded>&lt;p&gt;Multiple teams within the same company increasingly need shared access to expensive GPU clusters for their generative AI operations, while maintaining isolation boundaries, resource fairness, and operational independence. Consider a data science team training large language models, a computer vision group running inference workloads, and a research team experimenting with new model architectures. All of them might need access to the same cluster. Without a well-designed multi-tenant (multi-team) architecture, organizations face uncontrolled resource consumption, weak isolation between teams, an inability to attribute shared GPU costs to the teams that incur them, and administrative overhead that slows down innovation.&lt;/p&gt;
-&lt;p&gt;Amazon SageMaker HyperPod is a purpose-built AI service that simplifies the management of large-scale compute clusters for gen AI workloads. It provides resilient, optimized clusters orchestrated by Amazon Elastic Kubernetes Service (Amazon EKS) or Slurm, so organizations can run distributed training, interactive development, and model inference at scale. At the same time, it automatically handles node health monitoring, fault recovery, and cluster lifecycle management.&lt;/p&gt;
-&lt;p&gt;In this post, we present a reference architecture for building a multi-tenant environment on Amazon SageMaker HyperPod with EKS. This architecture uses AWS IAM Identity Center for centralized authentication, per-team SageMaker AI domains for a tailored user experience, Kubernetes namespaces for workload isolation, HyperPod Task Governance for fair resource allocation, and namespace-level cost allocation for per-team spend visibility and chargeback. By the end of this post, you will have a clear blueprint for multiple teams to efficiently share a single HyperPod EKS cluster.&lt;/p&gt;
-&lt;h2 id="architecture-overview"&gt;Architecture overview&lt;/h2&gt;
-&lt;p&gt;The following diagram illustrates the high-level architecture of a multi-tenant HyperPod EKS deployment. In this example, two teams (Team A and Team B) share a single HyperPod EKS cluster, each operating within their own isolated namespace.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/multi-tenant-hp-eks.jpg" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/multi-tenant-hp-eks.jpg" alt="Layered multi-tenant HyperPod EKS architecture from user identity through authorization to isolated team namespaces" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: High-level multi-tenant architecture for two teams sharing one HyperPod EKS cluster&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;The architecture is structured as a layered flow from left to right, connecting user identity through authorization controls and into isolated workload namespaces on the cluster.&lt;/p&gt;
-&lt;h3 id="users-and-authentication"&gt;Users and authentication&lt;/h3&gt;
-&lt;p&gt;On the far left, individual users from each team (User 1 from Team A, User 2 from Team B) interact with the system through two paths. Both paths authenticate through the AWS IAM Identity Center Portal, which federates with an external identity provider (such as Microsoft Entra ID) shown at the bottom-left.&lt;/p&gt;
-&lt;p&gt;The first path is through CLI access. Users authenticate with &lt;code&gt;aws sso login&lt;/code&gt;, which redirects them to the Identity Center portal, and then obtain temporary credentials from their team’s permission set to submit tasks directly to the EKS cluster with &lt;code&gt;kubectl&lt;/code&gt;. In the diagram, the pink arrow flows from the CLI terminal across the top directly into the HyperPod EKS cluster.&lt;/p&gt;
-&lt;p&gt;The second path is through the Identity Center portal directly, where users select the SageMaker Studio application to sign in to their team-specific SageMaker AI domain.&lt;/p&gt;
-&lt;p&gt;Each team has a corresponding permission set (TeamA permission set, TeamB permission set) that carries the AWS Identity and Access Management (IAM) policies needed for CLI workflows. Identity Center automatically provisions an IAM role for each permission set, shown in the diagram as &lt;code&gt;TeamA-permissionset-role&lt;/code&gt; and &lt;code&gt;TeamB-permissionset-role&lt;/code&gt; (labeled “CLI/Console role”). This role serves as the IAM principal when users authenticate through &lt;code&gt;aws sso login&lt;/code&gt;.&lt;/p&gt;
-&lt;h3 id="sagemaker-domains"&gt;SageMaker AI domains&lt;/h3&gt;
-&lt;p&gt;From the Identity Center portal, users are routed to their team-specific SageMaker AI domain. Each domain (SageMaker AI domain Team A and SageMaker AI domain Team B) provides a dedicated Amazon SageMaker Studio GUI and is configured with a team-specific execution role (&lt;code&gt;TeamA-role&lt;/code&gt; and &lt;code&gt;TeamB-role&lt;/code&gt; respectively). These domains serve as the primary workspace interface, so users can submit tasks from the GUI (shown by the pink arrows flowing toward EKS).&lt;/p&gt;
-&lt;h3 id="eks-access-control"&gt;EKS access control&lt;/h3&gt;
-&lt;p&gt;At the EKS boundary, access entries map IAM roles to Kubernetes permissions. The diagram shows access entries for &lt;code&gt;TeamA-role&lt;/code&gt; and &lt;code&gt;TeamB-role&lt;/code&gt; (the Studio execution roles), which authorize requests originating from the SageMaker Studio GUI. Access entries must also be configured for the Identity Center-provisioned CLI/Console roles (&lt;code&gt;TeamA-permissionset-role&lt;/code&gt; and &lt;code&gt;TeamB-permissionset-role&lt;/code&gt;) to authorize requests arriving through &lt;code&gt;kubectl&lt;/code&gt;. All access entries are associated with managed or custom role-based access control (RBAC) policies (represented by the key icon) and scoped to the team’s designated namespace. As a result, whether access originates from Studio or the CLI, users can only interact with resources in their own namespace.&lt;/p&gt;
-&lt;h3 id="hyperpod-eks-cluster"&gt;HyperPod EKS cluster&lt;/h3&gt;
-&lt;p&gt;The cluster itself is depicted with two cross-cutting platform layers at the top: HyperPod Observability (for monitoring and dashboards) and HyperPod Task Governance (for compute quota management and scheduling priorities). Below these layers, the cluster is partitioned into Namespace A (Team A) and Namespace B (Team B). Within each namespace, teams can run their own HyperPod Spaces (interactive development environments), HyperPod PyTorch jobs (distributed training workloads), and HyperPod Inference endpoints (model serving).&lt;/p&gt;
-&lt;h3 id="storage"&gt;Storage&lt;/h3&gt;
-&lt;p&gt;Beneath the cluster, the architecture includes two storage tiers. The first is a POSIX-compliant file system (Amazon FSx for Lustre or Amazon FSx for OpenZFS) organized into per-team shared directories (&lt;code&gt;/fsx/TeamA&lt;/code&gt;, &lt;code&gt;/fsx/TeamB&lt;/code&gt;) and per-user home directories (&lt;code&gt;/home/User1&lt;/code&gt;, &lt;code&gt;/home/User2&lt;/code&gt;). The second is per-team or shared Amazon Simple Storage Service (Amazon S3) buckets for object storage, governed by the team’s IAM execution role.&lt;/p&gt;
-&lt;p&gt;This architecture isolates each team from authentication through authorization to workload execution, while sharing expensive GPU infrastructure efficiently.&lt;/p&gt;
-&lt;h2 id="authentication-and-access-control"&gt;Authentication and access control&lt;/h2&gt;
-&lt;p&gt;The foundation of any multi-tenant system is robust authentication: verifying who users are before they interact with any resource. In this architecture, AWS IAM Identity Center serves as the centralized authentication layer, federating with an external identity provider to manage user identities and group memberships.&lt;/p&gt;
-&lt;h3 id="why-aws-iam-identity-center"&gt;Why AWS IAM Identity Center&lt;/h3&gt;
-&lt;p&gt;AWS IAM Identity Center (successor to AWS Single Sign-On) provides a single place to manage workforce identities across AWS accounts and applications. For a multi-tenant HyperPod deployment, it offers several key capabilities:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Centralized identity management&lt;/strong&gt; – Rather than maintaining separate user databases per AWS service, Identity Center provides a single source of truth for all user identities and their group memberships.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Federation with existing identity providers&lt;/strong&gt; – Most enterprises already manage their workforce identities in systems like Microsoft Entra ID (formerly Azure AD), Okta, or Ping Identity. Identity Center integrates with these providers, so organizations can reuse their existing identity infrastructure without duplicating user accounts.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Native integration with SageMaker AI&lt;/strong&gt; – SageMaker AI domains support Identity Center authentication, so users can sign in to SageMaker Studio through their corporate identity provider with single sign-on (SSO).&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;AWS account access&lt;/strong&gt; – Identity Center can also grant users access to the underlying AWS account with specific permission sets, which support CLI workflows alongside the Studio GUI experience.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Required for Amazon Managed Grafana&lt;/strong&gt; – Amazon Managed Grafana uses Identity Center as its authentication mechanism for workforce users, making it the natural choice when teams also need access to observability dashboards for monitoring their workloads.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html" target="_blank" rel="noopener"&gt;What is IAM Identity Center&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="configuring-identity-center-with-an-external-identity-provider"&gt;Configuring Identity Center with an external identity provider&lt;/h3&gt;
-&lt;p&gt;In this reference architecture, we use Microsoft Entra ID as the external identity provider, though the same pattern applies to most standard Security Assertion Markup Language (SAML) 2.0 providers.&lt;/p&gt;
-&lt;p&gt;The configuration involves:&lt;/p&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;&lt;strong&gt;Group structure in the identity provider&lt;/strong&gt; – In Entra ID, create groups that correspond to your organizational teams. In our example, we define three groups: &lt;code&gt;TeamA&lt;/code&gt;, &lt;code&gt;TeamB&lt;/code&gt;, and &lt;code&gt;Admin&lt;/code&gt;. Each group contains the users belonging to that team (for example, &lt;code&gt;user1-teamA@example.com&lt;/code&gt; in the &lt;code&gt;TeamA&lt;/code&gt; group).&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;SCIM provisioning&lt;/strong&gt; – Enable SCIM (System for Cross-domain Identity Management) synchronization between Entra ID and AWS IAM Identity Center. SCIM provides automatic provisioning and de-provisioning of users and groups. When a new user is added to the &lt;code&gt;TeamA&lt;/code&gt; group in Entra ID, they’re automatically synchronized to Identity Center and gain appropriate access without manual intervention.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;SAML-based authentication&lt;/strong&gt; – Configure SAML 2.0 federation so that when users authenticate, they do so against Entra ID. Identity Center acts as the service provider, trusting the assertions from your Entra ID tenant.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;With this configuration, you manage team membership (which drives all downstream authorization decisions) in your existing corporate directory, and it propagates to AWS automatically.&lt;/p&gt;
-&lt;p&gt;The following image shows an example of how organizational teams can be represented in Microsoft Entra ID, with dedicated groups for &lt;code&gt;TeamA&lt;/code&gt;, &lt;code&gt;TeamB&lt;/code&gt;, and &lt;code&gt;Admin&lt;/code&gt;.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/entra_id_groups.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/entra_id_groups.png" alt="Microsoft Entra ID console showing dedicated groups for TeamA, TeamB, and Admin" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 2: Organizational teams represented as groups in Microsoft Entra ID&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Then, the following image shows the corresponding groups in AWS IAM Identity Center, automatically provisioned from Entra ID through SCIM synchronization.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/iam_idc_groups.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/iam_idc_groups.png" alt="AWS IAM Identity Center console showing TeamA, TeamB, and Admin groups provisioned from Entra ID" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 3: Corresponding groups in AWS IAM Identity Center, provisioned through SCIM&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/manage-your-identity-source-idp.html" target="_blank" rel="noopener"&gt;Connect an external identity provider&lt;/a&gt; · &lt;a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/scim-profile-saml.html" target="_blank" rel="noopener"&gt;SCIM profile and SAML 2.0 implementation&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="authorization"&gt;Authorization&lt;/h2&gt;
-&lt;p&gt;With authentication established, the next layer is authorization: controlling what actions each team can perform across AWS services and the Kubernetes cluster. Authorization in this architecture operates at two levels: IAM for service-level access, and Kubernetes RBAC for cluster-level access.&lt;/p&gt;
-&lt;h3 id="per-team-iam-roles"&gt;Per-team IAM roles&lt;/h3&gt;
-&lt;p&gt;Each team requires a dedicated IAM role that encapsulates the AWS level permissions needed for their AI and machine learning (ML) workflows. These roles serve as the SageMaker AI domain execution role and define what AWS services the team can access.&lt;/p&gt;
-&lt;p&gt;A typical team IAM role should include policies granting access to:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Amazon SageMaker AI&lt;/strong&gt; – For managing HyperPod clusters, MLflow tracking servers, and other SageMaker AI resources through the SageMaker AI API.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Amazon S3&lt;/strong&gt; – For reading training datasets and writing model artifacts, checkpoints, and logs. Scope these permissions to team-specific bucket prefixes.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Amazon CloudWatch&lt;/strong&gt; – For viewing logs and metrics related to the team’s workloads.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Amazon EKS&lt;/strong&gt; – Specifically, the &lt;code&gt;eks:AccessKubernetesApi&lt;/code&gt; and &lt;code&gt;eks:MutateViaKubernetesApi&lt;/code&gt; permissions, which the SageMaker Studio GUI needs to make Kubernetes API calls on behalf of the user (for example, listing Spaces or submitting jobs).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;The trust policy on each IAM role must include &lt;code&gt;sagemaker.amazonaws.com&lt;/code&gt; as a trusted principal, so SageMaker AI can assume the role on behalf of users when they operate through Studio. If you plan to reuse the same execution role as an EKS Pod Identity association for in-cluster workloads (as discussed later in the Amazon S3 storage section), the trust policy must also include &lt;code&gt;pods.eks.amazonaws.com&lt;/code&gt; as a trusted principal. CLI access through Identity Center uses a separate permission set with its own policies (see the “AWS account access through Identity Center” section), so CLI permissions can be independently scoped.&lt;/p&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html" target="_blank" rel="noopener"&gt;How to use SageMaker AI execution roles&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="aws-account-access-through-identity-center"&gt;AWS account access through Identity Center&lt;/h3&gt;
-&lt;p&gt;Beyond SageMaker Studio, teams often need direct AWS account access for CLI operations such as running &lt;code&gt;kubectl&lt;/code&gt; commands, scripting workflows, or accessing resources programmatically. Identity Center permission sets provide this capability.&lt;/p&gt;
-&lt;p&gt;For the &lt;strong&gt;Admin&lt;/strong&gt; group, assign a permission set with administrative access as required by your company’s policies, granting the necessary account access for cluster management and administrative operations.&lt;/p&gt;
-&lt;p&gt;For &lt;strong&gt;Team A&lt;/strong&gt; and &lt;strong&gt;Team B&lt;/strong&gt;, create permission sets with inline or managed policies that grant the permissions needed for CLI workflows directly. A typical team permission set includes permissions for &lt;code&gt;eks:AccessKubernetesApi&lt;/code&gt; (to view Kubernetes resources from AWS Console), scoped S3 access for the team’s data, and CloudWatch read access for monitoring. These policies are defined independently from the Studio execution role, so administrators can tailor CLI permissions to the specific operations that teams perform from the command line.&lt;/p&gt;
-&lt;p&gt;Users retrieve temporary credentials through the AWS Command Line Interface (AWS CLI) using &lt;code&gt;aws sso login&lt;/code&gt;, which they can then use to configure &lt;code&gt;kubectl&lt;/code&gt; for direct interaction with the EKS cluster.&lt;/p&gt;
-&lt;p&gt;The following image shows the per-team permission sets in AWS IAM Identity Center, providing scoped AWS account access for CLI workflows such as running &lt;code&gt;kubectl&lt;/code&gt; and &lt;code&gt;aws sso login&lt;/code&gt; against the EKS cluster.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/iam_idc_permissionsets.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/iam_idc_permissionsets.png" alt="AWS IAM Identity Center console showing per-team permission sets for CLI access" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 4: Per-team permission sets in AWS IAM Identity Center for CLI workflows&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/permissionsetsconcept.html" target="_blank" rel="noopener"&gt;Manage AWS accounts with permission sets&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="configuring-the-aws-cli"&gt;Configuring the AWS CLI&lt;/h3&gt;
-&lt;p&gt;Team members configure the AWS CLI to authenticate through Identity Center by running &lt;code&gt;aws configure sso&lt;/code&gt;. This creates profiles in &lt;code&gt;~/.aws/config&lt;/code&gt; that reference the appropriate Identity Center session and permission set. Each team member uses their team-specific profile when interacting with the cluster from the command line, maintaining authorization boundaries whether access originates from Studio or from a local terminal.&lt;/p&gt;
-&lt;p&gt;The resulting configuration defines a shared &lt;code&gt;sso-session&lt;/code&gt; block for the Identity Center portal and one named profile per team, each pointing at that team’s permission set. Team members then run &lt;code&gt;aws sso login --profile &amp;lt;team&amp;gt;&lt;/code&gt; to obtain temporary credentials scoped to their permission set:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-ini"&gt;[sso-session my-sso]
-sso_start_url = https://d-xxxxxxxxxx.awsapps.com/start
-sso_region = us-west-2
-sso_registration_scopes = sso:account:access
-
-[default]
-sso_session = my-sso
-sso_account_id = 123456789012
-sso_role_name = OpsAdmin
-region = us-west-2
-
-[profile team-a]
-sso_session = my-sso
-sso_account_id = 123456789012
-sso_role_name = TeamA-permission-set
-region = us-west-2
-
-[profile team-b]
-sso_session = my-sso
-sso_account_id = 123456789012
-sso_role_name = TeamB-permission-set
-region = us-west-2&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html" target="_blank" rel="noopener"&gt;Configuring IAM Identity Center authentication with the AWS CLI&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="sagemaker-domains-1"&gt;SageMaker AI domains&lt;/h2&gt;
-&lt;p&gt;SageMaker AI domains provide the workspace boundary for each team, offering a tailored user experience, pre-configured execution roles, and built-in integration with Identity Center authentication.&lt;/p&gt;
-&lt;h3 id="why-sagemaker-domains"&gt;Why SageMaker AI domains&lt;/h3&gt;
-&lt;p&gt;Using one SageMaker AI domain per team is a well-established pattern for organizing multi-team environments. This approach offers several advantages:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Established multi-team pattern&lt;/strong&gt; – AWS has documented this approach extensively for separating lines of business or teams with multiple domains, making it a proven and supported configuration.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Native Identity Center authentication&lt;/strong&gt; – Each domain can be configured with Identity Center authentication, meaning users sign in once through their corporate identity provider and land directly in their team’s Studio environment.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Built-in team configuration&lt;/strong&gt; – Domains already provide mechanisms to specify configurations for users and teams without requiring additional custom entities. For example, settings like team execution role can be specified at domain level, and overridden at user profile level for maximum flexibility.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Navigation customization&lt;/strong&gt; – With domain settings, administrators can hide navigation items that are not relevant to the team’s workflows, presenting a focused interface tailored to HyperPod use cases.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sm-domain.html" target="_blank" rel="noopener"&gt;SageMaker AI domain entities and statuses&lt;/a&gt; · &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/domain-multiple.html" target="_blank" rel="noopener"&gt;Multiple domains overview&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="setting-up-per-team-domains"&gt;Setting up per-team domains&lt;/h3&gt;
-&lt;p&gt;Create one SageMaker AI domain per team with Identity Center authentication. In our example, we create &lt;code&gt;TeamA-domain&lt;/code&gt; and &lt;code&gt;TeamB-domain&lt;/code&gt;. Each domain is configured as follows:&lt;/p&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;&lt;strong&gt;Default execution role&lt;/strong&gt; – Set the domain’s default execution role to the team-specific IAM role created in the authorization step. All actions performed through Studio inherit the appropriate permissions as a result.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Identity Center group assignment&lt;/strong&gt; – Add the corresponding Identity Center group (for example, the &lt;code&gt;TeamA&lt;/code&gt; group) to the domain. This activates the SageMaker Studio application for all members of that group, granting them access to the Studio interface.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Application assignment verification&lt;/strong&gt; – After configuring group access, review the application assignment in Identity Center to confirm that the correct groups are mapped to the correct domains.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Navigation customization&lt;/strong&gt; – Configure the default navigation settings for each domain to present only the relevant capabilities. For example, you might hide items not related to HyperPod workflows, providing a streamlined &lt;em&gt;HyperPod-focused&lt;/em&gt; user experience that reduces cognitive overhead for team members who only need to work with HyperPod resources.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;The following image shows the SageMaker AI console with one domain per team (&lt;code&gt;TeamA-domain&lt;/code&gt; and &lt;code&gt;TeamB-domain&lt;/code&gt;), each providing an isolated workspace boundary.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/domains-list.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/domains-list.png" alt="SageMaker console listing TeamA-domain and TeamB-domain" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 5: One SageMaker Domain per team in the SageMaker console&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Then the following image shows the details of &lt;code&gt;TeamA-domain&lt;/code&gt;, including the assigned Identity Center groups.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/teama-domain.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/teama-domain.png" alt="TeamA-domain details page showing assigned Identity Center groups" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 6: TeamA-domain configuration with its assigned Identity Center groups&lt;/p&gt;
-&lt;/div&gt;
-&lt;h2 id="hyperpod-eks-cluster-configuration"&gt;HyperPod EKS cluster configuration&lt;/h2&gt;
-&lt;p&gt;The HyperPod EKS cluster is where workloads are executed. Multi-tenancy at the cluster level is achieved through Kubernetes namespaces for isolation and EKS access entries for authorization.&lt;/p&gt;
-&lt;h3 id="namespace-isolation"&gt;Namespace isolation&lt;/h3&gt;
-&lt;p&gt;Create a dedicated Kubernetes namespace for each team, for example &lt;code&gt;hyperpod-ns-team-a&lt;/code&gt; and &lt;code&gt;hyperpod-ns-team-b&lt;/code&gt;. Namespaces provide a logical boundary within the cluster, isolating each team’s workloads (Spaces, training jobs, inference endpoints) from one another.&lt;/p&gt;
-&lt;blockquote&gt;
- &lt;p&gt;&lt;strong&gt;Note: Namespaces are an isolation boundary, not a hard security boundary.&lt;/strong&gt; This architecture targets &lt;em&gt;multi-team within a single organization&lt;/em&gt;: teams that share a cluster under a common administrative domain and a baseline of mutual trust. It isn’t designed for &lt;em&gt;multi-customer&lt;/em&gt; isolation between mutually untrusted tenants.&lt;/p&gt;
- &lt;p&gt;Namespaces, RBAC, and quotas prevent &lt;em&gt;accidental&lt;/em&gt; interference (teams overwriting each other’s resources or exceeding their compute allocation) but aren’t a defense against a determined malicious tenant: namespaced pods share the same nodes and kernel, and cluster-scoped resources (nodes, &lt;code&gt;PersistentVolumes&lt;/code&gt;, CRDs, some operator components) sit outside any namespace.&lt;/p&gt;
- &lt;p&gt;For untrusted tenants or strict regulatory isolation, use stronger boundaries such as separate clusters or accounts, dedicated node pools, and runtime sandboxing. For the multi-team scenario here, namespace isolation combined with RBAC, Task Governance quotas, and the POSIX identity controls described later strike an appropriate balance of separation and operational simplicity.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;Namespaces can be created manually with &lt;code&gt;kubectl create namespace&lt;/code&gt; or provisioned automatically through HyperPod Task Governance, which manages namespaces as part of its quota and scheduling configuration.&lt;/p&gt;
-&lt;p&gt;The following image shows the cluster namespaces (managed with HyperPod Task Governance), with one dedicated namespace per team (&lt;code&gt;hyperpod-ns-team-a&lt;/code&gt; and &lt;code&gt;hyperpod-ns-team-b&lt;/code&gt;) providing workload isolation.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/namespaces.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/namespaces.png" alt="Cluster namespaces managed by HyperPod Task Governance, one dedicated to each team" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 7: Dedicated Kubernetes namespace per team for workload isolation&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/" target="_blank" rel="noopener"&gt;Kubernetes namespaces&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="network-isolation"&gt;Network isolation&lt;/h3&gt;
-&lt;p&gt;Namespaces don’t restrict network traffic. By default, Kubernetes networking is flat: every pod can reach every other pod across all namespaces. As a result, a pod in &lt;code&gt;hyperpod-ns-team-a&lt;/code&gt; can open a connection to a pod in &lt;code&gt;hyperpod-ns-team-b&lt;/code&gt; unless you add controls. To scope pod-to-pod reachability along team boundaries, use Kubernetes &lt;code&gt;NetworkPolicy&lt;/code&gt; resources.&lt;/p&gt;
-&lt;p&gt;The recommended pattern is &lt;em&gt;default-deny&lt;/em&gt; per namespace: start by denying all ingress (and optionally egress), then explicitly allow the traffic each team needs, typically intra-namespace communication plus required egress such as DNS, storage endpoints, and AWS APIs. The following example denies all ingress in a team’s namespace and then allows traffic only from pods within the same namespace:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;# 1. Default-deny all ingress in the team's namespace.
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny-ingress
-  namespace: hyperpod-ns-team-a
-spec:
-  podSelector: {}  # applies to all pods in the namespace
-  policyTypes:
-  - Ingress
----
-# 2. Allow ingress only from pods within the same namespace.
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-same-namespace
-  namespace: hyperpod-ns-team-a
-spec:
-  podSelector: {}
-  policyTypes:
-  - Ingress
-  ingress:
-  - from:
-    - podSelector: {}  # any pod in this namespace&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;code&gt;NetworkPolicy&lt;/code&gt; enforcement depends on a Container Network Interface (CNI) that supports it. On EKS, you can enable network policy support in the Amazon Virtual Private Cloud (Amazon VPC) CNI.&lt;/p&gt;
-&lt;p&gt;As with namespaces, &lt;code&gt;NetworkPolicies&lt;/code&gt; reduce &lt;em&gt;accidental&lt;/em&gt; cross-team reachability and shrink the scope, but they are not by themselves an adversarial security boundary on shared nodes. For stronger separation, consider dedicated node pools per team or separate clusters, as noted earlier.&lt;/p&gt;
-&lt;p&gt;Learn more: &lt;a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/" target="_blank" rel="noopener"&gt;Kubernetes network policies&lt;/a&gt; · &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/cni-network-policy.html" target="_blank" rel="noopener"&gt;Amazon VPC CNI network policy&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="eks-access-entries"&gt;EKS access entries&lt;/h3&gt;
-&lt;p&gt;EKS access entries connect IAM principals to Kubernetes RBAC permissions. For each team, create two access entries:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Studio access entry&lt;/strong&gt; – The IAM principal is the team’s SageMaker AI domain execution role. This entry is used when actions originate from the SageMaker Studio GUI.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;CLI access entry&lt;/strong&gt; – The IAM principal is the SSO-provisioned role created by Identity Center for the team’s permission set (following the pattern &lt;code&gt;AWSReservedSSO_&amp;lt;permission-set-name&amp;gt;_&amp;lt;unique-id&amp;gt;&lt;/code&gt;). This entry is used when users interact with the cluster through &lt;code&gt;kubectl&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Both entries are scoped to the team’s namespace with managed or custom Kubernetes policies. For example, both Team A entries grant permissions only within &lt;code&gt;hyperpod-ns-team-a&lt;/code&gt;. The two entries can carry different RBAC policies if you want. For instance, the CLI entry might restrict write access to certain resource types while the Studio entry allows full access.&lt;/p&gt;
-&lt;p&gt;With this scoping, whether access originates from Studio or from the CLI, users can only interact with resources in their own namespace. Attempting to list or modify resources in another team’s namespace results in a Kubernetes &lt;code&gt;Forbidden&lt;/code&gt; error.&lt;/p&gt;
-&lt;p&gt;For more advanced scenarios, you can use Kubernetes groups in the access entry to map users to custom ClusterRoles or Roles that provide fine-grained permissions beyond the standard managed policies.&lt;/p&gt;
-&lt;p&gt;The following image shows an EKS access entry for Team B’s role, scoped down to the hyperpod-ns-team-b namespace, so its permissions apply only within Team B’s namespace.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/eks-access-entry-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/eks-access-entry-1.png" alt="EKS access entry for Team B’s role scoped to the hyperpod-ns-team-b namespace" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 8: EKS access entry scoped to Team B’s namespace&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html" target="_blank" rel="noopener"&gt;Grant IAM users access to Kubernetes with EKS access entries&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="hyperpod-task-governance"&gt;HyperPod Task Governance&lt;/h3&gt;
-&lt;p&gt;When Task Governance is enabled on the cluster, it provides an additional layer of resource management:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Compute quotas&lt;/strong&gt; – Define how much GPU and CPU capacity each team can consume. This prevents a single team from monopolizing shared hardware during training runs.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Priorities&lt;/strong&gt; – Assign scheduling priorities to each team or workload type, allowing critical production inference workloads to preempt experimental training jobs when resources are constrained.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Fair scheduling&lt;/strong&gt; – With Task Governance, when multiple teams are competing for resources, allocation follows the configured policies rather than a first-come-first-served model.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Configure Task Governance with appropriate quotas and priorities per team namespace, balancing between guaranteed minimum allocations and burst capacity for bursty workloads.&lt;/p&gt;
-&lt;p&gt;The following image shows the Task Governance compute allocations for the two teams, with each team’s namespace assigned its own quota of cluster compute capacity.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/task-governance.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/task-governance.png" alt="HyperPod Task Governance compute allocations assigning each team a quota" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 9: Task Governance compute allocations per team namespace&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks-operate-console-ui-governance.html" target="_blank" rel="noopener"&gt;SageMaker HyperPod task governance&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="storage-1"&gt;Storage&lt;/h2&gt;
-&lt;p&gt;Storage is a key component of artificial intelligence and machine learning (AI/ML) environments shared across teams. Teams need high-performance file systems for training data, checkpoints, and model artifacts, while maintaining appropriate access boundaries between teams.&lt;/p&gt;
-&lt;h3 id="posix-compliant-file-systems"&gt;POSIX-compliant file systems&lt;/h3&gt;
-&lt;p&gt;For workloads that require a shared, high-performance POSIX file system (common for distributed training where multiple nodes read the same dataset or write checkpoints), consider the following options:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Amazon FSx for Lustre&lt;/strong&gt; – Provides high-throughput, low-latency parallel file system access, ideal for large-scale training workloads that need to read large datasets at high speed.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Amazon FSx for OpenZFS&lt;/strong&gt; – Offers a general-purpose file system with strong POSIX semantics, snapshots, and compression. Well-suited for workloads that need traditional file system features alongside high performance.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Amazon Elastic File System (Amazon EFS)&lt;/strong&gt; – Provides fully managed, elastic Network File System (NFS) storage. EFS also supports access points, which can simplify per-team directory isolation by mapping different mount points to different directories with enforced UIDs and GIDs.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;The storage layout typically follows this structure:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Per-team shared directories&lt;/strong&gt; – Each team has a shared directory (for example, &lt;code&gt;/fsx/TeamA&lt;/code&gt;, &lt;code&gt;/fsx/TeamB&lt;/code&gt;) for datasets, models, and artifacts that all team members need to access.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Per-user home directories&lt;/strong&gt; – Each user has a personal home directory (for example, &lt;code&gt;/home/User1&lt;/code&gt;, &lt;code&gt;/home/User2&lt;/code&gt;) for individual work, experiments, and notebooks.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;The POSIX permission model on these file systems relies on UIDs, GIDs, and supplemental groups to enforce access boundaries. These POSIX identities should then be propagated to the pod security context when a user launches a HyperPod Space or submits a training job, so that file system access respects the configured ownership and permissions. We recommend using a Kubernetes mutating admission webhook to retrieve POSIX identity information from your identity store. When a workload is submitted, the webhook looks up the identity at runtime and modifies the security context of the Pod accordingly.&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;# 1. Extract the caller's session identity from the admission request.
-# On EKS, requests from IAM-assumed roles (including IAM Identity Center)
-# surface the STS session name in userInfo.extra["sessionName"]. Its format
-# depends on how the session is created (e.g., an SSO short name, an email,
-# or a role-session-name); align your identity mapping with this value.
-def extract_username(admission_request):
-    extra = admission_request["userInfo"]["extra"]
-    ...
-    return extra["sessionName"][0]
-
-# 2. Look up the POSIX identity from a mapping table (e.g. DynamoDB).
-def lookup_posix_identity(username):
-    item = posix_table.get_item(Key={"username": username})["Item"]
-    ...
-    return {
-        "uid": int(item["uid"]),
-        "gid": int(item["gid"]),
-        "supplementalGroups": [int(g) for g in item["supplementalGroups"]],
-    }
-
-# 3. Patch the Pod security context with the resolved POSIX identity.
-def build_security_context_patch(pod, posix):
-    ...
-    return [{
-        "op": "add",
-        "path": "/spec/securityContext",
-        "value": {
-            "runAsUser": posix["uid"],
-            "runAsGroup": posix["gid"],
-            "fsGroup": posix["gid"],
-            "supplementalGroups": posix["supplementalGroups"],
-        },
-    }]&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html" target="_blank" rel="noopener"&gt;FSx for Lustre&lt;/a&gt; · &lt;a href="https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/what-is-fsx.html" target="_blank" rel="noopener"&gt;FSx for OpenZFS&lt;/a&gt; · &lt;a href="https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html" target="_blank" rel="noopener"&gt;Amazon EFS&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id="amazon-s3-storage"&gt;Amazon S3 storage&lt;/h3&gt;
-&lt;p&gt;For object storage, access to S3 buckets is governed by the team’s IAM execution role. You can create per-team buckets or use a shared bucket with per-team prefixes, relying on IAM policies to enforce isolation. Pods within the cluster need appropriate service accounts configured with IAM Roles for Service Accounts (IRSA) or Pod Identity to authenticate to S3. For simplicity, you can associate the same execution role configured on the SageMaker AI domain to a Kubernetes service account within the team’s namespace, providing consistent S3 access from both Studio and cluster workloads.&lt;/p&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html" target="_blank" rel="noopener"&gt;IAM roles for service accounts (IRSA)&lt;/a&gt; · &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html" target="_blank" rel="noopener"&gt;EKS Pod Identity&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="hyperpod-spaces"&gt;HyperPod Spaces&lt;/h2&gt;
-&lt;p&gt;HyperPod Spaces provide interactive development environments (IDEs) running directly on cluster nodes. On a shared cluster, Spaces must be properly scoped to each team’s namespace and configured with appropriate resource templates.&lt;/p&gt;
-&lt;h3 id="space-templates"&gt;Space templates&lt;/h3&gt;
-&lt;p&gt;Create namespace-scoped Space templates for each team. These templates define the resource configurations (instance types, storage volumes, environment variables) available to team members when creating Spaces. By scoping templates to a namespace, you make sure that each team can only launch Spaces within their designated boundary.&lt;/p&gt;
-&lt;p&gt;When HyperPod Task Governance is enabled, templates should include the default labels required by the governance system (such as team identifiers and priority labels). The cluster administrator pre-configures these labels so that team members don’t need to specify them manually when launching Spaces.&lt;/p&gt;
-&lt;p&gt;The following example shows a JupyterLab Space template scoped to Team A. The team-specific parts are the &lt;code&gt;metadata.namespace&lt;/code&gt;, the Task Governance queue label under &lt;code&gt;baseLabels&lt;/code&gt;, and the &lt;code&gt;defaultVolumes&lt;/code&gt; that mount the team’s shared file system and the user’s home directory:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: workspace.jupyter.org/v1alpha1
-kind: WorkspaceTemplate
-metadata:
-  name: jl-smd-custom
-  namespace: hyperpod-ns-team-a  # scopes the template to Team A's namespace
-spec:
-  displayName: "JupyterLab (team-a)"
-  description: "SageMaker Distribution"
-  appType: jupyterlab
-  baseLabels:
-  - key: kueue.x-k8s.io/queue-name  # Task Governance (Kueue) local queue for Team A
-    value: hyperpod-ns-team-a-localqueue
-  ...
-  # container command, default CPU/memory resources, security context, access type, etc.
-  ...
-  defaultVolumes:
-  - name: home-dir  # per-user home directory
-    mountPath: /home
-    persistentVolumeClaimName: fsx-openzfs-claim
-  - name: shared-data  # Team A's shared directory
-    mountPath: /fsx
-    persistentVolumeClaimName: fsx-lustre-claim
-  ...
-  # primary (EBS) storage defaults and limits
-  ...&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h3 id="persistent-volume-claims"&gt;Persistent volume claims&lt;/h3&gt;
-&lt;p&gt;Create the appropriate Persistent Volume Claims (PVCs) in each team’s namespace, referencing the shared file system. These PVCs mount the team’s shared directory and the user’s home directory into the Space, providing access to training data, checkpoints, and personal workspaces.&lt;/p&gt;
-&lt;h3 id="owner-only-and-shared-spaces"&gt;Owner-only and shared Spaces&lt;/h3&gt;
-&lt;p&gt;Consider your organization’s requirements around Space sharing:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Owner-only Spaces&lt;/strong&gt; – Each Space is accessible only by the user who created it. This is the default configuration, appropriate when teams work on sensitive or independent projects.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Shared Spaces&lt;/strong&gt; – Multiple team members can access the same Space, useful for pair programming, collaborative debugging, or shared development environments. When enabling shared Spaces, make sure that POSIX permissions and supplemental groups are configured to allow appropriate access to files created within the Space.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks-cluster-ide.html" target="_blank" rel="noopener"&gt;Interactive development environments on Amazon SageMaker HyperPod EKS clusters&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="studio-experience"&gt;Studio experience&lt;/h2&gt;
-&lt;p&gt;While teams can interact with the cluster entirely from the CLI using &lt;code&gt;kubectl&lt;/code&gt;, SageMaker Studio provides a graphical entry point to the cluster for users who prefer a managed, GUI-driven workflow. In this architecture, each team accesses Studio through its own SageMaker AI domain (as described earlier), signing in with the same Identity Center credentials and operating within the boundaries of the team’s namespace.&lt;/p&gt;
-&lt;p&gt;The following image shows the IAM Identity Center access portal that users reach after signing in with their corporate credentials, providing single sign-on access to their assigned SageMaker Studio applications and Amazon Managed Grafana applications.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/idc_access_portal.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/idc_access_portal.png" alt="AWS access portal showing assigned SageMaker Studio and Amazon Managed Grafana applications" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 10: IAM Identity Center access portal with single sign-on to assigned applications&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;From the Studio UI, team members can:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Manage HyperPod Spaces&lt;/strong&gt; – Launch interactive development environments from the namespace-scoped Space templates the administrator has configured, without writing Kubernetes manifests or specifying Task Governance labels manually. Team members can also start, stop, and connect to their running Spaces, opening the associated IDE (such as JupyterLab) directly in the browser.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Manage Ray workloads&lt;/strong&gt; – Create and monitor Ray clusters, connect a JupyterLab or Code Editor workspace to a cluster, submit distributed jobs, and open the Ray Dashboard and Amazon Managed Grafana observability dashboards, all without writing Kubernetes manifests or running &lt;code&gt;kubectl&lt;/code&gt; commands.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Because Studio operates through the team’s Domain execution role and the corresponding EKS access entry, all actions are scoped to the team’s namespace. A user launching a Space or a Ray cluster from Studio can only create it within their own team’s boundary, consistent with the isolation model enforced for CLI access.&lt;/p&gt;
-&lt;p&gt;The following image shows how to create a HyperPod Space from the SageMaker Studio UI, where a team member selects a namespace-scoped Space template without writing Kubernetes manifests or specifying Task Governance labels manually.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/studio_create_space-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/05/studio_create_space-1.png" alt="SageMaker Studio UI for creating a HyperPod Space from a namespace-scoped template" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 11: Creating a HyperPod Space from a namespace-scoped template in SageMaker Studio&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks-cluster-ide.html" target="_blank" rel="noopener"&gt;Interactive development environments on Amazon SageMaker HyperPod EKS clusters&lt;/a&gt; · &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-new-ray-capabilities-on-sagemaker-hyperpod/" target="_blank" rel="noopener"&gt;Introducing new Ray capabilities on SageMaker HyperPod&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="hyperpod-training-operator"&gt;HyperPod Training Operator&lt;/h2&gt;
-&lt;p&gt;The HyperPod Training Operator enables teams to submit distributed training jobs as Kubernetes custom resources (for example, HyperPodPyTorchJob). In the multi-tenant architecture, training jobs are namespace-scoped, meaning they automatically inherit the team’s isolation boundaries.&lt;/p&gt;
-&lt;p&gt;Teams can submit training jobs from the CLI using &lt;code&gt;kubectl apply&lt;/code&gt; with the appropriate job manifest. The job runs in the team’s namespace, uses the team’s compute quotas (if Task Governance is enabled), and has access to the team’s storage volumes.&lt;/p&gt;
-&lt;p&gt;When Task Governance is enabled, training jobs are subject to the team’s allocated quotas and priority settings. If a team has consumed its guaranteed allocation, jobs might be queued until resources become available or until lower-priority workloads are preempted.&lt;/p&gt;
-&lt;p&gt;The two elements that anchor a job to a team are the &lt;code&gt;metadata.namespace&lt;/code&gt; (which scopes the job to the team’s isolation boundary) and the Task Governance labels. Task Governance is built on &lt;a href="https://kueue.sigs.k8s.io/"&gt;Kueue&lt;/a&gt;, so the job is routed to the team’s local queue through &lt;code&gt;kueue.x-k8s.io/queue-name&lt;/code&gt;. It’s assigned a scheduling priority through &lt;code&gt;kueue.x-k8s.io/priority-class&lt;/code&gt;, whose value is the name of a &lt;code&gt;WorkloadPriorityClass&lt;/code&gt; defined on the cluster:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: sagemaker.amazonaws.com/v1
-kind: HyperPodPyTorchJob
-metadata:
-  name: team-a-training-job
-  namespace: hyperpod-ns-team-a  # scopes the job to Team A's namespace
-  labels:
-    kueue.x-k8s.io/queue-name: hyperpod-ns-team-a-localqueue  # Task Governance (Kueue) local queue
-    kueue.x-k8s.io/priority-class: training-priority  # name of a WorkloadPriorityClass
-spec:
-  ...
-  # replicaSpecs, container image, command, resources, volumes, etc.
-  ...&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-eks-operator.html" target="_blank" rel="noopener"&gt;Using the HyperPod training operator&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="hyperpod-inference-operator"&gt;HyperPod Inference Operator&lt;/h2&gt;
-&lt;p&gt;The HyperPod Inference Operator allows teams to deploy models as inference endpoints directly on the cluster. Similar to training jobs, inference endpoints are namespace-scoped and subject to the team’s RBAC policies and Task Governance quotas.&lt;/p&gt;
-&lt;p&gt;Teams can deploy models from the CLI by creating inference endpoint custom resources in their namespace. The endpoints are isolated per namespace, meaning Team A can’t access or interfere with Team B’s inference endpoints.&lt;/p&gt;
-&lt;p&gt;For production inference workloads that require high availability, consider assigning higher scheduling priority to inference endpoints than to training jobs, so that model serving isn’t interrupted by batch training workloads.&lt;/p&gt;
-&lt;p&gt;As with training jobs, the inference endpoint is placed in the team’s &lt;code&gt;metadata.namespace&lt;/code&gt; and carries the Task Governance labels. Here, the &lt;code&gt;kueue.x-k8s.io/priority-class&lt;/code&gt; references a higher-priority &lt;code&gt;WorkloadPriorityClass&lt;/code&gt; so that model serving can preempt batch training when the team’s resources are constrained:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-yaml"&gt;apiVersion: inference.sagemaker.aws.amazon.com/v1
-kind: InferenceEndpointConfig
-metadata:
-  name: team-a-inference-endpoint
-  namespace: hyperpod-ns-team-a  # scopes the endpoint to Team A's namespace
-  labels:
-    kueue.x-k8s.io/queue-name: hyperpod-ns-team-a-localqueue  # Task Governance (Kueue) local queue
-    kueue.x-k8s.io/priority-class: inference-priority  # higher-priority WorkloadPriorityClass
-spec:
-  ...
-  # model source, instance type, replica count, autoscaling, etc.
-  ...&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-model-deployment.html" target="_blank" rel="noopener"&gt;Deploying models on Amazon SageMaker HyperPod&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="hyperpod-observability"&gt;HyperPod Observability&lt;/h2&gt;
-&lt;p&gt;Visibility into cluster health, workload performance, and resource utilization is essential for all teams. HyperPod Observability provides built-in monitoring and dashboarding capabilities through Amazon Managed Grafana.&lt;/p&gt;
-&lt;h3 id="configuring-team-access-to-grafana"&gt;Configuring team access to Grafana&lt;/h3&gt;
-&lt;p&gt;Teams need access to observability dashboards to monitor their workloads, troubleshoot performance issues, and understand resource consumption. However, in a multi-tenant environment, this access should typically be read-only:&lt;/p&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;&lt;strong&gt;Configure Identity Center authentication for Amazon Managed Grafana&lt;/strong&gt; – On the Amazon Managed Grafana console, navigate to Authentication and enable AWS IAM Identity Center. Users can then sign in to Grafana with the same corporate credentials they use for SageMaker Studio.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Assign team groups as Viewers&lt;/strong&gt; – Map the Identity Center groups (&lt;code&gt;TeamA&lt;/code&gt;, &lt;code&gt;TeamB&lt;/code&gt;) to the Grafana Viewer role. This grants team members read-only access to dashboards and metrics without the ability to modify dashboards or data sources.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Admin access&lt;/strong&gt; – Assign the &lt;code&gt;Admin&lt;/code&gt; group to the Grafana Admin or Editor role, so they can create and modify dashboards, configure alerting, and manage data sources.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Team-specific dashboards&lt;/strong&gt; – Consider creating dedicated dashboards that filter data by namespace, so each team sees only their own workload metrics. Amazon Managed Grafana supports Grafana Teams (a Grafana-native RBAC concept, distinct from the organizational teams in this architecture), which can be mapped from Identity Center groups to restrict dashboard visibility and provide an additional layer of data isolation.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;The following image shows the Grafana role assignments in Amazon Managed Grafana. The team groups (&lt;code&gt;TeamA&lt;/code&gt;, &lt;code&gt;TeamB&lt;/code&gt;) are assigned the Viewer role for read-only access to dashboards and metrics, while the admin group is assigned the Admin role, granting it the ability to create and modify dashboards, configure alerting, and manage data sources.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/managed_grafana.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/managed_grafana.png" alt="Amazon Managed Grafana role assignments with team groups as Viewers and the admin group as Admin" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 12: Grafana role assignments granting teams read-only Viewer access&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-eks-cluster-observability.html" target="_blank" rel="noopener"&gt;Observability for Amazon SageMaker HyperPod cluster orchestrated by Amazon EKS&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="cost-allocation-and-chargeback"&gt;Cost allocation and chargeback&lt;/h2&gt;
-&lt;p&gt;In a multi-tenant environment where teams share expensive GPU infrastructure, understanding who consumes what is essential for accountability, budgeting, and chargeback. &lt;a href="https://github.com/kubecost" target="_blank" rel="noopener"&gt;Kubecost&lt;/a&gt; addresses this need by breaking down in-cluster spend across native Kubernetes concepts (namespace, label, deployment, and service) and mapping it to organizational concepts like team, project, or environment.&lt;/p&gt;
-&lt;p&gt;Because this architecture already isolates each team in a dedicated namespace (&lt;code&gt;hyperpod-ns-team-a&lt;/code&gt;, &lt;code&gt;hyperpod-ns-team-b&lt;/code&gt;), namespace-level cost allocation aligns directly with team boundaries. This gives platform administrators a clear per-team view of GPU, CPU, memory, storage, and network consumption without any additional workload tagging. For step-by-step instructions on deploying and configuring Kubecost on a HyperPod cluster, see &lt;a href="https://awslabs.github.io/ai-on-sagemaker-hyperpod/docs/category/kubecost-on-sagemaker-hyperpod" target="_blank" rel="noopener"&gt;Kubecost on SageMaker HyperPod&lt;/a&gt;.&lt;/p&gt;
-&lt;h3 id="team-cost-visibility"&gt;Enabling team visibility&lt;/h3&gt;
-&lt;p&gt;After Kubecost is collecting data, group cost by namespace in the Allocations dashboard to see per-team spend. Because each team owns a namespace, this directly produces a per-team cost breakdown covering compute, memory, storage, and network. Just as with observability dashboards, teams benefit from visibility into their own cost data:&lt;/p&gt;
-&lt;ul&gt;
- &lt;li&gt;&lt;strong&gt;Scope views to each team’s namespace&lt;/strong&gt; – Kubecost supports filtering and saved reports by namespace, so each team can review its own consumption and trends without seeing other teams’ data.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Set budgets and alerts&lt;/strong&gt; – Configure per-namespace budget thresholds and alerts, so teams and platform administrators are notified when spending approaches defined limits, supporting the same resource-fairness goals as HyperPod Task Governance.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Support chargeback and showback&lt;/strong&gt; – Namespace-level allocation reports can feed internal chargeback (billing teams for their usage) or showback (reporting usage without billing) processes, giving finance and platform teams the data that they need to attribute shared GPU costs fairly.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;The following image shows the Kubecost Allocations dashboard grouped by namespace, showing the cumulative cost over the last 7 days for each team’s namespace.&lt;/p&gt;
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/kubecost.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/02/kubecost.png" alt="Kubecost Allocations dashboard showing 7-day cumulative cost per team namespace" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 13: Kubecost Allocations dashboard grouped by namespace for per-team cost&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Learn more: &lt;a href="https://awslabs.github.io/ai-on-sagemaker-hyperpod/docs/category/kubecost-on-sagemaker-hyperpod" target="_blank" rel="noopener"&gt;Kubecost on SageMaker HyperPod&lt;/a&gt; · &lt;a href="https://github.com/kubecost" target="_blank" rel="noopener"&gt;Kubecost&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;This post presented a reference architecture for building multi-tenant environments on Amazon SageMaker HyperPod with EKS. By combining AWS IAM Identity Center for authentication, per-team IAM roles for AWS level authorization, SageMaker AI domains for a tailored workspace experience, Kubernetes namespaces for workload isolation, HyperPod Task Governance for fair resource allocation, and namespace-level cost allocation for per-team spend visibility, multiple teams can efficiently share a single HyperPod EKS cluster.&lt;/p&gt;
-&lt;p&gt;This is a flexible, composable approach that combines multiple building blocks into a cohesive solution. The architecture accommodates a variety of use cases and organizational structures. For example, organizations can extend this pattern to connect teams to HyperPod Slurm clusters alongside EKS, providing a unified multi-tenant experience across different orchestration backends.&lt;/p&gt;
-&lt;p&gt;While this approach requires assembling and configuring several components, the result is a high degree of control and customization that can be tailored to each organization’s specific isolation, compliance, and operational requirements. The foundational patterns (identity federation, namespace isolation, RBAC, quota-based governance, and cost allocation) will remain applicable.&lt;/p&gt;
-&lt;p&gt;To get started, try building this multi-tenant setup on your own Amazon SageMaker HyperPod EKS cluster, and adapt the building blocks to your organization’s isolation, governance, and cost-allocation requirements.&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/ML-22020-14.jpg" alt="Giuseppe Angelo Porcelli" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Giuseppe Angelo Porcelli&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Giuseppe is a Principal Machine Learning Specialist Solutions Architect for Amazon Web Services. With several years of software engineering and an ML background, he works with customers of any size to deeply understand their business and technical needs and design AI and Machine Learning solutions that make the best use of the AWS Cloud and the Amazon Machine Learning stack. He has worked on projects in different domains, including MLOps, Computer Vision, NLP, and involving a broad set of AWS services. In his free time, Giuseppe enjoys playing football.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/01/ML-22020-15.jpg" alt="Mayank Gupta" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Mayank Gupta&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Mayank is a Senior AI/ML Specialist with deep expertise in machine learning frameworks and enterprise AI architecture. He brings strong hands-on experience with AWS AI services, including SageMaker AI and SageMaker HyperPod, and leads the design and delivery of end-to-end AI solutions spanning model development, distributed training, and production-scale deployment. With deep experience in performance optimization and scalable ML architectures, Mayank partners with customers to translate complex business challenges into secure, high-impact, production-ready AI systems that drive measurable outcomes.&lt;/p&gt;
- &lt;/div&gt;
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Introducing Claude Haiku 5.5 on AWS</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/introducing-claude-haiku-5-5-on-aws/</link>
-		
-		<dc:creator><![CDATA[Aamna Najmi]]></dc:creator>
-		<pubDate>Wed, 07 Oct 2026 18:52:10 +0000</pubDate>
-				<category><![CDATA[Amazon Bedrock]]></category>
-		<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Intermediate (200)]]></category>
-		<guid isPermaLink="false">0ff2b32f3802714df60aafa631f537ec3996dfd3</guid>
-
-					<description>Claude Haiku 5.5 is now available on Amazon Bedrock and Claude Platform on AWS. According to Anthropic, it is the fastest, most efficient model in the Claude 5.5 family, built for subagents and high-volume, cost-sensitive work, and costs around 75% less than Claude Haiku 4.5 for most tasks. This post covers its improvements and how to get started.</description>
-										<content:encoded>&lt;p&gt;Today, we’re excited to announce the availability of Claude Haiku 5.5 on &lt;a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt; and &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-claude-platform-on-aws-anthropics-native-platform-through-your-aws-account/" target="_blank" rel="noopener"&gt;Claude Platform on AWS&lt;/a&gt;. According to Anthropic, Claude Haiku 5.5 is the fastest and most efficient model in the Claude 5.5 family, built for subagents and high-volume, cost-sensitive work. It also costs around 75 percent less than Claude Haiku 4.5 for most tasks.&lt;/p&gt;
-&lt;p&gt;Amazon Bedrock gives you Haiku 5.5 capabilities while keeping your data within AWS infrastructure with Regional data residency. It works with the AWS controls your team already uses, including AWS Identity and Access Management (IAM) for access, AWS CloudTrail for audit, Amazon CloudWatch for monitoring, and Amazon Bedrock Guardrails. Usage appears on your AWS bill.&lt;/p&gt;
-&lt;p&gt;Claude Platform on AWS gives you direct access to Anthropic’s native platform experience and capabilities through the AWS Management Console. Build, test, and deploy with the same APIs, features, and console experience you’d get working with Anthropic directly, unified with AWS billing and authentication.&lt;/p&gt;
-&lt;p&gt;This post covers Claude Haiku 5.5’s improvements, practical guidance on when to choose Haiku 5.5, and how to get started on Amazon Bedrock.&lt;/p&gt;
-&lt;h2 id="what-makes-claude-haiku-5.5-different"&gt;What makes Claude Haiku 5.5 different&lt;/h2&gt;
-&lt;p&gt;Claude Haiku 5.5 is Anthropic’s most capable Haiku model, across coding, tool use, computer use, and agentic tasks. It’s also the first Haiku model with effort controls, so you can tune cost against intelligence for each task instead of picking one setting for an entire workload.&lt;/p&gt;
-&lt;p&gt;The improvements stand out on quick and repeatable work at scale. For coding tasks, it acts as a subagent routing requests, reviewing code and classifying long documents. For knowledge work, Haiku 5.5 pulls key information from small-to-medium documents, does initial scans, and answers quick questions over a knowledge base. For interactive applications, it responds fast enough for simple conversations to have quick and helpful answers. It also handles traditional natural language processing (NLP) tasks such as classification, summarization, and text generation at the volume and cost that production features require.&lt;/p&gt;
-&lt;p&gt;Haiku 5.5 handles agentic coding and multi-step tool use, and supports high-resolution images. Haiku 5.5 can be used as a strong computer use subagent for repetitive browser and desktop tasks, at a cost that holds up at scale. In development workflows, it’s a good fit for iterating quickly on UI and UX changes and for small, specific code base changes across multiple files.&lt;/p&gt;
-&lt;h2 id="pairing-claude-haiku-5.5-with-opus-5.5"&gt;Pairing Claude Haiku 5.5 with Opus 5.5&lt;/h2&gt;
-&lt;p&gt;Haiku 5.5 pairs with the recently announced Claude Opus 5.5. Together, they make a strong team: Opus 5.5 plans and makes the judgment calls, and Haiku 5.5 carries out well-defined tasks quickly and at scale. You get careful reasoning where it counts and lower cost and latency everywhere.&lt;/p&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;&lt;strong&gt;Claude Opus 5.5 plans the work and makes the judgment calls.&lt;/strong&gt; It breaks down complex problems, decides the approach, and takes on the hardest reasoning, such as release debugging, security review of large pull requests, and long analyses that end in a finished report.&lt;/li&gt;
- &lt;li&gt;&lt;strong&gt;Claude Haiku 5.5 takes on the fast layer of subagents.&lt;/strong&gt; It handles quick, high-volume tasks, such as routing requests, classifying and summarizing, rewriting long documents, and applying small, specific changes across many files. As a review subagent, it can quickly check the order of operations and high-level direction, so Opus 5.5 can spend its tokens on the hardest reasoning. Because it is fast and cost efficient, you can run many Haiku subagents in parallel.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id="getting-started-with-claude-haiku-5.5-on-amazon-bedrock"&gt;Getting started with Claude Haiku 5.5 on Amazon Bedrock&lt;/h2&gt;
-&lt;p&gt;To try Haiku 5.5, open the &lt;a href="https://console.aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock console&lt;/a&gt;, choose &lt;strong&gt;Test&lt;/strong&gt;, then &lt;strong&gt;Playground&lt;/strong&gt;, and select Haiku 5.5 as the model. From there, you can run a prompt directly against it.&lt;/p&gt;
-&lt;div id="attachment_140971" style="width: 1314px" class="wp-caption alignnone"&gt;
- &lt;img aria-describedby="caption-attachment-140971" loading="lazy" class="size-full wp-image-140971" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/07/Screenshot-2026-10-07-at-1.27.14 PM.png" alt="" width="1304" height="764"&gt;
- &lt;p id="caption-attachment-140971" class="wp-caption-text"&gt;Figure 1: Selecting an Anthropic Claude model in the Amazon Bedrock console Playground&lt;/p&gt;
-&lt;/div&gt;
-&lt;p&gt;Programmatically, you can call the model with the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-anthropic-claude-messages.html" target="_blank" rel="noopener"&gt;Anthropic Messages API&lt;/a&gt; against &lt;code&gt;bedrock-runtime&lt;/code&gt; through the Anthropic SDK. You can also use the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/inference-api.html" target="_blank" rel="noopener"&gt;Invoke&lt;/a&gt; and &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html" target="_blank" rel="noopener"&gt;Converse&lt;/a&gt; APIs on &lt;code&gt;bedrock-runtime&lt;/code&gt; through the &lt;a href="https://aws.amazon.com/cli/" target="_blank" rel="noopener"&gt;AWS Command Line Interface (AWS CLI)&lt;/a&gt; and &lt;a href="https://aws.amazon.com/developer/tools/" target="_blank" rel="noopener"&gt;AWS SDK&lt;/a&gt;.&lt;/p&gt;
-&lt;h3 id="prerequisites"&gt;Prerequisites&lt;/h3&gt;
-&lt;p&gt;You must have the following prerequisites:&lt;/p&gt;
-&lt;ol type="1"&gt;
- &lt;li&gt;Active AWS account with Amazon Bedrock access.&lt;/li&gt;
- &lt;li&gt;AWS Command Line Interface (AWS CLI) installed and configured.&lt;/li&gt;
- &lt;li&gt;Python 3.10+.&lt;/li&gt;
- &lt;li&gt;Boto3 installed: &lt;code&gt;pip install boto3&lt;/code&gt;.&lt;/li&gt;
- &lt;li&gt;Anthropic SDK installed: &lt;code&gt;pip install anthropic&lt;/code&gt;.&lt;/li&gt;
- &lt;li&gt;The Amazon Bedrock Token Generator for Amazon Bedrock authentication installed: &lt;code&gt;pip install aws_bedrock_token_generator&lt;/code&gt;.&lt;/li&gt;
- &lt;li&gt;AWS Identity and Access Management (IAM) permissions: &lt;code&gt;bedrock:InvokeModel&lt;/code&gt;, &lt;code&gt;bedrock:InvokeModelWithResponseStream&lt;/code&gt;.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Here’s a quick example using the AWS SDK for Python (Boto3) with the InvokeModel API:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;import boto3
-import json
-
-# Create a Bedrock Runtime client
-bedrock_runtime = boto3.client(
-    service_name="bedrock-runtime",
-    region_name="us-east-1"
-)
-
-# Invoke Claude Haiku 5.5
-response = bedrock_runtime.invoke_model(
-    modelId="global.anthropic.claude-haiku-5-5",
-    contentType="application/json",
-    accept="application/json",
-    body=json.dumps({
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 4096,
-        "messages": [
-            {
-                "role": "user",
-                "content": "Can you explain the features of Amazon Bedrock?"
-            }
-        ]
-    })
-)
-
-result = json.loads(response["body"].read())
-# Haiku 5.5 may return a thinking block before the text block,
-# so select the text block rather than a fixed index.
-print(next(b["text"] for b in result["content"] if b["type"] == "text"))&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;You can also use the Amazon Bedrock Converse API for a unified multi-model experience:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;import boto3
-
-# Create a Bedrock Runtime client
-bedrock_runtime = boto3.client(
-    service_name="bedrock-runtime",
-    region_name="us-east-1"
-)
-
-# Invoke Claude Haiku 5.5
-response = bedrock_runtime.converse(
-    modelId="global.anthropic.claude-haiku-5-5",
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {
-                    "text": "Can you explain the features of Amazon Bedrock?"
-                }
-            ]
-        }
-    ],
-    inferenceConfig={
-        "maxTokens": 4096
-    }
-)
-
-if 'output' in response:
-    blocks = response['output']['message']['content']
-    print('\n'.join(b.get('text', '') for b in blocks if 'text' in b))&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;You can also use the Anthropic Messages API through the anthropic SDK package for a streamlined experience:&lt;/p&gt;
-&lt;div class="hide-language"&gt;
- &lt;pre&gt;&lt;code class="language-python"&gt;from anthropic import Anthropic
-from aws_bedrock_token_generator import provide_token
-
-token = provide_token(region="us-east-1")
-
-client = Anthropic(
-    base_url="https://bedrock-runtime.us-east-1.amazonaws.com/anthropic",
-    api_key=token,
-)
-
-# Invoke Claude Haiku 5.5
-response = client.messages.create(
-    model="global.anthropic.claude-haiku-5-5",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "Can you explain the features of Amazon Bedrock?"}],
-)
-print(response)&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;You can explore the &lt;a href="https://github.com/aws-samples/anthropic-on-aws/blob/main/notebooks/claude_haiku_5_5_getting_started/claude-haiku-5-5-getting-started.ipynb" target="_blank" rel="noopener"&gt;Getting Started notebook&lt;/a&gt; for more examples. You can monitor usage, performance, and costs through &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/monitoring.html" target="_blank" rel="noopener"&gt;Amazon CloudWatch&lt;/a&gt; and &lt;a href="https://aws.amazon.com/aws-cost-management/aws-cost-explorer/" target="_blank" rel="noopener"&gt;AWS Cost Explorer&lt;/a&gt; to scale your applications as demand grows.&lt;/p&gt;
-&lt;h2 id="availability"&gt;Availability&lt;/h2&gt;
-&lt;p&gt;Claude Haiku 5.5 is available today on Amazon Bedrock through the US Geo CRIS (us.), EU Geo CRIS (eu.), AU Geo CRIS (au.), JP Geo CRIS (jp.) and Global CRIS (global.) inference profiles on &lt;code&gt;bedrock-runtime&lt;/code&gt;. In AWS GovCloud (US), it’s available on both the &lt;code&gt;bedrock-runtime&lt;/code&gt; and &lt;code&gt;bedrock-mantle&lt;/code&gt; endpoints.&lt;/p&gt;
-&lt;p&gt;See the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards-anthropic.html" target="_blank" rel="noopener noreferrer"&gt;Amazon Bedrock documentation&lt;/a&gt; for the full list of supported AWS Regions. For pricing information, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-claude-haiku-5-5-on-aws/" target="_blank" rel="noopener noreferrer"&gt;Amazon Bedrock pricing&lt;/a&gt;. It’s also available through &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-claude-platform-on-aws-anthropics-native-platform-through-your-aws-account/" target="_blank" rel="noopener noreferrer"&gt;Claude Platform on AWS&lt;/a&gt; in North America&lt;/p&gt;
-&lt;p&gt;Give Claude Haiku 5.5 a try on the &lt;a href="https://console.aws.amazon.com/bedrock" target="_blank" rel="noopener"&gt;Amazon Bedrock console&lt;/a&gt;, in &lt;a href="https://aws.amazon.com/blogs/machine-learning/introducing-claude-platform-on-aws-anthropics-native-platform-through-your-aws-account/" target="_blank" rel="noopener"&gt;Claude Platform on AWS&lt;/a&gt;, or explore the &lt;a href="https://github.com/aws-samples/anthropic-on-aws/tree/main/notebooks" target="_blank" rel="noopener"&gt;Getting Started notebooks&lt;/a&gt; on GitHub.&lt;/p&gt;
-&lt;p style="clear: both"&gt;&lt;/p&gt;
-&lt;hr style="width: 100%"&gt;
-&lt;h2&gt;About the authors&lt;/h2&gt;
-&lt;footer&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/09/18/ML-21953-2.jpg" alt="Aamna Najmi" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Aamna Najmi&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Aamna is a Senior Specialist Solutions Architect for Generative AI focusing on Anthropic models and operationalizing and governing generative AI systems at scale on Amazon Bedrock. She helps ISVs solve their challenges, embrace innovation, and create new business opportunities with Amazon Bedrock.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/05/11/ml-20969-image-6.png" alt="Dani Mitchell" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Dani Mitchell&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Dani is a Senior Specialist Solutions Architect for Generative AI at AWS, working on go-to-market for Anthropic on Amazon Bedrock. He helps enterprises across the world design and deploy generative AI solutions using Anthropic’s models and capabilities on Amazon Bedrock to build scalable, production-ready applications.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/10/07/ML-22086-1.jpg" alt="Alfredo Castillo" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Alfredo Castillo&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Alfredo is a Senior Specialist Solutions Architect for Generative AI at AWS, focusing on Anthropic models go-to-market on Amazon Bedrock. He works with Financial Services customers to design and scale generative AI solutions across distributed systems and turn generative AI experiments into production workloads. Outside of work, he is passionate about family and endurance sports.&lt;/p&gt;
- &lt;/div&gt;
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt;
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/04/21/ml-20855-image-2.png" alt="Sofian Hamiti" width="100" height="133"&gt;
-  &lt;/div&gt;
-  &lt;h3 class="lb-h4"&gt;Sofian Hamiti&lt;/h3&gt;
-  &lt;p style="overflow: hidden"&gt;Sofian is a technology leader with over 12 years of experience building AI solutions, and leading high-performing teams to maximize customer outcomes. He is passionate about empowering diverse talents to drive global impact and achieve their career aspirations.&lt;/p&gt;
  &lt;/div&gt;
 &lt;/footer&gt;</content:encoded>
 					
