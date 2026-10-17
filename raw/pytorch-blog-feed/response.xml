@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Thu, 15 Oct 2026 19:18:47 +0000</lastBuildDate>
+	<lastBuildDate>Fri, 16 Oct 2026 16:30:46 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,86 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</title>
+		<link>https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/</link>
+		
+		<dc:creator><![CDATA[Josh Wills, Maximilian Böther, Ties Robroek and the Zephon team]]></dc:creator>
+		<pubDate>Fri, 16 Oct 2026 16:30:46 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=188117</guid>
+
+					<description><![CDATA[<p>Why Zephon? The data that a model sees during training is one of the most powerful levers we have for influencing how well it performs. Much of the day-to-day work...</p>
+<p>The post <a href="https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/">Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h3><span style="font-weight: 400;">Why Zephon?</span></h3>
+<p><span style="font-weight: 400;">The data that a model sees during training is one of the most powerful levers we have for influencing how well it performs. Much of the day-to-day work of improving a model happens on the data side: we change the mixture, or the filters that we apply, or how we tokenize and pack the samples, and then we run an ablation experiment to see whether the change helped. The first problem with this is that each of these changes often requires us to do a full pass over our training corpus and run expensive offline operations to prepare the data and store it on disk before our ablation experiment can run. Since a typical training run reads through that copy exactly once, and because most experiments don’t end up producing a better model, we spend a lot of time and storage creating datasets that will never be read again.</span></p>
+<p><span style="font-weight: 400;">This matters even more now that experiments can be designed, launched, and interpreted by agents instead of people. Agents are great for running lots of experiments in parallel, but they aren’t especially good at noticing when a result actually depends on something other than the change they made, like the number of GPUs that an experiment happened to run on (in fairness to the agents, humans aren’t great at noticing this either). And with most data loaders, the number of GPUs </span><i><span style="font-weight: 400;">does</span></i><span style="font-weight: 400;"> change the result, because it changes the data order.</span></p>
+<p><span style="font-weight: 400;">To illustrate this, we train a 1B-parameter model in TorchTitan on 16 GPUs, take a checkpoint at step 150, and then resume from that checkpoint on 8, 32, and 64 GPUs alongside the original run, once with a standard data loader and once with Zephon (think of it as the run hitting a hardware fault and coming back on whatever set of GPUs happened to be free). As seen in Figure 1, with the standard data loader, changing the GPU count means that the data loader hands the model a different sequence of samples after the resume, and so each one ends up with a distinct loss curve. With Zephon, the curves lie on top of each other, and the SHA-256 hash of every global batch matches the baseline run.</span><iframe class="zephon-embed" style="width: 100%; height: 520px; border: 0;" title="Zephon fault-resume loss curves" src="https://www.datologyai.com/embeds/zephon-fault-resume.html"></iframe></p>
+<p style="text-align: center;"><em><span style="font-weight: 400;">[Figure 1: Loss curves after resuming on 8, 32, and 64 GPUs from a 16-GPU checkpoint at step 150, standard loader vs. Zephon, with a barcode comparing the per-step SHA-256 of each global batch against the original run.] </span></em></p>
+<p><span style="font-weight: 400;">To get a sense for how much this matters, we train the same 1B-parameter model from scratch for 20B tokens on 8, 16, 32, and 64 GPUs using a standard data loader. We show the scores per GPU count in Figure 2. The model’s DCLM Core v1 score varies by up to 0.82 points depending on how many GPUs it was trained on, and its score based on the FineWeb evaluation suite by up to 0.64 points. That is roughly four times the relevant thresholds that the DCLM and FineWeb authors used when evaluating data curation methods, which means that an ablation comparing two mixtures on two different allocations could easily be measuring the GPU count instead of the data. With Zephon, the spread across the different GPU counts was only 0.05 and 0.011 points, respectively.</span> <iframe class="zephon-embed" style="width: 100%; height: 400px; border: 0;" title="DCLM Core v1 by GPU count" src="https://www.datologyai.com/embeds/zephon-eval-dclm/index.html"></iframe> <iframe class="zephon-embed" style="width: 100%; height: 400px; border: 0;" title="FineWeb evals by GPU count" src="https://www.datologyai.com/embeds/zephon-eval-fineweb/index.html"></iframe></p>
+<p style="text-align: center;"><em><span style="font-weight: 400;">[</span><span style="font-weight: 400;">Figure 2: Downstream evaluations at 8–64 GPUs on DCLM Core v1 and FineWeb with non-elastically deterministic (standard) data loading and Zephon</span><span style="font-weight: 400;">. </span><span style="font-weight: 400;">Grey bands mark the eval noise floor.</span><span style="font-weight: 400;">]</span></em></p>
+<p><span style="font-weight: 400;">Note that Zephon does all of this while doing the data prep work on the fly: it tokenizes, packs, shuffles, and mixes the data inside of the training job, taking advantage of all of those CPUs sitting around with nothing to do while the model trains, which means there’s no preprocessed copy of the corpus to create (or to throw away when the experiment doesn’t pan out).</span></p>
+<h3><span style="font-weight: 400;">A Zephon Pipeline</span></h3>
+<p><span style="font-weight: 400;">Zephon asks you to describe three things: the </span><span style="font-weight: 400;"><code>Datasets</code> you want to train on, a </span><span style="font-weight: 400;"><code>WorkSource</code></span><span style="font-weight: 400;"> that decides how those datasets are mixed and ordered into a training curriculum, and a <code>Pipeline</code></span><span style="font-weight: 400;"> of operators that turn the samples in their stored representations into the tensors your training loop consumes. Here’s an example that mixes two text datasets directly from Hugging Face, then tokenizes, packs, shuffles, and batches the result: </span></p>
+<pre class="wp-block-code"><code class="language-python">from zephon import Pipeline
+from zephon.io import Dataset
+from zephon.work import StaticMixtureWorkSource, TokenEstimation
+
+source = StaticMixtureWorkSource(
+    datasets=[
+        Dataset.from_path("wiki", "hf://Salesforce/wikitext/wikitext-2-raw-v1/train"),
+        Dataset.from_path("news", "hf://fancyzhx/ag_news/default/train"),
+    ],
+    mixture={"wiki": 0.5, "news": 0.5},   # a token ratio, not a sample ratio
+    token_estimation=TokenEstimation(),
+    seed=42,
+)
+pipeline = (
+    Pipeline(source)
+    .options(io_options={"cache": {"enabled": True}})
+    .tokenize(tokenizer_id="gpt2", field="text", parallelism=4)
+    .pack_flat(max_length=2048, algorithm="wrap")
+    .shuffle(buffer_size=1024, seed=42)
+    .batch(microbatch_size=8)
+)
+for batch in pipeline:
+    train_step(batch.to_training())</code></pre>
+<p>The <code>WorkSource</code> plans the curriculum from each <code>Dataset</code>’s metadata and is kept separate from the operators that actually process those samples so you can change the mixture without touching the processing pipeline and vice-versa. In order to ensure we get the mixture percentages correct on a token basis, we include a <code>TokenEstimation</code> utility that measures the token/byte ratio for a small sample of each dataset and adjusts the plan to target the mixing proportions on a token-level even though the samples are stored as raw strings.</p>
+<p>Each of the individual <code>Pipeline</code> operators can have its own level of parallelism; here, tokenization gets four workers because it’s the most expensive step. Parallelizing the preprocessing operators is how Zephon keeps the GPUs fed, even on more complex pipelines: on a full vision-language pipeline that decodes images, tokenizes, packs, and batches its samples, Zephon keeps pace with Google Grain, the fastest loader we tested, while offering the stronger elastic determinism guarantees.</p>
+<p style="text-align: center;"><span style="font-weight: 400;"><iframe class="zephon-embed" style="width: 100%; height: 418px; border: 0;" title="VLM throughput: usable tokens per second per GPU" src="https://www.datologyai.com/embeds/zephon-vlm-throughput/index.html"></iframe></span><span style="font-weight: 400;">[</span><i><span style="font-weight: 400;">Figure 3: Usable (non-padding) tokens per second per GPU on a full vision-language pipeline as parallelism increases, for Zephon, Grain, and a quickly hacked-together internal loader we used internally before building Zephon. The horizontal line is the throughput needed to keep the GPUs from stalling</span></i><span style="font-weight: 400;">.]</span></p>
+<h3><span style="font-weight: 400;">How Zephon Keeps the Batches Identical</span></h3>
+<p><span style="font-weight: 400;">Packing and mixing data on the fly is what makes elastic determinism hard. When a data loader tokenizes documents, packs them together into fixed-length sequences, and mixes several datasets together as it goes, the order of the training data is no longer something that you can look up at an index on disk (we call this </span><i><span style="font-weight: 400;">stateful n:m pipelines</span></i><span style="font-weight: 400;"> in </span><a href="https://arxiv.org/abs/2610.03087"><span style="font-weight: 400;">our paper</span></a><span style="font-weight: 400;">). In this case, it depends on the state of the pipeline when and how a sample is used, and in most data loaders that state can’t be transferred to a different number of GPUs without changing the output. Existing loaders get part of the way there: Mosaic Streaming and Google Grain can keep the global batches the same across GPU counts, but only when the order of samples can be worked out ahead of time from an index, which rules out things like packing on the fly. Megatron-Energon can reproduce its batches on a different number of GPUs, but only as long as the total number of data loader workers across all of the GPUs stays the same. </span></p>
+<p><span style="font-weight: 400;">Zephon allows for elastic determinism without these constraints with three design decisions that build on each other.</span></p>
+<p><b>Accumulators make the decisions; workers do the work.</b><span style="font-weight: 400;"> Every Zephon operator is split into two parts: a single-threaded accumulator that sees every record in order and makes all of the stateful decisions (like which sequences get packed together), and a stateless function that does the expensive work across however many parallel workers you give it. Since the workers can finish in any order, Zephon numbers each group of records before handing it out and puts the results back in order before passing them along. Unlike other data loaders, this allows that in Zephon the degree of parallelism is a pure performance knob: you can double the number of tokenization workers and the output won’t change.</span></p>
+<p><b>Lanes instead of ranks.</b><span style="font-weight: 400;"> Instead of dividing the data up among the available GPUs directly, Zephon divides it into a fixed number of logical streams that are called </span><i><span style="font-weight: 400;">lanes</span></i><span style="font-weight: 400;">. Each lane has its own ordered sequence of samples and its own copy of any state that the operators need to keep (like the partially filled bins inside of a packing operator), so a lane produces exactly the same records regardless of which GPU ends up being assigned to it. When the number of data-parallel ranks changes, Zephon simply redistributes the lanes across the ranks, and the global batches come out the same. Accumulators make each lane deterministic; the lanes make Zephon elastically deterministic. The catch (you knew there had to be one) is that you need to choose the number of lanes up front, which we’ll come back to below.</span></p>
+<p><b>Flushing and replaying instead of saving state.</b><span style="font-weight: 400;"> A Zephon checkpoint doesn’t contain the contents of any packing bins or shuffle buffers; it only records which chunks of the input were still being worked on when the checkpoint was taken. In order to keep that list short, Zephon periodically sends a </span><i><span style="font-weight: 400;">flush sentinel</span></i><span style="font-weight: 400;"> through the pipeline that tells every stateful operator to emit whatever it’s holding and start over from a clean slate. When we restore from a checkpoint, Zephon replays the input from the most recent flush (which rebuilds the operators’ state exactly) and throws away anything the training loop has already consumed, which keeps checkpoints small (a few MiB in our experiments) no matter how far into the run you are.</span></p>
+<h3><span style="font-weight: 400;">Plugging Into TorchTitan</span></h3>
+<p><span style="font-weight: 400;">Our </span><a href="https://github.com/datologyai/torchtitan-zephon"><span style="font-weight: 400;">TorchTitan integration</span></a><span style="font-weight: 400;"> replaces TorchTitan’s default data loader with a Zephon </span><span style="font-weight: 400;"><code>Pipeline</code></span><span style="font-weight: 400;"> built from a data recipe (i.e., your datasets, their mixture weights, and whatever packing, shuffling, and parallelism settings you want to use), and everything else about the training run stays the same. Zephon’s state goes into TorchTitan’s checkpoint alongside the model, and since that state covers every lane, you can resume the run on a different number of GPUs from the same checkpoint. When the run launches, the integration checks that the lanes divide evenly across the data-parallel replicas and that each optimizer step’s batch splits evenly across the lanes, so a misconfigured run fails right away instead of silently changing the data several hours in. </span></p>
+<p><span style="font-weight: 400;">The </span><a href="https://github.com/datologyai/torchtitan-zephon"><span style="font-weight: 400;">repo</span></a><span style="font-weight: 400;"> also comes with a quick CPU-only demo that checkpoints a data stream, resumes it on a different number of data-parallel replicas, and checks that every global step matches an uninterrupted run, along with a GPU smoke test that does the same thing with a real (albeit tiny) model. The </span><a href="https://github.com/datologyai/torchtitan-zephon/blob/main/examples/zephon/README.md"><span style="font-weight: 400;">README</span></a><span style="font-weight: 400;"> has the commands for running each of these, plus the setup instructions, the full set of configuration options, and some example recipes to get you started.</span></p>
+<h3><span style="font-weight: 400;">Things to Know Before You Start</span></h3>
+<p><b>Choose your lane count.</b><span style="font-weight: 400;"> Pick a number that’s a common multiple of the data-parallel sizes you expect to run on. If you might run on 8, 16, or 32 GPUs, 32 lanes is a cap that covers all three. Don’t go overboard though (e.g., multiple thousands when your max is 16), since every extra lane per GPU adds overhead to the checkpoint’s restore time.</span></p>
+<p><b>Keep the recipe fixed when you resume on more/fewer ranks.</b><span style="font-weight: 400;"> The data, tokenizer, seed, mixture, context length, and global batch size all need to stay the same. Of course, you may still adjust performance settings such as parallelism.</span></p>
+<p><b>Zephon guarantees the data, not the arithmetic.</b><span style="font-weight: 400;"> The global batches will be identical across GPU counts, and the losses will be very close, but might not be identical since floating-point reduction order in the training loop still depends on how many GPUs are sharing the work.</span></p>
+<h3><span style="font-weight: 400;">Looking Ahead</span></h3>
+<p><span style="font-weight: 400;">There are a couple of directions that we’re especially excited about. The first is GIL-free Python: Zephon allows users to pick a </span><i><span style="font-weight: 400;">runner</span></i><span style="font-weight: 400;">, i.e., how to parallelize the operators. One runner we implemented is a thread-based runner. On Python 3.14t, it fetches vision-language samples about 3.7x faster than Zephon’s process runner does on standard Python. We think that’s where data loading is headed, and Zephon is ready for it.</span> <span style="font-weight: 400;">The second is dynamic curricula: because the curriculum is kept separate from the processing pipeline, a </span><span style="font-weight: 400;"><code>WorkSource</code></span><span style="font-weight: 400;"> can change the mixture weights over the course of a run without touching anything downstream. We’re working on a configurable curriculum component that does exactly this while keeping the determinism guarantees that we described above.</span></p>
+<p><span style="font-weight: 400;">Beyond that, we would love to hear which parts of your data pipeline you would like to move into the training job and how we can help; issues and PRs are most welcome!</span></p>
+<p><b>Learn more: </b><a href="https://www.datologyai.com/blog/zephon"><span style="font-weight: 400;">Launch post</span></a><span style="font-weight: 400;"> · </span><a href="https://arxiv.org/abs/2610.03087"><span style="font-weight: 400;">Paper</span></a><span style="font-weight: 400;"> · </span><a href="https://zephon.io/"><span style="font-weight: 400;">Zephon</span></a><span style="font-weight: 400;"> · </span><a href="https://github.com/datologyai/zephon"><span style="font-weight: 400;">Zephon on GitHub</span></a><span style="font-weight: 400;"> · </span><a href="https://github.com/datologyai/torchtitan-zephon"><span style="font-weight: 400;">TorchTitan Integration</span></a></p>
+<p><script type="text/javascript" nonce="8ab43d9d22c27432e35863e58814753e">
+window.addEventListener('message', function (e) {
+  if (e.origin !== 'https://www.datologyai.com' || !e.data ||
+e.data.type !== 'EMBED_RESIZE') return;
+  document.querySelectorAll('iframe.zephon-embed').forEach(function (f) {
+    if (f.contentWindow === e.source) f.style.height = e.data.height + 'px';
+  });
+});
+</script></p>
+<p>The post <a href="https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/">Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Muse Spark Is Now an Open-Weights Model</title>
 		<link>https://pytorch.org/blog/muse-spark-open/</link>
 		
@@ -1387,48 +1467,7 @@ python scripts/autotune_helion_kernels.py \
 		
 		
 			</item>
-		<item>
-		<title>New Pathway to PyTorch Certified Associate (PTCA) Certification</title>
-		<link>https://pytorch.org/blog/new-pathway-to-pytorch-certified-associate-ptca-certification/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Fri, 02 Oct 2026 19:33:47 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=171978</guid>
-
-					<description><![CDATA[<p>We&#8217;re excited to bring you the new PyTorch Certified Associate (PTCA) Certification Pathway, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience...</p>
-<p>The post <a href="https://pytorch.org/blog/new-pathway-to-pytorch-certified-associate-ptca-certification/">New Pathway to PyTorch Certified Associate (PTCA) Certification</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p><span style="font-size: 18.72px;"><img decoding="async" class="alignnone size-large wp-image-171984" src="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-1024x536.png" alt="PyTorch Certification Pathway" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Certification-Pathway.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></p>
-<p>We&#8217;re excited to bring you the new <a href="https://training.linuxfoundation.org/certification/ptca-certification-pathway/">PyTorch Certified Associate (PTCA) Certification Pathway</a>, combining focused learning modules and the PyTorch Certified Associate (PTCA) certification exam together in one structured experience through Linux Foundation Education. The Certification Pathway is designed to help you build the foundational PyTorch skills validated by PTCA through learning that more closely aligns with the certification’s domains and competencies.</p>
-<p>The pathway includes four self-paced learning modules plus the PTCA certification exam:</p>
-<ul>
-<li>PyTorch Fundamentals</li>
-<li>Data Handling in PyTorch</li>
-<li>PyTorch Model Development</li>
-<li>Optimizing PyTorch</li>
-</ul>
-<p>Together, the modules cover core skills across the same key areas measured by the PTCA certification, from working with tensors and devices to preparing data, building neural networks, and improving model performance.</p>
-<h4><strong>Learn, Build, Validate, Certify</strong></h4>
-<p>Throughout the pathway, you’ll build skills to:</p>
-<ul>
-<li><strong>Work with tensors and devices</strong> across the model lifecycle, from training through prediction</li>
-<li><strong>Prepare and manage data</strong> using Datasets, DataLoaders, and transforms</li>
-<li><strong>Build neural networks</strong> using PyTorch layers, activations, loss functions, and optimizers</li>
-<li><strong>Measure and optimize performance</strong> using tools and techniques including torch.compile, Automatic Mixed Precision, the PyTorch Profiler, and distributed training concepts</li>
-</ul>
-<p>The full pathway includes 15–17 hours of self-paced learning and hands-on labs designed to help you build a strong foundation. Certification readiness takes more than completing coursework, so additional hands-on practice and real-world experience with PyTorch are recommended as you prepare for the PTCA exam.</p>
-<h4><strong>Put Your PyTorch Skills on a Clear Path</strong></h4>
-<p>PTCA is designed for early-stage practitioners with Python and machine learning experience who are beginning to work with PyTorch. The certification validates your understanding of the core concepts and workflows used by engineers and researchers to design, train, optimize, and work with machine learning models. With the new <a href="https://training.linuxfoundation.org/certification/ptca-certification-pathway/" target="_blank" rel="noopener"><strong>PTCA Certification Pathway</strong></a>, you can build those skills through focused learning and then validate what you know with the included certification exam, all in one product.</p>
-<p>Build your PyTorch skills and get certified today.</p>
-<p>The post <a href="https://pytorch.org/blog/new-pathway-to-pytorch-certified-associate-ptca-certification/">New Pathway to PyTorch Certified Associate (PTCA) Certification</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4630 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1428000 metric#prefetches=238 metric#store-reads=36 metric#store-writes=9 metric#store-hits=247 metric#store-misses=15 metric#sql-queries=20 metric#ms-total=506.36 metric#ms-cache=18.67 metric#ms-cache-avg=0.4243 metric#ms-cache-ratio=3.7 sample#redis-hits=736524848 sample#redis-misses=160466712 sample#redis-hit-ratio=82.1 sample#redis-ops-per-sec=76 sample#redis-evicted-keys=2143883 sample#redis-used-memory=962262072 sample#redis-used-memory-rss=1089376256 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=3 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=754202 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4623 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1450492 metric#prefetches=237 metric#store-reads=36 metric#store-writes=13 metric#store-hits=246 metric#store-misses=15 metric#sql-queries=25 metric#ms-total=322.70 metric#ms-cache=20.63 metric#ms-cache-avg=0.4297 metric#ms-cache-ratio=6.4 -->
