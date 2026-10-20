@@ -3,8 +3,15 @@
     <title><![CDATA[Ollama]]></title>
     <description><![CDATA[Ollama]]></description>
     <link>https://ollama.com/blog</link>
-    <lastBuildDate>Sat, 17 Oct 2026 04:26:13 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 20 Oct 2026 04:51:23 +0000</lastBuildDate>
     <atom:link href="https://ollama.com/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title><![CDATA[Clef is available on Ollama's cloud]]></title>
+      <description><![CDATA[Clef, a 27B multimodal decision model from Cloudflare, is now available on Ollama. Run it locally or on Ollama's cloud.]]></description>
+      <link>https://ollama.com/blog/clef</link>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://ollama.com/blog/clef</guid>
+    </item>
     <item>
       <title><![CDATA[Reflection's Beam is freely available on Ollama for a limited time]]></title>
       <description><![CDATA[Reflection's first open-weight model is now available on Ollama, and free for a limited time only. Beam is designed for software engineering, reasoning, and long-running agentic tasks. Access Beam through Ollama Cloud.]]></description>
