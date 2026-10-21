@@ -85,6 +85,10 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Timestral 1.0 5M](https://docs.mistral.ai/models/timestral-1-0-5m.md): A time series foundation model for zero-shot forecasting with covariate support and probabilistic outputs.
 - [Mistral Medium 3.5](https://docs.mistral.ai/models/mistral-medium-3-5-26-04.md): Our frontier-class multimodal model optimized for agentic and coding use cases.
 - [Voxtral TTS](https://docs.mistral.ai/models/voxtral-tts-26-03.md): State-of-the-art TTS with zero-shot voice cloning and multilingual support.
+- [Voxtral Mini Transcribe 3](https://docs.mistral.ai/models/voxtral-mini-transcribe-3-0.md): Strong transcription and diarization at a competitive price point.
+- [Voxtral Small Transcribe 3](https://docs.mistral.ai/models/voxtral-small-transcribe-3-0.md): Flagship transcription and diarization model with SOTA accuracy.
+- [Voxtral Mini Transcribe Realtime 3](https://docs.mistral.ai/models/voxtral-mini-transcribe-realtime-3-0.md): Realtime transcription model for agentic use-cases with configurable latency and turn detection.
+- [Voxtral TTS 3](https://docs.mistral.ai/models/voxtral-mini-tts-3-0.md): State-of-the-art TTS with zero-shot and professional voice cloning, 9 languages, and streaming.
 - [Mistral Small 4](https://docs.mistral.ai/models/mistral-small-4-0-26-03.md): Hybrid model unifying instruct, reasoning, and coding in a single efficient model.
 - [Leanstral 1.5](https://docs.mistral.ai/models/leanstral-1-5.md): Updated code agent for Lean 4 formal proof engineering and automated theorem proving.
 - [Leanstral](https://docs.mistral.ai/models/leanstral-26-03.md): Open-source code agent for Lean 4 formal proof engineering.
@@ -183,14 +187,57 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Agents & Conversations](https://docs.mistral.ai/studio/agents/agents-api.md): Agents is a feature that allows developers to create predefined models with their own system prompts and tools.
 - [Handoffs](https://docs.mistral.ai/studio/agents/handoffs.md): When creating and using Agents, often with access to specific tools, there are moments where it is desired to call other Agents mid-action.
 - [Agents Introduction](https://docs.mistral.ai/studio/agents/introduction.md): AI agents are autonomous systems powered by large language models (LLMs) that, given high-level instructions, can plan, use tools, carry out processing steps, and take actions to achieve specific goals.
+- [Audio interface](https://docs.mistral.ai/studio/audio/audio-agents/audio-interface.md): How a voice agent captures and plays audio in Python and Node.js, how to tune the default audio interface, write your own, or send and receive raw audio.
+- [Audio in chat completions](https://docs.mistral.ai/studio/audio/audio-in-chat.md): Summarize, question, translate, and extract structured data from a recording by sending the audio in a chat completions request.
+- [Custom vocabulary](https://docs.mistral.ai/studio/audio/concepts/custom-vocabulary.md): Why names, drugs, and product terms come out wrong in transcription and in generated speech, and the hint that fixes each direction: context biasing for spelling, custom pronunciation for sound.
+- [Latency](https://docs.mistral.ai/studio/audio/concepts/latency.md): What latency means in each Mistral audio mode, the delays it adds up, and how to measure it and weigh speed against quality.
+- [Offline and realtime audio](https://docs.mistral.ai/studio/audio/concepts/offline-and-realtime.md): The two ways Mistral processes audio: recorded audio in a single request, or live audio in a streaming session, and what changes between them.
+- [Speakers and diarization](https://docs.mistral.ai/studio/audio/concepts/speakers-and-diarization.md): What diarization tells you about who spoke when, how reference clips turn anonymous speaker labels into known speakers, and what overlapping speech means for your interface.
+- [Turns and turn-taking](https://docs.mistral.ai/studio/audio/concepts/turns.md): How Voxtral decides when someone has finished speaking, why it matters for live transcription and voice agents, and the trade-off between cutting people off and answering late.
+- [Voices](https://docs.mistral.ai/studio/audio/concepts/voices.md): What a voice is in Mistral speech generation, the kinds of voices you can use, and the difference between choosing a voice and directing how it speaks.
+- [Audio](https://docs.mistral.ai/studio/audio/deprecated/overview.md): Transcribe speech, generate expressive voices, and build real-time voice agents with Mistral's Voxtral audio models.
+- [Offline](https://docs.mistral.ai/studio/audio/deprecated/speech_to_text/offline_transcription.md): Before You Start
+- [Speech to Text](https://docs.mistral.ai/studio/audio/deprecated/speech_to_text.md): This page covers Mistral's Speech Transcription capabilities, including Offline and Realtime transcription.
+- [Client authentication](https://docs.mistral.ai/studio/audio/deprecated/speech_to_text/realtime_transcription/client_auth.md): Browser clients cannot store long-lived API keys safely and cannot set Authorization headers on WebSocket connections.
+- [Realtime](https://docs.mistral.ai/studio/audio/deprecated/speech_to_text/realtime_transcription.md): Realtime transcription allows you to transcribe audio as it is being spoken or recorded.
+- [Text to Speech](https://docs.mistral.ai/studio/audio/deprecated/text_to_speech.md): Voxtral TTS is Mistral's text-to-speech model with zero-shot voice cloning.
+- [Speech Generation](https://docs.mistral.ai/studio/audio/deprecated/text_to_speech/speech.md): Generate speech from text using a saved voice (voice_id) or a one-off reference audio clip (ref_audio).
+- [Voices](https://docs.mistral.ai/studio/audio/deprecated/text_to_speech/voices.md): Save audio samples as reusable voices.
+- [Migrate from Voxtral 2](https://docs.mistral.ai/studio/audio/migrate-from-voxtral-2.md): Move from the Voxtral 2 audio models to Voxtral 3: model names, breaking changes, and a migration checklist.
 - [Audio](https://docs.mistral.ai/studio/audio/overview.md): Transcribe speech, generate expressive voices, and build real-time voice agents with Mistral's Voxtral audio models.
-- [Offline](https://docs.mistral.ai/studio/audio/speech_to_text/offline_transcription.md): Before You Start
-- [Speech to Text](https://docs.mistral.ai/studio/audio/speech_to_text.md): This page covers Mistral's Speech Transcription capabilities, including Offline and Realtime transcription.
-- [Client authentication](https://docs.mistral.ai/studio/audio/speech_to_text/realtime_transcription/client_auth.md): Browser clients cannot store long-lived API keys safely and cannot set Authorization headers on WebSocket connections.
-- [Realtime](https://docs.mistral.ai/studio/audio/speech_to_text/realtime_transcription.md): Realtime transcription allows you to transcribe audio as it is being spoken or recorded.
-- [Text to Speech](https://docs.mistral.ai/studio/audio/text_to_speech.md): Voxtral TTS is Mistral's text-to-speech model with zero-shot voice cloning.
-- [Speech Generation](https://docs.mistral.ai/studio/audio/text_to_speech/speech.md): Generate speech from text using a saved voice (voice_id) or a one-off reference audio clip (ref_audio).
-- [Voices](https://docs.mistral.ai/studio/audio/text_to_speech/voices.md): Save audio samples as reusable voices.
+- [Audio formats](https://docs.mistral.ai/studio/audio/specs-and-limits/audio-formats.md): Accepted input formats and available output formats across transcription, speech generation, audio in chat, and voice agents.
+- [Languages](https://docs.mistral.ai/studio/audio/specs-and-limits/languages.md): How each Voxtral 3 model handles languages for transcription, speech generation, and translation, and where to find its supported languages.
+- [Limits](https://docs.mistral.ai/studio/audio/specs-and-limits/limits.md): Size, duration, and value limits for audio requests and sessions, and what happens when you go over them.
+- [Bias context and vocabulary](https://docs.mistral.ai/studio/audio/speech-to-text/bias-context-and-vocabulary.md): Fix jargon, product names, and domain terms with keyphrases and free-form context.
+- [Diarize speakers](https://docs.mistral.ai/studio/audio/speech-to-text/diarize-speakers.md): Label who speaks in a recorded file or a live session, read the speaker labels, and name known speakers with reference clips.
+- [Speech to Text](https://docs.mistral.ai/studio/audio/speech-to-text/overview.md): Choose the right transcription model, mode, and configuration.
+- [Quickstart: transcribe an audio file](https://docs.mistral.ai/studio/audio/speech-to-text/quickstarts/transcribe-a-file.md): Turn an audio file into accurate text with a single API call.
+- [Quickstart: transcribe speech in realtime](https://docs.mistral.ai/studio/audio/speech-to-text/quickstarts/transcribe-in-realtime.md): Stream live audio and get a transcript with low latency.
+- [File transcription](https://docs.mistral.ai/studio/audio/speech-to-text/transcribe-files.md): Transcribe recorded audio: send a file, a URL, or an uploaded file, pin the language, get segment timestamps, and stream the response.
+- [Realtime transcription](https://docs.mistral.ai/studio/audio/speech-to-text/transcribe-in-realtime.md): Transcribe live audio over a WebSocket session: the session lifecycle, its settings, the events to read, and how to trade speed for accuracy.
+- [Speech to Text troubleshooting](https://docs.mistral.ai/studio/audio/speech-to-text/troubleshooting.md): The errors that transcription requests and realtime sessions return, the usual causes of a poor or missing transcript, and the setting that fixes each one.
+- [Turn detection](https://docs.mistral.ai/studio/audio/speech-to-text/turn-detection.md): Enable end-of-turn detection in realtime transcription, read the turn events and their timing against the text, and tune the thresholds.
+- [Custom pronunciation](https://docs.mistral.ai/studio/audio/text-to-speech/custom-pronunciation.md): Force the pronunciation of brand names, product names, and jargon with custom phonemes.
+- [Emotion and pace tags](https://docs.mistral.ai/studio/audio/text-to-speech/emotion-tags.md): Change the emotion and the speaking rate of part of the text with inline tags in the speech input.
+- [Speech generation](https://docs.mistral.ai/studio/audio/text-to-speech/generate-speech.md): Turn text into audio with control over voice, format, and expressiveness.
+- [Text to Speech](https://docs.mistral.ai/studio/audio/text-to-speech/overview.md): Choose the speech generation mode, model, and features that fit your application.
+- [Quickstart: generate speech](https://docs.mistral.ai/studio/audio/text-to-speech/quickstarts/generate-speech.md): Convert text into natural speech and play it back with one API call.
+- [Stream speech](https://docs.mistral.ai/studio/audio/text-to-speech/stream-speech.md): Stream the audio of a speech request as it's generated, play it before the whole file is ready, and measure the time to first audio.
+- [Style instructions](https://docs.mistral.ai/studio/audio/text-to-speech/style-instructions.md): Steer the delivery of the whole speech output with a short free-form instruction.
+- [Text to Speech troubleshooting](https://docs.mistral.ai/studio/audio/text-to-speech/troubleshooting.md): The errors that speech requests return, the usual causes of speech that sounds wrong, flat, cut short, or slow to start, and the setting that fixes each one.
+- [Voice cloning](https://docs.mistral.ai/studio/audio/text-to-speech/voice-cloning.md): Clone a voice from a short recording, for one request or saved in your workspace.
+- [Voices](https://docs.mistral.ai/studio/audio/text-to-speech/voices.md): Browse the preset voices and manage the voices saved in your workspace through the API.
+- [Create and manage agents](https://docs.mistral.ai/studio/audio/voice-agents/agents.md): Save and version agent configurations, then start sessions from them.
+- [Audio interface](https://docs.mistral.ai/studio/audio/voice-agents/audio-interface.md): How a voice agent captures and plays audio in Python and Node.js, how to tune the default audio interface, write your own, or send and receive raw audio.
+- [Browser (TypeScript) guide](https://docs.mistral.ai/studio/audio/voice-agents/browser.md): Run voice agents in the browser with a server-assisted session.
+- [Agent configuration](https://docs.mistral.ai/studio/audio/voice-agents/configuration.md): The Mistral client and the audio.sessions.init() options — agent configuration vs session runtime.
+- [Custom audio interfaces](https://docs.mistral.ai/studio/audio/voice-agents/custom-audio.md): Take control of audio I/O: subclass the interface, or send and receive raw audio manually.
+- [Voice agents](https://docs.mistral.ai/studio/audio/voice-agents/overview.md): Real-time bidirectional voice conversations through the Voice Agents SDK: microphone capture, STT, LLM, TTS, and playback handled by the SDK.
+- [Quickstart: build a voice agent](https://docs.mistral.ai/studio/audio/voice-agents/quickstarts/build-a-voice-agent.md): Run a voice conversation with an agent from your terminal in a few steps.
+- [Manage agent sessions](https://docs.mistral.ai/studio/audio/voice-agents/sessions.md): Session lifecycle, the event model, and error handling for production voice agents.
+- [Telephony (SIP)](https://docs.mistral.ai/studio/audio/voice-agents/telephony.md): Answer phone calls with your voice agent over SIP.
+- [Tools](https://docs.mistral.ai/studio/audio/voice-agents/tools.md): Give the agent web search, document libraries, connectors, and your own client-side functions — with fillers.
+- [Webhooks](https://docs.mistral.ai/studio/audio/voice-agents/webhooks.md): Receive signed call lifecycle events — call started, ended, failed — on your endpoint.
 - [Batch Processing](https://docs.mistral.ai/studio/batch-processing.md): Batching allows you to run asynchronous inference on large inputs in parallel, reducing compute costs while running large workloads at a 50% discount.
 - [Human-in-the-loop](https://docs.mistral.ai/studio/connectors/confirmation.md): Some tool calls, like sending an email or modifying data, are safer with human approval.
 - [Using Connectors in conversations](https://docs.mistral.ai/studio/connectors/conversations.md): After a Connector is registered and authenticated (if required), you can attach it to any conversation.
@@ -358,7 +405,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Install and setup](https://docs.mistral.ai/vibe/code/cli/install-setup.md): Install the Vibe CLI, run vibe in your project, and complete the setup prompt.
 - [MCP servers](https://docs.mistral.ai/vibe/code/cli/mcp-servers.md): MCP servers extend the Vibe Code CLI with external tools through the Model Context Protocol.
 - [Using offline models](https://docs.mistral.ai/vibe/code/cli/offline-models.md): The Vibe Code CLI supports any model served behind an OpenAI-compatible API.
-- [Skills](https://docs.mistral.ai/vibe/code/cli/skills.md): Skills are reusable instruction sets that extend Vibe Code with new workflows, custom slash commands, and scoped tool sets.
+- [Skills](https://docs.mistral.ai/vibe/code/cli/skills.md): Skills are reusable instruction sets that extend Vibe Code with new workflows and custom slash commands.
 - [Teleport from CLI to web](https://docs.mistral.ai/vibe/code/cli/teleport-cli-web.md): Teleport moves a CLI session into a Vibe Code Web sandbox so the task can keep running without your terminal staying open.
 - [Work with the CLI](https://docs.mistral.ai/vibe/code/cli/work-with-cli.md): Once the CLI is installed and your API key is set, you're ready for day-to-day work.
 - [Vibe Code](https://docs.mistral.ai/vibe/code/overview.md): Vibe Code is Vibe's coding mode.
