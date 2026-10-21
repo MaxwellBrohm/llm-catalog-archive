@@ -1,5 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 19 Oct 2026 14:01:14 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Building full virtual vehicles on Google Cloud: From AAOS to the smallest MCU</title><link>https://cloud.google.com/blog/topics/manufacturing/building-full-virtual-vehicles-on-google-cloud-from-aaos-to-the-smallest-mcu/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Imagining traditional gearheads getting their hands on software-defined vehicles is an amusing thought experiment. With their socket wrenches and air compressors at the ready, they might be confused to encounter core functions more likely to run on 1s and 0s than oil and belts. But across the auto industry these days, more and more vehicles feature prominent systems built using cloud-native development, continuous integration/continuous delivery, fast digital iteration, and plenty of AI.&lt;/span&gt;&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 20 Oct 2026 19:20:53 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><link>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="7jvio"&gt;Whether you are iterating on a quick bug fix or planning a complex migration, different tasks call for different models.&lt;/p&gt;&lt;p data-block-key="clmp"&gt;In keeping with Google Cloud's commitment to an open ecosystem and to give developers the right model for every job, &lt;b&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity for Google Cloud customers.&lt;/b&gt; Claude Opus 5.5 is built for complex work while Claude Sonnet 5.5 is a faster, lower-cost complement.&lt;/p&gt;&lt;p data-block-key="prmr"&gt;Once enabled by an administrator, developers can select Claude Opus 5.5 and Sonnet 5.5 directly from the model picker. Administrators can also select Google’s Gemini models, including Gemini 3.8 Flash and Gemini 4 Argon. The models apply across Antigravity 2.0, Antigravity CLI and our recently released &lt;a href="https://antigravity.google/docs/ide/extensions/" target="_blank"&gt;Antigravity IDE extensions&lt;/a&gt; for VS Code, JetBrains IntelliJ, and Visual Studio. This lets you choose the right model for the job, under a unified enterprise billing and security boundary.&lt;/p&gt;&lt;p data-block-key="dj20l"&gt;In this post, we’ll share two engineering patterns for building in Antigravity using these models. To view the entire list of models supported in Antigravity across subscriptions, see our documentation &lt;a href="https://antigravity.google/docs/models/" target="_blank"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;h3 data-block-key="d8trn"&gt;Multi-model engineering patterns in Antigravity&lt;/h3&gt;&lt;p data-block-key="2ach2"&gt;Having multiple model families available inside the same agent harness unlocks practical multi-model workflows that improve code quality while controlling latency and cost.&lt;/p&gt;&lt;h3 data-block-key="a8ic8"&gt;&lt;b&gt;Pattern 1: Cross-model verification ("LLM-as-a-Judge") in loop and graph workflows&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="a53gs"&gt;When building agentic loops or multi-step graph workflows, using the same model to both write code and review its own output can reinforce model-specific blind spots. Pairing two distinct model families, one as the implementer and another as the validator (judge), provides independent verification before moving to the next stage of a workflow.&lt;/p&gt;&lt;p data-block-key="eca00"&gt;In Antigravity, you can run this pattern either interactively or via automated subagents:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="enlkk"&gt;&lt;b&gt;Plan and implement with Model A:&lt;/b&gt; Start in planning mode using &lt;code&gt;Claude Opus 5.5&lt;/code&gt; or &lt;code&gt;Gemini 4 Argon&lt;/code&gt; to design and implement a multi-file change.&lt;/li&gt;&lt;li data-block-key="c4jg9"&gt;&lt;b&gt;Validate with Model B:&lt;/b&gt; Before committing or advancing the loop, switch models, or invoke a one-shot &lt;code&gt;/model&lt;/code&gt; check in the CLI, to have a different model family critique the implementation against your test suite and requirements.&lt;/li&gt;&lt;/ol&gt;&lt;h3 data-block-key="fp277"&gt;&lt;b&gt;Pattern 2: Pairing reasoning models with Flash subagents&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="2ce0q"&gt;Complex engineering tasks often combine a few high-reasoning decisions with dozens of high-volume, mechanical lookups (searching files, grepping logs, checking lint output, or classifying test failures). Running every lookup on a frontier model can increase both latency and spend.&lt;/p&gt;&lt;p data-block-key="ckd6t"&gt;Antigravity's Subagent customization system (&lt;code&gt;.agents/agents/*.md&lt;/code&gt;) lets you assign specific model tiers (&lt;code&gt;inherit&lt;/code&gt;, &lt;code&gt;flash&lt;/code&gt;, or &lt;code&gt;pro&lt;/code&gt;) to specialized subagents. When your primary session is running a more powerful model.&lt;/p&gt;&lt;p data-block-key="2l8u2"&gt;Subagents configured with &lt;code&gt;model: inherit&lt;/code&gt; use your active session model for deep reasoning subtasks.&lt;/p&gt;&lt;p data-block-key="cb05p"&gt;Subagents configured with &lt;code&gt;model: flash&lt;/code&gt; offload high-speed search, classification, and triage work to Gemini Flash models.&lt;/p&gt;&lt;p data-block-key="1fr9p"&gt;For example, you can define a fast log-triage subagent in &lt;code&gt;.agents/agents/test-triager.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-code"&gt;&lt;dl&gt;
+    &lt;dt&gt;code_block&lt;/dt&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;---\r\nname: test-triager\r\ndescription: Runs unit tests, classifies failures, and returns a concise summary of failing assertions.\r\nmodel: flash\r\ntools:\r\n  - read\r\n  - edit\r\n---\r\n\r\nRun the requested test targets, classify any failures by root cause (compilation error, assertion failure, or timeout), and return a structured summary to the parent agent.&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fd61ca342d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+&lt;/dl&gt;&lt;/div&gt;
+&lt;div class="block-paragraph"&gt;&lt;p data-block-key="5p921"&gt;And a cross-model code reviewer subagent in &lt;code&gt;.agents/agents/gemini-judge.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-code"&gt;&lt;dl&gt;
+    &lt;dt&gt;code_block&lt;/dt&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;---\r\nname:cross-model-judge\r\ndescription: Independent LLM-as-a-judge verifier that audits diffs and edge cases using Gemini Pro.\r\nmodel: pro\r\ntools:\r\n  - read\r\n---\r\n\r\nReview the current workspace diff against the user&amp;#x27;s requirements. Check for regressions, missing edge-case tests, and security issues. Output a pass/fail verdict with specific line references.&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fd61ca355d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+&lt;/dl&gt;&lt;/div&gt;
+&lt;div class="block-paragraph"&gt;&lt;p data-block-key="5p921"&gt;With this setup, you can delegate rapid test-and-classify loops to &lt;code&gt;test-triager&lt;/code&gt; and trigger &lt;code&gt;cross-model-judge&lt;/code&gt; to validate the final diff, combining the strengths of each model in a single workflow.&lt;/p&gt;&lt;h3 data-block-key="fj5e3"&gt;Getting started&lt;/h3&gt;&lt;p data-block-key="eudoh"&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are available now for Google Cloud customers using Antigravity:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="19dsb"&gt;&lt;b&gt;Administrators (Gemini for business):&lt;/b&gt; Third-party partner models do not draw from the pooled Gemini Enterprise Standard and Plus edition monthly token quota. Instead, usage is billed on a pay-as-you-go basis through your existing Google Cloud Billing account, so overages must be enabled. Visit “Gemini Enterprise” &amp;gt; “Settings” &amp;gt; “AI developer tools” in the Google Cloud Console to configure overage billing, spend limits and authorize partner models for your organization. See &lt;a href="https://cloud.google.com/gemini/enterprise/docs/ai-developer-tools-settings"&gt;Configure AI developer tools settings&lt;/a&gt; for step-by-step instructions.&lt;/li&gt;&lt;li data-block-key="evit9"&gt;&lt;b&gt;Administrators (Gemini platform):&lt;/b&gt; You can also enable partner models if you are using Antigravity through the API in Gemini platform. Enable Claude models in Model Garden and complete the standard Anthropic terms.&lt;/li&gt;&lt;li data-block-key="1shb0"&gt;&lt;b&gt;Developers:&lt;/b&gt; Update to the latest version of Antigravity 2.0, the Antigravity CLI, or the Antigravity IDE extensions, and open the model picker (or run &lt;code&gt;/model&lt;/code&gt;) to select the right model for your task. To learn more about enterprise governance and multi-agent configuration, visit the &lt;a href="https://antigravity.google/docs/enterprise/" target="_blank"&gt;Google Antigravity Enterprise documentation&lt;/a&gt;. You can switch the active model between turns in the same conversation thread while preserving workspace state, open artifacts, and terminal context.&lt;/li&gt;&lt;/ol&gt;&lt;p data-block-key="c19fm"&gt;Note: Lightweight first-party Gemini models continue to run in the background to handle high-frequency client-side coordination, such as context management and summaries. They consume first-party tokens and can incur charges.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 20 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</guid><category>Developers &amp; Practitioners</category><category>AI &amp; Machine Learning</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Marialaura Garcia</name><title>Product Marketing Manager</title><department>Google Cloud</department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Rich Hyndman</name><title>Developer Relations</title><department>Google Antigravity</department><company></company></author></item><item><title>Introducing Gemini for government services</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-for-government-services/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="ecu27"&gt;Earlier this month at Gemini at Work, we introduced the Gemini agent: a single, universal agent for work. It answers your questions, handles your knowledge work, creates your images and media, and writes and runs code. You give it objectives, not instructions, and come back to finished work. It plans the work, uses skills and tools, connects to your systems, and has the security, administration, and governance your organization requires.&lt;/p&gt;&lt;p data-block-key="bde19"&gt;Every industry runs on knowledge a general model does not have. Government work runs on statute, regulation, and agency guidance, across siloed legacy systems, under strict requirements for data sovereignty, compliance, and confidentiality. Too often that leaves civil servants on data entry and manual document review instead of the services citizens depend on.&lt;/p&gt;&lt;p data-block-key="2oatl"&gt;Today we're bringing the Gemini agent to public service with Gemini for government services in preview, part of our new suite of purpose-built industry solutions. It adds skills built around government work, connections to the systems agencies already run, and specialized partner agents, with governance running underneath it all.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-video"&gt;
+
+
+
+&lt;div class="article-module article-video "&gt;
+  &lt;figure&gt;
+    &lt;a class="h-c-video h-c-video--marquee"
+      href="https://youtube.com/watch?v=ZapIlMXcBLo"
+      data-glue-modal-trigger="uni-modal-ZapIlMXcBLo-"
+      data-glue-modal-disabled-on-mobile="true"&gt;
+
+      
+        
+
+        &lt;div class="article-video__aspect-image"
+          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/63_iUmWoyf.max-1000x1000.png);"&gt;
+          &lt;span class="h-u-visually-hidden"&gt;Bringing Gemini to government services&lt;/span&gt;
+        &lt;/div&gt;
+      
+      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
+        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
+      &lt;/svg&gt;
+    &lt;/a&gt;
+
+    
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+&lt;div class="h-c-modal--video"
+     data-glue-modal="uni-modal-ZapIlMXcBLo-"
+     data-glue-modal-close-label="Close Dialog"&gt;
+   &lt;a class="glue-yt-video"
+      data-glue-yt-video-autoplay="true"
+      data-glue-yt-video-height="99%"
+      data-glue-yt-video-vid="ZapIlMXcBLo"
+      data-glue-yt-video-width="100%"
+      href="https://youtube.com/watch?v=ZapIlMXcBLo"
+      ng-cloak&gt;
+   &lt;/a&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="block-paragraph"&gt;&lt;p data-block-key="ecu27"&gt;&lt;b&gt;Five components of Gemini for government services&lt;/b&gt;&lt;/p&gt;&lt;p data-block-key="cpbqg"&gt;Developed alongside agency leaders, Gemini for government services provides an integrated, fully governed environment configured for rapid deployment across federal, state, and local agencies with five core components:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="cpg8f"&gt;&lt;b&gt;Skills for government work:&lt;/b&gt; Skills are reusable instructions and context, written by domain experts, that teach Gemini to run a specific task. Each one applies the statute, regulation, and agency guidance that govern that task, so an agency's standard operating procedures carry into the work Gemini supports.&lt;/li&gt;&lt;li data-block-key="ddmul"&gt;&lt;b&gt;Connectors to agency systems:&lt;/b&gt; Secure connectors link Gemini to the case management, ERP, HR, and collaboration systems agencies already run, along with authoritative federal data sources. Gemini queries each system in place, so no data is migrated, and access follows the identity and permission controls the agency already has.&lt;/li&gt;&lt;li data-block-key="nhoa"&gt;&lt;b&gt;Partner agents:&lt;/b&gt; Skills and connectors come together in agents, including pre-built agents from public sector software providers that agencies can deploy right away. They handle tasks like FOIA discovery and batch redaction under the same central governance, with a person approving each consequential step.&lt;/li&gt;&lt;li data-block-key="f1sn0"&gt;&lt;b&gt;A governed control plane:&lt;/b&gt; Security and compliance teams get one place to set and enforce policy across every agent, including VPC Service Controls, CMEK, and Assured Workloads. Outputs are grounded in source documents, with citations, so reviewers can check where each answer came from.&lt;/li&gt;&lt;li data-block-key="c4rcd"&gt;&lt;b&gt;An open partner ecosystem:&lt;/b&gt; Every agency works under a different statute and runs a different mix of systems. System integrators and public sector ISVs help agencies customize Gemini, connect it to what they already have, and scale it without lock-in.&lt;/li&gt;&lt;/ol&gt;&lt;h3 data-block-key="4lljo"&gt;&lt;b&gt;Skills for government workflows&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="35on2"&gt;Gemini for government services helps automate and accelerate complex government operations, including:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="cf06h"&gt;&lt;b&gt;Policy and regulatory research&lt;/b&gt;: Ask an operational or eligibility question and get an answer drawn from the CFR, the Federal Register, state administrative codes, and internal manuals, with page and paragraph citations. Where federal and state rules both apply, Gemini shows which one governs to empower agency decision makers.&lt;/li&gt;&lt;li data-block-key="4s00c"&gt;&lt;b&gt;FOIA record discovery&lt;/b&gt;: Gemini searches SharePoint, Drive, and email archives for records responsive to a FOIA or state Sunshine Law request. It organizes them into a review set for the records officer and agency counsel, shortening discovery that often takes weeks.&lt;/li&gt;&lt;li data-block-key="9pcs7"&gt;&lt;b&gt;Redaction for public release&lt;/b&gt;: Gemini finds sensitive constituent data across a batch of documents, groups the findings so reviewers can clear them in passes, and proposes redactions labeled by statutory exemption. After a reviewer confirms, it produces the exemption log and audit-ready copies.&lt;/li&gt;&lt;li data-block-key="3ithk"&gt;&lt;b&gt;Vendor bid evaluation&lt;/b&gt;: Gemini checks multi-volume bids against RFP requirements, FAR guidelines, minimum mandatory criteria, and evaluation rubrics, and returns scoring justifications with citations. Contracting officers get a documented basis for each award decision.&lt;/li&gt;&lt;li data-block-key="9rsv8"&gt;&lt;b&gt;Grant and program expense audits&lt;/b&gt;: Gemini checks invoices, receipts, purchase orders, and ledger entries against 2 CFR 200 Uniform Guidance and the terms of the award. It flags unallowable costs, missing documentation, and funding discrepancies with line-item citations, so problems surface while there's still time to fix them.&lt;/li&gt;&lt;li data-block-key="g1kd"&gt;&lt;b&gt;Document validation at intake&lt;/b&gt;: Gemini classifies and validates pay stubs, W-2s, utility bills, and leases when they arrive, checks the numbers for consistency, and flags missing signatures. Defects are caught before the application enters the queue, not weeks into the case.&lt;/li&gt;&lt;li data-block-key="2jik7"&gt;&lt;b&gt;Plain-language notices&lt;/b&gt;: Gemini turns policy memos and agency guidance into public notices, aligned to the Plain Writing Act of 2010, USDA-FNS standards, and Title VI language access guidance.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="ch7kg"&gt;&lt;b&gt;Open ecosystem of connectors across the government technology stack&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="66nd6"&gt;Gemini for government services connects directly to core agency systems via secure &lt;a href="https://cloud.google.com/gemini-enterprise/connectors"&gt;connectors&lt;/a&gt;. Access is bound by existing role-based access controls, record-level permissions, and the trusted data controls inherited from each system — and nothing is migrated to make the connection work.&lt;/p&gt;&lt;p data-block-key="foe7v"&gt;&lt;b&gt;Federal regulatory and public data:&lt;/b&gt;&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="9q752"&gt;&lt;b&gt;Federal Register:&lt;/b&gt; Tracks legislative actions, regulations, and executive orders as they post, so state and local teams see federal changes as they land.&lt;/li&gt;&lt;li data-block-key="7ahrh"&gt;&lt;b&gt;regulations.gov:&lt;/b&gt; Tracks federal rulemaking dockets, public comments, and statutory agency response deadlines, keeping policy analysts ahead of incoming mandates.&lt;/li&gt;&lt;li data-block-key="e4r9v"&gt;&lt;b&gt;eCFR (Electronic Code of Federal Regulations):&lt;/b&gt; Grounds answers in the governing regulation, with citations down to the paragraph.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="fsu59"&gt;&lt;b&gt;Agency systems of record:&lt;/b&gt;&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="3ccd7"&gt;&lt;b&gt;Oracle E-Business Suite:&lt;/b&gt; Gives agents permission-bound access to procurement, payables, and ledger transactions for expense auditing and award reconciliation.&lt;/li&gt;&lt;li data-block-key="5192m"&gt;&lt;b&gt;Oracle PeopleSoft:&lt;/b&gt; Connects HR and personnel records under existing role-based controls, so workforce questions are answered from the system of record.&lt;/li&gt;&lt;li data-block-key="dv9vt"&gt;&lt;b&gt;Salesforce:&lt;/b&gt; Enables conversational experiences across the Missionforce portfolio, including benefits, licensing and permitting, and contact center management.&lt;/li&gt;&lt;li data-block-key="287f"&gt;&lt;b&gt;ServiceNow:&lt;/b&gt; Automates IT, CRM, security, employee experience, and workflow records, so agents can track incidents, requests, and approval chains inside existing routing rules.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="4s5c7"&gt;&lt;b&gt;Productivity and collaboration:&lt;/b&gt;&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="o0sp"&gt;&lt;b&gt;Google Workspace:&lt;/b&gt; Connects with Google Docs, Gmail, Drive, and Sheets to analyze case communications and agency correspondence and surface internal files while enforcing agency access controls.&lt;/li&gt;&lt;li data-block-key="f1v46"&gt;&lt;b&gt;Microsoft 365 and SharePoint:&lt;/b&gt; Integrates with Word, Outlook, and SharePoint to triage inquiries and ground responses in mail and intranet repositories without breaking workflow context.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="1pgdj"&gt;&lt;b&gt;Third-party agents and implementation partners&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="82f0f"&gt;Every agency operates differently. Through our open platform, agencies can deploy pre-built partner agents or work with system integrators to scale custom capabilities:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="b7mto"&gt;&lt;b&gt;SZNS Solutions FOIA and public records discovery agent:&lt;/b&gt; Turns a plain-language request, a piece of correspondence, or a formal citizen inquiry into a scoped search across enterprise archives — bounded by custodian and date range, so a records officer narrows the set before any data moves. It exports responsive material into secure agency repositories and tracks delivery status, giving each request an auditable trail from intake to release.&lt;/li&gt;&lt;li data-block-key="3kolt"&gt;&lt;b&gt;SZNS Solutions document redaction agent:&lt;/b&gt; Works inside connected repositories — SharePoint and Drive among them — finding sensitive citizen data across a batch and grouping the findings so a reviewer clears them in passes rather than page by page. Each proposed redaction carries its statutory exemption, and once the reviewer confirms, the agent exports permanently redacted, audit-ready copies back to the system of record, with the processing never leaving the agency's cloud perimeter.&lt;/li&gt;&lt;li data-block-key="6q16h"&gt;&lt;b&gt;Systems integrators &amp;amp; tech partners:&lt;/b&gt; Strategic partnerships with &lt;b&gt;Accenture Federal Services, Clutch, Dark Wolf, Daston, Deloitte, Egen, Game Plan Tech, Knexus, Onix, Resultant, SAIC, Slalom, and SZNS Solutions&lt;/b&gt; so agencies can customize, integrate, and scale these capabilities without vendor lock-in.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="et5kh"&gt;&lt;b&gt;Developed alongside federal, state, and local government agencies&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="5mri8"&gt;We are working closely with select federal and state agencies, including the State of Missouri and the U.S. Department of Health and Human Services to ensure these capabilities work in day-to-day agency operations.&lt;/p&gt;&lt;p data-block-key="4obv7"&gt;&lt;i&gt;"Our citizens expect the government to move at the speed of modern life, not the speed of paperwork. By automating routine work in our workflows, we're delivering faster, better services to Missourians."&lt;/i&gt; -&lt;b&gt; Tim Marczewski, Director of AI and Innovation, State of Missouri Office of Administration.&lt;/b&gt;&lt;/p&gt;&lt;h3 data-block-key="83n78"&gt;&lt;b&gt;Built on an enterprise-grade foundation&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="3i50b"&gt;Gemini for government services runs on Google Cloud's secure foundation, and can be deployed using the Assured Workloads FedRAMP High Data Boundary, enforcing U.S. data residency and personnel controls. It works within the authorities, retention rules, and approval chains your agency already has.&lt;/p&gt;&lt;p data-block-key="5drpf"&gt;Agency records, constituent data, institutional documents, custom agents, and model outputs stay private to your organization, and are never used to train or fine-tune Google's foundation models without your permission. Because we operate the full stack, from infrastructure and models through the application layer, we can tune performance and cost together — routing high-volume document parsing and routine records sweeps to fast, low-cost models and reserving high-reasoning models for complex policy analysis, so expanding what your teams can take on does not mean expanding spend at the same rate.&lt;/p&gt;&lt;h3 data-block-key="c5p4u"&gt;&lt;b&gt;This is just the beginning&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="4ba5r"&gt;The launch of Gemini for government services represents another defining step in delivering on our promise to bring the best of Gemini to every professional, for every workflow, natively tailored to the way they work.&lt;/p&gt;&lt;p data-block-key="2h7g3"&gt;&lt;a href="https://cloud.google.com/gemini-enterprise/gov"&gt;Gemini for government services&lt;/a&gt; is available in &lt;b&gt;preview&lt;/b&gt; today, joining our purpose-built solutions for industries. We invite leaders at every level of government to explore how &lt;a href="https://cloud.google.com/gemini-enterprise"&gt;Gemini&lt;/a&gt; can transform their most critical workflows.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 20 Oct 2026 10:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/gemini-for-government-services/</guid><category>Public Sector</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Industry_headers_2.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Introducing Gemini for government services</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Industry_headers_2.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/gemini-for-government-services/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Thomas Kurian</name><title>CEO, Google Cloud</title><department></department><company></company></author></item><item><title>Building full virtual vehicles on Google Cloud: From AAOS to the smallest MCU</title><link>https://cloud.google.com/blog/topics/manufacturing/building-full-virtual-vehicles-on-google-cloud-from-aaos-to-the-smallest-mcu/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Imagining traditional gearheads getting their hands on software-defined vehicles is an amusing thought experiment. With their socket wrenches and air compressors at the ready, they might be confused to encounter core functions more likely to run on 1s and 0s than oil and belts. But across the auto industry these days, more and more vehicles feature prominent systems built using cloud-native development, continuous integration/continuous delivery, fast digital iteration, and plenty of AI.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;But there’s still a big gap to be found in many automakers’ and Tier 1 suppliers’ cloud-based development processes. On the one hand, these companies are commonly using software to develop vehicles’ digital entertainment and information screens, or other onboard high-performance computers. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;On the other, the dozens of microchips and control modules that make a car a car these days — such as gateways, body controllers, zone control units, sensor and actuator nodes — are still frequently hardwired to physical chips when they’re constructed, making them very difficult to update, reprogram, or expand after the vehicle drives off the factory floor. Teams have to wait for benches, samples, and rigs, and integration can easily slip to the end of the development process, where defects are most expensive to fix.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This inherent inefficiency has become a leading bottleneck. After all, manufacturers can’t really claim vehicles are software-defined if most of their electronics only function when connected to physical hardware and if developers are leaning heavily on actual hardware.&lt;/span&gt;&lt;/p&gt;
@@ -89,260 +142,7 @@
 
 
 &lt;/div&gt;
-&lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="3itrx"&gt;Gemini meets work where it already happens&lt;/h3&gt;&lt;p data-block-key="7fq23"&gt;A viable agentic platform has to meet work where it already happens – and run under production-grade controls. Gemini is engineered to deliver developer velocity without compromising governance, built around four core differentiators:&lt;/p&gt;&lt;h3 data-block-key="efqke"&gt;1. Surfaces that connect builders and business teams&lt;/h3&gt;&lt;p data-block-key="buvth"&gt;Gemini makes it so that every surface connects back to one universal foundation.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="f14at"&gt;&lt;b&gt;Where teams already work:&lt;/b&gt; Employees collaborate with Gemini directly inside Google Workspace, Microsoft 365, or team chats – the agent carries the same persistent memory, skills, and enterprise permissions across desktop and mobile without needing to switch tools.&lt;/li&gt;&lt;li data-block-key="6ugb"&gt;&lt;b&gt;Builder tools centered on choice:&lt;/b&gt; Gemini platform supports how developers want to work, spanning no-code and low-code builders in the studio to code-first workflows with the Agent Development Kit (ADK) and Antigravity.&lt;/li&gt;&lt;li data-block-key="28grt"&gt;&lt;b&gt;Workflows that compound across the organization:&lt;/b&gt; When a team solves a complex workflow, they can package it into a shared skill published to a central Agent Registry. Gemini calls on these skills directly to execute tasks, turning proven procedures into reusable assets across the entire company.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="eembh"&gt;2. Radical openness across models, enterprise data, and tools&lt;/h3&gt;&lt;p data-block-key="9qenr"&gt;Gemini adapts to the software you already run, not the other way around.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="aa4jd"&gt;&lt;b&gt;Model choice:&lt;/b&gt; Through Model Garden in Gemini platform, teams have direct access to over 200 models – including all of the breakthroughs from Google DeepMind like &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud?e=48754805"&gt;Gemini 4 Argon&lt;/a&gt;, day one access to the latest Anthropic models, and third-party and open models.&lt;/li&gt;&lt;li data-block-key="b4bak"&gt;&lt;b&gt;Grounding on your enterprise data:&lt;/b&gt; Gemini connects directly to live enterprise data across Google Cloud in BigQuery and Cloud Storage, as well as Salesforce, SAP, and others. Because Gemini inherits each employee's existing credentials, sensitive information stays governed at the source.&lt;/li&gt;&lt;li data-block-key="enlc6"&gt;&lt;b&gt;Open standards:&lt;/b&gt; Built on open protocols like MCP and A2A, Gemini can easily plug into your existing toolchains and communicate across multi-vendor environments.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="ash0a"&gt;3. Smarter token economics&lt;/h3&gt;&lt;p data-block-key="fdvqn"&gt;Gemini optimizes cost, latency, and performance directly at the execution layer.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="8fjup"&gt;&lt;b&gt;Matching tasks to the right model:&lt;/b&gt; By default, Gemini uses Auto mode for users, letting the platform match each step of a task to the right model dynamically. It defaults to a fast workhorse model like Gemini Flash, and escalates to a high-capacity frontier reasoning model only when task complexity requires it.&lt;/li&gt;&lt;li data-block-key="bmgrb"&gt;&lt;b&gt;Reusable skills:&lt;/b&gt; Teams can package proven processes into shared skills. Your agents can execute against these established procedures, improving consistency and reducing repetitive token consumption across the company.&lt;/li&gt;&lt;li data-block-key="bb124"&gt;&lt;b&gt;Budget guardrails:&lt;/b&gt; Administrators can set spending limits by project, department, or individual agent in the billing console. When a budget threshold is reached, new requests pause while active tasks are allowed to complete, giving finance and engineering predictable cost controls without abruptly interrupting in-progress work.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="olvq"&gt;4. Built-in governance and security&lt;/h3&gt;&lt;p data-block-key="dqkc1"&gt;Gemini incorporates enterprise governance natively, and at no additional cost.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="1rfqt"&gt;&lt;b&gt;Dedicated agent identity:&lt;/b&gt; Every agent receives its own distinct, authenticated identity governed by least-privilege permissions. When an agent takes action, every event is recorded in an audit trail tied directly to that identity and the identity of which user was using the agent for the task.&lt;/li&gt;&lt;li data-block-key="df4qu"&gt;&lt;b&gt;Isolated sandboxes:&lt;/b&gt; A sandboxed boundary keeps dynamic tasks strictly contained, protecting your underlying infrastructure, core network, and sensitive corporate data from being exposed or compromised.&lt;/li&gt;&lt;li data-block-key="8etmj"&gt;&lt;b&gt;Policy enforcement:&lt;/b&gt; Rather than relying on a model to self-police, Agent Gateway automatically applies corporate security policies, blocks data leakage, and ensures agents only access what they are explicitly authorized to touch.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="2sbvv"&gt;Looking forward&lt;/h3&gt;&lt;p data-block-key="asnlj"&gt;At its core, Gemini is all about giving your organization an open, reliable platform where builders have choice and teams work with complete confidence.&lt;/p&gt;&lt;p data-block-key="3b0uo"&gt;We are honored by IDC MarketScape’s recognition of Google as a Leader, and we look forward to continuing this work alongside our customers.&lt;/p&gt;&lt;p data-block-key="3q9e"&gt;&lt;a href="https://cloud.google.com/resources/content/2026-idc-marketscape-agentic-ai-platforms"&gt;Download&lt;/a&gt; the IDC MarketScape: Worldwide Agentic AI Platforms 2026 Vendor Assessment excerpt to learn why Google is named a Leader.&lt;/p&gt;&lt;p data-block-key="drul4"&gt;&lt;/p&gt;&lt;p data-block-key="7ut27"&gt;&lt;i&gt;&lt;sup&gt;1. SOURCE: “Worldwide Agentic AI Platforms 2026 Vendor Assessment”, October 2026, IDC # US54140926.&lt;/sup&gt;&lt;/i&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Mon, 19 Oct 2026 07:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/google-named-leader-in-2026-idc-marketscape-for-agentic-ai-platforms/</guid><category>AI &amp; Machine Learning</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Google named a Leader in the 2026 IDC MarketScape for Agentic AI Platforms</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/google-named-leader-in-2026-idc-marketscape-for-agentic-ai-platforms/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Jamie de Guerre</name><title>Senior Director, Outbound Product Management</title><department></department><company></company></author></item><item><title>Architecting autonomy: A design pattern for high-compute, governed agents in biotech</title><link>https://cloud.google.com/blog/topics/healthcare-life-sciences/architecting-scalable-agentic-biotech-workloads/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In production systems today, most AI agents operate as lightweight dispatchers. They parse a prompt, make an API call, retrieve a record, and hand back control. Their execution is fast, stateless and cheap. Biotechnology does not work this way. &lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Folding a protein target, screening a 50,000 compound ligand library, or evaluating structure-activity relationships (SAR) are not quick API lookups. They are sustained, stateful, GPU-bound simulations that run for minutes or even hours across specialized silicon. When you ask a general-purpose large language model (LLM) endpoint to coordinate a complex drug discovery workflow, the standard paradigm breaks: Timeouts occur, context windows overflow with atomic coordinates, and proprietary chemical Intellectual Property (IP) risks exposure to external networks. &lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Building enterprise grade research and development (R&amp;amp;D) agents requires moving past the monolithic assistant model. In this blog post, we will discuss how to use a three-layer architecture: separating cognitive orchestration (the brain) from computational execution (the muscle), and anchoring both inside an enterprise governance plane to build scalable agents for drug discovery use cases in biotech. &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=TZTDqtSpzv8"
-      data-glue-modal-trigger="uni-modal-TZTDqtSpzv8-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        &lt;img src="//img.youtube.com/vi/TZTDqtSpzv8/maxresdefault.jpg"
-             alt="AI Agent Infrastructure Decoded"/&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-TZTDqtSpzv8-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="TZTDqtSpzv8"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=TZTDqtSpzv8"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h3 style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;A three-layer pattern&lt;/span&gt;&lt;/h3&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;The reference architecture below shows how to architect, optimize, and govern high-compute autonomous agents in biotechnology, specifically Drug Discovery. &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Figure_1_TukBnfH.max-1000x1000.jpg"
-        
-          alt="Figure 1"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="4nr3v"&gt;Figure 1 — The three-layer pattern: a cognitive orchestrator (brain), a scalable GPU execution layer (muscle), and an enterprise governance plane.&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;The execution layer: scaling the muscle - high-compute execution&lt;/span&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt; &lt;/span&gt;&lt;/h4&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;The execution layer is responsible for the heavy scientific computations. The first architectural decision is determining where workloads should run:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Strategic, proprietary pipelines require dedicated GPU infrastructure within your security perimeter&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Routine or standardized workloads can safely be delegated to managed cloud endpoints&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In this architecture, protein folding is driven by &lt;/span&gt;&lt;a href="https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nim/collections/bionemo-esmfold" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;ESMFold&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; and generative design by &lt;/span&gt;&lt;a href="https://docs.nvidia.com/nim/bionemo/genmol/latest/overview.html" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;GenMol&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. Both run as &lt;/span&gt;&lt;a href="https://www.nvidia.com/en-us/ai-data-science/products/nim-microservices/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;NVIDIA Inference Microservices&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; or NIMs deployed on &lt;/span&gt;&lt;a href="https://cloud.google.com/kubernetes-engine?hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Kubernetes Engine&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (GKE) using G4 VMs backed by &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/compute/introducing-g4-vm-with-nvidia-rtx-pro-6000"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;NVIDIA RTX PRO 6000 Blackwell&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; GPUs.&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;A critical hurdle in containerized GPU workloads is the cold-start penalty, the latency delay required to pull multi-gigabyte model weights from an image registry and stage them into GPU memory (VRAM).&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;To ensure low latency responsiveness, we build the following as a recommendation into the reference architecture:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Maintain warm pools:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Pin the GKE node pool to a minimum of one active node.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Preload weights:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Model weights are loaded directly into VRAM at pod initialization, ensuring containers are immediately ready for inference.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Resilient scheduling:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; GKE manages pod lifecycles and restarts failed instances without tearing down the underlying VM infrastructure. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;This approach trades custom, manual CUDA kernel tuning for NVIDIA's pre-compiled, containerized runtimes, dramatically reducing infrastructure engineering overhead while ensuring deterministic throughput.&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In biotech, chemical structures represent millions of dollars in proprietary IP. A docking request transmits SMILE strings or 3D coordinate matrices that must never leave company custody.&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Containerized NIMs eliminate the friction between rapid prototyping and rigorous data isolation. During early exploration, researchers can query NVIDIA hosted endpoints. When transitioning to proprietary lead candidates, the exact same container is deployed to GKE inside a private &lt;/span&gt;&lt;a href="https://cloud.google.com/vpc?hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;VPC&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. The agent’s orchestration logic remains identical; only the target URI updates from an external proxy to an internal VPC endpoint. No structural data leaves the enterprise perimeter.&lt;/span&gt;&lt;/p&gt;
-&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;The cognitive layer: Multi-agent reasoning&lt;/span&gt;&lt;/h4&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;With compute execution isolated, the cognitive layer manages agentic workflow sequencing. Built on &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Runtime&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, within the Gemini platform, this reference architecture shows a system that deploys a hierarchical multi-agent structure, one lead orchestrator, and two specialized domain sub-agents (Lead Optimization and Safety Screening) . The multi-agent design can be modified to suit the use case at hand. &lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Based on this design, when an end-user submits a high-level task such as &lt;/span&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;“ Analyze Candidate 4b against Target X and produce a SAR report”&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, the system applies four core orchestration patterns discussed below; &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;In-process native agent handoffs: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;The lead orchestrator delegates tasks to specialist sub-agents using Agent Runtime’s native SDK rather than network-serialized agent-to-agent HTTP protocols. This eliminates intermediate network hops and keeps internal handoffs instantaneous. Only the outermost boundary communicates outward to user-facing surfaces like the &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise?utm_source=google&amp;amp;utm_medium=cpc&amp;amp;utm_campaign=1713762-Gemini_Enterprise-DR-NA-US-en-Google-BKWS-EXA-GEnterprise&amp;amp;utm_content=c-Hybrid+%7C+BKWS+-+MIX+%7C+Txt_Gemini+Enterprise-189528400785&amp;amp;utm_term=gemini+enterprise&amp;amp;gclsrc=aw.ds&amp;amp;gad_source=1&amp;amp;gad_campaignid=23370621055&amp;amp;gclid=CjwKCAjwl97RBhBWEiwAa9rbXeetAjZcIRGcaAR57VWVWk7ik5DJ9ESqHiDav-2ervoiyzzRZ1ZWyRoCj6sQAvD_BwE&amp;amp;hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; agent.&lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Passing bulky payloads by reference: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;LLMs degrade quickly when forced to ingest massive arrays of 3D spatial coordinates. In this architecture, raw structural data (PDB files, docking poses, trajectory logs) is written directly to &lt;/span&gt;&lt;a href="https://cloud.google.com/storage?utm_source=google&amp;amp;utm_medium=cpc&amp;amp;utm_campaign=Cloud-SS-DR-GCP-1713658-GCP-DR-NA-US-en-Google-SKWS-BRO-storage&amp;amp;utm_content=c-Hybrid+%7C+SKWS+-+BRO+%7C+Txt-Infrastructure-Storage-Cloud+Storage-4642545472&amp;amp;utm_term=cloud+storage&amp;amp;gclsrc=aw.ds&amp;amp;gad_source=1&amp;amp;gad_campaignid=23767162264&amp;amp;gclid=CjwKCAjwl97RBhBWEiwAa9rbXYcqs8qBJehBeWaezdgKd4am7QbV7uo3__CJIZqoa8lqgP8ErM0LkBoCJ3cQAvD_BwE&amp;amp;hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Cloud Storage&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. Agents pass lightweight, signed object URIs and high-level structural summaries, keeping context windows compact and inference costs down.&lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Decoupling workflow logic from biochemical reasoning: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;General-purpose LLMs excel at task planning and synthesis, but are prone to hallucinating biochemical nuances. To control this behavior, this architecture maintains strong separation of concerns, namely, workflow and tasks decomposition are handled by Gemini. Domain chemistry and pharmacological reasoning are handled by specialized &lt;/span&gt;&lt;a href="https://www.nvidia.com/en-us/ai-data-science/foundation-models/nemotron/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Nemotron&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; models hosted on dedicated GPU nodes. &lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Context-driven evaluation over rigid cutoffs: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Traditional computational screening enforces arbitrary numerical cutoffs (e.g., discard if binding affinity ,-7.5 kcal/mol) However, therapeutic context fundamentally alters risk tolerance. Preventive cardiovascular therapy taken daily by healthy patients requires extremely strict safety margins, or a novel oncology candidate targeting an intractable cancer may accept higher toxicity if efficacy is demonstrated.&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;By passing disease context directly into the specialized reasoning models, drug candidates are evaluated against dynamic, target-specific profiles rather than static thresholds, preventing the premature culling of viable drug leads.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Performance best practices for high-compute pipelines&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Optimizing an agentic system that interfaces with heavy GPU compute requires challenging common engineering instincts:&lt;br/&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;div align="left"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
-&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;&lt;table&gt;&lt;colgroup&gt;&lt;col/&gt;&lt;col/&gt;&lt;col/&gt;&lt;/colgroup&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;Common Assumption&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;Architectural Reality&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;Recommended Best Practice&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Swap in a faster driver model to cut latency."&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The primary orchestrator's token generation is rarely the bottleneck in multi-step R&amp;amp;D pipelines.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Optimize I/O, not token speed: Focus on reducing payload sizes and intermediate network hops rather than compromising orchestrator reasoning depth.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Parallelize tool calls across workers."&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;External scientific services and containerized models often serialize requests internally on dedicated hardware.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Respect execution topology: Align client-side concurrency with backend queue mechanics to prevent pipeline lockouts and connection timeouts.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Pass full simulation states between tools."&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Large JSON bodies cause schema validation failures, prompt truncation, and token bloat.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Pass heavy payloads by reference: Store raw coordinates in object storage and pass lightweight URIs between agent boundaries.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Return outputs only when the pipeline finishes."&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Long multi-minute runs leave scientists blind to whether jobs are proceeding or stalled.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Stream intermediate stage completions: Emit progress updates at each completed milestone (e.g., &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;folding complete&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;docking running&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;) for real-time visibility.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Chain multiple granular micro-tools."&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Deep tool-chains increase the probability of hallucinated arguments and schema mismatches.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Collapse compute pipelines: Wrap end-to-end simulation pipelines behind a single, clean tool interface that takes clear parameters and returns a consolidated object.&lt;/span&gt;&lt;/p&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;The enterprise governance and asymmetric autonomy&lt;/span&gt;&lt;/h4&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Deploying high-compute agents in enterprise environments requires robust data sovereignty, audit trails, and process control. The &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/introducing-gemini-enterprise-agent-platform"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini platform&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; establishes these safeguards natively with the following components: &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://docs.cloud.google.com/iam/docs/agent-identity-overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Identity&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: Every autonomous agent operates with a cryptographically verifiable identity. Thus, for a biotech use case, when a candidate molecule is advanced or rejected, the event is permanently logged to that specific agent principal. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/gateways/agent-gateway-overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Gateway&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: This serves the single ingress/egress point for every interaction within the perimeter. Centralized IAM and regional residency rules help ensure sensitive molecular data remains within designated cloud regions. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/agent-registry"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Registry&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: This feature maintains a curated catalog of approved agents, validated tool schemas, and authorized Model Context Protocol (MCP) servers, preventing rogue tools from executing in production. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://cloud.google.com/security/products/model-armor?hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Model Armor&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: This functionality inspects incoming prompts and outgoing payloads in real time to prevent prompt injection and data exfiltration. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;The payoff is clear. Identity, RBAC, auditing, residency, and data protection are native properties of the Gemini platform; this allows enterprise customers to focus on science rather than having to build a compliance stack for every project. &lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In high-stakes research and development, full autonomy introduces unacceptable liability, while requiring approval for trivial steps can create frictions. The solution addressing this to use asymmetric gating in the following ways;&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Automate reversible operations:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; For example, allow the agent to resolve chemical naming synonyms, pull structural PDBs, and run preliminary Lipinski screens autonomously without interrupting the researcher.&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Gate irreversible operations:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; For instance, initiating multi-GPU docking run, advancing a lead compound to wet-lab synthesis, or archiving a therapeutic program must require explicit human sign-off.&lt;/span&gt;&lt;/p&gt;
-&lt;h3 style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;The pattern, and the path forward&lt;/strong&gt;&lt;/h3&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;High-compute autonomous agents succeed when the boundaries between cognitive planning, numerical computation, and system governance are clean in the following ways:&lt;/span&gt;&lt;/p&gt;
-&lt;ol&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Keep the orchestrator focused on decomposition and synthesis, leaving intensive biophysical simulation to specialized, containerized microservices and models.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Eliminate context bloat by passing complex chemical data by reference through cloud storage.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Anchor the workflow in enterprise governance, pairing cryptographic agent identity with asymmetric human oversight.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;As generative and structural biology models expand toward whole-cell modeling and complex dynamic simulations, this decoupled architecture ensures research systems scale efficiently while keeping proprietary IP secure and auditable.&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Reach out to your Google sales representative if you have any requirements to build a use case like this and we will be happy to talk and support you in your agent development journey on Google Cloud.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Fri, 16 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/healthcare-life-sciences/architecting-scalable-agentic-biotech-workloads/</guid><category>AI &amp; Machine Learning</category><category>AI infrastructure</category><category>HPC</category><category>Customers</category><category>Healthcare &amp; Life Sciences</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Architecting autonomy: A design pattern for high-compute, governed agents in biotech</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/healthcare-life-sciences/architecting-scalable-agentic-biotech-workloads/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Schneider Larbi</name><title>Sr. Manager, Global Partner Technical Architecture</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Chelsie Czop</name><title>Sr. Product Manager, AI Infrastructure</title><department></department><company></company></author></item><item><title>Four evaluation engineering lessons learned from building agent plugins</title><link>https://cloud.google.com/blog/topics/developers-practitioners/four-eval-engineering-lessons/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The real challenge of building an agentic system isn't the construction, it's the measurement.&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;/p&gt;
+&lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="3itrx"&gt;Gemini meets work where it already happens&lt;/h3&gt;&lt;p data-block-key="7fq23"&gt;A viable agentic platform has to meet work where it already happens – and run under production-grade controls. Gemini is engineered to deliver developer velocity without compromising governance, built around four core differentiators:&lt;/p&gt;&lt;h3 data-block-key="efqke"&gt;1. Surfaces that connect builders and business teams&lt;/h3&gt;&lt;p data-block-key="buvth"&gt;Gemini makes it so that every surface connects back to one universal foundation.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="f14at"&gt;&lt;b&gt;Where teams already work:&lt;/b&gt; Employees collaborate with Gemini directly inside Google Workspace, Microsoft 365, or team chats – the agent carries the same persistent memory, skills, and enterprise permissions across desktop and mobile without needing to switch tools.&lt;/li&gt;&lt;li data-block-key="6ugb"&gt;&lt;b&gt;Builder tools centered on choice:&lt;/b&gt; Gemini platform supports how developers want to work, spanning no-code and low-code builders in the studio to code-first workflows with the Agent Development Kit (ADK) and Antigravity.&lt;/li&gt;&lt;li data-block-key="28grt"&gt;&lt;b&gt;Workflows that compound across the organization:&lt;/b&gt; When a team solves a complex workflow, they can package it into a shared skill published to a central Agent Registry. Gemini calls on these skills directly to execute tasks, turning proven procedures into reusable assets across the entire company.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="eembh"&gt;2. Radical openness across models, enterprise data, and tools&lt;/h3&gt;&lt;p data-block-key="9qenr"&gt;Gemini adapts to the software you already run, not the other way around.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="aa4jd"&gt;&lt;b&gt;Model choice:&lt;/b&gt; Through Model Garden in Gemini platform, teams have direct access to over 200 models – including all of the breakthroughs from Google DeepMind like &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud?e=48754805"&gt;Gemini 4 Argon&lt;/a&gt;, day one access to the latest Anthropic models, and third-party and open models.&lt;/li&gt;&lt;li data-block-key="b4bak"&gt;&lt;b&gt;Grounding on your enterprise data:&lt;/b&gt; Gemini connects directly to live enterprise data across Google Cloud in BigQuery and Cloud Storage, as well as Salesforce, SAP, and others. Because Gemini inherits each employee's existing credentials, sensitive information stays governed at the source.&lt;/li&gt;&lt;li data-block-key="enlc6"&gt;&lt;b&gt;Open standards:&lt;/b&gt; Built on open protocols like MCP and A2A, Gemini can easily plug into your existing toolchains and communicate across multi-vendor environments.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="ash0a"&gt;3. Smarter token economics&lt;/h3&gt;&lt;p data-block-key="fdvqn"&gt;Gemini optimizes cost, latency, and performance directly at the execution layer.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="8fjup"&gt;&lt;b&gt;Matching tasks to the right model:&lt;/b&gt; By default, Gemini uses Auto mode for users, letting the platform match each step of a task to the right model dynamically. It defaults to a fast workhorse model like Gemini Flash, and escalates to a high-capacity frontier reasoning model only when task complexity requires it.&lt;/li&gt;&lt;li data-block-key="bmgrb"&gt;&lt;b&gt;Reusable skills:&lt;/b&gt; Teams can package proven processes into shared skills. Your agents can execute against these established procedures, improving consistency and reducing repetitive token consumption across the company.&lt;/li&gt;&lt;li data-block-key="bb124"&gt;&lt;b&gt;Budget guardrails:&lt;/b&gt; Administrators can set spending limits by project, department, or individual agent in the billing console. When a budget threshold is reached, new requests pause while active tasks are allowed to complete, giving finance and engineering predictable cost controls without abruptly interrupting in-progress work.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="olvq"&gt;4. Built-in governance and security&lt;/h3&gt;&lt;p data-block-key="dqkc1"&gt;Gemini incorporates enterprise governance natively, and at no additional cost.&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="1rfqt"&gt;&lt;b&gt;Dedicated agent identity:&lt;/b&gt; Every agent receives its own distinct, authenticated identity governed by least-privilege permissions. When an agent takes action, every event is recorded in an audit trail tied directly to that identity and the identity of which user was using the agent for the task.&lt;/li&gt;&lt;li data-block-key="df4qu"&gt;&lt;b&gt;Isolated sandboxes:&lt;/b&gt; A sandboxed boundary keeps dynamic tasks strictly contained, protecting your underlying infrastructure, core network, and sensitive corporate data from being exposed or compromised.&lt;/li&gt;&lt;li data-block-key="8etmj"&gt;&lt;b&gt;Policy enforcement:&lt;/b&gt; Rather than relying on a model to self-police, Agent Gateway automatically applies corporate security policies, blocks data leakage, and ensures agents only access what they are explicitly authorized to touch.&lt;/li&gt;&lt;/ul&gt;&lt;h3 data-block-key="2sbvv"&gt;Looking forward&lt;/h3&gt;&lt;p data-block-key="asnlj"&gt;At its core, Gemini is all about giving your organization an open, reliable platform where builders have choice and teams work with complete confidence.&lt;/p&gt;&lt;p data-block-key="3b0uo"&gt;We are honored by IDC MarketScape’s recognition of Google as a Leader, and we look forward to continuing this work alongside our customers.&lt;/p&gt;&lt;p data-block-key="3q9e"&gt;&lt;a href="https://cloud.google.com/resources/content/2026-idc-marketscape-agentic-ai-platforms"&gt;Download&lt;/a&gt; the IDC MarketScape: Worldwide Agentic AI Platforms 2026 Vendor Assessment excerpt to learn why Google is named a Leader.&lt;/p&gt;&lt;p data-block-key="drul4"&gt;&lt;/p&gt;&lt;p data-block-key="7ut27"&gt;&lt;i&gt;&lt;sup&gt;1. SOURCE: “Worldwide Agentic AI Platforms 2026 Vendor Assessment”, October 2026, IDC # US54140926.&lt;/sup&gt;&lt;/i&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Mon, 19 Oct 2026 07:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/google-named-leader-in-2026-idc-marketscape-for-agentic-ai-platforms/</guid><category>AI &amp; Machine Learning</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Google named a Leader in the 2026 IDC MarketScape for Agentic AI Platforms</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/google-named-leader-in-2026-idc-marketscape-for-agentic-ai-platforms/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Jamie de Guerre</name><title>Senior Director, Outbound Product Management</title><department></department><company></company></author></item><item><title>Four evaluation engineering lessons learned from building agent plugins</title><link>https://cloud.google.com/blog/topics/developers-practitioners/four-eval-engineering-lessons/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The real challenge of building an agentic system isn't the construction, it's the measurement.&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Evaluation engineering is a critical foundation for building reliable AI systems. Setting up systematic, repeatable tests to measure your agent’s true behavior can be the difference between shipping a tool you can trust and one that silently breaks, fails to call APIs, or makes mistakes. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;I’ve run evaluation engineering initiatives for years at Google and d&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;eveloping the newly released&lt;/span&gt;&lt;a href="https://cloud.google.com/blog/topics/developers-practitioners/introducing-the-google-cloud-developer-plugin-for-ai-coding-agents?e=48754805"&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Google Cloud Developer plugin&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; served as a live testbed to stress-test these key principles across real-world developer workflows.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Here are four eval lessons we learned from building the new plugin that you can apply to your own builds.&lt;/span&gt;&lt;/p&gt;
@@ -497,7 +297,266 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;A common mistake I see among engineers is what I like to call the one-shot demo. This is when someone feeds a prompt into a LLM, watches it build a complete 3D game or solves a Rubik’s cube in a single pass and calls it an eval. But in reality, this is just a vanity metric. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To do quality work with AI, I truly believe that you need evaluation suites. Without evaluations, teams are like literally running into a dark cave blind. Engineering an enterprise-grade agent means testing the system's ability to handle multi-step interactions, manage permissions, and avoid destructive outcomes like accidentally deleting a project because you asked it to "find opportunities to save costs."&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Where to go from here&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Building an agent plugin or MCP server is the beginning. Shipping something you can actually trust with real cloud infrastructure requires significantly more work in evaluations to ensure it’s doing what you expect it to do. At the end of the day, the only thing that outlasts model churn is a stress-tested eval suite. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Check out the Google Cloud Developer plugin &lt;/span&gt;&lt;a href="https://g.dev/cloud/dev-setup" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;documentation&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; or explore this &lt;/span&gt;&lt;a href="https://g.dev/cloud/agent-plugins-codelab-agy" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;codelab&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to get started with the plugin in Antigravity.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Fri, 16 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/developers-practitioners/four-eval-engineering-lessons/</guid><category>AI &amp; Machine Learning</category><category>Developers &amp; Practitioners</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/original_images/blog-post-banner_4eel_v2_2.png.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Four evaluation engineering lessons learned from building agent plugins</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/original_images/blog-post-banner_4eel_v2_2.png.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/developers-practitioners/four-eval-engineering-lessons/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Casey West</name><title>Developer Relations Lead, AI Infrastructure &amp; Applied Engineering, Google Cloud</title><department></department><company></company></author></item><item><title>How Visko streams real-time world models on Google Cloud TPUs</title><link>https://cloud.google.com/blog/products/media-entertainment/how-visko-streams-real-time-world-models-on-google-cloud-tpus/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;Editor's note: Generative AI startups are moving rapidly beyond static clip generation to build interactive, real-time worlds. In this technical deep dive, we explore how AI startup &lt;/span&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;Visko&lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt; collaborated with Google Cloud TPU engineers to deploy Orbis — its continuously streaming Live World Model—on Cloud TPUs, going from initial kickoff to production handover in just 30 days.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Building an agent plugin or MCP server is the beginning. Shipping something you can actually trust with real cloud infrastructure requires significantly more work in evaluations to ensure it’s doing what you expect it to do. At the end of the day, the only thing that outlasts model churn is a stress-tested eval suite. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Check out the Google Cloud Developer plugin &lt;/span&gt;&lt;a href="https://g.dev/cloud/dev-setup" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;documentation&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; or explore this &lt;/span&gt;&lt;a href="https://g.dev/cloud/agent-plugins-codelab-agy" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;codelab&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to get started with the plugin in Antigravity.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Fri, 16 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/developers-practitioners/four-eval-engineering-lessons/</guid><category>AI &amp; Machine Learning</category><category>Developers &amp; Practitioners</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/original_images/blog-post-banner_4eel_v2_2.png.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Four evaluation engineering lessons learned from building agent plugins</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/original_images/blog-post-banner_4eel_v2_2.png.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/developers-practitioners/four-eval-engineering-lessons/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Casey West</name><title>Developer Relations Lead, AI Infrastructure &amp; Applied Engineering, Google Cloud</title><department></department><company></company></author></item><item><title>Architecting autonomy: A design pattern for high-compute, governed agents in biotech</title><link>https://cloud.google.com/blog/topics/healthcare-life-sciences/architecting-scalable-agentic-biotech-workloads/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In production systems today, most AI agents operate as lightweight dispatchers. They parse a prompt, make an API call, retrieve a record, and hand back control. Their execution is fast, stateless and cheap. Biotechnology does not work this way. &lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Folding a protein target, screening a 50,000 compound ligand library, or evaluating structure-activity relationships (SAR) are not quick API lookups. They are sustained, stateful, GPU-bound simulations that run for minutes or even hours across specialized silicon. When you ask a general-purpose large language model (LLM) endpoint to coordinate a complex drug discovery workflow, the standard paradigm breaks: Timeouts occur, context windows overflow with atomic coordinates, and proprietary chemical Intellectual Property (IP) risks exposure to external networks. &lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Building enterprise grade research and development (R&amp;amp;D) agents requires moving past the monolithic assistant model. In this blog post, we will discuss how to use a three-layer architecture: separating cognitive orchestration (the brain) from computational execution (the muscle), and anchoring both inside an enterprise governance plane to build scalable agents for drug discovery use cases in biotech. &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-video"&gt;
+
+
+
+&lt;div class="article-module article-video "&gt;
+  &lt;figure&gt;
+    &lt;a class="h-c-video h-c-video--marquee"
+      href="https://youtube.com/watch?v=TZTDqtSpzv8"
+      data-glue-modal-trigger="uni-modal-TZTDqtSpzv8-"
+      data-glue-modal-disabled-on-mobile="true"&gt;
+
+      
+        &lt;img src="//img.youtube.com/vi/TZTDqtSpzv8/maxresdefault.jpg"
+             alt="AI Agent Infrastructure Decoded"/&gt;
+      
+      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
+        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
+      &lt;/svg&gt;
+    &lt;/a&gt;
+
+    
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+&lt;div class="h-c-modal--video"
+     data-glue-modal="uni-modal-TZTDqtSpzv8-"
+     data-glue-modal-close-label="Close Dialog"&gt;
+   &lt;a class="glue-yt-video"
+      data-glue-yt-video-autoplay="true"
+      data-glue-yt-video-height="99%"
+      data-glue-yt-video-vid="TZTDqtSpzv8"
+      data-glue-yt-video-width="100%"
+      href="https://youtube.com/watch?v=TZTDqtSpzv8"
+      ng-cloak&gt;
+   &lt;/a&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;h3 style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;A three-layer pattern&lt;/span&gt;&lt;/h3&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;The reference architecture below shows how to architect, optimize, and govern high-compute autonomous agents in biotechnology, specifically Drug Discovery. &lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Figure_1_TukBnfH.max-1000x1000.jpg"
+        
+          alt="Figure 1"&gt;
+        
+        &lt;/a&gt;
+      
+        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="4nr3v"&gt;Figure 1 — The three-layer pattern: a cognitive orchestrator (brain), a scalable GPU execution layer (muscle), and an enterprise governance plane.&lt;/p&gt;&lt;/figcaption&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;The execution layer: scaling the muscle - high-compute execution&lt;/span&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt; &lt;/span&gt;&lt;/h4&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;The execution layer is responsible for the heavy scientific computations. The first architectural decision is determining where workloads should run:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Strategic, proprietary pipelines require dedicated GPU infrastructure within your security perimeter&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Routine or standardized workloads can safely be delegated to managed cloud endpoints&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In this architecture, protein folding is driven by &lt;/span&gt;&lt;a href="https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nim/collections/bionemo-esmfold" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;ESMFold&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; and generative design by &lt;/span&gt;&lt;a href="https://docs.nvidia.com/nim/bionemo/genmol/latest/overview.html" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;GenMol&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. Both run as &lt;/span&gt;&lt;a href="https://www.nvidia.com/en-us/ai-data-science/products/nim-microservices/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;NVIDIA Inference Microservices&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; or NIMs deployed on &lt;/span&gt;&lt;a href="https://cloud.google.com/kubernetes-engine?hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Kubernetes Engine&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (GKE) using G4 VMs backed by &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/compute/introducing-g4-vm-with-nvidia-rtx-pro-6000"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;NVIDIA RTX PRO 6000 Blackwell&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; GPUs.&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;A critical hurdle in containerized GPU workloads is the cold-start penalty, the latency delay required to pull multi-gigabyte model weights from an image registry and stage them into GPU memory (VRAM).&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;To ensure low latency responsiveness, we build the following as a recommendation into the reference architecture:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Maintain warm pools:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Pin the GKE node pool to a minimum of one active node.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Preload weights:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Model weights are loaded directly into VRAM at pod initialization, ensuring containers are immediately ready for inference.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Resilient scheduling:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; GKE manages pod lifecycles and restarts failed instances without tearing down the underlying VM infrastructure. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;This approach trades custom, manual CUDA kernel tuning for NVIDIA's pre-compiled, containerized runtimes, dramatically reducing infrastructure engineering overhead while ensuring deterministic throughput.&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In biotech, chemical structures represent millions of dollars in proprietary IP. A docking request transmits SMILE strings or 3D coordinate matrices that must never leave company custody.&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Containerized NIMs eliminate the friction between rapid prototyping and rigorous data isolation. During early exploration, researchers can query NVIDIA hosted endpoints. When transitioning to proprietary lead candidates, the exact same container is deployed to GKE inside a private &lt;/span&gt;&lt;a href="https://cloud.google.com/vpc?hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;VPC&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. The agent’s orchestration logic remains identical; only the target URI updates from an external proxy to an internal VPC endpoint. No structural data leaves the enterprise perimeter.&lt;/span&gt;&lt;/p&gt;
+&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;The cognitive layer: Multi-agent reasoning&lt;/span&gt;&lt;/h4&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;With compute execution isolated, the cognitive layer manages agentic workflow sequencing. Built on &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Runtime&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, within the Gemini platform, this reference architecture shows a system that deploys a hierarchical multi-agent structure, one lead orchestrator, and two specialized domain sub-agents (Lead Optimization and Safety Screening) . The multi-agent design can be modified to suit the use case at hand. &lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Based on this design, when an end-user submits a high-level task such as &lt;/span&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;“ Analyze Candidate 4b against Target X and produce a SAR report”&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, the system applies four core orchestration patterns discussed below; &lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;In-process native agent handoffs: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;The lead orchestrator delegates tasks to specialist sub-agents using Agent Runtime’s native SDK rather than network-serialized agent-to-agent HTTP protocols. This eliminates intermediate network hops and keeps internal handoffs instantaneous. Only the outermost boundary communicates outward to user-facing surfaces like the &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise?utm_source=google&amp;amp;utm_medium=cpc&amp;amp;utm_campaign=1713762-Gemini_Enterprise-DR-NA-US-en-Google-BKWS-EXA-GEnterprise&amp;amp;utm_content=c-Hybrid+%7C+BKWS+-+MIX+%7C+Txt_Gemini+Enterprise-189528400785&amp;amp;utm_term=gemini+enterprise&amp;amp;gclsrc=aw.ds&amp;amp;gad_source=1&amp;amp;gad_campaignid=23370621055&amp;amp;gclid=CjwKCAjwl97RBhBWEiwAa9rbXeetAjZcIRGcaAR57VWVWk7ik5DJ9ESqHiDav-2ervoiyzzRZ1ZWyRoCj6sQAvD_BwE&amp;amp;hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; agent.&lt;/span&gt;&lt;/li&gt;
+&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Passing bulky payloads by reference: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;LLMs degrade quickly when forced to ingest massive arrays of 3D spatial coordinates. In this architecture, raw structural data (PDB files, docking poses, trajectory logs) is written directly to &lt;/span&gt;&lt;a href="https://cloud.google.com/storage?utm_source=google&amp;amp;utm_medium=cpc&amp;amp;utm_campaign=Cloud-SS-DR-GCP-1713658-GCP-DR-NA-US-en-Google-SKWS-BRO-storage&amp;amp;utm_content=c-Hybrid+%7C+SKWS+-+BRO+%7C+Txt-Infrastructure-Storage-Cloud+Storage-4642545472&amp;amp;utm_term=cloud+storage&amp;amp;gclsrc=aw.ds&amp;amp;gad_source=1&amp;amp;gad_campaignid=23767162264&amp;amp;gclid=CjwKCAjwl97RBhBWEiwAa9rbXYcqs8qBJehBeWaezdgKd4am7QbV7uo3__CJIZqoa8lqgP8ErM0LkBoCJ3cQAvD_BwE&amp;amp;hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Cloud Storage&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. Agents pass lightweight, signed object URIs and high-level structural summaries, keeping context windows compact and inference costs down.&lt;/span&gt;&lt;/li&gt;
+&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Decoupling workflow logic from biochemical reasoning: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;General-purpose LLMs excel at task planning and synthesis, but are prone to hallucinating biochemical nuances. To control this behavior, this architecture maintains strong separation of concerns, namely, workflow and tasks decomposition are handled by Gemini. Domain chemistry and pharmacological reasoning are handled by specialized &lt;/span&gt;&lt;a href="https://www.nvidia.com/en-us/ai-data-science/foundation-models/nemotron/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Nemotron&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; models hosted on dedicated GPU nodes. &lt;/span&gt;&lt;/li&gt;
+&lt;li role="presentation" style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Context-driven evaluation over rigid cutoffs: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Traditional computational screening enforces arbitrary numerical cutoffs (e.g., discard if binding affinity ,-7.5 kcal/mol) However, therapeutic context fundamentally alters risk tolerance. Preventive cardiovascular therapy taken daily by healthy patients requires extremely strict safety margins, or a novel oncology candidate targeting an intractable cancer may accept higher toxicity if efficacy is demonstrated.&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;By passing disease context directly into the specialized reasoning models, drug candidates are evaluated against dynamic, target-specific profiles rather than static thresholds, preventing the premature culling of viable drug leads.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Performance best practices for high-compute pipelines&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Optimizing an agentic system that interfaces with heavy GPU compute requires challenging common engineering instincts:&lt;br/&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;div align="left"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;
+&lt;div style="color: #5f6368; overflow-x: auto; overflow-y: hidden; width: 100%;"&gt;&lt;table&gt;&lt;colgroup&gt;&lt;col/&gt;&lt;col/&gt;&lt;col/&gt;&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;Common Assumption&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;Architectural Reality&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p style="text-align: center;"&gt;&lt;span style="vertical-align: baseline;"&gt;Recommended Best Practice&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Swap in a faster driver model to cut latency."&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The primary orchestrator's token generation is rarely the bottleneck in multi-step R&amp;amp;D pipelines.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Optimize I/O, not token speed: Focus on reducing payload sizes and intermediate network hops rather than compromising orchestrator reasoning depth.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Parallelize tool calls across workers."&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;External scientific services and containerized models often serialize requests internally on dedicated hardware.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Respect execution topology: Align client-side concurrency with backend queue mechanics to prevent pipeline lockouts and connection timeouts.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Pass full simulation states between tools."&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Large JSON bodies cause schema validation failures, prompt truncation, and token bloat.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Pass heavy payloads by reference: Store raw coordinates in object storage and pass lightweight URIs between agent boundaries.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Return outputs only when the pipeline finishes."&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Long multi-minute runs leave scientists blind to whether jobs are proceeding or stalled.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Stream intermediate stage completions: Emit progress updates at each completed milestone (e.g., &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;folding complete&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;docking running&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;) for real-time visibility.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Chain multiple granular micro-tools."&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Deep tool-chains increase the probability of hallucinated arguments and schema mismatches.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style="vertical-align: top; border: 1px solid #000000; padding: 16px;"&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Collapse compute pipelines: Wrap end-to-end simulation pipelines behind a single, clean tool interface that takes clear parameters and returns a consolidated object.&lt;/span&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;The enterprise governance and asymmetric autonomy&lt;/span&gt;&lt;/h4&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Deploying high-compute agents in enterprise environments requires robust data sovereignty, audit trails, and process control. The &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/introducing-gemini-enterprise-agent-platform"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini platform&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; establishes these safeguards natively with the following components: &lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://docs.cloud.google.com/iam/docs/agent-identity-overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Identity&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: Every autonomous agent operates with a cryptographically verifiable identity. Thus, for a biotech use case, when a candidate molecule is advanced or rejected, the event is permanently logged to that specific agent principal. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/gateways/agent-gateway-overview"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Gateway&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: This serves the single ingress/egress point for every interaction within the perimeter. Centralized IAM and regional residency rules help ensure sensitive molecular data remains within designated cloud regions. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/govern/agent-registry"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Registry&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: This feature maintains a curated catalog of approved agents, validated tool schemas, and authorized Model Context Protocol (MCP) servers, preventing rogue tools from executing in production. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;a href="https://cloud.google.com/security/products/model-armor?hl=en"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Model Armor&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;: This functionality inspects incoming prompts and outgoing payloads in real time to prevent prompt injection and data exfiltration. &lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;The payoff is clear. Identity, RBAC, auditing, residency, and data protection are native properties of the Gemini platform; this allows enterprise customers to focus on science rather than having to build a compliance stack for every project. &lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;In high-stakes research and development, full autonomy introduces unacceptable liability, while requiring approval for trivial steps can create frictions. The solution addressing this to use asymmetric gating in the following ways;&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Automate reversible operations:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; For example, allow the agent to resolve chemical naming synonyms, pull structural PDBs, and run preliminary Lipinski screens autonomously without interrupting the researcher.&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Gate irreversible operations:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; For instance, initiating multi-GPU docking run, advancing a lead compound to wet-lab synthesis, or archiving a therapeutic program must require explicit human sign-off.&lt;/span&gt;&lt;/p&gt;
+&lt;h3 style="text-align: justify;"&gt;&lt;strong style="vertical-align: baseline;"&gt;The pattern, and the path forward&lt;/strong&gt;&lt;/h3&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;High-compute autonomous agents succeed when the boundaries between cognitive planning, numerical computation, and system governance are clean in the following ways:&lt;/span&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Keep the orchestrator focused on decomposition and synthesis, leaving intensive biophysical simulation to specialized, containerized microservices and models.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Eliminate context bloat by passing complex chemical data by reference through cloud storage.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
+&lt;p role="presentation" style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Anchor the workflow in enterprise governance, pairing cryptographic agent identity with asymmetric human oversight.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;As generative and structural biology models expand toward whole-cell modeling and complex dynamic simulations, this decoupled architecture ensures research systems scale efficiently while keeping proprietary IP secure and auditable.&lt;/span&gt;&lt;/p&gt;
+&lt;p style="text-align: justify;"&gt;&lt;span style="vertical-align: baseline;"&gt;Reach out to your Google sales representative if you have any requirements to build a use case like this and we will be happy to talk and support you in your agent development journey on Google Cloud.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Fri, 16 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/healthcare-life-sciences/architecting-scalable-agentic-biotech-workloads/</guid><category>AI &amp; Machine Learning</category><category>AI infrastructure</category><category>HPC</category><category>Customers</category><category>Healthcare &amp; Life Sciences</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Architecting autonomy: A design pattern for high-compute, governed agents in biotech</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/healthcare-life-sciences/architecting-scalable-agentic-biotech-workloads/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Schneider Larbi</name><title>Sr. Manager, Global Partner Technical Architecture</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Chelsie Czop</name><title>Sr. Product Manager, AI Infrastructure</title><department></department><company></company></author></item><item><title>How Visko streams real-time world models on Google Cloud TPUs</title><link>https://cloud.google.com/blog/products/media-entertainment/how-visko-streams-real-time-world-models-on-google-cloud-tpus/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;Editor's note: Generative AI startups are moving rapidly beyond static clip generation to build interactive, real-time worlds. In this technical deep dive, we explore how AI startup &lt;/span&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;Visko&lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt; collaborated with Google Cloud TPU engineers to deploy Orbis — its continuously streaming Live World Model—on Cloud TPUs, going from initial kickoff to production handover in just 30 days.&lt;/span&gt;&lt;/p&gt;
 &lt;hr/&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;What makes a live video world model so challenging to serve in production? The bottleneck isn't average throughput — it's beating a relentless real-time clock. Unlike offline video generators where a user submits a prompt and waits in a queue, a live world model streams continuously. Every new chunk of video and synchronized audio must finish rendering before the viewer finishes watching the previous one, or the world freezes.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Today, we're excited to share how &lt;/span&gt;&lt;a href="https://visko.ai" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Visko&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, an AI startup pioneering interactive world models, teamed up with Google Cloud to solve this exact challenge. Working side by side, Visko and Google Cloud engineers deployed Visko's end-to-end live inference pipeline — combining video generation, super-resolution upscaling, and synchronized audio—onto a single &lt;/span&gt;&lt;a href="https://cloud.google.com/tpu?e=48754805"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Cloud TPU slice&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. Together, the teams brought end-to-end generation down, rendering at 1.07x playback speed.&lt;/span&gt;&lt;/p&gt;
@@ -1137,7 +1196,7 @@
 &lt;p&gt;&lt;code style="vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; returns the number of tokens a model's tokenizer produces for a text string, without making a billable generation call. Run it over a column to measure your input data:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7faf7f175250&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fd61ca9b010&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The count is a lower bound on input tokens. It doesn't include output or thinking tokens, the instructions each AI function adds around your input, or non-text inputs such as images. Use it to:&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -1164,7 +1223,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If a small sample run shows an average &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;100:1 input-to-output token ratio&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, you can solve for a daily budget:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7faf7f0e90d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fd5fff31b10&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Solving gives about &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;754 million input tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;7.54 million output tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; per day. Set &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI output tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; to these values to hold the project near $100/day. If a project uses models with different prices, budget per model or blend the rates.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Best practices for managing AI cost&lt;/span&gt;&lt;/h3&gt;
@@ -2174,7 +2233,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Integrating cloud management into your agents no longer requires packaging Google Cloud CLI binaries, managing local execution runtimes, or maintaining dependencies inside agent container images. Because the Google Cloud CLI remote MCP server implements the standard Model Context Protocol, any MCP-compatible agent platform or orchestration runtime can connect immediately via standard configuration:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;{\r\n  &amp;quot;mcpServers&amp;quot;: {\r\n    &amp;quot;google-cloud-cli&amp;quot;: {\r\n      &amp;quot;uri&amp;quot;: &amp;quot;https://cloudcli.googleapis.com/mcp&amp;quot;,\r\n      ...\r\n    }\r\n  }\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7faf7f0a42d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;{\r\n  &amp;quot;mcpServers&amp;quot;: {\r\n    &amp;quot;google-cloud-cli&amp;quot;: {\r\n      &amp;quot;uri&amp;quot;: &amp;quot;https://cloudcli.googleapis.com/mcp&amp;quot;,\r\n      ...\r\n    }\r\n  }\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fd61cc15d10&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Your agent immediately gains access to execute gcloud and bq commands in a secure, network-isolated cloud sandbox.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Authentication is handled via keyless Agent Identity for hosted Google Cloud platforms, or standard OAuth 2.0 for external runtimes. For authentication options, see the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;MCP Authentication Guide&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
@@ -3195,166 +3254,4 @@
 &lt;li role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;a href="https://scifin.ai/" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;SciFin&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is a startup that helps revenue teams uncover "revenue reality" by converging fragmented sales context across CRM systems, documents, emails, and other sources. They are utilizing Gemini models, infrastructure, and Gemini Enterprise to build and run their platform.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;These new and expanding customers represent some of the most exciting names in AI and are demonstrative of the type of successes that startups are having with Google Cloud’s uniquely complete stack for building AI.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about Google Cloud’s work with leading AI startups, or to get started building with us, visit &lt;/span&gt;&lt;a href="https://cloud.google.com/startup"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 24 Sep 2026 13:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</guid><category>AI &amp; Machine Learning</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>The three things today's hottest startups are looking for in their AI stack</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Darren Mowry</name><title>VP, Global Startups &amp; Investor Ecosystem, Google</title><department></department><company></company></author></item><item><title>Changing the game: Using agentic AI to secure infrastructure code</title><link>https://cloud.google.com/blog/topics/systems/using-ai-agents-to-secure-google-infrastructure/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;Blog authors: &lt;em&gt;Andrés Lagar-Cavilla, Distinguished Engineer; Stella Voutsina, Sr. Technical Program Manager; Parthasarathy Ranganathan, VP, Engineering Fellow&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;AI is accelerating software development at an unprecedented pace. But as code generation scales, so do the challenges of securing the code, especially emerging AI-based vulnerability exploitations. To meet these challenges, the Google AI and Infrastructure team is transforming how we approach security. In this article, we discuss new AI-native agentic methods that we’ve developed that systematically embed high-precision, pervasive vulnerability scanning and patching directly into Google’s software development lifecycle. By continuously scanning every code change across hundreds of millions of lines of code that we deploy onto our infrastructure, we are preventing hundreds of vulnerabilities per month from ever reaching our code base or production, defending our global network, AI infrastructure and our users. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Solution architecture and implementation &lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image1_DMfXM9r.max-1000x1000.png"
-        
-          alt="image1"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="3cwwr"&gt;Pervasive pre-submit agentic scanning: security as part of ongoing software development&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Traditionally, the technology industry relies on large one-off security scans that are slow and lack sufficient context. As a result, they often find vulnerabilities too late. Our approach instead focuses on pre-submit scanning, where we evaluate each code check-in (across every layer of the stack) in real-time using AI agents. By integrating the pre-submit scan into the tools developers already use, security becomes a continuous routine process, similar to rule checkers, readability reviews or other software development tools. Also, from an AI perspective, scanning each individual code change requires much less context than performing a large one-off scan, significantly improving the scan’s effectiveness. &lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;The importance of localized threat models&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For this initiative, w&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;e evolved &lt;/span&gt;&lt;a href="https://github.com/google/mantis" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Mantis&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, our open-source multi-agent review harness, to increase the precision of our security agents by matching them with a cohort of robust localized threat mode&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;ls. Rather than relying on static decoupled documents, the threat models use live codebase metadata. The scanning agent improves its accuracy further using a dependence call graph across packages and libraries to expand and refine its threat model context. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Making threat models part of our ongoing vulnerability scanning encourages developers to continuously update threats and dependencies, keeping the models up-to-date. Using localized and precise threat model data translates to dramatic accuracy improvements, bringing our false-positive rates down to 3% in some cases.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Specialized triage agents speed up development&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Vulnerability scanning as part of code check-in requires it to respond quickly to the developer or agents generating the code, so as not to impede engineering productivity. To get responses with low latency, we run a two-step validation process. First, we run a quick lightweight scan that validates its findings against a specialized triage agent. This agent programmatically checks the actual structure of the code (using abstract syntax tree parsing, call-graph traversal, and pre-indexed domain safety rules) to prove that the vulnerable path is actually reachable by an attacker. This agent gets over 92% precision and completes its work in less than a minute. Then, a post-submit scan as part of nightly integration testing serves as a second layer of defense, using off-peak cycles to test for vulnerabilities that may have been introduced across multiple changes. &lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Bug fix agents close the loop&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Finding vulnerabilities is only half the battle. The last component of our solution is an automated bug-fix agent that uses the scan results and generated proofs (snippet of code that demonstrates how the vulnerability is exercised) to autonomously construct precise fixes that are consistent with our internal coding standards. The agent submits the fixes for human review as part of the original change request’s review, further reducing the time between detection and resolution. &lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Learnings and call to action &lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Embedding continuous scanning directly into the software development lifecycle has been a game changer at Google; its suggestions are widely adopted, and it’s prevented a multitude of vulnerabilities from being introduced into the codebase. But any organization wishing to improve security can adopt a similar AI-native approach, following these principles: &lt;/span&gt;&lt;/p&gt;
-&lt;ol&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Keep systems separate:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; To prevent bias, keep the harnesses, rules, and context for each of your development, scanning, triage agents separate. Pair lightweight AI scans with deterministic, structural validation to drive down latency and improve accuracy. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Use context wisely: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Feed your agents your existing threat models. Precise context is the answer to reducing false positives, and up-to-date threat models set a high floor on a team's security posture by improving the rate of true positives in presubmit scanning.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Build a good harness:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; While the choice of the underlying model is important, using a multi-agent harness can have substantial impact, by helping compensate for variability in model choice. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Automate the fix:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Use agents to also propose human-in-the-loop fixes, to further reduce time-to-resolution. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If you want to get started on your own AI-native security transformation, &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/identity-security/getting-started-with-the-mantis-harness-to-find-and-fix-bugs?e=48754805"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Mantis&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is now available as open source for you to use and benefit from. You can also &lt;/span&gt;&lt;a href="https://cloud.google.com/learn/security/mandiant-academy-courses/fcs?e=48754805"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;learn more about the fundamentals of cybersecurity&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; and the other platforms that power this agentic pipeline: Google Cloud, Gemini Enterprise and Gemini models running on Trillium and Ironwood TPUs. And you can get inspiration from how agentic vulnerability scanning and remediation defends Google Cloud customers as an integral part of &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/identity-security/cloud-ciso-perspectives-how-google-cloud-security-uses-ai-internally"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud’s secure software development lifecycle (SDLC) effort&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;hr/&gt;
-&lt;p&gt;&lt;sup&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;With special recognition to critical team members who made this delivery possible: Stella Voutsina (Lead Program Manager), Yulong Zhang (Senior Staff Security Engineer, Mantis), and Nick Galloway (Staff Security Engineer, Mantis).&lt;/span&gt;&lt;/sup&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Sat, 19 Sep 2026 01:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/systems/using-ai-agents-to-secure-google-infrastructure/</guid><category>AI &amp; Machine Learning</category><category>Security &amp; Identity</category><category>AI infrastructure</category><category>Systems</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Changing the game: Using agentic AI to secure infrastructure code</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/systems/using-ai-agents-to-secure-google-infrastructure/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>AI Infrastructure team </name><title></title><department></department><company></company></author></item><item><title>How Orange built FinOps accountability, and why agents are next</title><link>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;At &lt;/span&gt;&lt;a href="https://cloud.google.com/customers/orange"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Orange&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, the leading France-based multinational telecom provider, there are days when engineering teams set aside their delivery backlogs and spend the day cleaning up cloud spend together. There's a leaderboard. There are goodies on the line. Experienced practitioners guide the newcomers, so people learn the work while doing it. By the end of the day, sponsors can see the results.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Orange calls these FinOps Clean Days. Together with gamified hackathons, they've earned the company's 100-plus person FinOps community a Net Promoter Score within the organization that’s above 70.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Those numbers point at something the wider industry is wrestling with. Recent State of FinOps reports identify getting engineers to take action as one of the top challenges organizations face. Moving from awareness to action means finding ways to build FinOps accountability, and to get teams to genuinely care.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;That makes FinOps a business change problem. And business change problems have known solutions. We spoke with Camille Marini, the FinOps lead at Orange, to get a deeper understanding of how the company overcame these hurdles to accelerate AI adoption and ROI, and how your organization might follow the same course.&lt;/span&gt;&lt;/p&gt;
-&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;Why the Clean Days work&lt;/span&gt;&lt;/h2&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Orange has held two principles since it set up its FinOps team. First, Cloud FinOps is a shared responsibility, with every stakeholder in a project involved in their own way. And the only path to that shared responsibility runs through communication and a deliberate change effort. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;“We insisted on the concept of shared responsibility across the organization for our FinOps practices,” Marini told us. “It’s very similar to how we approach cloud security. We needed to make teams understand that every single stakeholder in a project is involved in FinOps, each in their own way, if we are going to achieve responsible and impactful AI spending and usage.”&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Those principles led Orange to create a FinOps Community of Practice, with support from Google Cloud Consulting. The team ran it on standardized communication channels so the methodology reached well beyond the central group, and kept the meetings actionable, sharing optimizations and billing updates so every session provided value.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The Clean Days came from a clear-eyed reading of how agile teams actually operate. In agile environments with deployment running constantly, optimization work rarely wins against the sprint. Delivery priorities, backlogs, and daily operations take the available time first. So Orange created protected time, made it collaborative, and made it fun.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;McKinsey's four building blocks of change explain why this approach lands. Any large organizational change, the framework holds, requires action across four areas:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Conviction and understanding: "I know what is expected of me and I agree with it."&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Formal mechanisms: "The structures, processes, and systems reinforce the change."&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Role modeling: "I see my leaders and colleagues behaving differently."&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Talent and skills: "I have the skills and opportunities to behave in a new way."&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Map Orange's practice onto those blocks and the pattern is visible. Gamification and rewards give engineers colleagues to emulate: The leaderboard makes different behavior visible, and sponsors see the quick wins for themselves. Experienced practitioners guiding novices builds talent and skills through the community itself. The regular sessions, sharing optimizations and billing updates, build the conviction that comes from knowing where the money goes.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_m5giQlH.max-1000x1000.jpg"
-        
-          alt="image2"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="j87xi"&gt;FinOps activities mapped to the four building blocks of change, with the points where AI agents can reinforce them.&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;What happens beyond 100 people&lt;/span&gt;&lt;/h2&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;A community of 100 engaged people is an achievement. But in an organization with thousands of engineers, no central FinOps team can reach everyone directly. The question for leaders is how to extend what a community like Orange's creates — the awareness, the shared ownership, the habit of acting — to people the FinOps team will never meet.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This is where AI agents extend the capabilities of a FinOps team with two core benefits. They take on complex, time-intensive activities that previously needed a human, and they reduce friction around FinOps for individuals across the business.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Getting teams to adopt them takes a strategy aimed at your own organization's pain points, which often come from high cognitive load, unclear accountability, or competing priorities. Start by finding where engagement drops off in your FinOps lifecycle:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;An awareness gap: If teams are unsure of their spend impact, an insight agent can push real-time cost data into their daily tools.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;A bandwidth gap: If engineers are too busy with backlogs, a remediation agent can identify quick wins and present them as ready-to-merge code changes.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;A complexity gap: If reporting feels like a manual chore, an orchestration agent can gather the data and simplify the process.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;Start with trust, then add autonomy&lt;/span&gt;&lt;/h2&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The sensible path runs in sequence. Establish the community practice, the way Orange did. Then introduce read-only agents that inform and suggest. Only once those are established across the community should you build agents that execute changes. Direct action carries operational risk, so manage it carefully. It's also where significant wins often sit.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;How you build depends on who's building. For teams that want to deploy quickly with minimal code, the &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise App&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; provides a no-code environment for creating agents. For developers who need granular control, the &lt;/span&gt;&lt;a href="https://cloud.google.com/products/gemini-enterprise-agent-platform"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise Agent Platform&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; (formerly Vertex AI) offers advanced tools for launching and governing agents built with frameworks like the Agent Development Kit (ADK).&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Cloud FinOps is moving beyond centralized reporting toward action that happens where the work does. The organizations getting there start with the culture, then use agents to carry it further than any one team could reach. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Orange's numbers came out of the community work. Building that foundation is the part worth copying first. When you're ready to extend it, &lt;/span&gt;&lt;a href="https://cloud.google.com/consulting" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud Consulting&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; can help you shape the community practice, and the Gemini Enterprise App is a low-lift way to put your first read-only agent in front of your teams.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 16 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Google Cloud Consulting</category><category>Telecommunications</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/orange-finops-shared-responsibility.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>How Orange built FinOps accountability, and why agents are next</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/orange-finops-shared-responsibility.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/telecommunications/how-orange-uses-agents-to-make-finops-everyones-responsibility/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Samuel Moss</name><title>AI Transformation and FinOps Consultant, Google</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Celine Devie</name><title>AI Transformation Consultant, Google</title><department></department><company></company></author></item></channel></rss>
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more about Google Cloud’s work with leading AI startups, or to get started building with us, visit &lt;/span&gt;&lt;a href="https://cloud.google.com/startup"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 24 Sep 2026 13:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</guid><category>AI &amp; Machine Learning</category><category>Startups</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>The three things today's hottest startups are looking for in their AI stack</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/three-things-startups-trends-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/startups/the-three-things-todays-hottest-startups-are-looking-for-in-their-ai-stack/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Darren Mowry</name><title>VP, Global Startups &amp; Investor Ecosystem, Google</title><department></department><company></company></author></item></channel></rss>
