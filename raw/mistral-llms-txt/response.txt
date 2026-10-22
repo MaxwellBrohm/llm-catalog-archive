@@ -31,7 +31,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Admin overview](https://docs.mistral.ai/admin/overview.md): The Admin Panel is the control surface for your Organization.
 - [Admin](https://docs.mistral.ai/admin.md): Manage security, access controls, users, billing, and organizational settings for your Mistral Workspace.
 - [Create your Organization](https://docs.mistral.ai/admin/set-up-organization/create-organization.md): Create your Mistral Organization and add your first members.
-- [Enterprise Accounts and Backoffice](https://docs.mistral.ai/admin/set-up-organization/enterprise-accounts.md): Understand how Enterprise Accounts and Backoffice fit above Organizations.
+- [Enterprise Accounts](https://docs.mistral.ai/admin/set-up-organization/enterprise-accounts.md): Understand how Enterprise Accounts fit above Organizations.
 - [Email domain authentication](https://docs.mistral.ai/admin/set-up-organization/sign-in-method/email-domain-authentication.md): Email domain authentication is available on Team plans and above.
 - [SAML SSO](https://docs.mistral.ai/admin/set-up-organization/sign-in-method/saml-sso.md): SAML single sign-on (SSO) lets members of your Organization sign in with your corporate identity provider (IdP).
 - [Verify your domain](https://docs.mistral.ai/admin/set-up-organization/verify-domain.md): Verify domain ownership with a DNS record.
@@ -187,7 +187,6 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Agents & Conversations](https://docs.mistral.ai/studio/agents/agents-api.md): Agents is a feature that allows developers to create predefined models with their own system prompts and tools.
 - [Handoffs](https://docs.mistral.ai/studio/agents/handoffs.md): When creating and using Agents, often with access to specific tools, there are moments where it is desired to call other Agents mid-action.
 - [Agents Introduction](https://docs.mistral.ai/studio/agents/introduction.md): AI agents are autonomous systems powered by large language models (LLMs) that, given high-level instructions, can plan, use tools, carry out processing steps, and take actions to achieve specific goals.
-- [Audio interface](https://docs.mistral.ai/studio/audio/audio-agents/audio-interface.md): How a voice agent captures and plays audio in Python and Node.js, how to tune the default audio interface, write your own, or send and receive raw audio.
 - [Audio in chat completions](https://docs.mistral.ai/studio/audio/audio-in-chat.md): Summarize, question, translate, and extract structured data from a recording by sending the audio in a chat completions request.
 - [Custom vocabulary](https://docs.mistral.ai/studio/audio/concepts/custom-vocabulary.md): Why names, drugs, and product terms come out wrong in transcription and in generated speech, and the hint that fixes each direction: context biasing for spelling, custom pronunciation for sound.
 - [Latency](https://docs.mistral.ai/studio/audio/concepts/latency.md): What latency means in each Mistral audio mode, the delays it adds up, and how to measure it and weigh speed against quality.
@@ -394,7 +393,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Think mode](https://docs.mistral.ai/vibe/chat-legacy/think-mode.md): Think mode is a legacy Chat feature.
 - [Choose Work or Code](https://docs.mistral.ai/vibe/choose-chat-work-code.md): A closer look at each Vibe mode: when to use it, what it does, and where to start.
 - [Choose CLI, VS Code, or web sessions](https://docs.mistral.ai/vibe/code/choose-cli-vscode-web-sessions.md): One agent, three surfaces. Vibe Code runs as the CLI, the VS Code extension, and Vibe Code Web.
-- [Admin config](https://docs.mistral.ai/vibe/code/cli/admin-config.md): Admin config, also called managed config, lets Organization and Workspace administrators distribute Vibe Code CLI settings to all users.
+- [Admin config](https://docs.mistral.ai/vibe/code/cli/admin-config.md): Admin config, also called managed config, lets Organization and Workspace administrators distribute settings for the Vibe Code CLI and the VS Code extension to all users.
 - [Agents](https://docs.mistral.ai/vibe/code/cli/agents.md): Agents are configuration overrides applied on top of the global config.
 - [API keys and profiles](https://docs.mistral.ai/vibe/code/cli/api-keys-profiles.md): Vibe Code CLI needs a Mistral API key to call hosted models.
 - [Commands and shortcuts](https://docs.mistral.ai/vibe/code/cli/commands-shortcuts.md): Use slash commands and keyboard shortcuts to control a Vibe session without leaving the terminal.
@@ -405,8 +404,10 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Install and setup](https://docs.mistral.ai/vibe/code/cli/install-setup.md): Install the Vibe CLI, run vibe in your project, and complete the setup prompt.
 - [MCP servers](https://docs.mistral.ai/vibe/code/cli/mcp-servers.md): MCP servers extend the Vibe Code CLI with external tools through the Model Context Protocol.
 - [Using offline models](https://docs.mistral.ai/vibe/code/cli/offline-models.md): The Vibe Code CLI supports any model served behind an OpenAI-compatible API.
+- [Plugins](https://docs.mistral.ai/vibe/code/cli/plugins.md): Plugin support is experimental and under active development.
 - [Skills](https://docs.mistral.ai/vibe/code/cli/skills.md): Skills are reusable instruction sets that extend Vibe Code with new workflows and custom slash commands.
 - [Teleport from CLI to web](https://docs.mistral.ai/vibe/code/cli/teleport-cli-web.md): Teleport moves a CLI session into a Vibe Code Web sandbox so the task can keep running without your terminal staying open.
+- [Terminal support](https://docs.mistral.ai/vibe/code/cli/terminal-support.md): The Vibe CLI runs in any modern terminal emulator, but terminals don't all support the same features.
 - [Work with the CLI](https://docs.mistral.ai/vibe/code/cli/work-with-cli.md): Once the CLI is installed and your API key is set, you're ready for day-to-day work.
 - [Vibe Code](https://docs.mistral.ai/vibe/code/overview.md): Vibe Code is Vibe's coding mode.
 - [Safety, approvals, and permissions](https://docs.mistral.ai/vibe/code/safety-approvals-permissions.md): Vibe Code can read files, edit code, run shell commands, and call external tools on your behalf.
