@@ -4,428 +4,379 @@
   <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commits/dev"/>
   <link type="application/atom+xml" rel="self" href="https://github.com/anomalyco/models.dev/commits/dev.atom"/>
   <title>Recent Commits to models.dev:dev</title>
-  <updated>2026-10-21T04:38:00Z</updated>
+  <updated>2026-10-22T04:31:20Z</updated>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/8af27efa9d338984afb7f7c7553741f04e6cd343</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/8af27efa9d338984afb7f7c7553741f04e6cd343"/>
+    <id>tag:github.com,2008:Grit::Commit/421c8e08ccf246102a0c8720d14d6f3ea0e474b1</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/421c8e08ccf246102a0c8720d14d6f3ea0e474b1"/>
     <title>
-        feat(v2): migrate EmpirioLabs provider files to schema 2 (#10733)
+        chore(sync): update Kilo model catalog (#10988)
     </title>
-    <updated>2026-10-21T04:38:00Z</updated>
+    <updated>2026-10-22T04:31:20Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#10988)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/317887ea72c8139a097230aa1f6330e3c8a438f5</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/317887ea72c8139a097230aa1f6330e3c8a438f5"/>
+    <title>
+        chore(sync): update OpenRouter model catalog (#10989)
+    </title>
+    <updated>2026-10-22T04:30:48Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#10989)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/36f32fa0d3bf3d35f4251e04b5aa23f8634ebc59</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/36f32fa0d3bf3d35f4251e04b5aa23f8634ebc59"/>
+    <title>
+        fix(google): Gemini 2.5 Flash Image doesn&#39;t reason (#10985)
+    </title>
+    <updated>2026-10-22T04:01:22Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): migrate EmpirioLabs provider files to schema 2 (#10733)
-
-* chore(v2): migrate EmpirioLabs provider files to schema 2
-
-* fix(sync): keep EmpirioLabs v2 files override-only and sync structured output, deprecation and caching
-
-* feat(v2): link EmpirioLabs Qwen3.5 4B, Fugu Ultra v2.0 and Qwen3.8 Max 0902 to their lab models
-
-* feat(v2): backfill EmpirioLabs MIME modalities
-
-* feat(v2): backfill EmpirioLabs cache mechanism and source headers
-
-* docs(v2): cite EmpirioLabs effort budgets in headers and document the sync in sync.md
-
-* docs(v2): cite the catalog&amp;#39;s input modalities on EmpirioLabs modality overrides
-
-* fix(v2): publish the Qwen3.5 4B lab in v1 (already served by other hosts)
-
-* docs(v2): state EmpirioLabs modality evidence per override&lt;/pre&gt;
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(google): Gemini 2.5 Flash Image doesn&amp;#39;t reason (#10985)&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/a27dc477a8164945590c289fe562b36e58f5e7ec</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a27dc477a8164945590c289fe562b36e58f5e7ec"/>
+    <id>tag:github.com,2008:Grit::Commit/a974438b1c72e0ab558538e080914c22733305ea</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a974438b1c72e0ab558538e080914c22733305ea"/>
     <title>
-        feat(v2): migrate CrossModel provider files to schema 2 (#10732)
+        feat(v2): set the OpenCode package on providers M–Z (#10916)
     </title>
-    <updated>2026-10-21T04:37:51Z</updated>
+    <updated>2026-10-22T03:54:14Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): migrate CrossModel provider files to schema 2 (#10732)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): set the OpenCode package on providers M–Z (#10916)
 
-* chore(v2): migrate CrossModel provider files to schema 2
+* feat(v2): set the OpenCode package on providers M–Z
 
-* fix(sync): keep CrossModel v2 files current with the catalog&amp;#39;s structured output, lifecycle and caching
-
-* feat(v2): backfill CrossModel MIME modalities and source headers
-
-* docs(sync): document CrossModel&amp;#39;s synced fields in sync.md&lt;/pre&gt;
+* feat(v2): name the AI SDK package on privatemode transcription tables&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/ddff2a49e793f0058fc66de2c07783d872beb94a</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ddff2a49e793f0058fc66de2c07783d872beb94a"/>
+    <id>tag:github.com,2008:Grit::Commit/ae85744574a2299692a6208eced1f63ca09f035e</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ae85744574a2299692a6208eced1f63ca09f035e"/>
     <title>
-        chore(sync): update NanoGPT model catalog (#10723)
+        fix(v2): name the real AI SDK and OpenCode packages for decision, spe…
     </title>
-    <updated>2026-10-21T04:37:21Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#10723)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/d3a62561d3d23b2037e3c99335c89a65d2699e01</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/d3a62561d3d23b2037e3c99335c89a65d2699e01"/>
-    <title>
-        chore(sync): update Kilo model catalog (#10718)
-    </title>
-    <updated>2026-10-21T04:37:10Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#10718)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/31960bbad124e85bec9304d4b4713e025c6e6de7</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/31960bbad124e85bec9304d4b4713e025c6e6de7"/>
-    <title>
-        chore(sync): update Chutes model catalog (#10717)
-    </title>
-    <updated>2026-10-21T04:36:54Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Chutes model catalog (#10717)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/39383e4dee6d5edd305477b49eda4c92d1fc43f1</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/39383e4dee6d5edd305477b49eda4c92d1fc43f1"/>
-    <title>
-        chore(sync): update Venice model catalog (#10715)
-    </title>
-    <updated>2026-10-21T04:36:44Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Venice model catalog (#10715)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/c74ca8e64dc8ecfd6393e3ef0f8618a6c6f1d478</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/c74ca8e64dc8ecfd6393e3ef0f8618a6c6f1d478"/>
-    <title>
-        chore(sync): update Eden AI model catalog (#10729)
-    </title>
-    <updated>2026-10-21T04:36:30Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Eden AI model catalog (#10729)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/cbb6c86aec1c362b427bb41c4fa88bec76219df4</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/cbb6c86aec1c362b427bb41c4fa88bec76219df4"/>
-    <title>
-        feat(v2): migrate Ollama Cloud provider files to schema 2 (#10740)
-    </title>
-    <updated>2026-10-21T04:36:03Z</updated>
+    <updated>2026-10-22T03:48:48Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): migrate Ollama Cloud provider files to schema 2 (#10740)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(v2): name the real AI SDK and OpenCode packages for decision, speech and rerank models (#10975)
 
-* chore(v2): migrate Ollama Cloud provider files to schema 2
+* fix(v2): name the AI SDK and OpenCode packages for SystemOne and decisions models
 
-* feat(ollama-cloud): link standalone files to their labs and leave model facts on the labs
-
-* feat(ollama-cloud): backfill v2 capabilities, peak pricing and retirements
-
-* fix(google): add the Gemma 4 31B IT knowledge cutoff from its model card
-
-* fix(ollama-cloud): keep unsourced MiniMax knowledge as provider overrides
-
-* fix(ollama-cloud): add toggle and effort wire comments to GLM 5.2 and Muse Spark Open&lt;/pre&gt;
+* fix(v2): name @ai-sdk/openai for OpenAI-shaped speech and transcription tables&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/aded49a3097f8684cc800889d7a40781cc05b46f</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/aded49a3097f8684cc800889d7a40781cc05b46f"/>
+    <id>tag:github.com,2008:Grit::Commit/57007e900fc0d6e8ff030f6cd9a1d943cb522e2e</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/57007e900fc0d6e8ff030f6cd9a1d943cb522e2e"/>
     <title>
-        feat(v2): migrate GitHub Copilot provider files to schema 2 (#10737)
+        feat(v2): correct model APIs for Poe, Eden AI, Kilo, NanoGPT and othe…
     </title>
-    <updated>2026-10-21T04:35:28Z</updated>
+    <updated>2026-10-22T03:37:39Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): migrate GitHub Copilot provider files to schema 2 (#10737)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): correct model APIs for Poe, Eden AI, Kilo, NanoGPT and other aggregators (#10920)
 
-* chore(v2): migrate GitHub Copilot provider files to schema 2
+* feat(v2): correct model APIs for Poe, Eden AI, Kilo, NanoGPT and other aggregators
 
-* test(sync): GitHub Copilot patches v2 prices in place
+* docs(v2): cite chat, decision and Live sources in model headers
 
-* feat(v2): backfill GitHub Copilot MIME types, structured output, effort and retirements
+* feat(v2): make Merge Gateway gpt-live-1 v2-only
 
-* feat(v2): Copilot Claude models on /v1/messages follow Anthropic&amp;#39;s mid-conversation flags
+* fix(v2): name NanoGPT&amp;#39;s decisions AI SDK and SystemOne OpenCode package
 
-* fix(v2): keep Copilot gpt-5.4-nano input to the lab&amp;#39;s image types
-
-* docs(v2): note why Copilot Haiku 5.5 and Sonnet 5 have no thinking toggle&lt;/pre&gt;
+* fix(v2): use @ai-sdk/typesafe-ai for NanoGPT SystemOne (changes v1 provider.npm)&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/5563102bb22da2dd2bd2feaddf7912be4dab77a8</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/5563102bb22da2dd2bd2feaddf7912be4dab77a8"/>
+    <id>tag:github.com,2008:Grit::Commit/f5587be2f171880b177a5539cd7e98a9e1b1210c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f5587be2f171880b177a5539cd7e98a9e1b1210c"/>
     <title>
-        fix(openrouter): sync every OpenRouter price type (#10739)
+        chore(sync): update Eden AI model catalog (#10967)
     </title>
-    <updated>2026-10-21T04:35:08Z</updated>
+    <updated>2026-10-22T03:34:24Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Eden AI model catalog (#10967)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/51863be37cab3d6f87402cd32b60614bc3a5422b</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/51863be37cab3d6f87402cd32b60614bc3a5422b"/>
+    <title>
+        chore(sync): update Kilo model catalog (#10983)
+    </title>
+    <updated>2026-10-22T03:32:16Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#10983)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/b6f8e8173b0b6a0f5af349454e9b80b50be4d6da</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b6f8e8173b0b6a0f5af349454e9b80b50be4d6da"/>
+    <title>
+        chore(sync): update OpenRouter model catalog (#10984)
+    </title>
+    <updated>2026-10-22T03:31:49Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#10984)
+
+Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/5e07b15ceecd752350ce8fa46ca332f748fbfbdb</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/5e07b15ceecd752350ce8fa46ca332f748fbfbdb"/>
+    <title>
+        chore(scripts): write v2 files from the Databricks and Ollama Cloud g…
+    </title>
+    <updated>2026-10-22T03:31:45Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(openrouter): sync every OpenRouter price type (#10739)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(scripts): write v2 files from the Databricks and Ollama Cloud generators (#10960)
 
-* fix(iteracompute): update DeepSeek V4.1 Flash prices
+* chore(scripts): write v2 files from the Databricks and Ollama Cloud generators
 
-IteraCompute&amp;#39;s model pages and /v1/models pricing list deepseek/deepseek-v4.1-flash
-and its deepseek/deepseek-v4-flash-0731 alias at $0.17 input, $0.005 cache read
-and $0.7 output per 1M tokens (https://iteracompute.com/models/deepseek-v4-1-flash/,
-2026-10-20 catalog snapshot), not $0.29/$0.0058/$1.16.
-
-* fix(openrouter): sync every OpenRouter price type&lt;/pre&gt;
+* fix(scripts): keep Ollama Cloud generator idempotent and avoid empty reasoning controls&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/bc53816292f21309fde02bea4ae5fb4ffef787fe</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/bc53816292f21309fde02bea4ae5fb4ffef787fe"/>
+    <id>tag:github.com,2008:Grit::Commit/d14f3c7a39d4be3a16b2e51ade18d5101048b017</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/d14f3c7a39d4be3a16b2e51ade18d5101048b017"/>
     <title>
-        feat(v2): migrate GitLab provider files to schema 2 (#10748)
+        feat(v2): correct model APIs for OpenRouter and Vercel (#10901)
     </title>
-    <updated>2026-10-21T04:34:35Z</updated>
+    <updated>2026-10-22T03:08:29Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): migrate GitLab provider files to schema 2 (#10748)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): correct model APIs for OpenRouter and Vercel (#10901)
 
-* chore(v2): migrate GitLab provider files to schema 2
+* feat(sync): write each OpenRouter and Vercel media API&amp;#39;s packages
 
-* fix(models): Claude Opus 4.5 (20251101) released 2025-11-24
+* feat(v2): correct model APIs for OpenRouter and Vercel
 
-* feat(v2): link and backfill GitLab Duo provider files from the AI Gateway catalog&lt;/pre&gt;
+* feat(v2): name the OpenCode package on every OpenRouter and Vercel table that names an AI SDK
+
+* feat(v2): name grok-voice-3.0&amp;#39;s OpenCode package on Vercel
+
+* fix(v2): OpenRouter&amp;#39;s SystemOne endpoint takes @ai-sdk/typesafe-ai&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/d2d0e8a989481d96baac75999eb0a7adcafa1126</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/d2d0e8a989481d96baac75999eb0a7adcafa1126"/>
+    <id>tag:github.com,2008:Grit::Commit/b6677efe78fc22871dd78bf0c269f2f52b72dc92</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b6677efe78fc22871dd78bf0c269f2f52b72dc92"/>
     <title>
-        chore(sync): update OpenRouter model catalog (#10750)
+        chore(sync): update OpenRouter model catalog (#10968)
     </title>
-    <updated>2026-10-21T04:31:59Z</updated>
+    <updated>2026-10-22T02:40:42Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#10750)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#10968)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/0334651e4125b6b00cd86206418763b2bb83a270</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/0334651e4125b6b00cd86206418763b2bb83a270"/>
+    <id>tag:github.com,2008:Grit::Commit/f2959fca44904301a7dbbaf47261dda499dbac98</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f2959fca44904301a7dbbaf47261dda499dbac98"/>
     <title>
-        chore(sync): update OpenRouter model catalog (#10730)
+        chore(sync): update NanoGPT model catalog (#10969)
     </title>
-    <updated>2026-10-21T03:32:44Z</updated>
+    <updated>2026-10-22T02:37:42Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#10730)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#10969)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/3f3ea3474b5762f2f2dd71f9613722f5645841f0</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/3f3ea3474b5762f2f2dd71f9613722f5645841f0"/>
+    <id>tag:github.com,2008:Grit::Commit/30271993614fda57b63c3d2ff0eaefb9d5ca1a76</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/30271993614fda57b63c3d2ff0eaefb9d5ca1a76"/>
     <title>
-        chore(sync): update OpenRouter model catalog (#10725)
+        chore(sync): update Kilo model catalog (#10966)
     </title>
-    <updated>2026-10-21T03:12:11Z</updated>
+    <updated>2026-10-22T02:36:52Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#10725)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#10966)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/5820b49c36570ff52eeefd16e51650969ca15847</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/5820b49c36570ff52eeefd16e51650969ca15847"/>
+    <id>tag:github.com,2008:Grit::Commit/862aa0ba9faa942e4bb76e336ec62caf8b3e01e5</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/862aa0ba9faa942e4bb76e336ec62caf8b3e01e5"/>
     <title>
-        feat(v2): migrate AI/ML API provider files to schema 2 (#10675)
+        chore(validate): reject model files that aren&#39;t schema 2 (#10959)
     </title>
-    <updated>2026-10-21T03:07:20Z</updated>
+    <updated>2026-10-22T02:26:00Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): migrate AI/ML API provider files to schema 2 (#10675)
-
-* chore(v2): migrate AI/ML API provider files to schema 2
-
-* feat(sync): cite AI/ML API mid-conversation flags in authoritative headers
-
-* feat(v2): backfill AI/ML API mid-conversation flags
-
-* feat(sync): cite AI/ML API cache support in authoritative headers
-
-* feat(v2): add explicit 5m/1h cache support to AI/ML API Claude files
-
-* feat(sync): read AI/ML API cache write prices, one per cache TTL
-
-* chore(sync): add AI/ML API cache write prices from the catalog&lt;/pre&gt;
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(validate): reject model files that aren&amp;#39;t schema 2 (#10959)&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/f0e9015362459bc49bebf9d2e0f24362f0edf3b3</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f0e9015362459bc49bebf9d2e0f24362f0edf3b3"/>
+    <id>tag:github.com,2008:Grit::Commit/6a35507515d6b9fe3721df15a9a15415448be066</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/6a35507515d6b9fe3721df15a9a15415448be066"/>
     <title>
-        chore(sync): update Eden AI model catalog (#10719)
+        feat(v2): set the OpenCode package on first-party lab providers (#10915)
     </title>
-    <updated>2026-10-21T02:37:27Z</updated>
+    <updated>2026-10-22T02:17:57Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
+    <author>
+      <name>rekram1-node</name>
+      <uri>https://github.com/rekram1-node</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): set the OpenCode package on first-party lab providers (#10915)&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/cffa2b7e54a1b503c9d2fe760a8204cc194a4966</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/cffa2b7e54a1b503c9d2fe760a8204cc194a4966"/>
+    <title>
+        chore(v2): migrate the last v1 model files to schema 2 (#10941)
+    </title>
+    <updated>2026-10-22T02:07:22Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
+    <author>
+      <name>rekram1-node</name>
+      <uri>https://github.com/rekram1-node</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(v2): migrate the last v1 model files to schema 2 (#10941)
+
+* chore(v2): migrate the last v1 model files to schema 2
+
+* chore(google): drop temperature restated from the lab on Gemini 3.5 Transcribe Live
+
+* chore(microsoft): leave MAI-Code-1.1-Flash sampling parameters unclaimed&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/a5c769259174939b5aad1d0e10b83acc7c74676c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a5c769259174939b5aad1d0e10b83acc7c74676c"/>
+    <title>
+        feat(v2): correct model APIs for Alibaba, Xiaomi, Z.ai, StepFun and o…
+    </title>
+    <updated>2026-10-22T02:04:34Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
+    <author>
+      <name>rekram1-node</name>
+      <uri>https://github.com/rekram1-node</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): correct model APIs for Alibaba, Xiaomi, Z.ai, StepFun and other providers (#10919)&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/134c1ad1682d4c083475cfcb3ca041a684411959</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/134c1ad1682d4c083475cfcb3ca041a684411959"/>
+    <title>
+        feat(v2): set the OpenCode package on providers A–L (#10917)
+    </title>
+    <updated>2026-10-22T02:04:10Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
+    <author>
+      <name>rekram1-node</name>
+      <uri>https://github.com/rekram1-node</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(v2): set the OpenCode package on providers A–L (#10917)&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/1452c4cd26ba46d2905f4f375503e6a59001d602</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/1452c4cd26ba46d2905f4f375503e6a59001d602"/>
+    <title>
+        chore(sync): update NanoGPT model catalog (#10944)
+    </title>
+    <updated>2026-10-22T01:36:16Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
     <author>
       <name>opencode-agent</name>
       <uri>https://github.com/opencode-agent</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Eden AI model catalog (#10719)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/ac428c6375d927e37921522bf70347dbb5d017c8</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ac428c6375d927e37921522bf70347dbb5d017c8"/>
-    <title>
-        chore(sync): update Tinfoil model catalog (#10722)
-    </title>
-    <updated>2026-10-21T02:36:59Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Tinfoil model catalog (#10722)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/393a11c5883d214976f869244ef507c2c53d5a8b</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/393a11c5883d214976f869244ef507c2c53d5a8b"/>
-    <title>
-        chore(sync): update Merge Gateway model catalog (#10716)
-    </title>
-    <updated>2026-10-21T02:36:51Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Merge Gateway model catalog (#10716)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/f7d395a4320db73e37b055aea72781d3eec5e0f7</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f7d395a4320db73e37b055aea72781d3eec5e0f7"/>
-    <title>
-        chore(sync): update LLM Gateway model catalog (#10724)
-    </title>
-    <updated>2026-10-21T02:36:44Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update LLM Gateway model catalog (#10724)
-
-Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/af79cb21b8e55dc9065585d35e966a95cdd625e9</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/af79cb21b8e55dc9065585d35e966a95cdd625e9"/>
-    <title>
-        chore(sync): update Vercel AI Gateway model catalog (#10721)
-    </title>
-    <updated>2026-10-21T02:36:39Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
-    <author>
-      <name>opencode-agent</name>
-      <uri>https://github.com/opencode-agent</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Vercel AI Gateway model catalog (#10721)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#10944)
 
 Co-authored-by: opencode-agent[bot] &amp;lt;opencode-agent[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
