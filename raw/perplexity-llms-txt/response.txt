@@ -43,6 +43,7 @@
 - [How to migrate from Sonar](https://docs.perplexity.ai/docs/agent-api/migrate-from-sonar/how-to.md): Move a Sonar chat completions integration to the Agent API, including requests, responses, search, presets, async runs, and parameter mappings.
 - [Agent API vs Sonar benchmarks](https://docs.perplexity.ai/docs/agent-api/migrate-from-sonar/benchmarks.md): How Agent API presets perform against Sonar across the benchmarks we run, and which preset to use in place of each Sonar model.
 - [Prompt Guide](https://docs.perplexity.ai/docs/agent-api/prompt-guide.md): How to write effective prompts for the Agent API.
+- [Search API Overview](https://docs.perplexity.ai/docs/search/overview.md): The Search API returns ranked web results as JSON, not a generated answer. What each result contains, the request controls and limits, the price per request, and when to use it instead of the Agent API.
 - [Perplexity Search API](https://docs.perplexity.ai/docs/search/quickstart.md): Access real-time web search results with Perplexity's Search API. Get ranked results, domain filtering, multi-query search, and content extraction for developers.
 - [Fast Search](https://docs.perplexity.ai/docs/search/fast-search.md): Use search_type fast on the Search API for lower-latency, lower-cost web results.
 - [Best Practices](https://docs.perplexity.ai/docs/search/best-practices.md): Learn best practices for optimizing search queries and implementing efficient async patterns with Perplexity's Search API.
@@ -68,6 +69,7 @@
 - [Signing In to the API Portal](https://docs.perplexity.ai/docs/admin/signing-in.md): Sign in to the Perplexity API Portal with Google, Apple, single sign-on, or a passwordless email code.
 - [Projects & Billing](https://docs.perplexity.ai/docs/getting-started/projects.md): Learn how to use the Perplexity API Portal to manage access, usage, billing, and team collaboration.
 - [API Key Management](https://docs.perplexity.ai/docs/admin/api-key-management.md): Learn how to generate, revoke, and rotate API keys for secure access
+- [Safety Identifiers](https://docs.perplexity.ai/docs/admin/safety-identifiers.md): Identify your end users so a policy violation blocks one user instead of your whole API organization.
 - [Analytics API](https://docs.perplexity.ai/docs/admin/computer-analytics-api.md): Query your organization's Perplexity usage analytics programmatically with a free, org-scoped API key
 - [Rate Limits & Usage Tiers](https://docs.perplexity.ai/docs/admin/rate-limits-usage-tiers.md)
 - [AWS Marketplace](https://docs.perplexity.ai/docs/resources/aws-marketplace.md): Subscribe to the Perplexity API Platform through AWS Marketplace for consolidated billing and enterprise procurement.
