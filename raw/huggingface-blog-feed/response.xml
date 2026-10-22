@@ -7,10 +7,28 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
-   <title>NVIDIA Cosmos3-H-Dreams: Bringing Clinical Surgery to Life Through Generative Simulation</title>
-   <pubDate>Tue, 20 Oct 2026 18:17:47 GMT</pubDate>
-   <link>https://huggingface.co/blog/nvidia/cosmos3-h-dreams</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/cosmos3-h-dreams</guid>
+   <title>NVIDIA Kumo Relational Outperforms Supervised Machine Learning on Relational Data, No Training Required</title>
+   <pubDate>Wed, 21 Oct 2026 18:26:30 GMT</pubDate>
+   <link>https://huggingface.co/blog/nvidia/kumo-relational</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/kumo-relational</guid>
+  </item>
+  <item>
+   <title>How Specializing the Vocabulary of SLMs Can Cut Inference Cost by 77% in Real Applications</title>
+   <pubDate>Wed, 21 Oct 2026 17:35:36 GMT</pubDate>
+   <link>https://huggingface.co/blog/Dharma-AI/vocabx-vocabulary-specialization</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/Dharma-AI/vocabx-vocabulary-specialization</guid>
+  </item>
+  <item>
+   <title>Profiling TorchNeuron (Part 1): System-level profiling on AWS Trainium.</title>
+   <pubDate>Wed, 21 Oct 2026 16:04:43 GMT</pubDate>
+   <link>https://huggingface.co/blog/amazon/profiling-torchneuron-part-1</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/amazon/profiling-torchneuron-part-1</guid>
+  </item>
+  <item>
+   <title>Granite Speech 5.0: Transcribe, Translate, and Attribute more Accurately and Faster</title>
+   <pubDate>Wed, 21 Oct 2026 14:58:18 GMT</pubDate>
+   <link>https://huggingface.co/blog/ibm-granite/granite-speech-5</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/ibm-granite/granite-speech-5</guid>
   </item>
   <item>
    <title>FairStress: A deeper evaluation of fairness in LLM decision-making</title>
@@ -53,12 +71,6 @@
    <pubDate>Fri, 16 Oct 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/reflection-beam</link>
    <guid isPermaLink="true">https://huggingface.co/blog/reflection-beam</guid>
-  </item>
-  <item>
-   <title>Granite Switch 4.1: Chat, Decisions, and Speech from One Endpoint</title>
-   <pubDate>Thu, 15 Oct 2026 20:34:01 GMT</pubDate>
-   <link>https://huggingface.co/blog/ibm-granite/granite-switch-4-1</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/ibm-granite/granite-switch-4-1</guid>
   </item>
   <item>
    <title>Apertus 1.5 Release Notes</title>
