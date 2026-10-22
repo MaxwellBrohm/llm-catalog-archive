@@ -227,8 +227,6 @@
 - [Real-time audio transcription via WebSocket](https://docs.together.ai/reference/audio-transcriptions-realtime.md): Establishes a WebSocket connection for real-time audio transcription. This endpoint uses WebSocket protocol (wss://api.together.ai/v1/realtime) for bidirectional streaming communication.
 - [Create video](https://docs.together.ai/reference/create-videos.md): Create a video
 - [Fetch video metadata](https://docs.together.ai/reference/get-videos-id.md): Fetch video metadata
-- [Execute code](https://docs.together.ai/reference/tci-execute.md): Executes the given code snippet and returns the output. Without a session_id, a new session is created to run the code. If you pass a valid session_id, the code runs in that session. This is useful for running multiple code snippets in the same environment, because dependencies and similar things ar…
-- [List active sessions](https://docs.together.ai/reference/tci-sessions.md): Lists all your currently active sessions.
 - [Create a rerank request](https://docs.together.ai/reference/rerank.md): Rerank a list of documents by relevance to a query. Returns a relevance score and ordering index for each document.
 - [Create completion](https://docs.together.ai/reference/completions.md): Generate text completions for a given prompt using a language, code, or image model.
 - [List batch jobs](https://docs.together.ai/reference/batch-list.md): List all batch jobs for the authenticated user
@@ -263,8 +261,8 @@
 - [List checkpoints](https://docs.together.ai/reference/post-training/checkpoints-list.md): Lists training and inference checkpoints owned by the caller, newest first. Filter by type, session, or base model, for example to recover a checkpoint ID for resume.
 - [Get checkpoint](https://docs.together.ai/reference/post-training/checkpoints-get.md): Returns metadata for a checkpoint: type, base model, LoRA rank, step, and owning session.
 - [Download checkpoint](https://docs.together.ai/reference/post-training/checkpoints-download.md): Returns presigned URLs for downloading a checkpoint's model files. Only inference checkpoints support downloading.
-- [Prepare a fine-tuned model for FP4 inference](https://docs.together.ai/reference/post-training/fp4-inference-create.md): Merges a fine-tuned adapter into its base model and prepares the result for FP4 inference. The adapter is resolved when the request is made, so a request naming a model that does not exist in the project, is not an adapter, was not produced by fine-tuning, has no base model to merge into, or uses an…
-- [Estimate FP4 preparation cost](https://docs.together.ai/reference/post-training/fp4-inference-estimate.md): Reports the price and expected wall-clock time for preparing the named adapter without creating a job. The request body is the same as POST /shaping/prepare-for-fp4-inference, so a caller can price exactly the job it is about to submit.
+- [Prepare a fine-tuned model for FP4 inference](https://docs.together.ai/reference/post-training/fp4-inference-create.md): Prepares a fine-tuned model for FP4 inference: an adapter is merged into its base model and the result quantized to FP4; a full model is quantized as it is. The model is resolved when the request is made, so a request naming a model that does not exist in the project, was not produced by fine-tuning…
+- [Estimate FP4 preparation cost](https://docs.together.ai/reference/post-training/fp4-inference-estimate.md): Reports the price and expected wall-clock time for preparing the model named by `model_object_id` or the deprecated `adapter_object_id` without creating a job. The request body is the same as POST /shaping/prepare-for-fp4-inference, so a caller can price exactly the job it is about to submit.
 - [List FP4 preparation jobs](https://docs.together.ai/reference/post-training/shaping-jobs-list.md): List shaping jobs owned by the caller's project.
 - [Get FP4 preparation job](https://docs.together.ai/reference/post-training/shaping-jobs-get.md): Retrieve a shaping job owned by the caller's project.
 - [Cancel FP4 preparation job](https://docs.together.ai/reference/post-training/shaping-jobs-cancel.md): Request cancellation of a shaping job owned by the caller's project.
@@ -316,12 +314,16 @@
 - [Update a deployment](https://docs.together.ai/reference/deployments-update.md): Update an existing deployment configuration
 - [Delete a deployment](https://docs.together.ai/reference/deployments-delete.md): Delete an existing deployment
 - [Get logs for a deployment](https://docs.together.ai/reference/deployments-logs.md): Retrieve logs from a deployment, optionally filtered by replica ID.
+- [List revision history events of a deployment](https://docs.together.ai/reference/deployments-revisions-list.md): Returns the revision history of the deployment, in descending order. Defaults to the most recent events. Only the 200 most recent events are retained per deployment; paginating past that returns an empty list.
+- [Get the full configuration of a specific revision](https://docs.together.ai/reference/deployments-revisions-get.md): Returns the deployment configuration defined by the specified revision. Only the 50 most recent revisions per deployment retain their configuration; older revisions return 404 even while they still appear in the revision history. The deployment's currently active revision is always available, regard…
+- [Roll back a deployment to a previous revision](https://docs.together.ai/reference/deployments-rollback.md): Re-applies the spec of a previous revision. Pods running the target revision will be retained. Other pods will be drained and restarted with the target revision. Only the 50 most recent revisions per deployment can be rolled back to; older targets return 404.
 - [Get the list of project secrets](https://docs.together.ai/reference/deployments-secrets-list.md): Retrieve all secrets in your project
 - [Create a new secret](https://docs.together.ai/reference/deployments-secrets-create.md): Create a new secret to store sensitive configuration values
 - [Get a secret by ID or name](https://docs.together.ai/reference/deployments-secrets-get.md): Retrieve details of a specific secret by its ID or name
 - [Update a secret](https://docs.together.ai/reference/deployments-secrets-update.md): Update an existing secret's value or metadata
 - [Delete a secret](https://docs.together.ai/reference/deployments-secrets-delete.md): Delete an existing secret
 - [Download a file](https://docs.together.ai/reference/deployments-storage-get.md): Download a file by redirecting to a signed URL
+- [Get a file download URL](https://docs.together.ai/reference/deployments-storage-get-url.md): Create a signed URL for downloading a deployment storage file
 - [Get the list of project volumes](https://docs.together.ai/reference/deployments-storage-volumes-list.md): Retrieve all volumes in your project
 - [Create a new volume](https://docs.together.ai/reference/deployments-storage-volumes-create.md): Create a new volume to preload files in deployments
 - [Get a volume by ID or name](https://docs.together.ai/reference/deployments-storage-volumes-get.md): Retrieve details of a specific volume by its ID or name
@@ -332,7 +334,7 @@
 - [Cancel a queued job](https://docs.together.ai/reference/queue-cancel.md): Cancel a pending job. Only jobs in pending status can be canceled. Running jobs cannot be stopped. Returns the job status after the attempt. If the job is not pending, returns 409 with the current status unchanged.
 - [Clear a model's pending jobs](https://docs.together.ai/reference/queue-clear.md): Cancel all pending jobs for the given model. Running jobs are left untouched. Returns the number of jobs that were canceled.
 - [Get queue metrics](https://docs.together.ai/reference/queue-metrics.md): Get the current queue statistics for a model, including pending and running job counts.
-- [Get API key identity](https://docs.together.ai/reference/whoami.md): Returns identity information about the authenticated API key. Useful for confirming which project and organization a key is scoped to, and for obtaining the project slug used to compose the `model` value (`<project_slug>/<endpoint_slug>`) in dedicated endpoint inference calls. Requires a Bearer API…
+- [Identify the caller](https://docs.together.ai/reference/whoami.md): Returns identity information for the authenticated caller. Accepts project API keys and user session JWTs. The response `type` indicates which fields are present. For project-scoped credentials, `project.slug` can be used with an endpoint slug as `<project_slug>/<endpoint_slug>` to form the `model`…
 - [List projects](https://docs.together.ai/reference/projects-list.md): Retrieve a list of accessible projects.
 - [Get billing usage](https://docs.together.ai/reference/billing-usage.md): Returns an organization's billing usage for a month as cost-annotated line items grouped into time windows. Finalized windows are returned through the end of yesterday at daily granularity, or the last completed hour at hourly granularity (UTC).
 - [List endpoints](https://docs.together.ai/reference/dmi/endpoints-list.md): Lists the dedicated inference endpoints owned by the specified project.
@@ -350,9 +352,9 @@
 - [Delete a deployment](https://docs.together.ai/reference/dmi/deployments-delete.md): Permanently deletes a deployment from its endpoint. Remove the deployment from live traffic first; use `etag` to reject the request if it changed after it was read.
 - [List deployment adapters](https://docs.together.ai/reference/dmi/adapters-list.md): Lists LoRA adapters attached to a deployment with per-cluster load state.
 - [Add a deployment adapter](https://docs.together.ai/reference/dmi/adapters-add.md): Attaches a LoRA adapter to a deployment. If the deployment is at adapter capacity, force can evict the oldest adapter.
-- [Get a deployment adapter](https://docs.together.ai/reference/dmi/adapters-get.md): Gets an attached adapter and its per-cluster load state.
-- [Update a deployment adapter](https://docs.together.ai/reference/dmi/adapters-update.md): Updates the pinned revision of an attached adapter using its row-level etag for optimistic concurrency.
-- [Remove a deployment adapter](https://docs.together.ai/reference/dmi/adapters-remove.md): Detaches an adapter from a deployment using its row-level etag for optimistic concurrency.
+- [Get a deployment adapter](https://docs.together.ai/reference/dmi/adapters-get.md): Gets an adapter attachment by its `dad_` id and returns its per-cluster load state.
+- [Update a deployment adapter](https://docs.together.ai/reference/dmi/adapters-update.md): Updates the pinned revision of an adapter attachment by its `dad_` id using its row-level etag for optimistic concurrency.
+- [Remove a deployment adapter](https://docs.together.ai/reference/dmi/adapters-remove.md): Detaches an adapter attachment by its `dad_` id using its row-level etag for optimistic concurrency.
 - [List placement profiles](https://docs.together.ai/reference/dmi/placement-profiles-list.md): Lists reusable, project-visible placement policies that control the regions where deployments may be scheduled.
 - [Get a placement profile](https://docs.together.ai/reference/dmi/placement-profiles-get.md): Retrieves a reusable placement profile and its ordered region preferences.
 - [List inference instance types](https://docs.together.ai/reference/dmi/instance-types-list.md): Lists hardware instance types currently available to inference deployments, including GPU resources, pricing, regions, and best-effort capacity headroom.
@@ -403,20 +405,6 @@
 - [TypeScript Library](https://docs.together.ai/typescript-library.md)
 - [Python SDK v2 migration](https://docs.together.ai/docs/pythonv2-migration-guide.md): Migrate code written against the Together Python SDK v1 to the v2 SDK.
 - [Error codes](https://docs.together.ai/docs/error-codes.md): An overview on error status codes, causes, and quick fix solutions.
-- [List all endpoints](https://docs.together.ai/reference/listendpoints.md): Returns a list of all endpoints associated with your account. You can filter the results by type (dedicated or serverless).
-- [List available hardware configurations](https://docs.together.ai/reference/listhardware.md): Returns a list of available hardware configurations for deploying models. When a model parameter is provided, it returns only hardware configurations compatible with that model, including their current availability status.
-- [List availability zones](https://docs.together.ai/reference/availability-zones.md): List all available availability zones.
-- [Create a dedicated endpoint](https://docs.together.ai/reference/createendpoint.md): Creates a new dedicated endpoint for serving models. The endpoint starts automatically after creation. You can deploy any supported model on hardware configurations that meet the model's requirements.
-- [Get endpoint by ID](https://docs.together.ai/reference/getendpoint.md): Retrieves details about a specific endpoint, including its current state, configuration, and scaling settings.
-- [Update endpoint, this can also be used to start or stop a dedicated endpoint](https://docs.together.ai/reference/updateendpoint.md): Updates an existing endpoint's configuration. You can modify the display name, autoscaling settings, or change the endpoint's state (start/stop).
-- [Delete endpoint](https://docs.together.ai/reference/deleteendpoint.md): Permanently deletes an endpoint. This action cannot be undone.
-- [Add a LoRA adapter to an endpoint](https://docs.together.ai/reference/addadapter.md): Adds a LoRA adapter model to a dedicated endpoint. After this call, inference requests to the adapter model name will be routed to the specified endpoint. The endpoint must have LoRA enabled, and the adapter's base model must be compatible with the endpoint's model. The endpoint name prefix in model…
-- [List adapters on an endpoint](https://docs.together.ai/reference/listadapters.md): Returns all LoRA adapters bound to the specified dedicated endpoint.
-- [Remove a LoRA adapter from an endpoint](https://docs.together.ai/reference/removeadapter.md): Removes the routing rule that binds an adapter to an endpoint. The adapter must be currently bound to this specific endpoint.
-- [List all models](https://docs.together.ai/reference/models.md): Lists all of Together's open-source models and metadata including pricing, chat template, and context.
-- [Upload a custom model or adapter](https://docs.together.ai/reference/upload-model.md): Upload a custom model or adapter from Hugging Face or S3
-- [List model upload jobs](https://docs.together.ai/reference/jobs-list.md): List all jobs and their statuses
-- [Get a model upload job](https://docs.together.ai/reference/jobs-get.md): Get the status of a specific job
 - [Get started](https://docs.together.ai/reference/cli/getting-started.md): Install the Together CLI to deploy endpoints, fine-tune models, and manage GPU clusters from your terminal.
 - [Telemetry](https://docs.together.ai/reference/cli/telemetry.md): Understand what the Together CLI tracks, how to opt out, and where the local config file lives.
 - [Models](https://docs.together.ai/reference/cli/models.md): List Together AI models and upload your own from Hugging Face or S3.
