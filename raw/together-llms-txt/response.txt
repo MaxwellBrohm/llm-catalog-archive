@@ -74,7 +74,7 @@
 - [Visualize endpoint metrics in Grafana](https://docs.together.ai/docs/dedicated-endpoints/grafana.md): Scrape the metrics endpoint with Prometheus and import the example Grafana dashboard for dedicated endpoints.
 - [Overview](https://docs.together.ai/docs/dedicated-container-inference.md): Deploy your own containers on Together's managed GPU infrastructure with automatic scaling, job queues, and built-in observability.
 - [Quickstart](https://docs.together.ai/docs/containers-quickstart.md): Deploy your first container in 20 minutes.
-- [Image generation with Flux2](https://docs.together.ai/docs/dedicated-containers-image.md): Deploy a Flux2 image generation model on Together's managed GPU infrastructure using dedicated containers.
+- [Image generation with FLUX.2](https://docs.together.ai/docs/dedicated-containers-image.md): Deploy a FLUX.2 image generation model on Together's managed GPU infrastructure with dedicated container inference.
 - [Video generation with Wan 2.1](https://docs.together.ai/docs/dedicated-containers-video.md): Deploy a multi-GPU video generation model on Together's managed GPU infrastructure using dedicated containers.
 - [Serve an OpenAI-compatible endpoint](https://docs.together.ai/docs/dedicated-containers-openai.md): Deploy a custom model behind an OpenAI-compatible endpoint using dedicated containers.
 - [Architecture](https://docs.together.ai/docs/together-deployments.md): Architecture, deployment lifecycle, and core concepts for dedicated container inference.
@@ -86,20 +86,20 @@
 - [Supervised fine-tuning quickstart](https://docs.together.ai/docs/post-training/quickstart-sft.md): Run your first post-training session with supervised fine-tuning on instruction-following data, then download the trained weights.
 - [Reinforcement learning with GRPO quickstart](https://docs.together.ai/docs/post-training/quickstart-rl.md): Train a model to solve grade-school math with GRPO, monitor the run, and retrieve the trained model.
 - [Concepts](https://docs.together.ai/docs/post-training/concepts.md): See how a training run divides work between your code and a model resource on Together AI GPUs, how resources, sessions, and checkpoints relate, and how you deploy or download a trained model.
-- [Pricing](https://docs.together.ai/docs/post-training/pricing.md): How post-training bills for GPU time, how to estimate the cost of a resource or a training run, and how refunds and the minimum credit balance work.
+- [Pricing](https://docs.together.ai/docs/post-training/pricing.md): See how post-training bills for GPU time, estimate the cost of a resource or a training run, and understand refunds and the minimum credit balance.
 - [Supported models](https://docs.together.ai/docs/post-training/supported-models.md): Every base model available for post-training, with training modes, context lengths, GPU types, and adapter capacity.
 - [Overview](https://docs.together.ai/docs/post-training/training-methods.md): Match a post-training method to your data, choose between adapter and full-weight training, and combine methods.
 - [Supervised fine-tuning](https://docs.together.ai/docs/post-training/sft.md): Train a model on example conversations with supervised fine-tuning.
 - [Direct preference optimization](https://docs.together.ai/docs/post-training/dpo.md): Train on preference pairs with a custom loss function that runs in your own process.
 - [Reinforcement learning with GRPO](https://docs.together.ai/docs/post-training/grpo.md): Train a model against a reward function with group relative policy optimization.
-- [Write a reward function](https://docs.together.ai/docs/post-training/reward-functions.md): How to write a reward function for GRPO, register it with your dataset, and test it before you start training.
+- [Write a reward function](https://docs.together.ai/docs/post-training/reward-functions.md): Write a reward function for GRPO, register it with your dataset, and test it before you start training.
 - [Train in multi-turn environments](https://docs.together.ai/docs/post-training/multi-turn-environments.md): Train tool-use agents with GRPO over whole episodes, where the model acts, an environment responds, and a reward scores the outcome.
 - [Write a custom loss function](https://docs.together.ai/docs/post-training/custom-loss-functions.md): Train with any objective you compute in PyTorch from the model's log-probabilities, for SFT, DPO, or RL.
 - [Manage model resources](https://docs.together.ai/docs/post-training/model-resources.md): Configure, create, attach to, inspect, and stop the GPU resource that post-training sessions run on, and learn its lifecycle states, timers, error codes, and limits.
 - [Manage checkpoints](https://docs.together.ai/docs/post-training/checkpoints.md): Save inference and training checkpoints, download trained weights, resume or fork a run, and find a session's checkpoints after it ends.
 - [Train multiple adapters on one base model](https://docs.together.ai/docs/post-training/multi-lora.md): Share one provisioned model resource across several adapter sessions to run hyperparameter sweeps at the cost of a single base model.
 - [Monitor training runs](https://docs.together.ai/docs/post-training/monitoring.md): Track sessions and model resources in the console, and read the run artifacts and Weights & Biases metrics that show whether a training run is healthy.
-- [Cookbook reference](https://docs.together.ai/docs/post-training/cookbook.md): The post-training cookbook's runnable recipes, and every field on its GRPO, SFT, and DPO config classes.
+- [Cookbook reference](https://docs.together.ai/docs/post-training/cookbook.md): Reference for the post-training cookbook's runnable recipes and every field on its GRPO, SFT, and DPO config classes.
 - [Migrate from Tinker](https://docs.together.ai/docs/post-training/migrate-from-tinker.md): Run a Tinker training script on Together AI post-training by changing its import line.
 - [Deploy a checkpoint](https://docs.together.ai/docs/post-training/deployment.md): Deploy a trained model or LoRA adapter from an inference checkpoint to dedicated model inference.
 - [Multi-LoRA deployment](https://docs.together.ai/docs/post-training/multi-lora-deployment.md): Attach the adapters from post-training inference checkpoints to one dedicated deployment of their base model and choose an adapter per request.
