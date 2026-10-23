@@ -7,6 +7,24 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>Turning Database Grading into RL Rewards: Post-Training Agents with ThinkingBox</title>
+   <pubDate>Thu, 22 Oct 2026 22:24:34 GMT</pubDate>
+   <link>https://huggingface.co/blog/microsoft/thinkingbox-training</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/microsoft/thinkingbox-training</guid>
+  </item>
+  <item>
+   <title>OlmoEarth v1.3: State-of-the-art embeddings for the whole planet</title>
+   <pubDate>Thu, 22 Oct 2026 16:11:31 GMT</pubDate>
+   <link>https://huggingface.co/blog/allenai/olmoearth-v1-3</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/allenai/olmoearth-v1-3</guid>
+  </item>
+  <item>
+   <title>Ensemble forecasting with IBM Granite time-series models</title>
+   <pubDate>Thu, 22 Oct 2026 07:51:31 GMT</pubDate>
+   <link>https://huggingface.co/blog/ibm-research/granite-timeseries-ensemble-r1</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/granite-timeseries-ensemble-r1</guid>
+  </item>
+  <item>
    <title>NVIDIA Kumo Relational Outperforms Supervised Machine Learning on Relational Data, No Training Required</title>
    <pubDate>Wed, 21 Oct 2026 18:26:30 GMT</pubDate>
    <link>https://huggingface.co/blog/nvidia/kumo-relational</link>
@@ -29,18 +47,6 @@
    <pubDate>Wed, 21 Oct 2026 14:58:18 GMT</pubDate>
    <link>https://huggingface.co/blog/ibm-granite/granite-speech-5</link>
    <guid isPermaLink="false">https://huggingface.co/blog/ibm-granite/granite-speech-5</guid>
-  </item>
-  <item>
-   <title>FairStress: A deeper evaluation of fairness in LLM decision-making</title>
-   <pubDate>Tue, 20 Oct 2026 16:09:19 GMT</pubDate>
-   <link>https://huggingface.co/blog/allenai/fairstress</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/allenai/fairstress</guid>
-  </item>
-  <item>
-   <title>ALTK-Evolve: How learned memory tops the τ²-bench leaderboard on customer service tasks without a frontier model</title>
-   <pubDate>Tue, 20 Oct 2026 15:19:48 GMT</pubDate>
-   <link>https://huggingface.co/blog/ibm-research/altk-evolve-bc</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/altk-evolve-bc</guid>
   </item>
   <item>
    <title>Hugging Face ❤️ TorchTPU: TPUs, Natively</title>
