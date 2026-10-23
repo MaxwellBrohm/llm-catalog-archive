@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Wed, 21 Oct 2026 20:09:11 +0000</lastBuildDate>
+	<lastBuildDate>Fri, 23 Oct 2026 03:44:19 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,246 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>PyTorch Conference North America 2026: Accelerating Open Intelligence Together</title>
+		<link>https://pytorch.org/blog/pytorch-conference-north-america-2026-accelerating-open-intelligence-together/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 22 Oct 2026 23:52:11 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=190100</guid>
+
+					<description><![CDATA[<p>PyTorch Conference North America 2026 brought 3,500+ attendees to San Jose on October 20–21 for two days focused on accelerating open intelligence and exploring the impact of PyTorch Foundation projects...</p>
+<p>The post <a href="https://pytorch.org/blog/pytorch-conference-north-america-2026-accelerating-open-intelligence-together/">PyTorch Conference North America 2026: Accelerating Open Intelligence Together</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-190104 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
+<p>PyTorch Conference North America 2026 brought 3,500+ attendees to San Jose on October 20–21 for two days focused on accelerating open intelligence and exploring the impact of PyTorch Foundation projects like PyTorch, vLLM, DeepSpeed, Ray, Helion, and Safetensors.</p>
+<p>PyTorch Foundation Executive Director, Mark Collier, set the stage for the entire event to demonstrate how the PyTorch Foundation is building the open source software to train and serve models on any chip, in any cloud, for any agent.</p>
+<h2>Accelerating Open Intelligence Together</h2>
+<p><img decoding="async" class="aligncenter wp-image-190101 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/Mark.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/Mark.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/Mark-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/Mark-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
+<p>Mark Collier’s opening keynotes connected work across research, models, frameworks, infrastructure, hardware, and production. Day 1 examined how shared advances across those layers help the community move faster together. Day 2 looked ahead to broader hardware participation, workloads moving across more environments, and training and customizing frontier models at greater scale.</p>
+<p>Recent milestones across the PyTorch ecosystem highlight how AI itself is joining the learning loop to improve code, kernels, and research workflows. Announcements and updates published during the conference and in the preceding days covered the following work.</p>
+<h3>Native PyTorch on Google TPUs</h3>
+<p>TorchTPU is an open source collaboration between Google and Meta that introduces a native and principled PyTorch backend for Google TPUs. It supports eager execution and <code>torch.compile</code>, with validated integrations covering TorchTitan for training, vLLM and SGLang for inference, and Ray for orchestration. Workload migration can require only a device change, while peak performance can require additional changes to shapes, sharding, and operations.</p>
+<p><a href="https://pytorch.org/blog/introducing-torchtpu/">Read Introducing TorchTPU.</a></p>
+<h3>TorchNeuron for AWS Trainium</h3>
+<p>TorchNeuron is an open source native PyTorch backend for AWS Trainium (and corresponding Amazon EC2 instances: Trn2 and Trn3), enabling AI researchers and practitioners to experiment and run PyTorch workloads with a single configuration change. With eager execution, torch.compile, and native support for PyTorch APIs (DTensor, torch.distributed) and libraries like TorchTitan, TorchNeuron enables workflows from research experimentation to production deployment. The public beta launch under Apache 2.0 was on October 20th at PyTorch Conference.</p>
+<p><a href="https://pytorch.org/blog/introducing-torchneuron-native-pytorch-backend-for-aws-trainium/">Read Introducing TorchNeuron.</a></p>
+<h3>Compiler Development for IBM Spyre and AMD GPUs</h3>
+<p>IBM’s “From KTIR to SpyreCode” explains how torch-spyre translates Inductor’s decisions about work division and tensor placement into executable programs. An open source Dataflow Scheduler builds pipelines for data movement and computation before device-specific stages produce SpyreCode. The October 21 FlyDSL update also described an optional backend for AMD MI350-series GPUs, connecting eligible operations to optimized kernels through existing PyTorch APIs while retaining existing implementations for unsupported workloads.</p>
+<p><a href="https://pytorch.org/blog/from-ktir-to-spyrecode-an-mlir-dataflow-backend-for-ibm-spyre/">Read From KTIR to SpyreCode.</a></p>
+<h3>TorchTitan and TitanRL</h3>
+<p>TorchTitan expanded model support across its 5D parallelism stack and introduced reinforcement learning through TitanRL. TitanRL keeps the same model implementation across pretraining, post-training, and execution inside vLLM, with asynchronous rollouts and multiple forms of parallelism for training and generation. The update also covers performance improvements, FlexShard, graph-based training, distributed communication, and checkpointing.</p>
+<p><a href="https://pytorch.org/blog/torchtitan-update-new-sota-models-performance-at-scale-titanrl/">Read the TorchTitan update.</a></p>
+<h3>Helion and NVIDIA CompileIQ</h3>
+<p>Helion’s integration with NVIDIA CompileIQ adds compiler controls to the kernel autotuning search. Developers can evaluate Advanced Control Files alongside kernel configurations such as tile sizes and warp counts, tune offline, and pin the selected configuration. Compiler defaults remain a candidate in the search.</p>
+<p><a href="https://pytorch.org/blog/one-search-two-layers-compiler-controls-inside-pytorch-helion-using-nvidia-compileiq/">Read about Helion and NVIDIA CompileIQ.</a></p>
+<h3>ExecuTorch on Arm Cortex-M CPUs</h3>
+<p>ExecuTorch now provides a direct path from PyTorch training to on-device inference. The Cortex-M backend enables PyTorch models to run directly on Arm Cortex-M CPUs with Arm CMSIS-NN acceleration. It supports all capability tiers (Scalar, DSP, and MVE/Helium) from a single workflow.</p>
+<p><a href="https://pytorch.org/blog/bringing-executorch-to-arm-cortex-m-cpus/">Read Bringing ExecuTorch to Arm Cortex-M CPUs.</a></p>
+<h3>Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</h3>
+<p>Zephon’s TorchTitan integration preserves identical global batches when training resumes on a different GPU count. In a 1B-parameter model test, training resumed from a 16-GPU checkpoint on 8, 32, and 64 GPUs, and the SHA-256 hash of every global batch matched the original run. Zephon tokenizes, packs, shuffles, and mixes data inside the training job, avoiding a preprocessed copy of the corpus.</p>
+<p><a href="https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/">Read more about Zephon.</a></p>
+<h2>Nine New Members Join PyTorch Foundation</h2>
+<p>New Platinum members include Nebius, Nscale and Shopify, deepening the PyTorch Foundation’s role as the intelligence layer for open source AI development.</p>
+<p>The Foundation welcomes the following new members:</p>
+<ul>
+<li>Platinum: Nebius, Nscale, and Shopify Inc.</li>
+<li>Silver: LightSeek Foundation and Lablup Inc.</li>
+<li>Associate: SKOPOS INDIA FOUNDATION, Siksha ‘O’ Anusandhan, Messiah University, and Valencia College.</li>
+</ul>
+<p>AI innovation now happens across all stack layers simultaneously, with research, models, infrastructure, hardware, and production continuously driving each other forward. The PyTorch Foundation serves as the central hub of this interconnected ecosystem, uniting researchers, developers, and companies building open AI.</p>
+<p>“Open systems learn faster when more people, projects, and organizations are working together, creating compounding gains,” said Mark Collier, Executive Director of PyTorch Foundation. “Open source ecosystems let breakthroughs travel between organizations instead of staying locked inside one company.”</p>
+<p>Nebius has also long supported vLLM with compute for development, testing, and benchmarking, including multi-node work on large models such as DeepSeek R1.</p>
+<p>Nscale first came to the PyTorch Foundation’s project ecosystem through Ray, the open source framework for distributed computing and scaling AI workloads. Following Nscale’s planned acquisition of Anyscale, the company behind Ray, Nscale has committed to continuing investment in Ray’s development and its contributor community, building on Ray’s governance under the Foundation since the project joined in October 2025.</p>
+<p>“Most infrastructure providers treat the framework and the data center as two separate problems. We treat them as one. PyTorch has remained the base layer of AI because it kept the Pythonic style researchers know, while getting serious about performance. Ray, also part of the PyTorch Foundation, does something different: getting that work to run across thousands of GPUs. With Anyscale, the creators of Ray, set to join Nscale, we’re not just using that ecosystem, we’re building the infrastructure underneath it. Joining the PyTorch Foundation as a Platinum member is us backing that directly, not just benefiting from it,” said Nick Jones, VP of Cloud Native Platform Engineering, Nscale</p>
+<p>Shopify’s work featured in Cody Mazza-Anthony’s keynote and an accompanying case study. Using a continual learning loop with PyTorch and vLLM, Shopify compresses production failures into model weights every day, beating frontier-model quality, and cutting serving costs by 96%.</p>
+<ul>
+<li><a href="https://pytorch.org/blog/pytorch-foundation-welcomes-nine-new-members-as-momentum-builds-around-open-source-ai-center-of-gravity/">Read the full membership press release.</a></li>
+<li><a href="https://pytorch.org/blog/nebius-joins-the-pytorch-foundation-as-a-platinum-member/">Read more about Nebius joining PyTorch Foundation.</a></li>
+<li><a href="https://pytorch.org/blog/nscale-joins-the-pytorch-foundation-as-a-platinum-member/">Read more about Nscale joining PyTorch Foundation.</a></li>
+<li><a href="https://pytorch.org/blog/how-shopify-built-a-continual-learning-loop-with-pytorch-and-vllm/">Read Shopify’s continual learning case study.</a></li>
+</ul>
+<h2>Day 0: Training, Workshops, and Co-Located Events</h2>
+<h2><img decoding="async" class="aligncenter wp-image-190206 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/55599618052_1de690e785_o.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/55599618052_1de690e785_o.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/55599618052_1de690e785_o-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/55599618052_1de690e785_o-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></h2>
+<p>Day 0 programming on October 19 included:</p>
+<ul>
+<li>PyTorch, Powering the Enterprise with Red Hat, NVIDIA, and IBM</li>
+<li>LF AI &amp; Data Summit 2026</li>
+<li>PyTorch Associate Training</li>
+<li>Jupyter Day</li>
+<li>From Academia to Adoption Workshop</li>
+<li>Arm Create with Google, Google DeepMind, Nota, and Renesas</li>
+<li>Fine-Tune LLMs on Amazon SageMaker and Run Them On-Device with GenieX</li>
+</ul>
+<p>The <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/training/">PyTorch Associate Training</a> offered an in-person, instructor-led program focused on the foundational and practical skills covered by the <a href="https://training.linuxfoundation.org/certification/pytorch-certified-associate-ptca/">PyTorch Certified Associate (PTCA) exam</a>. Through lectures, demonstrations, guided labs, and assessments, the training was designed to help participants build and optimize real-world models from scratch. Course completion included a voucher for the certification exam.</p>
+<p>Thank you to lead trainer Faradawn Yang, content creator Sahdev Zala, and assistant trainers Allison Ding, Krishna Kalyan, Santosh Bahir, Lakshay Garg, and Ian Wang.</p>
+<p>Hosted by the PyTorch Foundation OSPO &amp; Academic Outreach Working Group, the <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/features-add-ons/co-located-events/#from-academia-to-adoption-workshop">From Academia to Adoption Workshop</a> focused on taking promising PyTorch projects beyond a single paper, experiment, or lab. The community event explored how research software can become reliable, reusable tools that others can adopt, contribute to, and build upon.</p>
+<h2>Two Days of Keynotes<img decoding="async" class="aligncenter wp-image-190103 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/keynotes.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/keynotes.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/keynotes-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/keynotes-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></h2>
+<h3>Tuesday, October 20</h3>
+<ul>
+<li>Accelerating Open Intelligence Together: Mark Collier (PyTorch Foundation)</li>
+<li>Shopify&#8217;s Continual Learning Loop with PyTorch and vLLM: Cody Mazza-Anthony (Shopify)</li>
+<li>PyTorch Updates: Alban Desmaison and Edward Yang (Meta)</li>
+<li>MAX and Mojo: The Best Way to Extend PyTorch: Chris Lattner (Qualcomm)</li>
+<li>Ray&#8217;s Evolution to Support AI Workloads: Ion Stoica (UC Berkeley / Anyscale)</li>
+<li>Trainium’s Journey to Native PyTorch: Robert Hundt (Amazon)</li>
+<li>Beyond Brute Force: The Era of Adaptive Intelligence: Sara Hooker (Adaption)</li>
+<li>PyTorch at Meta &#8211; From Internal Workloads to Multi-Silicon Ecosystem: Jana van Greunen (Meta)</li>
+<li>vLLM Update: Scaling Open Frontier Inference Infrastructure: Simon Mo (Inferact)</li>
+<li>Open Source Inference at Production Scale: Carlos Costa (IBM), Abdullah Gharaibeh (Google Cloud), and Stephen Watt (Red Hat)</li>
+<li>PyTorch Performance for Agents on Vera Rubin: Ujval Kapasi (NVIDIA)</li>
+</ul>
+<h3>Wednesday, October 21</h3>
+<ul>
+<li>Building What’s Next in Open Source AI: Mark Collier (PyTorch Foundation)</li>
+<li>From AI to Agentic AI and Back: Mazin Gilbert (Agentic AI Foundation)</li>
+<li>Workload Fungibility<br />
+in the Agentic Era: Bringing Native PyTorch to Cloud TPUs: Bill Jia (Google Cloud) and Zongwei Zhou (Meta)</li>
+<li>From Silicon to Models at Scale: Priya Nagpurkar (IBM)</li>
+<li>Contributor Awards &#8211; Sponsored by Red Hat: presented by Cara Delia (Red Hat) and Chris Gottbrath</li>
+<li>Scaling Large Frontier Models Training with DeepSpeed: Zhipeng Wang (Google)</li>
+<li>Open Science and AI Foundation Models: Allies in the Pursuit of Knowledge: Rachad Alao (Cohere)</li>
+<li>AI Model Customization Platform: Yiwei Song (Crusoe)</li>
+<li>Linear Algebra for the Age of Research: Mark Saroufim (Core Automation)</li>
+</ul>
+<h2>Technical Sessions and Community Expo</h2>
+<p><img decoding="async" class="aligncenter wp-image-190128 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/demo-theater.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/demo-theater.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/demo-theater-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/demo-theater-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
+<p>This year&#8217;s impressive program featured more than 100 sessions spanning foundational concepts and core framework work to training, inference, applications, kernel engineering, and responsible AI. Each track highlighted a distinct part of how PyTorch Foundation projects are built, extended, deployed, and used in the real world. View the <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule/">full schedule</a> and stay tuned to the <a href="https://www.youtube.com/pytorch">PyTorch YouTube channel</a> where all sessions will be published after the conference.</p>
+<p><img decoding="async" class="alignnone size-large wp-image-190232" src="https://pytorch.org/wp-content/uploads/2026/10/community-expo-1024x683.jpg" alt="PyTorchCon community expo" width="1024" height="683" srcset="https://pytorch.org/wp-content/uploads/2026/10/community-expo-1024x683.jpg 1024w, https://pytorch.org/wp-content/uploads/2026/10/community-expo-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/community-expo.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px" />Beyond technical sessions, the conference also fostered community collaboration with engaging onsite experiences in Community Expo including Birds of a Feather (BoFs) discussions, live showcases at the Demo Theater, direct Q&amp;A with core maintainers during Meet the Developers, and dedicated networking events like the Women &amp; Non-Binary in PyTorch Lunch. Attendees lined up to pick up an autographed copy of Inference Engineering at the book signing with Philip Kiely and there were endless opportunities to connect and innovate. 144 <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/schedule-posters/">poster sessions</a> showcased a broad range of community-led innovations spanning core PyTorch developments, kernel engineering, model training, on-device inference, and responsible AI. Key highlights include performance optimization techniques for LLMs on diverse hardware architectures, efficient on-device deployment frameworks like ExecuTorch, and novel agentic workflows.</p>
+<h2>Celebrating the 2026 PyTorch Contributor Award Winners</h2>
+<p><img decoding="async" class="alignnone wp-image-190106 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/IMG_4498-scaled.jpg" alt="" width="2560" height="1920" srcset="https://pytorch.org/wp-content/uploads/2026/10/IMG_4498-scaled.jpg 2560w, https://pytorch.org/wp-content/uploads/2026/10/IMG_4498-300x225.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/IMG_4498-1024x768.jpg 1024w" sizes="(max-width: 2560px) 100vw, 2560px" />The 2026 PyTorch Contributor Awards recognized innovation, collaboration, and impact across PyTorch Foundation projects: PyTorch, vLLM, DeepSpeed, Ray, Helion, and Safetensors.</p>
+<p>Congratulations to the winners:</p>
+<ul>
+<li>Outstanding Ambassador: Jiho Kim</li>
+<li>Newcomer: Jiangyun Zhu and Johannes Zeiser</li>
+<li>Knowledge Enhancer: Abdulsalam Yazid Bande and Suman Debnath</li>
+<li>Bug Buster: Guilherme Vieira Leobas and Vishal Goyal</li>
+<li>Review Powerhouse: Wentao Ye</li>
+<li>Catalyst: Jiahao Tan and Harry Mellor</li>
+<li>Innovator: Masahiro Tanaka, Elfie Guo, and Xinan Lin</li>
+<li>Ecosystem Champion: Guangye Yu</li>
+<li>Superhero: Thomas Ortner</li>
+</ul>
+<p>Congratulations to nominees Chandra Mohan Singh Negi, Arun Bhandari, Masahiro Hiramori, Luka Govedič, Irakli Salia, Jiahao Chen, Kunshang Ji, Rohit Kumar Tiwari, Subin George, Xunzhuo Liu, and Aaron Gokaslan.</p>
+<p>Thank you to Cara Delia of Red Hat and Chris Gottbrath for presenting the awards, and to Red Hat for sponsoring them.</p>
+<p>We also thank the 2026 Awards Committee: Chris Hoge (NVIDIA), Chris Gottbrath, Ashok Emani (Intel), Piotr Bialecki (NVIDIA), Yashasvi Misra, Sudhir Dharanendraiah (Red Hat), Zesheng Zong (Huawei), Jiawei Li, and Kaichao You (Inferact).</p>
+<h2>Flare Party and AI Community Bash with De La Soul</h2>
+<p data-pm-slice="1 1 []">The Community Expo brought attendees together with sponsors and exhibitors at their booths to discuss work across the open source AI stack. Conversations continued after Day 1 at Tuesday’s Flare Party, with food, drinks, and Pub Trivia in the Demo Theater.</p>
+<p><img decoding="async" class="aligncenter wp-image-190107 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/flare-hats.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/flare-hats.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/flare-hats-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/flare-hats-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
+<p><img decoding="async" class="aligncenter wp-image-190111 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/community-expo-2.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/community-expo-2.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/community-expo-2-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/community-expo-2-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
+<p>On Wednesday, the AI Community Bash brought the AGNTCon + MCPCon and PyTorch communities together for an evening of food, drinks, great company, and a live concert from legendary hip-hop group DE LA SOUL.</p>
+<h2><img decoding="async" class="aligncenter wp-image-190108 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/de-la-soul-crowd.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/de-la-soul-crowd.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/de-la-soul-crowd-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/de-la-soul-crowd-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></h2>
+<h2>Thank You to Our Program Chairs, Committee, and Sponsors</h2>
+<p>Thank you to Program Chairs Jeff Daily (AMD), Alban Desmaison (Meta), and Mike Ruberry (NVIDIA), and to the full Program Committee for contributing their time and expertise.</p>
+<p><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/program/meet-the-committees/">Meet the program chairs and committee.</a></p>
+<p>Thank you to our Diamond sponsors: AMD, AWS, Crusoe, Google, IBM, Meta, NVIDIA, and Qualcomm.</p>
+<p>Thank you to our Platinum sponsors: Anyscale, Arm, Baseten, Clockwork.io, Huawei, Inferact, Intel, Lightning AI, Nscale, Red Hat, and Verda.</p>
+<p>We appreciate every sponsor’s support. Visit the <a href="https://events.linuxfoundation.org/pytorch-conference-north-america/">conference website</a> for the full sponsor listing.</p>
+<h2>Looking Ahead to 2027</h2>
+<p>Thank you to the contributors, maintainers, speakers, attendees, and member organizations who came together in San Jose to accelerate open intelligence.</p>
+<p>Stay tuned for session slides and recordings, and save the date: PyTorch Conference returns to San Jose, October 6–7, 2027!</p>
+<p>The post <a href="https://pytorch.org/blog/pytorch-conference-north-america-2026-accelerating-open-intelligence-together/">PyTorch Conference North America 2026: Accelerating Open Intelligence Together</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Meet the 2026 PyTorch Foundation Ambassadors</title>
+		<link>https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 22 Oct 2026 17:44:52 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=189607</guid>
+
+					<description><![CDATA[<p>Open source AI thrives when people come together to learn, build, share knowledge, and contribute. Behind every project is a community of developers, researchers, educators, and contributors helping make these...</p>
+<p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-189615" src="https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-1024x536.png" alt="PyTorch Foundation Ambassadors 2026" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></p>
+<p><span style="font-weight: 400;">Open source AI thrives when people come together to learn, build, share knowledge, and contribute. Behind every project is a community of developers, researchers, educators, and contributors helping make these technologies more accessible to others.</span></p>
+<p><span style="font-weight: 400;">The </span><a href="https://pytorch.org/programs/ambassadors/"><span style="font-weight: 400;">PyTorch Foundation Ambassador Program</span></a><span style="font-weight: 400;"> brings together community leaders from around the world who share that commitment. Through education, mentorship, technical content, community events, and open source contributions, ambassadors help expand awareness, adoption, and participation across the Foundation’s growing ecosystem of open source projects.</span></p>
+<p><span style="font-weight: 400;">The 2026 cohort welcomes 24 ambassadors across five program regions, representing communities from Nigeria and Burkina Faso to Singapore, India, Romania, Spain, the United Kingdom, and the United States.</span></p>
+<p><span style="font-weight: 400;">Each ambassador brings a unique perspective, technical background, and connection to their local community. Together, they are creating more opportunities for people to discover open source AI, develop practical skills, and contribute to the technologies shaping its future.</span></p>
+<h2><b>A community shaped by many kinds of work</b></h2>
+<p><span style="font-weight: 400;">The 2026 ambassadors bring experience across AI research, software and infrastructure engineering, technical education, open source maintenance, and community organizing. Some work on AI systems, model training, and infrastructure; others focus on documentation, workshops, mentoring, or applications that address challenges in their communities.</span></p>
+<p><span style="font-weight: 400;">For someone new to PyTorch, that might mean attending a first hands-on workshop. For an experienced developer, it could mean discovering a new project, connecting with maintainers, or making a first open source contribution. Ambassadors help create these opportunities by bringing people together and connecting local communities with the wider ecosystem.</span></p>
+<h2><b>Advancing the PyTorch Foundation’s open source ecosystem</b></h2>
+<p><span style="font-weight: 400;">The PyTorch Foundation supports a growing ecosystem of open source projects that help developers and researchers build, train, optimize, and deploy AI systems. Beyond the core PyTorch framework, this ecosystem includes projects such as vLLM, DeepSpeed, Ray, Helion, and Safetensors, spanning model training, inference, distributed computing, performance optimization, and model sharing.</span></p>
+<p><span style="font-weight: 400;">The Ambassador Program helps connect these technologies with communities around the world. Through technical workshops, meetups, educational resources, mentorship, and community-led initiatives, ambassadors help developers discover Foundation projects, understand their practical applications, and find opportunities to contribute.</span></p>
+<p><span style="font-weight: 400;">An ambassador might organize an introductory PyTorch workshop for students, help developers explore scalable inference with vLLM, introduce engineers to distributed AI technologies, or create technical content that makes complex concepts easier to understand. By supporting learning, adoption, and contributions, ambassadors strengthen the communities that sustain open source AI.</span></p>
+<h2><b>Meet the 2026 ambassadors</b></h2>
+<p><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-190081" src="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors-1024x683.png" alt="PyTorch Foundation 2026 Ambassadors" width="1024" height="683" srcset="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors-1024x683.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors-300x200.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" />The 2026 cohort brings together 24 community leaders across five program regions.</span></p>
+<p><b>AFRICA</b></p>
+<p><span style="font-weight: 400;">Adesina Lekan Samuel · Nigeria</span></p>
+<p><span style="font-weight: 400;">Soumana Dama · Burkina Faso</span></p>
+<p><span style="font-weight: 400;">Ronnie Atuhaire · Uganda</span></p>
+<p><span style="font-weight: 400;">Farah Abdou · Egypt</span></p>
+<p><span style="font-weight: 400;">Abraham Imani · Democratic Republic of Congo</span></p>
+<p><span style="font-weight: 400;">Simanga Comfort Mchunu · South Africa</span></p>
+<p><span style="font-weight: 400;">Mark Gatere · Kenya</span></p>
+<p><b>ASIA</b></p>
+<p><span style="font-weight: 400;">Alpha Romer Cooma · Philippines</span></p>
+<p><span style="font-weight: 400;">Tsai Li Ming · Singapore</span></p>
+<p><span style="font-weight: 400;">Mu Xiaohui · Singapore and Malaysia</span></p>
+<p><span style="font-weight: 400;">Wang Zhipeng · Singapore</span></p>
+<p><span style="font-weight: 400;">Sumantro Mukherjee · India</span></p>
+<p><span style="font-weight: 400;">Parichay Das · India</span></p>
+<p><span style="font-weight: 400;">Sudhir Dharanendraiah · India</span></p>
+<p><b>EUROPE</b></p>
+<p><span style="font-weight: 400;">Costin-Alexandru Deonise · Romania</span></p>
+<p><span style="font-weight: 400;">Ricardo Noriega · Spain</span></p>
+<p><span style="font-weight: 400;">Matthew Cossins · United Kingdom</span></p>
+<p><b>MIDDLE EAST</b></p>
+<p><span style="font-weight: 400;">Johnny Kozman · Egypt</span></p>
+<p><span style="font-weight: 400;">Ali Tavallaie · Armenia</span></p>
+<p><span style="font-weight: 400;">Amr Osama Abdellatif · Egypt</span></p>
+<p><span style="font-weight: 400;">Özge Çinko · Turkey</span></p>
+<p><b>NORTH AMERICA</b></p>
+<p><span style="font-weight: 400;">Aditya Mehra · United States</span></p>
+<p><span style="font-weight: 400;">Ali Gowani · United States</span></p>
+<p><span style="font-weight: 400;">Samaresh Kumar Singh · United States</span></p>
+<h2><b>What being a PyTorch Foundation Ambassador means to our community</b></h2>
+<p><span style="font-weight: 400;">For the 2026 cohort, being an ambassador is an opportunity to share knowledge, give back to the communities that shaped their journeys, and create pathways for others to learn and contribute. In their own words, ambassadors share what excites them most about joining the program.</span></p>
+<table>
+<tbody>
+<tr>
+<td><i><span style="font-weight: 400;">“Contributing to PyTorch documentation showed me how even a small contribution can become part of something much bigger. As a PyTorch Foundation Ambassador, I’m so excited to help more people experience that sense of belonging through practical learning, welcoming communities, and opportunities to contribute.”</span></i></p>
+<p><b>Özge Çinko · Turkey</b></td>
+</tr>
+</tbody>
+</table>
+<table>
+<tbody>
+<tr>
+<td><i><span style="font-weight: 400;">“Most of what I know about building AI I learned from open-source communities, so I’m excited to give back by teaching, mentoring and bringing more engineers from Egypt and Africa into the PyTorch ecosystem.”</span></i></p>
+<p><b>Farah Abdou · Egypt</b></td>
+</tr>
+</tbody>
+</table>
+<table>
+<tbody>
+<tr>
+<td><i><span style="font-weight: 400;">“As a PyTorch Foundation Ambassador, I’m excited to help more developers become open-source contributors through hands-on education and mentorship, while bringing the PyTorch and vLLM communities closer together in Singapore and across Asia-Pacific.”</span></i></p>
+<p><b>Mu Xiaohui · Singapore and Malaysia</b></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-weight: 400;">Together, these reflections capture what makes the Ambassador Program meaningful: a shared commitment to learning, collaboration, and helping more people participate in open source AI.</span></p>
+<h2><b>Building the future of open source AI together</b></h2>
+<p><span style="font-weight: 400;">Over the coming year, ambassadors will help create opportunities for developers, researchers, students, and open source enthusiasts to learn, connect, and contribute across the Foundation’s ecosystem. From introducing new audiences to PyTorch Foundation communities and related projects to supporting technical education and community collaboration, their efforts will help strengthen the global open source AI community.</span></p>
+<p><span style="font-weight: 400;">We’re grateful to this year’s ambassadors for bringing their time, expertise, enthusiasm, and generosity to the program. The strongest communities grow when people share what they’ve learned, welcome new contributors, and make room for others to build alongside them.</span></p>
+<p><span style="font-weight: 400;">We look forward to seeing what the 2026 PyTorch Foundation Ambassadors will teach, organize, create, and contribute in the year ahead.</span></p>
+<p>Learn more about the PyTorch Foundation Ambassador program at: <a href="https://pytorch.org/programs/ambassadors/">https://pytorch.org/programs/ambassadors/</a></p>
+<p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>TorchTitan Update: New SOTA Models, Performance at Scale, TitanRL</title>
 		<link>https://pytorch.org/blog/torchtitan-update-new-sota-models-performance-at-scale-titanrl/</link>
 		
@@ -48,7 +288,7 @@
 <h2>TitanRL</h2>
 <p>TorchTitan now does reinforcement learning! Many RL stacks keep separate training and inference implementations of the model. Architecture changes have to stay aligned across both, and when a run goes sideways it is hard to tell whether the culprit is your reward, your algorithm, or the two copies quietly disagreeing. <a href="https://github.com/pytorch/torchtitan/tree/main/torchtitan/rl">TitanRL</a> keeps the same model from pretraining, post-training to inside vLLM, so you can do your work in one codebase.</p>
 <p><!-- IMAGE 1: TitanRL diagram (first image in the doc) - upload via WP media library and insert here --></p>
-<h3><img fetchpriority="high" decoding="async" class="alignnone wp-image-189603 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-scaled.png" alt="" width="2560" height="952" srcset="https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-300x112.png 300w, https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-1024x381.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></h3>
+<h3><img decoding="async" class="alignnone wp-image-189603 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-scaled.png" alt="" width="2560" height="952" srcset="https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-300x112.png 300w, https://pytorch.org/wp-content/uploads/2026/10/one_model_definition-1024x381.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></h3>
 <h3>Agentic RL at scale</h3>
 <p>TitanRL supports what you need to train agentic workloads. Rollouts run asynchronously – training and generation each scale with multiple forms of parallelism.</p>
 <p>We tested it on several workloads, as seen below, demonstrating that it can perform stable training on MoEs and dense models, for hundreds of steps, on tasks that require long context, code execution, compaction, harness, self-play, etc.</p>
@@ -64,7 +304,7 @@
 <p>TorchTitan shipped massive performance improvements for MoE models in the past year – around three focus areas: faster kernels for higher computer utilization, maximizing communication compute overlap, and fine grained control of memory.</p>
 <p><strong>local_compile</strong> brings the benefits of native <code>torch.compile</code> without committing to full-graph or full-block tracing, allowing users to selectively optimize key regions while preserving numerics without maintaining custom kernels.</p>
 <p>For memory management, <strong>torch_remat</strong> offers a modern activation checkpointing API with fine-grained control over recomputed regions, avoiding CPU overhead and custom op wrapper requirements.</p>
-<p>For distributed compute and scaling, <a href="https://github.com/meta-pytorch/dist_moe"><strong>Dist-MoE</strong></a> provides fused communication-compute kernels for NVIDIA SM100+ GPUs with activation packing for dynamic tensors to remain fully CUDA-graphable. Meanwhile, a fully revamped <strong>pipeline parallel</strong> package provides CUDA-graphable, deterministic execution with user control knobs to maximize overlap when composing FSDP and pipeline parallelism.</p>
+<p>For distributed compute and scaling, <a href="https://meta-pytorch.org/dist_moe/previews/visual-explainer/"><strong>Dist-MoE</strong></a> provides fused communication-compute kernels for NVIDIA SM100+ GPUs with activation packing for dynamic tensors to remain fully CUDA-graphable. Meanwhile, a fully revamped <strong>pipeline parallel</strong> package provides CUDA-graphable, deterministic execution with user control knobs to maximize overlap when composing FSDP and pipeline parallelism.</p>
 <p>Finally, <strong>TorchTitan overrides</strong> enable clean integration of specialized model-specific kernels—such as fused MLA, fused SwiGLU, and fused Complex RoPE – without sacrificing the simplicity and maintainability of the code.</p>
 <h3>DSV3 671B Results</h3>
 <p>By <a href="https://github.com/pytorch/torchtitan/blob/main/torchtitan_recipes/models/deepseek_v3.py">composing</a> all of the above performance features we evaluated the performance and numerics of Deepseek V3 671b+MTP1 module on the MLPerf training benchmark on our internal GB300 cluster scaling only the PP, DP and EP axes. The quantization scheme used is MXFP8.</p>
@@ -135,6 +375,11 @@
 </tr>
 </tbody>
 </table>
+<h3><b>Numerics on MLPerf Benchmark</b></h3>
+<p><span style="font-weight: 400;">TorchTitan does match Megatron loss convergence on the DSv3 MLPerf benchmark, as shown in the picture below.</span></p>
+<h3><img decoding="async" class="aligncenter wp-image-190142 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/torchtitan.png" alt="" width="2048" height="838" srcset="https://pytorch.org/wp-content/uploads/2026/10/torchtitan.png 2048w, https://pytorch.org/wp-content/uploads/2026/10/torchtitan-300x123.png 300w, https://pytorch.org/wp-content/uploads/2026/10/torchtitan-1024x419.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></h3>
+<h3><img decoding="async" class="aligncenter wp-image-190143 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/tt2.png" alt="" width="2048" height="838" srcset="https://pytorch.org/wp-content/uploads/2026/10/tt2.png 2048w, https://pytorch.org/wp-content/uploads/2026/10/tt2-300x123.png 300w, https://pytorch.org/wp-content/uploads/2026/10/tt2-1024x419.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></h3>
+<h3><img decoding="async" class="aligncenter wp-image-190146 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/tt3.png" alt="" width="2048" height="838" srcset="https://pytorch.org/wp-content/uploads/2026/10/tt3.png 2048w, https://pytorch.org/wp-content/uploads/2026/10/tt3-300x123.png 300w, https://pytorch.org/wp-content/uploads/2026/10/tt3-1024x419.png 1024w" sizes="(max-width: 2048px) 100vw, 2048px" /></h3>
 <h3>Muse Spark Open</h3>
 <p>For our MuseSpark 1.2 OSS release we <a href="https://github.com/pytorch/torchtitan/blob/main/torchtitan_recipes/models/muse_spark.py">showcase</a> our high precision long context training efficiency demonstrating our TP, EP and CP scaling.</p>
 <h4>Results</h4>
@@ -2209,387 +2454,7 @@ candidate L1TEX THROUGHPUT mean=85.9620%
 		
 		
 			</item>
-		<item>
-		<title>Introducing TorchNeuron: Native PyTorch backend for AWS Trainium</title>
-		<link>https://pytorch.org/blog/introducing-torchneuron-native-pytorch-backend-for-aws-trainium/</link>
-		
-		<dc:creator><![CDATA[Nafea Bshara, Robert Hundt, Ron Diamant, Colin Brace, Rahul Solanki, Maen Suleiman, Khaled ElGalaind, Temesghen Kahsai, Cyril Bortolato, Indu Thangakrishnan, Shauheen Zahirazami, Sarang Ozarde, Adarsh Singh, Hanbo Wang, Esha Lakhotia, Jianying Lang]]></dc:creator>
-		<pubDate>Mon, 19 Oct 2026 12:45:23 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=188670</guid>
-
-					<description><![CDATA[<p>Frontier models span language, video and audio, on architectures from dense and mixture-of-experts transformers to diffusion, state-space, world and structure-prediction models. PyTorch is where AI research happens, where the models...</p>
-<p>The post <a href="https://pytorch.org/blog/introducing-torchneuron-native-pytorch-backend-for-aws-trainium/">Introducing TorchNeuron: Native PyTorch backend for AWS Trainium</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p>Frontier models span language, video and audio, on architectures from dense and mixture-of-experts transformers to diffusion, state-space, world and structure-prediction models. PyTorch is where AI research happens, where the models are defined, and increasingly where production happens too. Researchers want to experiment and innovate, and customers want the performance AWS Trainium offers to enable them to achieve their performance and scale goals. The training and serving libraries are written against PyTorch&#8217;s own APIs, and new libraries and new versions ship continuously. Over the last several years, PyTorch made those APIs accelerator-agnostic, with official extension points for registering custom hardware.</p>
-<p>Today, to address the growing demand from the developers and research community on Trainium, we are excited to share an even simpler approach to program the chip as a standard PyTorch device, ahead of its open source launch at PyTorch Conference North America on Oct. 20. AWS Trainium is a portfolio of AI chips designed from the ground up for next generation cloud scale AI training and inference. We are announcing <strong>TorchNeuron</strong>, an open source native PyTorch backend for Trainium, so the model code, the libraries, and the tools you already use run on Trainium. This integration builds directly on the accelerator-agnostic extension points, including the PrivateUse1 device backend and torch.accelerator APIs, created by the PyTorch community.</p>
-<p>TorchNeuron supports eager execution for research and debugging including new adaptive eager mode with improved performance, torch.compile for production performance, and the <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/nki/index.html">Neuron Kernel Interface (NKI)</a> for custom kernels, on Trainium2 and Trainium3. Also, with <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-explorer/index.html">Neuron Explorer</a>, performance engineers use the same torch.profiler to trace execution from framework to hardware, linking every event back to its source line to pinpoint bottlenecks and optimize efficiently. TorchNeuron will be released as open source under Apache 2.0 at <a href="https://github.com/aws-neuron/torch-neuronx">github.com/aws-neuron/torch-neuronx</a>, going live as public Beta on Oct. 20.</p>
-<blockquote><p><em>&#8220;PyTorch&#8217;s vision is straightforward: developers should have a consistent experience across hardware platforms. Native support for AWS Trainium expands that choice, enabling researchers and engineers to experiment and iterate using the eager execution and distributed APIs they already know. Teams can take advantage of Trainium&#8217;s capabilities without reinventing their workflows or leaving the PyTorch ecosystem.&#8221; &#8211; Jana van Greunen, Director of PyTorch Engineering at Meta</em></p></blockquote>
-<h2>Getting started: Easy device switching</h2>
-<p>Getting started is straightforward. Run your code on Trainium using the pointer: <code>.to('neuron')</code>.</p>
-<pre><code class="language-python"># Run a training loop on Trainium
-model = MyModel().to('neuron')   # the only change
-optimizer = torch.optim.AdamW(model.parameters())
-for batch in dataloader:
-    optimizer.zero_grad()
-    loss = criterion(model(batch), targets)
-    loss.backward()
-    optimizer.step()
-</code></pre>
-<p>Modern code written against torch.accelerator, PyTorch&#8217;s recommended device-agnostic API, runs unmodified. A compiled model needs the Neuron backend named, once with <code>torch.compiler.set_default_backend("neuron")</code>, after which <code>torch.compile(model)</code> takes it, or per call as <code>torch.compile(model, backend="neuron")</code>.</p>
-<pre><code class="language-python"># Run a compiled training loop on Trainium
-torch.compiler.set_default_backend("neuron")  # call once, before any compile
-model = MyModel().to('neuron')
-model.compile()  # no backend argument
-optimizer = torch.optim.AdamW(model.parameters())
-
-for batch in dataloader:
-    optimizer.zero_grad()
-    loss = criterion(model(batch), targets)
-    loss.backward()
-    optimizer.step()
-</code></pre>
-<h2>Capabilities</h2>
-<p>TorchNeuron registers Trainium through PrivateUse1, PyTorch&#8217;s official extension point for custom hardware, so the standard APIs work as written: <code>torch.nn</code>, <code>torch.tensor</code>, <code>torch.autocast</code>, <code>torch.distributed</code>, and <code>torch.profiler</code> all operate on the <code>neuron</code> device. The two execution modes of PyTorch, eager and torch.compile work natively.</p>
-<p><!-- IMAGE PLACEHOLDER: torchneuron-architecture.png - upload via Media Library. Suggested alt text: "High-level architecture diagram of TorchNeuron" --></p>
-<p><em><img decoding="async" class="alignnone wp-image-188675 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-1.png" alt="" width="1496" height="1005" srcset="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-1.png 1496w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-1-300x202.png 300w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-1-1024x688.png 1024w" sizes="(max-width: 1496px) 100vw, 1496px" /></em></p>
-<p><em>High-level architecture diagram of TorchNeuron (</em><a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/frameworks/torch/pytorch-native-overview.html"><em>details</em></a><em>).</em></p>
-<h3>Eager</h3>
-<p>Eager runs operations immediately, so Python control flow, prints, and breakpoints all work with no compile or trace step. This is the mode for research and debugging. Eager mode dispatches operations individually. Executed directly, each operation compiles its own Neuron Executable File Format (NEFF) file, launches it on device, and moves its intermediates through HBM. We are also introducing adaptive eager mode (experimental), to reduce the launch cost and provide better opportunities to fuse operations to approach performance of compiled graph without a code change, while retaining the interactive experience.</p>
-<h3>torch.compile</h3>
-<p><code>torch.compile(model, backend="neuron")</code> captures the model into a graph the Neuron compiler optimizes, and is the mode for stable, high-performance models moving to production. torch.compile can be used to optimize the whole or part of the model and works seamlessly with eager mode. FlexAttention is supported natively. TorchDynamo captures the model into an FX graph, AOTAutograd traces the backward graph ahead of time, the Neuron backend lowers the result, by way of Torch-MLIR, into StableHLO, and the Neuron compiler produces a NEFF file that executes on hardware.</p>
-<p>The Neuron inference stacks are built on the same <code>torch.compile</code> support in TorchNeuron. vLLM Neuron is a plugin to vLLM and serves LLMs; vLLM Omni Neuron is a plugin to vLLM Omni and serves diffusion models for image and video generation.</p>
-<h3>Ops and dtypes</h3>
-<p>Broad aten operator coverage for ops seen across text, multimodal and vision language, image and video generation and understanding, state space models, and world models. Models can use BF16, FP32, and FP16, with integer and boolean types, and <code>torch.autocast</code> and mixed precision code operate as written. TorchAO and FP8 are currently supported under private Beta and will be made generally available in the next release.</p>
-<h3>Distributed APIs</h3>
-<p>Distributed inference and training can use the standard PyTorch APIs and the high-level parallelism modules compose with your model as written: DDP, FSDP2, SimpleFSDP, tensor parallelism, and pipeline parallelism, along with common compositions like FSDP2 with tensor parallelism, ZeRO that are essential for training large models. DTensor and DeviceMesh are supported to handle sharding and the multi-dimensional process groups. The collective APIs (example: <code>all_gather</code>, <code>reduce_scatter</code>, <code>all_reduce</code>) and the P2P APIs (<code>send</code>, <code>recv</code>) are supported. Collectives execute over Trainium&#8217;s dedicated collective cores intra-node and over the Elastic Fabric Adapter (EFA) inter-node, so the communication transport is native to the hardware with no change to PyTorch APIs.</p>
-<h3>Streams and Events</h3>
-<p>Torch streams and events are supported natively. <code>torch_neuronx.Stream</code> and <code>torch_neuronx.Event</code> map PyTorch&#8217;s stream semantics onto Trainium&#8217;s hardware queues. Within a stream, data movement and computation stay in order automatically. Separate streams carry no implicit dependency on one another, so across streams you make that ordering explicit by recording an event on the producing stream and waiting for it on the consuming stream before using the result. The device-agnostic <code>torch.Stream</code>, <code>torch.Event</code>, and <code>torch.accelerator</code> entry points reach the same implementation, so code written against them runs unmodified. An error surfaces at the next synchronization point rather than at the operation that caused it; TorchNeuron tracks the earliest exception and re-raises it there with its original context. In execution, non-default streams multiplex onto a single hardware queue, so they keep ordering, priority, and event semantics but do not each get a dedicated engine; and when host collectives are disabled, a collective issued on a non-default stream keeps its place in that stream&#8217;s execution order but runs on the default hardware queue.</p>
-<h3>Neuron Kernel Interface (NKI)</h3>
-<p>The <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/nki/index.html">Neuron Kernel Interface (NKI)</a> lets researchers and developers develop, optimize, and execute custom operators for both eager and torch.compile. Researchers can prototype ideas that require low level hardware control, including new model architectures. Developers can obtain finer performance control beyond Adaptive Eager and torch.compile by calling performance critical NKI kernels directly in model code to replace sequences of standard PyTorch operations (ATen ops).</p>
-<p>TorchNeuron also provides Trainium optimized, high-performance operators implemented with NKI and released open source as <a href="https://github.com/aws-neuron/nki-library/blob/main/README.md">NKI-lib</a>, covering mainstream LLM and multimodal scenarios for both dense and MoE models, such as FlashAttention and MoE blockwise kernels, which developers can use to improve performance on Trainium. The following example defines and registers a custom NKI operator using the PyTorch recommended register_autograd style:</p>
-<pre><code class="language-python">import torch
-import nki
-import nki.language as nl
-from torch_neuronx import nki_op
-
-# Declaring and implementing NKI kernels
-# Note in NKI kernels, the output tensor should be defined as parameter to the kernel
-@nki.jit
-def sin_kernel(in_ptr0, out_ptr):
-    input_tile = nl.load(in_ptr0[0:128])
-    output_tile = nl.sin(input_tile)
-    nl.store(out_ptr[0:128], value=output_tile)
-    return out_ptr
-
-# defining cos since it will be used in backward path of sin
-@nki.jit
-def cos_kernel(in_ptr0, out_ptr):
-    input_tile = nl.load(in_ptr0[0:128])
-    output_tile = nl.cos(input_tile)
-    nl.store(out_ptr[0:128], value=output_tile)
-    return out_ptr
-
-# after this line, there is no NKI code, just native PyTorch, registering custom ops
-@nki_op("mylib::pt_nki_sin", mutates_args={})
-def pt_nki_sin(x: torch.Tensor) -&gt; torch.Tensor:
-    out = torch.empty_like(x)
-    sin_kernel(x, out)
-    return out
-
-@nki_op("mylib::pt_nki_cos", mutates_args={})
-def pt_nki_cos(x: torch.Tensor) -&gt; torch.Tensor:
-    out = torch.empty_like(x)
-    cos_kernel(x, out)
-    return out
-
-def pt_nki_sin_backward(ctx, grad):
-    x, = ctx.saved_tensors
-    return grad * pt_nki_cos(x)  # cos is derivative of sin
-
-def pt_sin_setup_context(ctx, inputs, output):
-    x, = inputs
-    ctx.save_for_backward(x)
-
-# Register backward pass and context function used during autograd for nki_sin
-pt_nki_sin.register_autograd(pt_nki_sin_backward, setup_context=pt_sin_setup_context)
-
-if __name__ == "__main__":
-    x = torch.randn(128, 1, device="neuron", requires_grad=True)
-    # Forward pass uses sin_kernel
-    y = pt_nki_sin(x)
-    # Backward pass, autograd calls uses nki_sin_backward() -&gt; cos_kernel()
-    loss = y.sum()
-    loss.backward()
-</code></pre>
-<h3>Profiling with TorchNeuron</h3>
-<p>TorchNeuron integrates with the standard <code>torch.profiler.profile</code> API extended with a NeuronConfig object that controls Neuron-specific data collection. This allows users to capture and correlate traces from framework-level CPU operations (PyTorch dispatch, Python stacks) as well as Neuron runtime and Trainium activity (controlled by NeuronConfig) enabling end to end performance analysis.</p>
-<p>Profiles captured can be visualized in the Neuron Explorer UI, where users can trace execution across framework, runtime, and device, jump from any event to the exact source line (source code viewer), navigate the workload through its call hierarchy (hierarchy viewer), and follow dependency chains to see what each stall is waiting on (dependency chain viewer).</p>
-<p>Neuron Explorer also emits a <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-explorer/profile-schema-reference.html">Parquet output</a> with per-op and per-engine metrics, so the same data behind the UI can be queried directly or consumed by agents for automated bottleneck analysis. For programmatic access, users can work with the built-in <code>torch.profiler</code> tools. For example, the <code>key_averages</code> table lets users drill down into specific ops and use the <code>sort_by</code> argument to surface the device-side cost of each op, which is useful for identifying hotspots.</p>
-<p>Following code snippet shows an example (<a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-explorer/how-to-profile-workload.html#pytorch-profiling">details</a>):</p>
-<pre><code class="language-python">import torch
-from torch.profiler import profile, ProfilerActivity
-from torch_neuronx.profiling import NeuronConfig, ProfileMode, NeuronProfiler
-
-# Configure Neuron profiling and pass appropriate path as OUTPUT_DIR
-nc = NeuronConfig(
-   modes=[ProfileMode.DEVICE, ProfileMode.RUNTIME],
-   profile_output_dir=OUTPUT_DIR,
-   capture_enabled_for_nc='0',
-   correlate_device_time=True,
-)
-# NeuronProfiler.export_trace() places the framework trace
-# in the same directory as Neuron system traces
-exporter = NeuronProfiler(nc)
-
-device = torch.device('neuron')
-
-x = torch.randn(4, 512, dtype=torch.bfloat16, device=device)
-weight = torch.ones(512, dtype=torch.bfloat16, device=device)
-
-def rms_norm_fn(t):
-    x_sq = t * t
-    mean_sq = x_sq.mean(dim=-1, keepdim=True)
-    rms = torch.rsqrt(mean_sq + 1e-6)
-    return t * rms * weight
-
-# Profile your workload
-with torch.profiler.profile(
-    activities=[ProfilerActivity.CPU, ProfilerActivity.PrivateUse1],
-    experimental_config=nc,
-    record_shapes=False,
-    on_trace_ready=exporter.export_trace,
-    schedule=torch.profiler.schedule(wait=2, warmup=1, active=1),
-) as prof:
-    for step in range(4):
-        with torch.no_grad():
-            _ = rms_norm_fn(x)
-        torch.neuron.synchronize()
-        prof.step()
-
-# Print the per-op summary, sorted by device time to surface hotspots
-print(prof.key_averages().table(sort_by="self_privateuse1_time_total", row_limit=4))
-</code></pre>
-<p><em><img decoding="async" class="alignnone wp-image-188678 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-2.png" alt="" width="1534" height="425" srcset="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-2.png 1534w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-2-300x83.png 300w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-2-1024x284.png 1024w" sizes="(max-width: 1534px) 100vw, 1534px" /></em></p>
-<p><em><img decoding="async" class="alignnone wp-image-188681 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-3-scaled.png" alt="" width="2560" height="1342" srcset="https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-3-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-3-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-3-1024x537.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></em></p>
-<p><em>For additional capabilities and features refer to</em> <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/tools/neuron-explorer/index.html"><em>Neuron Explorer documentation</em></a><em>.</em></p>
-<h2>Customers and partners building on TorchNeuron</h2>
-<p>TorchNeuron is already in use across startups, enterprises, ML industry partners, and academic institutions: spanning autonomous vehicles, robotics, video generation, speech, telecommunications, healthcare, and geospatial modeling. Below is a snapshot of what teams are building today.</p>
-<blockquote><p><em>&#8220;Cartesia is building intelligence that learns from and interacts with the world the way humans do, starting with conversation. Our pioneering work on state-space architectures like Mamba powers Sonic (text-to-speech) and Ink (speech-to-text), the voice AI models behind conversational experiences that feel truly human. Real conversation demands three things at once: quality (naturalness and accuracy), efficiency (low latency at scale), and steerability. Most solutions deliver one or two. We designed our research and products from first principles to deliver all three, which means we need infrastructure that lets us squeeze maximum performance out of every layer without rewriting our stack. With PyTorch native support on AWS Trainium, we ran our standard inference pipeline with minimal changes to our PyTorch code. Small, fast ops map efficiently through the native path, so we didn&#8217;t have to hand-write kernels for them. That lets our team concentrate on writing high-performance NKI kernels for the layers that are called repeatedly and drive end-to-end latency. For real-time voice, every millisecond of network distance matters. Running on Trainium gives helps to put Sonic and Ink close to our customers globally.&#8221;</em></p>
-<p><strong><em>Arjun Desai, Cofounder, Cartesia</em></strong></p></blockquote>
-<blockquote><p><em>“Voice is becoming a first-class modality for AI, and Deepgram processes quadrillions of audio tokens a year for more than 200,000 developers and 1,400 organizations. To meet that demand, we need to scale efficiently while continuing to ship better models. Over a multi-month engagement, the AWS Generative AI Innovation Center helped us port our model to PyTorch Native on AWS Trainium. In the benchmarks we evaluated, Trainium processes about 60% more input audio seconds per dollar than our existing GPU baselines, which helps us bring better models to customers at lower prices. We look forward to supporting future AWS AI chips in our solution.”</em></p>
-<p><strong><em>Adam Sypniewski, CTO, Deepgram</em></strong></p></blockquote>
-<blockquote><p><em>“Hugging Face is the leading open platform for AI builders, providing free access to over 6 million open models, datasets and applications through PyTorch-powered open-source libraries including Transformers and Diffusers. Until now, taking advantage of AWS Trainium required adapting Hugging Face models with Neuron-specific software and configuration; TorchNeuron makes Trainium a native backend for Transformers and Diffusers, so developers can use familiar model definitions through a fully open-source stack &#8211; a practical expression of our commitment to silicon neutrality and compatibility. It’s now easier than ever to deploy state-of-the-art open LLMs and the latest open image and video generation models on AWS Trainium, with TRL enabling fine-tuning and reinforcement learning and Neuron kernels delivering optimized performance automatically through our libraries.”</em></p>
-<p><strong><em>Jeff Boudier, VP Product, Hugging Face</em></strong></p></blockquote>
-<p>Beyond these customers, we have been working with a number of partners who are building with TorchNeuron to enhance the Trainium ecosystem. These partners include Anyscale, Decart, Kernelize, Loka, Luminal, Makora, Modular, Nota AI, Radix, Wafer, and Yasp.</p>
-<h2>How TorchNeuron Enables broader compatibility</h2>
-<p>One of our goals with native PyTorch support is to enable developers to leverage the performance and cost benefits of Trainium while continuing to use the models, libraries, and workflows they already know. This helps preserve their investment in PyTorch, including their model code, inference and training infrastructure, debugging practices, and the community projects they build upon.</p>
-<p>The cost of running AI workloads includes the engineering time needed to get them working, optimize their performance, and maintain them as models and libraries evolve. We want developers to spend more time experimenting with architectures and improving model quality, and less time adapting their software to the underlying hardware. They should be able to start with a familiar model or training recipe, adapt it to their workload, and run it on Trainium with minimal changes specific to Neuron.</p>
-<p>TorchNeuron provides the foundation for this experience through compatibility with the broader PyTorch. Developers can use libraries such as TorchTitan, which brings together PyTorch’s distributed and compilation capabilities for large-scale training, and Hugging Face Transformers, which provides access to community model implementations, pretrained checkpoints, and APIs for adapting models to their applications.</p>
-<h3>TorchTitan Example</h3>
-<p><a href="https://github.com/pytorch/torchtitan">TorchTitan</a> is PyTorch’s native library for rapid experimentation and large-scale training. Its modular design makes it easier to customize training, test new ideas, and scale up experiments. TorchTitan trains on Trainium today. We continuously upstream into mainline TorchTitan, and <code>torchtitan-neuron</code> gives you those improvements before they merge, converging on mainline as each one lands. The Trainium-specific artifacts also ship in <code>torchtitan-neuron</code> and register through TorchTitan&#8217;s own extension points; those include NKI kernels, Trainium-tuned model configurations and training recipes, and profiling integrations for Neuron Explorer.</p>
-<pre><code class="language-bash"># Install from source
-
-git clone https://github.com/aws-neuron/torchtitan-neuron
-cd torchtitan
-pip install -r requirements.txt
-
-# Download the llama3-8B tokenizer
-
-python scripts/download_hf_assets.py --repo_id meta-llama/Llama-3.1-8B --assets tokenizer --hf_token=...
-
-# Train Llama3-8B with Simple FSDP + torch.compile on a single trn2.48xlarge instance:
-
-export NEURON_RT_NUM_CORES=64
-torchrun --nnodes 1 --nproc_per_node $NEURON_RT_NUM_CORES \
---local-ranks-filter 0 --role rank --tee 3 \
---rdzv_backend c10d --rdzv_endpoint "localhost:0" \
--m torchtitan.train --module torchtitan_neuron.experiments.graph_trainer.llama3 --config simple_fsdp_llama3_8b \
---parallelism.tensor-parallel-degree 4 \
---parallelism.data-parallel-shard-degree -1 \
---training.global-batch-size 16 \
---training.local-batch-size 1 \
---compile.enable --compile.backend neuron
-</code></pre>
-<p>Following is example loss curve of training Llama 3 8B on 8 x trn2.48xlarge with Tensor Parallel (TP) and Hybrid Sharded Data Parallel (HSDP) with TorchTitan</p>
-<p><!-- IMAGE PLACEHOLDER: torchtitan-llama3-8b-loss-curve.png - upload via Media Library. Suggested alt text: "Loss curve for Llama 3 8B trained with TorchTitan on 8 x trn2.48xlarge (TP + HSDP)" --></p>
-<h3><img decoding="async" class="alignnone wp-image-188684 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-4-scaled.png" alt="" width="2560" height="960" srcset="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-4-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-4-300x113.png 300w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-4-1024x384.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></h3>
-<h3>Hugging Face Transformers v5</h3>
-<p>Transformers v5 is built for interoperability: one model implementation that runs on any platform and any hardware, and that downstream training and serving stacks consume directly.</p>
-<p>Trainium is a supported device upstream in the Hugging Face libraries, including Transformers, Diffusers, trl and kernels. Transformers v5 enables training and inference of text and audio models, Diffusers supports image and video generation, trl enables reinforcement learning of large language models, and NKI kernels are available through the Hugging Face kernels library. AWS and Hugging Face added the support to each library, so existing Hugging Face workflows run on Trainium with no device-specific code.</p>
-<ul>
-<li><strong>Training.</strong> Transformers v5 strengthens full pre-training and fine-tuning readiness, with better initialization and compatibility with the parallelism and tooling ecosystem — TorchTitan for scale, Unsloth and TRL for post-training.</li>
-<li><strong>Inference.</strong> Transformers v5 standardizes attention and kernels across model implementations.</li>
-<li><strong>Diffusion.</strong> Tensor parallelism in Diffusers is merged upstream for Neuron, so image and video generation run through the diffusers APIs unchanged.</li>
-<li><strong>Compatibility.</strong> Transformers v5 is a native backend of runtime libraries such as TorchTitan, vLLM and SGLang, extending their model breadth to most of the 3 million public models available on Hugging Face. We are working on enabling and validating this integration on Neuron, bringing this expanded model support to Trainium instances.</li>
-</ul>
-<h4>Loading a model onto Trainium</h4>
-<pre><code class="language-python">from transformers import AutoModelForCausalLM
-
-model = AutoModelForCausalLM.from_pretrained(
-    "Qwen/Qwen3-0.6B",
-    # Neuron hardware is automatically detected
-    device_map="neuron"
-)
-</code></pre>
-<p>TorchNeuron registers Trainium through PyTorch&#8217;s PrivateUse1 extension point, which puts Neuron in PyTorch&#8217;s device enumeration. device_map=&#8221;auto&#8221; finds it with no configuration, and device_map=&#8221;neuron&#8221; names it explicitly. Either way the weights load onto the device for training or inference, and the rest of the script is unchanged.</p>
-<h2>Testing methodology and results</h2>
-<p>Our testing methodology included verifying TorchNeuron on broad model coverage across HuggingFace and TorchTitan models, and PyTorch upstream test suite across both eager and torch.compile mode.</p>
-<h3>Model coverage</h3>
-<p><em>Blind Sweep (Broad testing at scale).</em> We used the Hugging Face model universe to perform broad sweep across open source models. We continuously run 100k Hugging Face models that cover 99.9% of real-world usage (based on the download count). We ran each model on Trainium in a reduced but representative configuration and record what happens: does it load, does the forward and backward pass run, does it compile, and which operators executed on the device versus fell back to CPU.</p>
-<p>The following graph shows the result of 100k model run across eager and torch.compile mode as of September, 2026. We are working on closing the remaining gaps, targeting closing most, if not all, in future releases.</p>
-<p><!-- IMAGE PLACEHOLDER: hf-100k-model-sweep.png - upload via Media Library. Suggested alt text: "Results of the 100k Hugging Face model sweep in eager and torch.compile modes" --></p>
-<h3><img decoding="async" class="alignnone wp-image-188686 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-5-scaled.png" alt="" width="2560" height="1279" srcset="https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-5-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-5-300x150.png 300w, https://pytorch.org/wp-content/uploads/2026/10/AWS-TorchNeuron-image-5-1024x512.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></h3>
-<h3>PyTorch Upstream tests</h3>
-<p>We run the PyTorch upstream test suites: ATen, Dynamo, distributed, and profiler, and report the pass rate against the enabled tests. The August 2026 run produced about 154K test outcomes, of which roughly 69K were skipped with a valid reason: About 30K of those are skipped by PyTorch own eligibility checks (for example CUDA-only and CPU-only tests) and are not Neuron-specific. The remaining ~39K are deliberate Neuron skips, in three groups</p>
-<ul>
-<li><strong>Operators without a native Neuron lowering at this point</strong> (~22K, the largest group; ties to operator coverage above that we plan to close in sequential releases) &#8211; corner cases for elementwise, reduction, foreach, advanced-indexing, and advanced-linalg operators, and fused LSTM/GRU cells.</li>
-<li><strong>CUDA-specific tests (i.e. the upstream eligibility check did not flag)</strong> &#8211; CUDA graphs, NCCL-specific collectives, CUDA-specific Dynamo paths tests are skipped with eligibility check.</li>
-<li><strong>Features TorchNeuron explicitly chose not to support in the first release as customers didn’t request them:</strong> composite-operator compliance, sparse tensors and sparse ops, NestedTensor, forward-mode autograd (JVP), arbitrary attention masks in native multi-head attention (no-mask and causal are supported), per-channel quantization, negative/conjugate view bits, torch.signal windows, bilinear/bicubic up sample, and dynamic and symbolic shapes.</li>
-</ul>
-<p>As part of this process, we also contributed back to PyTorch by raising several RFCs and PRs to improve test quality and removing hard coded CUDA assumptions (<a href="https://github.com/pytorch/pytorch/pull/193439">193439</a>, <a href="https://github.com/pytorch/pytorch/pull/193441">193441</a>, <a href="https://github.com/pytorch/pytorch/pull/193442">193442</a>, see Appendix A for complete PR list).</p>
-<p><!-- IMAGE PLACEHOLDER: upstream-pytorch-test-results.png - upload via Media Library. Suggested alt text: "Upstream PyTorch test results by component: ATen, Dynamo, Distributed, Profiler" --></p>
-<h2><img decoding="async" class="alignnone wp-image-188687 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-6-scaled.png" alt="" width="2560" height="1396" srcset="https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-6-scaled.png 2560w, https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-6-300x164.png 300w, https://pytorch.org/wp-content/uploads/2026/10/AWS-Torch-Neuron-image-6-1024x558.png 1024w" sizes="(max-width: 2560px) 100vw, 2560px" /></h2>
-<h2>How to get started</h2>
-<p>Starting Oct. 20, 2026, TorchNeuron will be available as a public beta. Researchers and developers will be able to install with pip install torch-neuronx from the AWS Neuron pip repo <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/setup/pytorch/index.html">details</a>.</p>
-<h2>Resources</h2>
-<p>The following resources will go live on Oct. 20:</p>
-<ul>
-<li><strong>TorchNeuron</strong>: <a href="https://github.com/aws-neuron/torch-neuronx">https://github.com/aws-neuron/torch-neuronx</a></li>
-<li><strong>AWS Trainium</strong>: <a href="https://aws.amazon.com/machine-learning/trainium/">https://aws.amazon.com/machine-learning/trainium/</a></li>
-<li><strong>AWS Neuron SDK</strong>: <a href="https://aws.amazon.com/machine-learning/neuron/">https://aws.amazon.com/machine-learning/neuron/</a></li>
-<li><strong>Neuron Documentation</strong>: <a href="https://awsdocs-neuron.readthedocs-hosted.com/">https://awsdocs-neuron.readthedocs-hosted.com/</a></li>
-</ul>
-<h2>Quick Reference</h2>
-<p>For further guidance on getting started, execution modes, and distributed training, see the <a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/torch/index.html" target="_blank" rel="noopener" data-saferedirecturl="https://www.google.com/url?q=https://awsdocs-neuron.readthedocs-hosted.com/en/latest/torch/index.html&amp;source=gmail&amp;ust=1792533992377000&amp;usg=AOvVaw2UmGKm0-RjNYfIzMuky4NX">TorchNeuron documentation</a>.</p>
-<h2>Join us at PyTorch Conference North America</h2>
-<ul>
-<li>Open source TorchNeuron under Apache 2.0 on GitHub</li>
-<li>Release pip-installable packages for immediate use</li>
-<li>Present technical deep-dive sessions on native PyTorch on Trainium</li>
-<li>Host live demos</li>
-</ul>
-<h2>Acknowledgments</h2>
-<p>We would like to thank the PyTorch community and the PyTorch team at Meta for their work on PyTorch&#8217;s extensibility mechanisms, particularly the PrivateUse1 device backend and torch.accelerator APIs that made this integration possible. We also thank the PyTorch Foundation for their support in CI/CD infrastructure.</p>
-<p>AWS is committed to supporting the PyTorch ecosystem by providing Trainium resources for PyTorch CI/CD infrastructure and contributing to open source PyTorch projects.</p>
-<p>Special thanks to Anthropic, Anyscale, Amazon AGI, Amazon Rufus, ByteDance, Cartesia, Clay Foundation, Databricks, Decart, Deepgram, Hugging Face, Karakuri, Lieber Institute for Brain Development, Meta, MIT, Neura Robotics, NinjaTech AI, Nota AI, Odyssey, PDT Partners, poolside, Qube Research and Technologies, RadixArk, Ricoh, Rivian, Salesforce, SemiAnalysis, UC Berkeley, Stanford, CMU, UCLA, Zyphra, and many others for their feedback in shaping TorchNeuron&#8217;s design and capabilities.</p>
-<p><strong>Contributors</strong>: Apoorv Gupta, Arash Jamalian, Rui Silva, Peter Sam Raj, Kunind Sahu, Kamran Khan, Shreya Srivastava, Charan Shettyhalli Guruswamy, Alex Hoffman, Abigail Fernandes, Sam Jin</p>
-<h2>Appendix: Complete List of PRs</h2>
-<ul>
-<li><a href="https://github.com/pytorch/pytorch/pull/179063">https://github.com/pytorch/pytorch/pull/179063</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/179511">https://github.com/pytorch/pytorch/pull/179511</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/187736">https://github.com/pytorch/pytorch/pull/187736</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/188839">https://github.com/pytorch/pytorch/pull/188839</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/192365">https://github.com/pytorch/pytorch/pull/192365</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/192401">https://github.com/pytorch/pytorch/pull/192401</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/192404">https://github.com/pytorch/pytorch/pull/192404</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193428">https://github.com/pytorch/pytorch/pull/193428</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193430">https://github.com/pytorch/pytorch/pull/193430</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193433">https://github.com/pytorch/pytorch/pull/193433</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193436">https://github.com/pytorch/pytorch/pull/193436</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193438">https://github.com/pytorch/pytorch/pull/193438</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193439">https://github.com/pytorch/pytorch/pull/193439</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193441">https://github.com/pytorch/pytorch/pull/193441</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193442">https://github.com/pytorch/pytorch/pull/193442</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193444">https://github.com/pytorch/pytorch/pull/193444</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193445">https://github.com/pytorch/pytorch/pull/193445</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193450">https://github.com/pytorch/pytorch/pull/193450</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193456">https://github.com/pytorch/pytorch/pull/193456</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193457">https://github.com/pytorch/pytorch/pull/193457</a></li>
-<li><a href="https://github.com/pytorch/pytorch/pull/193686">https://github.com/pytorch/pytorch/pull/193686</a></li>
-<li><a href="https://github.com/pytorch/torchtitan/pull/2382">https://github.com/pytorch/torchtitan/pull/2382</a></li>
-<li><a href="https://github.com/pytorch/torchtitan/pull/2440">https://github.com/pytorch/torchtitan/pull/2440</a></li>
-<li><a href="https://github.com/pytorch/torchtitan/pull/2445">https://github.com/pytorch/torchtitan/pull/2445</a></li>
-<li><a href="https://github.com/pytorch/torchtitan/pull/2450">https://github.com/pytorch/torchtitan/pull/2450</a></li>
-<li><a href="https://github.com/pytorch/torchtitan/pull/2668">https://github.com/pytorch/torchtitan/pull/2668</a></li>
-</ul>
-<p>The post <a href="https://pytorch.org/blog/introducing-torchneuron-native-pytorch-backend-for-aws-trainium/">Introducing TorchNeuron: Native PyTorch backend for AWS Trainium</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</title>
-		<link>https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/</link>
-		
-		<dc:creator><![CDATA[Josh Wills, Maximilian Böther, Ties Robroek and the Zephon team]]></dc:creator>
-		<pubDate>Fri, 16 Oct 2026 16:30:46 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=188117</guid>
-
-					<description><![CDATA[<p>Why Zephon? The data that a model sees during training is one of the most powerful levers we have for influencing how well it performs. Much of the day-to-day work...</p>
-<p>The post <a href="https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/">Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<h3><span style="font-weight: 400;">Why Zephon?</span></h3>
-<p><span style="font-weight: 400;">The data that a model sees during training is one of the most powerful levers we have for influencing how well it performs. Much of the day-to-day work of improving a model happens on the data side: we change the mixture, or the filters that we apply, or how we tokenize and pack the samples, and then we run an ablation experiment to see whether the change helped. The first problem with this is that each of these changes often requires us to do a full pass over our training corpus and run expensive offline operations to prepare the data and store it on disk before our ablation experiment can run. Since a typical training run reads through that copy exactly once, and because most experiments don’t end up producing a better model, we spend a lot of time and storage creating datasets that will never be read again.</span></p>
-<p><span style="font-weight: 400;">This matters even more now that experiments can be designed, launched, and interpreted by agents instead of people. Agents are great for running lots of experiments in parallel, but they aren’t especially good at noticing when a result actually depends on something other than the change they made, like the number of GPUs that an experiment happened to run on (in fairness to the agents, humans aren’t great at noticing this either). And with most data loaders, the number of GPUs </span><i><span style="font-weight: 400;">does</span></i><span style="font-weight: 400;"> change the result, because it changes the data order.</span></p>
-<p><span style="font-weight: 400;">To illustrate this, we train a 1B-parameter model in TorchTitan on 16 GPUs, take a checkpoint at step 150, and then resume from that checkpoint on 8, 32, and 64 GPUs alongside the original run, once with a standard data loader and once with Zephon (think of it as the run hitting a hardware fault and coming back on whatever set of GPUs happened to be free). As seen in Figure 1, with the standard data loader, changing the GPU count means that the data loader hands the model a different sequence of samples after the resume, and so each one ends up with a distinct loss curve. With Zephon, the curves lie on top of each other, and the SHA-256 hash of every global batch matches the baseline run.</span><iframe class="zephon-embed" style="width: 100%; height: 520px; border: 0;" title="Zephon fault-resume loss curves" src="https://www.datologyai.com/embeds/zephon-fault-resume.html"></iframe></p>
-<p style="text-align: center;"><em><span style="font-weight: 400;">[Figure 1: Loss curves after resuming on 8, 32, and 64 GPUs from a 16-GPU checkpoint at step 150, standard loader vs. Zephon, with a barcode comparing the per-step SHA-256 of each global batch against the original run.] </span></em></p>
-<p><span style="font-weight: 400;">To get a sense for how much this matters, we train the same 1B-parameter model from scratch for 20B tokens on 8, 16, 32, and 64 GPUs using a standard data loader. We show the scores per GPU count in Figure 2. The model’s DCLM Core v1 score varies by up to 0.82 points depending on how many GPUs it was trained on, and its score based on the FineWeb evaluation suite by up to 0.64 points. That is roughly four times the relevant thresholds that the DCLM and FineWeb authors used when evaluating data curation methods, which means that an ablation comparing two mixtures on two different allocations could easily be measuring the GPU count instead of the data. With Zephon, the spread across the different GPU counts was only 0.05 and 0.011 points, respectively.</span> <iframe class="zephon-embed" style="width: 100%; height: 400px; border: 0;" title="DCLM Core v1 by GPU count" src="https://www.datologyai.com/embeds/zephon-eval-dclm/index.html"></iframe> <iframe class="zephon-embed" style="width: 100%; height: 400px; border: 0;" title="FineWeb evals by GPU count" src="https://www.datologyai.com/embeds/zephon-eval-fineweb/index.html"></iframe></p>
-<p style="text-align: center;"><em><span style="font-weight: 400;">[</span><span style="font-weight: 400;">Figure 2: Downstream evaluations at 8–64 GPUs on DCLM Core v1 and FineWeb with non-elastically deterministic (standard) data loading and Zephon</span><span style="font-weight: 400;">. </span><span style="font-weight: 400;">Grey bands mark the eval noise floor.</span><span style="font-weight: 400;">]</span></em></p>
-<p><span style="font-weight: 400;">Note that Zephon does all of this while doing the data prep work on the fly: it tokenizes, packs, shuffles, and mixes the data inside of the training job, taking advantage of all of those CPUs sitting around with nothing to do while the model trains, which means there’s no preprocessed copy of the corpus to create (or to throw away when the experiment doesn’t pan out).</span></p>
-<h3><span style="font-weight: 400;">A Zephon Pipeline</span></h3>
-<p><span style="font-weight: 400;">Zephon asks you to describe three things: the </span><span style="font-weight: 400;"><code>Datasets</code> you want to train on, a </span><span style="font-weight: 400;"><code>WorkSource</code></span><span style="font-weight: 400;"> that decides how those datasets are mixed and ordered into a training curriculum, and a <code>Pipeline</code></span><span style="font-weight: 400;"> of operators that turn the samples in their stored representations into the tensors your training loop consumes. Here’s an example that mixes two text datasets directly from Hugging Face, then tokenizes, packs, shuffles, and batches the result: </span></p>
-<pre class="wp-block-code"><code class="language-python">from zephon import Pipeline
-from zephon.io import Dataset
-from zephon.work import StaticMixtureWorkSource, TokenEstimation
-
-source = StaticMixtureWorkSource(
-    datasets=[
-        Dataset.from_path("wiki", "hf://Salesforce/wikitext/wikitext-2-raw-v1/train"),
-        Dataset.from_path("news", "hf://fancyzhx/ag_news/default/train"),
-    ],
-    mixture={"wiki": 0.5, "news": 0.5},   # a token ratio, not a sample ratio
-    token_estimation=TokenEstimation(),
-    seed=42,
-)
-pipeline = (
-    Pipeline(source)
-    .options(io_options={"cache": {"enabled": True}})
-    .tokenize(tokenizer_id="gpt2", field="text", parallelism=4)
-    .pack_flat(max_length=2048, algorithm="wrap")
-    .shuffle(buffer_size=1024, seed=42)
-    .batch(microbatch_size=8)
-)
-for batch in pipeline:
-    train_step(batch.to_training())</code></pre>
-<p>The <code>WorkSource</code> plans the curriculum from each <code>Dataset</code>’s metadata and is kept separate from the operators that actually process those samples so you can change the mixture without touching the processing pipeline and vice-versa. In order to ensure we get the mixture percentages correct on a token basis, we include a <code>TokenEstimation</code> utility that measures the token/byte ratio for a small sample of each dataset and adjusts the plan to target the mixing proportions on a token-level even though the samples are stored as raw strings.</p>
-<p>Each of the individual <code>Pipeline</code> operators can have its own level of parallelism; here, tokenization gets four workers because it’s the most expensive step. Parallelizing the preprocessing operators is how Zephon keeps the GPUs fed, even on more complex pipelines: on a full vision-language pipeline that decodes images, tokenizes, packs, and batches its samples, Zephon keeps pace with Google Grain, the fastest loader we tested, while offering the stronger elastic determinism guarantees.</p>
-<p style="text-align: center;"><span style="font-weight: 400;"><iframe class="zephon-embed" style="width: 100%; height: 418px; border: 0;" title="VLM throughput: usable tokens per second per GPU" src="https://www.datologyai.com/embeds/zephon-vlm-throughput/index.html"></iframe></span><span style="font-weight: 400;">[</span><i><span style="font-weight: 400;">Figure 3: Usable (non-padding) tokens per second per GPU on a full vision-language pipeline as parallelism increases, for Zephon, Grain, and a quickly hacked-together internal loader we used internally before building Zephon. The horizontal line is the throughput needed to keep the GPUs from stalling</span></i><span style="font-weight: 400;">.]</span></p>
-<h3><span style="font-weight: 400;">How Zephon Keeps the Batches Identical</span></h3>
-<p><span style="font-weight: 400;">Packing and mixing data on the fly is what makes elastic determinism hard. When a data loader tokenizes documents, packs them together into fixed-length sequences, and mixes several datasets together as it goes, the order of the training data is no longer something that you can look up at an index on disk (we call this </span><i><span style="font-weight: 400;">stateful n:m pipelines</span></i><span style="font-weight: 400;"> in </span><a href="https://arxiv.org/abs/2610.03087"><span style="font-weight: 400;">our paper</span></a><span style="font-weight: 400;">). In this case, it depends on the state of the pipeline when and how a sample is used, and in most data loaders that state can’t be transferred to a different number of GPUs without changing the output. Existing loaders get part of the way there: Mosaic Streaming and Google Grain can keep the global batches the same across GPU counts, but only when the order of samples can be worked out ahead of time from an index, which rules out things like packing on the fly. Megatron-Energon can reproduce its batches on a different number of GPUs, but only as long as the total number of data loader workers across all of the GPUs stays the same. </span></p>
-<p><span style="font-weight: 400;">Zephon allows for elastic determinism without these constraints with three design decisions that build on each other.</span></p>
-<p><b>Accumulators make the decisions; workers do the work.</b><span style="font-weight: 400;"> Every Zephon operator is split into two parts: a single-threaded accumulator that sees every record in order and makes all of the stateful decisions (like which sequences get packed together), and a stateless function that does the expensive work across however many parallel workers you give it. Since the workers can finish in any order, Zephon numbers each group of records before handing it out and puts the results back in order before passing them along. Unlike other data loaders, this allows that in Zephon the degree of parallelism is a pure performance knob: you can double the number of tokenization workers and the output won’t change.</span></p>
-<p><b>Lanes instead of ranks.</b><span style="font-weight: 400;"> Instead of dividing the data up among the available GPUs directly, Zephon divides it into a fixed number of logical streams that are called </span><i><span style="font-weight: 400;">lanes</span></i><span style="font-weight: 400;">. Each lane has its own ordered sequence of samples and its own copy of any state that the operators need to keep (like the partially filled bins inside of a packing operator), so a lane produces exactly the same records regardless of which GPU ends up being assigned to it. When the number of data-parallel ranks changes, Zephon simply redistributes the lanes across the ranks, and the global batches come out the same. Accumulators make each lane deterministic; the lanes make Zephon elastically deterministic. The catch (you knew there had to be one) is that you need to choose the number of lanes up front, which we’ll come back to below.</span></p>
-<p><b>Flushing and replaying instead of saving state.</b><span style="font-weight: 400;"> A Zephon checkpoint doesn’t contain the contents of any packing bins or shuffle buffers; it only records which chunks of the input were still being worked on when the checkpoint was taken. In order to keep that list short, Zephon periodically sends a </span><i><span style="font-weight: 400;">flush sentinel</span></i><span style="font-weight: 400;"> through the pipeline that tells every stateful operator to emit whatever it’s holding and start over from a clean slate. When we restore from a checkpoint, Zephon replays the input from the most recent flush (which rebuilds the operators’ state exactly) and throws away anything the training loop has already consumed, which keeps checkpoints small (a few MiB in our experiments) no matter how far into the run you are.</span></p>
-<h3><span style="font-weight: 400;">Plugging Into TorchTitan</span></h3>
-<p><span style="font-weight: 400;">Our </span><a href="https://github.com/datologyai/torchtitan-zephon"><span style="font-weight: 400;">TorchTitan integration</span></a><span style="font-weight: 400;"> replaces TorchTitan’s default data loader with a Zephon </span><span style="font-weight: 400;"><code>Pipeline</code></span><span style="font-weight: 400;"> built from a data recipe (i.e., your datasets, their mixture weights, and whatever packing, shuffling, and parallelism settings you want to use), and everything else about the training run stays the same. Zephon’s state goes into TorchTitan’s checkpoint alongside the model, and since that state covers every lane, you can resume the run on a different number of GPUs from the same checkpoint. When the run launches, the integration checks that the lanes divide evenly across the data-parallel replicas and that each optimizer step’s batch splits evenly across the lanes, so a misconfigured run fails right away instead of silently changing the data several hours in. </span></p>
-<p><span style="font-weight: 400;">The </span><a href="https://github.com/datologyai/torchtitan-zephon"><span style="font-weight: 400;">repo</span></a><span style="font-weight: 400;"> also comes with a quick CPU-only demo that checkpoints a data stream, resumes it on a different number of data-parallel replicas, and checks that every global step matches an uninterrupted run, along with a GPU smoke test that does the same thing with a real (albeit tiny) model. The </span><a href="https://github.com/datologyai/torchtitan-zephon/blob/main/examples/zephon/README.md"><span style="font-weight: 400;">README</span></a><span style="font-weight: 400;"> has the commands for running each of these, plus the setup instructions, the full set of configuration options, and some example recipes to get you started.</span></p>
-<h3><span style="font-weight: 400;">Things to Know Before You Start</span></h3>
-<p><b>Choose your lane count.</b><span style="font-weight: 400;"> Pick a number that’s a common multiple of the data-parallel sizes you expect to run on. If you might run on 8, 16, or 32 GPUs, 32 lanes is a cap that covers all three. Don’t go overboard though (e.g., multiple thousands when your max is 16), since every extra lane per GPU adds overhead to the checkpoint’s restore time.</span></p>
-<p><b>Keep the recipe fixed when you resume on more/fewer ranks.</b><span style="font-weight: 400;"> The data, tokenizer, seed, mixture, context length, and global batch size all need to stay the same. Of course, you may still adjust performance settings such as parallelism.</span></p>
-<p><b>Zephon guarantees the data, not the arithmetic.</b><span style="font-weight: 400;"> The global batches will be identical across GPU counts, and the losses will be very close, but might not be identical since floating-point reduction order in the training loop still depends on how many GPUs are sharing the work.</span></p>
-<h3><span style="font-weight: 400;">Looking Ahead</span></h3>
-<p><span style="font-weight: 400;">There are a couple of directions that we’re especially excited about. The first is GIL-free Python: Zephon allows users to pick a </span><i><span style="font-weight: 400;">runner</span></i><span style="font-weight: 400;">, i.e., how to parallelize the operators. One runner we implemented is a thread-based runner. On Python 3.14t, it fetches vision-language samples about 3.7x faster than Zephon’s process runner does on standard Python. We think that’s where data loading is headed, and Zephon is ready for it.</span> <span style="font-weight: 400;">The second is dynamic curricula: because the curriculum is kept separate from the processing pipeline, a </span><span style="font-weight: 400;"><code>WorkSource</code></span><span style="font-weight: 400;"> can change the mixture weights over the course of a run without touching anything downstream. We’re working on a configurable curriculum component that does exactly this while keeping the determinism guarantees that we described above.</span></p>
-<p><span style="font-weight: 400;">Beyond that, we would love to hear which parts of your data pipeline you would like to move into the training job and how we can help; issues and PRs are most welcome!</span></p>
-<p><b>Learn more: </b><a href="https://www.datologyai.com/blog/zephon"><span style="font-weight: 400;">Launch post</span></a><span style="font-weight: 400;"> · </span><a href="https://arxiv.org/abs/2610.03087"><span style="font-weight: 400;">Paper</span></a><span style="font-weight: 400;"> · </span><a href="https://zephon.io/"><span style="font-weight: 400;">Zephon</span></a><span style="font-weight: 400;"> · </span><a href="https://github.com/datologyai/zephon"><span style="font-weight: 400;">Zephon on GitHub</span></a><span style="font-weight: 400;"> · </span><a href="https://github.com/datologyai/torchtitan-zephon"><span style="font-weight: 400;">TorchTitan Integration</span></a></p>
-<p><script type="text/javascript" nonce="2f7fd749d805e27abc918657413647ff">
-window.addEventListener('message', function (e) {
-  if (e.origin !== 'https://www.datologyai.com' || !e.data ||
-e.data.type !== 'EMBED_RESIZE') return;
-  document.querySelectorAll('iframe.zephon-embed').forEach(function (f) {
-    if (f.contentWindow === e.source) f.style.height = e.data.height + 'px';
-  });
-});
-</script></p>
-<p>The post <a href="https://pytorch.org/blog/bringing-elastically-deterministic-data-loading-to-torchtitan-with-zephon/">Bringing Elastically Deterministic Data Loading to TorchTitan with Zephon</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4675 metric#misses=31 metric#hit-ratio=99.3 metric#bytes=1550573 metric#prefetches=248 metric#store-reads=35 metric#store-writes=6 metric#store-hits=256 metric#store-misses=15 metric#sql-queries=17 metric#ms-total=584.39 metric#ms-cache=25.71 metric#ms-cache-avg=0.6428 metric#ms-cache-ratio=4.4 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4762 metric#misses=31 metric#hit-ratio=99.4 metric#bytes=1568797 metric#prefetches=266 metric#store-reads=35 metric#store-writes=6 metric#store-hits=274 metric#store-misses=15 metric#sql-queries=17 metric#ms-total=485.07 metric#ms-cache=24.78 metric#ms-cache-avg=0.6195 metric#ms-cache-ratio=5.1 -->
