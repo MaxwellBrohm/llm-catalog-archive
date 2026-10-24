@@ -1,0 +1,177 @@
+{
+  "candidates": [
+    {
+      "id": "74d7b90201cca67ae1a4368df94f82a5ab20308b:incident_opened:tag:status.claude.com,2005:Incident/31746925",
+      "type": "incident_opened",
+      "sentence": "The claude-status feed listed an incident titled \"Elevated errors for Claude Fable 5.1, Sonnet 5.5, and Haiku 5.5\" at \"https://status.claude.com/incidents/h101vcmhnfky\".",
+      "source": "claude-status",
+      "stamp": {
+        "iso": "2026-10-24T04:36:00.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.33,
+      "why": [
+        "incident_opened is rare in the archive: +6.33 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:tag:status.claude.com,2005:Incident/31746925"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The claude-status feed listed an incident titled \"Elevated errors for Claude Fable 5.1, Sonnet 5.5, and Haiku 5.5\" at \"https://status.claude.com/incidents/h101vcmhnfky\".\n\nhttps://diffwire.dev/changes/74d7b90201cca67ae1a4368df94f82a5ab20308b.html",
+        "url": "https://diffwire.dev/changes/74d7b90201cca67ae1a4368df94f82a5ab20308b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20claude-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20Claude%20Fable%205.1%2C%20Sonnet%205.5%2C%20and%20Haiku%205.5%22%20at%20%22https%3A%2F%2Fstatus.claude.com%2Fincidents%2Fh101vcmhnfky%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F74d7b90201cca67ae1a4368df94f82a5ab20308b.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "74d7b90201cca67ae1a4368df94f82a5ab20308b:incident_opened:tag:status.claude.com,2005:Incident/31747224",
+      "type": "incident_opened",
+      "sentence": "The claude-status feed listed an incident titled \"Elevated errors for Claude Opus 5.5\" at \"https://status.claude.com/incidents/3cqf3pmlnr96\".",
+      "source": "claude-status",
+      "stamp": {
+        "iso": "2026-10-24T04:36:00.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.33,
+      "why": [
+        "incident_opened is rare in the archive: +6.33 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:tag:status.claude.com,2005:Incident/31747224"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The claude-status feed listed an incident titled \"Elevated errors for Claude Opus 5.5\" at \"https://status.claude.com/incidents/3cqf3pmlnr96\".\n\nhttps://diffwire.dev/changes/74d7b90201cca67ae1a4368df94f82a5ab20308b.html",
+        "url": "https://diffwire.dev/changes/74d7b90201cca67ae1a4368df94f82a5ab20308b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20claude-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20for%20Claude%20Opus%205.5%22%20at%20%22https%3A%2F%2Fstatus.claude.com%2Fincidents%2F3cqf3pmlnr96%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F74d7b90201cca67ae1a4368df94f82a5ab20308b.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "ebf81ff69fe3957b7a41ae7592be43a48ced4045:incident_opened:https://status.openai.com//incidents/01M5NAR5GZC5M7D0S7AQ6CGEEN",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Help Center Chat Support Degraded\" at \"https://status.openai.com//incidents/01M5NAR5GZC5M7D0S7AQ6CGEEN\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-10-24T04:36:22.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.33,
+      "why": [
+        "incident_opened is rare in the archive: +6.33 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M5NAR5GZC5M7D0S7AQ6CGEEN"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Help Center Chat Support Degraded\" at \"https://status.openai.com//incidents/01M5NAR5GZC5M7D0S7AQ6CGEEN\".\n\nhttps://diffwire.dev/changes/ebf81ff69fe3957b7a41ae7592be43a48ced4045.html",
+        "url": "https://diffwire.dev/changes/ebf81ff69fe3957b7a41ae7592be43a48ced4045.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Help%20Center%20Chat%20Support%20Degraded%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M5NAR5GZC5M7D0S7AQ6CGEEN%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Febf81ff69fe3957b7a41ae7592be43a48ced4045.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "ebf81ff69fe3957b7a41ae7592be43a48ced4045:incident_opened:https://status.openai.com//incidents/01M5NFF94XCJ6CGTD4S78A9BEB",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Degraded experience with ChatGPT app connections using CIMD\" at \"https://status.openai.com//incidents/01M5NFF94XCJ6CGTD4S78A9BEB\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-10-24T04:36:22.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.33,
+      "why": [
+        "incident_opened is rare in the archive: +6.33 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M5NFF94XCJ6CGTD4S78A9BEB"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Degraded experience with ChatGPT app connections using CIMD\" at \"https://status.openai.com//incidents/01M5NFF94XCJ6CGTD4S78A9BEB\".\n\nhttps://diffwire.dev/changes/ebf81ff69fe3957b7a41ae7592be43a48ced4045.html",
+        "url": "https://diffwire.dev/changes/ebf81ff69fe3957b7a41ae7592be43a48ced4045.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Degraded%20experience%20with%20ChatGPT%20app%20connections%20using%20CIMD%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M5NFF94XCJ6CGTD4S78A9BEB%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Febf81ff69fe3957b7a41ae7592be43a48ced4045.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "8003c6b94af0c8f960997e8728deb2d8f574c996:model_added:moonshotai/kimi-k3.1-pro",
+      "type": "model_added",
+      "sentence": "The catalog id \"moonshotai/kimi-k3.1-pro\" entered OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-10-23T19:24:55.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.57,
+      "why": [
+        "model_added is rare in the archive: +5.57 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:moonshotai/kimi-k3.1-pro",
+        "lab:lab/moonshot"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The catalog id \"moonshotai/kimi-k3.1-pro\" entered OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/8003c6b94af0c8f960997e8728deb2d8f574c996.html",
+        "url": "https://diffwire.dev/changes/8003c6b94af0c8f960997e8728deb2d8f574c996.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22moonshotai%2Fkimi-k3.1-pro%22%20entered%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F8003c6b94af0c8f960997e8728deb2d8f574c996.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ],
+  "funnel": {
+    "seen": 8322,
+    "postableType": 713,
+    "notOnCooldown": 713,
+    "aboveFloor": 8
+  },
+  "generated_at": "2026-10-24T14:07:42.209Z"
+}
