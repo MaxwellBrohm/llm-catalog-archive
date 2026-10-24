@@ -9,6 +9,7 @@
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
 - [Available models](https://docs.together.ai/docs/serverless/models.md): Browse the catalog of available models for instant inference.
+- [Geo-specific inference](https://docs.together.ai/docs/serverless/geo-specific-inference.md): Keep serverless inference processing in the United States or Canada through geography-specific API endpoints.
 - [Rate limits](https://docs.together.ai/docs/serverless/rate-limits.md): Understand serverless performance, how to handle rate limits during high demand, and options for throughput guarantees.
 - [Provisioned throughput](https://docs.together.ai/docs/inference/provisioned-throughput.md): Reserved inference capacity for production workloads.
 - [Overview](https://docs.together.ai/docs/inference/overview.md): Run inference on 100+ open-source models.
@@ -153,15 +154,6 @@
 - [Cost analytics](https://docs.together.ai/docs/billing-cost-analytics.md): Track daily Together AI spend and billable units by product, line item, project, or API key.
 - [Billing troubleshooting](https://docs.together.ai/docs/billing-troubleshooting.md): Resolving payment issues, understanding charges, and managing billing problems.
 - [Support](https://docs.together.ai/docs/support.md): Search the support portal, file a ticket, or reach the Together AI team by email, Slack, or Discord.
-- [Overview](https://docs.together.ai/docs/dedicated-endpoints/v1/overview.md): Reserved-hardware inference endpoints with predictable performance, no shared rate limits, and per-endpoint configuration.
-- [Quickstart](https://docs.together.ai/docs/dedicated-endpoints/v1/quickstart.md): Pick a model, deploy a dedicated endpoint with one CLI command, and send your first request in under five minutes.
-- [Available models](https://docs.together.ai/docs/dedicated-endpoints/v1/models.md): View the models you can deploy to dedicated endpoints.
-- [Manage dedicated endpoints](https://docs.together.ai/docs/dedicated-endpoints/v1/manage.md): Create, start, stop, restart, list, update, and delete dedicated endpoints via the web UI or the Together API.
-- [Endpoint settings](https://docs.together.ai/docs/dedicated-endpoints/v1/settings.md): Configure replica count, hardware, decoding optimizations, and prompt caching on a dedicated endpoint.
-- [Scaling](https://docs.together.ai/docs/dedicated-endpoints/v1/scaling.md): How dedicated endpoints scale, how that affects cost, and when to choose vertical vs. horizontal scaling.
-- [Upload a model](https://docs.together.ai/docs/dedicated-endpoints/v1/custom-models.md): Upload a custom or fine-tuned model from Hugging Face or S3 and serve it on a dedicated endpoint.
-- [Upload a LoRA adapter](https://docs.together.ai/docs/dedicated-endpoints/v1/adapter.md): Upload a custom LoRA adapter from Hugging Face or S3 and serve it on a dedicated endpoint.
-- [Serve multiple LoRA adapters on one endpoint](https://docs.together.ai/docs/dedicated-endpoints/v1/lora-adapter.md): Attach, list, and remove LoRA adapters on a running dedicated endpoint to serve several adapters from one deployment.
 - [Overview](https://docs.together.ai/docs/guides.md): Quickstarts and step-by-step guides for building with Together AI.
 - [Kimi K3 quickstart](https://docs.together.ai/docs/kimi-k3-quickstart.md): Call Kimi K3 on Together for long-horizon coding, vision-in-the-loop work, and deep reasoning.
 - [GLM-5.3 quickstart](https://docs.together.ai/docs/glm-5.3-quickstart.md): Call GLM-5.3 and GLM-5.3 Flash on Together for long-horizon coding and agentic work.
@@ -403,23 +395,22 @@
 - [Get a model configuration](https://docs.together.ai/reference/dmi/configs-get.md): Retrieves a model configuration revision by ID, including its runtime selectors and certifications.
 - [Python Library](https://docs.together.ai/python-library.md)
 - [TypeScript Library](https://docs.together.ai/typescript-library.md)
-- [Python SDK v2 migration](https://docs.together.ai/docs/pythonv2-migration-guide.md): Migrate code written against the Together Python SDK v1 to the v2 SDK.
+- [SDK v3 migration](https://docs.together.ai/docs/sdk-v3-migration-guide.md): Update code and scripts that use Together Python SDK 2.x, TypeScript SDK 0.58, or CLI 2.x for the breaking changes in Python SDK 3.0, TypeScript SDK 1.0, and CLI 3.0.
+- [SDK v2 migration (Python)](https://docs.together.ai/docs/pythonv2-migration-guide.md): Migrate code written against the Together Python SDK v1 to the v2 SDK.
 - [Error codes](https://docs.together.ai/docs/error-codes.md): An overview on error status codes, causes, and quick fix solutions.
 - [Get started](https://docs.together.ai/reference/cli/getting-started.md): Install the Together CLI to deploy endpoints, fine-tune models, and manage GPU clusters from your terminal.
 - [Telemetry](https://docs.together.ai/reference/cli/telemetry.md): Understand what the Together CLI tracks, how to opt out, and where the local config file lives.
-- [Models](https://docs.together.ai/reference/cli/models.md): List Together AI models and upload your own from Hugging Face or S3.
-- [Endpoints](https://docs.together.ai/reference/cli/endpoints.md): Create, update, and manage dedicated inference endpoints from your terminal.
+- [Models](https://docs.together.ai/reference/cli/models.md): Register, upload, and inspect models and adapters for dedicated model inference from your terminal.
+- [Endpoints](https://docs.together.ai/reference/cli/endpoints.md): Deploy models and manage endpoints, deployments, and traffic for dedicated model inference from your terminal.
 - [Files](https://docs.together.ai/reference/cli/files.md): Upload and manage datasets for use in fine-tuning, evals, and batch inference.
 - [Fine-tuning](https://docs.together.ai/reference/cli/finetune.md): Create, monitor, and manage fine-tuning jobs from your terminal.
 - [Training](https://docs.together.ai/reference/cli/training.md): Inspect post-training resources, sessions, and checkpoints, and prepare trained LoRA adapters for FP4 inference from your terminal.
 - [Evals](https://docs.together.ai/reference/cli/evals.md): Create and manage model-evaluation jobs from your terminal, including classify, score, and compare evals.
 - [Batches](https://docs.together.ai/reference/cli/batches.md): Submit, monitor, download, and cancel batch inference jobs from your terminal.
+- [Clusters](https://docs.together.ai/reference/cli/clusters.md): Reserve, configure, and manage GPU clusters from your terminal.
 - [Login](https://docs.together.ai/reference/cli/auth.md): Log in to the Together CLI with your browser.
 - [Projects](https://docs.together.ai/reference/cli/projects.md): List the Together AI projects the CLI's credentials can access.
 - [Whoami](https://docs.together.ai/reference/cli/whoami.md): Show the project and organization for the credentials the Together CLI uses.
-- [Models](https://docs.together.ai/reference/cli/models-beta.md): Register, upload, and inspect models and adapters for dedicated model inference from your terminal.
-- [Endpoints](https://docs.together.ai/reference/cli/endpoints-beta.md): Deploy and manage dedicated inference endpoints from your terminal.
-- [Clusters](https://docs.together.ai/reference/cli/clusters.md): Reserve, configure, and manage GPU clusters from your terminal.
 - [Jig CLI reference](https://docs.together.ai/reference/cli/jig.md): CLI commands, pyproject.toml configuration, environment variables, and Python SDK for dedicated containers.
 - [Changelog](https://docs.together.ai/docs/changelog.md)
 - [Deprecations](https://docs.together.ai/docs/deprecations.md): Together AI's model lifecycle policy, including upgrades, redirects, and deprecation schedules.
