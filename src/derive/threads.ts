@@ -157,25 +157,38 @@ function freeSlug(entity: Entity, taken: ReadonlySet<string>): string {
  * can share one, and in the capture stamped 2026-10-20 two pairs did: Mistral
  * moved its `studio/audio/speech_to_text` and `studio/audio/text_to_speech`
  * docs under `deprecated/` and published new `speech-to-text` and
- * `text-to-speech` sections beside them. Each pair folds to one slug, and every
- * deploy from 2026-10-21 refused to build. This used to throw on exactly that, on the
- * reasoning that a build which stops is recoverable and a page which lies is
- * not. Both halves were true, but the stop was not recoverable by anything
- * short of a code change, because the colliding ids are a third party's to
- * choose and the archive never forgets one.
+ * `text-to-speech` sections beside them. Each pair folds to one slug, and
+ * every deploy from 2026-10-21 refused to build. This used to throw on exactly
+ * that, on the reasoning that a build which stops is recoverable and a page
+ * which lies is not. Both halves were true, but the stop was not recoverable
+ * by anything short of a code change, because the colliding ids are a third
+ * party's to choose and the archive never forgets one.
  *
  * WHO KEEPS THE PLAIN SLUG. The entity the archive saw FIRST, by the oldest
  * dated event on its thread (the "First event in the archive" its page
  * prints), with the entity id breaking a tie. Every other entity that folds to
  * the same string gets the digest suffix from freeSlug. Slugs are handed out
  * oldest entity first, so an entity's slug depends only on entities that
- * arrived before it, and one that arrives later can never move a permalink
- * that is already published. That is the property that matters: a thread
- * page's address is a permalink, and the site has no way to tell the readers
- * it already sent there that it moved.
+ * arrived before it, and one that arrives in a later capture cannot move a
+ * permalink that is already published. That is the property that matters: a
+ * thread page's address is a permalink, and the site has no way to tell the
+ * readers it already sent there that it moved.
  *
- * It rests on the archive being append-only (R7): the oldest event on a thread
- * can only stay where it is. The one ordering it can get wrong is two entities
+ * WHAT IT RESTS ON, and where it stops holding. First, the archive being
+ * append-only (R7): no capture is ever rewritten, so the oldest event on a
+ * thread can only stay where it is. Second, the deriving code staying put.
+ * Events are derived afresh from the whole history on every build, so a
+ * change to an extractor that finds an entity in captures it used to pass
+ * over can date that entity earlier than one already published under the same
+ * fold. That entity then takes the plain slug and the published one moves to
+ * its suffix. Only an assignment pinned outside the derivation, in a committed
+ * ledger the build checks against, would rule that out. This does not keep
+ * one, because the case needs a colliding fold and an extractor change to
+ * coincide, and each page of a collision links the other (foldmates in
+ * src/site/render.ts), so a reader sent to the moved address is one link from
+ * the thread they wanted.
+ *
+ * The one ordering it can get wrong without any code change is two entities
  * first captured closer together than a cached response's Age, because a stamp
  * is origin_date, the response's date minus that Age, and this archive has
  * stored a capture whose origin was 40 hours before the commit that stored it.

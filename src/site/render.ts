@@ -875,7 +875,7 @@ function foldmatesHtml(mates: Thread[]): string {
     .map((t) => `<a href="${escapeHtml(t.slug)}.html"><code>${escapeHtml(t.entity.label)}</code></a>`)
     .join(', ');
   const lead = mates.length === 1 ? 'Another entity id folds' : `${formatInt(mates.length)} other entity ids fold`;
-  return `<p class="note foldmates">${lead} to the same address as this one: ${links}. The entity the archive saw first keeps the plain address and any later one carries a suffix taken from its own id, so no thread's page moves when another arrives.</p>\n`;
+  return `<p class="note foldmates">${lead} to the same address as this one: ${links}. The entity the archive saw first keeps the plain address and any later one carries a suffix taken from its own id, so a thread's page does not move when a later one arrives.</p>\n`;
 }
 
 /**
