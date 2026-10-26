@@ -14,7 +14,7 @@
  */
 
 import { canRenderAt, DAY_SECONDS, type DerivedEvent } from '../derive/events.js';
-import { entitySlug } from '../derive/entities.js';
+import { entitySlug, labEntity } from '../derive/entities.js';
 import { quoteValue } from '../derive/quoting.js';
 import type { Lab } from '../derive/entities.js';
 import {
@@ -39,7 +39,7 @@ import { scoreLedger, type LedgerClaim } from './ledger.js';
 import { countEmails, redactLine } from './redact.js';
 import { wallHtml, jsonIsland, WALL_JS_PATH } from './wall.js';
 import { FILTER_JS_PATH } from './filter-js.js';
-import type { Thread, ThreadSet } from '../derive/threads.js';
+import { slugIndex, threadSlug, type SlugIndex, type Thread, type ThreadSet } from '../derive/threads.js';
 import {
   artifactPermalink,
   changePagePath,
@@ -738,7 +738,7 @@ function eventFactsHtml(event: DerivedEvent): string {
  * A type is already `[a-z_]+` from the two derivations' own discriminants, so
  * the only fold is the underscore, and a lab is a member of the closed LABS
  * list. Neither can collide the way an entity slug can, which is why these need
- * no equivalent of threads.ts's collision refusal.
+ * no equivalent of the slug assignment in threads.ts.
  */
 export function typePagePath(type: FeedType): string {
   return `type/${type.replace(/_/g, '-')}.html`;
@@ -768,7 +768,7 @@ export const CHANGELOG_INDEX_PATH = 'changelog/index.html';
  * page and are completely different facts, and the product spec's section 4
  * makes the second one a first-class outcome rather than an error.
  */
-function entityChips(item: FeedItem, depth: number): string {
+function entityChips(item: FeedItem, depth: number, slugs: SlugIndex): string {
   const { up } = links(depth);
   if (item.entities.length === 0) {
     return '<p class="chips"><span class="chip chip-held">held: no entity was mechanically extractable</span></p>';
@@ -783,7 +783,7 @@ function entityChips(item: FeedItem, depth: number): string {
   const chips = item.entities
     .map(
       (e) =>
-        `<a class="chip" href="${up}${threadPagePath(entitySlug(e))}"><span class="chip-kind">${escapeHtml(e.kind)}</span><code>${escapeHtml(e.label)}</code></a>`,
+        `<a class="chip" href="${up}${threadPagePath(threadSlug(slugs, e))}"><span class="chip-kind">${escapeHtml(e.kind)}</span><code>${escapeHtml(e.label)}</code></a>`,
     )
     .join('\n');
   return `<p class="chips">${chips}</p>`;
@@ -824,7 +824,7 @@ export function feedItemAnchor(item: FeedItem): string {
   return `item-${item.id.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase()}`;
 }
 
-export function feedItemHtml(item: FeedItem, depth: number): string {
+export function feedItemHtml(item: FeedItem, depth: number, slugs: SlugIndex): string {
   const { up } = links(depth);
   const permalink = artifactPermalink(item.sha, item.path);
   const facts = item.event !== null ? eventFactsHtml(item.event) : item.leak !== null ? leakFactsHtml(item.leak) : '';
@@ -836,17 +836,24 @@ export function feedItemHtml(item: FeedItem, depth: number): string {
   return `<li class="event" id="${escapeHtml(feedItemAnchor(item))}">
 <p class="claim">${escapeHtml(item.sentence)}</p>
 <p class="event-meta"><a class="badge badge-type" href="${up}${typePagePath(item.type)}">${escapeHtml(item.type)}</a>${tier} ${stampHtml(item.stamp)} &middot; <a href="${up}${sourcePagePath(item.sourceId)}">${escapeHtml(item.sourceId)}</a> &middot; <a href="${up}${changePagePath(item.sha)}">${escapeHtml(item.sha.slice(0, 7))}</a> &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
-${entityChips(item, depth)}
+${entityChips(item, depth, slugs)}
 ${facts}
 ${confirm}
 </li>`;
 }
 
 /** A list of cards, or a sentence saying there are none. Never nothing. */
-function itemListHtml(items: FeedItem[], depth: number, empty: string): string {
+function itemListHtml(items: FeedItem[], depth: number, empty: string, slugs: SlugIndex): string {
   if (items.length === 0) return `<p class="note">${escapeHtml(empty)}</p>`;
-  return `<ol class="events">\n${items.map((i) => feedItemHtml(i, depth)).join('\n')}\n</ol>`;
+  return `<ol class="events">\n${items.map((i) => feedItemHtml(i, depth, slugs)).join('\n')}\n</ol>`;
 }
+
+/**
+ * The default for a page rendered with no threads at hand, which only a test
+ * does. Every link it would make to a thread falls back to the plain fold; see
+ * threadSlug in src/derive/threads.ts for why a real build never does.
+ */
+const NO_THREADS: ThreadSet = { threads: [], held: [] };
 
 const KIND_LABEL: Record<string, string> = {
   lab: 'Lab',
@@ -854,19 +861,44 @@ const KIND_LABEL: Record<string, string> = {
   'api-surface': 'API surface',
 };
 
+/**
+ * The other threads whose entity id folds to the same plain slug as this one.
+ *
+ * A reader who arrives at `threads/<fold>.html` looking for the entity they can
+ * see in a provider's docs today may be looking at the OLDER entity that holds
+ * that address, so each page of a collision names the others. Refolding every
+ * thread for every page is quadratic and measured at 151 ms over the 734
+ * threads of the real archive, which is not worth an index.
+ */
+function foldmates(thread: Thread, threads: ThreadSet): Thread[] {
+  const fold = entitySlug(thread.entity);
+  return threads.threads.filter((t) => t.entity.id !== thread.entity.id && entitySlug(t.entity) === fold);
+}
+
+/** The note naming them, or nothing at all, so a page with no collision is byte-for-byte what it was. */
+function foldmatesHtml(mates: Thread[]): string {
+  if (mates.length === 0) return '';
+  const links = mates
+    .map((t) => `<a href="${escapeHtml(t.slug)}.html"><code>${escapeHtml(t.entity.label)}</code></a>`)
+    .join(', ');
+  const lead = mates.length === 1 ? 'Another entity id folds' : `${formatInt(mates.length)} other entity ids fold`;
+  return `<p class="note foldmates">${lead} to the same address as this one: ${links}. The entity the archive saw first keeps the plain address and any later one carries a suffix taken from its own id, so no thread's page moves when another arrives.</p>\n`;
+}
+
 /** One permalinked page per entity, listing that entity's events newest first. */
-export function renderThreadPage(thread: Thread): string {
+export function renderThreadPage(thread: Thread, threads: ThreadSet = NO_THREADS): string {
+  const slugs = slugIndex(threads);
   const kind = KIND_LABEL[thread.entity.kind] ?? thread.entity.kind;
   const body = `<p class="eyebrow">${escapeHtml(kind)} thread</p>
 <h1 class="sha-title"><code>${escapeHtml(thread.entity.label)}</code></h1>
 <p class="sha-full"><code>${escapeHtml(thread.entity.id)}</code></p>
-<dl class="facts">
+${foldmatesHtml(foldmates(thread, threads))}<dl class="facts">
 <div class="fact"><dt>Events</dt><dd class="big">${formatInt(thread.events.length)}</dd></div>
 <div class="fact"><dt>First event in the archive</dt><dd>${stampHtml(thread.firstSeen)}</dd></div>
 <div class="fact"><dt>Last activity</dt><dd>${stampHtml(thread.lastActivity)}</dd></div>
 </dl>
 <ol class="events">
-${thread.events.map((e) => feedItemHtml(e, 1)).join('\n')}
+${thread.events.map((e) => feedItemHtml(e, 1, slugs)).join('\n')}
 </ol>`;
   // THE <title> IS QUOTED for the same reason every other rendered appearance
   // of a third-party value is. An entity label is a catalogue id somebody else
@@ -918,10 +950,11 @@ ${rows.map(threadRowHtml).join('\n')}
     .join('\n');
 
   const totalEvents = set.threads.reduce((n, t) => n + t.events.length, 0);
+  const slugs = slugIndex(set);
   const held =
     set.held.length === 0
       ? '<p class="note">No event was held. Every derived event attached to at least one entity.</p>'
-      : `<ol class="events">\n${set.held.map((e) => feedItemHtml(e, 1)).join('\n')}\n</ol>`;
+      : `<ol class="events">\n${set.held.map((e) => feedItemHtml(e, 1, slugs)).join('\n')}\n</ol>`;
 
   /*
    * THE FIELD'S DATA. Every thread, not the twelve the front door shows: the
@@ -1048,7 +1081,9 @@ export function renderLeaksPage(
   items: LeakItem[],
   claims: LedgerClaim[] = [],
   refusals: LeakRefusal[] = [],
+  threads: ThreadSet = NO_THREADS,
 ): string {
+  const slugs = slugIndex(threads);
   const order: LeakItem['type'][] = [
     'codename_unmasked',
     'codename_entered',
@@ -1064,7 +1099,7 @@ export function renderLeaksPage(
       const body =
         rows.length === 0
           ? '<p class="note">No item of this kind is derivable from the archive as it stands.</p>'
-          : `<ol class="events">\n${rows.map((i) => feedItemHtml(feedItemFromLeak(i), 1)).join('\n')}\n</ol>`;
+          : `<ol class="events">\n${rows.map((i) => feedItemHtml(feedItemFromLeak(i), 1, slugs)).join('\n')}\n</ol>`;
       return `<section class="day">
 <h2>${escapeHtml(SIGNAL_LABEL[type] ?? type)}</h2>
 <p class="note">${plural(rows.length, 'item')}.</p>
@@ -1581,7 +1616,7 @@ function tapeRowHtml(item: FeedItem): string {
  * moved. The id is said once, spanning the width, and the fields sit under it
  * with room for both values in full.
  */
-function tapeHtml(items: FeedItem[], depth = 0, trueValues = items.length, trueModels = 0): string {
+function tapeHtml(items: FeedItem[], depth: number, slugs: SlugIndex, trueValues = items.length, trueModels = 0): string {
   if (items.length === 0) return '';
   const { up } = links(depth);
   const groups = new Map<string, FeedItem[]>();
@@ -1605,7 +1640,7 @@ function tapeHtml(items: FeedItem[], depth = 0, trueValues = items.length, trueM
       const head =
         thread === null
           ? label
-          : `<a href="${up}threads/${escapeHtml(entitySlug(thread))}.html">${label}</a>`;
+          : `<a href="${up}${escapeHtml(threadPagePath(threadSlug(slugs, thread)))}">${label}</a>`;
       return `<tr class="tape-model"><th colspan="5" scope="colgroup">${head}</th></tr>
 ${rows.map(tapeRowHtml).join('\n')}`;
     })
@@ -1644,7 +1679,7 @@ export function claimHtml(sentence: string): string {
 }
 
 /** A headline-shaped item: display type, room, and the evidence under it. */
-function dispatchHtml(item: FeedItem, depth: number): string {
+function dispatchHtml(item: FeedItem, depth: number, slugs: SlugIndex): string {
   const { up } = links(depth);
   const permalink = artifactPermalink(item.sha, item.path);
   const facts = item.event !== null ? eventFactsHtml(item.event) : item.leak !== null ? leakFactsHtml(item.leak) : '';
@@ -1657,7 +1692,7 @@ function dispatchHtml(item: FeedItem, depth: number): string {
 <a class="badge badge-type" href="${up}${typePagePath(item.type)}">${escapeHtml(item.type)}</a>${tier}
 <p class="dispatch-claim">${claimHtml(item.sentence)}</p>
 <p class="dispatch-meta">${stampHtml(item.stamp)} &middot; <a href="${escapeHtml(permalink)}">raw artifact at this commit</a></p>
-${entityChips(item, depth)}
+${entityChips(item, depth, slugs)}
 ${facts}
 ${confirm}
 </li>`;
@@ -1680,7 +1715,7 @@ ${confirm}
  * across 4 models and 11 items were hidden. A sentence that scopes itself to
  * the capture has to count the capture.
  */
-function captureHtml(capture: Capture, depth: number, heldBack = 0, truth?: CaptureTruth): string {
+function captureHtml(capture: Capture, depth: number, slugs: SlugIndex, heldBack = 0, truth?: CaptureTruth): string {
   const { up } = links(depth);
   const tapeItems = capture.items.filter((i) => TAPE_TYPES.has(i.type));
   const dispatches = capture.items.filter((i) => !TAPE_TYPES.has(i.type));
@@ -1698,8 +1733,8 @@ function captureHtml(capture: Capture, depth: number, heldBack = 0, truth?: Capt
 <a class="capture-source" href="${up}${sourcePagePath(capture.sourceId)}">${escapeHtml(capture.sourceId)}</a>
 <span class="capture-when">${stampHtml(stamp)}</span>
 </div>
-${dispatches.length === 0 ? '' : `<ol class="dispatches">\n${dispatches.map((i) => dispatchHtml(i, depth)).join('\n')}\n</ol>`}
-${tapeHtml(tapeItems, depth, truth?.tapeValues ?? tapeItems.length, truth?.tapeModels ?? 0)}
+${dispatches.length === 0 ? '' : `<ol class="dispatches">\n${dispatches.map((i) => dispatchHtml(i, depth, slugs)).join('\n')}\n</ol>`}
+${tapeHtml(tapeItems, depth, slugs, truth?.tapeValues ?? tapeItems.length, truth?.tapeModels ?? 0)}
 ${
   heldBack === 0
     ? ''
@@ -1713,6 +1748,7 @@ function dayHtml(
   day: string,
   items: FeedItem[],
   depth: number,
+  slugs: SlugIndex,
   heldBack: ReadonlyMap<string, number> = new Map(),
   truth: ReadonlyMap<string, CaptureTruth> = new Map(),
 ): string {
@@ -1727,7 +1763,7 @@ ${captures
     // Against what RENDERED, not against the per-commit cap: the page's overall
     // slice hides items too, and those were in nobody's count.
     const hidden = real === undefined ? (heldBack.get(key) ?? 0) : Math.max(real.items - c.items.length, 0);
-    return captureHtml(c, depth, hidden, real);
+    return captureHtml(c, depth, slugs, hidden, real);
   })
   .join('\n')}
 </ol>
@@ -1754,9 +1790,10 @@ ${rows}
 
 export function renderEverythingPage(
   feed: FeedItem[],
-  threads: ThreadSet = { threads: [], held: [] },
+  threads: ThreadSet = NO_THREADS,
   limit: number = EVERYTHING_LIMIT,
 ): string {
+  const slugs = slugIndex(threads);
   // Per commit FIRST, then overall, so the overall cap spends its budget on
   // distinct stories rather than on one capture's forty price rows.
   const { shown: spread, heldBack } = capPerCommit(feed);
@@ -1765,7 +1802,7 @@ export function renderEverythingPage(
   const heldBackTotal = [...heldBack.values()].reduce((n, v) => n + v, 0);
 
   const days = feedByDay(shown)
-    .map((g) => dayHtml(g.day, g.items, 0, heldBack, truth))
+    .map((g) => dayHtml(g.day, g.items, 0, slugs, heldBack, truth))
     .join('\n');
 
   /*
@@ -1849,7 +1886,7 @@ ${threadRail(threads, 0)}
 }
 
 /** One micro-category, with every item in it. Never capped. */
-export function renderTypePage(type: FeedType, feed: FeedItem[]): string {
+export function renderTypePage(type: FeedType, feed: FeedItem[], threads: ThreadSet = NO_THREADS): string {
   const items = itemsOfType(feed, type);
   const label = TYPE_LABEL[type];
   const body = `<p class="eyebrow">Micro-category</p>
@@ -1862,7 +1899,7 @@ export function renderTypePage(type: FeedType, feed: FeedItem[]): string {
 ${typeChips(feed, 1, type)}
 </p>
 </div>
-${itemListHtml(items, 1, 'No item of this kind is derivable from the archive as it stands. The page exists anyway: a category that vanished when it was empty would make a quiet week and a broken extractor look the same.')}`;
+${itemListHtml(items, 1, 'No item of this kind is derivable from the archive as it stands. The page exists anyway: a category that vanished when it was empty would make a quiet week and a broken extractor look the same.', slugIndex(threads))}`;
   return layout({
     title: `${label} - llm-catalog-archive`,
     depth: 1,
@@ -1884,9 +1921,10 @@ ${itemListHtml(items, 1, 'No item of this kind is derivable from the archive as 
  * reader ask for one lab. The two lists are the same items by construction,
  * because both read the same entities off the same feed.
  */
-export function renderLabPage(lab: Lab, feed: FeedItem[]): string {
+export function renderLabPage(lab: Lab, feed: FeedItem[], threads: ThreadSet = NO_THREADS): string {
   const items = itemsOfLab(feed, lab);
-  const slug = entitySlug({ kind: 'lab', id: `lab/${lab}`, label: lab });
+  const slugs = slugIndex(threads);
+  const slug = threadSlug(slugs, labEntity(lab));
   const body = `<p class="eyebrow">Lab</p>
 <h1>${escapeHtml(lab)}</h1>
 <p class="sha-full">lab/${escapeHtml(lab)}</p>
@@ -1896,7 +1934,7 @@ export function renderLabPage(lab: Lab, feed: FeedItem[]): string {
 ${labChips(feed, 1, lab)}
 <p class="note">The same items in the entity model's own terms: <a href="../${threadPagePath(slug)}">the ${escapeHtml(lab)} thread</a>.</p>
 </div>
-${itemListHtml(items, 1, 'No item in the archive attaches to this lab.')}`;
+${itemListHtml(items, 1, 'No item in the archive attaches to this lab.', slugs)}`;
   return layout({ title: `${lab} - llm-catalog-archive`, depth: 1, body, active: 'everything' });
 }
 

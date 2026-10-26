@@ -318,7 +318,13 @@ describe('itemCountByEntity', () => {
 });
 
 describe('currentModels', () => {
-  const built = currentModels([contextChange], [contextItem], SITE, new Set(['model-openrouter-anthropic-claude-opus-5']), REPO)!;
+  const built = currentModels(
+    [contextChange],
+    [contextItem],
+    SITE,
+    new Map([['model/openrouter:anthropic/claude-opus-5', 'model-openrouter-anthropic-claude-opus-5']]),
+    REPO,
+  )!;
 
   it('reads the catalogue state out of the newest stored bytes, not the diff', () => {
     expect(built.models.map((m) => m.id)).toEqual(['anthropic/claude-opus-5']);
@@ -339,7 +345,7 @@ describe('currentModels', () => {
   });
 
   it('points a model with no thread at no endpoint rather than at a 404', () => {
-    const none = currentModels([contextChange], [contextItem], SITE, new Set(), REPO)!;
+    const none = currentModels([contextChange], [contextItem], SITE, new Map(), REPO)!;
     expect(none.models[0]!.api).toBeNull();
   });
 
@@ -358,7 +364,7 @@ describe('currentModels', () => {
   });
 
   it('returns null when the archive holds no capture of the catalogue at all', () => {
-    expect(currentModels([], [], SITE, new Set(), REPO)).toBeNull();
+    expect(currentModels([], [], SITE, new Map(), REPO)).toBeNull();
   });
 });
 
@@ -623,7 +629,7 @@ describe('currentModels: ordering and a source that earns a date', () => {
       before: catalog([{ id: 'a/b' }]),
       after: catalog([{ id: 'z/z' }, { id: 'a/b' }, { id: 'm/m' }]),
     });
-    expect(currentModels([c], [], SITE, new Set(), REPO)!.models.map((m) => m.id)).toEqual([
+    expect(currentModels([c], [], SITE, new Map(), REPO)!.models.map((m) => m.id)).toEqual([
       'a/b',
       'm/m',
       'z/z',
@@ -651,7 +657,7 @@ describe('currentModels: ordering and a source that earns a date', () => {
     });
     const changes = [second, first];
     const feed = buildFeed(deriveEvents(changes), []);
-    const built = currentModels(changes, feed, SITE, new Set(), REPO)!;
+    const built = currentModels(changes, feed, SITE, new Map(), REPO)!;
     expect(built.models.find((m) => m.id === 'c/d')!.first_seen_in_catalog_at).toBe('2026-08-28');
   });
 
@@ -677,14 +683,14 @@ describe('currentModels: ordering and a source that earns a date', () => {
     });
     const changes = [second, first];
     const feed = buildFeed(deriveEvents(changes), []);
-    const built = currentModels(changes, feed, SITE, new Set(), REPO)!;
+    const built = currentModels(changes, feed, SITE, new Map(), REPO)!;
     expect(built.models.find((m) => m.id === 'c/d')!.first_seen_in_catalog_at).toBeNull();
   });
 
   it('measures that error rather than assuming the tier interval', () => {
     const first = change({ sha: '1'.repeat(40), kind: 'added', before: null, after: catalog([{ id: 'a/b' }]), observedAt: '2026-08-28T00:00:00.000Z' });
     const second = change({ sha: '2'.repeat(40), observedAt: '2026-08-28T12:00:00.000Z' });
-    expect(currentModels([second, first], [], SITE, new Set(), REPO)!.models[0]!.precision_seconds).toBe(43200);
+    expect(currentModels([second, first], [], SITE, new Map(), REPO)!.models[0]!.precision_seconds).toBe(43200);
   });
 });
 

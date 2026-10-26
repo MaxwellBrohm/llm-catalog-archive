@@ -145,7 +145,7 @@ export function buildSite(
   // actually carries that lab, because an empty lab page is a claim to be
   // watching a lab we have nothing on.
   for (const type of ALL_TYPES) {
-    files.push({ path: typePagePath(type), contents: renderTypePage(type, feed) });
+    files.push({ path: typePagePath(type), contents: renderTypePage(type, feed, threads) });
     // One feed per micro-category, beside its page. Emitted even when empty,
     // for the same reason the page is: a feed that appeared only once a
     // category had items would make a quiet week and a broken extractor look
@@ -164,7 +164,7 @@ export function buildSite(
     });
   }
   for (const lab of labsInFeed(feed)) {
-    files.push({ path: labPagePath(lab), contents: renderLabPage(lab, feed) });
+    files.push({ path: labPagePath(lab), contents: renderLabPage(lab, feed, threads) });
   }
 
   for (const record of records) {
@@ -191,14 +191,14 @@ export function buildSite(
   // back to, and a thread with no resolvable evidence under it is an opinion.
   files.push({ path: THREADS_INDEX_PATH, contents: renderThreadsIndex(threads) });
   for (const thread of threads.threads) {
-    files.push({ path: threadPagePath(thread.slug), contents: renderThreadPage(thread) });
+    files.push({ path: threadPagePath(thread.slug), contents: renderThreadPage(thread, threads) });
   }
 
   // The leaks desk and its ledger. Emitted unconditionally, empty or not: a
   // page that disappears when it has nothing on it makes "no reveals this week"
   // and "the extractor broke" render identically, and the second is the failure
   // this project exists not to hide.
-  files.push({ path: LEAKS_INDEX_PATH, contents: renderLeaksPage(leaks, ledger, refusals) });
+  files.push({ path: LEAKS_INDEX_PATH, contents: renderLeaksPage(leaks, ledger, refusals, threads) });
   // The desk's own feed. Following rumors and leaks used to mean subscribing to
   // everything and filtering by hand in a reader.
   files.push({

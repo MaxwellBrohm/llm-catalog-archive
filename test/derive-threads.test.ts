@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto';
 import { describe, it, expect } from 'vitest';
-import { buildThreads, threadsOfKind } from '../src/derive/threads.js';
+import { buildThreads, slugIndex, threadSlug, threadsOfKind, type ThreadSet } from '../src/derive/threads.js';
 import { buildFeed, type FeedItem } from '../src/derive/feed.js';
 import type { DerivedEvent } from '../src/derive/events.js';
 import type { Entity } from '../src/derive/entities.js';
@@ -134,15 +135,14 @@ describe('buildThreads', () => {
     ]);
   });
 
-  // entitySlug is lossy, and the failure it would otherwise produce is one
-  // entity's page served under another entity's permalink, committed to a
-  // history that is never rewritten.
-  it('refuses to build when two distinct entities fold to one slug', () => {
+  // entitySlug is lossy. This used to throw, and from 2026-10-21 it stopped
+  // every deploy; the cases under 'two entities that fold to one slug' below
+  // pin what it does instead.
+  it('builds when two distinct entities fold to one slug, one thread each', () => {
     const a: Entity = { kind: 'lab', id: 'lab/a-b', label: 'x' };
     const b: Entity = { kind: 'lab', id: 'lab/a/b', label: 'y' };
-    expect(() => threadsOf([event({ entities: [a] }), event({ entities: [b] })])).toThrow(
-      'thread slug collision',
-    );
+    const set = threadsOf([event({ entities: [a] }), event({ entities: [b] })]);
+    expect(set.threads.map((t) => t.entity.id).sort()).toEqual(['lab/a-b', 'lab/a/b']);
   });
 
   it('builds without complaint when one entity appears on many events', () => {
@@ -241,5 +241,220 @@ describe('the slug collision guard', () => {
     expect(
       threadsOf([event({ id: 'x', entities: [a] }), event({ id: 'y', entities: [a] })]).threads,
     ).toHaveLength(1);
+  });
+});
+
+/**
+ * THE PAIR THAT STOPPED EVERY DEPLOY FROM 2026-10-21, with the stamps the real
+ * archive gives them. Mistral's llms.txt listed `studio/audio/text_to_speech/`
+ * pages from the capture stamped 2026-09-24 (a response 40 hours old when
+ * the 2026-09-26 run stored it), and the 2026-10-21 run stored a reorganised
+ * docs tree that also has `studio/audio/text-to-speech/`. Both sections fold to
+ * PLAIN below.
+ */
+const UNDERSCORE: Entity = {
+  kind: 'api-surface',
+  id: 'api-surface/docs.mistral.ai/studio/audio/text_to_speech',
+  label: 'docs.mistral.ai/studio/audio/text_to_speech',
+};
+const HYPHEN: Entity = {
+  kind: 'api-surface',
+  id: 'api-surface/docs.mistral.ai/studio/audio/text-to-speech',
+  label: 'docs.mistral.ai/studio/audio/text-to-speech',
+};
+const PLAIN = 'api-surface-docs-mistral-ai-studio-audio-text-to-speech';
+const SEPT = '2026-09-24T12:06:31.000Z';
+const OCT = '2026-10-20T19:20:33.000Z';
+
+/** Recomputed here rather than imported, so the suffix is checked against the documented recipe. */
+const digest8 = (id: string): string => createHash('sha256').update(id, 'utf8').digest('hex').slice(0, 8);
+
+const slugOf = (set: ThreadSet, entity: Entity): string | undefined =>
+  set.threads.find((t) => t.entity.id === entity.id)?.slug;
+
+const onlyOn = (entity: Entity, iso: string | null, id: string = `${entity.id}@${iso}`): DerivedEvent =>
+  event({ id, entities: [entity], stamp: iso === null ? null : stamp(iso) });
+
+/**
+ * The same items handed to buildThreads in the feed's order AND in reverse.
+ *
+ * Not threadsOf over reversed EVENTS: buildFeed sorts its output, so reversing
+ * its input changes nothing, and a rule that only came out right because of
+ * the order buildFeed happens to produce would pass every case built that way.
+ */
+const bothOrders = (items: DerivedEvent[]): ThreadSet[] => {
+  const feed = buildFeed(items, []);
+  return [buildThreads(feed), buildThreads([...feed].reverse())];
+};
+
+describe('two entities that fold to one slug', () => {
+  it('fold to one slug, which is the whole problem', () => {
+    // Guards the fixture: if these stopped colliding, every case below would
+    // pass for the wrong reason.
+    expect(threadsOf([onlyOn(UNDERSCORE, SEPT)]).threads[0]?.slug).toBe(PLAIN);
+    expect(threadsOf([onlyOn(HYPHEN, OCT)]).threads[0]?.slug).toBe(PLAIN);
+  });
+
+  it('leaves the plain slug with the entity the archive saw first', () => {
+    const set = threadsOf([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT)]);
+    expect(slugOf(set, UNDERSCORE)).toBe(PLAIN);
+  });
+
+  it('gives the newcomer the plain slug plus the first eight hex digits of its id\'s SHA-256', () => {
+    const set = threadsOf([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT)]);
+    expect(slugOf(set, HYPHEN)).toBe(`${PLAIN}-${digest8(HYPHEN.id)}`);
+  });
+
+  // The real pair is the case where seniority and id order DISAGREE: `-` sorts
+  // before `_`, so a rule that let the id decide would hand the hyphenated
+  // newcomer the address the underscore thread has been published under since
+  // September.
+  it('decides by first seen, not by id, so the newer entity cannot take the older one\'s address', () => {
+    const set = threadsOf([onlyOn(HYPHEN, OCT), onlyOn(UNDERSCORE, SEPT)]);
+    expect([slugOf(set, UNDERSCORE), slugOf(set, HYPHEN)]).toEqual([PLAIN, `${PLAIN}-${digest8(HYPHEN.id)}`]);
+  });
+
+  it('follows first seen the other way too', () => {
+    const set = threadsOf([onlyOn(UNDERSCORE, OCT), onlyOn(HYPHEN, SEPT)]);
+    expect([slugOf(set, HYPHEN), slugOf(set, UNDERSCORE)]).toEqual([PLAIN, `${PLAIN}-${digest8(UNDERSCORE.id)}`]);
+  });
+
+  it('gives the same slugs whatever order the feed lists the items in', () => {
+    const [forward, backward] = bothOrders([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT), onlyOn(UNDERSCORE, OCT, 'u-later')]);
+    expect(backward!.threads.map((t) => [t.entity.id, t.slug])).toEqual(
+      forward!.threads.map((t) => [t.entity.id, t.slug]),
+    );
+    expect(slugOf(backward!, UNDERSCORE)).toBe(PLAIN);
+  });
+
+  // THE PROPERTY THE WHOLE RULE EXISTS FOR. The underscore thread was published
+  // at PLAIN from September until the build stopped; the newcomer arriving
+  // must not move it.
+  it('never moves a published slug when a colliding newcomer arrives', () => {
+    const before = threadsOf([onlyOn(UNDERSCORE, SEPT)]);
+    const after = threadsOf([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT)]);
+    expect(slugOf(after, UNDERSCORE)).toBe(slugOf(before, UNDERSCORE));
+  });
+
+  // First seen, not last activity. The underscore section was still being
+  // written to after the hyphenated one appeared (its pages moved out of it on
+  // 2026-10-20), so its NEWEST event is later than the newcomer's only one.
+  it('reads seniority off a thread\'s oldest event, not its newest', () => {
+    const set = threadsOf([
+      onlyOn(UNDERSCORE, SEPT),
+      onlyOn(UNDERSCORE, '2026-10-25T00:00:00.000Z', 'u-latest'),
+      onlyOn(HYPHEN, OCT),
+    ]);
+    expect(slugOf(set, UNDERSCORE)).toBe(PLAIN);
+  });
+
+  it('breaks a tie in first seen by entity id', () => {
+    // `-` (0x2d) sorts before `_` (0x5f).
+    for (const set of bothOrders([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, SEPT)])) {
+      expect([slugOf(set, HYPHEN), slugOf(set, UNDERSCORE)]).toEqual([PLAIN, `${PLAIN}-${digest8(UNDERSCORE.id)}`]);
+    }
+  });
+
+  // An undated entity cannot show it was here first, so it never outranks one
+  // that can. Supplied FIRST and with the id that wins a tie, so neither feed
+  // order nor the id tie-break can produce the right answer by accident.
+  it('ranks an entity with no dated event below one that has a date', () => {
+    for (const set of bothOrders([onlyOn(HYPHEN, null), onlyOn(UNDERSCORE, OCT)])) {
+      expect([slugOf(set, UNDERSCORE), slugOf(set, HYPHEN)]).toEqual([PLAIN, `${PLAIN}-${digest8(HYPHEN.id)}`]);
+    }
+  });
+
+  it('ranks an entity whose only stamp does not parse below one that has a date', () => {
+    for (const set of bothOrders([
+      event({ id: 'bad', entities: [HYPHEN], stamp: { iso: 'not a date', kind: 'origin' } }),
+      onlyOn(UNDERSCORE, OCT),
+    ])) {
+      expect(slugOf(set, UNDERSCORE)).toBe(PLAIN);
+    }
+  });
+
+  it('breaks a tie between two undated entities by entity id', () => {
+    for (const set of bothOrders([onlyOn(UNDERSCORE, null), onlyOn(HYPHEN, null)])) {
+      expect([slugOf(set, HYPHEN), slugOf(set, UNDERSCORE)]).toEqual([PLAIN, `${PLAIN}-${digest8(UNDERSCORE.id)}`]);
+    }
+  });
+
+  it('gives three entities on one fold three distinct slugs, oldest plain', () => {
+    const dotted: Entity = { kind: 'api-surface', id: 'api-surface/docs.mistral.ai/studio/audio/text.to.speech', label: 'z' };
+    const set = threadsOf([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT), onlyOn(dotted, '2026-10-22T00:00:00.000Z')]);
+    expect([slugOf(set, UNDERSCORE), slugOf(set, HYPHEN), slugOf(set, dotted)]).toEqual([
+      PLAIN,
+      `${PLAIN}-${digest8(HYPHEN.id)}`,
+      `${PLAIN}-${digest8(dotted.id)}`,
+    ]);
+  });
+
+  // The suffixed slug can itself be taken: catalogue ids are third-party
+  // strings, and one that folds to exactly `<plain>-<the digest>` is improbable
+  // rather than impossible. Built here on purpose, oldest of the three.
+  it('numbers a newcomer whose suffixed slug an older entity already holds', () => {
+    const squatter: Entity = {
+      kind: 'api-surface',
+      id: `api-surface/docs.mistral.ai/studio/audio/text-to-speech/${digest8(HYPHEN.id)}`,
+      label: 'q',
+    };
+    const set = threadsOf([onlyOn(squatter, '2026-09-01T00:00:00.000Z'), onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT)]);
+    expect([slugOf(set, squatter), slugOf(set, UNDERSCORE), slugOf(set, HYPHEN)]).toEqual([
+      `${PLAIN}-${digest8(HYPHEN.id)}`,
+      PLAIN,
+      `${PLAIN}-${digest8(HYPHEN.id)}-2`,
+    ]);
+  });
+
+  it('counts up past every numbered slug that is also taken', () => {
+    const tagged = `text-to-speech/${digest8(HYPHEN.id)}`;
+    const squat = (suffix: string, iso: string): Entity => ({
+      kind: 'api-surface',
+      id: `api-surface/docs.mistral.ai/studio/audio/${tagged}${suffix}`,
+      label: suffix,
+    });
+    const set = threadsOf([
+      onlyOn(squat('', '1'), '2026-09-01T00:00:00.000Z'),
+      onlyOn(squat('/2', '2'), '2026-09-02T00:00:00.000Z'),
+      onlyOn(squat('/3', '3'), '2026-09-03T00:00:00.000Z'),
+      onlyOn(UNDERSCORE, SEPT),
+      onlyOn(HYPHEN, OCT),
+    ]);
+    expect(slugOf(set, HYPHEN)).toBe(`${PLAIN}-${digest8(HYPHEN.id)}-4`);
+  });
+
+  // Every way this repository's ids can spell one fold: separators, runs of
+  // them, case, and both ends. Whatever the stamps, no two threads may share a
+  // page, and the oldest keeps the plain one.
+  it('gives every thread in a dense collision a page of its own', () => {
+    const spellings = ['a-b', 'a_b', 'a.b', 'a:b', 'a/b', 'a--b', 'A-B', 'a-B', '-a-b', 'a-b-', 'a b', 'a~b'];
+    const items = spellings.map((sp, i) =>
+      onlyOn({ kind: 'lab', id: `lab/${sp}`, label: sp }, `2026-09-${String(30 - i).padStart(2, '0')}T00:00:00.000Z`),
+    );
+    const set = threadsOf(items);
+    const slugs = set.threads.map((t) => t.slug);
+    expect(new Set(slugs).size).toBe(spellings.length);
+    expect(set.threads.find((t) => t.slug === 'lab-a-b')?.entity.id).toBe('lab/a~b');
+  });
+});
+
+describe('threadSlug', () => {
+  const set = threadsOf([onlyOn(UNDERSCORE, SEPT), onlyOn(HYPHEN, OCT)]);
+
+  it('looks the newcomer up rather than refolding its id', () => {
+    expect(threadSlug(slugIndex(set), HYPHEN)).toBe(`${PLAIN}-${digest8(HYPHEN.id)}`);
+  });
+
+  it('returns the slug the thread itself carries, for every thread', () => {
+    const index = slugIndex(set);
+    expect(set.threads.map((t) => threadSlug(index, t.entity))).toEqual(set.threads.map((t) => t.slug));
+  });
+
+  it('falls back to the plain fold for an entity the index holds no thread for', () => {
+    expect(threadSlug(slugIndex(set), LAB)).toBe('lab-anthropic');
+  });
+
+  it('indexes nothing for a set with no threads', () => {
+    expect(slugIndex({ threads: [], held: [] }).size).toBe(0);
   });
 });

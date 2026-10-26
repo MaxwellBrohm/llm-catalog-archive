@@ -27,7 +27,7 @@
 import type { SiteFile } from '../site/build.js';
 import { ALL_TYPES, itemsOfLab, itemsOfType, labsInFeed, type FeedItem, type FeedType } from '../derive/feed.js';
 import { precisionBySource, observationsBySource, type ContentChange } from '../derive/events.js';
-import { threadsOfKind, type ThreadSet } from '../derive/threads.js';
+import { slugIndex, threadsOfKind, type SlugIndex, type ThreadSet } from '../derive/threads.js';
 import type { LeakRefusal } from '../derive/leaks.js';
 import { scoreLedger, type LedgerClaim } from '../site/ledger.js';
 import { REPO_URL, SITE_URL, artifactPermalink, commitPermalink } from '../site/record.js';
@@ -75,9 +75,11 @@ export function typeSlug(type: FeedType): string {
  * `events/page-2.json` and `events/<type>.json` share one directory, so a
  * future event type spelled `page_2` would silently overwrite a page of the
  * stream with a category listing, on an address index.json publishes as stable.
- * Same refusal as the thread-slug collision in src/derive/threads.ts and for
- * the same reason: a build that stops is recoverable, a file serving the wrong
- * content under a documented address is not.
+ * A build that stops is recoverable, a file serving the wrong content under a
+ * documented address is not. A thread slug collision no longer stops the build,
+ * because entity ids are a third party's to choose and threads.ts gives the
+ * newcomer a suffix. A type is this repository's own word, so the fix here is
+ * to name it differently, and this says so the day somebody tries.
  */
 export function assertPageNamesSafe(types: FeedType[]): void {
   for (const type of types) {
@@ -107,14 +109,18 @@ function file(rel: string, value: unknown): SiteFile {
   return { path: `${API_PREFIX}/${rel}`, contents: json(value) };
 }
 
-/** The item records for one list, each carrying its own source's precision. */
+/**
+ * The item records for one list, each carrying its own source's precision and
+ * pointing its entities at the threads this build actually published.
+ */
 function records(
   items: FeedItem[],
   precision: Map<string, number>,
   siteUrl: string,
   repoUrl: string,
+  slugs: SlugIndex,
 ): ItemRecord[] {
-  return items.map((i) => itemRecord(i, precision.get(i.sourceId) ?? Infinity, siteUrl, repoUrl));
+  return items.map((i) => itemRecord(i, precision.get(i.sourceId) ?? Infinity, siteUrl, repoUrl, slugs));
 }
 
 /**
@@ -128,12 +134,13 @@ export function buildApi(input: ApiInput): SiteFile[] {
   const repoUrl = input.repoUrl ?? REPO_URL;
   const { feed, threads, refusals, ledger, changes } = input;
   const precision = precisionBySource(changes);
+  const slugs = slugIndex(threads);
   const files: SiteFile[] = [];
 
   assertPageNamesSafe(ALL_TYPES);
 
   // ---- the stream, paginated -------------------------------------------
-  const all = records(feed, precision, siteUrl, repoUrl);
+  const all = records(feed, precision, siteUrl, repoUrl, slugs);
   const pageCount = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
   const pageUrls: string[] = [];
   for (let page = 1; page <= pageCount; page++) {
@@ -165,7 +172,7 @@ export function buildApi(input: ApiInput): SiteFile[] {
   // reason the HTML pages are: a category that vanished when it was empty would
   // make a quiet week and a broken extractor return the same 404.
   for (const type of ALL_TYPES) {
-    const items = records(itemsOfType(feed, type), precision, siteUrl, repoUrl);
+    const items = records(itemsOfType(feed, type), precision, siteUrl, repoUrl, slugs);
     files.push(
       file(`events/${typeSlug(type)}.json`, {
         api_version: API_VERSION,
@@ -186,7 +193,7 @@ export function buildApi(input: ApiInput): SiteFile[] {
   // publishing a promise we are not keeping.
   const labs = labsInFeed(feed);
   for (const lab of labs) {
-    const items = records(itemsOfLab(feed, lab), precision, siteUrl, repoUrl);
+    const items = records(itemsOfLab(feed, lab), precision, siteUrl, repoUrl, slugs);
     files.push(
       file(`labs/${lab}.json`, { api_version: API_VERSION, lab, total: items.length, items }),
     );
@@ -194,7 +201,6 @@ export function buildApi(input: ApiInput): SiteFile[] {
 
   // ---- one file per model thread ----------------------------------------
   const modelThreads = threadsOfKind(threads.threads, 'model');
-  const threadSlugs = new Set(modelThreads.map((t) => t.slug));
   for (const thread of modelThreads) {
     files.push(
       file(`models/${thread.slug}.json`, {
@@ -228,13 +234,13 @@ export function buildApi(input: ApiInput): SiteFile[] {
         first_event_at: timestampView(thread.firstSeen),
         last_activity: timestampView(thread.lastActivity),
         total: thread.events.length,
-        items: records(thread.events, precision, siteUrl, repoUrl),
+        items: records(thread.events, precision, siteUrl, repoUrl, slugs),
       }),
     );
   }
 
   // ---- current catalog state --------------------------------------------
-  const models = currentModels(changes, feed, siteUrl, threadSlugs, repoUrl);
+  const models = currentModels(changes, feed, siteUrl, slugs, repoUrl);
   files.push(
     file('models.json', {
       api_version: API_VERSION,
@@ -269,6 +275,7 @@ export function buildApi(input: ApiInput): SiteFile[] {
     precision,
     siteUrl,
     repoUrl,
+    slugs,
   );
   const byTier: Record<string, number> = { 'confirmed-artifact': 0, credible: 0, unconfirmed: 0 };
   for (const item of leakItems) {

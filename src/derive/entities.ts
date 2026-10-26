@@ -272,13 +272,16 @@ export function entitiesForDocUrl(url: string, provider: string): Entity[] {
 }
 
 /**
- * The permalink segment for an entity.
+ * The PLAIN permalink segment for an entity: what its thread is published
+ * under unless an older entity already holds it.
  *
  * Lowercased, every run of characters outside `[a-z0-9]` folded to one dash,
  * and the ends trimmed, so the result is safe as a file name on every platform
- * that has to hold the generated site. Folding is lossy, which is why threads.ts
- * refuses to build a site when two distinct entities fold to one slug rather
- * than quietly serving one entity's page under the other's name.
+ * that has to hold the generated site. Folding is lossy, so this is not the
+ * published slug: assignSlugs in threads.ts is, and anything linking to a
+ * thread looks the slug up with threadSlug there rather than calling this.
+ * `docs.mistral.ai/studio/audio/text_to_speech` and `.../text-to-speech` both
+ * fold to one string, and since 2026-10-20 the archive holds both.
  */
 export function entitySlug(entity: Entity): string {
   const folded = entity.id

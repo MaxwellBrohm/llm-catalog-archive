@@ -75,6 +75,16 @@ Flat JSON on the same GitHub Pages deployment, no key and no rate limit:
 `index.json` lists every other file, including which micro-categories and which
 labs exist, so a client can tell "this lab has nothing" from "the deploy broke".
 
+Every lab, model and docs section has a thread at a permanent address,
+`threads/<slug>.html`, and a model's `api/v1/models/<slug>.json` uses the same
+slug. The slug is the entity id folded to lowercase letters, digits and dashes.
+Two ids can fold to one string (Mistral's `text_to_speech` and
+`text-to-speech` docs sections do), and then the entity the archive saw first
+keeps it and the later one gets the first eight hex digits of the SHA-256 of
+its id appended, so a newcomer never takes an address already in use. Every
+entity record in the API, and every row of `models.json`, carries the
+published `slug`, so a client never has to fold an id itself.
+
 ## What it will not say
 
 The subject of every generated sentence is an artifact, never a company and

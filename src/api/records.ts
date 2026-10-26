@@ -47,6 +47,7 @@ import {
 } from '../derive/events.js';
 import { entitySlug, providerFromSourceId, type Entity } from '../derive/entities.js';
 import { labsOf, type FeedItem, type FeedType } from '../derive/feed.js';
+import { threadSlug, type SlugIndex } from '../derive/threads.js';
 import type { LeakRefusal } from '../derive/leaks.js';
 import type { LedgerClaim, Scorecard } from '../site/ledger.js';
 import {
@@ -211,8 +212,15 @@ export function dayIfPermitted(stamp: Stamp | null, precisionSeconds: number): s
   return utcDay(stamp.iso);
 }
 
-export function entityRecord(entity: Entity, siteUrl: string): EntityRecord {
-  const slug = entitySlug(entity);
+/**
+ * One entity as an API record, pointing at its thread.
+ *
+ * `slug` is the slug the build published the thread under, which a caller
+ * looks up with threadSlug from the build's own threads. It defaults to the
+ * plain fold only for a caller with no threads at hand; refolding the id here
+ * would point the newcomer in a slug collision at the other entity's page.
+ */
+export function entityRecord(entity: Entity, siteUrl: string, slug: string = entitySlug(entity)): EntityRecord {
   return {
     kind: entity.kind,
     id: entity.id,
@@ -305,12 +313,19 @@ export function eventFields(
   }
 }
 
-/** One feed item as an API record. */
+/**
+ * One feed item as an API record.
+ *
+ * `slugs` is the build's thread index, so each entity record points at the
+ * page its thread is actually published under. Without one, every entity falls
+ * back to its plain fold, which is right everywhere except a slug collision.
+ */
 export function itemRecord(
   item: FeedItem,
   precisionSeconds: number,
   siteUrl: string,
   repoUrl: string = REPO_URL,
+  slugs: SlugIndex = new Map(),
 ): ItemRecord {
   const fields: Record<string, string | number | null> =
     item.event !== null
@@ -323,7 +338,7 @@ export function itemRecord(
     sentence: item.sentence,
     subject: subjectOf(item),
     tier: item.tier,
-    entities: item.entities.map((e) => entityRecord(e, siteUrl)),
+    entities: item.entities.map((e) => entityRecord(e, siteUrl, threadSlug(slugs, e))),
     labs: labsOf(item),
     fields,
     sha: item.sha,
@@ -455,14 +470,15 @@ export function modelRecord(
     precisionSeconds: number;
     events: number;
     siteUrl: string;
-    hasThread: boolean;
+    /** The slug the model's thread is published under, or null when it has none. */
+    thread: string | null;
   },
 ): ModelRecord {
-  const slug = entitySlug({ kind: 'model', id: `model/openrouter:${entry.id}`, label: entry.id });
+  const slug = opts.thread ?? entitySlug({ kind: 'model', id: `model/openrouter:${entry.id}`, label: entry.id });
   return {
     id: entry.id,
     slug,
-    api: opts.hasThread ? apiUrl(opts.siteUrl, `models/${slug}.json`) : null,
+    api: opts.thread === null ? null : apiUrl(opts.siteUrl, `models/${opts.thread}.json`),
     canonical_slug: entry.canonicalSlug,
     context_length: entry.contextLength,
     top_provider_context_length: entry.topProviderContextLength,
@@ -476,12 +492,20 @@ export function modelRecord(
   };
 }
 
-/** The current catalog, or null when the archive holds no capture of it. */
+/**
+ * The current catalog, or null when the archive holds no capture of it.
+ *
+ * `slugs` is the build's thread index. A model has a per-model endpoint
+ * exactly when its OWN entity id has a thread there; asking whether its folded
+ * id matched some thread's slug, which is how this used to work, answers yes
+ * for a model with no thread whose id folds to another model's slug, and
+ * points it at that other model's history.
+ */
 export function currentModels(
   changes: ContentChange[],
   feed: FeedItem[],
   siteUrl: string,
-  threadSlugs: Set<string>,
+  slugs: SlugIndex,
   repoUrl: string = REPO_URL,
 ): { source: Provenance; models: ModelRecord[] } | null {
   const change = newestChangeOf(changes, CATALOG_SOURCE_ID);
@@ -497,9 +521,7 @@ export function currentModels(
       precisionSeconds: precision,
       events: counts.get(entityId) ?? 0,
       siteUrl,
-      hasThread: threadSlugs.has(
-        entitySlug({ kind: 'model', id: entityId, label: entry.id }),
-      ),
+      thread: slugs.get(entityId) ?? null,
     });
     models.push(record);
   }
