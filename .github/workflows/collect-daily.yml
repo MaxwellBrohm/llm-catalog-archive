@@ -62,6 +62,12 @@ jobs:
     steps:
       - env:
           GH_TOKEN: ${{ github.token }}
+          # This job has no checkout, so gh cannot find the repository in a
+          # .git directory and exits with "not a git repository" before its
+          # first call. All 33 failed runs from 2026-09-10 to 2026-10-26 ended
+          # with this job failing that way, and no collector-failure issue was
+          # ever opened.
+          GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail

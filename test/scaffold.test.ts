@@ -202,3 +202,42 @@ describe('the collect-daily workflow', () => {
     expect(workflow()).not.toMatch(/npm ci(?! --ignore-scripts)/);
   });
 });
+
+// A job with no checkout has no .git for gh to read the repository out of, and
+// gh then exits "failed to run git: fatal: not a git repository" before its
+// first call. The notify job in both collector workflows was exactly that job:
+// all 33 failed collect-daily runs from 2026-09-10 to 2026-10-26 ended with
+// notify failing too, and no collector-failure issue was ever opened.
+describe('workflow jobs that call gh', () => {
+  /** Every job in every workflow, as its own block of lines. */
+  const jobs = (): { where: string; body: string }[] => {
+    const dir = '.github/workflows';
+    return fs
+      .readdirSync(dir)
+      .filter((f) => f.endsWith('.yml'))
+      .flatMap((f) => {
+        const lines = fs.readFileSync(path.join(dir, f), 'utf8').split('\n');
+        const start = lines.findIndex((l) => l === 'jobs:');
+        const out: { where: string; body: string[] }[] = [];
+        for (const line of lines.slice(start + 1)) {
+          const head = /^ {2}([A-Za-z0-9_-]+):\s*$/.exec(line);
+          if (head) out.push({ where: `${f} ${head[1]}`, body: [] });
+          else out.at(-1)?.body.push(line);
+        }
+        return out.map((j) => ({ where: j.where, body: j.body.join('\n') }));
+      });
+  };
+  const callsGh = (body: string): boolean => /(^|[\s"(])gh (issue|label|api|pr|run|release)\b/m.test(body);
+  const checksOut = (body: string): boolean => body.includes('uses: actions/checkout');
+  const namesRepo = (body: string): boolean => /^\s+GH_REPO: \$\{\{ github\.repository \}\}\s*$/m.test(body);
+
+  it('finds the jobs it is about, so the check below cannot pass on nothing', () => {
+    const bare = jobs().filter((j) => callsGh(j.body) && !checksOut(j.body)).map((j) => j.where);
+    expect(bare).toEqual(expect.arrayContaining(['collect-daily.yml notify', 'collect-fast.yml notify']));
+  });
+
+  it('name the repository when they have no checkout to read it from', () => {
+    const blind = jobs().filter((j) => callsGh(j.body) && !checksOut(j.body) && !namesRepo(j.body));
+    expect(blind.map((j) => j.where)).toEqual([]);
+  });
+});
