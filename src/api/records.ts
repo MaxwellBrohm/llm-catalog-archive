@@ -45,7 +45,7 @@ import {
   type ContentChange,
   type DerivedEvent,
 } from '../derive/events.js';
-import { entitySlug, providerFromSourceId, type Entity } from '../derive/entities.js';
+import { providerFromSourceId, type Entity } from '../derive/entities.js';
 import { labsOf, type FeedItem, type FeedType } from '../derive/feed.js';
 import { threadSlug, type SlugIndex } from '../derive/threads.js';
 import type { LeakRefusal } from '../derive/leaks.js';
@@ -121,7 +121,13 @@ export type ItemRecord = Provenance & {
 
 export type ModelRecord = {
   id: string;
-  slug: string;
+  /**
+   * The slug the model's thread is published under, which is also its
+   * endpoint's. Null exactly when `api` is: a model nothing has happened to has
+   * no thread, so no slug was ever published for it, and its folded id may be
+   * the slug ANOTHER model's thread holds.
+   */
+  slug: string | null;
   /** The per-model endpoint, absolute. Null when no item has attached to it. */
   api: string | null;
   canonical_slug: string | null;
@@ -216,11 +222,12 @@ export function dayIfPermitted(stamp: Stamp | null, precisionSeconds: number): s
  * One entity as an API record, pointing at its thread.
  *
  * `slug` is the slug the build published the thread under, which a caller
- * looks up with threadSlug from the build's own threads. It defaults to the
- * plain fold only for a caller with no threads at hand; refolding the id here
- * would point the newcomer in a slug collision at the other entity's page.
+ * looks up with threadSlug from the build's own threads. It is required, with
+ * no default, because the only default this function could compute is the
+ * plain fold, and refolding the id here would point the newcomer in a slug
+ * collision at the other entity's page while compiling cleanly.
  */
-export function entityRecord(entity: Entity, siteUrl: string, slug: string = entitySlug(entity)): EntityRecord {
+export function entityRecord(entity: Entity, siteUrl: string, slug: string): EntityRecord {
   return {
     kind: entity.kind,
     id: entity.id,
@@ -317,15 +324,17 @@ export function eventFields(
  * One feed item as an API record.
  *
  * `slugs` is the build's thread index, so each entity record points at the
- * page its thread is actually published under. Without one, every entity falls
- * back to its plain fold, which is right everywhere except a slug collision.
+ * page its thread is actually published under. It is required, and so is the
+ * repo URL in front of it, so that no caller can leave the index out and
+ * silently link every entity at its plain fold, which is wrong for the
+ * newcomer in a slug collision.
  */
 export function itemRecord(
   item: FeedItem,
   precisionSeconds: number,
   siteUrl: string,
-  repoUrl: string = REPO_URL,
-  slugs: SlugIndex = new Map(),
+  repoUrl: string,
+  slugs: SlugIndex,
 ): ItemRecord {
   const fields: Record<string, string | number | null> =
     item.event !== null
@@ -474,10 +483,9 @@ export function modelRecord(
     thread: string | null;
   },
 ): ModelRecord {
-  const slug = opts.thread ?? entitySlug({ kind: 'model', id: `model/openrouter:${entry.id}`, label: entry.id });
   return {
     id: entry.id,
-    slug,
+    slug: opts.thread,
     api: opts.thread === null ? null : apiUrl(opts.siteUrl, `models/${opts.thread}.json`),
     canonical_slug: entry.canonicalSlug,
     context_length: entry.contextLength,
@@ -495,11 +503,12 @@ export function modelRecord(
 /**
  * The current catalog, or null when the archive holds no capture of it.
  *
- * `slugs` is the build's thread index. A model has a per-model endpoint
- * exactly when its OWN entity id has a thread there; asking whether its folded
- * id matched some thread's slug, which is how this used to work, answers yes
- * for a model with no thread whose id folds to another model's slug, and
- * points it at that other model's history.
+ * `slugs` is the build's thread index. A model has a slug and a per-model
+ * endpoint exactly when its OWN entity id has a thread there. Asking whether
+ * its folded id matched some thread's slug, which is how this used to work,
+ * answers yes for a model with no thread whose id folds to another model's
+ * slug, and points it at that other model's history. Refolding the id to fill
+ * in a slug for a model with no thread is the same mistake one field over.
  */
 export function currentModels(
   changes: ContentChange[],

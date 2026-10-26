@@ -30,12 +30,21 @@ import {
   TYPE_LABEL,
 } from '../src/site/render.js';
 import { buildSite, textContents } from '../src/site/build.js';
-import { buildThreads } from '../src/derive/threads.js';
+import { buildThreads, type ThreadSet } from '../src/derive/threads.js';
 import { ALL_TYPES, buildFeed, type FeedItem } from '../src/derive/feed.js';
 import type { DerivedEvent } from '../src/derive/events.js';
 import type { LeakItem } from '../src/derive/leaks.js';
 import type { Entity } from '../src/derive/entities.js';
 import type { Stamp } from '../src/site/record.js';
+
+/**
+ * A page rendered against no threads links every entity at its plain fold.
+ * Nothing in this file's fixtures collides, so that is the published slug for
+ * each of them; test/thread-slug-collision.test.ts covers the case where it is
+ * not.
+ */
+const NO_THREADS: ThreadSet = { threads: [], held: [] };
+
 
 const SHA = 'a69a068319de9dc9a7ab1049b411a562a026e7d5';
 const stamp = (iso: string): Stamp => ({ iso, kind: 'origin' });
@@ -123,7 +132,7 @@ describe('renderEverythingPage', () => {
 
   it('files an item with no timestamp under its own heading rather than a wrong day', () => {
     const feed = buildFeed([event({ stamp: null })], []);
-    expect(renderEverythingPage(feed)).toContain('<h2 class="day-mark"><span>no timestamp recorded</span></h2>');
+    expect(renderEverythingPage(feed, NO_THREADS)).toContain('<h2 class="day-mark"><span>no timestamp recorded</span></h2>');
   });
 
   it('counts the items it derived from', () => {
@@ -161,11 +170,11 @@ describe('renderEverythingPage', () => {
   // An event carries no tier, so stamping one on it would be inventing a grade
   // the derivation never assigned.
   it('labels an event with no sourcing tier at all', () => {
-    expect(renderEverythingPage(buildFeed([event()], []))).not.toContain('badge-tier');
+    expect(renderEverythingPage(buildFeed([event()], []), NO_THREADS)).not.toContain('badge-tier');
   });
 
   it('says so on the card when an item attached to no entity', () => {
-    expect(renderEverythingPage(buildFeed([event({ entities: [] })], []))).toContain(
+    expect(renderEverythingPage(buildFeed([event({ entities: [] })], []), NO_THREADS)).toContain(
       'held: no entity was mechanically extractable',
     );
   });
@@ -198,7 +207,7 @@ describe('renderEverythingPage', () => {
 
   it('escapes a hostile catalog id rather than rendering it as markup', () => {
     const feed = buildFeed([event({ modelId: '"><script>x</script>', entities: [] })], []);
-    expect(renderEverythingPage(feed)).not.toContain('<script>x</script>');
+    expect(renderEverythingPage(feed, NO_THREADS)).not.toContain('<script>x</script>');
   });
 });
 
@@ -277,37 +286,37 @@ describe('the front page cap', () => {
 
 describe('renderTypePage', () => {
   it('carries the items of the type it is for', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('entered OpenRouter&#39;s catalog.');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('entered OpenRouter&#39;s catalog.');
   });
 
   it('carries no item of another type', () => {
-    expect(renderTypePage('model_added', FEED)).not.toContain('appears in arena.ai');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).not.toContain('appears in arena.ai');
   });
 
   it('counts the items of its own type rather than the whole feed', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('1 item in the archive');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('1 item in the archive');
   });
 
   it('titles itself with the category label rather than the discriminant', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('<h1>A model id entered the catalog</h1>');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('<h1>A model id entered the catalog</h1>');
   });
 
   it('still prints the discriminant, which is what the item carries', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('model_added');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('model_added');
   });
 
   // A category page that vanished when it was empty would make a quiet week and
   // a broken extractor render as the same missing link.
   it('says so in words when the archive holds none of its type', () => {
-    expect(renderTypePage('price_changed', FEED)).toContain('No item of this kind is derivable');
+    expect(renderTypePage('price_changed', FEED, NO_THREADS)).toContain('No item of this kind is derivable');
   });
 
   it('marks its own chip as the current one', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('chip chip-on');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('chip chip-on');
   });
 
   it('links every other category from every category page', () => {
-    const html = renderTypePage('model_added', FEED);
+    const html = renderTypePage('model_added', FEED, NO_THREADS);
     expect(ALL_TYPES.filter((t) => !html.includes(typePagePath(t)))).toEqual([]);
   });
 
@@ -329,31 +338,31 @@ describe('renderTypePage', () => {
 
 describe('renderLabPage', () => {
   it('carries an item whose vendor prefix maps to the lab', () => {
-    expect(renderLabPage('anthropic', FEED)).toContain('entered OpenRouter&#39;s catalog.');
+    expect(renderLabPage('anthropic', FEED, NO_THREADS)).toContain('entered OpenRouter&#39;s catalog.');
   });
 
   it('carries no item that attaches to no lab', () => {
-    expect(renderLabPage('anthropic', FEED)).not.toContain('appears in arena.ai');
+    expect(renderLabPage('anthropic', FEED, NO_THREADS)).not.toContain('appears in arena.ai');
   });
 
   it('counts only the items of that lab', () => {
-    expect(renderLabPage('anthropic', FEED)).toContain('1 item whose catalogue id');
+    expect(renderLabPage('anthropic', FEED, NO_THREADS)).toContain('1 item whose catalogue id');
   });
 
   it('links across to the same entity in the entity model', () => {
-    expect(renderLabPage('anthropic', FEED)).toContain('href="../threads/lab-anthropic.html"');
+    expect(renderLabPage('anthropic', FEED, NO_THREADS)).toContain('href="../threads/lab-anthropic.html"');
   });
 
   it('marks its own chip as the current one', () => {
-    expect(renderLabPage('anthropic', FEED)).toContain('chip chip-on');
+    expect(renderLabPage('anthropic', FEED, NO_THREADS)).toContain('chip chip-on');
   });
 
   it('says the mapping is a written table rather than an inference', () => {
-    expect(renderLabPage('anthropic', FEED)).toContain('never inferred');
+    expect(renderLabPage('anthropic', FEED, NO_THREADS)).toContain('never inferred');
   });
 
   it('says so when a feed carries no lab at all rather than printing an empty chip row', () => {
-    expect(renderLabPage('anthropic', buildFeed([], [leak()]))).toContain('nothing to filter by');
+    expect(renderLabPage('anthropic', buildFeed([], [leak()]), NO_THREADS)).toContain('nothing to filter by');
   });
 });
 
@@ -550,8 +559,8 @@ describe('renderAboutPage states what the archive stores', () => {
 describe('every section is reachable from every page', () => {
   const pages = [
     renderEverythingPage(FEED, THREADS),
-    renderTypePage('model_added', FEED),
-    renderLabPage('anthropic', FEED),
+    renderTypePage('model_added', FEED, NO_THREADS),
+    renderLabPage('anthropic', FEED, NO_THREADS),
     renderAboutPage(),
   ];
 
@@ -600,33 +609,33 @@ describe('every section is reachable from every page', () => {
  */
 describe('the item card', () => {
   it('links the entity chip at the thread the entity resolves to', () => {
-    expect(renderTypePage('model_added', FEED)).toContain(
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain(
       '<a class="chip" href="../threads/model-openrouter-anthropic-claude-opus-5.html">' +
         '<span class="chip-kind">model</span><code>anthropic/claude-opus-5</code></a>',
     );
   });
 
   it('emits one chip per entity the item carries', () => {
-    expect(renderTypePage('model_added', FEED).match(/<a class="chip" href="\.\.\/threads\//g)).toHaveLength(2);
+    expect(renderTypePage('model_added', FEED, NO_THREADS).match(/<a class="chip" href="\.\.\/threads\//g)).toHaveLength(2);
   });
 
   it('emits the held chip instead, and only it, when the item carries no entity', () => {
-    const held = renderTypePage('model_added', buildFeed([event({ entities: [] })], []));
+    const held = renderTypePage('model_added', buildFeed([event({ entities: [] })], []), NO_THREADS);
     expect(held).not.toContain('<a class="chip" href="../threads/');
   });
 
   it('prints an event card with the fact rows its own type carries', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('<th>catalog created</th>');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('<th>catalog created</th>');
   });
 
   it('prints a leak card with the fact rows the desk recorded, marked as archive values', () => {
-    expect(renderTypePage('codename_entered', FEED)).toContain(
+    expect(renderTypePage('codename_entered', FEED, NO_THREADS)).toContain(
       '<tr><th>publicName</th><td class="quoted">cold_brew</td></tr>',
     );
   });
 
   it('prints no event fact rows on a leak card', () => {
-    expect(renderTypePage('codename_entered', FEED)).not.toContain('catalog created');
+    expect(renderTypePage('codename_entered', FEED, NO_THREADS)).not.toContain('catalog created');
   });
 });
 
@@ -640,13 +649,13 @@ describe('the day buckets on the front page', () => {
   );
 
   it('gives two items of one day a single heading', () => {
-    expect(renderEverythingPage(sameDay).match(/<span>2026-08-28<\/span>/g)).toHaveLength(1);
+    expect(renderEverythingPage(sameDay, NO_THREADS).match(/<span>2026-08-28<\/span>/g)).toHaveLength(1);
   });
 
   // A bucket that was replaced rather than appended to would print only the
   // last item of every day, which reads as a quiet day rather than as a bug.
   it('keeps both items of that day on the page', () => {
-    const html = renderEverythingPage(sameDay);
+    const html = renderEverythingPage(sameDay, NO_THREADS);
     expect([html.includes('&quot;anthropic/claude-opus-5&quot;'), html.includes('&quot;openai/gpt-5&quot;')]).toEqual([
       true,
       true,
@@ -658,13 +667,13 @@ describe('the micro-category chips', () => {
   // On the category pages, where the chips are: the front page carries the
   // categories as a rail list instead, asserted in the block below.
   it('prints the count of each category beside its key', () => {
-    expect(renderTypePage('model_added', FEED)).toContain(
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain(
       '<span class="chip-kind">model_added</span>1</a>',
     );
   });
 
   it('prints zero for a category the archive holds none of', () => {
-    expect(renderTypePage('model_added', FEED)).toContain(
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain(
       '<span class="chip-kind">price_changed</span>0</a>',
     );
   });
@@ -676,11 +685,11 @@ describe('the micro-category chips', () => {
   });
 
   it('marks a category the archive holds none of as empty', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('class="chip chip-empty" href="../type/price-changed.html"');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('class="chip chip-empty" href="../type/price-changed.html"');
   });
 
   it('marks a category the archive holds items of as not empty', () => {
-    expect(renderTypePage('price_changed', FEED)).toContain('class="chip" href="../type/model-added.html"');
+    expect(renderTypePage('price_changed', FEED, NO_THREADS)).toContain('class="chip" href="../type/model-added.html"');
   });
 
   it('marks no chip as current on the front page, which filters nothing', () => {
@@ -688,11 +697,11 @@ describe('the micro-category chips', () => {
   });
 
   it('marks exactly one chip as current on a category page', () => {
-    expect(renderTypePage('model_added', FEED).match(/chip-on/g)).toHaveLength(1);
+    expect(renderTypePage('model_added', FEED, NO_THREADS).match(/chip-on/g)).toHaveLength(1);
   });
 
   it('marks exactly one chip as current on a lab page', () => {
-    expect(renderLabPage('anthropic', FEED).match(/chip-on/g)).toHaveLength(1);
+    expect(renderLabPage('anthropic', FEED, NO_THREADS).match(/chip-on/g)).toHaveLength(1);
   });
 });
 
@@ -794,7 +803,7 @@ describe('the everything feed at item resolution', () => {
  * because nothing asserted that a card did NOT carry another type's rows.
  */
 describe('the fact rows under an event card', () => {
-  const cardOf = (e: DerivedEvent): string => renderTypePage(e.type, buildFeed([e], []));
+  const cardOf = (e: DerivedEvent): string => renderTypePage(e.type, buildFeed([e], []), NO_THREADS);
 
   const removed = event({
     id: `${SHA}:model_removed:anthropic/claude-opus-5`,
@@ -896,15 +905,15 @@ describe('the fact rows under an event card', () => {
 
 describe('the card meta line', () => {
   it('abbreviates the commit sha to seven characters', () => {
-    expect(renderTypePage('model_added', FEED)).toContain(`>${SHA.slice(0, 7)}</a>`);
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain(`>${SHA.slice(0, 7)}</a>`);
   });
 
   it('prints no full sha in the meta link text', () => {
-    expect(renderTypePage('model_added', FEED)).not.toContain(`>${SHA}</a>`);
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).not.toContain(`>${SHA}</a>`);
   });
 
   it('links the source page from the card', () => {
-    expect(renderTypePage('model_added', FEED)).toContain('<a href="../sources/openrouter-models.html">');
+    expect(renderTypePage('model_added', FEED, NO_THREADS)).toContain('<a href="../sources/openrouter-models.html">');
   });
 });
 

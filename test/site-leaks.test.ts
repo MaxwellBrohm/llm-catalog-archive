@@ -4,6 +4,16 @@ import { buildSite } from '../src/site/build.js';
 import { parseLedger } from '../src/site/ledger.js';
 import { leakSentence, type LeakItem, type LeakRefusal } from '../src/derive/leaks.js';
 import { escapeHtml, type Stamp } from '../src/site/record.js';
+import type { ThreadSet } from '../src/derive/threads.js';
+
+/**
+ * A page rendered against no threads links every entity at its plain fold.
+ * Nothing in this file's fixtures collides, so that is the published slug for
+ * each of them; test/thread-slug-collision.test.ts covers the case where it is
+ * not.
+ */
+const NO_THREADS: ThreadSet = { threads: [], held: [] };
+
 
 const SHA = 'a69a068319de9dc9a7ab1049b411a562a026e7d5';
 const ORIGIN: Stamp = { iso: '2026-08-28T08:08:22.000Z', kind: 'origin' };
@@ -270,11 +280,11 @@ describe('the rendered leaks desk never makes a company the subject of a verb', 
   });
 
   it('puts no company in front of a verb anywhere the leaks page composed', () => {
-    expect(companySubjectViolations(composedProse(renderLeaksPage(ALL_KINDS)))).toEqual([]);
+    expect(companySubjectViolations(composedProse(renderLeaksPage(ALL_KINDS, [], [], NO_THREADS)))).toEqual([]);
   });
 
   it('puts no company in front of a verb on an empty leaks page', () => {
-    expect(companySubjectViolations(composedProse(renderLeaksPage([])))).toEqual([]);
+    expect(companySubjectViolations(composedProse(renderLeaksPage([], [], [], NO_THREADS)))).toEqual([]);
   });
 
   it('puts no company in front of a verb on the ledger page', () => {
@@ -312,55 +322,55 @@ describe('the rendered leaks desk never makes a company the subject of a verb', 
 
 describe('renderLeaksPage', () => {
   it('renders the claim sentence for every item it is given', () => {
-    const html = renderLeaksPage(ALL_KINDS);
+    const html = renderLeaksPage(ALL_KINDS, [], [], NO_THREADS);
     const missing = ALL_KINDS.filter((i) => !html.includes(escapeHtml(leakSentence(i))));
     expect(missing).toEqual([]);
   });
 
   it('links every item to its raw artifact at that item’s own commit', () => {
-    expect(renderLeaksPage(ALL_KINDS)).toContain(
+    expect(renderLeaksPage(ALL_KINDS, [], [], NO_THREADS)).toContain(
       `https://github.com/MaxwellBrohm/llm-catalog-archive/blob/${SHA}/raw/arena-leaderboard/response.html`,
     );
   });
 
   it('links no artifact at HEAD', () => {
-    expect(renderLeaksPage(ALL_KINDS)).not.toContain('/blob/HEAD/');
+    expect(renderLeaksPage(ALL_KINDS, [], [], NO_THREADS)).not.toContain('/blob/HEAD/');
   });
 
   it('labels every item with its sourcing tier', () => {
     expect(
-      renderLeaksPage(ALL_KINDS).match(/badge-tier badge-confirmed-artifact">confirmed-artifact</g),
+      renderLeaksPage(ALL_KINDS, [], [], NO_THREADS).match(/badge-tier badge-confirmed-artifact">confirmed-artifact</g),
     ).toHaveLength(ALL_KINDS.length);
   });
 
   // A section that vanished when it was empty would make "no reveals this
   // week" and "the extractor broke three weeks ago" render identically.
   it('keeps every signal heading on a page with no items at all', () => {
-    const html = renderLeaksPage([]);
+    const html = renderLeaksPage([], [], [], NO_THREADS);
     const headings = ['a name entered the payload', 'a name was unmasked', 'a model-support pull request appeared', 'a model-support pull request merged', 'stealth/ namespace', 'an expiration_date was recorded'];
     expect(headings.filter((h) => !html.includes(h))).toEqual([]);
   });
 
   it('says so in words when a signal has no items', () => {
-    expect(renderLeaksPage([])).toContain('No item of this kind is derivable from the archive as it stands');
+    expect(renderLeaksPage([], [], [], NO_THREADS)).toContain('No item of this kind is derivable from the archive as it stands');
   });
 
   it('prints the confirmation query for an upstream pull request', () => {
-    expect(renderLeaksPage(ALL_KINDS)).toContain('https://huggingface.co/api/models?search=Ovis2.5');
+    expect(renderLeaksPage(ALL_KINDS, [], [], NO_THREADS)).toContain('https://huggingface.co/api/models?search=Ovis2.5');
   });
 
   // The query is evidence about a weights repository and the pull request is
   // evidence about a runtime. Merging them is the claim the copy rule forbids.
   it('calls the empty result a statement about the search rather than about what exists', () => {
-    expect(renderLeaksPage(ALL_KINDS)).toContain('An empty array is a statement about that search, not about what exists');
+    expect(renderLeaksPage(ALL_KINDS, [], [], NO_THREADS)).toContain('An empty array is a statement about that search, not about what exists');
   });
 
   it('prints no confirmation query for an arena item', () => {
-    expect(renderLeaksPage([ALL_KINDS[0]!])).not.toContain('huggingface.co/api/models');
+    expect(renderLeaksPage([ALL_KINDS[0]!], [], [], NO_THREADS)).not.toContain('huggingface.co/api/models');
   });
 
   it('says nothing is rehosted', () => {
-    expect(renderLeaksPage(ALL_KINDS)).toContain('Nothing here rehosts weights or source');
+    expect(renderLeaksPage(ALL_KINDS, [], [], NO_THREADS)).toContain('Nothing here rehosts weights or source');
   });
 });
 
@@ -384,51 +394,51 @@ describe('renderLeaksPage renders what the desk refused', () => {
   };
 
   it('prints the reason it refused, in the words the derivation measured', () => {
-    expect(renderLeaksPage([], [], [refusal])).toContain(
+    expect(renderLeaksPage([], [], [refusal], NO_THREADS)).toContain(
       'the codename map holds 1 publicName record before this change and 1029 after, and the floor is 400.',
     );
   });
 
   it('names the source it refused to derive from', () => {
-    expect(renderLeaksPage([], [], [refusal])).toContain(
+    expect(renderLeaksPage([], [], [refusal], NO_THREADS)).toContain(
       'The desk derived nothing across one recorded change of arena-leaderboard',
     );
   });
 
   it('marks a refusal as a refusal rather than as a claim', () => {
-    expect(renderLeaksPage([], [], [refusal])).toContain('<span class="badge badge-refusal">refused</span>');
+    expect(renderLeaksPage([], [], [refusal], NO_THREADS)).toContain('<span class="badge badge-refusal">refused</span>');
   });
 
   it('links the refusal to the raw artifact at the commit it refused', () => {
-    expect(renderLeaksPage([], [], [refusal])).toContain(
+    expect(renderLeaksPage([], [], [refusal], NO_THREADS)).toContain(
       `https://github.com/MaxwellBrohm/llm-catalog-archive/blob/${SHA}/raw/arena-leaderboard/response.html`,
     );
   });
 
   it('links the refusal to the change page for that commit', () => {
-    expect(renderLeaksPage([], [], [refusal])).toContain(`href="../changes/${SHA}.html"`);
+    expect(renderLeaksPage([], [], [refusal], NO_THREADS)).toContain(`href="../changes/${SHA}.html"`);
   });
 
   it('counts the refusals in words', () => {
-    expect(renderLeaksPage([], [], [refusal, { ...refusal, sha: '0'.repeat(40) }])).toContain('2 changes the desk declined');
+    expect(renderLeaksPage([], [], [refusal, { ...refusal, sha: '0'.repeat(40) }], NO_THREADS)).toContain('2 changes the desk declined');
   });
 
   // A page that printed nothing here would leave a reader unable to tell a
   // clean run from a run with no refusal reporting at all.
   it('says no change was refused when none was', () => {
-    expect(renderLeaksPage([], [], [])).toContain('No change was refused');
+    expect(renderLeaksPage([], [], [], NO_THREADS)).toContain('No change was refused');
   });
 
   it('prints no refusal card when none was refused', () => {
-    expect(renderLeaksPage([], [], [])).not.toContain('badge-refusal');
+    expect(renderLeaksPage([], [], [], NO_THREADS)).not.toContain('badge-refusal');
   });
 
   it('keeps the refusals heading on a desk with nothing refused', () => {
-    expect(renderLeaksPage([], [], [])).toContain('<h2>Refused</h2>');
+    expect(renderLeaksPage([], [], [], NO_THREADS)).toContain('<h2>Refused</h2>');
   });
 
   it('escapes a hostile reason rather than rendering it as markup', () => {
-    expect(renderLeaksPage([], [], [{ ...refusal, reason: '<script>x</script>' }])).not.toContain('<script>x</script>');
+    expect(renderLeaksPage([], [], [{ ...refusal, reason: '<script>x</script>' }], NO_THREADS)).not.toContain('<script>x</script>');
   });
 });
 

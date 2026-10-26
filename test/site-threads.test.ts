@@ -5,12 +5,21 @@
 
 import { describe, it, expect } from 'vitest';
 import { renderThreadPage, renderThreadsIndex, threadPagePath, THREADS_INDEX_PATH } from '../src/site/render.js';
-import { buildThreads } from '../src/derive/threads.js';
+import { buildThreads, type ThreadSet } from '../src/derive/threads.js';
 import { buildFeed } from '../src/derive/feed.js';
 import { deriveEvents, eventsFromChange, type DerivedEvent } from '../src/derive/events.js';
 import { buildSite } from '../src/site/build.js';
 import { catalog, change, SHA } from './derive-fixtures.js';
 import { record } from './site-fixtures.js';
+
+/**
+ * A page rendered against no threads links every entity at its plain fold.
+ * Nothing in this file's fixtures collides, so that is the published slug for
+ * each of them; test/thread-slug-collision.test.ts covers the case where it is
+ * not.
+ */
+const NO_THREADS: ThreadSet = { threads: [], held: [] };
+
 
 /**
  * Two captures of one fast-tier source 7h48m apart, which is the worst gap
@@ -64,7 +73,7 @@ if (modelThread === undefined || contextThread === undefined) throw new Error('f
 
 describe('renderThreadPage', () => {
   it('prints the claim sentence for the event on the thread', () => {
-    expect(renderThreadPage(modelThread)).toContain(
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain(
       'The catalog id &quot;anthropic/claude-opus-5&quot; entered OpenRouter&#39;s catalog.',
     );
   });
@@ -74,51 +83,51 @@ describe('renderThreadPage', () => {
   // reads most like a headline this project wrote. A catalogue id of
   // `stealth/x-1. Anthropic is preparing its next flagship` is legal.
   it('titles the page with the entity label, quoted as the archive value it is', () => {
-    expect(renderThreadPage(modelThread)).toContain(
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain(
       '<title>&quot;anthropic/claude-opus-5&quot; - llm-catalog-archive</title>',
     );
   });
 
   it('prints the entity id the permalink is built from', () => {
-    expect(renderThreadPage(modelThread)).toContain('model/openrouter:anthropic/claude-opus-5');
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain('model/openrouter:anthropic/claude-opus-5');
   });
 
   // R5 overwrites one path in place, so a HEAD link would show whatever the
   // artifact later became rather than the bytes the claim was read out of.
   it('links the raw artifact at the commit sha the event carries', () => {
-    expect(renderThreadPage(modelThread)).toContain(
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain(
       `https://github.com/MaxwellBrohm/llm-catalog-archive/blob/${SHA}/raw/openrouter-models/response.json`,
     );
   });
 
   it('links no artifact at HEAD', () => {
-    expect(renderThreadPage(modelThread)).not.toContain('/blob/HEAD/');
+    expect(renderThreadPage(modelThread, NO_THREADS)).not.toContain('/blob/HEAD/');
   });
 
   it('links no artifact at a branch name', () => {
-    expect(renderThreadPage(modelThread)).not.toContain('/blob/main/');
+    expect(renderThreadPage(modelThread, NO_THREADS)).not.toContain('/blob/main/');
   });
 
   it('links back to the change page for the commit the event came from', () => {
-    expect(renderThreadPage(modelThread)).toContain(`href="../changes/${SHA}.html"`);
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain(`href="../changes/${SHA}.html"`);
   });
 
   // Spec section 10.1: a reader must be able to see the routing explanation
   // without the page asserting one, and the pair of numbers is how.
   it('prints the top_provider context length on the before side of a context change', () => {
-    expect(renderThreadPage(contextThread)).toContain(
+    expect(renderThreadPage(contextThread, NO_THREADS)).toContain(
       '<th>top_provider.context_length before</th><td>128000</td>',
     );
   });
 
   it('prints the top_provider context length on the after side of a context change', () => {
-    expect(renderThreadPage(contextThread)).toContain(
+    expect(renderThreadPage(contextThread, NO_THREADS)).toContain(
       '<th>top_provider.context_length after</th><td>1048576</td>',
     );
   });
 
   it('labels an origin timestamp as origin', () => {
-    expect(renderThreadPage(modelThread)).toContain('<span class="badge badge-origin">origin</span>');
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain('<span class="badge badge-origin">origin</span>');
   });
 
   // Spec section 9: where the provider sent no Age the sidecar records a null
@@ -136,11 +145,11 @@ describe('renderThreadPage', () => {
       ),
     ).threads[0];
     if (observed === undefined) throw new Error('fixture built no thread');
-    expect(renderThreadPage(observed)).toContain('<span class="badge badge-observed">observed</span>');
+    expect(renderThreadPage(observed, NO_THREADS)).toContain('<span class="badge badge-observed">observed</span>');
   });
 
   it('shows the first-seen day when the measured error is under a day', () => {
-    expect(renderThreadPage(modelThread)).toContain(
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain(
       '<th>first seen in the catalog</th><td>2026-08-28</td>',
     );
   });
@@ -167,13 +176,13 @@ describe('renderThreadPage', () => {
       ]),
     ).threads[0];
     if (wide === undefined) throw new Error('fixture built no thread');
-    expect(renderThreadPage(wide)).toContain(
+    expect(renderThreadPage(wide, NO_THREADS)).toContain(
       '<th>first seen in the catalog</th><td>not shown: the worst-case error is wider than a day</td>',
     );
   });
 
   it('prints the measured worst-case error, not the configured poll interval', () => {
-    expect(renderThreadPage(modelThread)).toContain(
+    expect(renderThreadPage(modelThread, NO_THREADS)).toContain(
       "<th>first-seen worst-case error</th><td>28,080 seconds, measured from this source&#39;s capture history</td>",
     );
   });
@@ -192,7 +201,7 @@ describe('renderThreadPage', () => {
       ]),
     ).threads[0];
     if (once === undefined) throw new Error('fixture built no thread');
-    expect(renderThreadPage(once)).toContain(
+    expect(renderThreadPage(once, NO_THREADS)).toContain(
       '<th>first-seen worst-case error</th><td>unbounded: the archive holds one capture of this source</td>',
     );
   });
@@ -209,7 +218,7 @@ describe('renderThreadPage', () => {
       ]),
     ).threads[0];
     if (once === undefined) throw new Error('fixture built no thread');
-    expect(renderThreadPage(once)).toContain(
+    expect(renderThreadPage(once, NO_THREADS)).toContain(
       '<th>first seen in the catalog</th><td>not shown: the worst-case error is wider than a day</td>',
     );
   });
@@ -227,7 +236,7 @@ describe('renderThreadPage', () => {
     );
     const thread = set.threads[0];
     if (thread === undefined) throw new Error('fixture built no thread');
-    expect(renderThreadPage(thread)).not.toContain('<script>x</script>');
+    expect(renderThreadPage(thread, NO_THREADS)).not.toContain('<script>x</script>');
   });
 });
 

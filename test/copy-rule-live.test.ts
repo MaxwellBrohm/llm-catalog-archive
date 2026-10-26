@@ -47,9 +47,18 @@ import {
   renderThreadsIndex,
   renderTypePage,
 } from '../src/site/render.js';
-import { buildThreads } from '../src/derive/threads.js';
+import { buildThreads, type ThreadSet } from '../src/derive/threads.js';
 import { buildFeed } from '../src/derive/feed.js';
 import { companySubjectViolations, composedProse } from './site-leaks.test.js';
+
+/**
+ * A page rendered against no threads links every entity at its plain fold.
+ * Nothing in this file's fixtures collides, so that is the published slug for
+ * each of them; test/thread-slug-collision.test.ts covers the case where it is
+ * not.
+ */
+const NO_THREADS: ThreadSet = { threads: [], held: [] };
+
 
 const REPO = path.resolve(import.meta.dirname, '..');
 const SHA = 'a69a068319de9dc9a7ab1049b411a562a026e7d5';
@@ -132,7 +141,7 @@ describe('a hostile pull-request title cannot become prose this project composed
         subject: 'huggingface/transformers#1',
         facts: [['title', HOSTILE_TITLE]],
       }),
-    ]);
+    ], [], [], NO_THREADS);
     expect(companySubjectViolations(composedProse(html))).toEqual([]);
   });
 });
@@ -260,7 +269,7 @@ describe('the copy rule over every row of the stored pull-request payloads', () 
           facts: [['title', row.title]],
         }),
       );
-      expect(companySubjectViolations(composedProse(renderLeaksPage(items)))).toEqual([]);
+      expect(companySubjectViolations(composedProse(renderLeaksPage(items, [], [], NO_THREADS)))).toEqual([]);
     });
   }
 
@@ -338,22 +347,22 @@ describe('the copy rule over the pages the publication added', () => {
   const feed = buildFeed([], hostile);
 
   it('makes no company the subject of a verb on the front page', () => {
-    expect(companySubjectViolations(composedProse(renderEverythingPage(feed)))).toEqual([]);
+    expect(companySubjectViolations(composedProse(renderEverythingPage(feed, NO_THREADS)))).toEqual([]);
   });
 
   it('makes no company the subject of a verb on a micro-category page', () => {
-    expect(companySubjectViolations(composedProse(renderTypePage('stealth_listing', feed)))).toEqual([]);
+    expect(companySubjectViolations(composedProse(renderTypePage('stealth_listing', feed, NO_THREADS)))).toEqual([]);
   });
 
   it('makes no company the subject of a verb on an empty front page', () => {
-    expect(companySubjectViolations(composedProse(renderEverythingPage([])))).toEqual([]);
+    expect(companySubjectViolations(composedProse(renderEverythingPage([], NO_THREADS)))).toEqual([]);
   });
 
   // A thread page prints the entity label as its own heading, and the entity
   // for a catalog id IS that id. Same class of exposure as the chip row.
   it('makes no company the subject of a verb on a thread page built from a hostile id', () => {
     const set = buildThreads(feed);
-    const offenders = set.threads.flatMap((t) => companySubjectViolations(composedProse(renderThreadPage(t))));
+    const offenders = set.threads.flatMap((t) => companySubjectViolations(composedProse(renderThreadPage(t, set))));
     expect(offenders).toEqual([]);
   });
 

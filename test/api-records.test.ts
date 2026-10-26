@@ -137,13 +137,23 @@ describe('dayIfPermitted', () => {
 
 describe('entityRecord', () => {
   it('carries the thread page a human can open for that entity', () => {
-    expect(entityRecord({ kind: 'lab', id: 'lab/anthropic', label: 'anthropic' }, SITE)).toEqual({
+    expect(entityRecord({ kind: 'lab', id: 'lab/anthropic', label: 'anthropic' }, SITE, 'lab-anthropic')).toEqual({
       kind: 'lab',
       id: 'lab/anthropic',
       label: 'anthropic',
       slug: 'lab-anthropic',
       thread: 'https://diffwire.dev/threads/lab-anthropic.html',
     });
+  });
+
+  // The newcomer in a slug collision is published under its fold plus a
+  // suffix, and refolding its id here would name the other entity's page.
+  it('publishes the slug it is given, not the fold of the id', () => {
+    const entity = { kind: 'model' as const, id: 'model/openrouter:mistralai/voxtral-1-5', label: 'mistralai/voxtral-1-5' };
+    const tagged = 'model-openrouter-mistralai-voxtral-1-5-4a82a294';
+    expect(entityRecord(entity, SITE, tagged)).toEqual(
+      expect.objectContaining({ slug: tagged, thread: `${SITE}/threads/${tagged}.html` }),
+    );
   });
 });
 
@@ -229,7 +239,7 @@ describe('eventFields for a model addition', () => {
 });
 
 describe('itemRecord', () => {
-  const record = itemRecord(contextItem, 348766, SITE, REPO);
+  const record = itemRecord(contextItem, 348766, SITE, REPO, new Map());
 
   it('links the artifact at the full sha of the commit that changed it', () => {
     expect(record.artifact).toBe(
@@ -365,6 +375,60 @@ describe('currentModels', () => {
 
   it('returns null when the archive holds no capture of the catalogue at all', () => {
     expect(currentModels([], [], SITE, new Map(), REPO)).toBeNull();
+  });
+
+  it('gives a model with no thread a null slug, because no page was published under one', () => {
+    const none = currentModels([contextChange], [contextItem], SITE, new Map(), REPO)!;
+    expect(none.models[0]!.slug).toBeNull();
+  });
+});
+
+/**
+ * Two catalogue ids that fold to one slug, only one of them with a thread.
+ *
+ * The rule used to ask whether a model's FOLD matched some thread's slug, which
+ * answers yes for the model with no thread and points its row at the other
+ * model's history. Each case is run both ways round, because a rule that only
+ * looked at which id sorts first would pass one direction by luck.
+ */
+describe('currentModels: two ids that fold to one slug, only one with a thread', () => {
+  const DOT = 'mistralai/voxtral-1.5';
+  const DASH = 'mistralai/voxtral-1-5';
+  const PLAIN = 'model-openrouter-mistralai-voxtral-1-5';
+  const both = change({ before: catalog([]), after: catalog([{ id: DOT }, { id: DASH }]) });
+  const row = (slugs: Map<string, string>, id: string) =>
+    currentModels([both], [], SITE, slugs, REPO)!.models.find((m) => m.id === id)!;
+
+  for (const [threaded, bare] of [
+    [DASH, DOT],
+    [DOT, DASH],
+  ] as const) {
+    const slugs = new Map([[`model/openrouter:${threaded}`, PLAIN]]);
+
+    it(`gives ${bare}, which has no thread, no endpoint, though ${threaded} is published at its fold`, () => {
+      expect(row(slugs, bare).api).toBeNull();
+    });
+
+    it(`gives ${bare} no slug, rather than the slug of ${threaded}'s thread`, () => {
+      expect(row(slugs, bare).slug).toBeNull();
+    });
+
+    it(`points ${threaded} at its own thread's file`, () => {
+      expect(row(slugs, threaded)).toEqual(
+        expect.objectContaining({ slug: PLAIN, api: `${SITE}/api/v1/models/${PLAIN}.json` }),
+      );
+    });
+  }
+
+  it('carries the suffixed slug of a newcomer whose thread is published under one, not its fold', () => {
+    const tagged = `${PLAIN}-4a82a294`;
+    const slugs = new Map([
+      [`model/openrouter:${DOT}`, PLAIN],
+      [`model/openrouter:${DASH}`, tagged],
+    ]);
+    expect(row(slugs, DASH)).toEqual(
+      expect.objectContaining({ slug: tagged, api: `${SITE}/api/v1/models/${tagged}.json` }),
+    );
   });
 });
 
@@ -570,7 +634,7 @@ describe('eventFields covers every event type', () => {
 });
 
 describe('itemRecord on a leak item', () => {
-  const record = itemRecord(leakItem, 900, SITE, REPO);
+  const record = itemRecord(leakItem, 900, SITE, REPO, new Map());
 
   it('takes its fields from the leak\'s own fact rows, not from an event', () => {
     expect(record.fields).toEqual({
@@ -591,8 +655,19 @@ describe('itemRecord on a leak item', () => {
 });
 
 describe('itemRecord entities', () => {
+  it('points each entity at the slug the thread index holds for it, not at its fold', () => {
+    const slugs = new Map([['model/openrouter:anthropic/claude-opus-5', 'model-openrouter-anthropic-claude-opus-5-0a1b2c3d']]);
+    expect(itemRecord(contextItem, 900, SITE, REPO, slugs).entities.map((e) => [e.slug, e.thread])).toEqual([
+      [
+        'model-openrouter-anthropic-claude-opus-5-0a1b2c3d',
+        `${SITE}/threads/model-openrouter-anthropic-claude-opus-5-0a1b2c3d.html`,
+      ],
+      ['lab-anthropic', `${SITE}/threads/lab-anthropic.html`],
+    ]);
+  });
+
   it('renders every entity the derivation attached, with its thread link', () => {
-    expect(itemRecord(contextItem, 900, SITE, REPO).entities).toEqual([
+    expect(itemRecord(contextItem, 900, SITE, REPO, new Map()).entities).toEqual([
       {
         kind: 'model',
         id: 'model/openrouter:anthropic/claude-opus-5',

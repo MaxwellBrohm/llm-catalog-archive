@@ -848,13 +848,6 @@ function itemListHtml(items: FeedItem[], depth: number, empty: string, slugs: Sl
   return `<ol class="events">\n${items.map((i) => feedItemHtml(i, depth, slugs)).join('\n')}\n</ol>`;
 }
 
-/**
- * The default for a page rendered with no threads at hand, which only a test
- * does. Every link it would make to a thread falls back to the plain fold; see
- * threadSlug in src/derive/threads.ts for why a real build never does.
- */
-const NO_THREADS: ThreadSet = { threads: [], held: [] };
-
 const KIND_LABEL: Record<string, string> = {
   lab: 'Lab',
   model: 'Model',
@@ -885,8 +878,15 @@ function foldmatesHtml(mates: Thread[]): string {
   return `<p class="note foldmates">${lead} to the same address as this one: ${links}. The entity the archive saw first keeps the plain address and any later one carries a suffix taken from its own id, so no thread's page moves when another arrives.</p>\n`;
 }
 
-/** One permalinked page per entity, listing that entity's events newest first. */
-export function renderThreadPage(thread: Thread, threads: ThreadSet = NO_THREADS): string {
+/**
+ * One permalinked page per entity, listing that entity's events newest first.
+ *
+ * `threads` is the build's whole set, and it is required on this and on every
+ * other page that links to a thread, so a caller that leaves it out fails to
+ * compile. A default could only be an empty set, which would quietly link the
+ * newcomer in a slug collision at the other entity's page.
+ */
+export function renderThreadPage(thread: Thread, threads: ThreadSet): string {
   const slugs = slugIndex(threads);
   const kind = KIND_LABEL[thread.entity.kind] ?? thread.entity.kind;
   const body = `<p class="eyebrow">${escapeHtml(kind)} thread</p>
@@ -1079,9 +1079,9 @@ const SIGNAL_LABEL: Record<string, string> = {
  */
 export function renderLeaksPage(
   items: LeakItem[],
-  claims: LedgerClaim[] = [],
-  refusals: LeakRefusal[] = [],
-  threads: ThreadSet = NO_THREADS,
+  claims: LedgerClaim[],
+  refusals: LeakRefusal[],
+  threads: ThreadSet,
 ): string {
   const slugs = slugIndex(threads);
   const order: LeakItem['type'][] = [
@@ -1790,7 +1790,7 @@ ${rows}
 
 export function renderEverythingPage(
   feed: FeedItem[],
-  threads: ThreadSet = NO_THREADS,
+  threads: ThreadSet,
   limit: number = EVERYTHING_LIMIT,
 ): string {
   const slugs = slugIndex(threads);
@@ -1886,7 +1886,7 @@ ${threadRail(threads, 0)}
 }
 
 /** One micro-category, with every item in it. Never capped. */
-export function renderTypePage(type: FeedType, feed: FeedItem[], threads: ThreadSet = NO_THREADS): string {
+export function renderTypePage(type: FeedType, feed: FeedItem[], threads: ThreadSet): string {
   const items = itemsOfType(feed, type);
   const label = TYPE_LABEL[type];
   const body = `<p class="eyebrow">Micro-category</p>
@@ -1921,7 +1921,7 @@ ${itemListHtml(items, 1, 'No item of this kind is derivable from the archive as 
  * reader ask for one lab. The two lists are the same items by construction,
  * because both read the same entities off the same feed.
  */
-export function renderLabPage(lab: Lab, feed: FeedItem[], threads: ThreadSet = NO_THREADS): string {
+export function renderLabPage(lab: Lab, feed: FeedItem[], threads: ThreadSet): string {
   const items = itemsOfLab(feed, lab);
   const slugs = slugIndex(threads);
   const slug = threadSlug(slugs, labEntity(lab));
@@ -2044,7 +2044,7 @@ ${escapeHtml(base)}/labs/{lab}.json     one lab
 ${escapeHtml(base)}/retirements.json    current retirement floors and recorded replacements
 ${escapeHtml(base)}/leaks.json          the leaks desk, with sourcing tiers and refusals
 ${escapeHtml(base)}/accuracy.json       the public accuracy ledger</div>
-<p>A model's <code>{slug}</code> is the same slug its thread page uses, and every row of <code>models.json</code> carries it along with the absolute URL of its own endpoint, so nothing has to be constructed by hand.</p>
+<p>A model's <code>{slug}</code> is the same slug its thread page uses. Every row of <code>models.json</code> for a model with a thread carries it along with the absolute URL of its own endpoint, so nothing has to be constructed by hand. A model nothing has happened to yet has no thread, and its row says so with <code>null</code> for both <code>slug</code> and <code>api</code> rather than an address that would not resolve.</p>
 </div>
 
 <div class="panel prose">
