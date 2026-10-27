@@ -33,7 +33,7 @@
 - [Pareto Router](https://openrouter.ai/docs/guides/routing/routers/pareto-router.md): Pick a coding model by minimum coding score without choosing a specific model
 - [Fusion Router](https://openrouter.ai/docs/guides/routing/routers/fusion-router.md): Multi-model deliberation as a model slug
 - [Jev Router](https://openrouter.ai/docs/guides/routing/routers/jev-router.md): Route requests with Jev, choose a cost tier, and control model selection and reasoning effort
-- [Switchyard Router](https://openrouter.ai/docs/guides/routing/routers/switchyard-router.md): Switch between multiple models of your choice to optimize the cost of the request
+- [Switchyard Router](https://openrouter.ai/docs/guides/routing/routers/switchyard-router.md): Automate model selection across a model pool you choose to balance accuracy, cost, and speed
 - [Client Tools](https://openrouter.ai/docs/guides/features/tool-calling.md): Use client tools in your prompts
 - [Server Tools](https://openrouter.ai/docs/guides/features/server-tools.md): Tools operated by OpenRouter that models can call during request
 - [Web Search](https://openrouter.ai/docs/guides/features/server-tools/web-search.md): Give any model access to real-time web information
