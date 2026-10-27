@@ -1,5 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Thu, 22 Oct 2026 21:00:03 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Expanding Claude availability and deployment choice on Google Cloud</title><link>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Every organization has unique requirements for building and scaling generative AI. At Google Cloud, we are committed to giving developers model choice and architectural flexibility to run workloads however they need.&lt;/span&gt;&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 26 Oct 2026 20:56:14 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>Easy to integrate, compliant by design: Bringing the Swiss Franc to Google Cloud Universal Ledger</title><link>https://cloud.google.com/blog/topics/financial-services/easy-to-integrate-compliant-by-design-bringing-the-swiss-franc-to-google-cloud-universal-ledger/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="j77gm"&gt;Every day, countless financial transactions are interrupted by slow, expensive, and inflexible conventional payment systems. As a result, public commercial stablecoins like Tether, USDC, and PayPal USD have become increasingly popular by making it easy to move money efficiently with instant, 24/7 blockchain settlement.&lt;/p&gt;&lt;p data-block-key="4jij8"&gt;Yet major regulated banks have largely kept such transactions at arm’s length; for these financial institutions, reserve-backed public stablecoins present numerous risks, including strict capital and liquidity requirements and unmanageable regulatory and operational uncertainty.&lt;/p&gt;&lt;p data-block-key="dn9g0"&gt;Indeed, banks don't want to adopt existing stablecoins. Instead, they need the speed and efficiency of tokenized currency built on the trusted economic foundations they’ve nurtured over years or even decades in business. That’s why many are now turning to &lt;a href="https://cloud.google.com/application/web3/universal-ledger"&gt;Google Cloud Universal Ledger&lt;/a&gt; (GCUL). Rather than channeling public stablecoins, GCUL provides the secure infrastructure banks need to issue and settle tokenized deposits. That brings real-time, 24/7 programmable payments into commercial bank money while satisfying regulators and without disrupting core banking operations.&lt;/p&gt;&lt;p data-block-key="7mq32"&gt;For many banks, this is a compelling vision, but adopting new payment technology and integrating it with core banking systems can seem to bank CTOs like a daunting undertaking. That’s particularly true as they face mounting demands for the engineering resources that keep their businesses running while also striving to stay compliant with new regulations. But with a blockchain purpose-built for financial services like GCUL, this is anything but a herculean task.&lt;/p&gt;&lt;p data-block-key="8dht"&gt;Looking to expand its offerings for an increasingly global clientele, Switzerland’s &lt;a href="https://www.crypto-finance.com/" target="_blank"&gt;Crypto Finance Group&lt;/a&gt; wanted to show it could deploy payment innovations like this in just weeks. That was its inspiration for launching a &lt;a href="https://www.crypto-finance.com/crypto-finance-amina-and-incore-bank-complete-second-phase-payment-infrastructure-pilot-on-google-cloud-universal-ledger-for-instant-account-to-account-transfers/" target="_blank"&gt;digital payments infrastructure pilot&lt;/a&gt; that enabled instant account-to-account transfers between customers of two Swiss banks on the GCUL network. The pilot, which was designed to operate within one of the world's most demanding financial security frameworks, provided a blueprint for how any commercial bank can build on Google Cloud technology to fundamentally modernize its payment operations.&lt;/p&gt;&lt;h3 data-block-key="5mhmo"&gt;&lt;b&gt;Pain points in today's payments landscape&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="dpb5l"&gt;In recent years, there’s been a marked proliferation of tokenized payment methods. But stablecoins have transformed this previously niche technology, by effectively resolving some of traditional finance’s most enduring pain points, such as weekend transfer blackouts, direct transfers without correspondent banks, and fast settlement rails. Stablecoins also limit the frustrations caused by opaque cross-border transactions, where fragmented compliance checks can leave legitimate payments in extended and unexplained limbo and without a path to clear or timely resolution.&lt;/p&gt;&lt;p data-block-key="8ol4p"&gt;Still, commercial banks have been reluctant to offer popular reserve-backed stablecoins from permissionless blockchains to their customers despite their retail popularity. That’s because they come with numerous challenges to smooth and secure operations: an uncertain regulatory status, compliance issues around anonymous accounts, &lt;a href="https://ethereum.org/gas/" target="_blank"&gt;gas fees&lt;/a&gt;, and the scalability limitations of layer 1 blockchain technology. But perhaps banks’ biggest concerns about stablecoins is that they create a problematic economic disconnect — giving customers access to reserve-backed stablecoins reduces reserves and, as &lt;a href="https://www.mckinsey.com/industries/financial-services/our-insights/beyond-stablecoins-the-emerging-architecture-of-on-chain-money" target="_blank"&gt;a recent McKinsey study&lt;/a&gt; found, banks’ ability to lend.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/swiss-franc-stablecoin-gcul-1.max-1000x1000.png"
+        
+          alt="swiss-franc-stablecoin-gcul-1"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph"&gt;&lt;p data-block-key="j77gm"&gt;As a result, many banks are trying to figure out how to offer their customers the benefits of stablecoins — high speed, low cost, 24/7 availability, and programmability — without introducing problems often associated with existing reserve-backed stablecoins, such as regulatory issues, poor throughput performance, negative influence on bank reserves, and potentially no yield participation.&lt;/p&gt;&lt;h3 data-block-key="dj2t5"&gt;&lt;b&gt;Solution proposal&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="8jeai"&gt;Realizing this vision means modernized payments architectures must seamlessly and instantly enable individuals and institutions to transfer bank-held assets to accounts at any target bank. Orchestrating this shared ecosystem requires central entities to establish the governing rulebook, enforce issuance limits, and manage network-wide settlement parameters. During its pilot, Crypto Finance assumed this role, which within GCUL is known as the “currency operator.”&lt;/p&gt;&lt;p data-block-key="2ca3k"&gt;In this position, Crypto Finance can configure the network for either instant or deferred settlement. This choice is analogous to traditional banking: instant settlement acts like real-time gross settlement, where transactions settle individually and immediately and require high liquid reserves. In contrast, deferred settlement operates like netting, where payments are accumulated and offset and only periodically settle the net difference. For the pilot, Crypto Finance chose to adopt deferred settlement, in which GCUL manifests capital efficiency. In this way, clients enjoy instant transfers while banks conserve liquidity through periodic settlement.&lt;/p&gt;&lt;h3 data-block-key="5p3hh"&gt;&lt;b&gt;Concept validation&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="6pqch"&gt;To demonstrate instant, bi-directional account-to-account transfers on GCUL, Crypto Finance orchestrated a pilot with two digital token issuers, a Swiss digital asset bank, and a Swiss B2B transaction bank. Crypto Finance established the rulebook for interactions between the participant banks, such as interbank settlement, integration with traditional SIC payment rails, and AML/compliance protocols. Although some backend steps still needed manual intervention, Crypto Finance’s pilot proved that fully automated, cross-institution integration is feasible and established a generalized architecture that can scale to virtually any asset class.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/swiss-franc-stablecoin-gcul-2.max-1000x1000.png"
+        
+          alt="swiss-franc-stablecoin-gcul-2"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph"&gt;&lt;h3 data-block-key="j77gm"&gt;&lt;b&gt;Robustness and performance&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="9mke5"&gt;A temporary pilot is one thing; moving into live client transactions carrying legal liability brings a whole new set of operational challenges. Live payment rails are considered critical infrastructure that demands security and availability. GCUL addresses these needs through redundancy between geographically distributed nodes operating on an enterprise-grade consensus model, ensuring reliability. Deploying client workloads on Google Cloud provides that enterprise-grade foundation and allows financial institutions to pair the highly resilient GCUL network with secure-by-design infrastructure, encryption at rest and in transit, and robust access controls that satisfy many of banks’ common regulatory, privacy, and data sovereignty mandates. While some banks may consider integrating their systems with fully public and permissionless blockchains, this approach introduces severe regulatory hurdles, anonymity risks, unpredictable gas fees, and low throughput. These are all roadblocks that in the past would have significantly delayed the pilot or rendered it a non-starter.&lt;/p&gt;&lt;h3 data-block-key="4li96"&gt;&lt;b&gt;Ease of integration&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="4jrd8"&gt;The pilot's implementation, with systems integration completed in under three months, was compartmentalized across dedicated Google Cloud projects per participant. The currency operator, Crypto Finance, connected specialized components to a dedicated GCUL API. The first was a role admin service that controls account managers and token managers on the network. Next, it implemented a settlement registry to record when periodic off-ledger settlement between participant banks has occurred once a predefined threshold is reached. Finally, a cloud key management service (KMS) stored the currency operator keys to sign transactions.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/swiss-franc-stablecoin-gcul-3.max-1000x1000.png"
+        
+          alt="swiss-franc-stablecoin-gcul-3"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph"&gt;&lt;p data-block-key="j77gm"&gt;At the same time, participant banks connected their core banking systems to their own GCUL API instances. But these participant banks don’t need a large Google Cloud footprint. Instead, they can connect to GCUL nodes via Remote Procedure Call from their existing on-premise deployments and manage private key material through solutions other than KMS. Regardless of the setup, transactions are seamlessly routed to the shared global GCUL nodes.&lt;/p&gt;&lt;p data-block-key="5g9o"&gt;Whether GCUL is exposed to a bank’s client or used merely as a bank backend is entirely at the integrating institution’s discretion. The banks participating in the pilot chose the latter, utilizing the ledger to upgrade their backend infrastructure. With GCUL under the hood, they improved intra-day transaction performance and provided customers with the user experience they were already accustomed to.&lt;/p&gt;&lt;h3 data-block-key="2rknj"&gt;&lt;b&gt;Regulatory compliance and governance by design&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="5l6gl"&gt;To join the Swiss Franc currency network on GCUL, participants must have regulatory licenses that let them perform third-party transfers and issue commercial bank money. Crucially, features like token and account management are not rigid network-wide limitations. Instead, they rely entirely on the currency operator and its specific rulebook. This standardizes fees, limits, settlement times, and technical configurations.&lt;/p&gt;&lt;p data-block-key="9tt8c"&gt;Managing counterparty risk is central to this governance. Rather than relying on unscalable bilateral agreements or complex clearinghouse default waterfalls, GCUL mitigates risk through these currency operator-enforced issuance limits.&lt;/p&gt;&lt;p data-block-key="d3opm"&gt;It’s important to distinguish GCUL’s broader feature set from the concrete pilot setup. In the pilot, both participating banks operated with conservative initial limits based on their credit ratings in order to safely prove the architecture. But beyond the pilot, the network frees up capital by periodically netting outstanding obligations, which frees banks from having to fund and settle every transaction.&lt;/p&gt;&lt;p data-block-key="b15si"&gt;Looking ahead, risk management can be further innovated. One clever future enhancement would be to allow participants to dynamically increase their issuance limits by committing digital assets as collateral in segregated accounts, using solutions like Crypto Finance’s &lt;a href="https://www.crypto-finance.com/anchornote/" target="_blank"&gt;AnchorNote&lt;/a&gt; pledging solution. These assets could then be used to instantly settle outstanding street-side obligations, virtually eliminating counterparty risk without tying up traditional liquidity reserves.&lt;/p&gt;&lt;h3 data-block-key="19sr7"&gt;&lt;b&gt;The future&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="20ig6"&gt;While Crypto Finance’s pilot was designed to focus on domestic commercial bank money transfers in Switzerland, GCUL's programmable architecture and high-performance smart contract language, GCULpy, are paving the way for deeper innovation. As institutions like Crypto Finance scale their use of GCUL, the network can expand to support real-time cross-currency settlement, automated foreign exchange, and dynamic collateral management involving tokenized digital assets. And looking further ahead, this infrastructure has laid the groundwork for next-generation financial services that range from point-of-sale payments to autonomous, AI-driven agentic payments.&lt;/p&gt;&lt;p data-block-key="6ll23"&gt;The pilot proved that deploying high-performance, blockchain-based payment rails doesn’t mean compromising on strict regulatory compliance or core banking stability. By combining the high-throughput of GCUL with a secure, API-driven integration architecture, commercial banks can offer stablecoin-like speed to their customers while seamlessly preserving their capital efficiency. Ultimately, this compliant-by-design approach targets the operational bottlenecks of traditional finance while mitigating the inherent risks and complexities of public blockchains.&lt;/p&gt;&lt;p data-block-key="5t8hr"&gt;To learn how your institution can build on this blueprint to fundamentally upgrade your operational payments infrastructure, contact Google Cloud Sales to explore the Google Cloud Universal Ledger.&lt;/p&gt;&lt;p data-block-key="ab5su"&gt;&lt;i&gt;The team would also like to thank Phil Dettwiler, Andras Miklos, Ignazio Pollina, and Ozan Kizildogan at Crypto Finance and Googlers Chris Esch, Ishan Singh, Olena Clayton, and Stathis Onasoglou for their contributions.&lt;/i&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Mon, 26 Oct 2026 20:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/financial-services/easy-to-integrate-compliant-by-design-bringing-the-swiss-franc-to-google-cloud-universal-ledger/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Financial Services</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/swiss-franc-stablecoin-gcul-2_3lwzLOd.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Easy to integrate, compliant by design: Bringing the Swiss Franc to Google Cloud Universal Ledger</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/swiss-franc-stablecoin-gcul-2_3lwzLOd.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/financial-services/easy-to-integrate-compliant-by-design-bringing-the-swiss-franc-to-google-cloud-universal-ledger/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Nathaniel Zollinger</name><title>CTO, Crypto Finance Group</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Moritz Platt</name><title>Capital Markets Technology Manager, Google Cloud</title><department></department><company></company></author></item><item><title>Expanding Claude availability and deployment choice on Google Cloud</title><link>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Every organization has unique requirements for building and scaling generative AI. At Google Cloud, we are committed to giving developers model choice and architectural flexibility to run workloads however they need.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Today, we’re announcing the general availability of an Anthropic-managed deployment option for Claude Models on Google Cloud. This gives teams more choice in how they run their models, helping them consolidate AI workloads on Google Cloud alongside our existingGoogle-managed deployment option. &lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Both options deliver the same frontier models on day zero, the same pricing, and the same Google Cloud billing. The difference comes down to who acts as your data processor and whether you need access to the new Claude platform features when they launch:&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;[NEW] Claude Models on Google Cloud (Anthropic managed)&lt;/strong&gt;&lt;/h3&gt;
@@ -79,12 +211,12 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;No matter how you choose to deploy, you can access Anthropic's latest frontier models on Google Cloud, including &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-fable-5-1"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Claude Fable 5.1&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-sonnet-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Sonnet 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-haiku-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Haiku 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, and &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-opus-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Opus 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, with new platform features available immediately on the Anthropic-managed option and rolling out on the Google-managed option once integrated. This gives developers the full spectrum of reasoning, coding, and multi-modal capabilities with Google Cloud IAM and Marketplace billing.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/claude-platform"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Get started&lt;/span&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;.&lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 22 Oct 2026 21:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</guid><category>Partners</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0_11.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Expanding Claude availability and deployment choice on Google Cloud</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0_11.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Google Cloud expands model choice and flexibility, bringing OpenAI models to customers</title><link>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="8sb5z"&gt;Google Cloud has always been defined by choice, enterprise-grade governance, and market-leading price-performance. Key to the foundation of openness and choice is giving customers flexibility to run agentic workloads across their choice of models and infrastructure to achieve the right balance of cost, capability, and performance. Today, we are expanding that foundation by launching OpenAI models in Google Cloud’s model garden.&lt;/p&gt;&lt;p data-block-key="6g46g"&gt;Google Cloud is now the only hyperscale cloud provider offering access to all three leading closed source LLMs, alongside more than 200 first-party, third-party, and open models on a unified enterprise AI platform.&lt;/p&gt;&lt;h3 data-block-key="8ea37"&gt;&lt;b&gt;The right model for every workload&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="3bp7q"&gt;Modern enterprise AI requires matching each workload to the right model rather than relying on a single model for every task. By adding OpenAI’s newest models to model garden, we are giving teams options across the full spectrum of enterprise workloads. For OpenAI models:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="9h8m5"&gt;&lt;b&gt;GPT-6 Astra&lt;/b&gt;: Designed for demanding work across coding, computer use, professional tasks, and scientific research.&lt;/li&gt;&lt;li data-block-key="de8mi"&gt;&lt;b&gt;GPT-6.1 Sol&lt;/b&gt;: Near-Astra intelligence at lower cost across agentic coding, computer use, and professional work.&lt;/li&gt;&lt;li data-block-key="173vm"&gt;&lt;b&gt;GPT-6 Luna&lt;/b&gt;: A fast, cost-efficient model for everyday work at scale.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="fg4sb"&gt;Using the platform, customers can dynamically select and swap the optimal model for any use case based on performance, latency, and cost efficiency without architectural lock-in or separate vendor contracts. Developers gain the freedom to build with hundreds of choices in model garden. Because OpenAI models are transacted directly through Google Cloud Marketplace, all usage appears on a single Google Cloud invoice, draws down existing cloud commitments, and counts toward &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud?e=48754805"&gt;Flexible Savings Plans (FSP)&lt;/a&gt; across model providers.&lt;/p&gt;&lt;h3 data-block-key="dh6bh"&gt;&lt;b&gt;Built-in data governance and enterprise security&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="ee65"&gt;Scaling generative AI should never require compromising on compliance or security. Built from the ground up for enterprise governance, the &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026?e=48754805"&gt;Gemini platform&lt;/a&gt; is trusted by leading global organizations today. We ensure that running any third-party or OpenAI workload meets the most rigorous enterprise standards:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="c7jk9"&gt;&lt;b&gt;Strict data perimeters&lt;/b&gt;: Customer prompts, context, and outputs remain entirely within your designated data perimeter and are never used to train foundation models, with Zero Data Retention (ZDR) options available coming soon.&lt;/li&gt;&lt;li data-block-key="9df0j"&gt;&lt;b&gt;Isolated access boundaries&lt;/b&gt;: OpenAI models run on dedicated Google Cloud infrastructure with Confidential Compute coming soon. All queries are routed through hardened, isolated gateways, ensuring data transit remains strictly within Google Cloud's secure environment and third-party model providers have no unauthorized access to your cloud environment.&lt;/li&gt;&lt;li data-block-key="9bsit"&gt;&lt;b&gt;Unified auditing and identity&lt;/b&gt;: Every agent and model interaction operates under an authenticated identity, giving IT administrators end-to-end visibility, VPC Service Controls protection, and unified audit logging across their entire enterprise footprint.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="24krs"&gt;“Helping customers put AI to work across their enterprise content requires leading models backed by strong security and rigorous compliance standards,” said Yashodha Bhavnani, VP of AI Products at Box. “By using OpenAI models through Google Cloud, we will be able to give customers access to OpenAI’s frontier AI models alongside Google Cloud’s security and compliance capabilities, enabling them to get more value from their enterprise content. This is a step toward operating more efficiently as we bring AI to customers.”&lt;/p&gt;&lt;h3 data-block-key="6qbus"&gt;&lt;b&gt;Getting started&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="fct80"&gt;OpenAI’s GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna models are rolling out now in private preview to select enterprise customers in Google Cloud’s model garden, with more coming soon. Starting today, customers can build with these models through our APIs and connect their local Codex CLI and Desktop workflows directly to our Gemini platform for inference. Please use&lt;a href="https://cloud.google.com/resources/interest/openai-models"&gt; this form&lt;/a&gt; to express interest.&lt;/p&gt;&lt;p data-block-key="5gt5b"&gt;Coming soon, OpenAI models will be available in Google Cloud’s Gemini for business and Google Antigravity, providing enterprise customers and developers with model choice flexibility and the best model for each task.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Open-ai-google-models-hero.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Google Cloud expands model choice and flexibility, bringing OpenAI models to customers</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Open-ai-google-models-hero.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><link>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="7jvio"&gt;Whether you are iterating on a quick bug fix or planning a complex migration, different tasks call for different models.&lt;/p&gt;&lt;p data-block-key="clmp"&gt;In keeping with Google Cloud's commitment to an open ecosystem and to give developers the right model for every job, &lt;b&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity for Google Cloud customers.&lt;/b&gt; Claude Opus 5.5 is built for complex work while Claude Sonnet 5.5 is a faster, lower-cost complement.&lt;/p&gt;&lt;p data-block-key="prmr"&gt;Once enabled by an administrator, developers can select Claude Opus 5.5 and Sonnet 5.5 directly from the model picker. Administrators can also select Google’s Gemini models, including Gemini 3.8 Flash and Gemini 4 Argon. The models apply across Antigravity 2.0, Antigravity CLI and our recently released &lt;a href="https://antigravity.google/docs/ide/extensions/" target="_blank"&gt;Antigravity IDE extensions&lt;/a&gt; for VS Code, JetBrains IntelliJ, and Visual Studio. This lets you choose the right model for the job, under a unified enterprise billing and security boundary.&lt;/p&gt;&lt;p data-block-key="dj20l"&gt;In this post, we’ll share two engineering patterns for building in Antigravity using these models. To view the entire list of models supported in Antigravity across subscriptions, see our documentation &lt;a href="https://antigravity.google/docs/models/" target="_blank"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;h3 data-block-key="d8trn"&gt;Multi-model engineering patterns in Antigravity&lt;/h3&gt;&lt;p data-block-key="2ach2"&gt;Having multiple model families available inside the same agent harness unlocks practical multi-model workflows that improve code quality while controlling latency and cost.&lt;/p&gt;&lt;h3 data-block-key="a8ic8"&gt;&lt;b&gt;Pattern 1: Cross-model verification ("LLM-as-a-Judge") in loop and graph workflows&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="a53gs"&gt;When building agentic loops or multi-step graph workflows, using the same model to both write code and review its own output can reinforce model-specific blind spots. Pairing two distinct model families, one as the implementer and another as the validator (judge), provides independent verification before moving to the next stage of a workflow.&lt;/p&gt;&lt;p data-block-key="eca00"&gt;In Antigravity, you can run this pattern either interactively or via automated subagents:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="enlkk"&gt;&lt;b&gt;Plan and implement with Model A:&lt;/b&gt; Start in planning mode using &lt;code&gt;Claude Opus 5.5&lt;/code&gt; or &lt;code&gt;Gemini 4 Argon&lt;/code&gt; to design and implement a multi-file change.&lt;/li&gt;&lt;li data-block-key="c4jg9"&gt;&lt;b&gt;Validate with Model B:&lt;/b&gt; Before committing or advancing the loop, switch models, or invoke a one-shot &lt;code&gt;/model&lt;/code&gt; check in the CLI, to have a different model family critique the implementation against your test suite and requirements.&lt;/li&gt;&lt;/ol&gt;&lt;h3 data-block-key="fp277"&gt;&lt;b&gt;Pattern 2: Pairing reasoning models with Flash subagents&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="2ce0q"&gt;Complex engineering tasks often combine a few high-reasoning decisions with dozens of high-volume, mechanical lookups (searching files, grepping logs, checking lint output, or classifying test failures). Running every lookup on a frontier model can increase both latency and spend.&lt;/p&gt;&lt;p data-block-key="ckd6t"&gt;Antigravity's Subagent customization system (&lt;code&gt;.agents/agents/*.md&lt;/code&gt;) lets you assign specific model tiers (&lt;code&gt;inherit&lt;/code&gt;, &lt;code&gt;flash&lt;/code&gt;, or &lt;code&gt;pro&lt;/code&gt;) to specialized subagents. When your primary session is running a more powerful model.&lt;/p&gt;&lt;p data-block-key="2l8u2"&gt;Subagents configured with &lt;code&gt;model: inherit&lt;/code&gt; use your active session model for deep reasoning subtasks.&lt;/p&gt;&lt;p data-block-key="cb05p"&gt;Subagents configured with &lt;code&gt;model: flash&lt;/code&gt; offload high-speed search, classification, and triage work to Gemini Flash models.&lt;/p&gt;&lt;p data-block-key="1fr9p"&gt;For example, you can define a fast log-triage subagent in &lt;code&gt;.agents/agents/test-triager.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;---\r\nname: test-triager\r\ndescription: Runs unit tests, classifies failures, and returns a concise summary of failing assertions.\r\nmodel: flash\r\ntools:\r\n  - read\r\n  - edit\r\n---\r\n\r\nRun the requested test targets, classify any failures by root cause (compilation error, assertion failure, or timeout), and return a structured summary to the parent agent.&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fbcc53e8350&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;---\r\nname: test-triager\r\ndescription: Runs unit tests, classifies failures, and returns a concise summary of failing assertions.\r\nmodel: flash\r\ntools:\r\n  - read\r\n  - edit\r\n---\r\n\r\nRun the requested test targets, classify any failures by root cause (compilation error, assertion failure, or timeout), and return a structured summary to the parent agent.&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7feadd3b4310&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;p data-block-key="5p921"&gt;And a cross-model code reviewer subagent in &lt;code&gt;.agents/agents/gemini-judge.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;---\r\nname:cross-model-judge\r\ndescription: Independent LLM-as-a-judge verifier that audits diffs and edge cases using Gemini Pro.\r\nmodel: pro\r\ntools:\r\n  - read\r\n---\r\n\r\nReview the current workspace diff against the user&amp;#x27;s requirements. Check for regressions, missing edge-case tests, and security issues. Output a pass/fail verdict with specific line references.&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fbcb7397290&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;---\r\nname:cross-model-judge\r\ndescription: Independent LLM-as-a-judge verifier that audits diffs and edge cases using Gemini Pro.\r\nmodel: pro\r\ntools:\r\n  - read\r\n---\r\n\r\nReview the current workspace diff against the user&amp;#x27;s requirements. Check for regressions, missing edge-case tests, and security issues. Output a pass/fail verdict with specific line references.&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7feadd368e90&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;p data-block-key="5p921"&gt;With this setup, you can delegate rapid test-and-classify loops to &lt;code&gt;test-triager&lt;/code&gt; and trigger &lt;code&gt;cross-model-judge&lt;/code&gt; to validate the final diff, combining the strengths of each model in a single workflow.&lt;/p&gt;&lt;h3 data-block-key="fj5e3"&gt;Getting started&lt;/h3&gt;&lt;p data-block-key="eudoh"&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are available now for Google Cloud customers using Antigravity:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="19dsb"&gt;&lt;b&gt;Administrators (Gemini for business):&lt;/b&gt; Third-party partner models do not draw from the pooled Gemini Enterprise Standard and Plus edition monthly token quota. Instead, usage is billed on a pay-as-you-go basis through your existing Google Cloud Billing account, so overages must be enabled. Visit “Gemini Enterprise” &amp;gt; “Settings” &amp;gt; “AI developer tools” in the Google Cloud Console to configure overage billing, spend limits and authorize partner models for your organization. See &lt;a href="https://cloud.google.com/gemini/enterprise/docs/ai-developer-tools-settings"&gt;Configure AI developer tools settings&lt;/a&gt; for step-by-step instructions.&lt;/li&gt;&lt;li data-block-key="evit9"&gt;&lt;b&gt;Administrators (Gemini platform):&lt;/b&gt; You can also enable partner models if you are using Antigravity through the API in Gemini platform. Enable Claude models in Model Garden and complete the standard Anthropic terms.&lt;/li&gt;&lt;li data-block-key="1shb0"&gt;&lt;b&gt;Developers:&lt;/b&gt; Update to the latest version of Antigravity 2.0, the Antigravity CLI, or the Antigravity IDE extensions, and open the model picker (or run &lt;code&gt;/model&lt;/code&gt;) to select the right model for your task. To learn more about enterprise governance and multi-agent configuration, visit the &lt;a href="https://antigravity.google/docs/enterprise/" target="_blank"&gt;Google Antigravity Enterprise documentation&lt;/a&gt;. You can switch the active model between turns in the same conversation thread while preserving workspace state, open artifacts, and terminal context.&lt;/li&gt;&lt;/ol&gt;&lt;p data-block-key="c19fm"&gt;Note: Lightweight first-party Gemini models continue to run in the background to handle high-frequency client-side coordination, such as context management and summaries. They consume first-party tokens and can incur charges.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 20 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</guid><category>Developers &amp; Practitioners</category><category>AI &amp; Machine Learning</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Marialaura Garcia</name><title>Product Marketing Manager</title><department>Google Cloud</department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Rich Hyndman</name><title>Developer Relations</title><department>Google Antigravity</department><company></company></author></item><item><title>Introducing Gemini for government services</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-for-government-services/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="ecu27"&gt;Earlier this month at Gemini at Work, we introduced the Gemini agent: a single, universal agent for work. It answers your questions, handles your knowledge work, creates your images and media, and writes and runs code. You give it objectives, not instructions, and come back to finished work. It plans the work, uses skills and tools, connects to your systems, and has the security, administration, and governance your organization requires.&lt;/p&gt;&lt;p data-block-key="bde19"&gt;Every industry runs on knowledge a general model does not have. Government work runs on statute, regulation, and agency guidance, across siloed legacy systems, under strict requirements for data sovereignty, compliance, and confidentiality. Too often that leaves civil servants on data entry and manual document review instead of the services citizens depend on.&lt;/p&gt;&lt;p data-block-key="2oatl"&gt;Today we're bringing the Gemini agent to public service with Gemini for government services in preview, part of our new suite of purpose-built industry solutions. It adds skills built around government work, connections to the systems agencies already run, and specialized partner agents, with governance running underneath it all.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-video"&gt;
@@ -1273,7 +1405,7 @@
 &lt;p&gt;&lt;code style="vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; returns the number of tokens a model's tokenizer produces for a text string, without making a billable generation call. Run it over a column to measure your input data:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fbcc53de710&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7feadc30f450&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The count is a lower bound on input tokens. It doesn't include output or thinking tokens, the instructions each AI function adds around your input, or non-text inputs such as images. Use it to:&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -1300,7 +1432,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If a small sample run shows an average &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;100:1 input-to-output token ratio&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, you can solve for a daily budget:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fbcb764d110&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7feacf754250&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Solving gives about &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;754 million input tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;7.54 million output tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; per day. Set &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI output tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; to these values to hold the project near $100/day. If a project uses models with different prices, budget per model or blend the rates.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Best practices for managing AI cost&lt;/span&gt;&lt;/h3&gt;
@@ -2310,7 +2442,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Integrating cloud management into your agents no longer requires packaging Google Cloud CLI binaries, managing local execution runtimes, or maintaining dependencies inside agent container images. Because the Google Cloud CLI remote MCP server implements the standard Model Context Protocol, any MCP-compatible agent platform or orchestration runtime can connect immediately via standard configuration:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;{\r\n  &amp;quot;mcpServers&amp;quot;: {\r\n    &amp;quot;google-cloud-cli&amp;quot;: {\r\n      &amp;quot;uri&amp;quot;: &amp;quot;https://cloudcli.googleapis.com/mcp&amp;quot;,\r\n      ...\r\n    }\r\n  }\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fbcb772d2d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;{\r\n  &amp;quot;mcpServers&amp;quot;: {\r\n    &amp;quot;google-cloud-cli&amp;quot;: {\r\n      &amp;quot;uri&amp;quot;: &amp;quot;https://cloudcli.googleapis.com/mcp&amp;quot;,\r\n      ...\r\n    }\r\n  }\r\n}&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7feadcca9cd0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Your agent immediately gains access to execute gcloud and bq commands in a secure, network-isolated cloud sandbox.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Authentication is handled via keyless Agent Identity for hosted Google Cloud platforms, or standard OAuth 2.0 for external runtimes. For authentication options, see the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;MCP Authentication Guide&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
@@ -2775,435 +2907,4 @@
 &lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
 &lt;p role="presentation"&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/tuning/reinforcement-tuning"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Documentation: Reinforcement Learning Fine-Tuning&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Fri, 25 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</guid><category>AI &amp; Machine Learning</category><category>Developers &amp; Practitioners</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Best practices guide for customizing Gemini models via Reinforcement Learning (RL)</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Jiaqi Pan</name><title>Senior Software Engineer, Google</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Kunal Jha</name><title>Senior Product Manager, Google</title><department></department><company></company></author></item><item><title>Power your agents: Gemini 3.8 Live with Live Avatar is now generally available</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-3-8-live-with-live-avatar-is-now-generally-available/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Following our &lt;/span&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-gemini-3-8-live-extended-thinking/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;announcement&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; of Gemini 3.8 Live and Gemini 3.8 Live Extended Thinking last week, we are thrilled to share that &lt;/span&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-with-live-avatar/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.8 Live with Live Avatar&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is now generally available in &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/studio/multimodal-live"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. First previewed at Google Cloud Next 2026&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, the technology is now officially ready for enterprise production.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;As enterprise voice AI evolves beyond basic speed and cost metrics, our priority has shifted to making each interaction even higher quality. Gemini 3.8 Live already delivers a native speech-to-speech foundation for fluid, responsive dialogue. The Live Avatar feature brings an interactive visual presence to conversational video agents across web, mobile, and interactive kiosks. Together, you’ll have access to:  &lt;/span&gt;&lt;/p&gt;
-&lt;ol&gt;
-&lt;li role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Video avatars: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Conversational video with the Live Avatar &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;feature can generate video avatars with synchronized lip-syncing. Note: Custom avatar feature is available via allowlist only.  &lt;/span&gt; &lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Fluid dialogue: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Native speech-to-speech means more natural interruption recovery without dropping conversation context or backend transactions.&lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Tool calling: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;It executes tools and API calls in the background while continuing the conversation, so the model can acknowledge requests and keep chatting while tasks finish in the background.&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;strong style="vertical-align: baseline;"&gt;Breaks language barriers: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini 3.8 Live understands and speaks 97 languages, with automatic language detection.&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;
-&lt;li role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Make it easy for agents to see what your user sees: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Live visual understanding can process live camera feeds and screen shares alongside audio, all at the same time. &lt;/span&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Though Gemini 3.8 Live Extended Thinking remains in private preview, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Gemini 3.8 Live with Live Avatar is now available&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; with US and EU endpoints, with provisioned throughput, enterprise compliance, and strict data governance. Try the model and its features in &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/studio/multimodal-live"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, and start building now with &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;API&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Trust and transparency at its core&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To safeguard identity and prevent misuse, customers can deploy from a library of curated, pre-built avatars, while custom avatar creation is gated behind a strict enterprise allowlisting and verification process. Furthermore, all generated audio and video streams carry imperceptible SynthID watermarks, ensuring AI-generated content remains transparent and verifiable.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Three demos of Gemini 3.8 Live with Live Avatar in action&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;#1: Interactive custom avatar&lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=oVG-5BF-dWo"
-      data-glue-modal-trigger="uni-modal-oVG-5BF-dWo-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/1_w4EkpOQ.max-1000x1000.png);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Gemini 3.8 Live with Live Avatar&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-oVG-5BF-dWo-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="oVG-5BF-dWo"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=oVG-5BF-dWo"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p style="text-align: center;"&gt;&lt;sup&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt;Create an interactive custom avatar in a step-by-step process &lt;/span&gt;&lt;/em&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Watch how Gemini 3.8 Live makes it possible to build a custom avatar by adding system instructions, uploading a single reference photo and audio file sample.  &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;Demo #2: Live video understanding in a voice-first claims intake &lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=QXiJfxdcSgo"
-      data-glue-modal-trigger="uni-modal-QXiJfxdcSgo-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/2_Utuoo9T.max-1000x1000.png);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Gemini 3.8 Live demo for insurance claim agent&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-QXiJfxdcSgo-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="QXiJfxdcSgo"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=QXiJfxdcSgo"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p style="text-align: center;"&gt;&lt;sup&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt;Streamline claims intake with live video understanding using Gemini 3.8 Live&lt;/span&gt;&lt;/em&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In this demo, you’ll see a common use case come to life using Gemini 3.8 Live: an intake agent. &lt;span style="vertical-align: baseline;"&gt;In this scenario, we chose an insurance claims agent. &lt;/span&gt;You talk and show the damage on camera, and the claim notebook fills itself in as you go. In the background, an ADK agent team checks the policy, applies the intake rules, and builds the adjuster packet. To dive deeper, check out the &lt;/span&gt;&lt;a href="https://github.com/Shubhamsaboo/awesome-llm-apps/tree/main/voice_ai_agents/insurance_claim_live_agent_team" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;open-source code&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong style="vertical-align: baseline;"&gt;#3: A real-time voice AI agent with Google ADK and Gemini Live API&lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=yQEKMsCtsmE"
-      data-glue-modal-trigger="uni-modal-yQEKMsCtsmE-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/3_FSSSkLg.max-1000x1000.png);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Build a real-time voice AI agent with Google ADK and Gemini Live API&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-yQEKMsCtsmE-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="yQEKMsCtsmE"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=yQEKMsCtsmE"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p style="text-align: center;"&gt;&lt;sup&gt;&lt;em&gt;&lt;span style="vertical-align: baseline;"&gt;Build a live voice agent using Google ADK and Gemini Live API&lt;/span&gt;&lt;/em&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;See how developers can use &lt;/span&gt;&lt;a href="https://adk.dev/live/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agent Development Kit &lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;(ADK) to define agents, manage runners and session memory, and stream real-time audio directly to the Gemini Live API without a traditional speech-to-text pipeline.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;How our customers are innovating with Gemini 3.8 Live with Live Avatar&lt;/span&gt;&lt;/h3&gt;&lt;/div&gt;
-&lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
-  &lt;div class="h-c-grid uni-paragraph-wrap"&gt;
-    &lt;div class="uni-paragraph
-      h-c-grid__col h-c-grid__col--8 h-c-grid__col-m--6 h-c-grid__col-l--6
-      h-c-grid__col--offset-2 h-c-grid__col-m--offset-3 h-c-grid__col-l--offset-3"&gt;
-
-      
-
-
-
-
-
-
-  
-
-    &lt;figure class="article-image--wrap-small
-      
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/4_autotrader.max-1000x1000.jpg"
-        
-          alt="4 autotrader"&gt;
-        
-        &lt;/a&gt;
-      
-    &lt;/figure&gt;
-
-  
-
-
-
-
-
-      &lt;p data-block-key="fu7d3"&gt;Cox Automotive built an AI-powered shopping assistant for Autotrader that uses live screen-highlighting and tool-calling capabilities to guide car shoppers through vehicle search, comparison, and financing — in real time, through natural conversation.&lt;/p&gt;&lt;p data-block-key="831ke"&gt;“Shoppers increasingly expect to describe what they need in their own words rather than work through filters and menus. Autotrader’s new conversational AI Avatar brings that experience to vehicle discovery by matching natural conversation to the right inventory. It is another step toward our vision of connected intelligence, where every consumer interaction draws on the full depth of Cox Automotive data.” — Marianne Johnson, EVP and Chief Product Officer, Cox Automotive.&lt;/p&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=0pS0I7mhv10"
-      data-glue-modal-trigger="uni-modal-0pS0I7mhv10-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/5_BroYfCF.max-1000x1000.png);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Autotrader AI-powered shopping assistant | Gemini 3.8 Live with Live Avatar&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-0pS0I7mhv10-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="0pS0I7mhv10"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=0pS0I7mhv10"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
-  &lt;div class="h-c-grid uni-paragraph-wrap"&gt;
-    &lt;div class="uni-paragraph
-      h-c-grid__col h-c-grid__col--8 h-c-grid__col-m--6 h-c-grid__col-l--6
-      h-c-grid__col--offset-2 h-c-grid__col-m--offset-3 h-c-grid__col-l--offset-3"&gt;
-
-      
-
-
-
-
-
-
-  
-
-    &lt;figure class="article-image--wrap-small
-      
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/6_equal_ai.max-1000x1000.jpg"
-        
-          alt="6 equal ai"&gt;
-        
-        &lt;/a&gt;
-      
-    &lt;/figure&gt;
-
-  
-
-
-
-
-
-      &lt;p data-block-key="fu7d3"&gt;“We're building a personal AI that knows you, speaks your language, and is always on your side. Today, it handles over a million live calls daily across nine Indian languages. Gemini 3.8 Live improved interruption handling, multilingual conversations, and tool-call reliability. This AI doesn't just answer calls; it gets things done for you.” — Akhilesh Damaraju, CEO, Equal AI.&lt;/p&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
-  &lt;div class="h-c-grid uni-paragraph-wrap"&gt;
-    &lt;div class="uni-paragraph
-      h-c-grid__col h-c-grid__col--8 h-c-grid__col-m--6 h-c-grid__col-l--6
-      h-c-grid__col--offset-2 h-c-grid__col-m--offset-3 h-c-grid__col-l--offset-3"&gt;
-
-      
-
-
-
-
-
-
-  
-
-    &lt;figure class="article-image--wrap-small
-      
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/7_salesforce.max-1000x1000.jpg"
-        
-          alt="7 salesforce"&gt;
-        
-        &lt;/a&gt;
-      
-    &lt;/figure&gt;
-
-  
-
-
-
-
-
-      &lt;p data-block-key="fu7d3"&gt;“We're excited that Gemini 3.8 Live and Agentforce are coming together to reimagine what's possible in intelligent service. This collaboration between Salesforce AI Research and Google combines real-time, multimodal capabilities with agentic AI to explore new ways to create richer, more intuitive customer experiences from first contact to resolution." — Bob Van Osten, VP of Product for Agentforce, Salesforce.&lt;/p&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=1x8UAK9demI"
-      data-glue-modal-trigger="uni-modal-1x8UAK9demI-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/8_nEffses.max-1000x1000.png);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Salesforce&amp;#x27;s Agentforce and Gemini 3.8 Live&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-1x8UAK9demI-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="1x8UAK9demI"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=1x8UAK9demI"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_with_image"&gt;&lt;div class="article-module h-c-page"&gt;
-  &lt;div class="h-c-grid uni-paragraph-wrap"&gt;
-    &lt;div class="uni-paragraph
-      h-c-grid__col h-c-grid__col--8 h-c-grid__col-m--6 h-c-grid__col-l--6
-      h-c-grid__col--offset-2 h-c-grid__col-m--offset-3 h-c-grid__col-l--offset-3"&gt;
-
-      
-
-
-
-
-
-
-  
-
-    &lt;figure class="article-image--wrap-small
-      
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/9_specs.max-1000x1000.jpg"
-        
-          alt="9 specs"&gt;
-        
-        &lt;/a&gt;
-      
-    &lt;/figure&gt;
-
-  
-
-
-
-
-
-      &lt;p data-block-key="fu7d3"&gt;“Our team has been very impressed with Gemini 3.8 Live throughout testing and benchmarking! The updates made to Voice Activity Detection and the improvements to overall latency are huge steps forward and further our ability to deliver the highest quality AI Assistant on the SPECS platform.” — Eric Walsh, Software Engineer, Specs.&lt;/p&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Start building today&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini 3.8 Live with Live Avatar are available now for enterprise customers:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Try the model in &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/studio/multimodal-live"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini Enterprise&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Access the Gemini Live API &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;documentation&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; for integration guides&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Review pricing on our &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;pricing page&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://github.com/google-gemini/gemini-skills/blob/main/skills/gemini-live-api-dev/SKILL.md" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Skill&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; for building real-time, bidirectional streaming apps with the Gemini Live &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If your application requires specialized, modular audio capabilities, explore our other audio models:  &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5-transcribe/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.5 Transcribe&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-live-3-5-translate/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.5 Live Translate&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-text-to-speech/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 3.8 Flash-Lite TTS and Gemini 3.8 Flash TTS&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Reach out to your Google Cloud sales representative to activate provisioned throughput, discuss customized deployment architectures and allowlisting for custom avatar.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 24 Sep 2026 15:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/gemini-3-8-live-with-live-avatar-is-now-generally-available/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/0_hero_M1Xg5oa.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Power your agents: Gemini 3.8 Live with Live Avatar is now generally available</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/0_hero_M1Xg5oa.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/gemini-3-8-live-with-live-avatar-is-now-generally-available/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Fabien Blanc-paques</name><title>Group Product Manager, Gemini Live</title><department></department><company></company></author></item></channel></rss>
+&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Fri, 25 Sep 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</guid><category>AI &amp; Machine Learning</category><category>Developers &amp; Practitioners</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Best practices guide for customizing Gemini models via Reinforcement Learning (RL)</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/developers-practitioners/best-practices-guide-for-customizing-gemini-models/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Jiaqi Pan</name><title>Senior Software Engineer, Google</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Kunal Jha</name><title>Senior Product Manager, Google</title><department></department><company></company></author></item></channel></rss>
