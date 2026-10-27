@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Fri, 23 Oct 2026 03:44:19 +0000</lastBuildDate>
+	<lastBuildDate>Mon, 26 Oct 2026 18:27:27 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,147 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Optimizing Streaming Speech Recognition on Arm® Edge Devices with ExecuTorch</title>
+		<link>https://pytorch.org/blog/optimizing-streaming-speech-recognition-on-arm-edge-devices-with-executorch/</link>
+		
+		<dc:creator><![CDATA[Josiah Davis, Principal AI Engineer, Arm and Kshitij Sisodia, Principal Software Engineer, Arm]]></dc:creator>
+		<pubDate>Mon, 26 Oct 2026 18:27:27 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=208000</guid>
+
+					<description><![CDATA[<p>When you’re speaking to a device, you expect text to appear as you talk. That makes streaming automatic speech recognition (ASR) a different challenge from batch transcription, where the model...</p>
+<p>The post <a href="https://pytorch.org/blog/optimizing-streaming-speech-recognition-on-arm-edge-devices-with-executorch/">Optimizing Streaming Speech Recognition on Arm® Edge Devices with ExecuTorch</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;">When you’re speaking to a device, you expect text to appear as you talk. That makes streaming automatic speech recognition (ASR) a different challenge from batch transcription, where the model has the complete recording before it starts. Strong batch accuracy does not necessarily carry over into streaming. One </span><a href="https://arxiv.org/html/2604.14493v2"><span style="font-weight: 400;">cross-model ASR study</span></a><span style="font-weight: 400;"> illustrates this gap. Qwen3-ASR-1.7B achieved the best batch accuracy among the models tested, but its word error rate (WER) rose by </span><b>77%</b><span style="font-weight: 400;"> when evaluated with 2.4-second audio chunks.</span></p>
+<p><span style="font-weight: 400;">In that study’s cross-model streaming comparison (Table 5), NVIDIA® Nemotron<img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2122.png" alt="™" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Speech Streaming 0.6B had the lowest average streaming WER when operating over 560 ms audio chunks. The comparison makes a critical point: accuracy must be measured at the chunk cadence used in deployment.</span></p>
+<p><span style="font-weight: 400;">This case study takes the newer, multilingual </span><a href="https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"><span style="font-weight: 400;">Nemotron 3.5</span></a><span style="font-weight: 400;"> from </span><a href="https://pytorch.org/"><span style="font-weight: 400;">PyTorch</span></a><span style="font-weight: 400;"> to </span><a href="https://docs.pytorch.org/executorch/stable/intro-how-it-works"><span style="font-weight: 400;">ExecuTorch</span></a><span style="font-weight: 400;"> and profiles its on-device execution on a Google Pixel 11. We ask how precision and chunk size change streaming quality, how much processing time the audio requires with one inference thread, where the workload spends its time, and which native kernels run. The goal is a practical way to evaluate accuracy and latency together.</span></p>
+<p><span style="font-weight: 400;">In this blog post, you will learn:</span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How ExecuTorch connects PyTorch models to optimized Arm CPU kernels.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Why streaming ASR needs its own quality evaluation, and how longer chunks improve final-transcript accuracy at the cost of higher latency.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How </span><a href="https://learn.arm.com/learning-paths/cross-platform/multiplying-matrices-with-sme2/overview/"><span style="font-weight: 400;">Arm Scalable Matrix Extension 2 (SME2)</span></a><span style="font-weight: 400;"> reduces total ASR processing time with FP16 and INT8 quantization using per-channel weights (QC8W).</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How to combine model operator timings and native kernel samples to understand performance and identify remaining bottlenecks.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">How to choose chunk size and precision together to meet your accuracy and latency targets.</span></li>
+</ol>
+<h2><span style="font-weight: 400;">From PyTorch model to CPU instructions</span></h2>
+<p><span style="font-weight: 400;">ExecuTorch is PyTorch’s edge inference framework, with export tools and a lightweight runtime. The export process prepares the model for inference and produces a </span><span style="font-weight: 400;">.pte</span><span style="font-weight: 400;"> file that the device runtime can load and execute.</span></p>
+<p><span style="font-weight: 400;">Supported operations are delegated to </span><a href="https://docs.pytorch.org/executorch/1.3/backends/xnnpack/xnnpack-arch-internals.html"><span style="font-weight: 400;">XNNPACK</span></a><span style="font-weight: 400;">, a CPU inference library. On Android<img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2122.png" alt="™" class="wp-smiley" style="height: 1em; max-height: 1em;" />, XNNPACK can select </span><i><span style="font-weight: 400;">microkernels</span></i><span style="font-weight: 400;"> from </span><a href="https://github.com/ARM-software/kleidiai"><span style="font-weight: 400;">Arm® KleidiAI<img src="https://s.w.org/images/core/emoji/17.0.2/72x72/2122.png" alt="™" class="wp-smiley" style="height: 1em; max-height: 1em;" /></span></a><span style="font-weight: 400;"> software: small, optimized routines that perform the inner matrix calculations. Operators not delegated to XNNPACK run using ExecuTorch’s portable CPU kernels.</span></p>
+<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-208006 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/1-2.png" alt="" width="2046" height="1176" srcset="https://pytorch.org/wp-content/uploads/2026/10/1-2.png 2046w, https://pytorch.org/wp-content/uploads/2026/10/1-2-300x172.png 300w, https://pytorch.org/wp-content/uploads/2026/10/1-2-1024x589.png 1024w" sizes="(max-width: 2046px) 100vw, 2046px" /></p>
+<p><i><span style="font-weight: 400;">Figure 1. From model export to CPU instructions.</span></i></p>
+<p><span style="font-weight: 400;">SME2 extends Arm’s instruction set to accelerate matrix calculations, including general matrix multiplication (GEMM). In the </span><a href="https://support.arm.com/documentation/107831/0102/The-C1-SME2--unit?lang=en"><span style="font-weight: 400;">Arm C1 CPU cluster implementation</span></a><span style="font-weight: 400;"> with SME2, the matrix unit is shared by cores in the CPU cluster, and KleidiAI provides microkernels that use it for supported operations. Enabling SME2 in a build makes those paths available. However, native profiling is needed to show which kernels actually ran.</span></p>
+<h2><span style="font-weight: 400;">What one streaming call contains</span></h2>
+<p><span style="font-weight: 400;">Nemotron 3.5 is a multilingual streaming ASR model built around an RNN-T architecture with three parts:</span></p>
+<ol>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The </span><b>encoder</b><span style="font-weight: 400;"> uses FastConformer attention and convolution layers to represent the audio.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The </span><b>predictor</b><span style="font-weight: 400;"> uses an LSTM to represent the history of emitted tokens.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The </span><b>joiner</b><span style="font-weight: 400;"> uses a small feedforward layer to combine the encoder’s audio representation with the predictor’s token-history representation and predict the next token. It can also produce a </span><i><span style="font-weight: 400;">blank</span></i><span style="font-weight: 400;">, which advances decoding to the next audio position.</span></li>
+</ol>
+<p><span style="font-weight: 400;">The frontend converts audio into log-mel feature vectors, producing one vector for every </span><b>10 ms</b><span style="font-weight: 400;">. The encoder reduces the number of time positions by a factor of </span><b>8</b><span style="font-weight: 400;">, so its output has one position for every </span><b>80 ms</b><span style="font-weight: 400;"> of audio. This creates a more compact sequence representing the same audio duration.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-208007 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/2-3.png" alt="" width="2046" height="874" srcset="https://pytorch.org/wp-content/uploads/2026/10/2-3.png 2046w, https://pytorch.org/wp-content/uploads/2026/10/2-3-300x128.png 300w, https://pytorch.org/wp-content/uploads/2026/10/2-3-1024x437.png 1024w" sizes="(max-width: 2046px) 100vw, 2046px" /></p>
+<p><i><span style="font-weight: 400;">Figure 2. From waveform windows to streaming encoder positions.</span></i></p>
+<p><i><span style="font-weight: 400;">Lookahead</span></i><span style="font-weight: 400;"> is the future context available within a chunk; </span><i><span style="font-weight: 400;">chunk cadence</span></i><span style="font-weight: 400;"> is how often fresh audio is collected for a call. At lookahead 13, a call collects </span><b>1,120 ms</b><span style="font-weight: 400;"> of audio and produces 14 encoder positions. The predictor and joiner processes </span><b>all 14 valid positions</b><span style="font-weight: 400;">, accumulating their tokens into the transcript.</span></p>
+<p><span style="font-weight: 400;">Lookaheads 0, 3, and 6 give </span><b>80, 320, and 560 ms</b><span style="font-weight: 400;"> chunks. Longer chunks increase the wait for the first text and subsequent updates; preprocessing and inference add time after audio collection.</span></p>
+<h2><span style="font-weight: 400;">Choose chunk size and precision together</span></h2>
+<p><span style="font-weight: 400;">We measured transcription accuracy on the host using the ExecuTorch runtime with its XNNPACK CPU backend. We created a local streaming adapter that uses the </span><a href="https://huggingface.co/spaces/hf-audio/open_asr_leaderboard"><span style="font-weight: 400;">Hugging Face Open ASR Leaderboard evaluation harness</span></a><span style="font-weight: 400;"> for dataset preparation, transcript normalization, and WER scoring.</span></p>
+<p><span style="font-weight: 400;">We evaluated FP32, FP16, and INT8 at four chunk sizes. The INT8 specification is QC8W which uses dynamic INT8 activations and per-channel INT8 weights for eligible linear operations, with FP32 outputs.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-208008 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/3-3.png" alt="" width="1652" height="998" srcset="https://pytorch.org/wp-content/uploads/2026/10/3-3.png 1652w, https://pytorch.org/wp-content/uploads/2026/10/3-3-300x181.png 300w, https://pytorch.org/wp-content/uploads/2026/10/3-3-1024x619.png 1024w" sizes="(max-width: 1652px) 100vw, 1652px" /></p>
+<p><i><span style="font-weight: 400;">Figure 3. Streaming WER versus chunk size across four corpora.</span></i></p>
+<p><span style="font-weight: 400;">Each point on the above figure covers </span><b>14,019 utterances</b><span style="font-weight: 400;"> from LibriSpeech Other (LS Other), AMI Cleaned, Earnings22, and VoxPopuli Cleaned AA datasets. WER divides total word errors by total reference words across all four corpora.</span></p>
+<p><b>Longer chunks improve final-transcript accuracy.</b><span style="font-weight: 400;"> From 80 to 1,120 ms, FP16 WER falls from </span><b>15.2% to 11.5%</b><span style="font-weight: 400;">, and QC8W from </span><b>15.5% to 11.7%</b><span style="font-weight: 400;">. </span><b>FP16 essentially matches FP32</b><span style="font-weight: 400;">, differing by less than </span><b>0.03 percentage points</b><span style="font-weight: 400;"> at every chunk size, so we exclude FP32 from further performance analysis. </span><b>QC8W preserves strong accuracy</b><span style="font-weight: 400;">, adding </span><b>0.21–0.31 percentage points</b><span style="font-weight: 400;"> of WER relative to FP32.</span></p>
+<p><span style="font-weight: 400;">These host WER results inform precision and lookahead choices. However, it does not measure how long it takes for text to appear on the device.</span></p>
+<h2><span style="font-weight: 400;">Test the real-time budget on an edge device</span></h2>
+<p><span style="font-weight: 400;">We processed a </span><b>24.9-second recording</b><span style="font-weight: 400;"> on a Google Pixel 11 smartphone device using </span><b>1,120 ms chunks</b><span style="font-weight: 400;"> and </span><b>one inference thread pinned to a mid-core CPU</b><span style="font-weight: 400;">. We chose the mid-core CPU as a representative target for a sustained streaming workload on the system. We tested two builds of ExecuTorch 1.3.1, toggling SME2 support on and off. Each build retained XNNPACK and KleidiAI, and used identical model artifacts.</span></p>
+<p><span style="font-weight: 400;">Each configuration had two warm-ups and one measured tracing run. Totals cover processing the loaded recording from audio preprocessing through final detokenization.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-208009 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/4-2.png" alt="" width="1936" height="1228" srcset="https://pytorch.org/wp-content/uploads/2026/10/4-2.png 1936w, https://pytorch.org/wp-content/uploads/2026/10/4-2-300x190.png 300w, https://pytorch.org/wp-content/uploads/2026/10/4-2-1024x650.png 1024w" sizes="(max-width: 1936px) 100vw, 1936px" /></p>
+<p><i><span style="font-weight: 400;">Figure 4. Whole-recording processing time with SME2 disabled and enabled.</span></i></p>
+<p><b>SME2 substantially reduces processing time:</b><span style="font-weight: 400;"> FP16 falls from </span><b>9.79 to 4.61 seconds</b><span style="font-weight: 400;"> (</span><b>2.12x</b><span style="font-weight: 400;"> faster), and QC8W from </span><b>5.20 to 3.24 seconds</b><span style="font-weight: 400;"> (</span><b>1.61x</b><span style="font-weight: 400;"> faster).</span></p>
+<p><span style="font-weight: 400;">With and without SME2, both process the recording in much less time than its audio duration. Dividing the processing time by the audio duration we calculate real-time factors of </span><b>0.19 for FP16</b><span style="font-weight: 400;"> and </span><b>0.13 for QC8W</b><span style="font-weight: 400;"> (with SME2 on). This provides substantial processing headroom with only a single inference thread. Audio still has to arrive before it can be decoded, so this headroom does not remove the chunk-collection delay. But it leaves capacity for other CPU work between chunks and can help manage thermal load during sustained transcription.</span></p>
+<h2><span style="font-weight: 400;">Find the bottleneck with ETDump</span></h2>
+<p><a href="https://docs.pytorch.org/executorch/1.3/devtools-overview.html"><span style="font-weight: 400;">ETDump</span></a><span style="font-weight: 400;"> records ExecuTorch operator events and timings. To understand where the </span><b>2.12X FP16</b><span style="font-weight: 400;"> and </span><b>1.61X QC8W</b><span style="font-weight: 400;"> speedups come from, we grouped machine learning (ML) operators across the encoder, predictor, and joiner into categories:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>GEMM (blue):</b><span style="font-weight: 400;"> Matrix multiplication, mainly the encoder’s dense layers.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Data movement (orange):</b><span style="font-weight: 400;"> Copies, concatenation, repeats, and embedding lookup.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Elementwise (red):</b><span style="font-weight: 400;"> Activations, comparisons, and other per-value work.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Convolution and normalization (green and purple):</b><span style="font-weight: 400;"> Convolution filters and normalization operators; both are relatively small here.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Other (violet):</b><span style="font-weight: 400;"> Small remaining timed operations, such as tensor creation.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Overhead (gray):</b><span style="font-weight: 400;"> Full-run time outside the grouped operator events; this can include runner and framework overhead.</span></li>
+</ul>
+<p><img decoding="async" class="aligncenter wp-image-208012 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/5-2.png" alt="" width="1932" height="1228" srcset="https://pytorch.org/wp-content/uploads/2026/10/5-2.png 1932w, https://pytorch.org/wp-content/uploads/2026/10/5-2-300x191.png 300w, https://pytorch.org/wp-content/uploads/2026/10/5-2-1024x651.png 1024w" sizes="(max-width: 1932px) 100vw, 1932px" /></p>
+<p><i><span style="font-weight: 400;">Figure 5. Operator costs and overhead behind the whole-run speedup.</span></i></p>
+<p><span style="font-weight: 400;">ETDump times are summed across the encoder, predictor, and joiner networks. Adding residual overhead gives the full processing time shown in Figure 4.</span></p>
+<p><b>GEMM drives most of the speedup.</b></p>
+<p><span style="font-weight: 400;">Enabling SME2 reduces GEMM time from </span><b>8.2 to 3.1 seconds for FP16</b><span style="font-weight: 400;"> and </span><b>4.1 to 2.0 seconds for QC8W</b><span style="font-weight: 400;">. GEMM remains the largest part of the run, though its share of total processing time falls from 84% to 67% for FP16 and 78% to 62% QC8W. Data movement takes roughly the same time for both builds, so its relative share grows as GEMM accelerates: from 8% to 17% for FP16 and 9% to 17% for QC8W. This remaining work limits the overall speedup and offers a target for further optimization.</span></p>
+<h2><span style="font-weight: 400;">Which kernels ran?</span></h2>
+<p><span style="font-weight: 400;">ETDump locates the expensive operator families, but does not name the native microkernels that execute them.</span></p>
+<p><a href="https://developer.arm.com/tools-and-software/streamline-performance-analyzer"><span style="font-weight: 400;">Arm Streamline</span></a><span style="font-weight: 400;"> allows us to sample native call paths and measure hardware counters. On the Pixel 11, we measured </span><b>38.4% SME utilization for FP16</b><span style="font-weight: 400;"> and </span><b>53.7% for QC8W</b><span style="font-weight: 400;">. This indicates how much of each capture the matrix hardware was allocated; it is not a percentage of peak arithmetic throughput. We also sampled GEMM functions to identify the microkernels selected by each build.</span></p>
+<p><span style="font-weight: 400;">The function names reveal the sampled paths. The </span><span style="font-weight: 400;">_sme2_mopa</span><span style="font-weight: 400;"> suffix denotes a matrix outer-product accumulation routine. NEON and I8MM are the vector instruction families used by the control paths.</span></p>
+<table style="height: 503px;" width="1225">
+<thead>
+<tr>
+<th><b>Precision</b></th>
+<th><b>SME2</b></th>
+<th><b>Sampled GEMM paths and functions</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span style="font-weight: 400;">FP16</span></td>
+<td><span style="font-weight: 400;">True</span></td>
+<td><b>KleidiAI FP16 SME2</b><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;">kai_kernel_matmul_clamp_f16_f16p2vlx2_f16p2vlx2_2vlx2vl_sme2_mopa</span><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;"><br />
+</span><b>XNNPACK FP16 NEON</b><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;">xnn_f16_gemm_minmax_ukernel_6x16__asm_aarch64_neonfp16arith_cortex_a75</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">FP16</span></td>
+<td><span style="font-weight: 400;">False</span></td>
+<td><b>XNNPACK FP16 NEON</b><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;">xnn_f16_gemm_minmax_ukernel_6x16__asm_aarch64_neonfp16arith_cortex_a75</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">QC8W</span></td>
+<td><span style="font-weight: 400;">True</span></td>
+<td><b>KleidiAI INT8 SME2, FP32 output</b><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;">kai_kernel_matmul_clamp_f32_qai8dxp1vlx4_qsi8cxp4vlx4_1vlx4vl_sme2_mopa</span><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;"><br />
+</span><b>KleidiAI FP32 SME2</b><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;">kai_kernel_matmul_clamp_f32_f32p2vlx1_f32p2vlx1biasf32_sme2_mopa</span></td>
+</tr>
+<tr>
+<td><span style="font-weight: 400;">QC8W</span></td>
+<td><span style="font-weight: 400;">False</span></td>
+<td><b>KleidiAI INT8 NEON I8MM, FP32 output</b><span style="font-weight: 400;"><br />
+</span><span style="font-weight: 400;">kai_run_matmul_clamp_f32_qai8dxp4x8_qsi8cxp4x8_16x4_neon_i8mm</span></td>
+</tr>
+</tbody>
+</table>
+<p><span style="font-weight: 400;">These captures confirm that SME2-targeted KleidiAI GEMM kernels ran on the Pixel 11 for both FP16 and QC8W, alongside other kernel paths. In the FP16 build, some GEMM operations still use NEON. In the QC8W build, some GEMM operations still run in FP32.</span></p>
+<p><span style="font-weight: 400;">This highlights a </span><b>tooling gap</b><span style="font-weight: 400;"> in the ecosystem. ETDump exposes model operator timings, while Streamline samples native functions, but neither tool directly connects these views. Mapping individual model layers to the observed kernel functions remains future work.</span></p>
+<h2><span style="font-weight: 400;">Choosing an operating point</span></h2>
+<p><span style="font-weight: 400;">Deployment involves balancing response latency and accuracy across precision and chunk size. An application might start with an accuracy target or a latency budget; the following examples illustrate both approaches.</span></p>
+<p><span style="font-weight: 400;">Figure 6 below pairs the host WER results with a Pixel 11 component benchmark for </span><b>SME2-enabled</b><span style="font-weight: 400;"> FP16 and QC8W. Grey ticks mark when audio collection finishes; dotted segments add the measured compute delay.</span></p>
+<p><span style="font-weight: 400;">The x-axis is a </span><b>conditional time to first-token estimate</b><span style="font-weight: 400;">: audio collection time plus the median encoder–predictor–joiner sequence time. The component benchmark used synthetic input, fresh stream state, and 75 measured samples per configuration across three rounds. It assumes the first output emits text.</span></p>
+<p><img decoding="async" class="aligncenter wp-image-208013 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/6-1.png" alt="" width="1920" height="1152" srcset="https://pytorch.org/wp-content/uploads/2026/10/6-1.png 1920w, https://pytorch.org/wp-content/uploads/2026/10/6-1-300x180.png 300w, https://pytorch.org/wp-content/uploads/2026/10/6-1-1024x614.png 1024w" sizes="(max-width: 1920px) 100vw, 1920px" /></p>
+<p><i><span style="font-weight: 400;">Figure 6. WER versus estimated first-token latency with SME2 enabled.</span></i></p>
+<p><span style="font-weight: 400;">For an illustrative </span><b>13% WER ceiling</b><span style="font-weight: 400;">, both FP16 and QC8W qualify at </span><b>320, 560, and 1,120 ms</b><span style="font-weight: 400;"> chunk sizes. The 320 ms chunks favor earlier responses, with </span><b>12.67% WER for FP16</b><span style="font-weight: 400;"> and </span><b>12.97% for QC8W</b><span style="font-weight: 400;">. Longer chunks improve accuracy, reaching </span><b>11.50%</b><span style="font-weight: 400;"> and </span><b>11.72%</b><span style="font-weight: 400;">, respectively, at 1,120 ms, but require more audio to arrive before transcripts begin to appear.</span></p>
+<p><span style="font-weight: 400;">For an </span><b>800 ms latency budget</b><span style="font-weight: 400;">, both precisions at </span><b>320 ms</b><span style="font-weight: 400;"> and </span><b>560 ms</b><span style="font-weight: 400;"> fall within the budget and also below the illustrated </span><b>13% WER ceiling</b><span style="font-weight: 400;">. The 320 ms configurations favor earlier responses while 560 ms gives better accuracy. At 560 ms, FP16 combines </span><b>12.01% WER</b><span style="font-weight: 400;"> with an estimated </span><b>691 ms</b><span style="font-weight: 400;"> delay, while QC8W combines </span><b>12.26%</b><span style="font-weight: 400;"> with </span><b>660 ms</b><span style="font-weight: 400;">. Here, both 80 ms configurations miss the WER target. Conversely, both 1,120 ms configurations miss the latency budget.</span></p>
+<h2><span style="font-weight: 400;">Conclusion: What does this mean for developers</span></h2>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><b>Evaluate streaming ASR at the intended chunk size.</b><span style="font-weight: 400;"> Whole-recording accuracy does not predict streaming quality. Longer chunks improve final-transcript accuracy here, while increasing response latency.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>ExecuTorch connects PyTorch models to optimized Arm CPU kernels.</b><span style="font-weight: 400;"> Its export and runtime path lets XNNPACK select KleidiAI microkernels for eligible operations.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>SME2 creates more processing headroom.</b><span style="font-weight: 400;"> Accelerating matrix work reduces the time spent on ASR, leaving more room for other application tasks or concurrent workloads on the device.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>ETDump reveals operator speedups and remaining bottlenecks.</b><span style="font-weight: 400;"> Grouping operator timings shows where the gains come from and how data movement becomes a larger share of processing time.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Streamline identifies the native microkernels that ran.</b><span style="font-weight: 400;"> Native samples confirm selection of SME2 kernels, while hardware counters show matrix hardware allocation.</span></li>
+<li style="font-weight: 400;" aria-level="1"><b>Choose chunk size and precision together.</b><span style="font-weight: 400;"> Comparing precision and chunk-size combinations helps developers balance response latency against transcript accuracy for their application.</span></li>
+</ul>
+<p>The post <a href="https://pytorch.org/blog/optimizing-streaming-speech-recognition-on-arm-edge-devices-with-executorch/">Optimizing Streaming Speech Recognition on Arm® Edge Devices with ExecuTorch</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>PyTorch Conference North America 2026: Accelerating Open Intelligence Together</title>
 		<link>https://pytorch.org/blog/pytorch-conference-north-america-2026-accelerating-open-intelligence-together/</link>
 		
@@ -40,7 +181,7 @@
 					<description><![CDATA[<p>PyTorch Conference North America 2026 brought 3,500+ attendees to San Jose on October 20–21 for two days focused on accelerating open intelligence and exploring the impact of PyTorch Foundation projects...</p>
 <p>The post <a href="https://pytorch.org/blog/pytorch-conference-north-america-2026-accelerating-open-intelligence-together/">PyTorch Conference North America 2026: Accelerating Open Intelligence Together</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></description>
-										<content:encoded><![CDATA[<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-190104 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
+										<content:encoded><![CDATA[<p><img decoding="async" class="aligncenter wp-image-190104 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o.jpg" alt="" width="2400" height="1600" srcset="https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o.jpg 2400w, https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/10/55602921274_9ae4ea448d_o-1024x683.jpg 1024w" sizes="(max-width: 2400px) 100vw, 2400px" /></p>
 <p>PyTorch Conference North America 2026 brought 3,500+ attendees to San Jose on October 20–21 for two days focused on accelerating open intelligence and exploring the impact of PyTorch Foundation projects like PyTorch, vLLM, DeepSpeed, Ray, Helion, and Safetensors.</p>
 <p>PyTorch Foundation Executive Director, Mark Collier, set the stage for the entire event to demonstrate how the PyTorch Foundation is building the open source software to train and serve models on any chip, in any cloud, for any agent.</p>
 <h2>Accelerating Open Intelligence Together</h2>
@@ -183,21 +324,24 @@ in the Agentic Era: Bringing Native PyTorch to Cloud TPUs: Bill Jia (Google Clou
 		<category><![CDATA[Blog]]></category>
 		<guid isPermaLink="false">https://pytorch.org/?p=189607</guid>
 
-					<description><![CDATA[<p>Open source AI thrives when people come together to learn, build, share knowledge, and contribute. Behind every project is a community of developers, researchers, educators, and contributors helping make these...</p>
-<p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+					<description><![CDATA[<p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></description>
-										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-189615" src="https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-1024x536.png" alt="PyTorch Foundation Ambassadors 2026" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></p>
+										<content:encoded><![CDATA[
+		<div id="fws_6ae01edd7bdef"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row top-level"  style="padding-top: 0px; padding-bottom: 0px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark ">
+	<div  class="vc_col-sm-12 wpb_column column_container vc_column_container col no-extra-padding"  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
+		<div class="vc_column-inner" >
+			<div class="wpb_wrapper">
+				
+<div class="wpb_text_column wpb_content_element " >
+	<p><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-189615" src="https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-1024x536.png" alt="PyTorch Foundation Ambassadors 2026" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PTFA-Announcement-1200x628-1.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></p>
 <p><span style="font-weight: 400;">Open source AI thrives when people come together to learn, build, share knowledge, and contribute. Behind every project is a community of developers, researchers, educators, and contributors helping make these technologies more accessible to others.</span></p>
 <p><span style="font-weight: 400;">The </span><a href="https://pytorch.org/programs/ambassadors/"><span style="font-weight: 400;">PyTorch Foundation Ambassador Program</span></a><span style="font-weight: 400;"> brings together community leaders from around the world who share that commitment. Through education, mentorship, technical content, community events, and open source contributions, ambassadors help expand awareness, adoption, and participation across the Foundation’s growing ecosystem of open source projects.</span></p>
 <p><span style="font-weight: 400;">The 2026 cohort welcomes 24 ambassadors across five program regions, representing communities from Nigeria and Burkina Faso to Singapore, India, Romania, Spain, the United Kingdom, and the United States.</span></p>
 <p><span style="font-weight: 400;">Each ambassador brings a unique perspective, technical background, and connection to their local community. Together, they are creating more opportunities for people to discover open source AI, develop practical skills, and contribute to the technologies shaping its future.</span></p>
 <h2><b>A community shaped by many kinds of work</b></h2>
-<p><span style="font-weight: 400;">The 2026 ambassadors bring experience across AI research, software and infrastructure engineering, technical education, open source maintenance, and community organizing. Some work on AI systems, model training, and infrastructure; others focus on documentation, workshops, mentoring, or applications that address challenges in their communities.</span></p>
-<p><span style="font-weight: 400;">For someone new to PyTorch, that might mean attending a first hands-on workshop. For an experienced developer, it could mean discovering a new project, connecting with maintainers, or making a first open source contribution. Ambassadors help create these opportunities by bringing people together and connecting local communities with the wider ecosystem.</span></p>
-<h2><b>Advancing the PyTorch Foundation’s open source ecosystem</b></h2>
-<p><span style="font-weight: 400;">The PyTorch Foundation supports a growing ecosystem of open source projects that help developers and researchers build, train, optimize, and deploy AI systems. Beyond the core PyTorch framework, this ecosystem includes projects such as vLLM, DeepSpeed, Ray, Helion, and Safetensors, spanning model training, inference, distributed computing, performance optimization, and model sharing.</span></p>
-<p><span style="font-weight: 400;">The Ambassador Program helps connect these technologies with communities around the world. Through technical workshops, meetups, educational resources, mentorship, and community-led initiatives, ambassadors help developers discover Foundation projects, understand their practical applications, and find opportunities to contribute.</span></p>
-<p><span style="font-weight: 400;">An ambassador might organize an introductory PyTorch workshop for students, help developers explore scalable inference with vLLM, introduce engineers to distributed AI technologies, or create technical content that makes complex concepts easier to understand. By supporting learning, adoption, and contributions, ambassadors strengthen the communities that sustain open source AI.</span></p>
+<p dir="ltr">The 2026 ambassadors bring experience across AI research, software and infrastructure engineering, technical education, open source maintenance, and community organizing. Some work on AI systems, model training, and infrastructure; others focus on documentation, workshops, mentoring, or applications that address challenges in their communities.</p>
+<p dir="ltr">Their work connects local communities with the PyTorch Foundation’s growing ecosystem of open source projects that help developers and researchers build, train, optimize, and deploy AI systems. Beyond the core PyTorch framework, this ecosystem includes projects such as vLLM, DeepSpeed, Ray, Helion, and Safetensors, spanning model training, inference, distributed computing, performance optimization, and model sharing.</p>
+<p dir="ltr">For someone new to PyTorch, that might mean attending a first hands-on workshop. For an experienced developer, it could mean discovering a new project, connecting with maintainers, or making a first open source contribution. An ambassador might help developers explore scalable inference with vLLM, introduce engineers to distributed AI technologies, or create technical content that makes complex concepts easier to understand.</p>
 <h2><b>Meet the 2026 ambassadors</b></h2>
 <p><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-190081" src="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors-1024x683.png" alt="PyTorch Foundation 2026 Ambassadors" width="1024" height="683" srcset="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors-1024x683.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors-300x200.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-2026-Ambassadors.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" />The 2026 cohort brings together 24 community leaders across five program regions.</span></p>
 <p><b>AFRICA</b></p>
@@ -261,6 +405,15 @@ in the Agentic Era: Bringing Native PyTorch to Cloud TPUs: Bill Jia (Google Clou
 <p><span style="font-weight: 400;">We’re grateful to this year’s ambassadors for bringing their time, expertise, enthusiasm, and generosity to the program. The strongest communities grow when people share what they’ve learned, welcome new contributors, and make room for others to build alongside them.</span></p>
 <p><span style="font-weight: 400;">We look forward to seeing what the 2026 PyTorch Foundation Ambassadors will teach, organize, create, and contribute in the year ahead.</span></p>
 <p>Learn more about the PyTorch Foundation Ambassador program at: <a href="https://pytorch.org/programs/ambassadors/">https://pytorch.org/programs/ambassadors/</a></p>
+</div>
+
+
+
+
+			</div> 
+		</div>
+	</div> 
+</div></div>
 <p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></content:encoded>
 					
@@ -2190,271 +2343,7 @@ cmake --build build
 		
 		
 			</item>
-		<item>
-		<title>One Search, Two Layers: Compiler Controls Inside PyTorch Helion using NVIDIA CompileIQ</title>
-		<link>https://pytorch.org/blog/one-search-two-layers-compiler-controls-inside-pytorch-helion-using-nvidia-compileiq/</link>
-		
-		<dc:creator><![CDATA[Aditya Srikanth (NVIDIA), Rupak Roy (NVIDIA), Abhinav Singh (NVIDIA), Jason Ansel (Meta), Clement Anthonioz-Blanc (Meta) and Jongsok Choi (Meta)]]></dc:creator>
-		<pubDate>Mon, 19 Oct 2026 15:45:05 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=188657</guid>
-
-					<description><![CDATA[<p>With Helion’s release last year, it aimed at enabling developers to write GPU kernels in PyTorch-native Python and let its powerful autotuner do the work that used to require hand-written...</p>
-<p>The post <a href="https://pytorch.org/blog/one-search-two-layers-compiler-controls-inside-pytorch-helion-using-nvidia-compileiq/">One Search, Two Layers: Compiler Controls Inside PyTorch Helion using NVIDIA CompileIQ</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p>With <a href="https://pytorch.org/blog/helion/">Helion’s</a> release last year, it aimed at enabling developers to write GPU kernels in PyTorch-native Python and let its powerful <a href="https://pytorch.org/blog/accelerating-autotuning-in-helion/">autotuner</a> do the work that used to require hand-written Triton and abstract away hardware-specific implementation details. Helion&#8217;s autotuner explores thousands of kernel configurations and routinely lands within a few percent of expert-tuned code, and oftentimes exceeding it.</p>
-<p>The question that now needs to be answered is this: If a kernel has already been autotuned and optimized to the best of a developer’s ability, is there anything left?</p>
-<p>There is. It lives below the kernel, in the compiler.</p>
-<p>Every kernel autotuner in the ecosystem whether it is Helion&#8217;s, Triton&#8217;s, the one inside torch.compile, they all search the same thing: tile shapes, warp counts, pipeline stages, memory access strategy. All of those are decisions about what work each thread block does. Underneath them sits a second set of decisions about how that work becomes machine assembly instructions generated by ptxas, NVIDIA’s PTX assembler. Things like register allocation policy, fine-grained instruction scheduling, code-generation heuristics are left at their defaults for all kernels shipping today &#8211; not because the defaults are optimal, but because nothing was searching and optimizing them!</p>
-<p>Helion now enables this, and this post is about what that second compiler-specific space contains, why searching it jointly with the kernel configuration space shows further improvements on kernels that were already deemed to be optimal.</p>
-<p>The searching is done by NVIDIA&#8217;s CompileIQ, which optimizes ptxas controls the way an autotuner optimizes tile sizes and packages the result as a portable Advanced Control File (ACF). Most users won&#8217;t run that search themselves: CompileIQ publishes pre-tuned ACF catalogs that Helion&#8217;s autotuner can now evaluate alongside the kernel configurations it already explores.</p>
-<h2>Starting off with highly-optimized kernels &amp; optimizing the last-mile</h2>
-<p>It matters a great deal what baseline one compares against. A &#8220;we made kernels faster&#8221; claim is easy if the starting point is a naive kernel, and close to meaningless for real-world workloads.</p>
-<p>The kernels we use here come from the <a href="https://github.com/pytorch/helion/tree/main/pretuned_kernels">pretuned_kernels/</a> in the Helion repository, roughly 27 kernels covering the shapes that show up in real model code: FP8 and NVFP4 quantization, RMSNorm variants, RoPE, grouped GEMM, causal depthwise convolution, Gated DeltaNet decode, and fused model regions like a Qwen3 decode layer.</p>
-<p>The important property to note here is that these are not autotuned on the fly. Each one ships with ahead-of-time heuristic files per architecture: _helion_aot_rms_norm_cuda_sm90.py for H100, _helion_aot_rms_norm_cuda_sm100.py for B200 etc. that Helion selects at runtime. The autotuning search already happened offline, and its result is baked in. When this program is run, the user gets tuned performance with no search cost.</p>
-<p>That is our baseline: a kernel whose configuration space has already been swept, on the hardware it&#8217;s running on, by the kernel authors and the Helion compiler developers. If there&#8217;s headroom below that, it&#8217;s <em>real</em> headroom and that’s the last-mile focus of this post.</p>
-<h2>What Helion&#8217;s autotuner searches, and where it stops</h2>
-<p>A Helion kernel is ordinary PyTorch with one new idea &#8211; tiles:</p>
-<pre><code class="language-python">import torch, helion, helion.language as hl
-
-@helion.kernel()
-def softmax(x: torch.Tensor) -&gt; torch.Tensor:
-    n, _m = x.size()
-    out = torch.empty_like(x)
-    for tile_n in hl.tile(n):
-        out[tile_n, :] = torch.nn.functional.softmax(x[tile_n, :], dim=1)
-    return out
-</code></pre>
-<p>The user never says how big a tile is. That&#8217;s the point: hl.tile declares that the iteration space is tiled, and the autotuner decides the rest. A single kernel definition implicitly generates a search space of thousands of Triton configurations that span block_sizes, loop_orders, l2_grouping, num_warps, num_stages, indexing (pointer arithmetic vs. block pointers vs. TMA descriptors), pid_type, reduction_loops, and more. Helion lowers through TorchInductor to Triton, compiles each candidate, times it, and keeps the winner.</p>
-<p>Then the winning Triton kernel goes to ptxas, and everything from that point down happens at PTXAS’ default settings. The kernel autotuner&#8217;s search space is defined by what the kernel language can express, and no kernel language expresses &#8220;allocate registers differently&#8221;. This <a href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#apply-controls-apply-controls">compiler control surface</a> is a separate interface, exposed by ptxas itself starting from CUDA 13.3.</p>
-<p>It is imperative to mention that this exploration is genuinely hard. There are complex interactions between various compiler controls: a change to register allocation shifts occupancy, which changes whether a scheduling decision helps or hurts. The right setting is workload-specific, and there&#8217;s no universal answer to publish. And the payoff per unit of human effort is poor, which is exactly the profile of a problem one hands off to a search algorithm.</p>
-<p><!-- IMAGE PLACEHOLDER: image1 - re-upload from the Google Doc via the WordPress media library and insert here --></p>
-<h2><a href="https://pytorch.org/wp-content/uploads/2026/10/lowering-stack-2.svg"><img decoding="async" class="alignnone wp-image-188664 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/lowering-stack-2.svg" alt="" width="1000" height="640" /></a></h2>
-<h2>The joint search: Helion Autotuner and PTXAS’ Advanced Controls</h2>
-<p>Helion exposes the underlying compiler control space through two settings. Controls are packaged in an <a href="https://nvidia.github.io/CompileIQ/v1.0/booster_packs.html">Advanced Control File</a> (ACF, typically ending with .acf) which is a binary artifact applied at compile time, portable and versionable, that users can ship alongside their kernel.</p>
-<p>The first setting pins a known-good ACF as part of a config the user has already chosen:</p>
-<pre><code class="language-python">softmax_tuned = helion.kernel(
-    config=helion.Config(
-        advanced_controls_file="h100_example1.acf",
-        block_sizes=[4],
-        num_warps=8,
-        num_stages=2,
-        reduction_loops=[512],
-        indexing=["pointer", "pointer", "tensor_descriptor",
-        "tensor_descriptor", "pointer", "pointer"],
-    ),
-    static_shapes=True,
-)(_softmax)
-</code></pre>
-<p>The second is a more interesting case. It hands a list of ACFs to Helion&#8217;s own autotuner and lets them be searched as just another dimension, alongside tile sizes and warp counts:</p>
-<pre><code class="language-python">softmax_search = helion.kernel(
-    autotune_search_acf=[
-        "acfs/helion-booster-pack/candidate_03.acf",
-        "acfs/helion-booster-pack/candidate_11.acf",
-        "acfs/helion-booster-pack/candidate_17.acf",
-    ],
-    autotune_compile_timeout=120,
-    static_shapes=True,
-)(_softmax)
-</code></pre>
-<p>Two things are worth pointing out in this mode:</p>
-<ul>
-<li>The empty string is appended for you. Helion automatically adds &#8220;&#8221;, meaning &#8220;no ACF, compiler defaults&#8221;, to the list that is supplied. The default configuration is therefore always a candidate in the search, and the autotuner will only select an ACF if it actually won on measured time. The worst case of turning this on is that you spend some autotuning budget and get back the kernel you already had. That property is what makes it tempting to try on a kernel you care about.</li>
-<li>Sequential tuning finds a local optimum; this joint method doesn&#8217;t. This is the substantive argument for doing it in one loop rather than two. Suppose you autotune the kernel first, get block_sizes=[128, 128] with num_stages=4, and then go searching for compiler controls. You are now searching the control space conditioned on a kernel config that was itself chosen under default controls. But those dimensions are coupled through the hardware: block size and stage count determine register pressure and shared-memory footprint, and register allocation policy is precisely what decides whether that pressure causes spills. A control set that would shine at block_sizes=[64, 64] never gets evaluated there, because the kernel config was frozen before the compiler search began.The reverse ordering has the same problem. Searching both together is the only ordering that doesn&#8217;t have it, which is why autotune_search_acf lives inside Helion&#8217;s autotuner rather than being a post-processing step.</li>
-</ul>
-<p>The cost is search time. Each ACF multiplies the number of compile-and-measure trials, so this is not something to leave on by default for every kernel in a codebase. It is something to run once, offline, on a kernel that matters, and then pin the result with advanced_controls_file, exactly the way autotuned configs are pinned today.</p>
-<h2>Where do these Advanced Control Files come from</h2>
-<p>Now that we’ve understood the benefits of joint autotuning of Helion parameters with PTXAS’ advanced control files (ACF), the natural question one may have is how can these ACFs be generated. That is where NVIDIA’s <a href="https://github.com/NVIDIA/CompileIQ">CompileIQ</a> comes into the picture.</p>
-<p>CompileIQ treats compiler-control selection as a hyperparameter optimization problem. It pulls a curated search space for the target compiler and toolkit version, then runs an evolutionary search: propose a population of candidate control sets, compile each one, check correctness against a reference, time the survivors, breed the winners, repeat. The output of this search process is an ACF file. There is nothing GPU-specific about the search algorithm itself, and the only GPU-specific parts are what is entirely in the objective function that the user writes, which is usually a few lines around triton.testing.do_bench.</p>
-<p>For most users however, the additional search budget is unnecessary, because the searching has been done. CompileIQ publishes <a href="https://nvidia.github.io/CompileIQ/v1.0/booster_packs.html">Booster Packs</a> &#8211; pre-tuned ACF catalogs &#8211; on its <a href="https://github.com/NVIDIA/CompileIQ/releases?q=booster-packs&amp;expanded=true">GitHub releases</a>. The current helion-booster-pack contains 24 ACFs tuned across a range of Helion kernels, validated against ptxas from CUDA 13.4, targeting B200. So the realistic workflow for users is: download the pack, point Helion’s autotune_search_acf at it, autotune once, pin what wins. No search space to design, no objective function to write, no compiler expertise required!</p>
-<p>If you have a workload the pack doesn&#8217;t cover, pip install compileiq and run your own targeted search. That path is documented in NVIDIA&#8217;s <a href="https://developer.nvidia.com/blog/extract-more-kernel-performance-with-nvidia-compileiq-auto-tuning">CompileIQ blog post</a> and in various <a href="https://github.com/NVIDIA/CompileIQ/tree/main/examples">CompileIQ examples</a>.</p>
-<h2>Helion and CompileIQ: Experimental Results</h2>
-<p>This section highlights many possible ways in which one can run a CompileIQ optimization campaign on Helion kernels. As a sample case study we applied CompileIQ to the pretuned nvfp4_gemv_fp4in_kernel, a Helion W4A4 (NVFP4 weight x NVFP4 activation) decode GEMV kernel that already ships a checked-in Helion AOT config for its target shape. The question: is there performance CompileIQ can extract below Helion&#8217;s own autotuning layer ,i.e., at the ptxas compilation stage?</p>
-<h3>Environment and Methodology</h3>
-<p>Benchmarking was conducted on a GB200 system with sm_100 (Blackwell, compute capability 10.0), utilizing ptxas 13.3.73 (CUDA 13.3), CompileIQ 1.0.3, Triton 3.8.0, and an editable source installation of Helion. All timing evaluations were executed via triton.testing.do_bench with the GPU clock locked. Every observed performance improvement was re-measured independently, validated against the PyTorch reference implementation for numerical correctness, and statistically filtered using a Welch&#8217;s t-test (p &lt; 0.05) alongside Cohen&#8217;s d (d &gt; 0.2). Complete statistical metrics are provided alongside each result below.</p>
-<h3>Kernel Description</h3>
-<p>nvfp4_gemv_fp4in_kernel in helion/pretuned_kernels/nvfp4_gemv/nvfp4_gemv.py, computing out = (weight @ x) * alpha for a decode (one output row) GEMV. Both the packed NVFP4 weight and activation bytes are unpacked per K-group via hl.load_float4_e2m1fn_x16_to_float16, accumulated in fp16 over a 16-way static range, and scaled by a decoded E4M3 block scaler.</p>
-<p>This kernel includes a checked-in AOT configuration specifically for the N=8192, K=28672 &#8220;down_proj&#8221; decode-GEMV shape in _helion_aot_nvfp4_gemv_cuda_sm100.py:</p>
-<pre><code class="language-python">_CONFIG_FP4IN_DEFAULT = {
-    "block_sizes": [4, 256],
-    "num_warps": 2,
-    "num_stages": 3,
-    "range_multi_buffers": [None, True],
-}
-</code></pre>
-<h3>Using Runtime as CompileIQ Objective Function</h3>
-<p>Using runtime as the CompileIQ objective function lets us optimize execution speed directly. The objective function takes a candidate ACF configuration, applies it to our fixed Helion kernel, and evaluates it: the kernel runs once, its output is checked against the PyTorch reference implementation, and only configurations that pass correctness are then benchmarked with triton.testing.do_bench. Any configuration that fails correctness returns an invalid score and is dropped from the search before it ever contributes a timing measurement.</p>
-<pre><code class="language-python">def objective(config) -&gt; float:
-    acf_path = ... # write `config` to a .acf, or None for baseline
-    kernel = _make_kernel(acf_path)
-    got = run()
-    _check(got, ref, "fp4in", N, K) # correctness gate
-    return do_bench(run, warmup=25, rep=100, return_mode="mean")
-</code></pre>
-<p>We initialize a Search instance that couples our scoring routine to an evolutionary autotuner over PTXAS compiler controls, then invoke .start(). It sweeps candidate ACFs across generations generations of a pool_size-sized population, breeding the top-performing control configurations forward into each subsequent iteration.</p>
-<pre><code class="language-python">config = SearchConfiguration(problem_type="min", generations=8, pool_size=15)
-tuner = Search(
-    objective_function=objective,
-    search_space=PtxasSearchSpace(version=cuda_version, variant="default"),
-    search_config=config,
-    dump_results="nvfp4_gemv_results.csv",
-    worker_type=WorkerTypes.ISOLATED, # crashing ACF candidates shouldn't kill the search
-)
-
-with gpu_benchmark_mode(clock_mhz=target_clock_mhz, raise_on_failure=False):
-    results = tuner.start(task_timeout=60)
-</code></pre>
-<p>Executing an evolutionary search with CompileIQ across PTXAS ACFs, spanning 8 generations with a pool size of 15 candidates over our fixed Helion configuration on GB200 yielded an optimized ACF control set. This candidate reduced execution time from a baseline of 0.0971 ms down to 0.0928 ms, delivering a 1.047x (4.7%) speedup as measured directly within the search&#8217;s scoring loop.</p>
-<pre><code class="language-plaintext">sample baseline run: 0.09713 ms
-Best runtime (CompileIQ Search): 0.0928 ms
-Speedup: 1.047x
-</code></pre>
-<h3>Validation of CompileIQ Search Results</h3>
-<p>To confirm our findings, every speedup is re-measured independently using increased warmup and repetition iterations under fixed GPU clock frequencies. Each configuration undergoes strict correctness verification against the reference model alongside a Welch&#8217;s t-test and Cohen&#8217;s d filter. This serves as our rigorous statistical threshold (requiring p &lt; 0.05, cohens_d &gt; 0.2, and optimized.mean &lt; baseline.mean) to verify performance gains before trusting the numbers.</p>
-<pre><code class="language-plaintext"># run 1
-baseline:  n=1744 mean=0.09752ms std=0.00218
-optimized: n=2018 mean=0.09301ms std=0.00133
-speedup_mean:   1.0485
-p_value:  0.0
-cohens_d: 2.501
-significant: True
-
-# run 2 (independent re-run)
-baseline:  n=1757 mean=0.09744ms std=0.00216
-optimized: n=2028 mean=0.09299ms std=0.00130
-speedup_mean:   1.0478
-p_value:  0.0
-cohens_d: 2.489
-significant: True
-</code></pre>
-<p>The two executions remain virtually identical within experimental variance: with d ≈ 2.5 demonstrating a massive effect size that easily surpasses our statistical threshold of 0.2 , verifying that this ACF performance gain is genuine.</p>
-<p>The two runs are virtually identical within experimental variance, and d ≈ 2.5 in both is a massive effect size nearly 12.5x past our d &gt; 0.2 gate, confirming this ACF performance gain is genuine, not noise.</p>
-<h3>Tuning against a hardware metric instead of runtime</h3>
-<p>While execution speed is a common optimization goal, CompileIQ is not limited to runtime alone. Integrating directly with Nsight Compute (ncu) enables the objective function to target any hardware metric exposed by the tool. To determine the key architectural bottleneck limiting kernel performance, we start by evaluating its profile and analyzing nvfp4_gemv_fp4in_kernel on a GB200 system highlights the following bottlenecks:</p>
-<pre><code class="language-plaintext">Section: GPU Speed of Light Throughput
-Memory Throughput               %       78.99
-L1/TEX Cache Throughput         %       89.35
-Compute (SM) Throughput         %       37.29
-
-Section: Occupancy
-Theoretical Occupancy                   %    25.0
-Achieved Occupancy                      %    21.63
-
-  Est. Speedup: 21.01%
-  ... theoretical occupancy (25.0%) is limited by the number of required
-  registers.
-</code></pre>
-<p>Profiling shows the kernel is register-limited. NCU&#8217;s own cost model attributes a 21% &#8216;Est. Speedup&#8217; opportunity to occupancy, and this ceiling is set by register count, something PTXAS&#8217;s register-allocation controls can directly influence.</p>
-<p>Switching the objective from runtime to occupancy only touches two things: what the objective function scores, and the search&#8217;s problem_type:</p>
-<pre><code class="language-python"># objective(): do_bench(...) becomes an ncu metric read
-return _measure_occupancy(acf_path) # ncu: sm__warps_active.avg.pct_of_peak_sustained_active
-
-# search config: minimize runtime -&gt; maximize occupancy
-config = SearchConfiguration(problem_type="max", generations=4, pool_size=6)
-</code></pre>
-<p>Pointing the search at achieved occupancy itself across 4 generations × pool size 6, rather than runtime, found a candidate that moved the proxy metric by +0.16pp (21.60% → 21.76% achieved occupancy, p = 9.2e-23, d = 13.17) and, independently re-measured, translated into a modest but statistically solid runtime win of ~1.75-2.0% (p = 3.6e-116, d = 0.78).</p>
-<h3>Multi-Objective Tuning</h3>
-<p>CompileIQ can also perform multi-objective tuning, where the scoring routine evaluates candidates along multiple dimensions simultaneously by returning a tuple rather than a scalar float. Instead of isolating a single top performer, the autotuning process maps out candidates along the Pareto frontier, identifying control sets that are not dominated across all target metrics. This yields a unified ACF optimized jointly for execution runtime alongside L1TEX cache throughput.</p>
-<pre><code class="language-python">def objective(config) -&gt; tuple[float, float]:
-    runtime_ms = do_bench(run, warmup=25, rep=100, return_mode="mean")
-    l1_throughput = _measure_l1throughput(acf_path)
-    return runtime_ms, -l1_throughput
-</code></pre>
-<p>8 generations × pool size 15 converged to a single dominant candidate on the Pareto front. Unlike a tradeoff curve, this single point beats every other evaluated candidate on both axes simultaneously in the search&#8217;s own scoring. Validating it on a fresh cache at shipping-grade trial counts:</p>
-<pre><code class="language-plaintext">=== RUNTIME (ms, lower is better) ===
-p_value=3.516e-295  cohens_d=87.024
-speedup_mean=1.0689x
-=== L1TEX THROUGHPUT (%, higher is better; internally negated) ===
-p_value=7.123e-19  cohens_d=3.686
-baseline L1TEX THROUGHPUT mean=81.5087%
-candidate L1TEX THROUGHPUT mean=85.9620%
-</code></pre>
-<p>Multi-objective tuning found an ACF delivering a validated 6.9% runtime speedup, accompanied by a simultaneous 4.5pp L1TEX throughput gain (81.51% → 85.96%). Both results are statistically significant (p ≪ 0.05, Cohen&#8217;s d ≫ 0.2), with neither metric being traded off against the other.</p>
-<h3>Joint ACF Optimization Across Multiple Input Shapes</h3>
-<p>While earlier evaluations focused on a single kernel shape, N=8192, K=28672, real-world model deployment demands coverage across multiple configurations. The nvfp4_gemv implementation ships with several pre-tuned Helion AOT configurations, including a dedicated setup for N=15360, K=5120. Instead of maintaining distinct control files per shape, CompileIQ enables a unified search to discover a single, joint ACF that maximizes performance across both shapes simultaneously.</p>
-<pre><code class="language-python">def objective(config) -&gt; tuple[float, ...]:
-    """One shared ACF, one runtime score per shape (both minimize)."""
-    acf_path = ... # write `config` to a temp .acf, or None for baseline
-    return tuple(_bench_shape(acf_path, shape) for shape in SHAPES)
-</code></pre>
-<p>Executing an 8-generation search with a pool size of 15 across both shapes yielded a Pareto front containing 4 optimal candidates:</p>
-<table>
-<thead>
-<tr>
-<th>Candidate</th>
-<th>down_proj</th>
-<th>15360_5120</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>pareto_0</strong></td>
-<td>0.0927 ms</td>
-<td>0.0309 ms</td>
-</tr>
-<tr>
-<td><strong>pareto_1</strong></td>
-<td>0.0927 ms</td>
-<td>0.0309 ms</td>
-</tr>
-<tr>
-<td><strong>pareto_2</strong></td>
-<td>0.0944 ms</td>
-<td>0.0308 ms</td>
-</tr>
-<tr>
-<td><strong>pareto_3</strong></td>
-<td>0.0917 ms</td>
-<td>0.0321 ms</td>
-</tr>
-</tbody>
-</table>
-<p>Compared to the default benchmark times of 0.0972 ms for down_proj and 0.0315 ms for 15360_5120, pareto_0 emerges as the standout configuration that consistently outpaces the baseline across both target tensor dimensions.</p>
-<p>To confirm these performance gains, we execute an independent validation of pareto_0 on each individual shape. Both configurations comfortably pass our statistical validation (1.05x speedup with a p-value of 1.1e-224 and Cohen&#8217;s d of 67.71 for down_proj, and 1.01x speedup with a p-value of 6.2e-73 and a d of 4.54 on the 15360_5120 shape), far exceeding our benchmark requirements and proving these gains represent genuine performance improvements rather than system noise. A single joint ACF successfully outperforms the default baseline across both target dimensions simultaneously.</p>
-<h2>Applicability of this workflow for end-to-end model tuning</h2>
-<p>While the focus of this entire post is about optimizing the underlying compiler for extracting more performance from individual kernels, it is important to zoom out and highlight how a workflow like this could be utilized for end-to-end tuning of models on PyTorch.</p>
-<p>The first step is to profile and characterize the most important kernels that are part of the model which you wish to optimize. Then, each of these kernels can then be a target of CompileIQ optimization, with an associated Advanced Control File to extract maximum performance from that instantiation of the kernel. These get applied during runtime using Helion’s pinned autotune configurations, using Triton’s ptxas_options API or directly via the PTXAS command line depending on the entry point of each kernel’s implementation.</p>
-<p>We want to be upfront about the expected gains: On kernels that are already highly optimized, compiler-control tuning has shown runtime improvements on the order of 2-7% which may still mean a lot for critical kernels in top models. Less optimized kernels have achieved double-digit performance gains, offering greater potential for meaningful end-to-end improvements.</p>
-<p>The important points to note are that it is found automatically, and requires little to no compiler expertise, it is verified against your own correctness check, and the result is a file you can commit next to the kernel and reapply on every build. It is the difference between a few percent that exists in principle and a few percent you actually ship.</p>
-<p>It also compounds exactly where you&#8217;d want it to. There are high-value kernels inside inference loops that run continuously across large fleets. Even a few percent at the bottom of the stack, applied to the operations that dominate a decode step, is valuable at that scale.</p>
-<h3>Caveats</h3>
-<ul>
-<li><strong>ACFs are hardware- and toolkit-specific:</strong> An ACF tuned for sm_90 is not valid on sm_100. <a href="https://nvidia.github.io/CompileIQ/stable/compilers_overview.html#safety-correctness-read-this-first">Applying a mismatched ACF</a> can produce incorrect results or runtime errors, not just slower code. The booster pack manifest states its target architecture and toolkit version. This is also why the correctness check in the search loop is not optional.</li>
-<li><strong>Search-time is a nontrivial cost:</strong> Every ACF in autotune_search_acf multiplies your autotuning trials. Use it offline on kernels that matter, then pin the winner.</li>
-<li><strong>Gains are workload-specific:</strong> The result depends on the workload, the shapes, the architecture, and how much headroom the kernel has left. The only number that matters for your kernel is the one you measure on your kernel.</li>
-</ul>
-<h2>Your turn to try this out!</h2>
-<p>If you&#8217;ve never written a GPU kernel: start at <a href="https://github.com/pytorch/helion/tree/main/pretuned_kernels">pretuned_kernels/</a>. Pick something close to what you need, read it and then run it. The kernels are short, and they run at tuned speed immediately, with no autotuning wait.</p>
-<p>If you already use Helion: download the <a href="https://github.com/NVIDIA/CompileIQ/releases?q=booster-packs&amp;expanded=true">helion-booster-pack</a>, add autotune_search_acf=[&#8230;] to one kernel you care about, and autotune it. The no-ACF baseline stays in the search, so the downside is bounded at the time you spend. See Helion’s <a href="https://github.com/pytorch/helion/tree/main/examples/acfs">examples/acfs/</a> for a worked example.</p>
-<p>If you work on kernels for a living: the takeaway here is not the tool itself. It is that the compiler&#8217;s control surface is a legitimate optimization space, it is searchable, and most people are not yet searching it. That is true of any compiler that exposes tunable controls, on any backend. We&#8217;re hopeful that we’ve inspired you to explore this space!</p>
-<h3>Licensing</h3>
-<p>Helion is open source and hosted by the PyTorch Foundation. CompileIQ is free to use and it is distributed under the NVIDIA Software License Agreement, a proprietary EULA. The ACF files it produces are freely distributable, which is why booster packs can be published and why an ACF can be committed alongside a kernel in an open repository.</p>
-<h3>Links</h3>
-<ul>
-<li>Helion
-<ul>
-<li><a href="https://github.com/pytorch/helion">https://github.com/pytorch/helion</a></li>
-<li><a href="https://helionlang.com">https://helionlang.com</a></li>
-<li><a href="https://github.com/pytorch/helion/tree/main/examples/acfs">https://github.com/pytorch/helion/tree/main/examples/acfs</a></li>
-<li><a href="https://github.com/pytorch/helion/tree/main/pretuned_kernels">https://github.com/pytorch/helion/tree/main/pretuned_kernels</a></li>
-</ul>
-</li>
-<li>CompileIQ
-<ul>
-<li><a href="https://github.com/NVIDIA/CompileIQ">https://github.com/NVIDIA/CompileIQ</a></li>
-<li><a href="https://nvidia.github.io/CompileIQ/stable/">https://nvidia.github.io/CompileIQ/stable/</a></li>
-<li><a href="https://github.com/NVIDIA/CompileIQ/releases?q=booster-packs&amp;expanded=true">https://github.com/NVIDIA/CompileIQ/releases?q=booster-packs&amp;expanded=true</a></li>
-<li><a href="https://developer.nvidia.com/blog/extract-more-kernel-performance-with-nvidia-compileiq-auto-tuning">https://developer.nvidia.com/blog/extract-more-kernel-performance-with-nvidia-compileiq-auto-tuning</a></li>
-</ul>
-</li>
-</ul>
-<p>The post <a href="https://pytorch.org/blog/one-search-two-layers-compiler-controls-inside-pytorch-helion-using-nvidia-compileiq/">One Search, Two Layers: Compiler Controls Inside PyTorch Helion using NVIDIA CompileIQ</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4762 metric#misses=31 metric#hit-ratio=99.4 metric#bytes=1568797 metric#prefetches=266 metric#store-reads=35 metric#store-writes=6 metric#store-hits=274 metric#store-misses=15 metric#sql-queries=17 metric#ms-total=485.07 metric#ms-cache=24.78 metric#ms-cache-avg=0.6195 metric#ms-cache-ratio=5.1 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4832 metric#misses=31 metric#hit-ratio=99.4 metric#bytes=1583428 metric#prefetches=277 metric#store-reads=35 metric#store-writes=13 metric#store-hits=285 metric#store-misses=15 metric#sql-queries=25 metric#ms-total=508.07 metric#ms-cache=21.34 metric#ms-cache-avg=0.4540 metric#ms-cache-ratio=4.2 -->
