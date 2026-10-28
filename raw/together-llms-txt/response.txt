@@ -9,7 +9,7 @@
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
 - [Available models](https://docs.together.ai/docs/serverless/models.md): Browse the catalog of available models for instant inference.
-- [Geo-specific inference](https://docs.together.ai/docs/serverless/geo-specific-inference.md): Keep serverless inference processing in the United States or Canada through geography-specific API endpoints.
+- [Geo-specific inference](https://docs.together.ai/docs/serverless/geo-specific-inference.md): Keep serverless inference processing in the United States through a geography-specific API endpoint.
 - [Rate limits](https://docs.together.ai/docs/serverless/rate-limits.md): Understand serverless performance, how to handle rate limits during high demand, and options for throughput guarantees.
 - [Provisioned throughput](https://docs.together.ai/docs/inference/provisioned-throughput.md): Reserved inference capacity for production workloads.
 - [Overview](https://docs.together.ai/docs/inference/overview.md): Run inference on 100+ open-source models.
@@ -121,22 +121,26 @@
 - [Early stopping](https://docs.together.ai/docs/fine-tuning/early-stopping.md): Halt a fine-tuning job when validation loss stops improving.
 - [Troubleshooting fine-tuning jobs](https://docs.together.ai/docs/fine-tuning/troubleshooting.md): Diagnose failed or cancelled fine-tuning jobs, understand job timing, and resolve common errors.
 - [Deploy a fine-tuned model](https://docs.together.ai/docs/fine-tuning/deployment.md): Serve your fine-tuned model on a dedicated endpoint or download it for local inference.
-- [Overview](https://docs.together.ai/docs/gpu-clusters-overview.md): High-performance GPU clusters for training, fine-tuning, and large-scale AI workloads.
-- [Quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Create a reserved or on-demand GPU cluster and connect to it.
-- [Cluster management](https://docs.together.ai/docs/gpu-clusters-management.md): Manage, scale, and operate your GPU clusters.
+- [GPU clusters](https://docs.together.ai/docs/gpu-clusters-overview.md): Provision dedicated multi-node GPU clusters for Kubernetes or Slurm workloads.
+- [GPU clusters quickstart](https://docs.together.ai/docs/gpu-clusters-quickstart.md): Create a GPU cluster, connect to it, and run your first job on a GPU.
+- [Concepts](https://docs.together.ai/docs/gpu-clusters-concepts.md): Understand how nodes, Kubernetes, Slurm, storage, and preemptible compute fit together on a Together GPU cluster.
+- [Pricing](https://docs.together.ai/docs/gpu-clusters-billing.md): GPU clusters bill compute per GPU hour by capacity type, and storage per GiB per month.
+- [Manage GPU clusters](https://docs.together.ai/docs/gpu-clusters-management.md): Create, schedule, inspect, scale, and delete GPU clusters, and manage their storage and access, from the console, CLI, or SDKs.
 - [Preemptible compute](https://docs.together.ai/docs/preemptible-compute.md): Run interruptible workloads on discounted preemptible GPU nodes in your cluster.
+- [Automate cluster operations](https://docs.together.ai/docs/gpu-clusters-automation.md): Create, scale, and delete GPU clusters from CI/CD pipelines, scripts, and cron jobs.
 - [Health checks](https://docs.together.ai/docs/health-checks.md): Monitor GPU node health with active diagnostic tests and continuous passive monitoring.
 - [Node repair](https://docs.together.ai/docs/node-repair.md): Restore unhealthy GPU nodes through automated recommendations or manual repair actions.
-- [Cluster storage](https://docs.together.ai/docs/cluster-storage.md): Understand storage types, persistence, and best practices for GPU clusters.
-- [Billing & pricing](https://docs.together.ai/docs/gpu-clusters-billing.md): Understand billing, pricing, and lifecycle policies for GPU clusters.
 - [Set up OIDC authentication](https://docs.together.ai/docs/cluster-oidc.md): Authenticate team members to a GPU cluster's Kubernetes API using your organization's identity provider.
-- [Slurm management system](https://docs.together.ai/docs/slurm.md): Run HPC-style batch workloads on GPU clusters with Slurm job scheduling, partitions, and job arrays.
-- [Slurm configuration](https://docs.together.ai/docs/slurm-configuration.md): Customize Slurm cluster settings to match your workload requirements.
+- [Slurm configuration](https://docs.together.ai/docs/slurm-configuration.md): Change your GPU cluster's Slurm configuration in Extra slurm.conf on Slinky v1.0, or in the Slurm ConfigMap on v0.1.
 - [Slurm startup scripts](https://docs.together.ai/docs/slurm-startup-scripts.md): Configure lifecycle hook scripts that run automatically at node startup, job start, and job completion.
-- [Run nanochat on GPU clusters](https://docs.together.ai/docs/nanochat-on-gpu-clusters.md): Train Andrej Karpathy's end-to-end ChatGPT clone on Together's on-demand GPU clusters.
+- [Run workloads on Kubernetes](https://docs.together.ai/docs/kubernetes-workloads.md): Deploy pods with persistent storage, run GPU workloads, and monitor them with Grafana on a Kubernetes GPU cluster.
+- [Submit Slurm jobs](https://docs.together.ai/docs/slurm.md): Submit and manage Slurm jobs on a GPU cluster, run Jupyter on a GPU node, and troubleshoot common failures.
+- [Cluster storage](https://docs.together.ai/docs/cluster-storage.md): Understand storage types, persistence, and best practices for GPU clusters.
+- [Connect over SSH](https://docs.together.ai/docs/gpu-clusters-ssh.md): Reach your cluster's login, worker, and compute nodes with OIDC or key-based SSH.
+- [Run nanochat on a GPU cluster](https://docs.together.ai/docs/nanochat-on-gpu-clusters.md): Train Andrej Karpathy's end-to-end ChatGPT clone on an on-demand Together GPU cluster, then chat with it in your browser.
 - [Gang-schedule GPU jobs with Volcano](https://docs.together.ai/docs/volcano-on-gpu-clusters.md): Install the Volcano scheduler and run gang-scheduled GPU jobs on a Together Kubernetes cluster.
 - [Queue GPU jobs with Kueue](https://docs.together.ai/docs/kueue-on-gpu-clusters.md): Install Kueue and gate GPU jobs on quota so a shared cluster admits work as capacity frees up.
-- [API & integrations](https://docs.together.ai/docs/gpu-clusters-api.md): Manage clusters programmatically with the Together CLI, REST API, and SkyPilot.
+- [Launch jobs with SkyPilot](https://docs.together.ai/docs/skypilot-on-gpu-clusters.md): Install SkyPilot and launch AI workloads on a Together Kubernetes cluster.
 - [Code sandbox](https://docs.together.ai/docs/together-code-sandbox.md): Run commands and code in isolated runtime environments built from Docker-image snapshots.
 - [Code sandbox legacy SDK](https://docs.together.ai/docs/together-code-sandbox-legacy.md): Reference for the earlier code sandbox offering built on the CodeSandbox SDK.
 - [Manage your account](https://docs.together.ai/docs/account-management.md): Sign up for Together AI, get your API key, and manage your account settings.
