@@ -7,10 +7,16 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
-   <title>LitPivot: Developing research ideas through dynamic contextualization within the literature landscape</title>
-   <pubDate>Fri, 23 Oct 2026 16:15:50 GMT</pubDate>
-   <link>https://huggingface.co/blog/allenai/litpivot</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/allenai/litpivot</guid>
+   <title>Build specialized multimodal models with LFM3</title>
+   <pubDate>Tue, 27 Oct 2026 17:16:52 GMT</pubDate>
+   <link>https://huggingface.co/blog/LiquidAI/lfm3</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/LiquidAI/lfm3</guid>
+  </item>
+  <item>
+   <title>Can we trust LLMs to judge whether a research idea is novel?</title>
+   <pubDate>Tue, 27 Oct 2026 16:12:42 GMT</pubDate>
+   <link>https://huggingface.co/blog/allenai/novelty-bench</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/allenai/novelty-bench</guid>
   </item>
   <item>
    <title>Does Your Model Run on AWS Trainium? Look It Up</title>
@@ -1473,8 +1479,8 @@
   <item>
    <title>Kimina-Prover-RL</title>
    <pubDate>Thu, 14 Aug 2025 12:13:01 GMT</pubDate>
-   <link>https://huggingface.co/blog/AI-MO/kimina-prover-rl</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/AI-MO/kimina-prover-rl</guid>
+   <link>https://huggingface.co/blog/project-numina/kimina-prover-rl</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/project-numina/kimina-prover-rl</guid>
   </item>
   <item>
    <title>Arm &amp; ExecuTorch 0.7: Bringing Generative AI to the masses</title>
@@ -1617,8 +1623,8 @@
   <item>
    <title>Kimina-Prover: Applying Test-time RL Search on Large Formal Reasoning Models</title>
    <pubDate>Thu, 10 Jul 2025 12:54:19 GMT</pubDate>
-   <link>https://huggingface.co/blog/AI-MO/kimina-prover</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/AI-MO/kimina-prover</guid>
+   <link>https://huggingface.co/blog/project-numina/kimina-prover</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/project-numina/kimina-prover</guid>
   </item>
   <item>
    <title>Asynchronous Robot Inference: Decoupling Action Prediction and Execution</title>
