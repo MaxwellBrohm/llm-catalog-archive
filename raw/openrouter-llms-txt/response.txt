@@ -111,6 +111,7 @@
 - [Ori Eval](https://openrouter.ai/docs/guides/ori/eval.md): Find the best model for your project by testing your agent on real prompts, with one harness and one model for each run
 - [Ori Harness](https://openrouter.ai/docs/guides/ori/harness.md): Run your existing agent CLI on OpenRouter with any model, organization guardrails, and one bill
 - [Ori Codex](https://openrouter.ai/docs/guides/ori/codex.md): Run the Codex CLI and Codex Desktop on OpenRouter with one setup command, and go back with one reset
+- [Ori Cursor](https://openrouter.ai/docs/guides/ori/cursor.md): Point the Cursor desktop app at OpenRouter with one setup command, and go back with one reset
 - [File Writing](https://openrouter.ai/docs/guides/ori/files.md): Find the files and directories that Ori creates during a run
 - [Ori Configuration](https://openrouter.ai/docs/guides/ori/configuration.md): How to configure Ori, from a single shell to a managed fleet, plus every setting it reads
 - [Vault Secrets for Interns](https://openrouter.ai/docs/guides/ori/vault.md): Store host-bound secrets for a workspace or an intern with the Vault API
@@ -262,13 +263,18 @@
 - [Create a private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/create-a-private-endpoint.md): Create a private endpoint as a draft. Drafts are not routable: validate one with `POST /private-endpoints/{id}/validate`, then activate it with `POST /private-endpoints/{id}/activate`. Pass `activate` to do all three in one call; if validation fails the draft is kept and returned with the failed che…
 - [Get a private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/get-a-private-endpoint.md): Get one private endpoint with its upstream configuration and current pricing. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Delete a private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/delete-a-private-endpoint.md): Delete a private endpoint and stop routing to it. Pass `draft_only=true` to refuse (409) when the endpoint has been activated. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Update a draft private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/update-a-draft-private-endpoint.md): Replace a draft endpoint's upstream configuration: send `upstream_model_id`, and `base_url` to change it (an omitted `base_url` keeps the stored one). Omitted data-policy declarations are kept while the upstream is unchanged and cleared when it changes. Any change clears earlier validation. Active e…
+- [Update a private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/update-a-private-endpoint.md): Change any of the endpoint fields you own in one call; only the fields present change, and the response is the whole endpoint. `pricing` and `declared_parameters` replace their stored value, `settings` changes only the fields it names (`null` clears a limit or restores the provider default); routing…
 - [Activate a validated private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/activate-a-validated-private-endpoint.md): Make a validated draft routable. Returns 409 when the endpoint was never validated, the validation is stale, or it is already active. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Disable a private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/disable-a-private-endpoint.md): Stop routing to an active endpoint without deleting it. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [Enable a private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/enable-a-private-endpoint.md): Resume routing to a disabled endpoint. [Management key](/docs/guides/overview/auth/management-api-keys) required.
-- [Set private endpoint supported parameters](https://openrouter.ai/docs/api/api-reference/private-endpoints/set-private-endpoint-supported-parameters.md): Declare which request parameters the upstream supports beyond the ones validation proved. Applies to drafts and active endpoints; routing picks the change up for subsequent requests. The body replaces the earlier declaration and is read as a set: order and repeated names do not matter, but the list…
-- [Set private endpoint pricing](https://openrouter.ai/docs/api/api-reference/private-endpoints/set-private-endpoint-pricing.md): Set the negotiated per-token rates reported for requests routed to this endpoint. Applies to drafts and active endpoints; new rates take effect for subsequent requests. The body replaces the whole pricing object: omitting `cache_read` or `cache_write` reverts that rate to the provider pricing strate…
+- [Set private endpoint supported parameters (deprecated)](https://openrouter.ai/docs/api/api-reference/private-endpoints/set-private-endpoint-supported-parameters-deprecated.md): Deprecated: send `declared_parameters` to `PATCH /private-endpoints/{id}` instead; this route behaves exactly like that call and will be removed. The body replaces the earlier declaration and is read as a set; `tested_parameters` stay. Returns 400 `parameters_invalid` when `tool_choice` is declared…
+- [Set private endpoint pricing (deprecated)](https://openrouter.ai/docs/api/api-reference/private-endpoints/set-private-endpoint-pricing-deprecated.md): Deprecated: send `pricing` to `PATCH /private-endpoints/{id}` instead; this route behaves exactly like that call and will be removed. The body replaces the whole pricing object: omitting `cache_read` or `cache_write` reverts that rate to the provider pricing strategy default. [Management key](/docs/…
 - [Validate a draft private endpoint](https://openrouter.ai/docs/api/api-reference/private-endpoints/validate-a-draft-private-endpoint.md): Send a live test request to the draft endpoint using the given workspace's BYOK credential for its provider. A passing validation is required before activation. Failed checks return 200 with `passed: false`. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [List private providers](https://openrouter.ai/docs/api/api-reference/private-providers/list-private-providers.md): List the organization's private providers. Requires the private endpoints entitlement. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Create a private provider](https://openrouter.ai/docs/api/api-reference/private-providers/create-a-private-provider.md): Create a private, bring-your-own-key provider visible only to your organization. Use its slug as `provider_slug` when creating private endpoints. Requires both the private endpoints and the private providers entitlements. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Get a private provider](https://openrouter.ai/docs/api/api-reference/private-providers/get-a-private-provider.md): Get one of the organization’s private providers by slug. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Delete a private provider](https://openrouter.ai/docs/api/api-reference/private-providers/delete-a-private-provider.md): Delete a private provider. Refuses (409) while any private endpoint still runs under it. [Management key](/docs/guides/overview/auth/management-api-keys) required.
+- [Update a private provider](https://openrouter.ai/docs/api/api-reference/private-providers/update-a-private-provider.md): Update a private provider’s details or declared data policy. The name and slug cannot change. Refuses (409) a data-policy change while OpenRouter pins the declared policy on one of its endpoints. [Management key](/docs/guides/overview/auth/management-api-keys) required.
 - [List all providers](https://openrouter.ai/docs/api/api-reference/providers/list-all-providers.md)
 - [Submit a rerank request](https://openrouter.ai/docs/api/api-reference/rerank/submit-a-rerank-request.md): Submits a rerank request to the rerank router
 - [Create a response](https://openrouter.ai/docs/api/api-reference/responses/create-a-response.md): Creates a streaming or non-streaming response using OpenResponses API format
@@ -325,8 +331,8 @@
 - [Alpha.Decisions](https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README.md): Alpha feature endpoints for Decisions requests
 - [Embeddings](https://openrouter.ai/docs/client-sdks/typescript/sdks/embeddings/README.md): Text embedding endpoints
 - [Endpoints](https://openrouter.ai/docs/client-sdks/typescript/sdks/endpoints/README.md): Endpoint information
-- [EndUsers](https://openrouter.ai/docs/client-sdks/typescript/sdks/endusers/README.md): Deprecated alias of externalUsers. Use externalUsers instead; scheduled for removal (sunset date TBD).
-- [ExternalUsers](https://openrouter.ai/docs/client-sdks/typescript/sdks/externalusers/README.md): External Users endpoints
+- [End Users](https://openrouter.ai/docs/client-sdks/typescript/sdks/endusers/README.md): Deprecated alias of externalUsers. Use externalUsers instead; scheduled for removal (sunset date TBD).
+- [External Users](https://openrouter.ai/docs/client-sdks/typescript/sdks/externalusers/README.md): External Users endpoints
 - [Files](https://openrouter.ai/docs/client-sdks/typescript/sdks/files/README.md): Files endpoints
 - [Generations](https://openrouter.ai/docs/client-sdks/typescript/sdks/generations/README.md): Generation history endpoints
 - [Guardrails](https://openrouter.ai/docs/client-sdks/typescript/sdks/guardrails/README.md): Guardrails endpoints
@@ -336,7 +342,8 @@
 - [Observability](https://openrouter.ai/docs/client-sdks/typescript/sdks/observability/README.md): Observability endpoints
 - [Organization](https://openrouter.ai/docs/client-sdks/typescript/sdks/organization/README.md): Organization endpoints
 - [Presets](https://openrouter.ai/docs/client-sdks/typescript/sdks/presets/README.md): Presets endpoints
-- [PrivateEndpoints](https://openrouter.ai/docs/client-sdks/typescript/sdks/privateendpoints/README.md): Private Endpoints endpoints
+- [Private Endpoints](https://openrouter.ai/docs/client-sdks/typescript/sdks/privateendpoints/README.md): Private Endpoints endpoints
+- [Private Providers](https://openrouter.ai/docs/client-sdks/typescript/sdks/privateproviders/README.md): Private Providers endpoints
 - [Providers](https://openrouter.ai/docs/client-sdks/typescript/sdks/providers/README.md): Provider information endpoints
 - [Rerank](https://openrouter.ai/docs/client-sdks/typescript/sdks/rerank/README.md): Rerank endpoints
 - [Responses](https://openrouter.ai/docs/client-sdks/typescript/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
@@ -346,7 +353,7 @@
 - [Tools](https://openrouter.ai/docs/client-sdks/typescript/sdks/tools/README.md): The catalog of server tools OpenRouter runs on behalf of a model: accepted `tools[].type` spellings per API format, engines and pricing, and which endpoints run each tool natively. See https://openrouter.ai/docs/guides/features/server-tools.
 - [TTS](https://openrouter.ai/docs/client-sdks/typescript/sdks/tts/README.md): Text-to-speech endpoints
 - [Vault](https://openrouter.ai/docs/client-sdks/typescript/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
-- [VideoGeneration](https://openrouter.ai/docs/client-sdks/typescript/sdks/videogeneration/README.md): Video Generation endpoints
+- [Video Generation](https://openrouter.ai/docs/client-sdks/typescript/sdks/videogeneration/README.md): Video Generation endpoints
 - [Workspaces](https://openrouter.ai/docs/client-sdks/typescript/sdks/workspaces/README.md): Workspaces endpoints
 - [OpenRouter Python SDK](https://openrouter.ai/docs/client-sdks/python/overview.md): Python SDK for building AI features against 400+ models through OpenRouter.
 - [Analytics](https://openrouter.ai/docs/client-sdks/python/sdks/analytics/README.md): Analytics and usage endpoints
@@ -373,7 +380,8 @@
 - [Observability](https://openrouter.ai/docs/client-sdks/python/sdks/observability/README.md): Observability endpoints
 - [Organization](https://openrouter.ai/docs/client-sdks/python/sdks/organization/README.md): Organization endpoints
 - [Presets](https://openrouter.ai/docs/client-sdks/python/sdks/presets/README.md): Presets endpoints
-- [PrivateEndpoints](https://openrouter.ai/docs/client-sdks/python/sdks/privateendpoints/README.md): Private Endpoints endpoints
+- [Private Endpoints](https://openrouter.ai/docs/client-sdks/python/sdks/privateendpoints/README.md): Private Endpoints endpoints
+- [Private Providers](https://openrouter.ai/docs/client-sdks/python/sdks/privateproviders/README.md): Private Providers endpoints
 - [Providers](https://openrouter.ai/docs/client-sdks/python/sdks/providers/README.md): Provider information endpoints
 - [Rerank](https://openrouter.ai/docs/client-sdks/python/sdks/rerank/README.md): Rerank endpoints
 - [Responses](https://openrouter.ai/docs/client-sdks/python/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
@@ -383,7 +391,7 @@
 - [Tools](https://openrouter.ai/docs/client-sdks/python/sdks/tools/README.md): The catalog of server tools OpenRouter runs on behalf of a model: accepted `tools[].type` spellings per API format, engines and pricing, and which endpoints run each tool natively. See https://openrouter.ai/docs/guides/features/server-tools.
 - [TTS](https://openrouter.ai/docs/client-sdks/python/sdks/tts/README.md): Text-to-speech endpoints
 - [Vault](https://openrouter.ai/docs/client-sdks/python/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
-- [VideoGeneration](https://openrouter.ai/docs/client-sdks/python/sdks/videogeneration/README.md): Video Generation endpoints
+- [Video Generation](https://openrouter.ai/docs/client-sdks/python/sdks/videogeneration/README.md): Video Generation endpoints
 - [Workspaces](https://openrouter.ai/docs/client-sdks/python/sdks/workspaces/README.md): Workspaces endpoints
 - [OpenRouter Go SDK](https://openrouter.ai/docs/client-sdks/go/overview.md): Go SDK for building AI features against 400+ models through OpenRouter.
 - [Analytics](https://openrouter.ai/docs/client-sdks/go/sdks/analytics/README.md): Analytics and usage endpoints
@@ -410,7 +418,8 @@
 - [Observability](https://openrouter.ai/docs/client-sdks/go/sdks/observability/README.md): Observability endpoints
 - [Organization](https://openrouter.ai/docs/client-sdks/go/sdks/organization/README.md): Organization endpoints
 - [Presets](https://openrouter.ai/docs/client-sdks/go/sdks/presets/README.md): Presets endpoints
-- [PrivateEndpoints](https://openrouter.ai/docs/client-sdks/go/sdks/privateendpoints/README.md): Private Endpoints endpoints
+- [Private Endpoints](https://openrouter.ai/docs/client-sdks/go/sdks/privateendpoints/README.md): Private Endpoints endpoints
+- [Private Providers](https://openrouter.ai/docs/client-sdks/go/sdks/privateproviders/README.md): Private Providers endpoints
 - [Providers](https://openrouter.ai/docs/client-sdks/go/sdks/providers/README.md): Provider information endpoints
 - [Rerank](https://openrouter.ai/docs/client-sdks/go/sdks/rerank/README.md): Rerank endpoints
 - [Responses](https://openrouter.ai/docs/client-sdks/go/sdks/responses/README.md): OpenAI-compatible Responses API endpoints
@@ -420,7 +429,7 @@
 - [Tools](https://openrouter.ai/docs/client-sdks/go/sdks/tools/README.md): The catalog of server tools OpenRouter runs on behalf of a model: accepted `tools[].type` spellings per API format, engines and pricing, and which endpoints run each tool natively. See https://openrouter.ai/docs/guides/features/server-tools.
 - [TTS](https://openrouter.ai/docs/client-sdks/go/sdks/tts/README.md): Text-to-speech endpoints
 - [Vault](https://openrouter.ai/docs/client-sdks/go/sdks/vault/README.md): Store host-bound secrets for a workspace or for one intern. Scope is selected by the API key. Responses return metadata only, never secret values. See https://openrouter.ai/docs/guides/ori/vault.
-- [VideoGeneration](https://openrouter.ai/docs/client-sdks/go/sdks/videogeneration/README.md): Video Generation endpoints
+- [Video Generation](https://openrouter.ai/docs/client-sdks/go/sdks/videogeneration/README.md): Video Generation endpoints
 - [Workspaces](https://openrouter.ai/docs/client-sdks/go/sdks/workspaces/README.md): Workspaces endpoints
 - [DevTools](https://openrouter.ai/docs/client-sdks/dev-tools/devtools.md): SDK Development Tools for telemetry capture and visualization
 - [Migrating to @openrouter/agent](https://openrouter.ai/docs/client-sdks/agent-migration.md): Move agent toolkit imports from @openrouter/sdk to the standalone @openrouter/agent package
