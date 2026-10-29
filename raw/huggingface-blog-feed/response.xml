@@ -7,6 +7,12 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>NVIDIA Nemotron 3.5 Transcribe and Granary v2: Intelligent Multilingual Transcription You Can Prompt and Adapt</title>
+   <pubDate>Wed, 28 Oct 2026 14:58:17 GMT</pubDate>
+   <link>https://huggingface.co/blog/nvidia/nemotron-transcribe-granary</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/nemotron-transcribe-granary</guid>
+  </item>
+  <item>
    <title>Build specialized multimodal models with LFM3</title>
    <pubDate>Tue, 27 Oct 2026 17:16:52 GMT</pubDate>
    <link>https://huggingface.co/blog/LiquidAI/lfm3</link>
@@ -35,12 +41,6 @@
    <pubDate>Thu, 22 Oct 2026 07:51:31 GMT</pubDate>
    <link>https://huggingface.co/blog/ibm-research/granite-timeseries-ensemble-r1</link>
    <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/granite-timeseries-ensemble-r1</guid>
-  </item>
-  <item>
-   <title>NVIDIA Kumo Relational Outperforms Supervised Machine Learning on Relational Data, No Training Required</title>
-   <pubDate>Wed, 21 Oct 2026 18:26:30 GMT</pubDate>
-   <link>https://huggingface.co/blog/nvidia/kumo-relational</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/kumo-relational</guid>
   </item>
   <item>
    <title>How Specializing the Vocabulary of SLMs Can Cut Inference Cost by 77% in Real Applications</title>
