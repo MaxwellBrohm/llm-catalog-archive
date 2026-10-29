@@ -78,6 +78,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 
 - [Models Overview](https://docs.mistral.ai/models.md): Every Mistral model with its API name, status and context length, including deprecated and retired models.
 - [Z.ai GLM 5.3 Flash](https://docs.mistral.ai/models/zai-glm-5-3-flash.md): A third-party multimodal model from Z.ai with a 1M-token context window, optimized for agentic workflows and visual coding.
+- [DeepSeek V4.1 Flash 1017](https://docs.mistral.ai/models/deepseek-v4-flash-1017.md): A third-party open weight text model from DeepSeek with a 1M-token context window, optimized for long-context coding and agentic workflows.
 - [Z.ai GLM 5.3](https://docs.mistral.ai/models/zai-glm-5-3.md): A third-party open weight text model from Z.ai with a 1M-token context window.
 - [Z.ai GLM 5.2](https://docs.mistral.ai/models/zai-glm-5-2.md): A third-party open weight text model from Z.ai with a 1M-token context window.
 - [Shieldstral 1.0](https://docs.mistral.ai/models/shieldstral-1-0.md): Compact multimodal moderation model for text and image safety classification.
