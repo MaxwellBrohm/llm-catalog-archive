@@ -234,6 +234,7 @@
 - [Create model resources](https://docs.together.ai/reference/post-training/model-resources-create.md): Provisions a standalone model resource that training sessions can attach to.
 - [Estimate on-demand model resource cost](https://docs.together.ai/reference/post-training/model-resources-estimate-cost.md): Estimates a model resource's on-demand hourly price without creating it.
 - [Get model resources](https://docs.together.ai/reference/post-training/model-resources-get.md): Gets a model resource by its ID and returns its details.
+- [Extend model resources expiry](https://docs.together.ai/reference/post-training/model-resources-extend-expiry.md): Keeps a ready model resource from stopping for inactivity for at least the given number of seconds from now. It moves the resource's `expires_at` to at least that time, and never earlier. Every operation on the resource's sessions already keeps it up for `inactive_timeout` seconds, so use this only…
 - [Stop model resources](https://docs.together.ai/reference/post-training/model-resources-stop.md): Stops the model resource and releases its allocated compute. If active training sessions are attached, the request fails unless `force=true`. A forced stop also stops all attached training sessions.
 - [List training sessions](https://docs.together.ai/reference/post-training/training-sessions-list.md): Lists all training sessions.
 - [Create training session](https://docs.together.ai/reference/post-training/training-sessions-create.md): Creates a training session and returns its details.
