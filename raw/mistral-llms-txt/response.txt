@@ -302,6 +302,9 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Moderation & Guardrailing](https://docs.mistral.ai/studio/safety-moderation.md): When deploying LLMs in production, different verticals may require different levels of guardrailing.
 - [Agentic Search](https://docs.mistral.ai/studio/search/agentic-search.md): Agentic Search helps agents answer questions when the answer is not in the first chunk returned by retrieval.
 - [Libraries](https://docs.mistral.ai/studio/search/libraries.md): This page covers how to create Libraries, upload documents, index web pages, check processing status, and control access.
+- [Basic operations](https://docs.mistral.ai/studio/search/search-index/basic-operations.md): Create, populate, query, update, and delete a Search Index.
+- [Search Index overview](https://docs.mistral.ai/studio/search/search-index/overview.md): Understand Search Index and choose how to ingest and retrieve your company data.
+- [Quickstart: create and query an index](https://docs.mistral.ai/studio/search/search-index/quickstarts/create-and-query-an-index.md): Create a search index, ingest documents, and run a first query.
 - [Document model](https://docs.mistral.ai/studio/search/search-toolkit/concepts/document-model.md): How Search Toolkit represents documents and chunks, and the deterministic identity that ties them together.
 - [Embedding model](https://docs.mistral.ai/studio/search/search-toolkit/concepts/embedding-model.md): How Search Toolkit describes embedding vector dimensions, data type, and distance metric separately from the embedder that produces them.
 - [Embedders](https://docs.mistral.ai/studio/search/search-toolkit/ingestion/embedders.md): Convert text into vector embeddings for semantic search.
