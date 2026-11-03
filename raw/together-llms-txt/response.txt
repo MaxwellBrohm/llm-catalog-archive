@@ -74,10 +74,11 @@
 - [Monitor endpoints and deployments](https://docs.together.ai/docs/dedicated-endpoints/monitoring.md): Monitor endpoint and deployment metrics with built-in dashboards and a Prometheus-compatible metrics endpoint.
 - [Visualize endpoint metrics in Grafana](https://docs.together.ai/docs/dedicated-endpoints/grafana.md): Scrape the metrics endpoint with Prometheus and import the example Grafana dashboard for dedicated endpoints.
 - [Overview](https://docs.together.ai/docs/dedicated-container-inference.md): Deploy your own containers on Together's managed GPU infrastructure with automatic scaling, job queues, and built-in observability.
-- [Quickstart](https://docs.together.ai/docs/containers-quickstart.md): Deploy your first container in 20 minutes.
+- [Quickstart](https://docs.together.ai/docs/containers-quickstart.md): Deploy your first container with dedicated container inference and send it a job through the managed queue in 20 minutes.
 - [Image generation with FLUX.2](https://docs.together.ai/docs/dedicated-containers-image.md): Deploy a FLUX.2 image generation model on Together's managed GPU infrastructure with dedicated container inference.
 - [Video generation with Wan 2.1](https://docs.together.ai/docs/dedicated-containers-video.md): Deploy a multi-GPU video generation model on Together's managed GPU infrastructure using dedicated containers.
 - [Serve an OpenAI-compatible endpoint](https://docs.together.ai/docs/dedicated-containers-openai.md): Deploy a custom model behind an OpenAI-compatible endpoint using dedicated containers.
+- [Deploy a prebuilt vLLM image](https://docs.together.ai/docs/dedicated-containers-vllm.md): Serve a model from the stock vLLM Docker image with dedicated container inference.
 - [Architecture](https://docs.together.ai/docs/together-deployments.md): Architecture, deployment lifecycle, and core concepts for dedicated container inference.
 - [Jig CLI](https://docs.together.ai/docs/deployments-jig.md): Build, push, and deploy containers to Together's managed GPU infrastructure.
 - [Sprocket SDK](https://docs.together.ai/docs/deployments-sprocket.md): A Python SDK for building inference workers that support both synchronous and asynchronous requests via Together's platform.
@@ -149,14 +150,14 @@
 - [Organizations](https://docs.together.ai/docs/organizations.md): Create and manage your Together organization, invite members, and configure billing.
 - [Projects](https://docs.together.ai/docs/projects.md): Create isolated workspaces to organize resources, manage team access, and scope API keys.
 - [Roles & permissions (RBAC)](https://docs.together.ai/docs/roles-permissions.md): Understand organization and project role-based access control (RBAC), including the admin, developer, and editor roles, and what each can do across Together.
-- [Single sign-on (SSO)](https://docs.together.ai/docs/sso.md): Connect your Identity Provider for secure, automated team access to Together.
+- [Single sign-on (SSO)](https://docs.together.ai/docs/sso.md): Connect your identity provider for secure, automated team access to Together.
 - [Privacy and security](https://docs.together.ai/docs/privacy-and-security.md): How Together handles your inputs, outputs, and account data, plus enterprise options for data residency and private networking.
 - [Zero data retention](https://docs.together.ai/docs/zero-data-retention.md): Together's zero data retention policy and how to enable it.
 - [Credits](https://docs.together.ai/docs/billing-credits.md): Understanding credits and billing basics on Together AI.
 - [Payment methods & invoices](https://docs.together.ai/docs/billing-payment-methods.md): Managing payment cards, ACH transfers, viewing invoices, and updating billing details.
 - [Spend controls](https://docs.together.ai/docs/billing-spend-controls.md): Manage Together AI spend with balance cut-offs, auto-recharge, cost attribution, and programmatic monitoring.
 - [Cost analytics](https://docs.together.ai/docs/billing-cost-analytics.md): Track daily Together AI spend and billable units by product, line item, project, or API key.
-- [Billing troubleshooting](https://docs.together.ai/docs/billing-troubleshooting.md): Resolving payment issues, understanding charges, and managing billing problems.
+- [Billing troubleshooting](https://docs.together.ai/docs/billing-troubleshooting.md): Resolve payment issues, understand charges, and manage billing problems.
 - [Support](https://docs.together.ai/docs/support.md): Search the support portal, file a ticket, or reach the Together AI team by email, Slack, or Discord.
 - [Overview](https://docs.together.ai/docs/guides.md): Quickstarts and step-by-step guides for building with Together AI.
 - [Kimi K3 quickstart](https://docs.together.ai/docs/kimi-k3-quickstart.md): Call Kimi K3 on Together for long-horizon coding, vision-in-the-loop work, and deep reasoning.
@@ -416,7 +417,7 @@
 - [Login](https://docs.together.ai/reference/cli/auth.md): Log in to the Together CLI with your browser.
 - [Projects](https://docs.together.ai/reference/cli/projects.md): List the Together AI projects the CLI's credentials can access.
 - [Whoami](https://docs.together.ai/reference/cli/whoami.md): Show the project and organization for the credentials the Together CLI uses.
-- [Jig CLI reference](https://docs.together.ai/reference/cli/jig.md): CLI commands, pyproject.toml configuration, environment variables, and Python SDK for dedicated containers.
+- [Jig CLI reference](https://docs.together.ai/reference/cli/jig.md): Reference for Jig CLI commands, pyproject.toml configuration, and environment variables for dedicated container inference.
 - [Changelog](https://docs.together.ai/docs/changelog.md)
 - [Deprecations](https://docs.together.ai/docs/deprecations.md): Together AI's model lifecycle policy, including upgrades, redirects, and deprecation schedules.
 
