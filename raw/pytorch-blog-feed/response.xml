@@ -12,13 +12,13 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Wed, 28 Oct 2026 17:44:20 +0000</lastBuildDate>
+	<lastBuildDate>Mon, 02 Nov 2026 17:13:33 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
 	<sy:updateFrequency>
 	1	</sy:updateFrequency>
-	<generator>https://wordpress.org/?v=7.1.3</generator>
+	<generator>https://wordpress.org/?v=7.1.4</generator>
 
 <image>
 	<url>https://pytorch.org/wp-content/uploads/2024/10/cropped-favicon-32x32.webp</url>
@@ -28,6 +28,75 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Announcing the Special Interest Group (SIG) for Ray on Accelerators</title>
+		<link>https://pytorch.org/blog/announcing-the-special-interest-group-sig-for-ray-on-accelerators/</link>
+		
+		<dc:creator><![CDATA[Zhe Zhang, Mengjin Yan, Ryan O’Leary, Richard Liaw]]></dc:creator>
+		<pubDate>Mon, 02 Nov 2026 17:45:32 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=208672</guid>
+
+					<description><![CDATA[<p>Today, we are announcing the Special Interest Group (SIG) for Ray on hardware accelerators. When Ray was created in UC Berkeley over 10 years ago, the computing landscape looked very...</p>
+<p>The post <a href="https://pytorch.org/blog/announcing-the-special-interest-group-sig-for-ray-on-accelerators/">Announcing the Special Interest Group (SIG) for Ray on Accelerators</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>Today, we are announcing the Special Interest Group (SIG) for Ray on hardware accelerators.</p>
+<p>When Ray was created in UC Berkeley over 10 years ago, the computing landscape looked very different. At the time, “distributed computing” referred to CPU clusters running frameworks like Apache Hadoop and Apache Spark. GPUs were only just moving from graphics and scientific computing into machine learning.</p>
+<p>Today, <em>accelerated computing</em> is front and center in the development and deployment of AI, and accelerators and their capabilities have become more specialized and diverse. For example:</p>
+<ul>
+<li>NVIDIA RTX PRO 6000 Blackwell Server Edition GPUs support flexible workloads spanning AI training, inference, graphics, and video</li>
+<li>NVIDIA HGX B200 and the full-stack platform provide substantially greater memory capacity to support larger models, and NVIDIA GB200 NVL72 connects 72 NVIDIA Blackwell GPUs for communication-intensive, large-scale training and inference.</li>
+<li>AMD MI355X also provides substantial memory capacity for large models</li>
+<li>Google Ironwood TPUs target massive-scale AI workloads</li>
+<li>NVIDIA Groq 3 LPUs specialize in low-latency inference.</li>
+</ul>
+<p>The Ray community has been actively working on keeping up with this shift. Today, Ray <a href="https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html">supports more than a dozen kinds of hardware accelerators</a>, from NVIDIA and AMD GPUs to TPUs, Trainium, Gaudi and others. We believe now is a crucial time to build on this foundation with a more ambitious, systematic effort across Ray to make accelerators easy to use, efficient at scale, and reliable in production.</p>
+<p>The Accelerator Special Interest Group aims to bring together hardware vendors, Ray contributors, and application developers to define and advance a shared, vendor-neutral roadmap for accelerator support in Ray. This public interest group will be responsible for enabling Ray workloads to continue evolving in an era of fragmented, specialized accelerators.</p>
+<p>Our initial roadmap focuses on 3 core areas: <strong>Development and Testing Infrastructure, Hardware Awareness Capabilities, and Networking/Transport</strong>, outlined in the following sections.</p>
+<h2>Development and Testing Infra</h2>
+<p>Reliable accelerator support requires dependable access to hardware for development, testing, and debugging. Maintainers and contributors need to validate changes on the devices they affect, reproduce failures, and catch regressions before they reach users. As agentic software engineering accelerates development, reliable testing and verification become even more important: both human contributors and coding agents need reproducible feedback from real hardware and representative workloads. We want to make this a routine part of contributing to Ray, with a clear path for hardware vendors and cloud providers to contribute resources and expertise.</p>
+<p>Our initial priorities are:</p>
+<ul>
+<li><strong>Shared hardware access</strong>. Establish a documented process for bringing cloud and vendor-hosted accelerators into Ray’s development and testing infrastructure, including access for contributors to reproduce and debug failures.</li>
+<li><strong>Reproducible development and test environments</strong>. Provide maintained environments with explicit driver, runtime, and dependency versions, so contributors can reproduce CI results and validate changes consistently across providers.</li>
+<li><strong>Broader CI coverage</strong>. Extend existing pipelines with targeted checks for pull requests and broader nightly and release testing. Coverage should include distributed workloads, failure recovery, and performance regressions, alongside basic device functionality.</li>
+<li><strong>Sustainable operation and ownership</strong>. Define responsibilities for maintaining environments, investigating failures, and keeping integrations working across releases. Make test results and infrastructure health visible, and manage capacity and costs so the infrastructure can grow with participation.</li>
+</ul>
+<h2>Hardware-aware Scheduling</h2>
+<p>For applications to get the most out of an accelerator, Ray first has to know what hardware each node has and how it is structured. As the accelerator ecosystem evolves, accelerator nodes are no longer just a count of identical devices. Workload performance depends on the interconnectivity of devices, their relationship to CPUs and NICs, and node groupings into larger domains like racks and TPU slices.</p>
+<p>Our goal is to give Ray an accurate and consistent picture of this structure across vendors and platforms. With that picture, Ray’s scheduler can place tasks and actors on the right hardware, and users can see what their cluster is made of and how it is connected.</p>
+<p>Our initial priorities are:</p>
+<ul>
+<li><strong>Common hardware interfaces.</strong> Define vendor-neutral interfaces for labeling hardware, representing its architecture, and describing its specifications, so applications and libraries can target capabilities instead of writing vendor-specific code. This includes a consistent way to identify accelerator SKUs, including new ones at launch. It also includes a documented extension point and checklist for vendors adding a new accelerator.</li>
+<li><strong>Hardened discovery.</strong> Strengthen Ray’s discovery mechanism, with clear ownership for each accelerator’s integration, and back it with the CI coverage described in the previous section. Discovery should capture the topology and architecture of the hardware, not just the type and number of devices.</li>
+<li><strong>Platform and cloud integration.</strong> Work with cloud providers and deployment platforms so that discovery reflects the underlying structure wherever a cluster runs. Some of this information, such as which rack or slice a node belongs to, is only available from the platform, not from the node itself.</li>
+<li><strong>Hardware visibility.</strong> Provide ways to view the accelerators in a cluster and how they are connected, alongside accelerator metrics on the Ray dashboard. This lets users confirm that Ray sees their hardware correctly and understand where their work was placed. It also gives contributors a way to verify new integrations.</li>
+<li><strong>Clear user guides.</strong> Document how Ray discovers and represents hardware, and how to use that information when placing work. Good guides help both application developers and the coding agents that increasingly write Ray code for them.</li>
+</ul>
+<h2>Networking and I/O Transport</h2>
+<p>Moving data between accelerators is often just as important as running computation on the accelerator itself. Modern AI workloads, like large scale reinforcement learning, require moving large model weight tensors across devices and nodes from training to inference workers. Historically, Ray’s object store was built for CPU data, meaning accelerator tensors had to be copied to host memory, serialized, and sent over standard host networking before reaching another device.</p>
+<p>To avoid that bottleneck, <strong>Ray Direct Transport (RDT)</strong> was introduced to enable actors to pass references to tensors through Ray while transferring the actual data directly between devices and using high performance transports like UCX and RDMA. Our goal is to make high-speed, direct data transfer work reliably across different accelerators, frameworks, and network fabrics, while keeping Ray’s familiar programming model.</p>
+<p>Our initial priorities are:</p>
+<ul>
+<li><strong>Broad transport integrations</strong>. Support a wider range of accelerators, frameworks, and interconnects in RDT so Ray can select the fastest path between Actors, whether over intra-slice TPU ICI, scale-up NVIDIA NVLink, or scale-out GPUDirect RDMA.</li>
+<li><strong>Transport lifecycle and recovery</strong>. Ensure each hardware transport cleanly handles initialization, teardown, and error recovery on real devices, so RDT works reliably as actors scale or restart in dynamic workloads like reinforcement learning and disaggregated serving.</li>
+<li><strong>Validated recipes and observability</strong>. Enable cloud and hardware providers to publish validated deployment configurations, benchmark high-throughput workloads, and surface clear diagnostics and transport metrics.</li>
+</ul>
+<h2>Scope</h2>
+<p>While core scheduling and placement logic remain in Ray Core, SIG Accelerator is responsible for defining the plug-in interfaces, CI testing, and maturity tiers for accelerators in Ray. Hardware vendors and cloud providers contribute and maintain their own device plugins, transports, and day-zero support for new SKUs, while framework authors and ML practitioners ground our roadmap in real workload needs.</p>
+<h2>Get Involved</h2>
+<p>Whether you are building a new accelerator integration, running large-scale training or inference on Ray, or providing cloud and CI infrastructure, we invite you to get involved!</p>
+<ul>
+<li>Join the conversation on the <a href="https://www.ray.io/join-slack">Ray Slack</a>.</li>
+<li>Attend our community meetings to discuss proposals, review roadmap priorities, and share workload feedback.</li>
+<li>Check out open accelerator related <a href="https://github.com/ray-project/ray/issues">issues</a> and PRs on Github and contribute upstream.</li>
+</ul>
+<p>The post <a href="https://pytorch.org/blog/announcing-the-special-interest-group-sig-for-ray-on-accelerators/">Announcing the Special Interest Group (SIG) for Ray on Accelerators</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>PyTorch 2.15 Release Blog</title>
 		<link>https://pytorch.org/blog/pytorch-2-15-release-blog/</link>
 		
@@ -440,7 +509,7 @@ in the Agentic Era: Bringing Native PyTorch to Cloud TPUs: Bill Jia (Google Clou
 					<description><![CDATA[<p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></description>
 										<content:encoded><![CDATA[
-		<div id="fws_6ae23cadc32df"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row top-level"  style="padding-top: 0px; padding-bottom: 0px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark ">
+		<div id="fws_6ae8cc49a6f9e"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row top-level"  style="padding-top: 0px; padding-bottom: 0px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark ">
 	<div  class="vc_col-sm-12 wpb_column column_container vc_column_container col no-extra-padding"  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
 		<div class="vc_column-inner" >
 			<div class="wpb_wrapper">
@@ -1973,457 +2042,7 @@ Invoke directly on PyTorch tensors (Eager &amp; <code>torch.compile</code>)</td>
 		
 		
 			</item>
-		<item>
-		<title>From KTIR to SpyreCode: An MLIR Dataflow Backend for IBM Spyre</title>
-		<link>https://pytorch.org/blog/from-ktir-to-spyrecode-an-mlir-dataflow-backend-for-ibm-spyre/</link>
-		
-		<dc:creator><![CDATA[Swagath Venkataramani, Bardia Mahjour, Prasanth Chatarasi, Alberto Mannari, Viji Srinivasan, and the IBM Spyre Team]]></dc:creator>
-		<pubDate>Tue, 20 Oct 2026 16:00:15 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=188742</guid>
-
-					<description><![CDATA[<p>TL;DR Torch-spyre’s Inductor decides how each kernel’s work is divided across Spyre’s cores and manages tensor residency between on-chip scratchpad and off-chip memory, and the backend compiler turns those decisions...</p>
-<p>The post <a href="https://pytorch.org/blog/from-ktir-to-spyrecode-an-mlir-dataflow-backend-for-ibm-spyre/">From KTIR to SpyreCode: An MLIR Dataflow Backend for IBM Spyre</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<h3><strong>TL;DR</strong></h3>
-<p>Torch-spyre’s Inductor decides how each kernel’s work is divided across Spyre’s cores and manages tensor residency between on-chip scratchpad and off-chip memory, and the backend compiler turns those decisions into something the hardware can actually run. The contract between them is represented using <strong>KTIR</strong> (Kernel Tile IR), an MLIR representation built on a data-parallel view of the accelerator, in which every compute tile can see every memory and a single logical tensor can live spread across several cores’ scratchpads. A new open-source <strong>Dataflow Scheduler</strong> consumes KTIR and turns each tile’s work into a dataflow pipeline: it splits the kernel into programs, starts from a simple load → compute → store pipeline, routes every transfer through the memory hierarchy given in an architecture description, and expands that pipeline into a nested, double-buffered, multi-instance schedule. The output of the scheduler is represented using <strong>DataflowIR</strong>, an MLIR intermediate representation that Spyre’s device-specific stages use to produce <strong>SpyreCode</strong>, a symbolic SpyreBinary plus a job plan that the Spyre runtime prepares once and launches many times, filling in tensor addresses and shapes at launch.</p>
-<p>This post is the middle chapter of three. <a href="https://pytorch.org/blog/extending-inductor-for-the-ibm-spyre-accelerator/"><em>Extending Inductor for the IBM Spyre Accelerator</em></a> described how torch-spyre’s Inductor extensions settle layout, tiling, work division and scratchpad placement, and <a href="https://pytorch.org/blog/building-spyre-as-a-native-pytorch-device/"><em>Building Spyre as a Native PyTorch Device</em></a> described how the runtime launches a compiled artifact whose symbolic values are only filled in at the last moment. This post covers how the decisions Inductor makes actually become a program the runtime can launch.</p>
-<p><!-- IMAGE PLACEHOLDER: spyre-software-stack.png - upload via Media Library. Suggested alt text: "Where the backend compiler sits in the Spyre software stack" --></p>
-<p><em><a href="https://pytorch.org/wp-content/uploads/2026/10/stack-position.svg"><img decoding="async" class="alignnone size-full wp-image-188751" src="https://pytorch.org/wp-content/uploads/2026/10/stack-position.svg" alt="" /></a>Where the backend compiler sits in the Spyre software stack</em></p>
-<p>Three ideas run through the design.</p>
-<ul>
-<li><strong>The frontend decides the parallel decomposition, and the backend makes it run.</strong> KTIR is designed to carry the mapping Inductor has already chosen (which core computes what, over which data, out of which memory) so that the backend never has to rediscover it. The backend’s job is dataflow scheduling <em>inside</em> that mapping.</li>
-<li><strong>Scheduling means building a pipeline.</strong> Spyre is a dataflow machine with decoupled access and execution, so loads, stores and compute run on separate engines communicating via FIFOs. The scheduler starts from the simplest legal pipeline and refines it one transformation at a time, and every one of those steps is a readable MLIR rewrite.</li>
-<li><strong>The boundary is an IR, not a library call.</strong> KTIR, the scheduler’s ScheduleIR and DataflowIR are all ordinary MLIR built on upstream dialects (<code>linalg</code>, <code>scf</code>, <code>arith</code>, <code>memref</code>, <code>tensor</code>), and the scheduler and its dialects are open source under Apache-2.0. Device-specific lowering stages for code generation start at the DataflowIR boundary.</li>
-</ul>
-<h2>KTIR: the contract between Inductor and the backend</h2>
-<h3>Why a new interface</h3>
-<p>One of the key requirements for efficient backend scheduling is a contract between torch-spyre’s Inductor and the backend compiler with the capability and flexibility to capture the complete data-parallel view of the accelerator, in which every compute tile can see every memory and a single logical tensor can live spread across several cores’ scratchpads.</p>
-<p>KTIR (<a href="https://github.com/torch-spyre/RFCs/blob/main/0682-KtirSpec/0682-KtirSpecRFC.md">RFC 0682</a>, implemented in <a href="https://github.com/torch-spyre/ktir-mlir-frontend"><code>torch-spyre/ktir-mlir-frontend</code></a>) is a tile-based, block-structured IR built on open-source MLIR. Our goal was to make it expressive enough to capture data-parallel mappings from two quite different sources: Inductor on one side, and hand-written Spyre kernels in languages like Triton or Helion on the other.</p>
-<h3>A data-parallel abstraction of the accelerator</h3>
-<p>KTIR is written against a deliberately simple picture of the hardware: a set of cores, each with a compute engine and its own on-chip scratchpad, joined by an on-chip interconnect that also reaches one or more off-chip memories. The property that matters most is that <strong>every compute tile has a global view of every memory</strong>, which means its own scratchpad, every other core’s scratchpad, and device memory.</p>
-<p><!-- IMAGE PLACEHOLDER: ktir-hardware-abstraction.png - upload via Media Library. Suggested alt text: "Hardware abstraction of a multi-core accelerator in KTIR: cores with compute engines and scratchpads on an interconnect with off-chip memory" --></p>
-<p><em><img decoding="async" class="alignnone wp-image-188762 size-full" src="https://pytorch.org/wp-content/uploads/2026/10/ktir-hw-abstraction.png" alt="" width="545" height="382" srcset="https://pytorch.org/wp-content/uploads/2026/10/ktir-hw-abstraction.png 545w, https://pytorch.org/wp-content/uploads/2026/10/ktir-hw-abstraction-300x210.png 300w" sizes="(max-width: 545px) 100vw, 545px" /></em></p>
-<p><em>Hardware abstraction of a multi-core accelerator embodied in KTIR (from RFC 0682)</em></p>
-<p>That picture matches Spyre’s shape closely: 32 cores on a ring, each with 2 MB of scratchpad, backed by off-chip device memory. Data moves between device memory and the scratchpads in <em>sticks</em>, fixed 128-byte chunks that hold 64 fp16 values. Intentionally, the picture leaves out details such as FIFOs, load/store units and decoupled execution engines. KTIR describes <em>what each compute tile does and where its data lives</em>, not <em>how that data gets there</em>, because working out how it gets there is exactly the scheduler’s job.</p>
-<p>KTIR is also compositional. Arithmetic, reductions and control flow come straight from upstream MLIR dialects (<code>arith</code>, <code>math</code>, <code>linalg</code>, <code>scf</code>, <code>tensor</code>, <code>memref</code>), and a dedicated dialect, <code>ktdp</code>, adds the two things those dialects can’t express: explicit memories and explicit accesses. A second, much smaller dialect, <code>spyreop</code>, covers Spyre’s own intrinsics. The core <code>ktdp</code> operations are:</p>
-<table>
-<thead>
-<tr>
-<th><code>ktdp</code> op</th>
-<th>What it expresses</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>get_compute_tile_id</code></td>
-<td>Which compute tile this is; 1-D or multi-dimensional, over the <code>grid</code> attribute on the kernel</td>
-</tr>
-<tr>
-<td><code>construct_memory_view</code></td>
-<td>Interpret a region at some (possibly symbolic) address in a named memory space as a strided tensor; no allocation, no data movement</td>
-</tr>
-<tr>
-<td><code>construct_distributed_memory_view</code></td>
-<td>Compose several memory views, each covering part of a global coordinate space, into one logical tensor</td>
-</tr>
-<tr>
-<td><code>construct_access_tile</code></td>
-<td>A structured set of coordinates into a view: an integer set for the domain and an affine map for the traversal order, so tiles can be rectangular, strided, skewed or triangular</td>
-</tr>
-<tr>
-<td><code>construct_indirect_access_tile</code></td>
-<td>The same, with some dimensions indexed through another tensor, e.g. paged KV-cache gathers</td>
-</tr>
-<tr>
-<td><code>load</code> / <code>store</code></td>
-<td>The only data movement: consume an access tile and produce or write a data tile</td>
-</tr>
-<tr>
-<td><code>inter_tile_produce</code> / <code>inter_tile_reduce</code></td>
-<td>Communication between compute tiles, e.g. an all-reduce of partial sums</td>
-</tr>
-</tbody>
-</table>
-<p>Here is a complete kernel, an elementwise add over <code>96×64</code> fp16 tensors divided among 32 compute tiles of three rows each.</p>
-<pre><code class="language-mlir">#tile = affine_set&lt;(d0, d1) : (d0 &gt;= 0, -d0 + 2 &gt;= 0, d1 &gt;= 0, -d1 + 63 &gt;= 0)&gt;   // 3x64
-#full = affine_set&lt;(d0, d1) : (d0 &gt;= 0, -d0 + 95 &gt;= 0, d1 &gt;= 0, -d1 + 63 &gt;= 0)&gt;
-#id   = affine_map&lt;(d0, d1) -&gt; (d0, d1)&gt;
-
-// The tensors' start addresses arrive as arguments: PyTorch's allocator owns them.
-func.func @add(%A: index, %B: index, %C: index) attributes {grid = [32]} {
-  %c0   = arith.constant 0 : index
-  %c3   = arith.constant 3 : index
-  %id   = ktdp.get_compute_tile_id : index
-  %row0 = arith.muli %id, %c3 : index                 // this tile's 3-row slab
-
-  %A_view = ktdp.construct_memory_view %A, sizes: [96, 64], strides: [64, 1] {
-      coordinate_set = #full, memory_space = #ktdp.memory_space&lt;global&gt;
-  } : memref&lt;96x64xf16&gt;
-  // ... %B_view and %C_view alike
-
-  %A_t = ktdp.construct_access_tile %A_view[%row0, %c0] {
-      access_tile_set = #tile, access_tile_order = #id
-  } : memref&lt;96x64xf16&gt; -&gt; !ktdp.access_tile&lt;3x64xindex&gt;
-  // ... %B_t and %C_t alike
-
-  %a = ktdp.load %A_t : !ktdp.access_tile&lt;3x64xindex&gt; -&gt; tensor&lt;3x64xf16&gt;
-  %b = ktdp.load %B_t : !ktdp.access_tile&lt;3x64xindex&gt; -&gt; tensor&lt;3x64xf16&gt;
-  %e = tensor.empty() : tensor&lt;3x64xf16&gt;
-  %c = linalg.add ins(%a, %b : tensor&lt;3x64xf16&gt;, tensor&lt;3x64xf16&gt;)
-                  outs(%e : tensor&lt;3x64xf16&gt;) -&gt; tensor&lt;3x64xf16&gt;
-  ktdp.store %c, %C_t : tensor&lt;3x64xf16&gt;, !ktdp.access_tile&lt;3x64xindex&gt;
-  return
-}
-</code></pre>
-<p>The kernel keeps four concerns apart. Views say how memory should be interpreted, access tiles say which coordinates a given tile touches, loads and stores are the only operations that move data, and <code>linalg</code> does the arithmetic. Notice also that the work division is already settled: <code>grid = [32]</code>, together with the arithmetic on <code>%id</code>, <em>is</em> the partitioning, and the backend is expected to honor it rather than second-guess it.</p>
-<h3>Spyre intrinsics: the <code>spyreop</code> dialect</h3>
-<p>Upstream <code>arith</code> and <code>math</code> cover most of the arithmetic a kernel needs, but Spyre’s compute units also offer operations that no generic dialect has a name for. A kernel that wants one of those should be able to ask for it directly, instead of hoping the backend recognizes some particular pattern of <code>arith</code> ops. For that, KTIR comes with a second, much smaller dialect, <code>spyreop</code>, which exposes Spyre intrinsics as ordinary MLIR operations. It covers elementwise and activation functions (<code>exp</code>, <code>gelu</code>, <code>sigmoid</code>, <code>silu</code>, <code>softplus</code>, <code>sqrt</code>, <code>rsqrt</code>, <code>reciprocal</code>, <code>realdiv</code>), the building blocks of normalization (a combined mean and mean of squares, and the normalizing and scaling halves of LayerNorm, some with fused variants), integer and address arithmetic (including <code>idx32toaddr</code>, which computes <code>base + stride × index</code> for gathers), and <code>compare</code> and <code>select</code>. The dialect also defines <code>df16</code>, IBM’s 16-bit <a href="https://ieeexplore.ieee.org/document/8877411">DLFloat</a> format, which splits its bits 1-6-9 between sign, exponent and mantissa rather than IEEE half precision’s 1-5-10, along with “fused” types that carry a pair of floats as a single value.</p>
-<p>Intrinsics appear wherever any other scalar computation would, which is inside the body of a <code>linalg.generic</code>:</p>
-<pre><code class="language-mlir">%y = linalg.generic {indexing_maps = [#in, #out],
-                     iterator_types = ["parallel", "parallel", "parallel", "parallel"]}
-       ins(%x : tensor&lt;6x64x64xf16&gt;) outs(%init : tensor&lt;1x6x64x64xf16&gt;) {
-  ^bb0(%a: f16, %out: f16):
-    %g = spyreop.gelu %a : f16
-    linalg.yield %g : f16
-} -&gt; tensor&lt;1x6x64x64xf16&gt;
-</code></pre>
-<p>Because they are just operations in a <code>linalg</code> body, intrinsics fuse with the surrounding elementwise work like anything else, and the scheduler carries them through as compute until it is ready to lower them. How each intrinsic expands into the hardware’s own instruction sequence is not written in the scheduler at all: it lives in the architecture description, as one of the device patterns described later in this post.</p>
-<h3>How KTIR captures Inductor’s work mapping</h3>
-<p>The Inductor post walked through a series of decisions torch-spyre makes before any code is generated. Each of them has a direct counterpart in KTIR:</p>
-<table>
-<thead>
-<tr>
-<th>Decision in torch-spyre’s Inductor passes</th>
-<th>How it appears in KTIR</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Work division: the per-op core split, e.g. a matmul’s 16 × 2 grid</td>
-<td>The kernel’s <code>grid</code> attribute, plus affine arithmetic on <code>ktdp.get_compute_tile_id</code> that picks each tile’s slice</td>
-</tr>
-<tr>
-<td>Stick-granularity layout: which dimension is the stick, and the tiled order of the others</td>
-<td>Strides of <code>construct_memory_view</code>, and the <code>access_tile_order</code> of each access tile</td>
-</tr>
-<tr>
-<td>Coarse tiling and working-set reduction</td>
-<td><code>scf.for</code> loops around loads, compute and stores, which run the chain tile by tile</td>
-</tr>
-<tr>
-<td>Scratchpad residency chosen by the scratchpad allocator</td>
-<td>A memory view in <code>#ktdp.memory_space&lt;ct_local, ct_id = k&gt;</code> at the offset the allocator assigned</td>
-</tr>
-<tr>
-<td>A tensor split across cores so each slice fits in scratchpad</td>
-<td><code>construct_distributed_memory_view</code> over per-core <code>ct_local</code> views</td>
-</tr>
-<tr>
-<td>Core-to-core relayout (<code>lx_relayout</code>)</td>
-<td>An access tile over one distributed view, stored into a view with a different distribution</td>
-</tr>
-<tr>
-<td>Reduction split across cores (partial sums of one output tile)</td>
-<td><code>inter_tile_produce</code> / <code>inter_tile_reduce</code></td>
-</tr>
-<tr>
-<td>Paged tensors and gathers</td>
-<td><code>construct_indirect_access_tile</code></td>
-</tr>
-<tr>
-<td>Device-specific activations and normalization steps</td>
-<td><code>spyreop</code> intrinsics inside <code>linalg.generic</code> bodies</td>
-</tr>
-<tr>
-<td>Tensor addresses owned by PyTorch’s allocator</td>
-<td>Kernel arguments. They stay symbolic all the way to SpyreCode and are substituted by the runtime at launch</td>
-</tr>
-<tr>
-<td>Tensor shapes known only at runtime, within a bound</td>
-<td><code>!ktdp.runtime_arg&lt;index, granularity = G, upperbound = U&gt;</code>, kept symbolic and substituted at launch in the same way</td>
-</tr>
-</tbody>
-</table>
-<p>The last two rows are where this post meets the runtime post. Because KTIR allows a start address or a size to be a value rather than a constant, every layer beneath it can keep that value symbolic until the runtime is in a position to supply it.</p>
-<h3>Tensors pinned in scratchpad, distributed across cores</h3>
-<p>What most sets KTIR apart from GPU-oriented tile IRs is the way it treats on-chip memory. A tile language like Triton describes each program instance loading blocks of a tensor from global memory, computing on them, and storing the results back. How those blocks are staged through shared memory, registers and caches is left to the compiler and the hardware, and a program instance’s on-chip storage is private to it and lives only as long as it runs. In that model there is typically no way, and little need, to say that a tensor should still be sitting in a particular core’s on-chip memory when the next operation reads it, or that one program instance should read data held on-chip by another. That works well on hardware where caches and a dynamic scheduler smooth over data movement. It doesn’t fit Spyre. There is no hardware-managed cache to fall back on, and keeping a tensor on-chip from one operation to the next is one of the biggest performance levers available. On Spyre, the scratchpad isn’t a cache that a kernel happens to hit; it’s memory the compiler chooses to use, with Inductor’s scratchpad allocator deciding which buffers stay resident, at what address and on which core. KTIR therefore makes on-chip placement a first-class part of the IR rather than an implementation detail: it simply writes that decision down.</p>
-<p>Each memory space names a physical memory: <code>#ktdp.memory_space&lt;global&gt;</code> is device memory, and <code>#ktdp.memory_space&lt;ct_local, ct_id = k&gt;</code> is the scratchpad belonging to compute tile <code>k</code>. A view’s <code>coordinate_set</code> records which part of a larger logical tensor it holds, so if you combine per-core views with <code>construct_distributed_memory_view</code>, you get a single tensor, indexed by global coordinates, whose storage is spread across several scratchpads.</p>
-<pre><code class="language-mlir">// X[128, 1024] f16, left in scratchpad by an earlier op of the kernel:
-// 32 rows on each of four cores, at the offset the scratchpad allocator chose.
-#rows0 = affine_set&lt;(d0, d1) : (d0 &gt;= 0,      -d0 + 31 &gt;= 0,  d1 &gt;= 0, -d1 + 1023 &gt;= 0)&gt;
-#rows1 = affine_set&lt;(d0, d1) : (d0 - 32 &gt;= 0, -d0 + 63 &gt;= 0,  d1 &gt;= 0, -d1 + 1023 &gt;= 0)&gt;
-// ... #rows2, #rows3
-
-%X0 = ktdp.construct_memory_view %lx_off, sizes: [32, 1024], strides: [1024, 1] {
-        coordinate_set = #rows0, memory_space = #ktdp.memory_space&lt;ct_local, ct_id = 0&gt;
-      } : memref&lt;32x1024xf16&gt;
-%X1 = ktdp.construct_memory_view %lx_off, sizes: [32, 1024], strides: [1024, 1] {
-        coordinate_set = #rows1, memory_space = #ktdp.memory_space&lt;ct_local, ct_id = 1&gt;
-      } : memref&lt;32x1024xf16&gt;
-// ... %X2, %X3
-%X = ktdp.construct_distributed_memory_view (%X0, %X1, %X2, %X3
-        : memref&lt;32x1024xf16&gt;, memref&lt;32x1024xf16&gt;, memref&lt;32x1024xf16&gt;, memref&lt;32x1024xf16&gt;)
-        : memref&lt;128x1024xf16&gt;
-
-// Compute tile 1 reads rows 48-79: half from its own scratchpad, half from core 2's.
-#rows32 = affine_set&lt;(d0, d1) : (d0 &gt;= 0, -d0 + 31 &gt;= 0, d1 &gt;= 0, -d1 + 1023 &gt;= 0)&gt;
-%id  = ktdp.get_compute_tile_id : index
-%row = affine.apply affine_map&lt;(d0) -&gt; (d0 * 32 + 16)&gt;(%id)
-%t = ktdp.construct_access_tile %X[%row, %c0] {
-       access_tile_set = #rows32, access_tile_order = #id
-     } : memref&lt;128x1024xf16&gt; -&gt; !ktdp.access_tile&lt;32x1024xindex&gt;
-%x = ktdp.load %t : !ktdp.access_tile&lt;32x1024xindex&gt; -&gt; tensor&lt;32x1024xf16&gt;
-</code></pre>
-<p><!-- IMAGE PLACEHOLDER: distributed-memory-view.png - upload via Media Library. Suggested alt text: "One logical tensor pinned across four cores' scratchpads with a distributed memory view" --></p>
-<p>&nbsp;</p>
-<p><em><a href="https://pytorch.org/wp-content/uploads/2026/10/ktir-distributed-view.svg"><img decoding="async" class="alignnone size-full wp-image-188754" src="https://pytorch.org/wp-content/uploads/2026/10/ktir-distributed-view.svg" alt="" /></a>A distributed memory view: one logical tensor, pinned across four scratchpads</em></p>
-<p>This one construct does quite a lot of work. First, it lets intermediate tensors stay on-chip from one operation to the next: a producer can store into a distributed <code>ct_local</code> view and a consumer can load from it without either of them ever mentioning device memory, which is precisely the kind of fusion without a round trip that the softmax example in the Inductor post was built around. Second, it turns a core-division mismatch into ordinary IR. When a producer and a consumer divide a tensor differently, the consumer’s access tiles just cross scratchpad boundaries, and since every compute tile can see every scratchpad, that is still nothing more than a <code>load</code>; the on-chip relayout that torch-spyre’s co-optimizing allocator weighs against a spill needs no special-purpose op. Third, it keeps placement binding. The runtime post argued that “placement must be explicit and binding because compiled code may depend on it,” and KTIR is where that dependency is recorded, since the memory space and coordinate set on a view <em>are</em> the placement contract.</p>
-<h2>The backend compiler at a glance</h2>
-<p>The backend compiler is a single MLIR pipeline in two halves. The open-source <strong>Dataflow Scheduler</strong> lowers KTIR through <strong>ScheduleIR</strong> to <strong>DataflowIR</strong>, and three device-specific stages (symbolic SpyreBinary generation, metadata generation for runtime symbol substitution, and SpyreCode generation) then turn DataflowIR into SpyreCode. DataflowIR is the only point where the two halves meet.</p>
-<p><!-- IMAGE PLACEHOLDER: spyre-backend-compiler.png - upload via Media Library. Suggested alt text: "The Spyre backend compiler pipeline from KTIR to SpyreCode" --></p>
-<p><em><a href="https://pytorch.org/wp-content/uploads/2026/10/backend-pipeline.svg"><img decoding="async" class="alignnone size-full wp-image-188755" src="https://pytorch.org/wp-content/uploads/2026/10/backend-pipeline.svg" alt="" /></a>The Spyre backend compiler: KTIR in, SpyreCode out</em></p>
-<p>The rest of the post follows the figure from left to right, spending most of its time on the scheduler and then covering the three stages below it more briefly.</p>
-<h2>The Dataflow Scheduler: KTIR → ScheduleIR → DataflowIR</h2>
-<p>A dataflow accelerator is a distributed collection of compute engines and scratchpad memories connected by wide datapaths with FIFOs. It follows a <em>decoupled access-execute</em> design, in which moving data (DMA, scratchpad loads and stores) and computing on it happen on separate engines that run at the same time. On a machine like that, <em>scheduling</em> means building a <strong>dataflow pipeline across space and time</strong>, deciding which engine performs each step and how the steps overlap with one another.</p>
-<p>The <a href="https://github.com/torch-spyre/dataflow-scheduler">Dataflow Scheduler</a> does this as an MLIR pass pipeline, and a handful of principles shape how it’s built. It is driven by an architecture description rather than hard-coded for one chip, which we look at more closely below. Every schedule is expressed in a single execution model built from just three constructs: nested <code>scf.for</code> loops, <code>ktdf.pipeline</code> (stages that overlap across iterations) and <code>ktdf.parallel</code> (identical instances that split an iteration space between them), and every analysis and transformation reasons in those terms. Wherever it can, the scheduler leans on upstream MLIR, lowering compute to <code>linalg.generic</code> and fusing it with upstream passes, and using <code>scf</code> for loops and <code>memref</code> for buffers. And throughout, it follows one strategy: start with the most naive correct pipeline, then let each later pass either make it legal on the hardware or make it bigger, in small steps that can be tested on their own.</p>
-<p>The passes fall into three groups, each with a fixed IR contract at its boundaries, so passes can be added or reordered within a group without disturbing the others.</p>
-<p><!-- IMAGE PLACEHOLDER: dataflow-scheduler-pass-groups.png - upload via Media Library. Suggested alt text: "Dataflow Scheduler pass groups and their IR contracts" --></p>
-<p><em><a href="https://pytorch.org/wp-content/uploads/2026/10/scheduler-pass-groups.svg"><img decoding="async" class="alignnone size-full wp-image-188756" src="https://pytorch.org/wp-content/uploads/2026/10/scheduler-pass-groups.svg" alt="" /></a>Dataflow Scheduler: three pass groups, one IR contract each</em></p>
-<p>At four named <em>checkpoints</em> (<code>pre_mapping</code>, <code>pre_scheduling</code>, <code>post_scheduling</code> and <code>post_lowering</code>) the scheduler applies rewrite patterns written in PDL. Those patterns live in the architecture description rather than in the scheduler, which means a device can supply its own lowerings without forking the scheduler. This is where each <code>spyreop</code> intrinsic, such as <code>spyreop.exp</code> or <code>spyreop.gelu</code>, is replaced by the hardware’s instruction template, and where an inner-dimension reduction becomes a SIMD reduction.</p>
-<p>The scheduler’s intermediate form, <strong>ScheduleIR</strong>, is the <code>ktdf</code> dialect used alongside <code>linalg</code>, <code>scf</code> and <code>memref</code>. Its vocabulary is small enough to list in full:</p>
-<table>
-<thead>
-<tr>
-<th><code>ktdf</code> construct</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ktdf.pipeline [modulo(size: N)]</code></td>
-<td>A chain of stages that overlap across iterations; <code>modulo</code> rotates through N copies of its resources (N-buffering)</td>
-</tr>
-<tr>
-<td><code>ktdf.stage depends_in(...) depends_out(...)</code></td>
-<td>One step of a pipeline, eventually bound to one kind of execution unit (<code>applicable_units</code>)</td>
-</tr>
-<tr>
-<td><code>ktdf.private</code></td>
-<td>Resources private to one pipeline: FIFO slots, scratchpad buffers, tokens</td>
-</tr>
-<tr>
-<td><code>!ktdf.token</code></td>
-<td>A pure ordering value between stages, with no runtime cost of its own</td>
-</tr>
-<tr>
-<td><code>!ktdf.fifo.slot&lt;SRC -&gt; DST, 64xf16&gt;</code></td>
-<td>A slot in a hardware FIFO between two units</td>
-</tr>
-<tr>
-<td><code>ktdf.data_transfer</code> / <code>ktdf.ind_data_transfer</code></td>
-<td>Explicit movement between memories and FIFOs, direct or through an indirect-address buffer</td>
-</tr>
-<tr>
-<td><code>ktdf.read_from_fifo</code> / <code>ktdf.write_to_fifo</code></td>
-<td>How a compute stage consumes and produces FIFO data</td>
-</tr>
-<tr>
-<td><code>ktdf.parallel ... distribute(num_instances = N)</code></td>
-<td>Split an iteration space into contiguous blocks over N identical hardware instances</td>
-</tr>
-<tr>
-<td><code>ktdf.tiling.reserve_size</code> / <code>derive_size</code> / <code>linearize_index</code></td>
-<td>Placeholders for tile sizes chosen later, the current tile’s extent, and the original index</td>
-</tr>
-</tbody>
-</table>
-<h3>The architecture description</h3>
-<p>Everything the scheduler knows about the hardware comes from a single MLIR file written in the <code>ktdf_arch</code> dialect. That file describes the device as a graph. Its nodes are memories, with their kinds and sizes, and execution units, with the features the scheduler cares about: SIMD lane counts per element type, the word sizes and access granularities of load and store units, the depth of each FIFO. Its edges are datapaths, each with a transfer granularity. Groups scope resources the way the hardware does, for example a core that owns a scratchpad along with the load/store and compute units that use it. Here is a trimmed and simplified version of the sample device used in the scheduler’s tests:</p>
-<pre><code class="language-mlir">#L1  = { kind = "L1", size = 1048576 }                           // 1 MB scratchpad
-#SFU = { kind = "SFU", ktdf_arch.features = {
-           ktdf_arch.feature.compute,
-           ktdf_arch.feature.simd = { lanes = #ktdf_arch.map&lt;f16 = 64, f32 = 32, i32 = 32&gt; } } }
-#L1LU_CORE_FIFO = { ktdf_arch.features = { ktdf_arch.feature.queue = { depth = 16, ordered } } }
-
-ktdf_arch.device @sample_device {
-  %ddr = memory #DDR
-  group { kind = "core" } share(%ddr) {
-    %l1 = memory #L1
-    %mnilu = group { kind = "MNILU_Block" } share() { ... } -&gt; exec_unit   // DMA load unit
-    %mnisu = group { kind = "MNISU_Block" } share() { ... } -&gt; exec_unit   // DMA store unit
-    datapath #DDR_MNILU %ddr to %mnilu : memory, exec_unit
-    datapath #MNILU_L1 %mnilu to %l1 : exec_unit, memory
-    %sfu  = group { kind = "SFU_Block" } share() { ... } -&gt; exec_unit   // compute unit
-    %l1lu = exec_unit #L1LU                                              // scratchpad load unit
-    %l1su = exec_unit #L1SU                                              // scratchpad store unit
-    datapath #L1LU_CORE_FIFO %l1 to %l1lu : memory, exec_unit
-    datapath %l1lu to %sfu : exec_unit, exec_unit
-    ...
-  }
-  patterns ["pre_scheduling"] { ... }                   // device-specific rewrites, in PDL
-  patterns ["post_scheduling"] { ... }
-}
-</code></pre>
-<p>A kernel refers to its target with a one-line declaration that imports this file and maps KTIR’s memory spaces onto the device’s memories, for example <code>global</code> onto <code>DDR</code> and <code>ct_local</code> onto <code>L1</code>. From then on, nearly every decision in the pipeline reads something from the description. The SIMD lane count sets the width of the first pipeline. The datapaths form the routing graph that path expansion searches, so the hops a transfer takes are whatever the graph allows. Access granularities, transfer granularities and FIFO depths constrain how each transfer can be shaped. Memory sizes bound what address assignment can place, and therefore which tile sizes fit. And the <code>patterns</code> blocks supply the device’s own lowerings, such as how each <code>spyreop</code> intrinsic expands into the hardware’s instructions, at the scheduler’s checkpoints.</p>
-<p>Because all of that lives in the description rather than in the passes, retargeting the scheduler means writing a new description, not changing the scheduler. Spyre has its own description, the scheduler’s tests run against the sample device above, and the same passes run unchanged on both.</p>
-<h3>Step 1: Break the kernel into programs</h3>
-<p>A KTIR kernel is a <em>sequence</em> of operations, whereas a Spyre program is a single pipeline configuration loaded onto the device, so the scheduler’s first real decision is where to cut the kernel into separately scheduled programs.</p>
-<p>The scheduler makes that cut by working backwards from each <code>ktdp.store</code>, through the compute that feeds it, to the <code>ktdp.load</code>s it ultimately depends on. Everything connected that way forms one <em>compute group</em>, a single load → compute → store chain through memory, and a group ends either at a load that belongs to a different group or at any operation with a region, such as a loop or a conditional. Each group then becomes its own nested MLIR module, <code>module @local_schedule_N</code>, while the original kernel turns into an <em>orchestrator</em> that keeps the control flow and address arithmetic and calls the programs in order. The number of programs is therefore exactly the number of compute groups.</p>
-<pre><code class="language-mlir">// KTIR: loads, compute and stores interleaved with a loop nest
-func.func @kernel() {
-  scf.for %i = %c1 to %c5 step %c1 {
-    ... ktdp.load A ... linalg.add ... ktdp.store B ...
-    scf.for %j = %c1 to %c3 step %c1 {
-      ... ktdp.load B ... linalg.mul ... ktdp.store C ...
-    }
-    ... ktdp.load C ... linalg.sub ... ktdp.store D ...
-  }
-}
-
-// ScheduleIR: an orchestrator that calls one program per compute group
-module {
-  func.func @kernel() {
-    scf.for %i = %c1 to %c5 step %c1 {
-      func.call @local_schedule_1() : () -&gt; ()
-      scf.for %j = %c1 to %c3 step %c1 {
-        func.call @local_schedule_0() : () -&gt; ()
-      }
-      func.call @local_schedule_2() : () -&gt; ()
-    }
-    return
-  }
-  func.func private @local_schedule_0()
-  ...
-}
-module @local_schedule_0 { func.func @local_schedule_0() { /* views, tile id, load, mul, store */ } }
-module @local_schedule_1 { ... }
-module @local_schedule_2 { ... }
-</code></pre>
-<p>One consequence of this split is worth spelling out, because it separates two very different kinds of loop. Loops that appear in the KTIR, which usually come from Inductor’s coarse tiling, stay in the orchestrator and become a sequence of program launches over tiles. Loops inside a program, on the other hand, belong to the scheduler: it creates them by tiling the fused compute down to the hardware’s vector width, and it is free to restructure them however it likes.</p>
-<p>Each program also takes its own copy of whatever it needs from the kernel, including the memory views, the constants, <code>ktdp.get_compute_tile_id</code> and the <code>grid</code> attribute, so Inductor’s work division reaches every program intact. Kernels with indirect accesses get split one step further: the first program converts indices into addresses (with <code>spyreop.idx32toaddr</code>) in an indirect-address buffer, and the second uses that buffer to perform the gather or scatter. Finally, within each program, elementwise ops are converted to <code>linalg</code>, generalized to <code>linalg.generic</code>, and fused along producer–consumer chains, leaving every program with exactly one fused <code>linalg.generic</code>, which is the unit the rest of the scheduler works on.</p>
-<h3>Step 2: The simplest pipeline that could work</h3>
-<p>Next, the scheduler gives each program its first dataflow pipeline. It tiles the fused generic to the SIMD width of the default compute unit, which it reads from the architecture description (64 lanes of fp16 on the sample device), tags each resulting loop as either a <code>parallel_loop</code> or a <code>reduction_loop</code>, and then builds a three-stage <code>ktdf.pipeline</code> in the innermost loop that loads from memory into a FIFO, computes, and stores from a FIFO back to memory.</p>
-<pre><code class="language-mlir">scf.for %i ... { scf.for %j ... {
-  ktdf.pipeline {
-    %p:6 = ktdf.private -&gt; (!ktdf.fifo.slot&lt;"DDR" -&gt; "SFU", 64xf16&gt;, !ktdf.fifo.slot&lt;"DDR" -&gt; "SFU", 64xf16&gt;,
-                            !ktdf.fifo.slot&lt;"SFU" -&gt; "DDR", 64xf16&gt;, !ktdf.token, !ktdf.token, !ktdf.token) {...}
-    ktdf.stage depends_in(none) depends_out(%p#3) {
-      ktdf.data_transfer from %A[%i, %j] size [1, 64] to %p#0 size [1, 64] : ...
-      ktdf.data_transfer from %B[%i, %j] size [1, 64] to %p#1 size [1, 64] : ...
-    }
-    ktdf.stage depends_in(%p#3) depends_out(%p#4) {
-      %a = ktdf.read_from_fifo %p#0 : &lt;"DDR" -&gt; "SFU", 64xf16&gt; -&gt; tensor&lt;1x64xf16&gt;
-      %b = ktdf.read_from_fifo %p#1 : &lt;"DDR" -&gt; "SFU", 64xf16&gt; -&gt; tensor&lt;1x64xf16&gt;
-      %r = linalg.generic {...} ins(%a, %b : ...) outs(%e : tensor&lt;1x64xf16&gt;) {...}
-      ktdf.write_to_fifo %r, %p#2 : tensor&lt;1x64xf16&gt;, &lt;"SFU" -&gt; "DDR", 64xf16&gt;
-    } {applicable_units = ["SFU"]}
-    ktdf.stage depends_in(%p#4) depends_out(%p#5) {
-      ktdf.data_transfer from %p#2 size [1, 64] to %C[%i, %j] size [1, 64] : ...
-    }
-  }
-} {loop_type = #ktdf.loop_type&lt;parallel_loop&gt;} } {loop_type = #ktdf.loop_type&lt;parallel_loop&gt;}
-</code></pre>
-<p><em>(The snippets in this section are taken from the scheduler’s lit tests, which use a sample architecture whose memories are called <code>DDR</code> and <code>L1</code> and whose compute unit is called <code>SFU</code>. On Spyre, the same roles are played by device memory, each core’s scratchpad and its compute pipelines.)</em></p>
-<p>This pipeline is functionally complete, but it isn’t legal yet, since nothing in the hardware connects device memory straight to the compute engine through a FIFO. Fixing that is the first job of the next pass group.</p>
-<h3>Step 3: Path expansion routes data through the memory hierarchy</h3>
-<p>Path expansion legalizes data movement using the architecture description. It builds a <em>routing graph</em> from the device, with memories, execution units and load/store units as nodes and datapaths as edges, and then, for each pipeline, takes the endpoints implied by the three-stage version (device memory → compute → device memory, for instance), runs a shortest-path search between each consecutive pair, and stitches the hops together. Wherever the real path turns out to be longer than the endpoints suggested, the pass rewrites the pipeline, inserting a transfer stage for each intermediate hop, allocating staging buffers in scratchpad, retyping the FIFOs so that each one connects two units that are actually adjacent, and tagging every stage with the kind of unit that will execute it.</p>
-<p>In the example, three stages become five: a DMA load unit brings a tile into scratchpad, a scratchpad load unit feeds it into the FIFO, the compute engine consumes and produces, a scratchpad store unit drains the result FIFO, and a DMA store unit writes the result back.</p>
-<pre><code class="language-mlir">ktdf.pipeline {
-  %p:10 = ktdf.private -&gt; (memref&lt;1x64xf16, "L1"&gt;, memref&lt;1x64xf16, "L1"&gt;,
-                           !ktdf.fifo.slot&lt;"L1LU" -&gt; "SFU", 64xf16&gt;, ..., !ktdf.fifo.slot&lt;"SFU" -&gt; "L1SU", 64xf16&gt;,
-                           memref&lt;1x64xf16, "L1"&gt;, !ktdf.token, ...) {...}
-  ktdf.stage ... { ktdf.data_transfer from %A[%i, %j] ... to %p#0[0, 0] ... }  {applicable_units = ["MNILU"]} // DDR -&gt; L1
-  ktdf.stage ... { ktdf.data_transfer from %p#0[0, 0] ... to %p#2 ... }         {applicable_units = ["L1LU"]}  // L1 -&gt; FIFO
-  ktdf.stage ... { ... read_from_fifo ... linalg.generic ... write_to_fifo ... } {applicable_units = ["SFU"]}   // compute
-  ktdf.stage ... { ktdf.data_transfer from %p#4 ... to %p#5[0, 0] ... }         {applicable_units = ["L1SU"]}  // FIFO -&gt; L1
-  ktdf.stage ... { ktdf.data_transfer from %p#5[0, 0] ... to %C[%i, %j] ... }  {applicable_units = ["MNISU"]} // L1 -&gt; DDR
-}
-</code></pre>
-<p>This is also where the placement information in KTIR starts to pay off. If an operand is already a <code>ct_local</code> view, meaning Inductor pinned it in scratchpad, then its path to the compute engine starts at the scratchpad, and <strong>path expansion adds no DMA stages for it at all</strong>. The pipeline runs straight from scratchpad to FIFO to compute, and the tensor never takes a round trip through device memory. In other words, residency decided in Inductor becomes pipeline structure in the scheduler without any extra machinery in between.</p>
-<p>A few follow-up legalizations round this out: indirect-address-buffer fills are staged through a memory that the filling unit can actually read, and scalar operands are widened to full vector width and transferred as hardware splats.</p>
-<h3>Step 4: Nested pipelines, one level of the memory hierarchy at a time</h3>
-<p>After path expansion, every stage still runs once per 64-element vector. That’s legal, but wasteful: DMA engines move data most efficiently in bulk, and the whole point of the scratchpad is to have data waiting before the compute needs it. The scheduler therefore reshapes the program’s loop nest into a <strong>hierarchy of pipelines</strong>, each running at the granularity that suits its own level of the memory hierarchy.</p>
-<p>It starts by tiling the parallel loops into tile loops and point loops, but leaves each tile size as a placeholder in the IR (<code>ktdf.tiling.reserve_size</code>), with its constraints attached, so the size itself can be chosen later. It then works out which stages have to move in lockstep, because they talk through a FIFO or through registers, and which don’t, like a DMA stage that only touches device memory and scratchpad. The loops over a tile are sunk into those groups. A DMA stage becomes a single bulk transfer of the whole tile into scratchpad, while the scratchpad-load → compute → scratchpad-store chain becomes one stage that contains its own <strong>nested <code>ktdf.pipeline</code></strong>. What you end up with is an outer pipeline that works a tile at a time, wrapped around an inner pipeline that works a vector at a time.</p>
-<p>Not every new pipeline is nested. Transfers that don’t change from one iteration of a loop to the next, such as an operand broadcast along that loop’s dimension or a constant buffer, are hoisted into a <em>sibling</em> pipeline that runs once before the loop, instead of refetching the same data on every iteration. Reductions are restructured in the same spirit: large ones are chunked to fit in scratchpad, the outer part becomes an explicit loop with a carried accumulator, and the innermost, stick-width part is left for a device pattern to map onto the hardware’s own reduction support.</p>
-<pre><code class="language-mlir">scf.for %m0 ... { scf.for %n0 ... {
-  ktdf.pipeline {                                            // outer: tile granularity
-    %p0:5 = ktdf.private -&gt; (memref&lt;2x1x64xf16, "L1"&gt;, ..., !ktdf.token, !ktdf.token) {...}
-    ktdf.stage depends_in(none) depends_out(%p0#3) {         // bulk DDR -&gt; L1 for the tile
-      scf.for %m1 ... { scf.for %n1 ... { ktdf.data_transfer from %A[..] ... to %p0#0[..] ... } }
-    }
-    ktdf.stage depends_in(%p0#3) depends_out(%p0#4) {        // compute stage holds a pipeline
-      scf.for %m1 ... { scf.for %n1 ... {
-        ktdf.pipeline {                                      // inner: vector granularity
-          ktdf.stage ... { ktdf.data_transfer from %p0#0[..] ... to %fifo_in ... }   // L1 -&gt; FIFO
-          ktdf.stage ... { ... linalg.add ... }                                      // compute
-          ktdf.stage ... { ktdf.data_transfer from %fifo_out ... to %p0#2[..] ... }  // FIFO -&gt; L1
-        }
-      } }
-    }
-    ktdf.stage depends_in(%p0#4) depends_out(none) {         // bulk L1 -&gt; DDR
-      scf.for %m1 ... { scf.for %n1 ... { ktdf.data_transfer from %p0#2[..] ... to %C[..] ... } }
-    }
-  }
-} }
-</code></pre>
-<h3>Step 5: Exploring the loop space</h3>
-<p>Once the pipeline’s shape is settled, the remaining question is how much of it runs at once. Scratchpad buffers that one stage writes and another reads inside a loop are double-buffered, so the pipeline rotates between two copies (<code>modulo(size: 2)</code>) and the DMA stage can fill tile N+1 while compute is still draining tile N. That is exactly the load/compute overlap the decoupled design exists to provide. Work is then split across the sub-core instances (<em>corelets</em>) inside each core, with a parallel loop around a corelet-local pipeline becoming a <code>ktdf.parallel ... distribute(num_instances = N)</code> and N taken from the architecture description. This gives a second level of parallelism, inside each of the cores that Inductor’s <code>grid</code> has already assigned. Only after that are the tile-size placeholders filled in, so that the sizes chosen already account for the parallel instances.</p>
-<p>Taken together, this is a genuine loop space. Loop structure, pipeline granularity, buffering depth, instance split and tile size are all separate, explicit decisions in the IR, each bounded by what the architecture description allows. We want to be clear about where this stands today, though: in the V1 scheduler, these choices are made by local heuristics rather than by search or a cost model. Keeping every choice explicit in the IR, as placeholders, <code>modulo</code> factors and <code>distribute</code> counts, was deliberate, so that a cost model or an autotuner can be added later without touching the structure of the pipeline.</p>
-<p><!-- IMAGE PLACEHOLDER: growing-one-pipeline.png - upload via Media Library. Suggested alt text: "Growing one pipeline: simple three-stage pipeline, legalized by path expansion, then nested and enlarged" --></p>
-<p><em><a href="https://pytorch.org/wp-content/uploads/2026/10/pipeline-evolution.svg"><img decoding="async" class="alignnone size-full wp-image-188757" src="https://pytorch.org/wp-content/uploads/2026/10/pipeline-evolution.svg" alt="" /></a>Growing one pipeline: start simple, legalize, then enlarge</em></p>
-<h3>Step 6: Addresses, units and DataflowIR</h3>
-<p>The last stretch turns the logical schedule into a concrete one. Every buffer gets an address in its memory, checked against the capacities in the architecture description. Scratchpad is allocated per program, while device-memory allocations persist across programs, since that’s how one program hands its results to the next. The abstract unit kinds are then instantiated for each core (and for each corelet, where the work is parallel), token dependencies become explicit signals, and each program is split into one <strong><code>dataflow.program_unit</code> per kind of engine</strong>, each keeping only the part of the work that runs on it. Along the way, transfers become address-generation and send/receive operations, and the compute tile id becomes a per-core lookup. Each program ends up with two levels: an outer function with the program’s real signature, which declares its symbols, and an inner, argument-free function that holds the DataflowIR.</p>
-<p>Symbolic values, whether tensor addresses or tensor shapes, make it through all of this intact. Taking an address as the example, a start address computed from a kernel argument becomes a <code>symbol.create_symbol</code> with an ID, and the expression that produces it (the argument plus this grid element’s share of the tensor, converted to the unit’s address granularity) is recorded one level up with <code>symbol.create_id</code>. When different grid elements start at different offsets, each one gets its own symbol, selected through a per-unit map.</p>
-<pre><code class="language-mlir">// One level up: what each symbol is, as arithmetic over the kernel argument
-func.func @local_schedule_0(%base: index) {
-  symbol.create_id %base {symbol_id = -1}
-  %w0 = arith.divsi %base, %c64 : index                   // grid element 0, in 64-byte words
-  symbol.create_id %w0 {symbol_id = -2}
-  %b1 = arith.addi %base, %c49152 : index                 // grid element 1: base + its slab
-  %w1 = arith.divsi %b1, %c64 : index
-  symbol.create_id %w1 {symbol_id = -3}
-  call @local_schedule_0_body() : () -&gt; ()
-}
-// The DataflowIR itself takes no arguments; it only names symbols.
-%s0 = symbol.create_symbol {SymbolId = -2 : i64} : index
-%s1 = symbol.create_symbol {SymbolId = -3 : i64} : index
-%m  = uniform.def_immutable_mapping([%core0 -&gt; %s0], [%core1 -&gt; %s1]) : index
-%a  = uniform.query_map(map: %m, key: %unit) : index
-dataflow.get_logical_memory_view %ddr, %a ...
-</code></pre>
-<p>The resulting table of symbols, each written as an expression over the kernel’s inputs, is what the runtime eventually evaluates at launch.</p>
-<p><strong>DataflowIR</strong> is the hand-off point, consisting of per-engine program units built from the <code>dataflow</code>, <code>vectorchain</code>, <code>agen</code>, <code>uniform</code>, <code>symbol</code> and <code>scf</code> dialects. This is where the open-source scheduler stops, and its only obligation to what comes next is to emit valid DataflowIR in those dialects with stable program-unit tags.</p>
-<h2>From DataflowIR to SpyreCode</h2>
-<p>The remaining stages are device-specific, so we describe them only as far as is needed to connect this post with the runtime post.</p>
-<p><strong>Symbolic SpyreBinary generation</strong> lowers each program’s DataflowIR into a SpyreBinary: the binary that configures and starts the program’s units on the device. Any value that depends on the caller’s tensors, whether a tensor address or a tensor shape, stays in the binary as a symbol. <strong>Metadata generation for runtime symbol substitution</strong> then records how each of those symbols is computed from the kernel’s inputs. Finally, <strong>SpyreCode generation</strong> packages the SpyreBinary and its metadata together with a job plan in two parts.</p>
-<p><!-- IMAGE PLACEHOLDER: spyrecode-contents.png - upload via Media Library. Suggested alt text: "Contents of SpyreCode: symbolic SpyreBinary, symbol-substitution metadata and a two-phase job plan" --></p>
-<p><em><a href="https://pytorch.org/wp-content/uploads/2026/10/spyrecode-job-plan.svg"><img decoding="async" class="alignnone size-full wp-image-188758" src="https://pytorch.org/wp-content/uploads/2026/10/spyrecode-job-plan.svg" alt="" /></a>What SpyreCode carries: a symbolic SpyreBinary, its symbol-substitution metadata, and a two-phase job plan</em></p>
-<p>Those two parts line up with the split the runtime post draws between preparation and launch. The <strong>preparation plan</strong> loads the SpyreBinary onto the device and doesn’t depend on the call’s arguments, so the runtime’s <code>prepare_kernel</code> runs it once. The <strong>execution plan</strong> evaluates the symbols over the actual tensor addresses and shapes on the host, transfers the resolved values to the device, and launches the computation, which are the runtime post’s three launch-time steps in order. <code>launch_jobplan</code> walks it on every call, and a kernel whose addresses and shapes are all known at compile time needs only the launch.</p>
-<h2 id="try-it">Try it</h2>
-<p>The Dataflow Scheduler builds against upstream LLVM/MLIR. The <a href="https://github.com/torch-spyre/dataflow-scheduler#build-instructions">README</a> gives the exact LLVM revision and how to build it. With an MLIR build in place, the scheduler takes a couple of commands:</p>
-<pre><code class="language-bash">git clone --recursive https://github.com/torch-spyre/dataflow-scheduler.git
-cd dataflow-scheduler
-cmake -S . -B build -G Ninja -DMLIR_DIR=$MLIR_INSTALL_PREFIX/lib/cmake/mlir
-cmake --build build
-</code></pre>
-<p>A good hello world is the simple elementwise add in the repository’s tests, <code>test/dataflow-scheduler-opt/ktir-to-dfir-sanity-check.mlir</code>. It is a small, self-contained KTIR kernel, much like the add from earlier in this post, split across two compute tiles and targeting the sample device described above. Running the whole pipeline on it prints the DataflowIR it produces:</p>
-<pre><code class="language-bash">./build/bin/dataflow-scheduler-opt -ktir-to-dfir \
-    test/dataflow-scheduler-opt/ktir-to-dfir-sanity-check.mlir
-</code></pre>
-<p>Adding <code>--mlir-print-ir-after-all</code> shows the IR after every pass, which is the easiest way to watch the program split, the three-stage pipeline appear, path expansion insert its hops, and the pipelines nest. For your own kernels and devices, the <code>dataflow-scheduler</code> driver takes the architecture description directly, as <code>dataflow-scheduler -kEmitDFIR --device=&lt;path-to-device.mlir&gt; &lt;kernel.mlir&gt;</code>, and writes the resulting DataflowIR to files.</p>
-<h2>Conclusion</h2>
-<p>Taken together, the three posts trace a single path from <code>torch.compile</code> down to Spyre silicon. Inductor decides the layout, the tiling, the division of work across cores, and which tensors stay pinned in scratchpad. KTIR records those decisions in MLIR, as compute tiles, explicit memories, distributed views, access tiles and Spyre intrinsics, without committing to any dataflow detail. The Dataflow Scheduler then makes them run, cutting the kernel into programs, building a pipeline, routing each transfer through the memory hierarchy, and nesting, buffering and parallelizing that pipeline, all guided by an architecture description rather than hard-coded knowledge of one chip. The device-specific stages turn the result into SpyreCode, a symbolic SpyreBinary plus a two-phase job plan whose tensor addresses and shapes can stay symbolic until launch, and the runtime prepares it once and launches it on every call through ordinary PyTorch streams.</p>
-<p>Every boundary along that path is an IR, and each IR states the facts the next stage needs: placement in KTIR, pipelines in ScheduleIR, per-engine programs in DataflowIR, and the preparation/execution split in SpyreCode. Making those facts explicit is ultimately what allows a dataflow accelerator to sit behind PyTorch’s ordinary interfaces.</p>
-<p>Version 1 of the Dataflow Scheduler is ready. It handles elementwise operations with broadcast and reduction dimensions across multi-core KTIR programs, and it has been validated end to end, from KTIR through scheduling and code generation, on representative transformer operations. One of the clearest benefits so far has been how much less developer time it takes to bring up an op: the first op we enabled came up about 4x faster than on the previous stack, and subsequent ops about 8x faster. The same approach has also given us working paths from both the Inductor and Triton frontends. Next, we are completing matrix multiplication support in the Dataflow Scheduler and adding cost-model-driven performance optimizations, with the goal of running LLMs end to end.</p>
-<p>KTIR and the Dataflow Scheduler are open source, and the <a href="#try-it">Try it</a> section above is the quickest way to see the pipeline in action. If you’re building a compiler for a dataflow or scratchpad-based accelerator, we’d love to hear from you, since the architecture-description approach is meant to make the scheduler useful well beyond Spyre.</p>
-<p>The post <a href="https://pytorch.org/blog/from-ktir-to-spyrecode-an-mlir-dataflow-backend-for-ibm-spyre/">From KTIR to SpyreCode: An MLIR Dataflow Backend for IBM Spyre</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4828 metric#misses=31 metric#hit-ratio=99.4 metric#bytes=1617102 metric#prefetches=276 metric#store-reads=35 metric#store-writes=7 metric#store-hits=284 metric#store-misses=15 metric#sql-queries=19 metric#ms-total=673.72 metric#ms-cache=31.11 metric#ms-cache-avg=0.7588 metric#ms-cache-ratio=4.6 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4747 metric#misses=31 metric#hit-ratio=99.4 metric#bytes=1564895 metric#prefetches=262 metric#store-reads=35 metric#store-writes=8 metric#store-hits=270 metric#store-misses=15 metric#sql-queries=20 metric#ms-total=936.20 metric#ms-cache=43.75 metric#ms-cache-avg=1.0417 metric#ms-cache-ratio=4.7 -->
