@@ -7,6 +7,30 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
+   <title>StateBench: Testing how language models track state changes over long documents</title>
+   <pubDate>Tue, 03 Nov 2026 17:15:21 GMT</pubDate>
+   <link>https://huggingface.co/blog/allenai/statebench</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/allenai/statebench</guid>
+  </item>
+  <item>
+   <title>Palette: teaching a small model to build decks in your design language</title>
+   <pubDate>Tue, 03 Nov 2026 16:35:36 GMT</pubDate>
+   <link>https://huggingface.co/blog/ibm-research/palette-deck-building</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/palette-deck-building</guid>
+  </item>
+  <item>
+   <title>CWE-bench v2: More coverage, quality, and transparency</title>
+   <pubDate>Tue, 03 Nov 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/cwe-bench</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/cwe-bench</guid>
+  </item>
+  <item>
+   <title>Transformers Model Integration Contracts</title>
+   <pubDate>Tue, 03 Nov 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/transformers-mic</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/transformers-mic</guid>
+  </item>
+  <item>
    <title>nemotron-halloween</title>
    <pubDate>Fri, 30 Oct 2026 17:57:24 GMT</pubDate>
    <link>https://huggingface.co/blog/nvidia/nemotron-halloween</link>
@@ -43,12 +67,6 @@
    <guid isPermaLink="false">https://huggingface.co/blog/LiquidAI/lfm3</guid>
   </item>
   <item>
-   <title>Can we trust LLMs to judge whether a research idea is novel?</title>
-   <pubDate>Tue, 27 Oct 2026 16:12:42 GMT</pubDate>
-   <link>https://huggingface.co/blog/allenai/novelty-bench</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/allenai/novelty-bench</guid>
-  </item>
-  <item>
    <title>Does Your Model Run on AWS Trainium? Look It Up</title>
    <pubDate>Fri, 23 Oct 2026 00:00:00 GMT</pubDate>
    <link>https://huggingface.co/blog/torch-neuronx-model-support</link>
@@ -59,12 +77,6 @@
    <pubDate>Thu, 22 Oct 2026 22:24:34 GMT</pubDate>
    <link>https://huggingface.co/blog/microsoft/thinkingbox-training</link>
    <guid isPermaLink="false">https://huggingface.co/blog/microsoft/thinkingbox-training</guid>
-  </item>
-  <item>
-   <title>Ensemble forecasting with IBM Granite time-series models</title>
-   <pubDate>Thu, 22 Oct 2026 07:51:31 GMT</pubDate>
-   <link>https://huggingface.co/blog/ibm-research/granite-timeseries-ensemble-r1</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/granite-timeseries-ensemble-r1</guid>
   </item>
   <item>
    <title>How Specializing the Vocabulary of SLMs Can Cut Inference Cost by 77% in Real Applications</title>
