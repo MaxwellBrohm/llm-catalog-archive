@@ -5,7 +5,7 @@
 - [Overview](https://docs.together.ai/intro.md): Run, train, and serve open-source AI models on Together AI.
 - [Quickstart](https://docs.together.ai/docs/quickstart.md): Make your first request to Together AI in a few minutes.
 - [Coding agent setup](https://docs.together.ai/docs/agent-skills.md): Make your AI coding agent Together-AI-aware with a ready-made skill for code generation and an MCP server for live docs lookup.
-- [Configure Claude Code, Codex, OpenCode & Pi Code with OSS models](https://docs.together.ai/docs/togetherlink.md): Use Together Link to run Claude Code, Codex, OpenCode, Pi Code, Claude Desktop and Cowork, and ChatGPT Desktop with models hosted by Together AI.
+- [Configure Claude Code, Codex, OpenCode & Pi Code with open-weight models](https://docs.together.ai/docs/togetherlink.md): Use Together Link to power your coding agents and desktop apps with models hosted by Together AI.
 - [Recommended models](https://docs.together.ai/docs/inference/recommended-models.md): Our picks for common inference use cases.
 - [Overview](https://docs.together.ai/docs/serverless/overview.md): Call 100+ open-source models with per-token pricing and no provisioning latency.
 - [Available models](https://docs.together.ai/docs/serverless/models.md): Browse the catalog of available models for instant inference.
@@ -14,6 +14,8 @@
 - [Provisioned throughput](https://docs.together.ai/docs/inference/provisioned-throughput.md): Reserved inference capacity for production workloads.
 - [Overview](https://docs.together.ai/docs/inference/overview.md): Run inference on 100+ open-source models.
 - [OpenAI compatibility](https://docs.together.ai/docs/inference/openai-compatibility.md): Point your OpenAI Python or TypeScript client at Together AI to call open-source models without rewriting your app.
+- [Messages API](https://docs.together.ai/docs/inference/messages-api.md): Call Together AI models with the Anthropic Messages API through the Anthropic Python and TypeScript SDKs.
+- [Responses API](https://docs.together.ai/docs/inference/responses-api.md): Call Together AI models with the OpenAI Responses API through the OpenAI Python and TypeScript SDKs.
 - [Third-party integrations](https://docs.together.ai/docs/inference/sdk-integrations.md): Use Together AI models through partner SDKs and integrations.
 - [Send chat completions](https://docs.together.ai/docs/inference/chat/overview.md): Query chat models with single prompts, multi-turn conversations, and system prompts.
 - [Parameters](https://docs.together.ai/docs/inference/chat/parameters.md): The full list of parameters you can pass to the chat completions endpoint.
