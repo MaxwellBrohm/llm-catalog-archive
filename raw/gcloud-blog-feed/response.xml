@@ -1,5 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Mon, 02 Nov 2026 22:08:23 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>What Google Cloud announced in AI this month</title><link>https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="wws10"&gt;&lt;b&gt;&lt;i&gt;Editor’s note&lt;/i&gt;&lt;/b&gt;&lt;i&gt;: Want to keep up with the latest from Google Cloud? Check back here for a monthly recap of our latest updates, announcements, resources, events, learning opportunities, and more.&lt;/i&gt;&lt;/p&gt;&lt;hr/&gt;&lt;p data-block-key="3o743"&gt;&lt;/p&gt;&lt;/div&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link><description>AI &amp; Machine Learning</description><atom:link href="https://cloudblog.withgoogle.com/blog/products/ai-machine-learning/rss/" rel="self"></atom:link><language>en</language><lastBuildDate>Tue, 03 Nov 2026 18:08:22 +0000</lastBuildDate><image><url>https://cloud.google.com/blog/products/ai-machine-learning/static/blog/images/google.a51985becaa6.png</url><title>AI &amp; Machine Learning</title><link>https://cloud.google.com/blog/products/ai-machine-learning/</link></image><item><title>How Nammu21 automates syndicated loans on Google Cloud Universal Ledger</title><link>https://cloud.google.com/blog/topics/financial-services/how-nammu21-automates-syndicated-loans-on-google-cloud-universal-ledger/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The syndicated loan and private credit markets, both critical components of corporate finance, have long been constrained by manual processes, leading to multi-week settlements, valuation opacity, and trade friction. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To solve these long-standing challenges, fintech innovator &lt;/span&gt;&lt;a href="https://www.nammu21.com/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Nammu21&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; partnered with Google Cloud on a new proof-of-concept. Using its AI-powered platform to structure legal agreements and instantiate them as smart contracts on the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/universal-ledger"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Cloud Universal Ledger (GCUL)&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, Nammu21 automates the entire loan lifecycle, paving the way for improved settlement times and greater market efficiency.&lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;Digitizing the loan market&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;While loan markets provide billions in capital to businesses worldwide, their underlying infrastructure has not kept pace with the speed of digital finance. This landscape requires continuous coordination across facility agents, borrowers, and diverse lender syndicates, while also managing highly customized credit agreements with dynamic tranches and complex covenants. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In particular, relying on fragmented, manual interpretation of legal text often results in significant operational drag and data silos. According to the &lt;/span&gt;&lt;a href="https://blog.lma.eu.com/challenging-the-timeline-issue-no-4/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Loan Market Association&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, secondary market settlement times for par/near par loans in Q4 2024 still averaged 42 days, with a median of 27 days. These notoriously slow timelines tie up capital, increase counterparty risk, and create a heavy reconciliation burden for participants.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Nammu21 transforms bespoke credit documents into programmable assets at scale by rendering each facility's governing terms as a Digital Credit Instrument (DCI). The DCI maps every term — including conditions, consents, eligibility criteria, and operational mechanics that determine what is permitted under a facility — directly back to its originating legal provision. These elements are then expressed as executable behaviours against a loan's live state. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To instantiate these instruments, the proof-of-concept utilizes the secure, high-performance execution environment of GCUL, an institutional-grade, permissioned distributed ledger that helps automate complex financial workflows to deliver near-instant transaction finality and predictable costs without the volatility or security concerns of public blockchains.&lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;A purpose-built stack for digital credit&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Combined with Nammu21’s data intelligence, GCUL provides the foundational infrastructure for converting legal document logic into live, programmable contracts. Designed to handle the privacy, scale, and multi-party coordination required by institutional finance, GCUL provides a permissioned, high-performance distributed ledger that delivers deterministic, instant transaction finality for high-value financial settlements.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Programmable contracts on GCUL are written in &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gculpy&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, GCUL's domain-optimized programming language. As a strict, statically-typed subset of Python, &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gculpy&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; is designed to be safe, readable, and auditable, making it ideal for processing complex financial logic.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For regulated financial institutions, &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gculpy&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; offers distinct operational advantages over other ledger programming models. The language simplifies development by removing the need for complex memory management or workarounds to meet highly restrictive call stack limits, allowing engineers to focus on the financial logic itself. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;GCUL also provides robust, built-in permissioning, requiring explicit user authorization before a contract can store data on their behalf. This solves the "unsolicited asset" problem — common on public networks — where unwanted tokens can be sent to an organization's wallet, creating compliance and accounting issues. With GCUL, institutions can maintain full control over which assets they interact with to support their high-value, highly regulated use cases.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Nammu21 serves a dual role in this architecture. First, the platform renders the DCI programmatically from the original legal agreement without manual document reading to establish the terms. Next, it derives &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gculpy&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; contracts that define the structure of the obligation and govern the loan on GCUL, using the DCI to supply the terms that determine what the loan documents permit, require and block.&lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;Technical architecture: The loan lifecycle on GCUL&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Nammu21’s loan implementation on GCUL demonstrates the value of creating a single, immutable source of truth. The proof-of-concept modeled a $1.945 billion Term Loan B — one segment of a broader multi-facility transaction — where the agent bank, borrower, transferor, and transferee all worked off a permissioned view of the same on-ledger rendering.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The lifecycle begins when an agent bank selects a specific credit agreement transformed by Nammu21. The platform instantly provides the structured terms from the document, which are used to instantiate a unique &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gculpy&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; contract on GCUL, establishing a verifiable, on-ledger digital twin of that specific loan facility.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1-facility-tokenization.max-1000x1000.png"
+        
+          alt="1-facility-tokenization"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Next, the agent bank initiates the onboarding of the borrower and lenders. This multilateral action requires that each participant review the request and then provide explicit consent by approving the onboarding invitation from their own interface. Once all parties are onboarded, the agent bank records an immutable hash of the loan's key terms on-ledger, attesting that the on-ledger data matches the canonical off-ledger records.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Subsequent lifecycle events, such as secondary market transfers or repayments, are also managed as multi-step, automated workflows governed by a consent-driven model. For example, a transfer of a loan position requires new lender, borrower, and agent bank consent  before it can be executed atomically on the ledger. All payment flows, from interest payments to loan close-outs, settle directly on GCUL using tokenized commercial bank money, eliminating the need for external payment rails.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/2-assignment-transfer-legend.max-1000x1000.png"
+        
+          alt="2-assignment-transfer-legend"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Transacting with familiar, regulated money on a programmable ledger provides an architecture purpose-built for institutional finance, grounded in three core pillars:&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;1. &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Compliance via gated execution: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Nammu21’s &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gculpy&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; contracts instantiated with governing terms, validate every action against the terms transformed from the agreement before execution, mitigating potential covenant breaches or invalid transfers upfront while eliminating the risk of silent failures. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;2. &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Role-based privacy:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; GCUL enforces strict, role-based access, ensuring that trading strategies, positions, and sensitive loan data remain confidential and are visible only to the necessary counterparties in a transaction.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;3. &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Settlement finality: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Every on-ledger action completes near-instantly and anchors on canonical data derived from the original credit agreement, replacing provisional, reconciliation-heavy models with real-time, trusted verification.&lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;&lt;span style="vertical-align: baseline;"&gt;The business impact of moving on-ledger&lt;/span&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This proof-of-concept illustrates a structural shift in how credit markets can operate. When each facility's governing terms are rendered as a DCI and executed on GCUL, the operational mechanics of lending markets change fundamentally, rather than incrementally. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Values can be reconciled bilaterally, but governance logic cannot – and the market’s current friction stems directly from each party's independent interpretation of the rules. Resolving this issue on-ledger is what enables settlement times to compress, back-office overhead to shrink, and counterparty risk to be mitigated by design rather than by manual checking. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This same architecture can be applied wherever credit terms are bespoke and manually interpreted. By freeing up capital that would otherwise be trapped in lengthy settlement cycles, new liquidity is unlocked and a more dynamic and efficient secondary loan market can emerge.&lt;/span&gt;&lt;/p&gt;
+&lt;hr/&gt;
+&lt;p&gt;&lt;sup&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;The team would also like to thank Someera Khokhar, Jordan Shelley, and Saskia A. Aalders at Nammu21 and Googlers Ishan Singh, Kathryn Stavish, Tom Chudy, and Stathis Onasoglou for their contributions.&lt;/span&gt;&lt;/sup&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 03 Nov 2026 18:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/topics/financial-services/how-nammu21-automates-syndicated-loans-on-google-cloud-universal-ledger/</guid><category>AI &amp; Machine Learning</category><category>Customers</category><category>Web3</category><category>Financial Services</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/nammu21-automating-sydicated-loans-header.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>How Nammu21 automates syndicated loans on Google Cloud Universal Ledger</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/nammu21-automating-sydicated-loans-header.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/topics/financial-services/how-nammu21-automates-syndicated-loans-on-google-cloud-universal-ledger/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Chang Yang Jiao</name><title>Head of Blockchain, Nammu21</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Moritz Platt</name><title>Capital Markets Technology Manager</title><department></department><company></company></author></item><item><title>Introducing Physical-Engineering’s Last Exam for agents</title><link>https://cloud.google.com/blog/products/ai-machine-learning/introducing-physical-engineerings-last-exam-for-agents/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;Authors: Burak Gokturk, VP Research &amp;amp; Development; Rujun Han, Research Scientist; George Lee, Product Manager.&lt;/span&gt;&lt;/p&gt;
+&lt;hr/&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Today, the &lt;/span&gt;&lt;a href="http://aiinfra.google" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google AI &amp;amp; Infrastructure&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; team is announcing &lt;strong&gt;Physical-Engineering's Last Exam (PLE)&lt;/strong&gt;, a new benchmark and open competition, developed in collaboration with Mercor, and built to test a frontier model’s ability to complete tasks in mechanical, electrical, civil and structural engineering. &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To help the research community measure and improve how agents handle physical engineering work, we are releasing 29 public tasks, their grading tools, and an open competition leaderboard at &lt;/span&gt;&lt;a href="http://ple-bench.com" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;ple-bench.com&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Frontier labs and the broader research community use model examinations to test AI’s progress in completing tasks in a specific discipline. &lt;/span&gt;&lt;a href="https://lastexam.ai/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Humanity's Last Exam&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; measures a model’s general knowledge. &lt;/span&gt;&lt;a href="https://agents-last-exam.org/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Agents' Last Exam&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; measures a model’s ability to complete digital professional work. &lt;strong&gt;Physical-Engineering's Last Exam (PLE)&lt;/strong&gt; measures a model’s ability to complete work that helps build the physical world. Physical engineers design skyscrapers, power grids, and computer chips we rely on, yet we could find no existing benchmark that tests whether frontier models can do that work end to end.&lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Why textbook benchmarks fall short for physical engineering&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Frontier language models now score above 90% on many academic benchmarks. However, those benchmarks mostly test textbook-style questions, single tool calls, or small, self-contained design problems. For AI developers and researchers building agents for physical  engineering, existing benchmarks do not show whether an agent can produce safe, code-compliant, and cost-effective designs under a licensed engineer's review and control. As the &lt;/span&gt;&lt;a href="https://infrastructurereportcard.org/wp-content/uploads/2025/03/Full-Report-2025-Natl-IRC-WEB.pdf?_gl=1*1timmgv*_up*MQ..*_ga*MzEyMjk2NDYxLjE3OTMwNDg0MTc.*_ga_C9EX6BGYX5*czE3OTMwNDg0MTYkbzEkZzAkdDE3OTMwNDg0MTYkajYwJGwwJGgw" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;demand for infrastructure development outpaces financing&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, there is a growing opportunity for agents to support engineers working to close this gap.   &lt;/span&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Inside PLE: Real-world tasks built with practicing engineers&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;PLE closes this evaluation gap with 85 long-horizon tasks across four core disciplines: &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;mechanical&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; (30 tasks), &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;electrical&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; (27 tasks), &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;civil&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; (18 tasks), and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;structural&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; (10 tasks) engineering.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/PLE_Kaggle_-_ple_disciplines_description.max-1000x1000.png"
+        
+          alt="PLE Kaggle - ple_disciplines_description"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Instead of answering a single prompt, an agent works inside a containerized project folder — built on&lt;/span&gt;&lt;a href="https://github.com/Mercor-Intelligence/archipelago" rel="noopener" target="_blank"&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Mercor’s Archipelago environment&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; — that mirrors what a practicing engineer receives on the job. Each task holds an average of 61 files (5,170 total files across the benchmark), including PDFs, spreadsheets, emails, 2D CAD drawings, 3D BIM models, and document revisions. The agent must reason through these files, find the governing building codes and physical limits, run calculations, and generate production-ready deliverables that a licensed reviewer would review and approve.&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In collaboration with experts from Mercor and licensed practicing engineers from industry, we built PLE using two methods:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Expert-authored tasks (44 tasks): Practicing engineers created the project folders, prompts, and grading rubrics based on real professional engineering tasks.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Co-authored tasks (41 tasks): Practicing engineers designed the initial task and an agent pipeline assembled the task's environment and grader from licensable engineering standards. Engineers then validated and increased the difficulty of every task assembled by the agent.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;All frontier models score below 50%&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We tested 14 frontier models on PLE using seven publicly available agent harnesses (Antigravity, Claude Code, Codex, Hermes, OpenCode, OpenHands, and Pi). Because PLE evaluates both code compliance and cost efficiency, agents only earn points if their design passes every hard safety check first. Our baseline results show a wide gap between current models and real-world engineering requirements:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;High headroom: All frontier models score below 50% on our private test set, with the highest-performing model on its native harness reaching a mean score of 48.3%.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Hard safety gates: While the top-scoring agent configuration satisfied 91% of individual constraints on co-authored tasks, only 41.3% of its deliverables passed every hard safety and feasibility check required.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Model vs. harness impact: Choice of model drives performance far more than the harness (up to a 50-point spread across models, versus a median 3-point spread across harnesses for the same model), though harnesses significantly affect run cost.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;
+&lt;div class="block-image_full_width"&gt;
+
+
+
+
+
+
+  
+    &lt;div class="article-module h-c-page"&gt;
+      &lt;div class="h-c-grid"&gt;
+  
+
+    &lt;figure class="article-image--large
+      
+      
+        h-c-grid__col
+        h-c-grid__col--6 h-c-grid__col--offset-3
+        
+        
+      "
+      &gt;
+
+      
+      
+        
+        &lt;img
+            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/ple_frontier_private_x.max-1000x1000.png"
+        
+          alt="ple_frontier_private_x"&gt;
+        
+        &lt;/a&gt;
+      
+    &lt;/figure&gt;
+
+  
+      &lt;/div&gt;
+    &lt;/div&gt;
+  
+
+
+
+
+&lt;/div&gt;
+&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Test your agent and join the open competition&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Evaluating AI agents on realistic project files, strict safety rules, and material costs is a practical step toward building helpful tools for physical engineers. Here is how you can get started with PLE today:&lt;/span&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Check out the full technical breakdown in our &lt;/span&gt;&lt;a href="https://arxiv.org/pdf/2610.30537" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;PLE paper on arXiv&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Download the 29 public tasks, grading scripts, and evaluation container from our &lt;/span&gt;&lt;a href="https://github.com/google-research/ple" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;GitHub repository&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
+&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Bring your own agent setup and submit it for evaluation on our private test set at &lt;/span&gt;&lt;a href="http://ple-bench.com" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;ple-bench.com&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;—with 13 Google-sponsored models running free on our servers and prize details coming soon.&lt;/span&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;</description><pubDate>Tue, 03 Nov 2026 08:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/introducing-physical-engineerings-last-exam-for-agents/</guid><category>AI &amp; Machine Learning</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Introducing Physical-Engineering’s Last Exam for agents</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/introducing-physical-engineerings-last-exam-for-agents/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Google AI &amp; Infrastructure </name><title></title><department></department><company></company></author></item><item><title>What Google Cloud announced in AI this month</title><link>https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="wws10"&gt;&lt;b&gt;&lt;i&gt;Editor’s note&lt;/i&gt;&lt;/b&gt;&lt;i&gt;: Want to keep up with the latest from Google Cloud? Check back here for a monthly recap of our latest updates, announcements, resources, events, learning opportunities, and more.&lt;/i&gt;&lt;/p&gt;&lt;hr/&gt;&lt;p data-block-key="3o743"&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;This October, we took massive leaps forward in delivering flexible, open, and powerful enterprise AI solutions. From bringing Gemini 4 Argon to Google Cloud to expanding choice and flexibility, we’re giving organizations the tools they need to bring complex, multi-agent AI workflows into production safely.&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Here’s a quick look at the major milestones, expert insights, and practical developer guides to read through and save. &lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Top announcements &lt;/strong&gt;&lt;/h3&gt;
@@ -44,7 +287,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Stay tuned for monthly updates on Google Cloud’s AI announcements, news, and best practices. For a deeper dive into the latest from Google Cloud customers, read our monthly recap, &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/topics/customers/cool-stuff-google-cloud-customers-built-monthly-round-up?e=48754805"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Cool stuff customers built.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-aside"&gt;&lt;dl&gt;
     &lt;dt&gt;aside_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;$300 in free credit to try Google Cloud AI and ML&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fc7e8e62c10&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Start building for free&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;http://console.cloud.google.com/freetrial?redirectPath=/vertex-ai/&amp;#x27;), (&amp;#x27;image&amp;#x27;, None)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;title&amp;#x27;, &amp;#x27;$300 in free credit to try Google Cloud AI and ML&amp;#x27;), (&amp;#x27;body&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f4ed45903d0&amp;gt;), (&amp;#x27;btn_text&amp;#x27;, &amp;#x27;Start building for free&amp;#x27;), (&amp;#x27;href&amp;#x27;, &amp;#x27;http://console.cloud.google.com/freetrial?redirectPath=/vertex-ai/&amp;#x27;), (&amp;#x27;image&amp;#x27;, None)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;hr/&gt;
 &lt;h2 style="text-align: center;"&gt;September&lt;/h2&gt;
@@ -699,7 +942,7 @@
   &lt;/section&gt;
 &lt;/div&gt;
 
-&lt;/div&gt;</description><pubDate>Mon, 02 Nov 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/</guid><category>Google Cloud</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/AI_this_month.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>What Google Cloud announced in AI this month</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/AI_this_month.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Andrea Morange</name><title>Editor, Google Cloud</title><department></department><company></company></author></item><item><title>Innovate on your own business terms: Google Cloud spend caps now generally available</title><link>https://cloud.google.com/blog/topics/cost-management/google-cloud-spend-caps-now-generally-available/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Today, we’re announcing that spend caps on Google Cloud Budgets are generally available. &lt;/span&gt;&lt;/p&gt;
+&lt;/div&gt;</description><pubDate>Mon, 02 Nov 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/</guid><category>Google Cloud</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Whats_new_AI.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>What Google Cloud announced in AI this month</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Whats_new_AI.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/what-google-cloud-announced-in-ai-this-month/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Andrea Morange</name><title>Editor, Google Cloud</title><department></department><company></company></author></item><item><title>Innovate on your own business terms: Google Cloud spend caps now generally available</title><link>https://cloud.google.com/blog/topics/cost-management/google-cloud-spend-caps-now-generally-available/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Today, we’re announcing that spend caps on Google Cloud Budgets are generally available. &lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;With this release, we’re delivering ways to protect your workloads from runaway costs without risking resource deletion. &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;More importantly, we’re introducing three major updates, directly inspired by your feedback since the initial preview, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;to bring programmability, real-time visibility, and automated guardrails to your cost-control playbook.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;How the new spend caps can help your business &lt;/span&gt;&lt;/h3&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We have significantly enhanced the usability and power of spend caps in three ways: &lt;/span&gt;&lt;/p&gt;
@@ -1434,15 +1677,15 @@
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;No matter how you choose to deploy, you can access Anthropic's latest frontier models on Google Cloud, including &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-fable-5-1"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Claude Fable 5.1&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-sonnet-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Sonnet 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-haiku-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Haiku 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, and &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-opus-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Opus 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, with new platform features available immediately on the Anthropic-managed option and rolling out on the Google-managed option once integrated. This gives developers the full spectrum of reasoning, coding, and multi-modal capabilities with Google Cloud IAM and Marketplace billing.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/claude-platform"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Get started&lt;/span&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;.&lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 22 Oct 2026 21:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</guid><category>Partners</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0_11.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Expanding Claude availability and deployment choice on Google Cloud</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0_11.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Google Cloud expands model choice and flexibility, bringing OpenAI models to customers</title><link>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="8sb5z"&gt;Google Cloud has always been defined by choice, enterprise-grade governance, and market-leading price-performance. Key to the foundation of openness and choice is giving customers flexibility to run agentic workloads across their choice of models and infrastructure to achieve the right balance of cost, capability, and performance. Today, we are expanding that foundation by launching OpenAI models in Google Cloud’s model garden.&lt;/p&gt;&lt;p data-block-key="6g46g"&gt;Google Cloud is now the only hyperscale cloud provider offering access to all three leading closed source LLMs, alongside more than 200 first-party, third-party, and open models on a unified enterprise AI platform.&lt;/p&gt;&lt;h3 data-block-key="8ea37"&gt;&lt;b&gt;The right model for every workload&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="3bp7q"&gt;Modern enterprise AI requires matching each workload to the right model rather than relying on a single model for every task. By adding OpenAI’s newest models to model garden, we are giving teams options across the full spectrum of enterprise workloads. For OpenAI models:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="9h8m5"&gt;&lt;b&gt;GPT-6 Astra&lt;/b&gt;: Designed for demanding work across coding, computer use, professional tasks, and scientific research.&lt;/li&gt;&lt;li data-block-key="de8mi"&gt;&lt;b&gt;GPT-6.1 Sol&lt;/b&gt;: Near-Astra intelligence at lower cost across agentic coding, computer use, and professional work.&lt;/li&gt;&lt;li data-block-key="173vm"&gt;&lt;b&gt;GPT-6 Luna&lt;/b&gt;: A fast, cost-efficient model for everyday work at scale.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="fg4sb"&gt;Using the platform, customers can dynamically select and swap the optimal model for any use case based on performance, latency, and cost efficiency without architectural lock-in or separate vendor contracts. Developers gain the freedom to build with hundreds of choices in model garden. Because OpenAI models are transacted directly through Google Cloud Marketplace, all usage appears on a single Google Cloud invoice, draws down existing cloud commitments, and counts toward &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud?e=48754805"&gt;Flexible Savings Plans (FSP)&lt;/a&gt; across model providers.&lt;/p&gt;&lt;h3 data-block-key="dh6bh"&gt;&lt;b&gt;Built-in data governance and enterprise security&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="ee65"&gt;Scaling generative AI should never require compromising on compliance or security. Built from the ground up for enterprise governance, the &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026?e=48754805"&gt;Gemini platform&lt;/a&gt; is trusted by leading global organizations today. We ensure that running any third-party or OpenAI workload meets the most rigorous enterprise standards:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="c7jk9"&gt;&lt;b&gt;Strict data perimeters&lt;/b&gt;: Customer prompts, context, and outputs remain entirely within your designated data perimeter and are never used to train foundation models, with Zero Data Retention (ZDR) options available coming soon.&lt;/li&gt;&lt;li data-block-key="9df0j"&gt;&lt;b&gt;Isolated access boundaries&lt;/b&gt;: OpenAI models run on dedicated Google Cloud infrastructure with Confidential Compute coming soon. All queries are routed through hardened, isolated gateways, ensuring data transit remains strictly within Google Cloud's secure environment and third-party model providers have no unauthorized access to your cloud environment.&lt;/li&gt;&lt;li data-block-key="9bsit"&gt;&lt;b&gt;Unified auditing and identity&lt;/b&gt;: Every agent and model interaction operates under an authenticated identity, giving IT administrators end-to-end visibility, VPC Service Controls protection, and unified audit logging across their entire enterprise footprint.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="24krs"&gt;“Helping customers put AI to work across their enterprise content requires leading models backed by strong security and rigorous compliance standards,” said Yashodha Bhavnani, VP of AI Products at Box. “By using OpenAI models through Google Cloud, we will be able to give customers access to OpenAI’s frontier AI models alongside Google Cloud’s security and compliance capabilities, enabling them to get more value from their enterprise content. This is a step toward operating more efficiently as we bring AI to customers.”&lt;/p&gt;&lt;h3 data-block-key="6qbus"&gt;&lt;b&gt;Getting started&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="fct80"&gt;OpenAI’s GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna models are rolling out now in private preview to select enterprise customers in Google Cloud’s model garden, with more coming soon. Starting today, customers can build with these models through our APIs and connect their local Codex CLI and Desktop workflows directly to our Gemini platform for inference. Please use&lt;a href="https://cloud.google.com/resources/interest/openai-models"&gt; this form&lt;/a&gt; to express interest.&lt;/p&gt;&lt;p data-block-key="5gt5b"&gt;Coming soon, OpenAI models will be available in Google Cloud’s Gemini for business and Google Antigravity, providing enterprise customers and developers with model choice flexibility and the best model for each task.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Open-ai-google-models-hero.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Google Cloud expands model choice and flexibility, bringing OpenAI models to customers</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Open-ai-google-models-hero.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><link>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="7jvio"&gt;Whether you are iterating on a quick bug fix or planning a complex migration, different tasks call for different models.&lt;/p&gt;&lt;p data-block-key="clmp"&gt;In keeping with Google Cloud's commitment to an open ecosystem and to give developers the right model for every job, &lt;b&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity for Google Cloud customers.&lt;/b&gt; Claude Opus 5.5 is built for complex work while Claude Sonnet 5.5 is a faster, lower-cost complement.&lt;/p&gt;&lt;p data-block-key="prmr"&gt;Once enabled by an administrator, developers can select Claude Opus 5.5 and Sonnet 5.5 directly from the model picker. Administrators can also select Google’s Gemini models, including Gemini 3.8 Flash and Gemini 4 Argon. The models apply across Antigravity 2.0, Antigravity CLI and our recently released &lt;a href="https://antigravity.google/docs/ide/extensions/" target="_blank"&gt;Antigravity IDE extensions&lt;/a&gt; for VS Code, JetBrains IntelliJ, and Visual Studio. This lets you choose the right model for the job, under a unified enterprise billing and security boundary.&lt;/p&gt;&lt;p data-block-key="dj20l"&gt;In this post, we’ll share two engineering patterns for building in Antigravity using these models. To view the entire list of models supported in Antigravity across subscriptions, see our documentation &lt;a href="https://antigravity.google/docs/models/" target="_blank"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;h3 data-block-key="d8trn"&gt;Multi-model engineering patterns in Antigravity&lt;/h3&gt;&lt;p data-block-key="2ach2"&gt;Having multiple model families available inside the same agent harness unlocks practical multi-model workflows that improve code quality while controlling latency and cost.&lt;/p&gt;&lt;h3 data-block-key="a8ic8"&gt;&lt;b&gt;Pattern 1: Cross-model verification ("LLM-as-a-Judge") in loop and graph workflows&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="a53gs"&gt;When building agentic loops or multi-step graph workflows, using the same model to both write code and review its own output can reinforce model-specific blind spots. Pairing two distinct model families, one as the implementer and another as the validator (judge), provides independent verification before moving to the next stage of a workflow.&lt;/p&gt;&lt;p data-block-key="eca00"&gt;In Antigravity, you can run this pattern either interactively or via automated subagents:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="enlkk"&gt;&lt;b&gt;Plan and implement with Model A:&lt;/b&gt; Start in planning mode using &lt;code&gt;Claude Opus 5.5&lt;/code&gt; or &lt;code&gt;Gemini 4 Argon&lt;/code&gt; to design and implement a multi-file change.&lt;/li&gt;&lt;li data-block-key="c4jg9"&gt;&lt;b&gt;Validate with Model B:&lt;/b&gt; Before committing or advancing the loop, switch models, or invoke a one-shot &lt;code&gt;/model&lt;/code&gt; check in the CLI, to have a different model family critique the implementation against your test suite and requirements.&lt;/li&gt;&lt;/ol&gt;&lt;h3 data-block-key="fp277"&gt;&lt;b&gt;Pattern 2: Pairing reasoning models with Flash subagents&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="2ce0q"&gt;Complex engineering tasks often combine a few high-reasoning decisions with dozens of high-volume, mechanical lookups (searching files, grepping logs, checking lint output, or classifying test failures). Running every lookup on a frontier model can increase both latency and spend.&lt;/p&gt;&lt;p data-block-key="ckd6t"&gt;Antigravity's Subagent customization system (&lt;code&gt;.agents/agents/*.md&lt;/code&gt;) lets you assign specific model tiers (&lt;code&gt;inherit&lt;/code&gt;, &lt;code&gt;flash&lt;/code&gt;, or &lt;code&gt;pro&lt;/code&gt;) to specialized subagents. When your primary session is running a more powerful model.&lt;/p&gt;&lt;p data-block-key="2l8u2"&gt;Subagents configured with &lt;code&gt;model: inherit&lt;/code&gt; use your active session model for deep reasoning subtasks.&lt;/p&gt;&lt;p data-block-key="cb05p"&gt;Subagents configured with &lt;code&gt;model: flash&lt;/code&gt; offload high-speed search, classification, and triage work to Gemini Flash models.&lt;/p&gt;&lt;p data-block-key="1fr9p"&gt;For example, you can define a fast log-triage subagent in &lt;code&gt;.agents/agents/test-triager.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;No matter how you choose to deploy, you can access Anthropic's latest frontier models on Google Cloud, including &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-fable-5-1"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Claude Fable 5.1&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-sonnet-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Sonnet 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-haiku-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Haiku 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, and &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/publishers/anthropic/model-garden/claude-opus-5-5"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Opus 5.5&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, with new platform features available immediately on the Anthropic-managed option and rolling out on the Google-managed option once integrated. This gives developers the full spectrum of reasoning, coding, and multi-modal capabilities with Google Cloud IAM and Marketplace billing.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/claude-platform"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Get started&lt;/span&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;.&lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 22 Oct 2026 21:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</guid><category>Partners</category><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0_11.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Expanding Claude availability and deployment choice on Google Cloud</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Blog_Headers_-_Cloudstyle_3.0_11.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/expanding-claude-availability-on-google-cloud/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Google Cloud expands model choice and flexibility, bringing OpenAI models to customers</title><link>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="8sb5z"&gt;Google Cloud has always been defined by choice, enterprise-grade governance, and market-leading price-performance. Key to the foundation of openness and choice is giving customers flexibility to run agentic workloads across their choice of models and infrastructure to achieve the right balance of cost, capability, and performance. Today, we are expanding that foundation by launching OpenAI models in Google Cloud’s model garden.&lt;/p&gt;&lt;p data-block-key="6g46g"&gt;Google Cloud is now the only hyperscale cloud provider offering access to all three leading closed source LLMs, alongside more than 200 first-party, third-party, and open models on a unified enterprise AI platform.&lt;/p&gt;&lt;h3 data-block-key="8ea37"&gt;&lt;b&gt;The right model for every workload&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="3bp7q"&gt;Modern enterprise AI requires matching each workload to the right model rather than relying on a single model for every task. By adding OpenAI’s newest models to model garden, we are giving teams options across the full spectrum of enterprise workloads. For OpenAI models:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="9h8m5"&gt;&lt;b&gt;GPT-6 Astra&lt;/b&gt;: Designed for demanding work across coding, computer use, professional tasks, and scientific research.&lt;/li&gt;&lt;li data-block-key="de8mi"&gt;&lt;b&gt;GPT-6.1 Sol&lt;/b&gt;: Near-Astra intelligence at lower cost across agentic coding, computer use, and professional work.&lt;/li&gt;&lt;li data-block-key="173vm"&gt;&lt;b&gt;GPT-6 Luna&lt;/b&gt;: A fast, cost-efficient model for everyday work at scale.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="fg4sb"&gt;Using the platform, customers can dynamically select and swap the optimal model for any use case based on performance, latency, and cost efficiency without architectural lock-in or separate vendor contracts. Developers gain the freedom to build with hundreds of choices in model garden. Because OpenAI models are transacted directly through Google Cloud Marketplace, all usage appears on a single Google Cloud invoice, draws down existing cloud commitments, and counts toward &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud?e=48754805"&gt;Flexible Savings Plans (FSP)&lt;/a&gt; across model providers.&lt;/p&gt;&lt;h3 data-block-key="dh6bh"&gt;&lt;b&gt;Built-in data governance and enterprise security&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="ee65"&gt;Scaling generative AI should never require compromising on compliance or security. Built from the ground up for enterprise governance, the &lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026?e=48754805"&gt;Gemini platform&lt;/a&gt; is trusted by leading global organizations today. We ensure that running any third-party or OpenAI workload meets the most rigorous enterprise standards:&lt;/p&gt;&lt;ul&gt;&lt;li data-block-key="c7jk9"&gt;&lt;b&gt;Strict data perimeters&lt;/b&gt;: Customer prompts, context, and outputs remain entirely within your designated data perimeter and are never used to train foundation models, with Zero Data Retention (ZDR) options available coming soon.&lt;/li&gt;&lt;li data-block-key="9df0j"&gt;&lt;b&gt;Isolated access boundaries&lt;/b&gt;: OpenAI models run on dedicated Google Cloud infrastructure with Confidential Compute coming soon. All queries are routed through hardened, isolated gateways, ensuring data transit remains strictly within Google Cloud's secure environment and third-party model providers have no unauthorized access to your cloud environment.&lt;/li&gt;&lt;li data-block-key="9bsit"&gt;&lt;b&gt;Unified auditing and identity&lt;/b&gt;: Every agent and model interaction operates under an authenticated identity, giving IT administrators end-to-end visibility, VPC Service Controls protection, and unified audit logging across their entire enterprise footprint.&lt;/li&gt;&lt;/ul&gt;&lt;p data-block-key="24krs"&gt;“Helping customers put AI to work across their enterprise content requires leading models backed by strong security and rigorous compliance standards,” said Yashodha Bhavnani, VP of AI Products at Box. “By using OpenAI models through Google Cloud, we will be able to give customers access to OpenAI’s frontier AI models alongside Google Cloud’s security and compliance capabilities, enabling them to get more value from their enterprise content. This is a step toward operating more efficiently as we bring AI to customers.”&lt;/p&gt;&lt;h3 data-block-key="6qbus"&gt;&lt;b&gt;Getting started&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="fct80"&gt;OpenAI’s GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna models are rolling out now in private preview to select enterprise customers in Google Cloud’s model garden, with more coming soon. Starting today, customers can build with these models through our APIs and connect their local Codex CLI and Desktop workflows directly to our Gemini platform for inference. Please use &lt;a href="https://cloud.google.com/resources/interest/openai-models"&gt;this form&lt;/a&gt; to express interest.&lt;/p&gt;&lt;p data-block-key="5gt5b"&gt;Coming soon, OpenAI models will be available in Google Cloud’s Gemini for business and Google Antigravity, providing enterprise customers and developers with model choice flexibility and the best model for each task.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Open-ai-google-models-hero.max-600x600.png" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Google Cloud expands model choice and flexibility, bringing OpenAI models to customers</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Open-ai-google-models-hero.max-600x600.png</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/google-cloud-brings-openai-models-to-customers/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><link>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="7jvio"&gt;Whether you are iterating on a quick bug fix or planning a complex migration, different tasks call for different models.&lt;/p&gt;&lt;p data-block-key="clmp"&gt;In keeping with Google Cloud's commitment to an open ecosystem and to give developers the right model for every job, &lt;b&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity for Google Cloud customers.&lt;/b&gt; Claude Opus 5.5 is built for complex work while Claude Sonnet 5.5 is a faster, lower-cost complement.&lt;/p&gt;&lt;p data-block-key="prmr"&gt;Once enabled by an administrator, developers can select Claude Opus 5.5 and Sonnet 5.5 directly from the model picker. Administrators can also select Google’s Gemini models, including Gemini 3.8 Flash and Gemini 4 Argon. The models apply across Antigravity 2.0, Antigravity CLI and our recently released &lt;a href="https://antigravity.google/docs/ide/extensions/" target="_blank"&gt;Antigravity IDE extensions&lt;/a&gt; for VS Code, JetBrains IntelliJ, and Visual Studio. This lets you choose the right model for the job, under a unified enterprise billing and security boundary.&lt;/p&gt;&lt;p data-block-key="dj20l"&gt;In this post, we’ll share two engineering patterns for building in Antigravity using these models. To view the entire list of models supported in Antigravity across subscriptions, see our documentation &lt;a href="https://antigravity.google/docs/models/" target="_blank"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;h3 data-block-key="d8trn"&gt;Multi-model engineering patterns in Antigravity&lt;/h3&gt;&lt;p data-block-key="2ach2"&gt;Having multiple model families available inside the same agent harness unlocks practical multi-model workflows that improve code quality while controlling latency and cost.&lt;/p&gt;&lt;h3 data-block-key="a8ic8"&gt;&lt;b&gt;Pattern 1: Cross-model verification ("LLM-as-a-Judge") in loop and graph workflows&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="a53gs"&gt;When building agentic loops or multi-step graph workflows, using the same model to both write code and review its own output can reinforce model-specific blind spots. Pairing two distinct model families, one as the implementer and another as the validator (judge), provides independent verification before moving to the next stage of a workflow.&lt;/p&gt;&lt;p data-block-key="eca00"&gt;In Antigravity, you can run this pattern either interactively or via automated subagents:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="enlkk"&gt;&lt;b&gt;Plan and implement with Model A:&lt;/b&gt; Start in planning mode using &lt;code&gt;Claude Opus 5.5&lt;/code&gt; or &lt;code&gt;Gemini 4 Argon&lt;/code&gt; to design and implement a multi-file change.&lt;/li&gt;&lt;li data-block-key="c4jg9"&gt;&lt;b&gt;Validate with Model B:&lt;/b&gt; Before committing or advancing the loop, switch models, or invoke a one-shot &lt;code&gt;/model&lt;/code&gt; check in the CLI, to have a different model family critique the implementation against your test suite and requirements.&lt;/li&gt;&lt;/ol&gt;&lt;h3 data-block-key="fp277"&gt;&lt;b&gt;Pattern 2: Pairing reasoning models with Flash subagents&lt;/b&gt;&lt;/h3&gt;&lt;p data-block-key="2ce0q"&gt;Complex engineering tasks often combine a few high-reasoning decisions with dozens of high-volume, mechanical lookups (searching files, grepping logs, checking lint output, or classifying test failures). Running every lookup on a frontier model can increase both latency and spend.&lt;/p&gt;&lt;p data-block-key="ckd6t"&gt;Antigravity's Subagent customization system (&lt;code&gt;.agents/agents/*.md&lt;/code&gt;) lets you assign specific model tiers (&lt;code&gt;inherit&lt;/code&gt;, &lt;code&gt;flash&lt;/code&gt;, or &lt;code&gt;pro&lt;/code&gt;) to specialized subagents. When your primary session is running a more powerful model.&lt;/p&gt;&lt;p data-block-key="2l8u2"&gt;Subagents configured with &lt;code&gt;model: inherit&lt;/code&gt; use your active session model for deep reasoning subtasks.&lt;/p&gt;&lt;p data-block-key="cb05p"&gt;Subagents configured with &lt;code&gt;model: flash&lt;/code&gt; offload high-speed search, classification, and triage work to Gemini Flash models.&lt;/p&gt;&lt;p data-block-key="1fr9p"&gt;For example, you can define a fast log-triage subagent in &lt;code&gt;.agents/agents/test-triager.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;---\r\nname: test-triager\r\ndescription: Runs unit tests, classifies failures, and returns a concise summary of failing assertions.\r\nmodel: flash\r\ntools:\r\n  - read\r\n  - edit\r\n---\r\n\r\nRun the requested test targets, classify any failures by root cause (compilation error, assertion failure, or timeout), and return a structured summary to the parent agent.&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fc7e95a89d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;---\r\nname: test-triager\r\ndescription: Runs unit tests, classifies failures, and returns a concise summary of failing assertions.\r\nmodel: flash\r\ntools:\r\n  - read\r\n  - edit\r\n---\r\n\r\nRun the requested test targets, classify any failures by root cause (compilation error, assertion failure, or timeout), and return a structured summary to the parent agent.&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f4ed45e67d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;p data-block-key="5p921"&gt;And a cross-model code reviewer subagent in &lt;code&gt;.agents/agents/gemini-judge.md&lt;/code&gt;:&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;---\r\nname:cross-model-judge\r\ndescription: Independent LLM-as-a-judge verifier that audits diffs and edge cases using Gemini Pro.\r\nmodel: pro\r\ntools:\r\n  - read\r\n---\r\n\r\nReview the current workspace diff against the user&amp;#x27;s requirements. Check for regressions, missing edge-case tests, and security issues. Output a pass/fail verdict with specific line references.&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fc7e95014d0&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;---\r\nname:cross-model-judge\r\ndescription: Independent LLM-as-a-judge verifier that audits diffs and edge cases using Gemini Pro.\r\nmodel: pro\r\ntools:\r\n  - read\r\n---\r\n\r\nReview the current workspace diff against the user&amp;#x27;s requirements. Check for regressions, missing edge-case tests, and security issues. Output a pass/fail verdict with specific line references.&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f4ed47c0850&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph"&gt;&lt;p data-block-key="5p921"&gt;With this setup, you can delegate rapid test-and-classify loops to &lt;code&gt;test-triager&lt;/code&gt; and trigger &lt;code&gt;cross-model-judge&lt;/code&gt; to validate the final diff, combining the strengths of each model in a single workflow.&lt;/p&gt;&lt;h3 data-block-key="fj5e3"&gt;Getting started&lt;/h3&gt;&lt;p data-block-key="eudoh"&gt;Claude Opus 5.5 and Claude Sonnet 5.5 are available now for Google Cloud customers using Antigravity:&lt;/p&gt;&lt;ol&gt;&lt;li data-block-key="19dsb"&gt;&lt;b&gt;Administrators (Gemini for business):&lt;/b&gt; Third-party partner models do not draw from the pooled Gemini Enterprise Standard and Plus edition monthly token quota. Instead, usage is billed on a pay-as-you-go basis through your existing Google Cloud Billing account, so overages must be enabled. Visit “Gemini Enterprise” &amp;gt; “Settings” &amp;gt; “AI developer tools” in the Google Cloud Console to configure overage billing, spend limits and authorize partner models for your organization. See &lt;a href="https://cloud.google.com/gemini/enterprise/docs/ai-developer-tools-settings"&gt;Configure AI developer tools settings&lt;/a&gt; for step-by-step instructions.&lt;/li&gt;&lt;li data-block-key="evit9"&gt;&lt;b&gt;Administrators (Gemini platform):&lt;/b&gt; You can also enable partner models if you are using Antigravity through the API in Gemini platform. Enable Claude models in Model Garden and complete the standard Anthropic terms.&lt;/li&gt;&lt;li data-block-key="1shb0"&gt;&lt;b&gt;Developers:&lt;/b&gt; Update to the latest version of Antigravity 2.0, the Antigravity CLI, or the Antigravity IDE extensions, and open the model picker (or run &lt;code&gt;/model&lt;/code&gt;) to select the right model for your task. To learn more about enterprise governance and multi-agent configuration, visit the &lt;a href="https://antigravity.google/docs/enterprise/" target="_blank"&gt;Google Antigravity Enterprise documentation&lt;/a&gt;. You can switch the active model between turns in the same conversation thread while preserving workspace state, open artifacts, and terminal context.&lt;/li&gt;&lt;/ol&gt;&lt;p data-block-key="c19fm"&gt;Note: Lightweight first-party Gemini models continue to run in the background to handle high-frequency client-side coordination, such as context management and summaries. They consume first-party tokens and can incur charges.&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 20 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</guid><category>Developers &amp; Practitioners</category><category>AI &amp; Machine Learning</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Claude Opus 5.5 and Claude Sonnet 5.5 are now available in Google Antigravity</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/claude-opus-55-and-claude-sonnet-55-available-in-antigravity/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Marialaura Garcia</name><title>Product Marketing Manager</title><department>Google Cloud</department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Rich Hyndman</name><title>Developer Relations</title><department>Google Antigravity</department><company></company></author></item><item><title>Introducing Gemini for government services</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-for-government-services/</link><description>&lt;div class="block-paragraph"&gt;&lt;p data-block-key="ecu27"&gt;Earlier this month at Gemini at Work, we introduced the Gemini agent: a single, universal agent for work. It answers your questions, handles your knowledge work, creates your images and media, and writes and runs code. You give it objectives, not instructions, and come back to finished work. It plans the work, uses skills and tools, connects to your systems, and has the security, administration, and governance your organization requires.&lt;/p&gt;&lt;p data-block-key="bde19"&gt;Every industry runs on knowledge a general model does not have. Government work runs on statute, regulation, and agency guidance, across siloed legacy systems, under strict requirements for data sovereignty, compliance, and confidentiality. Too often that leaves civil servants on data entry and manual document review instead of the services citizens depend on.&lt;/p&gt;&lt;p data-block-key="2oatl"&gt;Today we're bringing the Gemini agent to public service with Gemini for government services in preview, part of our new suite of purpose-built industry solutions. It adds skills built around government work, connections to the systems agencies already run, and specialized partner agents, with governance running underneath it all.&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-video"&gt;
@@ -2631,7 +2874,7 @@
 &lt;p&gt;&lt;code style="vertical-align: baseline;"&gt;AI.COUNT_TOKENS&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt; returns the number of tokens a model's tokenizer produces for a text string, without making a billable generation call. Run it over a column to measure your input data:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fc7e8949990&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;quot;-- Count the input text tokens for each product review\r\nSELECT\r\n  SUM(\r\n    AI.COUNT_TOKENS(\r\n      CONCAT(&amp;#x27;Classify the sentiment of this review as positive, negative, or neutral: &amp;#x27;, review_text),\r\n\r\n      endpoint =&amp;gt; &amp;#x27;gemini-3.1-flash-lite&amp;#x27;).result) AS total_input_tokens\r\nFROM\r\n  `my_project.my_dataset.product_reviews`;&amp;quot;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f4ed47c2d50&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The count is a lower bound on input tokens. It doesn't include output or thinking tokens, the instructions each AI function adds around your input, or non-text inputs such as images. Use it to:&lt;/span&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -2658,7 +2901,7 @@
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;If a small sample run shows an average &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;100:1 input-to-output token ratio&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, you can solve for a daily budget:&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
 &lt;div class="block-code"&gt;&lt;dl&gt;
     &lt;dt&gt;code_block&lt;/dt&gt;
-    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7fc7e8efc090&amp;gt;)])]&amp;gt;&lt;/dd&gt;
+    &lt;dd&gt;&amp;lt;ListValue: [StructValue([(&amp;#x27;code&amp;#x27;, &amp;#x27;Cost:   0.125 × I + 0.75 × O = 100     (I, O in millions of tokens)\r\nRatio:  I = 100 × O&amp;#x27;), (&amp;#x27;language&amp;#x27;, &amp;#x27;&amp;#x27;), (&amp;#x27;caption&amp;#x27;, &amp;lt;wagtail.rich_text.RichText object at 0x7f4ed4593f10&amp;gt;)])]&amp;gt;&lt;/dd&gt;
 &lt;/dl&gt;&lt;/div&gt;
 &lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Solving gives about &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;754 million input tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;7.54 million output tokens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; per day. Set &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI input tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;AI output tokens per day&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; to these values to hold the project near $100/day. If a project uses models with different prices, budget per model or blend the rates.&lt;/span&gt;&lt;/p&gt;
 &lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Best practices for managing AI cost&lt;/span&gt;&lt;/h3&gt;
@@ -2690,691 +2933,4 @@
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For the full details, see the documentation on &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/bigquery/docs/control-genai-costs"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;controlling generative AI costs&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;With token-based guardrails in place, your teams can use generative AI in BigQuery with the cost predictability your organization needs.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 14 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</guid><category>AI &amp; Machine Learning</category><category>BigQuery</category><category>Data Analytics</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Predictable AI spend in BigQuery: Introducing cost management for generative AI functions</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Tushar Jaiswal</name><title>Software Engineer</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Alicia Williams</name><title>Developer Advocate</title><department></department><company></company></author></item><item><title>Gemini 4 Argon available on Google Cloud, built to help solve your business’ hardest problems</title><link>https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Last week we announced that Gemini Enterprise has evolved to make it even simpler to get work done, and introduced the &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini agent&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, your new universal agent for work. It's always on and ready to answer your questions. It will write code, complete longer and more complex tasks, or perform whatever you need to get the job done, all from a single prompt box. And model intelligence underpins it all.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To enable a new frontier of work, we are making our new frontier model, &lt;/span&gt;&lt;a href="https://deepmind.google/models/gemini/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini 4 Argon&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, available on Google Cloud. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We trained Argon to work with both depth and precision, which allows it to maintain context across long, multi-step tasks which are reinforced with strong domain expertise along the way. Whether your team is running complex software builds, handling detailed financial and legal work, or deploying cybersecurity tools like &lt;/span&gt;&lt;a href="https://cloud.google.com/security/codemender"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;CodeMender&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, Argon helps your teams maintain focus from start to finish.&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Gemini_4_Logo_Wall_3.max-1000x1000.png"
-        
-          alt="Logo Wall Argon V3"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="l3qrs"&gt;Customers and partners using Gemini 4 Argon&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Four ways Argon changes how your business works&lt;/span&gt;&lt;/h3&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;1. Hand off your hardest work&lt;/strong&gt;&lt;/h4&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Your teams already use Gemini for business to answer questions and draft content. With Argon, they can hand off the deep, multi-step work that used to take hours or days, and get back finished work they can use.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Argon reads long documents that mix text, tables, charts and images, and turns them into one clear output grounded in those sources. It can pull findings from many sources into a single structured answer, analyze data over time, and write stronger legal, finance, and executive documents. On long tasks, it keeps going until the job is done. We trained Argon to respect system boundaries, report negative findings honestly, and pause for confirmation before taking irreversible steps, and it tells you when it couldn't find something or finish a task.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Customers who tested Argon tell us it excels at turning huge, unstructured inputs into cohesive outputs. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"As software development becomes more agentic, teams need models that can support long-running, multi-step work across all stages of the development lifecycle. Gemini 4 Argon is designed to help organizations bring AI into development, security, and operations while keeping it within established enterprise workflows and controls.” &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;– Stuart Moncada, VP, GitLab.&lt;/strong&gt;&lt;/p&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;2. Precise, verifiable results on the work that drives your business&lt;/strong&gt;&lt;/h4&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In finance, legal, tax, and other regulated work, calculations and data extraction need to be precise, repeatable, and verifiable. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For financial quantitative work, Argon can help automate multi-step ledger reconciliations, spreadsheet formulas, and variance analyses. It delivers high calculation integrity, citation fidelity, and formula accuracy across quantitative models. The proof is in the numbers: Argon leads on the &lt;/span&gt;&lt;a href="https://www.vals.ai/benchmarks/vals_index" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Vals Index&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, which measures economic impact across finance, coding, legal, and tax work.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In legal research, Argon can help legal teams review case law and regulatory filings to pull out verified citations and key precedents. It leads on domain-specific evaluations like Harvey's Legal Agent Benchmark for legal research and drafting, with strong citation fidelity and direct answers when helping teams evaluate complex legal precedents. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Gemini 4 Argon shows how much progress Google has made on agentic legal reasoning. We saw substantial improvements over Gemini 3.1 Pro across our legal agent evaluations, particularly in corporate M&amp;amp;A, data privacy and cybersecurity, and EC/VC. Accuracy also held up on long-document analysis, an encouraging result for lawyers working through detailed transactional matters." &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;– Niko Grupen, Head of Applied Research, Harvey.&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;“We collaborated with Google on NowAI-Bench to help shape Gemini 4 for key enterprise work. In early access, it delivered roughly 20% improved task success than Gemini 3.8 Flash, with standout gains in HR and customer service. On the ServiceNow AI Platform, our L1 Service Desk AI specialist brings Google’s most advanced intelligence, governed and secure, turning tasks into fully autonomous work.” &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;- Nenshad Bardoliwalla, Senior Vice President, AI Products, ServiceNow.&lt;/strong&gt;&lt;/p&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;3. Build and ship products faster&lt;/strong&gt;&lt;/h4&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Argon is built to handle complex, multi-step projects from start to finish. Our customers consistently ask for intelligence that can break down goals, track progress, and update multiple files at the same time.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"Gemini 4 Argon handles complex tasks reliably, from 3D games to rich animations. In Figma Make, it helps teams turn their most ambitious, multi-step ideas into impressive prototypes.” &lt;strong&gt;– Loredana Crisan, Chief Design Officer, Figma. &lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To see how well Argon handles this, we put it to work on our own tools. The team behind our open-source Agent Development Kit (ADK) set out to reduce framework overhead and improve code performance while maintaining full compatibility with existing applications. Working autonomously overnight within automated testing guardrails, Argon surfaced optimizations, now live in google/adk-python, that &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;cut in-memory session prep time by 40% in long sessions and speed up cold imports by 21%. &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;To learn more, read the engineering deep dive &lt;/span&gt;&lt;a href="https://developers.googleblog.com/optimizing-a-200000-line-python-codebase-overnight-with-gemini-4-argon" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;here&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Across Google, engineering teams using Argon in Google Antigravity have increased agentic code submissions by more than 35% while cutting code rollbacks by nearly a third. The Chrome team used Argon to finish an architectural refactor across hundreds of files in Chromium's 40 million-line codebase, completing months of work in weeks. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Argon's improvements in spatial reasoning, mathematical precision and visual coding also make it faster to go from idea to working prototype. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;For more advanced algorithms, our code optimization and discovery agent &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/alphaevolve-is-available-for-everyone"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;AlphaEvolve&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; uses &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini/enterprise/docs/alphaevolve/reference-guide/api-reference#supported-models"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Argon&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to deliver strong performance improvements across real-world enterprise workloads, including factory scheduling, logistics, game code speed-ups, and chip layout — as well as complex mathematical benchmarks, and more. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To learn how to best use Argon, check out the developer's &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-4-argon"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;guide&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;4. Stronger defense for your code and business &lt;/strong&gt;&lt;/h4&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;While Argon has cyber mitigations that block offensive tasks such as pentesting and exploitation,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;you can still take full advantage of Argon’s defensive capabilities using &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/agents/codemender"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;CodeMender&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to find and fix vulnerabilities, or use Argon with your own security harness.&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;It ties for first place on CWE-Bench v1 with a top score of &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;68% for remediating security vulnerabilities.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;"We are integrating Gemini 4 Argon into MarketingX for automated codebase security audits. In our evaluations, the model successfully identified 100% of top-priority vulnerabilities with 0% fabricated vulnerabilities across verified claims. This precision unlocks proactive, code-level security for our customers before deployment.” &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;- Yunus Emre, Chief AI Officer of AI Lab, HubX.&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Security also means being able to trust Argon inside your own environment. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Argon is our most resilient model yet against indirect prompt injections&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;, where malicious instructions or context are used to hijack a model’s behavior. It leads the Gray Swan Indirect Prompt Injection benchmark, cutting attack success across 15 adaptive attempts to 0.7%. That matters when Argon reads email, documents and webpages that may contain hidden malicious instructions. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We are also releasing Argon without cyber guardrails to a select set of trusted defenders, which allows for testing a full breadth of cybersecurity capabilities. Trusted defenders are vetted through our &lt;/span&gt;&lt;a href="https://deepmind.google/fairwind-program/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Fairwind Program&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, a limited access initiative that provides government, critical infrastructure, and cybersecurity partners exclusive, unmitigated access to advanced  models. &lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Enterprise customers and partners in our early access program are already seeing strong wins with Argon.&lt;/span&gt;&lt;/h3&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=opNsprLPCKc"
-      data-glue-modal-trigger="uni-modal-opNsprLPCKc-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/Teaser_2.2_approved.max-1000x1000.png);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Business leaders discuss how they are testing and building with Gemini 4 Argon.&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-opNsprLPCKc-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="opNsprLPCKc"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=opNsprLPCKc"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;p style="text-align: center;"&gt;&lt;sup&gt;&lt;em&gt;Leaders from Amplitude, Deloitte, and Rakuten share Gemini 4 Argon results&lt;/em&gt;&lt;/sup&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Get started&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Starting today, Gemini 4 Argon is available in &lt;/span&gt;&lt;a href="https://cloud.google.com/gemini-enterprise"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini for business&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; on the web, desktop, and mobile. Enterprise developers and builders can access Argon via API in &lt;/span&gt;&lt;a href="https://console.cloud.google.com/agent-platform/studio/multimodal;mode=prompt?model=gemini-4-argon&amp;amp;region=global"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Gemini platform&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; under model ID &lt;/span&gt;&lt;code style="vertical-align: baseline;"&gt;gemini-4-argon&lt;/code&gt;&lt;span style="vertical-align: baseline;"&gt;, in &lt;/span&gt;&lt;a href="https://aistudio.google.com/" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google AI Studio&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, and in &lt;a href="https://antigravity.google/blog/gemini-4-argon-in-google-antigravity" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Google Antigravity&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Argon launches at an introductory rate of $2 per million input tokens and $10 per million output tokens through November 30, 2026, with cached input tokens priced at 95% off. After November 30, standard pricing of $4 per million input tokens and $20 per million output tokens will apply. Review the &lt;/span&gt;&lt;a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/4-argon"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;model card&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;a href="https://drive.google.com/file/d/1YQ0xENI0e-jauxPSxTfUoOQ9aXHGsoWh/view" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;developer guide&lt;/span&gt;&lt;/a&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;for complete technical specifications, token limits, and migration instructions.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Cyber defenders can join us at &lt;/span&gt;&lt;a href="https://cloudonair.withgoogle.com/events/summit-amer-security-2026?utm_source=cgc-blog&amp;amp;utm_medium=blog&amp;amp;utm_campaign=FY26-Q4-GLOBAL-GLO10000010-onlineeventsession-er-dgcsm-SS-NORAM-249572&amp;amp;utm_content=blog&amp;amp;utm_term=argon" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Security Summit&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; to learn how to use Gemini 4 Argon to defend against machine-speed threats and automate remediation.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Tue, 13 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/Gemini_4_argon.max-600x600.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Gemini 4 Argon available on Google Cloud, built to help solve your business’ hardest problems</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/Gemini_4_argon.max-600x600.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Michael Gerstenhaber</name><title>VP, Product Management, Gemini, Google Cloud</title><department></department><company></company></author></item><item><title>Welcome to Gemini at Work 2026: Introducing the Gemini agent</title><link>https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026/</link><description>&lt;div class="block-paragraph_advanced"&gt;&lt;p&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;Editor’s note: This article is adapted from Thomas Kurian’s keynote address at Gemini at Work 2026. It includes a number of announcements:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;Gemini&lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;, a single, universal agent for work that answers your questions, handles your knowledge work, creates your images and media, and writes and runs code. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026#:~:text=Gemini%20in%20Google%20Workspace"&gt;Inline in Workspace&lt;/a&gt;,&lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt; Gemini works directly inside Gmail, Drive, Docs, Slides, Sheets, Chat, and Calendar, carrying the same memory, skills, and controls it has everywhere else.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026#:~:text=Data%20analysis%2C%20data%20engineering%20and%20machine%20learning"&gt;New data and analytics skills&lt;/a&gt; &lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;that allow both technical teams and everyday business users to use plain-language questions to get to actionable operational insights in minutes. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026?e=48754805#:~:text=Industry%2Dspecific%20specializations"&gt;Industry-specific specialization&lt;/a&gt; &lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;with tools, skills, connectors and knowledge specific for financial services and legal teams.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026#:~:text=Securing%20and%20governing%20agents"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;How we secure and govern agents&lt;/strong&gt;&lt;/a&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt; through i&lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;dentity and policy management, &lt;/span&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;authorization and permission controls, secure sandboxing, network gateways, and more.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026/?e=48754805#:~:text=Leading%20cost%20controls%20and%20spending%20options"&gt;Leading cost controls&lt;/a&gt; &lt;/strong&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt;through multi-model orchestration, Smart Routing, real-time spend caps, and more.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; font-style: italic; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026#:~:text=Gemini%20Enterprise%20in%20action%3A%20global%20momentum"&gt;&lt;strong style="font-style: italic; vertical-align: baseline;"&gt;Customer use cases&lt;/strong&gt;&lt;/a&gt;&lt;span style="font-style: italic; vertical-align: baseline;"&gt; that showcase the breadth and depth of our customers around the world.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Bringing the best technology to all of you is what drives us at Google Cloud. In the last year, nearly 500 Google Cloud customers each processed more than one trillion tokens. Today, nearly 80% of all Google Cloud customers are using our AI products, and nearly 90% of the Fortune 100 use Gemini Enterprise. At that kind of scale, organizations have moved past experimentation and are running their business on it.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Work now starts in the prompt window. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;To meet this moment, today we are excited to announce the Gemini agent: your new single, universal agent for work. It has all of your business context and can be used for everything from knowledge work to answering questions, and from content creation to coding, all from a single prompt box. It plans the work, uses skills and tools, connects to your systems, and brings back something finished — inside the documents, the inbox, and the developer environments you already work in. It chooses the best model for the job, has built-in cost controls, and most importantly, has the security, administration, and governance required by your company.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Gemini.max-1000x1000.png"
-        
-          alt="Gemini"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="folpi"&gt;The Gemini agent is your new single, universal agent for work.&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Introducing the Gemini agent &lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini answers your questions, handles your knowledge work, creates your images and media, and writes and runs code — all in a single agent and a single API. You give it objectives, not instructions. You delegate an outcome and come back to finished work. For an agent to do that, it has to be connected to your personal workflows, your systems of record, and your enterprise controls. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini can function as your personal assistant or as a team member, where it works on behalf of a group of people, like a project manager within a team, or on behalf of a specific role in an organization, like an analyst in your finance department.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The agentic capabilities in Gemini are built around core architectural principles:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Unified agent: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini is an agent that can answer your questions when you chat with it, work autonomously to complete objectives you assign it, and generate code — all from a single interface. You can assign it work, schedule tasks that need to be completed, or have it respond to events.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Omnipresent access:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini can be accessed from any device including web, iOS and Android mobile devices, Windows and Mac desktops, and any channel (command line, Google Workspace, Microsoft 365, or Slack). It can also be integrated into third-party applications and surfaces and operates as a headless agent, meaning it does not need a dedicated user interface.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Persistent execution:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; It runs in the cloud, meaning it maintains a single set of memories, context, and one personalization graph no matter what device or channel you access it on. You never have to re-brief it or wonder which machine you told it to do something on. Work that takes hours or days keeps running after you close your laptop, and it is still there when you come back. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Multi-agent orchestration:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini doesn’t work alone. It can dynamically create a roster of sub-agents — temporary, job-specific agents, each with their own identity — to tackle multi-step tasks. Gemini can communicate with these sub-agents to coordinate workflows, including parallel and sequential steps that can run for hours or days. In addition, Gemini can act as a coworker agent — which is more like a team member, with a persistent, defined role and operational presence across days, sessions, and multiple changing responsibilities — and delegate and coordinate tasks. Coworker agents have dedicated identities including their own @agents.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;company.com&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; emails, their own persistent storage, and only have access to the context that you or your team members provide.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Deeply contextual:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini arrives already knowing your tools, data, and work history. Whether you ask it a question, assign it an objective, or have it generate code, Gemini learns from every interaction with you. The longer you collaborate with it, the better it understands you and how you work. Teams can create dedicated projects to further optimize the context, skills, and tools Gemini uses when it works with you.  &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Model choice flexibility:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;span style="vertical-align: baseline;"&gt;Gemini is the agent, and the model underneath it is a separate choice. It runs each job on the model that fits best — orchestrating across our Gemini family of models and Claude  &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;models from Anthropic&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; today, and other leading private and open models in the future — to deliver optimal quality and lower your costs. The best model for the task is not always the largest one. Matching the model to the work raises accuracy on the difficult jobs and lowers cost on the simple ones. And the leading model changes every few months, so keeping that choice open means your context, your skills, and your data stay put when it does.&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Top customers across industries were early testers and are already realizing its benefits: Premium sportswear brand &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;On&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; tested this new dynamic selection capability to accelerate its speed-to-market. This builds on the proven, large-scale multi-model strategies already used by leaders: &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Shopify&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; blends frontier models for millions of merchants to unlock data and drive sales, and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;PayPal&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; routes 10 million multi-model requests every week.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Powering Gemini: Skills, tools, and context&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini understands your business — everything from pricing to product portfolios to departmental norms — and all the institutional knowledge that makes your company unique. Three capabilities make that possible: tools that connect it to your systems, skills that teach it how your work gets done, and context that lets it remember. &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Tools and tools registry: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini can securely connect to the software your company already runs, including collaboration tools like Confluence, Microsoft Office, Teams, Slack, and Workspace; development tools like Git and Jira; enterprise platforms like Salesforce and ServiceNow; databases like BigQuery, Databricks, Postgres, and Snowflake; and files on your own desktop. It can also connect and work securely with any Model Context Protocol (MCP) server inside or outside your company network. It also offers an enterprise tools registry, so teams can build and publish tools for the rest of the company. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Skills and skills registry: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Skills are reusable sets of instructions, knowledge, or workflows stored as modular prompts that teach agents how to perform specific, multi-step tasks. Gemini ships with a robust global library of skills. Teams or departments can build and publish custom skills to a shared company registry, and you can build your own personal skills. Gemini chooses the right skills and tools to perform a task and continuously learns from each execution, improving its consistency, while saving token costs.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Context and memory: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini learns from each question you ask it, each objective you assign it, the people you work with, and uses your personal context and your organization's context to personalize and improve the quality of its responses. It keeps four kinds of memory: session memory for the task in front of it, even when it runs for days; semantic memory, a structured knowledge base it builds as it reads documents, talks to people, and works with other agents; procedural memory for how a job gets done, including skills it writes for itself; and episodic memory of everything it has done before. Gemini onboards itself the way a new hire would, learning you, your tools, and your team before it starts.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Customers seeing significant benefits from Gemini Enterprise include:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-09-24-BNP-Paribas-and-Google-Cloud-Announce-New-Partnership-on-Agentic-AI-and-Cloud-Innovation" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;BNP Paribas&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;a European leader in banking and financial services, is transforming Corporate &amp;amp; Institutional Banking by deploying Gemini Enterprise into LLM@CIB, its internal generative AI assistant available to more than 65,000 employees, to streamline workflows like preparing credit memos and boosting the productivity of customer advisers while maintaining strict enterprise-grade security and data governance.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Bradesco&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, one of Brazil’s largest banking and financial services conglomerates, is streamlining heavy operational workflows by deploying Gemini Enterprise for automated fiscal, accounting, and contractual analysis. The finance team has accelerated proposal reviews, service classification, and budgetary workflows, cutting document review time from 1 hour to 5 minutes while reducing risk inconsistencies by 60% and achieving over 10% in financial efficiencies.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.youtube.com/watch?v=Ay5QtMsna8c" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Merck&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is exploring new frontiers in molecular research with the potential to significantly compress discovery timelines while maintaining complete data privacy and security.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=Ay5QtMsna8c"
-      data-glue-modal-trigger="uni-modal-Ay5QtMsna8c-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/maxresdefault_pnqevfP.max-1000x1000.jpg);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Merck + Google Cloud: Using Gemini Enterprise to Accelerate Drug Discovery&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-Ay5QtMsna8c-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="Ay5QtMsna8c"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=Ay5QtMsna8c"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-10-08-Orange-Spain-Expands-Partnership-with-Google-Cloud-to-Industrialize-AI-Operations-with-Gemini-Enterprise" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Orange Spain&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, a leading telecommunications operator in Spain, is speeding up its digital transformation by deploying more than 1,000 custom Gemini Enterprise agents. Employees across HR, IT, sales, and customer service have built custom agents to automate incident triage, analyze network issues, and retrieve corporate knowledge, boosting operational agility and response times while helping non-technical staff automate daily workflows with zero IT bottlenecks.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-09-03-Santee-Cooper-Partners-with-Google-Cloud-to-Help-Improve-Grid-Reliability-Through-Better-Planning" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Santee Cooper&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;South Carolina’s state-owned electric and water utility, is modernizing its financial planning and grid reliability by deploying a specialized AI model built on Gemini Enterprise. Financial planning teams and utility operators are automating complex financial scenario modeling and query execution using simple natural language and expect to boost modeling speed by up to 75% while mitigating market risk across a $10 billion grid expansion budget.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;SOMPO&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, a leading Japanese insurance provider, built over 10,000 custom AI agents across its 34,000 employees to automate tasks like document search and summarization for employee efficiency. Their engineering team used Gemini Enterprise to cut the development time for new models from one week to a single day, freeing up engineers for more important work.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Ulta Beauty&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; is helping guests shop 30,000 products by deploying the Ulta AI shopping assistant built with Gemini Enterprise. Online shoppers have translated conversational questions into personalized beauty recommendations, boosting digital sales conversion rates three-fold while skipping traditional search filters to buy the products they love instantly.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Wesfarmers, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;the&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;parent company of Australian retail giants &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Bunnings&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Kmart&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Officeworks&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, is deploying agents across its portfolio. An internal agent at Bunnings saved staff half a million hours of administrative work, while shopping agents — that help customers discover products and build their carts — have increased conversion rates up to three times higher for Kmart and Officeworks.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;div class="block-image_full_width"&gt;
-
-
-
-
-
-
-  
-    &lt;div class="article-module h-c-page"&gt;
-      &lt;div class="h-c-grid"&gt;
-  
-
-    &lt;figure class="article-image--large
-      
-      
-        h-c-grid__col
-        h-c-grid__col--6 h-c-grid__col--offset-3
-        
-        
-      "
-      &gt;
-
-      
-      
-        
-        &lt;img
-            src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Geminin_enterprise_customers.max-1000x1000.png"
-        
-          alt="Geminin enterprise customers"&gt;
-        
-        &lt;/a&gt;
-      
-        &lt;figcaption class="article-image__caption "&gt;&lt;p data-block-key="folpi"&gt;Organizations worldwide are driving measurable impact.&lt;/p&gt;&lt;/figcaption&gt;
-      
-    &lt;/figure&gt;
-
-  
-      &lt;/div&gt;
-    &lt;/div&gt;
-  
-
-
-
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini in Google Workspace&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini not only answers your questions, handles your knowledge work, and writes your code — it works directly inside Gmail, Drive, Docs, Slides, Sheets, Chat, and Calendar, carrying the same memory, skills, and controls it has everywhere else. It works inline: in the email thread, in the document, and in the chat space. &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Inside Workspace, Gemini works three ways:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Personal assistance&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;: Gemini works as your personal agent and arrives already knowing your calendar, your team, your projects, and how your documents relate to one another. It is briefed before you start.  For example, you can ask Gemini to set up a meeting with the usual team of regional event leads next week, without supplying a single name or email address. Gemini determines who those people are from the membership of your chat space and the thread from your last event, checks their calendars, and starts an email thread to coordinate a time that works, even with external participants. It handles work that spans applications the same way: researching market trends, building a financial model in Sheets, then creating a deck that presents both, without you re-explaining the project at each step.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Proactive delegation&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;: Gemini uses this same intelligence to proactively suggest tasks you can delegate to it. For example, if your manager emails you asking for the latest project update as a slide deck, Workspace Intelligence recognizes that as a delegatable task and gives you a single-click option to pass it to Gemini. It applies the same reasoning to your inbox, surfacing the message that matters most rather than the one that arrived last, and explaining why. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;A member of your team&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;: You can also use Gemini to create a coworker agent that works with your entire team. You simply describe the role you need, and Gemini creates it. The agent receives its own Workspace account, including an email address, calendar, Drive, and presence in your company directory. Your colleagues work with it the way they work with anyone else, by adding it to a Chat space or @mentioning it. For example, a marketing manager can ask an events coordinator agent in a chat group to draft a launch readiness document, which it posts back to the group when complete. The marketing manager could also tag the agent in a document comment, where it can suggest an edit in the Doc and reply in the comment thread, appearing under its own name in version history. A coworker agent acts under its own identity rather than yours, and it sees only what you share with it. Access follows the sharing and membership your team already uses, and no outside connector holds your data.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Data analysis, data engineering and machine learning &lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We are also giving Gemini skills built for specific domains, starting with data.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Data and analytics represent a foundational domain where Gemini transforms business workflows, enabling organizations to move from plain-language questions to actionable operational insights in minutes. We are introducing purpose-built capabilities tailored to both technical teams and everyday business users:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;For Data and ML engineers: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;We are extending Gemini with machine learning skills and tools that back every data scientist and data engineer with a team of agents. Engineers describe the outcome they want in plain language, and Gemini generates PySpark code, provides notebooks to edit and test it, trains models, and troubleshoots and fixes pipeline issues on its own.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;For business users: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Anyone in your organization can generate reliable, real-time operational reports simply by asking. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini uses operational reporting skills integrated with BigQuery and the Knowledge Catalog to construct and save the query.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; Once saved, teams can run reports on demand without incurring token costs, guaranteeing consistent, verified answers every time.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;&lt;span style="vertical-align: baseline;"&gt;Three Google Cloud capabilities keep those answers grounded:&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Knowledge Catalog:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini integrates directly with your Knowledge Catalog to map business definitions once so all agents use them. This deep &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;understanding of your organization’s schemas and business rules for terms like “net margin” and “addressable market” dramatically improves accuracy. &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Whether your metrics live in Databricks, dbt, LookML, or SAP, Gemini reads them directly where they sit to ensure factual responses.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Smart Storage&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;: Ninety percent of enterprise data is unstructured — PDFs, images, scans, and audio recordings — which often remain "dark" and unreadable. Smart Storage changes this by enriching unstructured objects in place and writing context back directly onto the object itself. The intelligence stays where the bytes reside and inherits your existing security posture.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Borderless Lakehouse:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;Organizations should not be forced to move or duplicate their data to use AI. Our borderless Lakehouse allows Gemini to query Amazon S3 and Azure Data Lake with no variable egress fees, read directly from Salesforce Data 360, SAP, and Workday without copying data, and federate open Apache Iceberg tables across Databricks Unity, Snowflake Horizon, and AWS Glue.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;You can start by registering data sets that you discover in your lakehouse with the Knowledge Catalog, and then assign Gemini simple or complex analysis to perform. It identifies the necessary data sets from the Knowledge Catalog, generates the necessary SQL, Spark or Python code to calculate the results, and runs the code on our Managed Spark Service with Lightning Engine or in BigQuery. It can also generate charts and build dashboards in the tools your analysts already use.&lt;/span&gt;&lt;/p&gt;
-&lt;p style="text-align: left;"&gt;&lt;span style="vertical-align: baseline;"&gt;&lt;span style="vertical-align: baseline;"&gt;By grounding its data agents in the Knowledge Catalog, Bloomberg Media lifted its SQL query accuracy by &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;63%&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; during initial development. &lt;strong&gt;As William Anderson, Bloomberg Media’s CTO, noted: “...by grounding our AI in a trusted institutional context, we ensure confidence in the accuracy and quality of every insight generated.”&lt;/strong&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Additional customers are seeing tremendous value from our data solutions:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Deutsche Telekom&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; used BigQuery, Cloud Storage, and Knowledge Catalog to build a unified data lakehouse to overcome a fragmented and slow data infrastructure spread across 40+ legacy on-premise systems, allowing their teams to now move ten times faster while addressing European data sovereignty and security requirements.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Etsy&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; migrated three petabytes of data to a unified lakehouse. By using BigQuery and open-source Apache Iceberg, they can now perform critical data joins up to 60% faster, allowing them to train models on much larger datasets and better connect buyers with the perfect items.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Snap&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; connected its Prism agent directly to its storage archives, cutting technical diagnostic troubleshooting times down from 30 minutes to just 30 seconds.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Industry-specific specializations&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Every industry runs on knowledge a general model does not have. We are specializing Gemini for individual industries, with the skills, tools, and knowledge specific to each one.&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;It is now in preview for Financial Services and Legal, and coming soon to Government, Healthcare, and Retail. &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Financial Services:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini for Financial Services automates what is usually pieced together across many workstreams: investment research, credit analysis, and risk modeling. It draws on trusted financial data from FactSet, LSEG, S&amp;amp;P Global, SEC filings, and your own proprietary repositories. Built with more than 50 foundational skills and designed to satisfy rigorous compliance, it shows its reasoning through confidence scores, explicit methodologies, full data lineage for easy auditing, and source citations you can check. Gemini for Financial Services is already being used by global financial institutions like &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;CME Group &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;and&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; Deutsche Bank&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Legal:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini inherits matter-level permissions and ethical walls directly from document management platforms like NetDocuments and iManage. Partners like Harvey automate complex legal work while meeting the firm's confidentiality standards, while Onit streamlines contract lifecycle management without exposing privilege. &lt;a href="https://www.googlecloudpresscorner.com/2026-10-08-Cooley-Collaborates-With-Google-Cloud-to-Develop-AI-Agent-for-Complex-Litigation" rel="noopener" target="_blank"&gt;Cooley&lt;/a&gt; &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;is building a confidential information redaction agent on Gemini Enterprise for Legal that automates redactions, including personally identifiable information and confidential material, before legal filings go public. In high-stakes litigation, this can cut days of document review while maintaining the firm's rigorous standards for client confidentiality.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In addition, we’ve seen our ecosystem and customers create new vertical applications as well. For example, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Deloitte&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; has created a multi-agentic solution to help organizations identify the highest-value opportunities for AI applications for their business. Their Agentic AI blueprint develops operational heat maps to pinpoint areas ready for agentic redesign, accelerating the deployment of custom agentic workflows and achieving up to a 3x faster path to measurable business impact.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Securing and governing agents&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Two factors determine whether an enterprise agent program succeeds or stalls: whether you can govern it, and whether you can afford it.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;When deploying autonomous agents across an organization, governance comes down to answering four fundamental questions:&lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Who is the agent, and what identity does it have? &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;What is it allowed to do or what permissions is it granted? &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;What did it do and where can I see what it did? &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;What should it never touch?&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Identity, policy, and observability answer the first three. The fourth is Agent Gateway.  &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Identity: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Every agent gets its own identity, cryptographically attested and governed like an employee, with least-privilege permissions. That identity is stamped into the logs that capture its work, and into any virtual machine spun up to run code on its behalf.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Authorization and permissions: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;You give each agent fine-grained, role-based access permissions, approved by your organization’s security administrators. When the Gemini agent connects to an external system, its identity is mapped and propagated through industry standards such as OAuth.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Auditing: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;In addition, every action Gemini takes is written to an audit trail and attributed to the agent rather than to a person. Since the identity travels into any virtual machine the agent spins up to run code, you can monitor those logs with our observability tools in real time and catch anomalous behavior before it matters. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Policy management and control: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini gives you identity, discovery, governance, and security by default. All Gemini agents execute tasks safely inside an Agent Sandbox with its own network boundary. All traffic — in, out, and between agents — passes through Agent Gateway, an AI network firewall enforcing your organization’s policies in real time. You write the policy once, such as: “agents may not open documents classified Need to Know.” Gemini applies it to every agent in your company instead of checking one agent at a time.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Leading cost controls and spending options&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;While per-token prices have &lt;/span&gt;&lt;a href="https://thenextweb.com/news/token-prices-fell-98-enterprise-ai-bills-tripled-now-the-industry-wants-a-standards-body-to-explain-why" rel="noopener" target="_blank"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;dropped 98%&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; since 2024, enterprise AI volume has exploded. Running every simple loop through a premium model quickly breaks corporate budgets. We &lt;/span&gt;&lt;a href="https://cloud.google.com/blog/products/ai-machine-learning/flexible-billing-and-cost-controls-for-agents-on-google-cloud?e=48754805"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;announced&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; new flexible spending options recently and are adding to those today: &lt;/span&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Multi-model orchestration:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; As mentioned earlier, Gemini allows you to choose&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; the right model for the job, and even combine different models for specific tasks in larger projects &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;to deliver optimal quality and lower your cost.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Smart routing: &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Our routing tool automatically triages enterprise workloads so each one runs on the model that delivers maximum performance at the lowest possible cost.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Real-time spend caps:&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; You can&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;set a hard limit on a project's AI spend in the Cloud Billing Console, and Gemini enforces it. Gemini monitors token usage and sandbox costs, and if a spend cap is triggered, that project's agent pauses, and you can choose to resume work with a single click in the console. Because the tracking is per project, companies can charge AI costs back to specific departments.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Infrastructure: 80% better price-performance&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;All of this innovation — the agent, the data, the identity, and everything else — runs on our AI Infrastructure and our models. They are the reason the economics work.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;First, our AI infrastructure. We co-design the chips, the network, the data center, and the software that connects it all as one highly-optimized system — our AI Hypercomputer. This vertical integration delivers significantly better price-performance than the generic setups, and we are continuing to push the state of the art here. For example, our latest TPU 8i system delivers 80% better price-performance than the prior generation, &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;making complex, high-value agent tasks both fast and highly affordable.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;On top of this silicon sit our models: &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Argon&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; for frontier reasoning, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Flash&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; for speed and volume, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Omni&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; for generative media, and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Gemma&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; for lightweight, open-weights edge workloads.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The edge capabilities are already real. &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;NASA’s Jet Propulsion Laboratory&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; is running Gemma directly on a satellite in orbit, a first for a vision-language model. JPL’s NAVI software analyzes Earth imagery on board the satellite and sends a summary with key information to ground operators.&lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Supercharged by our ecosystem&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;We remain committed to choice at every layer of the stack, ensuring you have the freedom to choose the best tech stack for your unique needs.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Inside Gemini, you have a broad choice of third-party agents from leading SaaS providers as well as connectors that are ready to use. They are even easier to discover&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; as collections in the new &lt;a href="https://aisolutionfinder.withgoogle.com/" rel="noopener" target="_blank"&gt;AI Solution Finder&lt;/a&gt;&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Around Gemini, our services ecosystem continues to rapidly scale to meet enterprise demand. Together, in the last month alone, our global consulting partners have put more than a hundred thousand of their developers and consultants through Gemini hackathons.&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;In addition, Accenture has made a significant investment by establishing a dedicated Gemini Enterprise Business Group to accelerate customer adoption and innovation. Several other partners have also expanded their commitments to support the growing demand for Gemini, including establishing specialized centers of excellence and training Gemini credentialed practitioners to help customers build and deploy production-grade agents faster. &lt;/span&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;span style="vertical-align: baseline;"&gt;Gemini Enterprise in action: Global momentum&lt;/span&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;Organizations worldwide are driving measurable impact across every major region:&lt;/span&gt;&lt;/p&gt;
-&lt;h4&gt;&lt;span style="vertical-align: baseline;"&gt;Europe and Middle East&lt;/span&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-10-08-Arden-University-and-Google-Cloud-Form-Strategic-Partnership-to-Ensure-Development-of-Job-Ready,-AI-Native-Graduates" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Arden University&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, a UK provider of flexible online and blended learning, is preparing students for the global job market by rolling out Gemini Enterprise. Over 30,000 students and staff will now have access to advanced Al tools to personalize their studies and gain essential skills for the workplace.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Commerzbank&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, one of Germany’s largest private banks, is using Gemini Enterprise to automate document quality assurance, reducing manual work on document reviews from 20 hours to just one. They are expanding this with a multi-agent system for AI-driven QA.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.youtube.com/watch?v=ZoZlcmQG8SE" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Lloyds Banking Group&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is scaling agentic AI across the bank. Envoy, a secure, Gemini-powered pipeline, has already onboarded nearly a thousand engineers building production-ready AI use cases. From fraud detection to commercial client onboarding, Envoy gives teams a reusable agent marketplace, a "golden path" for building agents, and a CI/CD pipeline — all wrapped in the guardrails and security a highly regulated bank demands.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=ZoZlcmQG8SE"
-      data-glue-modal-trigger="uni-modal-ZoZlcmQG8SE-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/maxresdefault-1_e6i4pb6.max-1000x1000.jpg);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Lloyds Banking Group Built Envoy with Gemini Enterprise&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-ZoZlcmQG8SE-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="ZoZlcmQG8SE"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=ZoZlcmQG8SE"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-06-22-Nokia-and-Google-Cloud-Partner-to-Embed-AI-Agents,-Built-with-Googles-Gemini-Models,-Into-Nokias-Autonomous-Network-Product-Suite" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Nokia&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is tackling the complexity of modern telecom networks with an ecosystem of specialized agents built on Gemini Enterprise. This allows operators to fix issues before subscribers are impacted by automating troubleshooting and cutting issue resolution time by up to 80%.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-10-08-On-Establishes-Google-Cloud-as-Enterprise-AI-Backbone,-Beginning-with-Agent-Led-Cloud-Migration" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;On&lt;/strong&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;a premium sportswear brand, is scaling workforce productivity and efficiencies by deploying Gemini Enterprise to every employee to drive personal productivity and foster an AI-ready culture. Team members have launched no code agents that help with efficient knowledge extraction, executive reporting, market research, scheduling, onboarding and more.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Ooredoo Qatar, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;the leading telecommunications provider in Qatar, is integrating Gemini Enterprise into their AI transformation strategy to drive advanced automation and intelligence. Its customer support, marketing, security, and field operations teams have deployed AI agents to optimize internal operations management, while accelerating rapid issue resolution and marketing campaigns to deliver around the clock, highly personalized, proactive customer experiences.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Qatar University, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;the nation's premier institution of higher education, is transforming higher education operations and academic research by deploying Gemini Enterprise campus-wide. Thousands of faculty and staff are deploying more than 2,000 custom AI agents to modernize institutional workflows, automate complex administrative operations, and enhance academic productivity.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-08-12-Ryanair-and-Google-Cloud-Announce-Five-Year-Data-and-AI-Partnership" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Ryanair&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, Europe’s largest airline, is modernizing its collaborative operations and infrastructure by deploying Gemini Enterprise and Google Workspace to 35,000 employees. Flight crews, operations planners, and corporate staff will benefit from automated decision-making, optimized crew logistics, and enhanced corporate productivity, while a resilient dual-cloud strategy strengthens infrastructure resilience and supports the airline's target growth to 300 million passengers by 2034.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Starling&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, one of the UK's top-rated digital banks, built its Scam Intelligence tool on Gemini Enterprise. It analyzes online marketplace ads for suspicious content and has quadrupled the rate at which customers cancel potentially fraudulent payments.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Other major European customers include &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Berenberg&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in banking, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Bouygues Telecom&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, the application building platform &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Lovable&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Siemens&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in automation.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;Asia Pacific&lt;/strong&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Airwallex, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;the global financial platform processing over $200 billion annually, has deployed Gemini Enterprise across its infrastructure to resolve customer issues 10x faster, automate dispute handling to cut case time by 40%, and accelerate software time-to-market by over 95% while building specialized agentic finance workflows for automated treasury, payables, and payments.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;DBS Bank&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, Southeast Asia’s largest bank, is moving past pilots into enterprise production by deploying deterministic chains of 70 to 80 specialized agents on Google Cloud to synthesize complex financial, regulatory, and market intelligence for corporate credit memos, shifting relationship managers from manual research to high-value client advisory while keeping humans firmly in the loop.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Hitachi &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;is transforming global power and utilities by deploying agents directly to frontline workers via HMAX, Hitachi’s portfolio of AI-powered solutions. Field technicians have built agents for over 200 use cases — such as using image-recognition agents to verify photos of every tool and wire before and after a job — boosting productivity by up to 30% while keeping workers safer.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;NTT DOCOMO&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Japan’s leading mobile operator, built data agents that reduced time-to-insight from two weeks to instant, which gave four hundred fifty thousand hours a year back to the business. Building on this success, they are now deploying Gemini Enterprise to drive their next wave of productivity.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Tata Steel&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, a global steel manufacturing leader, successfully deployed more than 300 specialized AI agents in nine months to enhance manufacturing safety, optimize predictive supply chains, and cut customer complaint turnaround times by 50%.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-10-08-Zip-US-Collaborates-with-Google-Cloud-to-Build-AI-Native-Product-Factory-with-Gemini-Enterprise" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Zip&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, an Australia-based digital financial services company, is transforming its product-development lifecycle in the U.S. by deploying Gemini Enterprise to build an AI-Native Product Factory. Cross-functional teams will use this unified agentic environment to connect customer research, design, engineering, and compliance, boosting product development velocity and parallel experimentation while lowering the cost and complexity of bringing new financial products and experiences to market.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Other APAC leaders include &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;LG&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in electronics, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Marubeni&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in trading, and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;TCS&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in technology services.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;Latin America&lt;/strong&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Banco BV&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;a leader in the Brazilian financial sector, is using Gemini Enterprise to create personalized scripts for its customer relationship managers, accelerating client communications by 80%. The new AI platform allows the bank to quickly engage customers with tailored financing and investment opportunities.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;CNA/SENAR&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, Brazil’s national agriculture and livestock federation, is expanding access to critical agricultural information by deploying JoIA, a conversational AI assistant on WhatsApp built on Gemini Enterprise. 40,000 active users, with the potential to support 5 millions producers across the country, have accessed localized input pricing, weather forecasts, and financial health evaluations to facilitate in-field decision-making.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Farmacias del Ahorro&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, one of Mexico’s leading drugstore and pharmacy retail chains, is accelerating corporate operational efficiency by deploying PotencIA, an internal program built on Gemini Enterprise. 1,000 corporate employees across IT, e-commerce, and marketing have adopted the tools for daily business workflows, boosting active user adoption to 95% while generating an estimated 140,000 hours in annual productivity gains.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Globo&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;Latin America’s largest media company, is optimizing early-stage software planning by deploying PlanejaAI, an AI agent solution built on Gemini Enterprise. Product Owners, managers, and analysts have accelerated epic refinement and quarterly planning, boosting pre-development plan accuracy by 33% and slashing validation time from 20 minutes to 6 seconds while saving 127 hours in a single quarter.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Grupo Bafar&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, a prominent Mexican food producer and consumer retail group, is accelerating national retail expansion by deploying Gemini Enterprise for automated contract management. Legal and retail operations teams have streamlined the preparation of operational annexes for store openings, boosting processing capacity tenfold while slashing contract preparation time from 140 to 17 minutes per branch.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;Laureate Education&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, a major higher education network serving nearly 500,000 students across Mexico and Peru, is transforming academic and administrative operations by deploying Gemini Enterprise and Gemini for Education. Faculty and staff have personalized learning paths, enhanced teacher support resources, and modernised campus administration, boosting student engagement and operational readiness while driving long-term career employability for graduates.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Other LATAM leaders include &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;iFood&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; delivery services, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Livelo&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in customer loyalty, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;SEBRAE&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in public services, and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Yduqs&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; in education.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4&gt;&lt;strong style="vertical-align: baseline;"&gt;North America&lt;/strong&gt;&lt;/h4&gt;
-&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-05-13-Albertsons-Companies-Announces-AI-Powered-Supply-Chain-Tool-to-Further-Enhance-Produce-Quality-Control-and-Consistency" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Albertsons&lt;/strong&gt;&lt;/a&gt;&lt;strong style="vertical-align: baseline;"&gt;, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;a leading U.S. food and drug retailer, is ensuring customers get the freshest produce with its patent-pending Intelligent Quality Control tool built with Gemini Enterprise. Distribution center inspectors are using computer vision and Gemini models to instantly evaluate fresh fruit and vegetable quality against company standards, boosting rating consistency across shifts and locations while speeding up inspections to get perishable food onto grocery shelves faster.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-09-11-Avid-and-Google-Cloud-Expand-Strategic-Partnership-to-Deliver-Browser-Based-Media-Composer-and-Agentic-Creative-Workflows" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Avid&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, a leading provider of media technology for film and television, is streamlining video post-production through browser-based editorial experiences and agentic creative workflows built with Gemini Enterprise. Editors and directors can use conversational content discovery, AI-assisted transcription, and intelligent media organization within their creative workflows — including within a Google Chrome browser — helping teams spend less time on manual administrative tasks and more time focused on storytelling.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-10-06-Google-and-Constellation-Announce-Landmark-Agreement-to-Bring-890-MW-of-New-Nuclear-Capacity-to-PJM-Grid-as-Part-of-Long-Term-Power-Deal" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Constellation Energy Company&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, a leading energy supplier, will build Gemini Enterprise agentic workflows directly into its core operations. Power generation teams will have access to advanced AI capabilities to accelerate capacity delivery, optimize asset dispatch, and protect critical infrastructure.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.youtube.com/watch?v=9SK_FpcIbvE" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Honeywell&lt;/strong&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt; &lt;/span&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Technologies&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;span style="vertical-align: baseline;"&gt;Forge platform includes predictive maintenance capabilities built on Gemini Enterprise, such as contextualizing operational data at scale and providing proactive maintenance recommendations. This helps customers minimize costly, unplanned outages, protecting and extending the lifespan of their mission-critical equipment.&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/div&gt;
-&lt;div class="block-video"&gt;
-
-
-
-&lt;div class="article-module article-video "&gt;
-  &lt;figure&gt;
-    &lt;a class="h-c-video h-c-video--marquee"
-      href="https://youtube.com/watch?v=9SK_FpcIbvE"
-      data-glue-modal-trigger="uni-modal-9SK_FpcIbvE-"
-      data-glue-modal-disabled-on-mobile="true"&gt;
-
-      
-        
-
-        &lt;div class="article-video__aspect-image"
-          style="background-image: url(https://storage.googleapis.com/gweb-cloudblog-publish/images/maxresdefault-2_1Oj4Pi2.max-1000x1000.jpg);"&gt;
-          &lt;span class="h-u-visually-hidden"&gt;Honeywell Technologies Helps Customers Prevent Unplanned Outages with Gemini Enterprise&lt;/span&gt;
-        &lt;/div&gt;
-      
-      &lt;svg role="img" class="h-c-video__play h-c-icon h-c-icon--color-white"&gt;
-        &lt;use xlink:href="#mi-youtube-icon"&gt;&lt;/use&gt;
-      &lt;/svg&gt;
-    &lt;/a&gt;
-
-    
-  &lt;/figure&gt;
-&lt;/div&gt;
-
-&lt;div class="h-c-modal--video"
-     data-glue-modal="uni-modal-9SK_FpcIbvE-"
-     data-glue-modal-close-label="Close Dialog"&gt;
-   &lt;a class="glue-yt-video"
-      data-glue-yt-video-autoplay="true"
-      data-glue-yt-video-height="99%"
-      data-glue-yt-video-vid="9SK_FpcIbvE"
-      data-glue-yt-video-width="100%"
-      href="https://youtube.com/watch?v=9SK_FpcIbvE"
-      ng-cloak&gt;
-   &lt;/a&gt;
-&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;div class="block-paragraph_advanced"&gt;&lt;ul&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;PayPal &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;built&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;its AI platform on the Gemini Enterprise to create new commerce tools, cutting the time it takes to deploy new models from weeks to just minutes.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;The Home Depot&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;the&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;world’s largest home improvement retailer, is speeding up customer support and product discovery by deploying AI voice and digital assistants built on Gemini Enterprise. DIY shoppers and contractors calling stores or using Magic Apron have skipped rigid phone menus, searched local inventory with natural speech, and resolved inquiries in real time, boosting phone resolution speeds by four-fold (understanding customer needs in under 10 seconds) while allowing in-store associates more time to focus on face-to-face shoppers.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-10-08-The-RealReal-Expands-Ask-TRR-AI-Shopping-Agent-With-Google-Clouds-Gemini-Enterprise" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;The RealReal&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, the leading online marketplace for authenticated luxury resale, is transforming luxury consignment by deploying Ask TRR, a conversational shopping concierge built with Gemini Enterprise. Resale shoppers have navigated and searched a massive, shifting catalog using natural language instead of rigid filters, which will boost user engagement across all 45 million members while making it effortless to discover and secure rare, "one-of-one" luxury pieces before they sell out.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://www.googlecloudpresscorner.com/2026-08-24-Google-Cloud-Announces-Strategic-Partnership-with-Verizon-to-Scale-Enterprise-AI" rel="noopener" target="_blank"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Verizon&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; is modernizing its customer and enterprise operations with Gemini Enterprise and agentic Data Cloud. The technology has helped resolve inbound customer calls and chats automatically, helped predict and resolve network anomalies, and automated marketing campaign orchestration, boosting customer satisfaction and automated resolution rates while unifying legacy data lakes into a single source of truth.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://cloud.google.com/transform/whenere-dreamlands-gemini-jane-austen-fortnite-future-of-fan-fiction"&gt;&lt;strong style="text-decoration: underline; vertical-align: baseline;"&gt;Whenere&lt;/strong&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt;an immersive storytelling platform, is revolutionizing interactive 3D worldbuilding, starting with&lt;/span&gt;&lt;span style="vertical-align: baseline;"&gt; bringing Pride and Prejudice to Fortnite. To build the Netherfield estate, the team used &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Dreamlands&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, an agentic 3D worldbuilding platform built on Gemini Enterprise. With Gemini generating each new texture in about seven seconds for under ten cents, one artist created nearly 250 custom assets in a single day and completed a historically accurate estate in under a week, all while keeping full creative control.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Leading hospital systems and healthcare services companies like &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Highmark Health&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Seattle Children's&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; rely on Gemini Enterprise to run secure administrative and clinical support workflows.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;strong style="vertical-align: baseline;"&gt;In public sector,&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; Gemini Enterprise is being used across the states of Arizona and Missouri, the &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;&lt;a href="https://cloud.google.com/blog/topics/public-sector/gps-suny-launch-ai-enabled-platform-to-accelerate-university-research?e=48754805gm"&gt;State University of New York (SUNY)&lt;/a&gt;,&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; and the &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Chief Digital and Artificial Intelligence Office,&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; which has put Gemini Enterprise in the hands of 3 million uniformed and non-uniformed members of the US armed services. They have built more than a hundred thousand custom agents to streamline everyday tasks.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;a href="https://cloud.google.com/blog/topics/startups/how-to-grow-your-small-business-using-google-gemini"&gt;&lt;span style="text-decoration: underline; vertical-align: baseline;"&gt;Small and midsize businesses&lt;/span&gt;&lt;/a&gt;&lt;span style="vertical-align: baseline;"&gt; including &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Aerotech&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;EDSpan Global&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;,, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Pinch&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Creative&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Quadrant&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Health&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Group&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Salt&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Productions&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Strategem, &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;and more are using Gemini Enterprise to empower their teams with AI agents that can streamline their operations, automate administrative workloads, help find information, and even support customer engagement. In fact, usage of Google Cloud’s AI tools by these customers has grown more than 5x year over year. &lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: disc; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;Other North American startups and innovators like &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;Every Cure, Harvey&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;, &lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt;OpenEvidence, Recursion&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;,&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; &lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt;and&lt;/span&gt;&lt;strong style="vertical-align: baseline;"&gt; Replit&lt;/strong&gt;&lt;span style="vertical-align: baseline;"&gt; are using Gemini Enterprise.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;strong style="vertical-align: baseline;"&gt;Our commitments to you&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;As you build the future on Gemini, we make three firm commitments:&lt;/span&gt;&lt;/p&gt;
-&lt;ol&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;We take the friction out: A future-proof platform that runs anywhere, executes any task, supports your choice of models, and applies enterprise controls.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;We eliminate complexity: Google builds and integrates the entire stack: silicon, models, skills, tools, and security.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li aria-level="1" style="list-style-type: decimal; vertical-align: baseline;"&gt;
-&lt;p role="presentation"&gt;&lt;span style="vertical-align: baseline;"&gt;What you build stays yours: Your people and your data do not need to move, and your proprietary inputs and outputs remain entirely your own.&lt;/span&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;The technology is ready, our global partner ecosystem is scaling, and Gemini is ready to work for you.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Thu, 08 Oct 2026 12:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026/</guid><category>AI &amp; Machine Learning</category><media:content height="540" url="https://storage.googleapis.com/gweb-cloudblog-publish/images/image_3.max-600x600_REh34sF.jpg" width="540"></media:content><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Welcome to Gemini at Work 2026: Introducing the Gemini agent</title><description></description><image>https://storage.googleapis.com/gweb-cloudblog-publish/images/image_3.max-600x600_REh34sF.jpg</image><site_name>Google</site_name><url>https://cloud.google.com/blog/products/ai-machine-learning/welcome-to-gemini-at-work-2026/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Thomas Kurian</name><title>CEO, Google Cloud</title><department></department><company></company></author></item></channel></rss>
+&lt;p&gt;&lt;span style="vertical-align: baseline;"&gt;With token-based guardrails in place, your teams can use generative AI in BigQuery with the cost predictability your organization needs.&lt;/span&gt;&lt;/p&gt;&lt;/div&gt;</description><pubDate>Wed, 14 Oct 2026 16:00:00 +0000</pubDate><guid>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</guid><category>AI &amp; Machine Learning</category><category>BigQuery</category><category>Data Analytics</category><og xmlns:og="http://ogp.me/ns#"><type>article</type><title>Predictable AI spend in BigQuery: Introducing cost management for generative AI functions</title><description></description><site_name>Google</site_name><url>https://cloud.google.com/blog/products/data-analytics/using-bigquerys-generative-ai-cost-management-features/</url></og><author xmlns:author="http://www.w3.org/2005/Atom"><name>Tushar Jaiswal</name><title>Software Engineer</title><department></department><company></company></author><author xmlns:author="http://www.w3.org/2005/Atom"><name>Alicia Williams</name><title>Developer Advocate</title><department></department><company></company></author></item></channel></rss>
