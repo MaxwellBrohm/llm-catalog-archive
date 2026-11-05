@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Tue, 03 Nov 2026 10:15:35 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 05 Nov 2026 02:58:01 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,36 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Call for Proposals: PyTorch Day China 2026</title>
+		<link>https://pytorch.org/blog/call-for-proposals-pytorch-day-china-2026/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Wed, 04 Nov 2026 20:29:55 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=209539</guid>
+
+					<description><![CDATA[<p>The Call for Proposals for PyTorch Day China 2026 closes November 10 at 23:59 China Standard Time. The event takes place in Beijing on December 12, bringing together PyTorch developers,...</p>
+<p>The post <a href="https://pytorch.org/blog/call-for-proposals-pytorch-day-china-2026/">Call for Proposals: PyTorch Day China 2026</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p><img fetchpriority="high" decoding="async" class="alignnone size-large wp-image-209574" src="https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header-1024x536.png" alt="CFP PyTorch Day China 2026" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" />The <a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#overview">Call for Proposals</a> for <a href="https://www.lfopensource.cn/pytorch-day-china/">PyTorch Day China 2026</a> closes <strong>November 10 at 23:59 China Standard Time</strong>. The event takes place in <strong>Beijing on December 12</strong>, bringing together PyTorch developers, machine learning engineers, AI researchers, and open source AI leaders from across China and beyond.</p>
+<p>The call welcomes <a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#submission-types">session presentations and lightning talks</a> across five topic areas:</p>
+<ul>
+<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>Model Training &amp; Post-Training</strong></a><strong>:</strong> Distributed training, SFT, reinforcement learning, preference optimization, and techniques for improving training efficiency and performance.</li>
+<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>Efficient Inference &amp; Deployment</strong></a><strong>:</strong> LLM inference, quantization, optimization, deployment strategies, and production-ready AI solutions.</li>
+<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>PyTorch Core &amp; Hardware Acceleration</strong></a><strong>:</strong> Compilation, kernel optimization, performance profiling, and GPU and AI accelerator technologies.</li>
+<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>Physical AI</strong></a><strong>:</strong> Robotics, intelligent devices, Vision-Language-Action (VLA) models, perception and control systems, and simulation-based training.</li>
+<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>PyTorch Ecosystem &amp; Applications</strong></a><strong>:</strong> Tools, applications, and innovations expanding the PyTorch ecosystem.</li>
+</ul>
+<p>CFP notifications are scheduled for <strong>November 17</strong>, followed by the <strong>schedule announcement on November 18</strong>.</p>
+<p><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/">Submit a proposal by November 10 at 23:59 China Standard Time.</a></p>
+<p>The post <a href="https://pytorch.org/blog/call-for-proposals-pytorch-day-china-2026/">Call for Proposals: PyTorch Day China 2026</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>KVCache Meetup Korea 2026: Event Recap</title>
 		<link>https://pytorch.org/blog/kvcache-meetup-korea-2026-event-recap/</link>
 		
@@ -41,7 +71,7 @@
 <p>The post <a href="https://pytorch.org/blog/kvcache-meetup-korea-2026-event-recap/">KVCache Meetup Korea 2026: Event Recap</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></description>
 										<content:encoded><![CDATA[<p>On the evening of Sep 30, 2026, <a href="https://pytorch.kr">PyTorchKR</a> and <a href="https://xcena.com">XCENA</a> co-hosted KVCache Meetup Korea. PyTorchKR is a major AI/ML community in Korea, and XCENA is a startup that focuses on CXL (Compute Express Link). Tensormesh, the company behind LMCache, also sponsored the event. Speakers from XCENA, SK hynix, FuriosaAI, and LMCache shared their work on large language model (LLM) inference and KV Cache optimization. LLM inference runs a language model to generate output. KV Cache stores attention data for reuse during inference.</p>
-<p><em><img fetchpriority="high" decoding="async" class="alignnone wp-image-209227" src="https://pytorch.org/wp-content/uploads/2026/11/01-audience-300x146.jpg" alt="" width="600" height="293" srcset="https://pytorch.org/wp-content/uploads/2026/11/01-audience-300x146.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/01-audience-1024x500.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" />  <img decoding="async" class="alignnone wp-image-209230" src="https://pytorch.org/wp-content/uploads/2026/11/02-audience-300x135.jpg" alt="" width="600" height="270" srcset="https://pytorch.org/wp-content/uploads/2026/11/02-audience-300x135.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/02-audience-1024x461.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
+<p><em><img decoding="async" class="alignnone wp-image-209227" src="https://pytorch.org/wp-content/uploads/2026/11/01-audience-300x146.jpg" alt="" width="600" height="293" srcset="https://pytorch.org/wp-content/uploads/2026/11/01-audience-300x146.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/01-audience-1024x500.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" />  <img decoding="async" class="alignnone wp-image-209230" src="https://pytorch.org/wp-content/uploads/2026/11/02-audience-300x135.jpg" alt="" width="600" height="270" srcset="https://pytorch.org/wp-content/uploads/2026/11/02-audience-300x135.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/02-audience-1024x461.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
 <em>Attendees at KVCache Meetup Korea 2026.</em></p>
 <p>Talks covered CXL memory expansion, GPU and high-bandwidth memory (HBM) bottlenecks, request scheduling on RNGD, and LMCache MP Mode. The sessions showed how hardware and serving software handle KV Cache in different ways. Serving software processes requests that run a model.</p>
 <h2>Registration and Opening</h2>
@@ -581,7 +611,7 @@ in the Agentic Era: Bringing Native PyTorch to Cloud TPUs: Bill Jia (Google Clou
 					<description><![CDATA[<p>The post <a href="https://pytorch.org/blog/meet-the-2026-pytorch-foundation-ambassadors/">Meet the 2026 PyTorch Foundation Ambassadors</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></description>
 										<content:encoded><![CDATA[
-		<div id="fws_6ae9b449d78ed"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row top-level"  style="padding-top: 0px; padding-bottom: 0px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark ">
+		<div id="fws_6aebf0d8a1c4d"  data-column-margin="default" data-midnight="dark"  class="wpb_row vc_row-fluid vc_row top-level"  style="padding-top: 0px; padding-bottom: 0px; "><div class="row-bg-wrap" data-bg-animation="none" data-bg-animation-delay="" data-bg-overlay="false"><div class="inner-wrap row-bg-layer" ><div class="row-bg viewport-desktop"  style=""></div></div></div><div class="row_col_wrap_12 col span_12 dark ">
 	<div  class="vc_col-sm-12 wpb_column column_container vc_column_container col no-extra-padding"  data-padding-pos="all" data-has-bg-color="false" data-bg-color="" data-bg-opacity="1" data-animation="" data-delay="0" >
 		<div class="vc_column-inner" >
 			<div class="wpb_wrapper">
@@ -2016,72 +2046,7 @@ Invoke directly on PyTorch tensors (Eager &amp; <code>torch.compile</code>)</td>
 		
 		
 			</item>
-		<item>
-		<title>PyTorch Foundation Welcomes Nine New Members As Momentum Builds Around Open Source AI Center of Gravity</title>
-		<link>https://pytorch.org/blog/pytorch-foundation-welcomes-nine-new-members-as-momentum-builds-around-open-source-ai-center-of-gravity/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Tue, 20 Oct 2026 16:01:06 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<category><![CDATA[Press Release]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=189374</guid>
-
-					<description><![CDATA[<p>New Platinum members include Nebius, Nscale and Shopify, deepening the PyTorch Foundation’s role as the intelligence layer for open source AI development Summary The PyTorch Foundation announced nine new members,...</p>
-<p>The post <a href="https://pytorch.org/blog/pytorch-foundation-welcomes-nine-new-members-as-momentum-builds-around-open-source-ai-center-of-gravity/">PyTorch Foundation Welcomes Nine New Members As Momentum Builds Around Open Source AI Center of Gravity</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p><i><span style="font-weight: 400;"><img decoding="async" class="alignnone size-large wp-image-189375" src="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-Open-Source-AI-Center-of-Gravity-1024x536.png" alt="PyTorch Foundation Open Source AI Center of Gravity" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-Open-Source-AI-Center-of-Gravity-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-Open-Source-AI-Center-of-Gravity-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/10/PyTorch-Foundation-Open-Source-AI-Center-of-Gravity.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" /></span></i></p>
-<p><b><i><span style="font-weight: 400;">New Platinum members include Nebius, Nscale and Shopify, deepening the PyTorch Foundation’s role as the intelligence layer for open source AI development</span></i></b></p>
-<p><b>Summary</b></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">The PyTorch Foundation announced nine new members, Lablup Inc., LightSeek Foundation, Messiah University, Nebius, Nscale, Shopify, Siksha &#8216;O&#8217; Anusandhan, SKOPOS INDIA FOUNDATION, and Valencia College, joining its growing community.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Membership growth and momentum highlights the compounding progress in AI and the need for a shared center of gravity, strengthening the ecosystem around PyTorch Foundation projects PyTorch, vLLM, DeepSpeed, Ray, Helion, and Safetensors.</span></li>
-<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">New members were announced at PyTorch Conference North America 2026, further deepening the global community and accelerating ecosystem breakthroughs for open intelligence.</span></li>
-</ul>
-<p><b>SAN JOSE – PyTorch Conference North America – Oct. 20, 2026</b><span style="font-weight: 400;"> – The </span><a href="https://pytorch.org/"><span style="font-weight: 400;">PyTorch Foundation</span></a><span style="font-weight: 400;">, a community-driven hub for open source AI under the </span><a href="https://www.linuxfoundation.org/"><span style="font-weight: 400;">Linux Foundation</span></a><span style="font-weight: 400;">, today announced the addition of nine new members at PyTorch Conference North America 2026. Expansion of the PyTorch Foundation ecosystem signals increased advancements to come in open source AI, with the foundation serving as a compounding hub for innovation.</span></p>
-<p><span style="font-weight: 400;">The Foundation welcomes the following new members:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><b>Platinum:</b> <a href="https://nebius.com/"><span style="font-weight: 400;">Nebius</span></a><span style="font-weight: 400;">, </span><a href="https://www.nscale.com/"><span style="font-weight: 400;">Nscale</span></a><span style="font-weight: 400;">, and </span><a href="https://www.shopify.com/"><span style="font-weight: 400;">Shopify Inc.</span></a></li>
-<li style="font-weight: 400;" aria-level="1"><b>Silver:</b> <a href="https://lightseek.org/"><span style="font-weight: 400;">LightSeek Foundation</span></a><span style="font-weight: 400;"> and </span><a href="https://www.lablup.com/"><span style="font-weight: 400;">Lablup Inc.</span></a></li>
-<li style="font-weight: 400;" aria-level="1"><b>Associate:</b> <span style="font-weight: 400;">SKOPOS INDIA FOUNDATION</span><span style="font-weight: 400;">, </span><a href="https://www.soa.ac.in/"><span style="font-weight: 400;">Siksha &#8216;O&#8217; Anusandhan</span></a><span style="font-weight: 400;">, </span><a href="https://www.messiah.edu/"><span style="font-weight: 400;">Messiah University</span></a><span style="font-weight: 400;">, and </span><a href="https://valenciacollege.edu/"><span style="font-weight: 400;">Valencia College</span></a></li>
-</ul>
-<p><span style="font-weight: 400;">AI innovation now happens across all stack layers simultaneously, with research, models, infrastructure, hardware, and production continuously driving each other forward. The PyTorch Foundation serves as the central hub of this interconnected ecosystem, uniting researchers, developers, and companies building open AI. Membership growth advances PyTorch as the critical enabler of AI hardware, with the future of AI innovation built on projects like PyTorch, vLLM, DeepSpeed, Ray, Helion, and Safetensors.</span></p>
-<p><span style="font-weight: 400;">&#8220;Open systems learn faster when more people, projects, and organizations are working together, creating compounding gains,&#8221; said Mark Collier, executive director of the PyTorch Foundation. &#8220;Open source ecosystems let breakthroughs travel between organizations instead of staying locked inside one company. We are thrilled that these new members will share their advancements with the foundation in the pursuit of accelerated, open intelligence.&#8221;</span></p>
-<p><b>Ecosystem Growth: PyTorch Foundation Member News</b><span style="font-weight: 400;"> </span></p>
-<p><span style="font-weight: 400;">Recent milestones across the PyTorch ecosystem highlight how AI itself is joining the learning loop to improve code, kernels, and research workflows. Updates include:</span></p>
-<ul>
-<li style="font-weight: 400;" aria-level="1"><b>Bringing ExecuTorch to Arm Cortex-M CPUs</b><span style="font-weight: 400;"> – ExecuTorch </span><a href="https://pytorch.org/blog/bringing-executorch-to-arm-cortex-m-cpus/"><span style="font-weight: 400;">now</span></a><span style="font-weight: 400;"> provides a direct path from PyTorch training to on-device inference. The Cortex-M backend enables PyTorch models to run directly on Arm Cortex-M CPUs with Arm CMSIS-NN acceleration. It supports all capability tiers (Scalar, DSP, and MVE/Helium) from a single workflow.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>The announcement of </b><a href="https://pytorch.org/blog/introducing-torchneuron-native-pytorch-backend-for-aws-trainium/"><b>TorchNeuron</b></a><span style="font-weight: 400;"> –TorchNeuron is an open source native PyTorch backend for AWS Trainium (and corresponding Amazon EC2 instances: Trn2 and Trn3), enabling AI researchers and practitioners to experiment and run PyTorch workloads with a single configuration change. With eager execution, torch.compile, and native support for PyTorch APIs (DTensor, torch.distributed) and libraries like TorchTitan, TorchNeuron enables workflows from research experimentation to production deployment.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Native PyTorch is now publicly available for TPUs</b><span style="font-weight: 400;"> – Google is proud to announce </span><a href="https://github.com/google-pytorch/torch_tpu"><span style="font-weight: 400;">TorchTPU</span></a><span style="font-weight: 400;">, native PyTorch for TPU developers, enabling developers to deploy models on TPUs with minimal code changes and access popular ecosystem projects (vLLM, SGLang, Ray, LLM-d).</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>Extending Inductor for the IBM Spyre Accelerator </b><span style="font-weight: 400;">–</span> <span style="font-weight: 400;">In </span><a href="https://pytorch.org/blog/extending-inductor-for-the-ibm-spyre-accelerator/"><span style="font-weight: 400;">a recent blog</span></a><span style="font-weight: 400;">, IBM’s AI-native Spyre software stack extends PyTorch’s Inductor compiler and native runtime, reducing Spyre-specific compiler code by 7x while maintaining performance parity on tested workloads. AI-assisted development enabled support for thousands of models with just 44 adapters and approximately 10,000 lines of code, complemented by hardware-agnostic vLLM integration and continuous testing against upstream PyTorch updates.</span></li>
-<li style="font-weight: 400;" aria-level="1"><b>A new case study in which </b><a href="https://pytorch.org/blog/how-shopify-built-a-continual-learning-loop-with-pytorch-and-vllm/"><b>Shopify</b></a><b> built a continual learning loop with PyTorch and vLLM</b><span style="font-weight: 400;"> – Using a continual learning loop with PyTorch and vLLM, Shopify compresses production failures into model weights every day, beating frontier-model quality, and cutting serving costs by 96%.</span></li>
-</ul>
-<p><span style="font-weight: 400;">The open source community is gathering in San Jose for </span><a href="https://events.linuxfoundation.org/pytorch-conference-north-america/"><span style="font-weight: 400;">PyTorch Conference North America</span></a><span style="font-weight: 400;"> this week. From bare-metal infrastructure to applications and agents, the conference covers the entire AI stack, exploring the interconnected system building AI in the open. The foundation brings together practitioners focused on training, inference, kernel engineering, and responsible AI work, creating a hub for the future of open intelligence.</span></p>
-<p><span style="font-weight: 400;">To learn more about the next breakthrough in open source AI, visit </span><a href="https://pytorch.org/foundation"><span style="font-weight: 400;">https://pytorch.org/foundation</span></a><span style="font-weight: 400;">. </span></p>
-<h2><b>Supporting Quotes</b></h2>
-<p><span style="font-weight: 400;">&#8220;Lablup has built Backend.AI as an open-source project from the beginning, and PyTorch workloads run on our platform every day. We have benefited greatly from the PyTorch ecosystem over the years. Joining the PyTorch Foundation is our way of supporting the community that has helped us grow and contributing what we have learned from operating AI infrastructure at scale.&#8221;</span></p>
-<p><b>– Jeongkyu Shin, Co-founder and CEO, Lablup Inc. </b></p>
-<p><span style="font-weight: 400;">“Efficient inference is essential to making AI accessible at global scale, and we believe the infrastructure behind it must be open. PyTorch brings developers, researchers, and hardware innovators together around a shared foundation. Joining the PyTorch Foundation allows us to contribute directly to that ecosystem and help turn advances in models and hardware into practical improvements in performance, cost, and accessibility for the next generation of AI applications.”</span></p>
-<p><b>– Yineng Zhang, President and Governing Board, LightSeek Foundation</b></p>
-<p><span style="font-weight: 400;">“At Nebius, we believe the future of AI depends on a strong, connected ecosystem, from training to deployment. Joining the PyTorch Foundation as a Platinum member allows us to collaborate more deeply with the community and contribute our expertise in high-performance infrastructure and applied AI. Together, we can help developers and enterprises move more easily from experimentation to production and scale their AI applications.”</span></p>
-<p><b>– Ryan Hanrui Wang, Senior Vice President, Applied AI, Nebius</b></p>
-<p><span style="font-weight: 400;">“Most infrastructure providers treat the framework and the data center as two separate problems. We treat them as one. PyTorch has remained the base layer of AI because it kept the Pythonic style researchers know, while getting serious about performance. Ray, also part of the PyTorch Foundation, does something different: getting that work to run across thousands of GPUs. With Anyscale, the creators of Ray, set to join Nscale, we&#8217;re not just using that ecosystem, we&#8217;re building the infrastructure underneath it. Joining the PyTorch Foundation as a Platinum member is us backing that directly, not just benefiting from it.”</span></p>
-<p><b>– Nick Jones, VP of Cloud Native Platform Engineering, Nscale</b></p>
-<h3><b>About the PyTorch Foundation</b></h3>
-<p>The PyTorch Foundation is the vendor-neutral home for the open source intelligence layer developers use for training, optimizing, serving, orchestrating, and running models on any chip in any cloud for any agent. As a community-driven hub hosted by the Linux Foundation, the PyTorch Foundation supports the core PyTorch framework alongside a growing portfolio of innovative projects including vLLM, DeepSpeed, Ray, Helion, and Safetensors. Through open governance, strategic support, and a global contributor community, the PyTorch Foundation empowers developers, researchers, and enterprises to build and deploy AI at scale. Learn more at <a href="https://pytorch.org/foundation">https://pytorch.org/foundation</a>.</p>
-<h3><b>About the Linux Foundation</b></h3>
-<p><span style="font-weight: 400;">The Linux Foundation is the world’s leading home for collaboration on open source software, hardware, standards, and data. Linux Foundation projects, including Linux, Kubernetes, Model Context Protocol (MCP), OpenChain, OpenSearch, OpenSSF, OpenStack, PyTorch, Ray, RISC-V, SPDX and Zephyr, provide the foundation for global infrastructure. The Linux Foundation is focused on leveraging best practices and addressing the needs of contributors, users, and solution providers to create sustainable models for open collaboration. For more information, please visit us at </span><a href="http://linuxfoundation.org"><span style="font-weight: 400;">linuxfoundation.org</span></a><span style="font-weight: 400;">.</span></p>
-<p><span style="font-weight: 400;">The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see its trademark usage page: </span><a href="http://www.linuxfoundation.org/trademark-usage"><span style="font-weight: 400;">www.linuxfoundation.org/trademark-usage</span></a><span style="font-weight: 400;">. Linux is a registered trademark of Linus Torvalds.</span></p>
-<p><b>Media Contact</b></p>
-<p><span style="font-weight: 400;">The Linux Foundation</span></p>
-<p><a href="mailto:pr@linuxfoundation.org"><span style="font-weight: 400;">pr@linuxfoundation.org</span></a><span style="font-weight: 400;"> </span></p>
-<p>The post <a href="https://pytorch.org/blog/pytorch-foundation-welcomes-nine-new-members-as-momentum-builds-around-open-source-ai-center-of-gravity/">PyTorch Foundation Welcomes Nine New Members As Momentum Builds Around Open Source AI Center of Gravity</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4902 metric#misses=35 metric#hit-ratio=99.3 metric#bytes=1645641 metric#prefetches=295 metric#store-reads=38 metric#store-writes=10 metric#store-hits=304 metric#store-misses=19 metric#sql-queries=22 metric#ms-total=572.99 metric#ms-cache=29.12 metric#ms-cache-avg=0.6195 metric#ms-cache-ratio=5.1 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4904 metric#misses=31 metric#hit-ratio=99.4 metric#bytes=1641687 metric#prefetches=298 metric#store-reads=35 metric#store-writes=8 metric#store-hits=306 metric#store-misses=15 metric#sql-queries=20 metric#ms-total=600.60 metric#ms-cache=25.05 metric#ms-cache-avg=0.5964 metric#ms-cache-ratio=4.2 -->
