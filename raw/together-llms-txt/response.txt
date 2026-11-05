@@ -73,8 +73,8 @@
 - [Run an A/B test](https://docs.together.ai/docs/dedicated-endpoints/ab-tests.md): Compare a candidate deployment against a baseline on live traffic.
 - [Run a shadow experiment](https://docs.together.ai/docs/dedicated-endpoints/shadow-experiments.md): Mirror a sampled fraction of endpoint traffic to a target deployment without affecting the client response.
 - [Send requests](https://docs.together.ai/docs/dedicated-endpoints/requests.md): After deploying a model, send requests using the shared inference API.
-- [Monitor endpoints and deployments](https://docs.together.ai/docs/dedicated-endpoints/monitoring.md): Monitor endpoint and deployment metrics with built-in dashboards and a Prometheus-compatible metrics endpoint.
-- [Visualize endpoint metrics in Grafana](https://docs.together.ai/docs/dedicated-endpoints/grafana.md): Scrape the metrics endpoint with Prometheus and import the example Grafana dashboard for dedicated endpoints.
+- [Metrics and dashboards](https://docs.together.ai/docs/dedicated-endpoints/monitoring.md): Monitor endpoint and deployment metrics using the Together AI console, Grafana, or the Prometheus-compatible metrics endpoint.
+- [Run your own Grafana](https://docs.together.ai/docs/dedicated-endpoints/grafana.md): Scrape dedicated endpoint metrics into your own Prometheus and Grafana, import the prebuilt dashboard, and alert on errors.
 - [Overview](https://docs.together.ai/docs/dedicated-container-inference.md): Deploy your own containers on Together's managed GPU infrastructure with automatic scaling, job queues, and built-in observability.
 - [Quickstart](https://docs.together.ai/docs/containers-quickstart.md): Deploy your first container with dedicated container inference and send it a job through the managed queue in 20 minutes.
 - [Image generation with FLUX.2](https://docs.together.ai/docs/dedicated-containers-image.md): Deploy a FLUX.2 image generation model on Together's managed GPU infrastructure with dedicated container inference.
@@ -83,7 +83,7 @@
 - [Deploy a prebuilt vLLM image](https://docs.together.ai/docs/dedicated-containers-vllm.md): Serve a model from the stock vLLM Docker image with dedicated container inference.
 - [Architecture](https://docs.together.ai/docs/together-deployments.md): Architecture, deployment lifecycle, and core concepts for dedicated container inference.
 - [Jig CLI](https://docs.together.ai/docs/deployments-jig.md): Build, push, and deploy containers to Together's managed GPU infrastructure.
-- [Sprocket SDK](https://docs.together.ai/docs/deployments-sprocket.md): A Python SDK for building inference workers that support both synchronous and asynchronous requests via Together's platform.
+- [Sprocket SDK](https://docs.together.ai/docs/deployments-sprocket.md): Sprocket is a Python SDK for building inference workers that support both synchronous and asynchronous requests via Together's platform.
 - [Queue API](https://docs.together.ai/docs/deployments-queue.md): Submit, monitor, and manage asynchronous jobs for your dedicated container inference deployments.
 - [Sprocket SDK reference](https://docs.together.ai/reference/dci-reference-sprocket.md): API reference for Sprocket classes, functions, and configuration.
 - [Overview](https://docs.together.ai/docs/post-training/overview.md): Train models from your own training loop on Together AI GPUs.
@@ -110,7 +110,7 @@
 - [Prepare for FP4 inference](https://docs.together.ai/docs/post-training/prepare-for-fp4-inference.md): Merge a trained LoRA adapter into its base model and quantize the result to FP4 for dedicated model inference.
 - [Overview](https://docs.together.ai/docs/fine-tuning/overview.md): Adapt a base model to a task by training it on your data.
 - [Fine-tuning quickstart](https://docs.together.ai/docs/fine-tuning/quickstart.md): Prepare a conversational dataset, launch a LoRA job on Qwen3.5 9B, and evaluate the fine-tuned model.
-- [Pricing](https://docs.together.ai/docs/fine-tuning/pricing.md): Fine-tuning is billed per token processed, scaled by model size, training method, and training type.
+- [Pricing](https://docs.together.ai/docs/fine-tuning/pricing.md): Fine-tuning is billed per token processed at per-model rates for each training method and type.
 - [Data preparation](https://docs.together.ai/docs/fine-tuning/data-preparation.md): Format your training file as JSONL or Parquet to match your task, then validate and upload.
 - [Supported models](https://docs.together.ai/docs/fine-tuning/supported-models.md): Every base model available for fine-tuning, with context length and batch size limits.
 - [Bring your own model](https://docs.together.ai/docs/fine-tuning/byom.md): Fine-tune a Hugging Face model that isn't in the Together catalog.
@@ -148,14 +148,14 @@
 - [Code sandbox legacy SDK](https://docs.together.ai/docs/together-code-sandbox-legacy.md): Reference for the earlier code sandbox offering built on the CodeSandbox SDK.
 - [Manage your account](https://docs.together.ai/docs/account-management.md): Sign up for Together AI, get your API key, and manage your account settings.
 - [Authentication](https://docs.together.ai/docs/api-keys-authentication.md): Create, manage, and authenticate with project-scoped API keys.
-- [IAM model](https://docs.together.ai/docs/identity-access-management.md): How users, credentials, and resources are organized across the Together platform.
+- [IAM model](https://docs.together.ai/docs/identity-access-management.md): Understand how users, credentials, and resources are organized across the Together platform.
 - [Organizations](https://docs.together.ai/docs/organizations.md): Create and manage your Together organization, invite members, and configure billing.
 - [Projects](https://docs.together.ai/docs/projects.md): Create isolated workspaces to organize resources, manage team access, and scope API keys.
 - [Roles & permissions (RBAC)](https://docs.together.ai/docs/roles-permissions.md): Understand organization and project role-based access control (RBAC), including the admin, developer, and editor roles, and what each can do across Together.
 - [Single sign-on (SSO)](https://docs.together.ai/docs/sso.md): Connect your identity provider for secure, automated team access to Together.
 - [Privacy and security](https://docs.together.ai/docs/privacy-and-security.md): How Together handles your inputs, outputs, and account data, plus enterprise options for data residency and private networking.
 - [Zero data retention](https://docs.together.ai/docs/zero-data-retention.md): Together's zero data retention policy and how to enable it.
-- [Credits](https://docs.together.ai/docs/billing-credits.md): Understanding credits and billing basics on Together AI.
+- [Credits](https://docs.together.ai/docs/billing-credits.md): Understand credits and billing basics on Together AI.
 - [Payment methods & invoices](https://docs.together.ai/docs/billing-payment-methods.md): Managing payment cards, ACH transfers, viewing invoices, and updating billing details.
 - [Spend controls](https://docs.together.ai/docs/billing-spend-controls.md): Manage Together AI spend with balance cut-offs, auto-recharge, cost attribution, and programmatic monitoring.
 - [Cost analytics](https://docs.together.ai/docs/billing-cost-analytics.md): Track daily Together AI spend and billable units by product, line item, project, or API key.
@@ -215,7 +215,7 @@
 - [When to fine-tune vs. prompt](https://docs.together.ai/learn/finetune-vs-prompt.md): Prompting steers an existing model. Fine-tuning changes its weights. You should almost always try prompting first.
 - [Choosing a deployment option](https://docs.together.ai/learn/choosing-a-deployment-option.md): Deploy your model with serverless, dedicated endpoints, or dedicated containers.
 - [Quantization](https://docs.together.ai/learn/quantization.md): What quantization is, how lower precision speeds up inference, and the quality tradeoff.
-- [Together Cookbooks & Example Apps](https://docs.together.ai/examples.md): Explore our vast library of open-source cookbooks & example apps
+- [Together Cookbooks & Example Apps](https://docs.together.ai/examples.md): Open source notebooks, training recipes, and example apps built on Together AI.
 - [Create chat completion](https://docs.together.ai/reference/chat-completions.md): Generate a model response for a given chat conversation. Supports single queries and multi-turn conversations with system, user, and assistant messages.
 - [Create image](https://docs.together.ai/reference/post-images-generations.md): Use an image model to generate an image for a given prompt.
 - [Create audio generation request](https://docs.together.ai/reference/audio-speech.md): Generate audio from input text
@@ -405,7 +405,7 @@
 - [TypeScript Library](https://docs.together.ai/typescript-library.md)
 - [SDK v3 migration](https://docs.together.ai/docs/sdk-v3-migration-guide.md): Update code and scripts that use Together Python SDK 2.x, TypeScript SDK 0.58, or CLI 2.x for the breaking changes in Python SDK 3.0, TypeScript SDK 1.0, and CLI 3.0.
 - [SDK v2 migration (Python)](https://docs.together.ai/docs/pythonv2-migration-guide.md): Migrate code written against the Together Python SDK v1 to the v2 SDK.
-- [Error codes](https://docs.together.ai/docs/error-codes.md): An overview on error status codes, causes, and quick fix solutions.
+- [Error codes](https://docs.together.ai/docs/error-codes.md): Look up API error status codes, their causes, and quick fixes.
 - [Get started](https://docs.together.ai/reference/cli/getting-started.md): Install the Together CLI to deploy endpoints, fine-tune models, and manage GPU clusters from your terminal.
 - [Telemetry](https://docs.together.ai/reference/cli/telemetry.md): Understand what the Together CLI tracks, how to opt out, and where the local config file lives.
 - [Models](https://docs.together.ai/reference/cli/models.md): Register, upload, and inspect models and adapters for dedicated model inference from your terminal.
