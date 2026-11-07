@@ -1,0 +1,58 @@
+{
+  "candidates": [
+    {
+      "id": "c901de6af9dabeee39e9d583bcc22b23dd15a8c3:stealth_listing:stealth/crouton-alpha",
+      "type": "stealth_listing",
+      "sentence": "OpenRouter's catalog lists an id under the stealth/ namespace: \"stealth/crouton-alpha\".",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-11-03T21:59:24.000Z",
+        "kind": "origin"
+      },
+      "bits": 7.78,
+      "why": [
+        "stealth_listing is rare in the archive: +11.29 bits",
+        "3.5 days old: -3.51 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:stealth/crouton-alpha"
+      ],
+      "facts": [
+        [
+          "catalog id",
+          "stealth/crouton-alpha"
+        ],
+        [
+          "catalog name",
+          "Crouton Alpha"
+        ],
+        [
+          "expiration_date",
+          "absent"
+        ]
+      ],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "OpenRouter's catalog lists an id under the stealth/ namespace: \"stealth/crouton-alpha\".\n\nhttps://diffwire.dev/changes/c901de6af9dabeee39e9d583bcc22b23dd15a8c3.html",
+        "url": "https://diffwire.dev/changes/c901de6af9dabeee39e9d583bcc22b23dd15a8c3.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=OpenRouter's%20catalog%20lists%20an%20id%20under%20the%20stealth%2F%20namespace%3A%20%22stealth%2Fcrouton-alpha%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fc901de6af9dabeee39e9d583bcc22b23dd15a8c3.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ],
+  "funnel": {
+    "seen": 9989,
+    "postableType": 781,
+    "notOnCooldown": 781,
+    "aboveFloor": 1
+  },
+  "generated_at": "2026-11-07T10:07:34.068Z"
+}
