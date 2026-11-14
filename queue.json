@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-11-14T20:07:45.296Z",
+  "alert": {
+    "floor_bits": 8,
+    "ids": [],
+    "next_state": {
+      "alerted": [
+        "c901de6af9dabeee39e9d583bcc22b23dd15a8c3:stealth_listing:stealth/crouton-alpha"
+      ]
+    }
+  },
+  "floor_bits": 4.5,
+  "funnel": {
+    "seen": 9989,
+    "postableType": 781,
+    "notOnCooldown": 781,
+    "aboveFloor": 0
+  },
+  "candidates": []
+}
