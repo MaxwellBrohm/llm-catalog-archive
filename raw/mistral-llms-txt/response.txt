@@ -9,11 +9,11 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [API reference](https://docs.mistral.ai/admin/admin-api/api-reference.md): Admin API endpoint reference generated from the OpenAPI specification.
 - [Authentication](https://docs.mistral.ai/admin/admin-api/authentication.md): How Admin API keys work, where to create them, and how to authenticate requests.
 - [Manage groups and roles](https://docs.mistral.ai/admin/admin-api/manage-groups-roles.md): Create user groups, manage membership and Workspace assignments, and list roles with the Admin API.
-- [Manage users](https://docs.mistral.ai/admin/admin-api/manage-users.md): List, create, update, invite, and remove Organization users with the Admin API.
+- [Manage users](https://docs.mistral.ai/admin/admin-api/manage-users.md): List, create, update, invite, deactivate, reactivate, and remove Organization users with the Admin API.
 - [Manage Workspaces](https://docs.mistral.ai/admin/admin-api/manage-workspaces.md): List, create, update, and delete Workspaces and manage their members with the Admin API.
 - [Overview](https://docs.mistral.ai/admin/admin-api/overview.md): Manage your Organization programmatically: users, groups, Workspaces, API keys, limits, usage, and audit logs.
 - [Usage metrics](https://docs.mistral.ai/admin/admin-api/usage-metrics.md): Retrieve billing usage, spending and rate limits, le Chat activity, and Vibe Code analytics with the Admin API.
-- [User provisioning](https://docs.mistral.ai/admin/admin-api/user-provisioning.md): Bulk-create or invite users, organize them into a user group, and grant them access to a Workspace with the Admin API.
+- [User provisioning](https://docs.mistral.ai/admin/admin-api/user-provisioning.md): Bulk-create or invite users, organize them into a user group, and grant the group access to a Workspace with the Admin API.
 - [Billing](https://docs.mistral.ai/admin/billing-usage/billing.md): Use Billing to manage how your Organization pays for Mistral services.
 - [Invoices](https://docs.mistral.ai/admin/billing-usage/invoices.md): Find and download your invoices.
 - [Subscriptions](https://docs.mistral.ai/admin/billing-usage/subscriptions.md): Use Subscription to review the Mistral plan, seats, included monthly usage, and pay-as-you-go settings active on your Organization.
@@ -22,12 +22,16 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Connectors](https://docs.mistral.ai/admin/identity-access/connectors.md): Manage organization app connections and Connector tool access from Admin.
 - [Groups](https://docs.mistral.ai/admin/identity-access/groups.md): Group users to manage Workspace access and roles at scale.
 - [Roles and permissions (RBAC)](https://docs.mistral.ai/admin/identity-access/roles-permissions.md): Predefined Organization and Workspace roles, what each one grants, and how to assign them.
+- [Set up SCIM with Microsoft Entra ID](https://docs.mistral.ai/admin/identity-access/scim/microsoft-entra.md): Configure Microsoft Entra ID to provision users and groups into Mistral with SCIM, protect against accidental deactivation, and verify the result.
+- [SCIM provisioning](https://docs.mistral.ai/admin/identity-access/scim/overview.md): Automatically provision users and groups from your identity provider, manage their lifecycle, and reconcile access with manual sync.
 - [Service accounts](https://docs.mistral.ai/admin/identity-access/service-accounts.md): Give a workload its own non-human identity in a workspace, with its own roles and its own credentials.
-- [User management](https://docs.mistral.ai/admin/identity-access/user-management.md): Manage members, invitations, Organization roles, seats, Workspaces, groups, and user API keys.
+- [User management](https://docs.mistral.ai/admin/identity-access/user-management.md): Manage members, invitations, Organization roles, seats, Workspaces, groups, and user API keys, and deactivate or remove members.
 - [Web search domain filtering](https://docs.mistral.ai/admin/identity-access/web-search-domain-filtering.md): Restrict which websites Mistral can reach for your Organization, using an allowlist or a blocklist.
 - [Workload identity federation](https://docs.mistral.ai/admin/identity-access/workload-identity.md): Let a workload authenticate as a service account with short-lived tokens signed by your own cluster, instead of a stored secret.
+- [Managed deployments audit logs](https://docs.mistral.ai/admin/monitor-comply/audit-logs/managed-deployments.md): Which audit log events a managed deployment records, how to read them, and why a deploy produces several status changes.
 - [Overview](https://docs.mistral.ai/admin/monitor-comply/audit-logs/overview.md): Audit logs provide a chronological record of actions performed within your Organization across Studio and Vibe.
 - [Audit logs reference](https://docs.mistral.ai/admin/monitor-comply/audit-logs/reference.md): Audit log response fields, filters, actor types, target types, and event types.
+- [Workflows audit logs](https://docs.mistral.ai/admin/monitor-comply/audit-logs/workflows.md): Which audit log events Workflows records for executions, schedules, workers, and hardened deployments, how to read them, and why one action can record two entries.
 - [Zero data retention](https://docs.mistral.ai/admin/monitor-comply/zero-data-retention.md): Learn what zero data retention covers, which API endpoints are eligible, and how to request it for your Organization.
 - [Admin overview](https://docs.mistral.ai/admin/overview.md): The Admin Panel is the control surface for your Organization.
 - [Admin](https://docs.mistral.ai/admin.md): Manage security, access controls, users, billing, and organizational settings for your Mistral Workspace.
@@ -67,7 +71,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Citations & References](https://docs.mistral.ai/inference/conversations/citations.md): Citations enable models to ground their responses and provide references, making them a powerful feature for Retrieval-Augmented Generation (RAG) and agentic applications.
 - [Function Calling](https://docs.mistral.ai/inference/conversations/function-calling.md): Function calling, under the Tool Calling umbrella, allows Mistral models to connect to external local tools.
 - [Reasoning](https://docs.mistral.ai/inference/conversations/reasoning.md): Reasoning is the next step of CoT (Chain of Thought), naturally used to describe the logical steps generated by the model before reaching a conclusion.
-- [Responses API](https://docs.mistral.ai/inference/conversations/responses.md): Generate text from text, image, and file inputs, stream responses, and call functions with the stateless Responses API in public preview.
+- [Responses API](https://docs.mistral.ai/inference/conversations/responses.md): Generate text from text, image, and file inputs, stream responses, and call functions with the stateless Responses API.
 - [Custom](https://docs.mistral.ai/inference/conversations/structured-output/custom.md): Custom Structured Outputs allow you to ensure the model provides an answer in a very specific JSON format by supplying a clear JSON schema.
 - [JSON Mode](https://docs.mistral.ai/inference/conversations/structured-output/json_mode.md): Users have the option to set response_format to {type: json_object} to enable JSON mode.
 - [Structured Outputs](https://docs.mistral.ai/inference/conversations/structured-output.md): When utilizing LLMs as agents or steps within a lengthy process, chain, or pipeline, it is often necessary for the outputs to adhere to a specific structured format.
@@ -181,7 +185,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Mistral Moderation 2411](https://docs.mistral.ai/resources/deprecated/guardrailing/mistral_moderation_2411.md): Deprecated: mistral-moderation-2411 is deprecated.
 - [Safe Prompt](https://docs.mistral.ai/resources/deprecated/guardrailing/safe_prompt.md): safe_prompt is deprecated.
 - [Native reasoning (deprecated)](https://docs.mistral.ai/resources/deprecated/native-reasoning.md): Native reasoning models (magistral-small-latest, magistral-medium-latest) are deprecated.
-- [Error glossary](https://docs.mistral.ai/resources/error-glossary.md): This page lists the HTTP status codes returned by the Mistral API, their meanings, and how to resolve them.
+- [Error glossary](https://docs.mistral.ai/resources/error-glossary.md): Here are the HTTP status codes and error codes returned by the Mistral API, their meanings, and how to resolve them.
 - [Glossary](https://docs.mistral.ai/resources/glossary.md): This glossary defines the key terms used throughout our documentation: models, API concepts, deployment options, and platform features.
 - [Known limitations](https://docs.mistral.ai/resources/known-limitations.md): This page documents current limitations of the Mistral platform.
 - [Supported languages](https://docs.mistral.ai/resources/languages.md): Mistral's language models are trained on multilingual data and support a wide range of languages.
@@ -205,30 +209,81 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Agents Tools Overview](https://docs.mistral.ai/studio/agents/agent-tools.md): The Agents API v1 is about to be deprecated.
 - [Websearch](https://docs.mistral.ai/studio/agents/agent-tools/websearch.md): Websearch is the capability to browse the web in search of information, this tool does not only fix the limitations of models of not being up to date due to their training data, but also allows them to actually retrie...
 - [Agents & Conversations](https://docs.mistral.ai/studio/agents/agents-api.md): The Agents API v1 is about to be deprecated.
-- [Connectors & MCP](https://docs.mistral.ai/studio/agents/capabilities/connectors.md): Connectors expose external systems to the agent over MCP using Mistral's Connectors primitive.
-- [Capabilities](https://docs.mistral.ai/studio/agents/capabilities/overview.md): Choose tools, connectors, skills, and permission settings for your agent harness.
-- [Permission](https://docs.mistral.ai/studio/agents/capabilities/permission.md): permission_mode gates every tool call the model makes: auto, deny, or ask.
-- [Skills](https://docs.mistral.ai/studio/agents/capabilities/skills.md): A skill is a block of instructions the agent loads on demand, from a local directory or the Mistral AI Registry.
-- [Structured output](https://docs.mistral.ai/studio/agents/capabilities/structured-output.md): Pass a Pydantic model as response_format= and the reply comes back parsed on RunResult.output.
-- [Tools](https://docs.mistral.ai/studio/agents/capabilities/tools.md): Tools are what the agent can call during a step: your own Python functions, and sandbox tools that run inside the sandbox.
-- [Agent lifecycle](https://docs.mistral.ai/studio/agents/core/agent-lifecycle.md): Deploying replaces rather than updates, and agents shutdown releases the name: what happens to workers and open sessions.
-- [The Agent](https://docs.mistral.ai/studio/agents/core/agent.md): The Agent is the model plus its system prompt: the constructor, run() vs create_session(), and RunResult.
-- [Auto-compaction](https://docs.mistral.ai/studio/agents/core/auto-compaction.md): When the live context passes auto_compact_threshold tokens, the loop summarizes older turns so a long conversation keeps going.
-- [The Harness](https://docs.mistral.ai/studio/agents/core/harness.md): The Harness defines everything the agent can use: tools, the sandbox, connectors, MCP servers, hooks, and skills.
-- [Run modes](https://docs.mistral.ai/studio/agents/core/run-modes.md): Write your agent and harness once, then choose where it runs: in-process, as a self-hosted worker, or as a Mistral-managed worker.
-- [Sandbox](https://docs.mistral.ai/studio/agents/core/sandbox.md): The sandbox is where the agent interacts with a computer: shell commands, file edits, and running agent-authored Python code.
-- [Sessions](https://docs.mistral.ai/studio/agents/core/sessions.md): A session runs many turns and remembers them: opening one, reading the event stream, and driving a turn while it runs.
-- [Custom completion provider](https://docs.mistral.ai/studio/agents/customization/custom-completion-provider.md): Provide a custom completion provider to connect an agent to a model through your own gateway.
-- [Custom hooks](https://docs.mistral.ai/studio/agents/customization/custom-hooks.md): A hook runs your code inside the agent loop, at six points: before and after turns, model calls, and tool calls.
 - [Agents](https://docs.mistral.ai/studio/agents/deprecated/overview.md): Historical Agents API overview, tools, cookbooks, and model information, preserved for existing integrations.
-- [Build a Slack feedback triage bot with the Mistral Agents SDK](https://docs.mistral.ai/studio/agents/examples/slack-feedback-triage-bot.md): Connect Slack, an Agents SDK agent, and Linear to triage product feedback automatically.
-- [Enforce structured output with a hook](https://docs.mistral.ai/studio/agents/examples/structured-output-hook.md): Make the agent correct its final response when it does not match your response format.
-- [Build a Telegram weather bot with the Mistral Agents SDK](https://docs.mistral.ai/studio/agents/examples/telegram-weather-bot.md): Build a French-speaking weather agent, connect it to Telegram, and deploy it to Mistral.
+- [Stop, re-run and answer a turn by id from another kernel](https://docs.mistral.ai/studio/agents/examples/cookbooks/answer-by-id.md): A dependency upgrade prepared in a notebook.
+- [Use one shared API key for a connector (Tavily web search)](https://docs.mistral.ai/studio/agents/examples/cookbooks/deployment-identity-agent.md): A web-research agent whose Tavily connector uses one key stored for the workspace, so the agent acts for nobody and needs no hardening.
+- [Triage a repository's open issues with one agent per issue](https://docs.mistral.ai/studio/agents/examples/cookbooks/issue-triage-swarm.md): One agent per open issue, 300 in all, working together through a message board that you watch live.
+- [Show live progress from a hook](https://docs.mistral.ai/studio/agents/examples/cookbooks/live-progress.md): A hook pushes each finished step of an agent to a progress bar in your app, from your process or from an agent deployed with Studio.
+- [Stop an agent that repeats itself](https://docs.mistral.ai/studio/agents/examples/cookbooks/loop-breaker.md): A hook that stops an agent from calling the same tool over and over, by counting its calls in each turn.
+- [Turn off web search once an agent reads private data](https://docs.mistral.ai/studio/agents/examples/cookbooks/private-data-guard.md): A bank's support agent can read customer accounts and search the web.
+- [Several clients on one session: live views and approvals](https://docs.mistral.ai/studio/agents/examples/cookbooks/several-clients.md): A desktop view and a web view watch one session, show its approvals, race to answer one, and reload without showing anything twice.
+- [Slack bot: one session per thread](https://docs.mistral.ai/studio/agents/examples/cookbooks/slack-bot.md): A chat bot keeps one session per Slack thread, binds it by id in every handler, and resumes from a stored cursor after a restart.
+- [Validate structured output with a hook](https://docs.mistral.ai/studio/agents/examples/cookbooks/structured-output-hook.md): Validate the agent's final response with a Pydantic model, and make the agent correct it.
+- [One approval policy for every subagent](https://docs.mistral.ai/studio/agents/examples/cookbooks/subagent-approvals.md): A lead agent starts a tester and a docs writer; one approval policy on the lead's session answers for all of them.
+- [Majordome: a personal assistant that messages you first](https://docs.mistral.ai/studio/agents/examples/majordome.md): An always-on assistant on Telegram or in your terminal.
+- [Mini Vibe: a coding agent in your terminal and your browser](https://docs.mistral.ai/studio/agents/examples/mini-vibe.md): A minimal Mistral Vibe.
+- [Mission: an agent and its builders build jq from its manual, scored on jq's own tests](https://docs.mistral.ai/studio/agents/examples/mission.md): A planner agent builds jq in Python from the jq manual, milestone after milestone, with builder subagents in parallel.
+- [Examples](https://docs.mistral.ai/studio/agents/examples.md): Complete programs you can run and adapt, and cookbooks of smaller patterns.
+- [PR reviewer as a GitHub Action: a typed review, and the PR's tests without secrets](https://docs.mistral.ai/studio/agents/examples/pr-reviewer.md): A GitHub Action reviews each pull request with an agent and posts the review.
+- [Build a private repository cleanup agent](https://docs.mistral.ai/studio/agents/examples/private-repository-cleanup-agent.md): Give a coding agent access to one private GitHub repository and let it open a cleanup pull request.
+- [Build a Slack feedback triage bot](https://docs.mistral.ai/studio/agents/examples/slack-feedback-triage-bot.md): Connect Slack, a Mistral agent served from your computer, and Linear to triage product feedback automatically.
+- [Review a suspicious payment with an agent and an analyst](https://docs.mistral.ai/studio/agents/examples/suspicious-payment-review.md): An agent reviews a transaction monitoring alert, reads what it needs on its own, and waits for an analyst before it opens a case file.
+- [QA swarm: 60 agents test jq 1.6 and check each other's bugs](https://docs.mistral.ai/studio/agents/examples/swarm.md): Sixty agents test jq 1.6, each in its own Docker sandbox.
+- [Build a Telegram weather bot](https://docs.mistral.ai/studio/agents/examples/telegram-weather-bot.md): Build a French-speaking weather agent, connect it to Telegram, and deploy it to Mistral.
+- [Build a used car finder with the Agents SDK](https://docs.mistral.ai/studio/agents/examples/used-car-finder.md): Rank used cars by what they cost to own, and have an agent vet every listing before you see it.
+- [Deploy your agent](https://docs.mistral.ai/studio/agents/getting-started/deploy-it.md): Deploy the Quickstart's agent, Mistral-managed with agents deploy, chat with it, and call it from your app.
+- [Feature highlights](https://docs.mistral.ai/studio/agents/getting-started/feature-highlights.md): What Managed Agents does, each feature in a few lines of Python.
+- [Feedback](https://docs.mistral.ai/studio/agents/getting-started/feedback.md): Report a bug, ask a question or share an idea about Managed Agents on the Mistral Discord.
+- [Move from the Agents API](https://docs.mistral.ai/studio/agents/getting-started/from-agents-api.md): Move code from the Agents and Conversations API (client.beta.agents, client.beta.conversations) to the Agents SDK, one concept at a time.
+- [Quickstart](https://docs.mistral.ai/studio/agents/getting-started/quickstart.md): Create an agent project, run its agent in your own process, chat with it, and give it a second tool.
 - [Handoffs](https://docs.mistral.ai/studio/agents/handoffs.md): The Agents API v1 is about to be deprecated.
-- [Installation](https://docs.mistral.ai/studio/agents/installation.md): Set up Python 3.12+, uv, and the mistralai-agents package.
-- [Migrate from 1.0.7 to 1.1.0](https://docs.mistral.ai/studio/agents/migration.md): Migrate an existing agent from Agents SDK 1.0.7 to the 1.1.0 API: package and import changes, explicit Agent and Harness wiring, tools, permissions, and sessions.
-- [Agents](https://docs.mistral.ai/studio/agents/overview.md): Build Python agents with the Agents SDK, add tools and context, and choose how to run them.
-- [Quickstart](https://docs.mistral.ai/studio/agents/quickstart.md): A guided first agent: one-shot, multi-turn, then a tool, and the two ways to run it as a durable worker.
+- [What an agent is](https://docs.mistral.ai/studio/agents/learn/agent/agent.md): An agent is a model and a harness, configured with instructions and capabilities such as tools, connectors and skills.
+- [Approvals](https://docs.mistral.ai/studio/agents/learn/agent/approvals.md): Choose which tool calls ask for approval, answer them from your program, and leave the rest to a person.
+- [Configuring the agent](https://docs.mistral.ai/studio/agents/learn/agent/configuring-the-agent.md): Set the agent's model, name and instructions, how much it reasons and how many steps a turn can take, and see every argument of agents.Agent(...).
+- [Connectors and MCP](https://docs.mistral.ai/studio/agents/learn/agent/connectors.md): Connect the agent to external services through Mistral connectors or your own MCP servers.
+- [Guardrails](https://docs.mistral.ai/studio/agents/learn/agent/guardrails.md): Block a tool call your policy forbids, before any hook or tool runs.
+- [Secrets](https://docs.mistral.ai/studio/agents/learn/agent/secrets.md): Give your tools a credential without putting its value in your code.
+- [Skills](https://docs.mistral.ai/studio/agents/learn/agent/skills.md): Give the agent instructions it loads only when a task needs them, from your project or the AI Registry.
+- [Structured output](https://docs.mistral.ai/studio/agents/learn/agent/structured-output.md): Get the agent's answer back as a Pydantic model instead of text.
+- [Tools](https://docs.mistral.ai/studio/agents/learn/agent/tools.md): Turn your Python functions into tools the agent calls, and decide what the model reads when one fails.
+- [Environment](https://docs.mistral.ai/studio/agents/learn/environment/environment.md): Give the agent a computer to run shell commands, edit files and run Python, and choose what that computer can reach.
+- [Local sandboxes](https://docs.mistral.ai/studio/agents/learn/environment/local-sandboxes.md): Run the agent's commands on your own machine, in development and CI - in a Docker container, an in-process Bash interpreter, or directly on the host.
+- [Mistral sandbox](https://docs.mistral.ai/studio/agents/learn/environment/mistral-sandbox.md): Run each session in its own Linux container on Mistral Cloud, with the cloud_user role, and control its size and lifetime.
+- [Network access](https://docs.mistral.ai/studio/agents/learn/environment/network.md): Choose the outbound connections a sandbox may open, and the credentials it adds to them without the sandbox seeing their values.
+- [Sandbox hooks](https://docs.mistral.ai/studio/agents/learn/environment/sandbox-hooks.md): Seed a sandbox's workspace when it is created, and save what the agent produced when the session closes.
+- [Sandbox setup](https://docs.mistral.ai/studio/agents/learn/environment/sandbox-setup.md): Install tools in the sandbox with an image or a setup script, and set a git identity.
+- [Configure subagents](https://docs.mistral.ai/studio/agents/learn/multiagent/configure-subagents.md): What a subagent inherits from its parent, how to give it its own tools, and how a subagent starts subagents of its own.
+- [Approvals across subagents](https://docs.mistral.ai/studio/agents/learn/multiagent/subagent-approvals.md): One approval handler answers the parent's and every subagent's approvals, and a Blocked result lists the open approvals of the whole tree.
+- [Subagents](https://docs.mistral.ai/studio/agents/learn/multiagent/subagents.md): Hand parts of a job to subagents that run side by side on their own tasks, and get their reports back in the parent.
+- [One call: agent.run()](https://docs.mistral.ai/studio/agents/learn/runs/agent-run.md): Do one task in one call, and read how it ended from the turn's record.
+- [Callbacks](https://docs.mistral.ai/studio/agents/learn/runs/callbacks.md): Answer the questions a turn asks your program, approvals, client tool calls and sign-ins, from a run or from a session app.
+- [Build a session app](https://docs.mistral.ai/studio/agents/learn/runs/channel.md): Watch a session from a view, and send it a person's messages, approvals and interrupts.
+- [Step through a session](https://docs.mistral.ai/studio/agents/learn/runs/run-stepper.md): Step a turn through its approvals, and send several messages to one session.
+- [Events](https://docs.mistral.ai/studio/agents/learn/sessions/events.md): Follow a turn step by step while it runs, replay a session's events, and continue from a stored cursor.
+- [Sessions](https://docs.mistral.ai/studio/agents/learn/sessions/sessions.md): Start a session, find it again by its id, and set it up with inputs, overrides and an idempotency key.
+- [Turns and the turn record](https://docs.mistral.ai/studio/agents/learn/sessions/turns.md): Start a turn in a session, wait for it, and read how it ended from the turn's record.
+- [Agent lifecycle](https://docs.mistral.ai/studio/agents/learn/where-it-runs/agent-lifecycle.md): Try, list, update, inspect logs for, and shut down served or deployed agents.
+- [Let Mistral host the agent: agents deploy](https://docs.mistral.ai/studio/agents/learn/where-it-runs/deploy.md): Build a pushed GitHub commit and deploy its agent on Mistral with secrets and tracing.
+- [Run an agent in your process](https://docs.mistral.ai/studio/agents/learn/where-it-runs/local-runtime.md): Run sessions and tools in your own process and manage local sandbox lifetime.
+- [Run modes](https://docs.mistral.ai/studio/agents/learn/where-it-runs/run-modes.md): Compare local, self-hosted, and Mistral-managed execution and durable sessions.
+- [Deploy on your own infrastructure: agents serve](https://docs.mistral.ai/studio/agents/learn/where-it-runs/serve.md): Register an agent and run its worker on your own infrastructure.
+- [Session lifecycle and listing](https://docs.mistral.ai/studio/agents/learn/where-it-runs/session-lifecycle.md): Find, list, cancel, and configure the lifetime of sessions stored by Mistral.
+- [Managed Agents](https://docs.mistral.ai/studio/agents/overview.md): Build autonomous agents that work for hours or days, survive crashes and stay under your control, then deploy them with Studio.
+- [Agent](https://docs.mistral.ai/studio/agents/reference/agent.md): The Agent and what it is built from.
+- [Approvals and sign-ins](https://docs.mistral.ai/studio/agents/reference/approvals.md): How a program answers the approvals and the connector sign-ins of a turn.
+- [CLI reference](https://docs.mistral.ai/studio/agents/reference/cli.md): The agents command creates an agent project, runs the agent on your machine, deploys it to Mistral, and talks to it from the terminal.
+- [Connectors and MCP](https://docs.mistral.ai/studio/agents/reference/connectors-and-mcp.md): Give the agent Mistral connectors and remote MCP servers.
+- [Errors](https://docs.mistral.ai/studio/agents/reference/errors.md): The errors the SDK raises, with their bases.
+- [Events and history entries](https://docs.mistral.ai/studio/agents/reference/events-and-entries.md): The events that iter_events and on_event give, and the entries of a session's history.
+- [Experimental](https://docs.mistral.ai/studio/agents/reference/experimental.md): The names in mistralai.agents.experimental, and the warning some features give.
+- [Hooks and contexts](https://docs.mistral.ai/studio/agents/reference/hooks-and-contexts.md): Hooks that change the agent loop, the contexts your code gets, and the helpers that give the same values when a deployed agent runs the loop again.
+- [Listing, Client and local runtime](https://docs.mistral.ai/studio/agents/reference/listing-and-client.md): List the sessions of a host, hold your own connection settings in a Client, and scope the local sessions of a program.
+- [The whole API on one page](https://docs.mistral.ai/studio/agents/reference.md): Every Python call of the Agents SDK on one page, by what you want to do.
+- [Sandboxes](https://docs.mistral.ai/studio/agents/reference/sandboxes.md): Where the agent's commands and files run, and the network policy of a sandbox.
+- [Session and Turn](https://docs.mistral.ai/studio/agents/reference/session-and-turn.md): The handles of a session and of its turns, and what a turn takes as input.
+- [Testing](https://docs.mistral.ai/studio/agents/reference/testing.md): Run an agent against a scripted model in your tests.
+- [Tools and client tools](https://docs.mistral.ai/studio/agents/reference/tools.md): Tools that run where the agent runs, and client tools, answered through a callback, not within the session.
+- [Turn records](https://docs.mistral.ai/studio/agents/reference/turn-records.md): What a read or a wait of a turn returns.
 - [Available capabilities](https://docs.mistral.ai/studio/apps/capabilities/available-capabilities.md): The capabilities you can add to a Studio app, and the presets that select them.
 - [Selecting capabilities](https://docs.mistral.ai/studio/apps/capabilities/selecting-capabilities.md): Choose a preset, select components interactively, or specify capabilities explicitly.
 - [Deploy an app](https://docs.mistral.ai/studio/apps/deploy.md): Deploy a tested Git commit to Studio with mistral deploy.
@@ -256,7 +311,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Audio formats](https://docs.mistral.ai/studio/audio/specs-and-limits/audio-formats.md): Accepted input formats and available output formats across transcription, speech generation, audio in chat, and voice agents.
 - [Languages](https://docs.mistral.ai/studio/audio/specs-and-limits/languages.md): How each Voxtral 3 model handles languages for transcription, speech generation, and translation, and where to find its supported languages.
 - [Limits](https://docs.mistral.ai/studio/audio/specs-and-limits/limits.md): Size, duration, and value limits for audio requests and sessions, and what happens when you go over them.
-- [Bias context and vocabulary](https://docs.mistral.ai/studio/audio/speech-to-text/bias-context-and-vocabulary.md): Fix jargon, product names, and domain terms with keyphrases and free-form context.
+- [Context bias: keyphrases and free-form text](https://docs.mistral.ai/studio/audio/speech-to-text/bias-context-and-vocabulary.md): Fix jargon, product names, and domain terms with keyphrases and free-form text.
 - [Diarize speakers](https://docs.mistral.ai/studio/audio/speech-to-text/diarize-speakers.md): Label who speaks in a recorded file or a live session, read the speaker labels, and name known speakers with reference clips.
 - [Speech to Text](https://docs.mistral.ai/studio/audio/speech-to-text/overview.md): Choose the right transcription model, mode, and configuration.
 - [Quickstart: transcribe an audio file](https://docs.mistral.ai/studio/audio/speech-to-text/quickstarts/transcribe-a-file.md): Turn an audio file into accurate text with a single API call.
@@ -293,13 +348,13 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Human-in-the-loop](https://docs.mistral.ai/studio/connectors/confirmation.md): Some tool calls, such as sending an email or changing data, need a person to approve them first.
 - [Use connectors in conversations](https://docs.mistral.ai/studio/connectors/conversations.md): After you register a connector and connect it, you can attach it to a conversation.
 - [Debug connectors](https://docs.mistral.ai/studio/connectors/debugger.md): The Connectors Debugger tests an MCP server before you register it as a connector.
-- [HTTP connectors](https://docs.mistral.ai/studio/connectors/http-connectors.md): Connect agents and workflows to an HTTP API by importing its OpenAPI specification, even when the API has no MCP server.
+- [HTTP connectors](https://docs.mistral.ai/studio/connectors/http-connectors.md): Connect agents and workflows to a service through its web API by importing its OpenAPI specification.
 - [Manage connectors](https://docs.mistral.ai/studio/connectors/management.md): Before you use a connector in conversations or call its tools, register it.
 - [Connectors](https://docs.mistral.ai/studio/connectors/overview.md): Connectors are in Public Preview.
 - [Google](https://docs.mistral.ai/studio/connectors/providers/google.md): How Vibe by Mistral AI uses Google APIs: scopes, data access, and privacy details for Gmail, Google Calendar, Google Drive, Google BigQuery, and Google Workspace.
+- [Microsoft](https://docs.mistral.ai/studio/connectors/providers/microsoft.md): How Vibe by Mistral AI uses Microsoft 365 APIs: delegated permissions, scopes, data access, and privacy details for Outlook, Outlook Calendar, SharePoint, and Microsoft Teams.
 - [Quickstart: add a connector](https://docs.mistral.ai/studio/connectors/quickstart.md): Register a public MCP server as a connector, connect it, list its tools, and call one, in about 10 minutes.
 - [Direct tool calling with connectors](https://docs.mistral.ai/studio/connectors/tool_calling.md): The call_tool method calls one MCP tool of a connector directly, without a conversation or a model.
-- [Deploy agents with managed deployments](https://docs.mistral.ai/studio/deployments/managed/agents.md): Use the Agents SDK managed-worker guide to deploy an agent on Mistral-managed infrastructure.
 - [Deploy apps with managed deployments](https://docs.mistral.ai/studio/deployments/managed/apps.md): Build and deploy an app from a pushed Git commit with mistral deploy.
 - [Introduction](https://docs.mistral.ai/studio/deployments/managed/introduction.md): Mistral runs your agents, workflows, and apps for you: nothing to host.
 - [Quickstart: deploy a workflow to Mistral](https://docs.mistral.ai/studio/deployments/managed/workflows/getting-started.md): Scaffold a Workflows project with the Mistral CLI, push it to GitHub, and let Mistral Cloud build and run the worker for you.
@@ -309,7 +364,6 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Secrets](https://docs.mistral.ai/studio/deployments/managed/workflows/secrets.md): Bind workspace secrets to a managed deployment, available at build and at runtime.
 - [Troubleshooting](https://docs.mistral.ai/studio/deployments/managed/workflows/troubleshooting.md): Common managed deployment failures, and how to reproduce a build locally.
 - [Deployments](https://docs.mistral.ai/studio/deployments.md): Run agents, workflows, and apps in production: locally for development, self-hosted on your infrastructure, or managed by Mistral.
-- [Self-host agents](https://docs.mistral.ai/studio/deployments/self-hosted/agents.md): Use the Agents SDK self-hosted-worker guide to run durable agents on infrastructure you control.
 - [Hardened deployments](https://docs.mistral.ai/studio/deployments/self-hosted/hardened-workflows.md): A hardened deployment is a deployment that restricts workflow registration to authorized users and service accounts.
 - [Introduction](https://docs.mistral.ai/studio/deployments/self-hosted/introduction.md): Run agents, workflows, and apps on your own infrastructure, with Mistral orchestration.
 - [Self-host workflows](https://docs.mistral.ai/studio/deployments/self-hosted/workflows.md): Run workflow workers on your own infrastructure, grouped into named deployments.
@@ -330,6 +384,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Rescore persisted runs](https://docs.mistral.ai/studio/observability/evaluations/advanced-guides/rescoring.md): Score outputs already persisted in Studio with evaluation.rescore(), without re-running the task.
 - [Retry failed records](https://docs.mistral.ai/studio/observability/evaluations/advanced-guides/retry-failed-records.md): Retry only the failed records of an evaluation run and patch the results in place.
 - [Use run-level evaluators](https://docs.mistral.ai/studio/observability/evaluations/advanced-guides/run-evaluators.md): Use run evaluators to compute global assertions and aggregate metrics over all records of a run.
+- [Evaluate Agents SDK agents](https://docs.mistral.ai/studio/observability/evaluations/agents.md): Evaluate an agent built with the Agents SDK by passing it as an AgentSystem, test variants with overrides, optimize it, and evaluate a deployed agent.
 - [API reference](https://docs.mistral.ai/studio/observability/evaluations/api-reference.md): Reference for the Evaluation SDK's core types and the evaluation.run() entry point.
 - [Datasets](https://docs.mistral.ai/studio/observability/evaluations/datasets.md): Build the test cases that drive an offline evaluation, from Python dicts or Studio datasets.
 - [Evaluators](https://docs.mistral.ai/studio/observability/evaluations/evaluators.md): Define evaluators that score each record of a run with a scorer function, an optional description, and a goal.
@@ -340,6 +395,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Quickstart: run your first evaluation](https://docs.mistral.ai/studio/observability/evaluations/quickstart.md): Evaluate a prompt on a small dataset with the Evaluation SDK, then read the scores in your terminal and in Studio.
 - [Configure statistics](https://docs.mistral.ai/studio/observability/evaluations/statistics.md): Configure the run-level statistics an evaluator exposes, such as averages, totals, percentiles, or F1.
 - [Configure system params](https://docs.mistral.ai/studio/observability/evaluations/system-params.md): Externalize model, prompt, and other task settings with System so each run records which parameters produced its results.
+- [Evaluate Agents SDK agents in a workflow](https://docs.mistral.ai/studio/observability/evaluations/workflows-plugin/agents.md): Evaluate an Agents SDK agent from a workflow with AgentSystem: declare the agent on the task, run several agents, evaluate a deployed agent, and optimize.
 - [Workflow evaluation plugin API reference](https://docs.mistral.ai/studio/observability/evaluations/workflows-plugin/api-reference.md): Reference for evaluation.run(), its result, and the imports of the workflows evaluation plugin.
 - [Building blocks](https://docs.mistral.ai/studio/observability/evaluations/workflows-plugin/building-blocks.md): Call the individual steps of evaluation.run() yourself when your workflow manages its own fan-out.
 - [Decorators](https://docs.mistral.ai/studio/observability/evaluations/workflows-plugin/decorators.md): Mark tasks, scorers, and callbacks as Temporal activities and set their timeout, retries, and concurrency.
@@ -369,6 +425,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Moderation & Guardrailing](https://docs.mistral.ai/studio/safety-moderation.md): When deploying LLMs in production, different verticals may require different levels of guardrailing.
 - [Quickstart: moderate an input](https://docs.mistral.ai/studio/safety-moderation/quickstarts/moderate-an-input.md): Classify one input with the moderation API, then block unsafe inputs with a guardrail.
 - [Agentic Search](https://docs.mistral.ai/studio/search/agentic-search.md): Agentic Search helps agents answer questions when the answer is not in the first chunk returned by retrieval.
+- [Knowledge](https://docs.mistral.ai/studio/search/knowledge.md): Understand knowledge bases: named sets of pages kept current from your connected sources, for people and for agents to read.
 - [Libraries](https://docs.mistral.ai/studio/search/libraries.md): This page covers how to create Libraries, upload documents, index web pages, check processing status, and control access.
 - [Quickstart: create a library and ask it a question](https://docs.mistral.ai/studio/search/libraries/quickstart.md): Create a library, add a document, and get an answer grounded in it, in about 10 minutes.
 - [Basic operations](https://docs.mistral.ai/studio/search/search-index/basic-operations.md): Create, populate, query, update, and delete a Search Index.
@@ -383,13 +440,13 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Ingestion](https://docs.mistral.ai/studio/search/search-toolkit/ingestion.md): Ingestion transforms raw documents into searchable chunks indexed in a vector store.
 - [Text splitters](https://docs.mistral.ai/studio/search/search-toolkit/ingestion/splitters.md): Divide documents into retrievable DocumentChunk objects for indexing.
 - [Search Toolkit](https://docs.mistral.ai/studio/search/search-toolkit/overview.md): Search Toolkit is a Python framework for building information retrieval (IR) systems.
-- [Quickstart: build a RAG pipeline](https://docs.mistral.ai/studio/search/search-toolkit/quickstart.md): Index two text files in a local Vespa instance with the Search Toolkit, then search them, in about 15 minutes.
-- [Retrieval](https://docs.mistral.ai/studio/search/search-toolkit/retrieval.md): Retrieval finds relevant chunks for a given user query.
-- [Query preprocessing](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/preprocessing.md): Improve user queries before retrieval for better results.
-- [Rerankers](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/rerankers.md): Re-score and refine retrieved results for better ranking.
-- [Retrievers](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/retrievers.md): Search your index using vector, keyword, or hybrid strategies.
-- [Semantic cache](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/semantic-cache.md): Cache retrieval results by query similarity to reduce latency.
+- [Quickstart: build a RAG pipeline](https://docs.mistral.ai/studio/search/search-toolkit/quickstart.md): Index two text files in a Mistral Search Index with the Search Toolkit, then search them, in about 10 minutes.
+- [Document navigation](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/document-navigation.md): Read a document in order around a search hit, step through it, or grep it for an exact term.
+- [Filters](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/filters.md): Narrow retrieval results to the chunks whose fields match a set of conditions.
+- [Retrieval](https://docs.mistral.ai/studio/search/search-toolkit/retrieval.md): Retrieval finds the chunks that are relevant to a query.
+- [Retrievers](https://docs.mistral.ai/studio/search/search-toolkit/retrieval/retrievers.md): Describe a vector, keyword, or hybrid query for a Mistral Search Index.
 - [Custom vector stores](https://docs.mistral.ai/studio/search/search-toolkit/search-index/custom-vector-stores.md): Implement your own storage backend for Search Toolkit.
+- [Mistral Search Index](https://docs.mistral.ai/studio/search/search-toolkit/search-index/mistral-search-index.md): Store and search your Search Toolkit chunks in a Mistral Search Index, with no database to operate.
 - [Search index](https://docs.mistral.ai/studio/search/search-toolkit/search-index.md): Persist processed chunks and enable efficient search across your document collection.
 - [Postgres](https://docs.mistral.ai/studio/search/search-toolkit/search-index/postgres.md): Declare collections, manage the database, and run dense and hybrid search on PostgreSQL with pgvector.
 - [Qdrant](https://docs.mistral.ai/studio/search/search-toolkit/search-index/qdrant.md): Community-managed Qdrant search index backend plugin.
@@ -464,7 +521,7 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Memories](https://docs.mistral.ai/vibe/chat-legacy/memories.md): Memories is a legacy Chat feature.
 - [Think mode](https://docs.mistral.ai/vibe/chat-legacy/think-mode.md): Think mode is a legacy Chat feature.
 - [Choose Work or Code](https://docs.mistral.ai/vibe/choose-chat-work-code.md): A closer look at each Vibe mode: when to use it, what it does, and where to start.
-- [Choose CLI, VS Code, or web sessions](https://docs.mistral.ai/vibe/code/choose-cli-vscode-web-sessions.md): One agent, three surfaces. Vibe Code runs as the CLI, the VS Code extension, and Vibe Code Web.
+- [Choose CLI, VS Code, web, or Desktop sessions](https://docs.mistral.ai/vibe/code/choose-cli-vscode-web-sessions.md): One agent, four surfaces. Vibe Code runs as the CLI, the VS Code extension, Vibe Code Web, and Vibe Desktop.
 - [Admin config](https://docs.mistral.ai/vibe/code/cli/admin-config.md): Admin config, also called managed config, lets Organization and Workspace administrators distribute settings for the Vibe Code CLI and the VS Code extension to all users.
 - [Agents](https://docs.mistral.ai/vibe/code/cli/agents.md): Agents are configuration overrides applied on top of the global config.
 - [API keys and profiles](https://docs.mistral.ai/vibe/code/cli/api-keys-profiles.md): Vibe Code CLI needs a Mistral API key to call hosted models.
@@ -472,52 +529,61 @@ Every link points to the markdown version of a page (same URL with a `.md` exten
 - [Configuration reference](https://docs.mistral.ai/vibe/code/cli/configuration-reference.md): An exhaustive index of every key accepted by config.toml and the agent-definition files.
 - [Configuration](https://docs.mistral.ai/vibe/code/cli/configuration.md): The Vibe Code CLI is configured through a config.toml file.
 - [Connectors](https://docs.mistral.ai/vibe/code/cli/connectors.md): Connectors give the Vibe Code CLI access to supported first-party and third-party services from inside a coding session.
-- [Hooks](https://docs.mistral.ai/vibe/code/cli/hooks.md): Hooks wire arbitrary shell commands into the Vibe Code CLI's lifecycle to gate, audit, or rewrite agent behavior.
+- [Hooks](https://docs.mistral.ai/vibe/code/cli/hooks.md): Hooks run your own shell commands at points in the Vibe Code CLI's lifecycle to gate, audit, or rewrite agent behavior.
 - [Install and setup](https://docs.mistral.ai/vibe/code/cli/install-setup.md): Install the Vibe CLI, run vibe in your project, and complete the setup prompt.
 - [MCP servers](https://docs.mistral.ai/vibe/code/cli/mcp-servers.md): MCP servers extend the Vibe Code CLI with external tools through the Model Context Protocol.
 - [Using offline models](https://docs.mistral.ai/vibe/code/cli/offline-models.md): The Vibe Code CLI supports any model served behind an OpenAI-compatible API.
 - [Plugins](https://docs.mistral.ai/vibe/code/cli/plugins.md): Plugin support is experimental and under active development.
 - [Skills](https://docs.mistral.ai/vibe/code/cli/skills.md): Skills are reusable instruction sets that extend Vibe Code with new workflows and custom slash commands.
-- [Teleport from CLI to web](https://docs.mistral.ai/vibe/code/cli/teleport-cli-web.md): Teleport moves a CLI session into a Vibe Code Web sandbox so the task can keep running without your terminal staying open.
 - [Terminal support](https://docs.mistral.ai/vibe/code/cli/terminal-support.md): The Vibe CLI runs in any modern terminal emulator, but terminals don't all support the same features.
 - [Work with the CLI](https://docs.mistral.ai/vibe/code/cli/work-with-cli.md): Once the CLI is installed and your API key is set, you're ready for day-to-day work.
+- [Your first coding task](https://docs.mistral.ai/vibe/code/desktop/first-coding-task.md): Start with a small change you can verify: fix one failing test in a repository on your machine.
+- [Follow and inspect work](https://docs.mistral.ai/vibe/code/desktop/follow-work.md): Once you have started a task, use the conversation to follow the agent's investigation and the panels to inspect its evidence.
+- [Organize your conversations](https://docs.mistral.ai/vibe/code/desktop/organize-conversations.md): Use projects and the left sidebar to keep track of ongoing work.
+- [Code on Desktop](https://docs.mistral.ai/vibe/code/desktop/overview.md): Vibe Desktop brings coding and agent sessions together in one app for macOS and Windows.
+- [Work on parallel tasks](https://docs.mistral.ai/vibe/code/desktop/parallel-tasks.md): Once you are comfortable with a first coding task, split work when its parts can progress independently.
+- [Review changes and pull requests](https://docs.mistral.ai/vibe/code/desktop/review-changes.md): A task is not ready just because the agent has stopped working.
 - [Vibe Code](https://docs.mistral.ai/vibe/code/overview.md): Vibe Code is Vibe's coding mode.
 - [Safety, approvals, and permissions](https://docs.mistral.ai/vibe/code/safety-approvals-permissions.md): Vibe Code can read files, edit code, run shell commands, and call external tools on your behalf.
 - [Use Vibe in other IDEs](https://docs.mistral.ai/vibe/code/use-vibe-in-other-ides.md): Vibe implements the Agent Client Protocol (ACP) and is published in the ACP registry.
-- [Get started](https://docs.mistral.ai/vibe/code/vibe-code-web/get-started.md): Vibe Code Web is the control plane for remote coding agents.
-- [GitHub repositories](https://docs.mistral.ai/vibe/code/vibe-code-web/github-repositories-permissions.md): Vibe Code Web works on GitHub repositories from a managed cloud sandbox.
-- [Limits and lifecycle](https://docs.mistral.ai/vibe/code/vibe-code-web/limits-and-lifecycle.md): A Vibe Code Web session is one run of the Vibe Code agent against a GitHub repository in a managed cloud sandbox.
-- [Projects](https://docs.mistral.ai/vibe/code/vibe-code-web/projects.md): A project is the workspace Vibe Code Web organizes everything around: one or more GitHub repositories, the sessions you run against them, and the history of past runs.
-- [Sandbox environment](https://docs.mistral.ai/vibe/code/vibe-code-web/sandbox-environment.md): Each Vibe Code Web session runs in an isolated cloud sandbox provisioned for that run.
-- [Security](https://docs.mistral.ai/vibe/code/vibe-code-web/security.md): This page describes the security model for autonomous agent runs in Vibe Code Web: how to handle untrusted content the agent reads, and how session data is retained.
-- [Sessions](https://docs.mistral.ai/vibe/code/vibe-code-web/sessions.md): A session is one run of the Vibe Code agent against a project: a sandbox provisioned for the task, the agent loop that does the work, and the branch or pull request it leaves behind.
-- [Vibe Code Web for Slack: Quickstart](https://docs.mistral.ai/vibe/code/vibe-code-web/slack-integration.md): AI-generated content: This app uses AI to generate responses and code.
 - [Agents](https://docs.mistral.ai/vibe/code/vs-code-extension/agents.md): Agents are configuration overrides applied on top of the global config.
 - [Commands and slash commands](https://docs.mistral.ai/vibe/code/vs-code-extension/commands-slash-commands.md): Use slash commands and keyboard shortcuts to control Vibe Code from inside the editor.
 - [Install and authenticate](https://docs.mistral.ai/vibe/code/vs-code-extension/install-authenticate.md): Install Mistral Vibe for VS Code, open the Vibe panel, and sign in.
 - [Migration from Mistral Code Enterprise](https://docs.mistral.ai/vibe/code/vs-code-extension/migration-mistral-code-enterprise.md): This page covers what to expect when moving from the Mistral Code extension to Mistral Vibe for VS Code.
 - [Extension settings](https://docs.mistral.ai/vibe/code/vs-code-extension/settings.md): A dedicated settings panel for the VS Code extension is in progress.
 - [Work with the extension](https://docs.mistral.ai/vibe/code/vs-code-extension/work-with-extension.md): Use the VS Code extension when you want Vibe Code in the same workspace as your files, selections, diffs, and source control, with no context switch and no extra terminal.
+- [Get started](https://docs.mistral.ai/vibe/code/web/get-started.md): Vibe Code Web is the control plane for remote coding agents.
+- [GitHub repositories](https://docs.mistral.ai/vibe/code/web/github-repositories-permissions.md): Vibe Code Web works on GitHub repositories from a managed cloud sandbox.
+- [Limits and lifecycle](https://docs.mistral.ai/vibe/code/web/limits-and-lifecycle.md): A Vibe Code Web session is one run of the Vibe Code agent against a GitHub repository in a managed cloud sandbox.
+- [Projects](https://docs.mistral.ai/vibe/code/web/projects.md): A project is the workspace Vibe Code Web organizes everything around: one or more GitHub repositories, the sessions you run against them, and the history of past runs.
+- [Sandbox environment](https://docs.mistral.ai/vibe/code/web/sandbox-environment.md): Each Vibe Code Web session runs in an isolated cloud sandbox provisioned for that run.
+- [Security](https://docs.mistral.ai/vibe/code/web/security.md): This page describes the security model for autonomous agent runs in Vibe Code Web: how to handle untrusted content the agent reads, and how session data is retained.
+- [Sessions](https://docs.mistral.ai/vibe/code/web/sessions.md): A session is one run of the Vibe Code agent against a project: a sandbox provisioned for the task, the agent loop that does the work, and the branch or pull request it leaves behind.
+- [Vibe Code Web for Slack: Quickstart](https://docs.mistral.ai/vibe/code/web/slack-integration.md): AI-generated content: This app uses AI to generate responses and code.
 - [Vibe](https://docs.mistral.ai/vibe.md): Vibe is Mistral's unified agent for productivity and coding tasks, built for professional use and available across web, mobile, your code editor, and your terminal.
-- [Code Interpreter](https://docs.mistral.ai/vibe/work/code-interpreter.md): Code Interpreter is available on paid plans only.
-- [MCP Connectors](https://docs.mistral.ai/vibe/work/connectors/mcp-connectors.md): Beyond our featured Connectors, you can connect Work to third-party and custom services built on the Model Context Protocol (MCP).
-- [Connect tools with Connectors](https://docs.mistral.ai/vibe/work/connectors.md): Connectors are secure bridges between Work and your external tools and data sources.
-- [Set custom instructions](https://docs.mistral.ai/vibe/work/custom-instructions.md): Custom instructions let you define persistent preferences that shape how Work responds across every task.
-- [Work with Files and Canvas](https://docs.mistral.ai/vibe/work/files-and-canvas.md): Files bring source material into a task. Canvas is the built-in editor where Work produces, previews, and refines outputs.
-- [Get started with Work](https://docs.mistral.ai/vibe/work/get-started.md): Vibe Work is Vibe's productivity mode for delegating complex, multi-step tasks across your apps and tools.
-- [Generate images](https://docs.mistral.ai/vibe/work/image-generation.md): Work can generate and edit images directly in the chat interface.
-- [Knowledge Base](https://docs.mistral.ai/vibe/work/knowledge.md): Knowledge Base saves what matters from your conversations so Vibe can recall it later.
-- [Add context with Libraries](https://docs.mistral.ai/vibe/work/libraries.md): Libraries are persistent knowledge bases you build from your own documents and web pages.
-- [Mini apps](https://docs.mistral.ai/vibe/work/mini-apps.md): Vibe Work can build interactive mini apps: self-contained React applications that run directly in the Canvas panel.
-- [Group tasks with Projects](https://docs.mistral.ai/vibe/work/projects.md): Projects let you group chats into distinct, manageable collections — and give each group its own tone, instructions, and shared files.
-- [Safety and approvals](https://docs.mistral.ai/vibe/work/safety-and-approvals.md): Work is built for delegation with supervision.
-- [Schedule tasks](https://docs.mistral.ai/vibe/work/scheduled-tasks.md): Public Preview. Scheduled tasks are available in Public Preview.
-- [Reuse work with Skills](https://docs.mistral.ai/vibe/work/skills.md): Skills are reusable instructions and resources that give Work specialized capabilities for specific tasks.
-- [Spreadsheets](https://docs.mistral.ai/vibe/work/spreadsheets.md): Spreadsheets are available on paid plans only, until further notice.
-- [Switch Organization or Workspace](https://docs.mistral.ai/vibe/work/switch-organization-workspace.md): Your Mistral account belongs to one or more Organizations, and each Organization contains one or more Workspaces.
-- [Use Voice mode](https://docs.mistral.ai/vibe/work/voice-mode.md): Voice mode lets you start a task in Work using your voice instead of typing.
-- [Search the web](https://docs.mistral.ai/vibe/work/web-search-open-url.md): Work can browse the internet in real time and read specific web pages as part of a task. Web search answers questions with up-to-date, sourced information. Open URL lets Work read and analyze a page you already have t...
-- [Run Workflows](https://docs.mistral.ai/vibe/work/workflows.md): If your team has built an internal automation (a data pipeline, a report generator, a ticketing flow), you can call it from Work by selecting it from the + menu.
+- [Work on Desktop](https://docs.mistral.ai/vibe/work/desktop.md): Use Vibe Work in the desktop app for macOS and Windows.
+- [Code Interpreter](https://docs.mistral.ai/vibe/work/web/code-interpreter.md): Code Interpreter is available on paid plans only.
+- [MCP Connectors](https://docs.mistral.ai/vibe/work/web/connectors/mcp-connectors.md): Beyond our featured Connectors, you can connect Work to third-party and custom services built on the Model Context Protocol (MCP).
+- [Connect tools with Connectors](https://docs.mistral.ai/vibe/work/web/connectors.md): Connectors are secure bridges between Work and your external tools and data sources.
+- [Set custom instructions](https://docs.mistral.ai/vibe/work/web/custom-instructions.md): Custom instructions let you define persistent preferences that shape how Work responds across every task.
+- [Work with Files and Canvas](https://docs.mistral.ai/vibe/work/web/files-and-canvas.md): Files bring source material into a task. Canvas is the built-in editor where Work produces, previews, and refines outputs.
+- [Get started with Work](https://docs.mistral.ai/vibe/work/web/get-started.md): Vibe Work is Vibe's productivity mode for delegating complex, multi-step tasks across your apps and tools.
+- [Generate images](https://docs.mistral.ai/vibe/work/web/image-generation.md): Work can generate and edit images directly in the chat interface.
+- [Knowledge](https://docs.mistral.ai/vibe/work/web/knowledge.md): Knowledge saves what matters from your conversations so Vibe can recall it later.
+- [Add context with Libraries](https://docs.mistral.ai/vibe/work/web/libraries.md): Libraries are persistent knowledge bases you build from your own documents and web pages.
+- [Mini apps](https://docs.mistral.ai/vibe/work/web/mini-apps.md): Vibe Work can build interactive mini apps: self-contained React applications that run directly in the Canvas panel.
+- [Group tasks with Projects](https://docs.mistral.ai/vibe/work/web/projects.md): Projects let you group chats into distinct, manageable collections — and give each group its own tone, instructions, and shared files.
+- [Safety and approvals](https://docs.mistral.ai/vibe/work/web/safety-and-approvals.md): Work is built for delegation with supervision.
+- [Schedule tasks](https://docs.mistral.ai/vibe/work/web/scheduled-tasks.md): Public Preview. Scheduled tasks are available in Public Preview.
+- [Reuse work with Skills](https://docs.mistral.ai/vibe/work/web/skills.md): Skills are reusable instructions and resources that give Work specialized capabilities for specific tasks.
+- [Edit slides](https://docs.mistral.ai/vibe/work/web/slides/edit-slides.md): The slide editor lets you polish a presentation by hand in Canvas, without going back to the chat.
+- [Slides](https://docs.mistral.ai/vibe/work/web/slides/overview.md): Slides are available on paid plans only, in Vibe Work on the web and desktop apps, and in private cloud deployments.
+- [Present, export, and share](https://docs.mistral.ai/vibe/work/web/slides/present-export-share.md): Slides are available on paid plans only.
+- [Spreadsheets](https://docs.mistral.ai/vibe/work/web/spreadsheets.md): Spreadsheets are available on paid plans only, until further notice.
+- [Switch Organization or Workspace](https://docs.mistral.ai/vibe/work/web/switch-organization-workspace.md): Your Mistral account belongs to one or more Organizations, and each Organization contains one or more Workspaces.
+- [Use Voice mode](https://docs.mistral.ai/vibe/work/web/voice-mode.md): Voice mode lets you start a task in Work using your voice instead of typing.
+- [Search the web](https://docs.mistral.ai/vibe/work/web/web-search-open-url.md): Work can browse the internet in real time and read specific web pages as part of a task. Web search answers questions with up-to-date, sourced information. Open URL lets Work read and analyze a page you already have t...
+- [Run Workflows](https://docs.mistral.ai/vibe/work/web/workflows.md): If your team has built an internal automation (a data pipeline, a report generator, a ticketing flow), you can call it from Work by selecting it from the + menu.
 
 ## Optional
 
