@@ -1,0 +1,177 @@
+{
+  "candidates": [
+    {
+      "id": "c9f513af85fc50ea244ab1b415de9d0447223c11:retirement_floor::----",
+      "type": "retirement_floor",
+      "sentence": "The anthropic-deprecations table records the tentative retirement date for \":----\" as \":----\".",
+      "source": "anthropic-deprecations",
+      "stamp": {
+        "iso": "2026-11-21T07:07:23.974Z",
+        "kind": "observed"
+      },
+      "bits": 8.53,
+      "why": [
+        "retirement_floor is rare in the archive: +8.53 bits"
+      ],
+      "entities": [
+        "model:model/anthropic-api::----",
+        "lab:lab/anthropic"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The anthropic-deprecations table records the tentative retirement date for \":----\" as \":----\".\n\nhttps://diffwire.dev/changes/c9f513af85fc50ea244ab1b415de9d0447223c11.html",
+        "url": "https://diffwire.dev/changes/c9f513af85fc50ea244ab1b415de9d0447223c11.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20anthropic-deprecations%20table%20records%20the%20tentative%20retirement%20date%20for%20%22%3A----%22%20as%20%22%3A----%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2Fc9f513af85fc50ea244ab1b415de9d0447223c11.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "4b6544d0d961ae502436a083c6ff4b5369ab3c20:incident_opened:https://status.openai.com//incidents/01M6P50GPP1V98EF8MJ9SH393R",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"ChatGPT Work and Dots Errors\" at \"https://status.openai.com//incidents/01M6P50GPP1V98EF8MJ9SH393R\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-11-21T07:06:29.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.2,
+      "why": [
+        "incident_opened is rare in the archive: +6.20 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M6P50GPP1V98EF8MJ9SH393R"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"ChatGPT Work and Dots Errors\" at \"https://status.openai.com//incidents/01M6P50GPP1V98EF8MJ9SH393R\".\n\nhttps://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "url": "https://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22ChatGPT%20Work%20and%20Dots%20Errors%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M6P50GPP1V98EF8MJ9SH393R%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F4b6544d0d961ae502436a083c6ff4b5369ab3c20.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "4b6544d0d961ae502436a083c6ff4b5369ab3c20:incident_opened:https://status.openai.com//incidents/01M6S2FV5TZWQ753NHRB7BF5K7",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Elevated error rates with some U.S. business Mastercards\" at \"https://status.openai.com//incidents/01M6S2FV5TZWQ753NHRB7BF5K7\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-11-21T07:06:29.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.2,
+      "why": [
+        "incident_opened is rare in the archive: +6.20 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M6S2FV5TZWQ753NHRB7BF5K7"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Elevated error rates with some U.S. business Mastercards\" at \"https://status.openai.com//incidents/01M6S2FV5TZWQ753NHRB7BF5K7\".\n\nhttps://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "url": "https://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20error%20rates%20with%20some%20U.S.%20business%20Mastercards%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M6S2FV5TZWQ753NHRB7BF5K7%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F4b6544d0d961ae502436a083c6ff4b5369ab3c20.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "4b6544d0d961ae502436a083c6ff4b5369ab3c20:incident_opened:https://status.openai.com//incidents/01M6XVDCKRT3PSB0YP8J30GTD5",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Elevated errors with image generation\" at \"https://status.openai.com//incidents/01M6XVDCKRT3PSB0YP8J30GTD5\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-11-21T07:06:29.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.2,
+      "why": [
+        "incident_opened is rare in the archive: +6.20 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M6XVDCKRT3PSB0YP8J30GTD5"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Elevated errors with image generation\" at \"https://status.openai.com//incidents/01M6XVDCKRT3PSB0YP8J30GTD5\".\n\nhttps://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "url": "https://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20errors%20with%20image%20generation%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M6XVDCKRT3PSB0YP8J30GTD5%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F4b6544d0d961ae502436a083c6ff4b5369ab3c20.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "4b6544d0d961ae502436a083c6ff4b5369ab3c20:incident_opened:https://status.openai.com//incidents/01M70RDA2GWD2WXE58ANY0WV5R",
+      "type": "incident_opened",
+      "sentence": "The openai-status feed listed an incident titled \"Elevated ChatGPT Conversation Errors\" at \"https://status.openai.com//incidents/01M70RDA2GWD2WXE58ANY0WV5R\".",
+      "source": "openai-status",
+      "stamp": {
+        "iso": "2026-11-21T07:06:29.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.2,
+      "why": [
+        "incident_opened is rare in the archive: +6.20 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:https://status.openai.com//incidents/01M70RDA2GWD2WXE58ANY0WV5R"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The openai-status feed listed an incident titled \"Elevated ChatGPT Conversation Errors\" at \"https://status.openai.com//incidents/01M70RDA2GWD2WXE58ANY0WV5R\".\n\nhttps://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "url": "https://diffwire.dev/changes/4b6544d0d961ae502436a083c6ff4b5369ab3c20.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20openai-status%20feed%20listed%20an%20incident%20titled%20%22Elevated%20ChatGPT%20Conversation%20Errors%22%20at%20%22https%3A%2F%2Fstatus.openai.com%2F%2Fincidents%2F01M70RDA2GWD2WXE58ANY0WV5R%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F4b6544d0d961ae502436a083c6ff4b5369ab3c20.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ],
+  "funnel": {
+    "seen": 10722,
+    "postableType": 880,
+    "notOnCooldown": 880,
+    "aboveFloor": 97
+  },
+  "generated_at": "2026-11-21T14:07:35.949Z"
+}
