@@ -3,8 +3,15 @@
     <title><![CDATA[Ollama]]></title>
     <description><![CDATA[Ollama]]></description>
     <link>https://ollama.com/blog</link>
-    <lastBuildDate>Sun, 25 Oct 2026 04:41:34 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 21 Nov 2026 07:07:30 +0000</lastBuildDate>
     <atom:link href="https://ollama.com/blog/rss.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title><![CDATA[Making open models work for long-horizon agentic workloads]]></title>
+      <description><![CDATA[Prefix caching helps coding agents stay fast as conversations grow. Prompts, tool calls, and inference routing determine how much work the model can reuse.]]></description>
+      <link>https://ollama.com/blog/open-models-long-horizon-agents</link>
+      <pubDate>Mon, 16 Nov 2026 00:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://ollama.com/blog/open-models-long-horizon-agents</guid>
+    </item>
     <item>
       <title><![CDATA[Speech models in Ollama]]></title>
       <description><![CDATA[Ollama now supports speech models, starting with Phonon from Gradium. Read text aloud in five languages and dozens of voices, streamed as it is generated, over 100 times faster than real time on Apple Silicon.]]></description>
@@ -21,7 +28,7 @@
     </item>
     <item>
       <title><![CDATA[Reflection's Beam is freely available on Ollama for a limited time]]></title>
-      <description><![CDATA[Reflection's first open-weight model is now available on Ollama, and free for a limited time only. Beam is designed for software engineering, reasoning, and long-running agentic tasks. Access Beam through Ollama Cloud.]]></description>
+      <description><![CDATA[Reflection's first open-weight model is now available on Ollama, and free for a limited time only. Beam is designed for software engineering, reasoning, and long-running agentic tasks. Access Beam through Ollama's cloud.]]></description>
       <link>https://ollama.com/blog/reflection-beam</link>
       <pubDate>Fri, 16 Oct 2026 00:00:00 +0000</pubDate>
       <guid isPermaLink="true">https://ollama.com/blog/reflection-beam</guid>
