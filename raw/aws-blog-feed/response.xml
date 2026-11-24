@@ -5,7 +5,7 @@
 	<atom:link href="https://aws.amazon.com/blogs/machine-learning/feed/" rel="self" type="application/rss+xml"/>
 	<link>https://aws.amazon.com/blogs/machine-learning/</link>
 	<description>Official Machine Learning Blog of Amazon Web Services</description>
-	<lastBuildDate>Sun, 22 Nov 2026 01:59:13 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 24 Nov 2026 05:04:40 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -13,6 +13,167 @@
 	1	</sy:updateFrequency>
 	
 	<item>
+		<title>Introducing the Amazon Bedrock Trusted Access API with Anthropic’s Enterprise Frontier Safeguards and Enterprise Data Controls</title>
+		<link>https://aws.amazon.com/blogs/machine-learning/introducing-the-amazon-bedrock-trusted-access-api-with-anthropics-enterprise-frontier-safeguards-and-enterprise-data-controls/</link>
+		
+		<dc:creator><![CDATA[Dani Mitchell]]></dc:creator>
+		<pubDate>Tue, 24 Nov 2026 05:01:14 +0000</pubDate>
+				<category><![CDATA[Amazon Bedrock]]></category>
+		<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Intermediate (200)]]></category>
+		<guid isPermaLink="false">76b2285b501c3518d9f413fc227aa9b97a5e6b72</guid>
+
+					<description>Amazon Bedrock now offers a trusted access program API: one place to discover, request, and enroll in model provider programs. The first two offerings, in public preview, are Anthropic's Enterprise Frontier Safeguards (EFS) and Enterprise Data Controls (EDC), which give you control over your data when you use Claude Fable models.</description>
+										<content:encoded>&lt;p&gt;Today we are announcing the general availability of the trusted access program API on &lt;a href="https://aws.amazon.com/bedrock/" target="_blank" rel="noopener"&gt;Amazon Bedrock&lt;/a&gt;. The API gives you one place to discover, request, and enroll in model provider trusted access programs. We are also announcing the public preview of the first two offerings, Anthropic’s Enterprise Frontier Safeguards (EFS) and Enterprise Data Controls (EDC). Both are available on Amazon Bedrock, including Claude Fable, Claude Mythos, and Claude Opus 5.5 and Sonnet 5.5 used through the &lt;a href="https://support.claude.com/en/articles/14604842-cyber-verification-program" target="_blank" rel="noopener"&gt;Cyber Verification Program&lt;/a&gt; (CVP).&lt;/p&gt; 
+&lt;p&gt;Frontier AI labs require stricter safety monitoring policies to their most capable models, and those policies still apply on Amazon Bedrock. For eligible customers, model providers also offer customers more control on how those policies are met, such as where retained data is stored and how it is reviewed. Each offering has its own terms, approvals, and settings.&lt;/p&gt; 
+&lt;p&gt;The Amazon Bedrock trusted access program API gives every provider offering one consistent Amazon Bedrock experience. Your teams discover offerings, check eligibility, and enroll in the same way for every provider. Your administrators decide who can enroll, using existing IAM policies and service control policies. As more model providers add offerings, those appear in the same place.&lt;/p&gt; 
+&lt;p&gt;EFS and EDC were built in partnership between AWS and Anthropic. They let you access Anthropic’s most capable models safely, from both a model use and a customer data perspective. With both EFS and EDC, when automated safety monitoring finds a risk, it creates a Safety Case for your team to review. With EFS, customers store their data in their own AWS account, and prompts and completions are not retained by Anthropic or Amazon Bedrock. With EDC, retained data is stored in Amazon-managed storage instead of your account and prompts and completions are not retained by Anthropic. One application gives access to both programs.&lt;/p&gt; 
+&lt;p&gt;In this post, we explain how the trusted access program API works, then walk through EFS and EDC storage options and setup.&lt;/p&gt; 
+&lt;h2 id="how-trusted-access-programs-work"&gt;How trusted access programs work&lt;/h2&gt; 
+&lt;p&gt;A trusted access program is a named provider program that gives customers more control of safety reviews and access to model capabilities in exchange for accepting the program’s terms. Amazon Bedrock trusted access program API now gives you one place to find the model and use case programs available to your account. EFS and EDC are the first offerings available today. Offerings that providers add later appear in the same place and follow the same steps.&lt;/p&gt; 
+&lt;p&gt;Anyone with access to the trusted access program API can list the offerings and check their status for an account, an organization in AWS Organizations, or an Amazon Bedrock project. The status tells you what to do next. &lt;code&gt;eligible&lt;/code&gt; means you’re eligible for the offering and can enroll, &lt;code&gt;requestable&lt;/code&gt; means you need approval for eligibility first, and the &lt;code&gt;statusReason&lt;/code&gt; field in the response explains how to request it. The model provider (or AWS, as authorized by the model provider) approves your eligibility.&lt;/p&gt; 
+&lt;p&gt;Enrolling is a separate step where you accept the offering’s terms imposed by the provider. You enroll at the scope where you were approved: an account, every account in an organization from the management account, or a single project. You can opt out at any time. Each step is a call to the trusted access program API, so you control who can enroll with AWS Identity and Access Management (IAM) policies and service control policies (SCPs). More information is available in the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/trusted-access-programs.html" target="_blank" rel="noopener"&gt;trusted access programs documentation&lt;/a&gt;.&lt;/p&gt; 
+&lt;h2 id="enterprise-frontier-safeguards"&gt;Enterprise Frontier Safeguards&lt;/h2&gt; 
+&lt;p&gt;With Enterprise Frontier Safeguards (EFS), you can retain your data in your own AWS environment with full control. It is designed with over 100 customers, including a quarter of the Fortune 100 and many companies in industries with strict rules on data visibility, like healthcare, financial services, and law.&lt;/p&gt; 
+&lt;p&gt;Automated safety monitoring looks for patterns that only show up across many requests. These include intentional misuse that could lead to serious harm, such as offensive cyber operations. They also include agents that go beyond what a user asked for, such as using a software exploit to reach an internal system.&lt;/p&gt; 
+&lt;p&gt;On Amazon Bedrock, AWS operates EFS and the customer inputs and outputs stay within the customer’s AWS account. Only automated safety monitoring within AWS reads the retained inputs and outputs. AWS human reviewers don’t review content for EFS. Your review stays with you. Neither AWS nor Anthropic humans access your retained inputs or outputs. Your inputs and outputs are never used for training.&lt;/p&gt; 
+&lt;h3 id="how-it-works"&gt;How it works&lt;/h3&gt; 
+&lt;p&gt;Amazon Bedrock reaches your &lt;a href="https://aws.amazon.com/kms/" target="_blank" rel="noopener"&gt;AWS Key Management Service&lt;/a&gt; (AWS KMS) key and &lt;a href="https://aws.amazon.com/s3/" target="_blank" rel="noopener"&gt;Amazon Simple Storage Service&lt;/a&gt; (Amazon S3) bucket as a single AWS service principal and only through the key policy and bucket policy that you write. You can remove that access at any time, but Amazon Bedrock stops serving the covered models 24 hours after it loses access to your key or bucket.&lt;/p&gt; 
+&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/23/ML-22385-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/23/ML-22385-1.png" alt="EFS workflow: Amazon Bedrock encrypts prompts and responses with your AWS KMS key and writes them to your Amazon S3 bucket" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: EFS workflow on Amazon Bedrock&lt;/p&gt;
+&lt;/div&gt; 
+&lt;p&gt;When you call a covered model including Claude Fable, Claude Mythos, and Claude Opus 5.5 and Sonnet 5.5 used through the Cyber Verification Program (CVP):&lt;/p&gt; 
+&lt;ol type="1"&gt; 
+ &lt;li&gt;Your application calls the model. Inference works as it does for any Amazon Bedrock model.&lt;/li&gt; 
+ &lt;li&gt;Amazon Bedrock writes the prompt and response to its retention and key services.&lt;/li&gt; 
+ &lt;li&gt;These services encrypt the data with your AWS KMS key.&lt;/li&gt; 
+ &lt;li&gt;Bedrock writes the prompt and response to your bucket, encrypted with your key, or to Amazon-managed storage. When writing to your bucket, Amazon writes the content within minutes. On some failures with your key or bucket, we can retry for up to 72 hours.&lt;/li&gt; 
+ &lt;li&gt;Automated safety monitoring, which runs in AWS owned and operated accounts, scans the data and looks for misuse across requests.&lt;/li&gt; 
+ &lt;li&gt;If automated safety monitoring finds a potential risk, a case is created in your bucket for your review.&lt;/li&gt; 
+&lt;/ol&gt; 
+&lt;h3 id="how-your-team-handles-cases"&gt;How your team handles cases&lt;/h3&gt; 
+&lt;p&gt;A Case summarizes what automated safety monitoring found and references the related transcripts. Retained records arrive under the &lt;code&gt;transcripts/&lt;/code&gt; prefix in your bucket, and case files arrive under &lt;code&gt;review-cases/&lt;/code&gt;. Your team reviews each Case and writes a response file to &lt;code&gt;review-responses/&lt;/code&gt;, stating whether it found a violation (&lt;code&gt;violation&lt;/code&gt; or &lt;code&gt;no_violation&lt;/code&gt;) and, for a violation, the applicable policy category.&lt;/p&gt; 
+&lt;h2 id="enterprise-data-controls"&gt;Enterprise Data Controls&lt;/h2&gt; 
+&lt;p&gt;EDC offers the same automated safety monitoring as EFS and human review of flagged activity stays with your team. Unlike EFS, EDC stores retained data in Amazon managed storage, encrypted with AWS managed keys, so there’s no bucket or key to set up. Eligible customers can access both EFS and EDC through a single enrollment application. If your policy allows retained data to stay in Amazon-managed storage and encrypted with AWS-managed keys, enroll in EDC. If your policy instead requires retained data to be encrypted with your AWS KMS key and stay in your S3 bucket, enroll in EFS. Either way, your team will be able to review flagged activity.&lt;/p&gt; 
+&lt;p&gt;Outside EFS and EDC, you can use Claude Fable models on Amazon Bedrock in two ways today:&lt;/p&gt; 
+&lt;ul&gt; 
+ &lt;li&gt;With the &lt;code&gt;aws_review&lt;/code&gt; data retention mode, Amazon Bedrock retains inputs and outputs for up to 30 days, where they are available for review within the AWS boundary.&lt;/li&gt; 
+ &lt;li&gt;Eligible customers can use current Fable models for internal use with zero data retention (ZDR) through at least June 30, 2027. EFS is the long-term path after ZDR ends.&lt;/li&gt; 
+&lt;/ul&gt; 
+&lt;h2 id="choose-where-retained-data-is-stored"&gt;Choose where retained data is stored&lt;/h2&gt; 
+&lt;p&gt;With EFS, retained data is stored only in your own S3 bucket, encrypted with your KMS key. Neither Anthropic nor AWS keeps it in their own storage. The following table compares EFS with the other routes.&lt;/p&gt; 
+&lt;table border="1px" width="100%" cellpadding="10px"&gt; 
+ &lt;tbody&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;/td&gt; 
+   &lt;td&gt;&lt;strong&gt;Not Eligible for ZDR, EFS, or EDC&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;&lt;strong&gt;ZDR exception (interim)&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;&lt;strong&gt;EFS, your own Amazon S3 bucket (public preview)&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;&lt;strong&gt;EDC, Amazon-managed storage (public preview)&lt;/strong&gt;&lt;/td&gt; 
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;strong&gt;Data retention&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;Up to 30 days&lt;/td&gt; 
+   &lt;td&gt;None, through at least June 30, 2027, for current Fable models and existing Cyber Verification Program models for internal use&lt;/td&gt; 
+   &lt;td&gt;Amazon Bedrock keeps no copy. Your lifecycle rules apply, 30 days minimum.&lt;/td&gt; 
+   &lt;td&gt;Up to 30 days, then Amazon Bedrock deletes it&lt;/td&gt; 
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;strong&gt;Where the retained data is stored&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;AWS managed storage&lt;/td&gt; 
+   &lt;td&gt;Not retained&lt;/td&gt; 
+   &lt;td&gt;Your Amazon S3 bucket&lt;/td&gt; 
+   &lt;td&gt;Amazon-managed storage&lt;/td&gt; 
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;strong&gt;Encryption key&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;AWS managed&lt;/td&gt; 
+   &lt;td&gt;Not applicable&lt;/td&gt; 
+   &lt;td&gt;Your AWS Key Management Service (AWS KMS) key&lt;/td&gt; 
+   &lt;td&gt;AWS managed&lt;/td&gt; 
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;strong&gt;Safety monitoring&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;Available for review within the AWS boundary&lt;/td&gt; 
+   &lt;td&gt;None&lt;/td&gt; 
+   &lt;td&gt;Automated. Cases arrive in your bucket for your team to review.&lt;/td&gt; 
+   &lt;td&gt;Automated. Your team reviews flagged Cases. Cases aren’t delivered during the public preview.&lt;/td&gt; 
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;strong&gt;What your &lt;a href="https://aws.amazon.com/cloudtrail/" target="_blank" rel="noopener"&gt;AWS CloudTrail&lt;/a&gt; shows&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;Your Amazon Bedrock API calls&lt;/td&gt; 
+   &lt;td&gt;Your Amazon Bedrock API calls&lt;/td&gt; 
+   &lt;td&gt;Your Amazon Bedrock API calls, plus Amazon Bedrock’s use of your key and bucket&lt;/td&gt; 
+   &lt;td&gt;Your Amazon Bedrock API calls&lt;/td&gt; 
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+   &lt;td&gt;&lt;strong&gt;Storage cost&lt;/strong&gt;&lt;/td&gt; 
+   &lt;td&gt;Not applicable&lt;/td&gt; 
+   &lt;td&gt;Not applicable&lt;/td&gt; 
+   &lt;td&gt;Usual Amazon S3 and AWS KMS charges&lt;/td&gt; 
+   &lt;td&gt;Not applicable&lt;/td&gt; 
+  &lt;/tr&gt; 
+ &lt;/tbody&gt; 
+&lt;/table&gt; 
+&lt;p&gt;&lt;em&gt;Table 1: Routes for Claude Fable models on Amazon Bedrock.&lt;/em&gt;&lt;/p&gt; 
+&lt;p&gt;Storage configurations apply to one Region at a time, and a Region without a configuration uses Amazon-managed storage. Save a configuration in every Region where you call covered models.&lt;/p&gt; 
+&lt;h2 id="getting-started"&gt;Getting started&lt;/h2&gt; 
+&lt;p&gt;Start by checking your EFS status with the trusted access program API:&lt;/p&gt; 
+&lt;div class="hide-language"&gt; 
+ &lt;pre&gt;&lt;code class="language-bash"&gt;aws bedrock list-trusted-access-programs --region us-east-1&lt;/code&gt;&lt;/pre&gt; 
+&lt;/div&gt; 
+&lt;p&gt;If the status is &lt;code&gt;eligible&lt;/code&gt;, your account is approved. If it’s &lt;code&gt;requestable&lt;/code&gt;, follow the steps in the &lt;code&gt;statusReason&lt;/code&gt; field to request access. Joining the preview turns off zero data retention for the accounts you add.&lt;/p&gt; 
+&lt;p&gt;After you’re approved, set up EFS in each Region where you call covered models:&lt;/p&gt; 
+&lt;ol type="1"&gt; 
+ &lt;li&gt;&lt;strong&gt;Create an AWS KMS key and an Amazon S3 bucket&lt;/strong&gt; in the same Region. The key and bucket policies give Amazon Bedrock access only through its service principal and only for your account’s data.&lt;/li&gt; 
+ &lt;li&gt;&lt;strong&gt;Give your role permission&lt;/strong&gt; to save the storage configuration.&lt;/li&gt; 
+ &lt;li&gt;&lt;strong&gt;Save your storage configuration.&lt;/strong&gt; Amazon Bedrock checks your key and bucket settings before it saves, and the error names any check that fails.&lt;/li&gt; 
+ &lt;li&gt;&lt;strong&gt;Set your data retention mode&lt;/strong&gt; to &lt;code&gt;aws_review&lt;/code&gt;.&lt;/li&gt; 
+ &lt;li&gt;&lt;strong&gt;Call a Claude Fable model&lt;/strong&gt;, then confirm that AWS CloudTrail shows Amazon Bedrock using your key. Retained records usually appear in your bucket within minutes but can take up to 72 hours if Amazon Bedrock has to retry.&lt;/li&gt; 
+&lt;/ol&gt; 
+&lt;p&gt;The &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/anthropic-efs-enterprise-data-controls.html" target="_blank" rel="noopener"&gt;EFS documentation&lt;/a&gt; has the complete key policy, bucket policy, IAM policy, and API calls for each step. It also covers organization and project configurations, and troubleshooting. To use enterprise data controls instead, skip steps 1 and 2 and choose Amazon-managed storage in step 3.&lt;/p&gt; 
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt; 
+&lt;p&gt;The trusted access program API, now generally available, gives you one way to find model provider offerings on Amazon Bedrock, check your status, and enroll, with IAM policies and SCPs controlling who can opt in. EFS and EDC are the first offerings in public preview. They give you control over your data when you use Claude Fable and Cyber Verification Program models. With your own Amazon S3 bucket, Amazon Bedrock keeps no copy of the retained data, your AWS KMS key encrypts it, and every access appears in your own AWS CloudTrail logs.&lt;/p&gt; 
+&lt;p&gt;To get started, check your EFS status with &lt;code&gt;aws bedrock list-trusted-access-programs&lt;/code&gt; and enroll in the EFS preview. To learn more, see the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/trusted-access-programs.html" target="_blank" rel="noopener"&gt;trusted access programs documentation&lt;/a&gt; and the &lt;a href="https://docs.aws.amazon.com/bedrock/latest/userguide/anthropic-efs-enterprise-data-controls.html" target="_blank" rel="noopener"&gt;EFS/EDC documentation&lt;/a&gt;.&lt;/p&gt; 
+&lt;p&gt;To enroll in the EFS and EDC public preview, work with your AWS account team to submit a request. Have the AWS account IDs ready (or Amazon Bedrock runtime project ARNs for projects) and note that the preview is for customers already enrolled in EFS ZDR.&lt;/p&gt; 
+&lt;hr style="width: 100%"&gt; 
+&lt;h2&gt;About the authors&lt;/h2&gt; 
+&lt;footer&gt; 
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/23/ML-22385-2.jpg" alt="Dani Mitchell" width="100" height="133"&gt;
+  &lt;/div&gt; 
+  &lt;h3 class="lb-h4"&gt;Dani Mitchell&lt;/h3&gt; 
+  &lt;p style="overflow: hidden"&gt;Dani is a Senior Specialist Solutions Architect for Generative AI at AWS, working on go-to-market for Anthropic on Amazon Bedrock. He helps enterprises across the world design and deploy generative AI solutions using Anthropic’s models and capabilities on Amazon Bedrock to build scalable, production-ready applications.&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full wp-image-146083" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/23/ml-22385-munir-1.png" alt="" width="200" height="259"&gt;
+  &lt;/div&gt; 
+  &lt;h3 class="lb-h4"&gt;Munir Nanjee&lt;/h3&gt; 
+  &lt;p style="overflow: hidden"&gt;Munir is a Senior Technical Product Manager for Amazon Bedrock, working on Anthropic models. Munir currently focuses on Anthropic’s features and programs, including Enterprise Frontier Safeguards (EFS) and Enterprise Data Controls (EDC). Munir is passionate about helping customers use generative AI at scale. In his spare time, Munir enjoys volunteering, traveling, and listening to music.&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full wp-image-146084" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/23/ml-22385-RW3.jpeg" alt="" width="200" height="261"&gt;
+  &lt;/div&gt; 
+  &lt;h3 class="lb-h4"&gt;Rey Wang&lt;/h3&gt; 
+  &lt;p style="overflow: hidden"&gt;Rey Wang is a Principal Product Manager on the Amazon Bedrock team, where she focuses on Trust and Safety. She helps enterprises adopt frontier models with the safety, security, and data controls they need.&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
+  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/23/ml-22385-yiwenzhg.jpg" alt="Yiwen Zhang" width="100" height="133"&gt;
+  &lt;/div&gt; 
+  &lt;h3 class="lb-h4"&gt;Yiwen Zhang&lt;/h3&gt; 
+  &lt;p style="overflow: hidden"&gt;Yiwen Zhang is a Principal GenAI Solutions Architect at AWS. She develops both generative AI applications and enterprise integration strategies. With a PhD in computational statistics and a decade of experience developing and deploying AI/ML and data pipelines, she brings deep technical expertise to enterprise AI transformation. She focuses on token economics and interpretability-based model safety. Her goal is to help enterprises build generative AI agents into “outcome as a service” solutions.&lt;/p&gt; 
+ &lt;/div&gt; 
+&lt;/footer&gt;</content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Meta ads is now available in AWS Quick</title>
 		<link>https://aws.amazon.com/blogs/machine-learning/meta-ads-is-now-available-in-aws-quick/</link>
 		
@@ -28,7 +189,7 @@
 &lt;p&gt;Today, AWS Quick added a Meta ads AI connector. The connector gives Quick access to ads Model Context Protocol (MCP) server operations. Meta ads customers can use natural language to create, manage, and analyze campaigns within Quick, while staying connected to the Meta ad management network. Marketers can complete tasks with support from AI, such as pulling insights to understand ads performance, creating product catalogs, and editing existing or creating new campaigns. Quick can also combine Meta ad management data with first- and third-party data sources to create dashboards, documents, slide decks, and automated workflows.&lt;/p&gt; 
 &lt;blockquote&gt;
  &lt;p&gt;&lt;em&gt;“Meta ads AI connector through Quick gives our marketing teams one place to go from campaign planning to execution. It lets us act on business insights directly in our ads, without the handoffs and tool switching that slow campaigns down. With fal.ai’s image, audio, and video models in the same workflow, we’ll test more creative ideas and spend more time reaching customers.”&lt;/em&gt;&lt;/p&gt; 
- &lt;p&gt;— Tina Sang, Head of Marketing at fal&lt;/p&gt;
+ &lt;p&gt;— Tina Sang, Head of Marketing at fal.ai&lt;/p&gt;
 &lt;/blockquote&gt; 
 &lt;h2 id="demo-meta-ads-in-quick"&gt;Demo: Meta ads in Quick&lt;/h2&gt; 
 &lt;p&gt;The video shows how to install the Meta ads connector from &lt;strong&gt;Customize&lt;/strong&gt; &amp;gt; &lt;strong&gt;Connectors&lt;/strong&gt; in AWS Quick, sign in with Facebook, and choose which Pages, Businesses, and Instagram accounts AWS Quick can access. It then runs two example prompts. One turns past campaign results into an eight-slide launch-plan deck. The other builds a dashboard comparing spend, leads, and cost per lead for two ad sets, with recommended tests to run next.&lt;/p&gt; 
@@ -107,7 +268,7 @@
 &lt;footer&gt; 
  &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
   &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/18/ML-22411-1.jpg" alt="Chris Geiger" width="100" height="133"&gt;
+   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/18/ML-22411-1.jpg" alt="Chris Geiger" width="100" height="133"&gt;
   &lt;/div&gt; 
   &lt;h3 class="lb-h4"&gt;Chris Geiger&lt;/h3&gt; 
   &lt;p style="overflow: hidden"&gt;Chris is a Senior Solutions Architect at AWS who supports Meta and other strategic customers. He works with their executives, engineers, and architects to design and scale workloads on AWS, from generative AI to large-scale infrastructure. He has a background in advertising technology (AdTech) and has helped some of the largest AdTech companies solve complex architecture problems on AWS.&lt;/p&gt; 
@@ -322,8 +483,11 @@
 &lt;p&gt;We believe cluster configurations should be managed the way you manage the rest of your AWS infrastructure. You declare what you want through an API or the console, AWS validates it before it’s applied, the cluster is kept in that state continuously, and you can see whether it’s working. During 2026, Amazon SageMaker HyperPod brought that approach to Slurm clusters, with API-driven Slurm configuration, AMI-based configuration, continuous provisioning, automatic topology management, and deep health checks. Today, we launched cluster extensions, which bring the same approach to the software and settings on running nodes, with managed extensions for observability and user management. However, through all of it, you still keep full access to every node in your cluster, including the controller node. You can SSH in, configure nodes directly, and run your own lifecycle scripts. The APIs give you less to maintain, direct access gives you more control, and you choose the balance.&lt;/p&gt; 
 &lt;p&gt;In this post, we walk through the features we introduced in 2026 and explain why the software on running nodes needed a different mechanism. We then show how cluster extensions work, through both the API and the console, and follow a platform team through a quarter on a cluster that uses them.&lt;/p&gt; 
 &lt;h2 id="a-declarative-foundation-for-slurm-cluster-operations"&gt;A declarative foundation for Slurm cluster operations&lt;/h2&gt; 
-&lt;p&gt;&lt;img loading="lazy" class="size-full wp-image-145969 alignright" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/20/image_43512305-1.jpg" alt="" width="400" height="293"&gt;&lt;/p&gt; 
-&lt;p&gt;We can think of a Slurm cluster’s configuration grouped into six layers. Five of them describe the cluster itself: its definition, node setup, capacity, network topology, and hardware health. The sixth covers the software running on its nodes, which we discuss in the next section. The following figure shows the six layers.&lt;/p&gt; 
+&lt;p&gt;We can think of a Slurm cluster’s configuration grouped into six layers. Five of them describe the cluster itself: its definition, node setup, capacity, network topology, and hardware health. The sixth covers the software running on its nodes, which we discuss in the next section.&lt;/p&gt; 
+&lt;div style="width: 410px" class="wp-caption alignnone"&gt;
+ &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/20/image_43512305-1.jpg" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/20/image_43512305-1.jpg" alt="Flow from HyperPod recording an extension’s desired configuration to a node agent applying the extension package on every node, including new and replaced nodes, with health probes reporting status and health issues back" width="800"&gt;&lt;/a&gt;
+ &lt;p class="wp-caption-text"&gt;Figure 1: The Slurm cluster configuration stack&lt;/p&gt;
+&lt;/div&gt; 
 &lt;p&gt;Earlier in 2026, we brought declarative management to the first five layers. With &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/02/amazon-sagemaker-hyperpod-slurm/" target="_blank" rel="noopener"&gt;API-driven Slurm configuration&lt;/a&gt;, administrators define node roles, partitions, and Amazon FSx for Lustre and Amazon FSx for OpenZFS mounts in CreateCluster and UpdateCluster requests, and connect &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod-external-accounting-db-slurm.html" target="_blank" rel="noopener"&gt;an external accounting database&lt;/a&gt;. HyperPod updates partition settings while preserving other controller-node Slurm customizations. &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/05/amazon-sagemaker-hyperpod-ami-based-node/" target="_blank" rel="noopener"&gt;AMI-based configuration&lt;/a&gt; replaces routine setup scripts with images preconfigured with Slurm, Docker, Enroot, Pyxis, and home directories. A &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/07/hyperpod-custom-ami-slurm/" target="_blank" rel="noopener"&gt;custom AMI&lt;/a&gt; or OnInitComplete script handles organization-specific software. &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/03/amazon-sagemaker-hyperpod-continuous-provisioning/" target="_blank" rel="noopener"&gt;Continuous provisioning for Slurm&lt;/a&gt; retries capacity requests in the background; &lt;a href="https://aws.amazon.com/about-aws/whats-new/2025/06/ami-configuration-continuous-slurm/" target="_blank" rel="noopener"&gt;AMI-based configuration works with it&lt;/a&gt;, &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/05/amazon-sagemaker-hyperpod-mincount/" target="_blank" rel="noopener"&gt;minimum capacity requirements&lt;/a&gt; let teams specify MinInstanceCount, and &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/11/sagemaker-hyperpod-cluster-ops/" target="_blank" rel="noopener"&gt;cluster operations&lt;/a&gt; track scaling requests.&lt;/p&gt; 
 &lt;p&gt;&lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/04/amazon-sagemaker-hyperpod-automatic-slurm-topology/" target="_blank" rel="noopener"&gt;Automatic topology management&lt;/a&gt; maintains the network layout as nodes scale or are replaced. On Slurm 25.11 or later, &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/07/hyperpod-partition-topology-slurm/" target="_blank" rel="noopener"&gt;partition-level topology&lt;/a&gt; supports tree or block topology per partition. For hardware health, &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/04/amazon-sagemaker-hyperpod-on-demand-deep-health-check/" target="_blank" rel="noopener"&gt;on-demand deep health checks&lt;/a&gt; stress GPUs and test NVIDIA Collective Communications Library (NCCL) connectivity, while &lt;a href="https://aws.amazon.com/about-aws/whats-new/2026/07/deep-health-check-continuous-slurm/" target="_blank" rel="noopener"&gt;deep health checks with continuous provisioning&lt;/a&gt; run as nodes are provisioned. Nodes under check stay in Slurm maintenance reservations until checks finish, keeping jobs off them.&lt;/p&gt; 
 &lt;h2 id="introducing-cluster-extensions"&gt;Introducing cluster extensions&lt;/h2&gt; 
@@ -1412,10 +1576,10 @@ jq '[.userSources.localUsers.groups[]?, .userSources.ldap.ldapGroups[]?]
 
 					<description>This second installment reviews 13 more Amazon SageMaker AI inference launches from 2026, spanning configuration recommendations, fitting more models onto each GPU, serving models too large for one instance, cross-Region routing, and post-launch tuning, bringing the year's total to 26.</description>
 										<content:encoded>&lt;p&gt;From first endpoint to global fleet: 14 more launches for managed endpoints and HyperPod Inference&lt;/p&gt; 
-&lt;p&gt;In September, &lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-year-to-date-launches-in-review/" target="_blank" rel="noopener noreferrer"&gt;Amazon SageMaker Inference: 2026 year-to-date launches in review &lt;/a&gt;covered 13 launches that shortened the path from a model to a production endpoint. Most of them answered one question: how do I get this model serving quickly and reliably? This post covers the 13 launches that came next, bringing the total for 2026 to 26.&lt;/p&gt; 
+&lt;p&gt;In September, &lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-year-to-date-launches-in-review/" target="_blank" rel="noopener noreferrer"&gt;Amazon SageMaker Inference: 2026 year-to-date launches in review &lt;/a&gt;covered 13 launches that shortened the path from a model to a production endpoint. Most of them answered one question: how do I get this model serving quickly and reliably? This post covers the 14 launches that came next, bringing the total for 2026 to 27.&lt;/p&gt; 
 &lt;p&gt;Once a model is in production, the questions change. Teams want to know which configuration the model should run on now that traffic is real, how to fit more models onto GPUs they already pay for, what to do when the next model is too large for one machine, why requests wait in one Region while GPUs sit idle in another, and why latency rose when nobody changed anything. This post takes those questions in the order teams usually meet them.&lt;/p&gt; 
 &lt;p&gt;For HyperPod Inference, it listed additional routing strategies, broader support for model serving frameworks, and expanded multi-Region networking. The Inference Gateway and the Global Inference Gateway deliver the routing and multi-Region work, and managed NVIDIA Dynamo is a new serving framework. For managed endpoints, the roadmap pointed to deeper integration with the rest of the AWS AI landscape. Inference recommendations now run from Amazon SageMaker AI Studio, the SageMaker Python SDK, and the coding agents engineers already use, and endpoints can now route requests across Regions and accounts.&lt;/p&gt; 
-&lt;p&gt;To keep each section concrete, we follow one hypothetical team through the blog post. In the spring, they launched a customer support assistant on a 70B-parameter model behind a single SageMaker AI endpoint, using the launches from part 1. By the fall, they need to support more product lines, adopt a larger reasoning model, serve customers in a second Region, and keep their GPU bill flat.&lt;/p&gt; 
+&lt;p&gt;To keep each section concrete, we follow one hypothetical team through the blog post. In the spring, they launched a customer support assistant on a 70B-parameter model behind a single SageMaker AI endpoint, using the launches from &lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-year-to-date-launches-in-review/" target="_blank" rel="noopener"&gt;part 1&lt;/a&gt;. By the fall, they need to support more product lines, adopt a larger reasoning model, serve customers in a second Region, and keep their GPU bill flat.&lt;/p&gt; 
 &lt;h2 id="the-launches-at-a-glance"&gt;The launches at a glance&lt;/h2&gt; 
 &lt;div id="attachment_145910" style="width: 1754px" class="wp-caption alignnone"&gt;
  &lt;img aria-describedby="caption-attachment-145910" loading="lazy" class="size-full wp-image-145910" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/20/Screenshot-2026-11-20-at-3.27.51%E2%80%AFPM.png" alt="" width="1744" height="948"&gt;
@@ -1611,13 +1775,13 @@ jq '[.userSources.localUsers.groups[]?, .userSources.ldap.ldapGroups[]?]
   &lt;p&gt;&lt;strong&gt;21. Managed NVIDIA Dynamo on HyperPod Inference (November 2026).&lt;/strong&gt; Multi-node and disaggregated serving, with HyperPod operating the platform underneath.&lt;/p&gt; 
   &lt;p&gt;&lt;strong&gt;22. KV-cache-aware routing (November 2026).&lt;/strong&gt; Routes each request to the instance that holds the longest cached prefix, based on cache events from the container.&lt;/p&gt; 
   &lt;p&gt;&lt;strong&gt;23. Inference Gateway for HyperPod (September 2026).&lt;/strong&gt; One endpoint per cluster with GPU-aware routing, and up to 97% lower P99 TTFT than round-robin.&lt;/p&gt; 
-  &lt;p&gt;&lt;strong&gt;24. Global Inference Gateway for HyperPod (September 2026).&lt;/strong&gt; One endpoint across clusters and Regions, with failover in under 2 minutes.&lt;/p&gt; 
+  &lt;p&gt;&lt;strong&gt;24. Global Inference Gateway for HyperPod (November 2026).&lt;/strong&gt; One endpoint across clusters and Regions, with failover in under 2 minutes.&lt;/p&gt; 
   &lt;p&gt;&lt;strong&gt;25. Cross-Region Inference Router.&lt;/strong&gt; Routes across Regional and cross-account endpoints over PrivateLink, with overflow and residency guardrails.&lt;/p&gt; 
   &lt;p&gt;&lt;strong&gt;26. Continuous performance monitoring.&lt;/strong&gt; Detects latency drift, configuration gaps, and idle capacity, with a guided fix in SageMaker AI Studio.&lt;/p&gt; 
   &lt;p&gt;&lt;strong&gt;27. In-place rolling model updates (November 2026).&lt;/strong&gt; Rolls out model updates with one batch of additional instances at the start, then reuses existing instances across the fleet.&lt;/p&gt;
  &lt;/blockquote&gt; 
  &lt;p&gt;By the end of the year, the support team serves four product lines from one base model, runs its small models on shared GPUs, serves a reasoning model that no single instance can hold, and routes traffic across two Regions with residency controls. It did not need to build its own benchmarking harness, failover logic, or drift monitoring to get there.&lt;/p&gt; 
- &lt;p&gt;Part 1 argued that advantage in AI inference comes from operating an efficient inference stack. These 13 launches apply that argument to the months after launch day. The AWS Experience-Based Acceleration program can help your team put them to work by benchmarking your workloads and configuring your inference stack against your SLAs and cost targets.&lt;/p&gt; 
+ &lt;p&gt;&lt;a href="https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-year-to-date-launches-in-review/" target="_blank" rel="noopener"&gt;Part 1&lt;/a&gt; argued that advantage in AI inference comes from operating an efficient inference stack. These 14 launches apply that argument to the months after launch day. The AWS Experience-Based Acceleration program can help your team put them to work by benchmarking your workloads and configuring your inference stack against your SLAs and cost targets.&lt;/p&gt; 
  &lt;h2 id="what-is-next"&gt;What is next&lt;/h2&gt; 
  &lt;p&gt;On managed endpoints, we plan to extend in-place rolling updates in early 2027 with scale-in-first updates, which remove the need for any additional instances during a model update.&lt;/p&gt; 
  &lt;p&gt;Documentation and getting-started guides for every capability in this post are in the &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html" target="_blank" rel="noopener"&gt;Amazon SageMaker AI Developer Guide&lt;/a&gt;. Start with the section that matches your current problem. If your traffic has changed since you deployed, re-run inference recommendations. If you are short on placement slots, move small models onto partitioned GPUs. If requests queue while capacity you own sits idle, register your clusters and endpoints for cross-Region routing.&lt;/p&gt; 
@@ -3613,280 +3777,6 @@ print(task["TaskId"], task["OutputUri"])  # poll get_speech_synthesis_task until
   &lt;/div&gt; 
   &lt;h3 class="lb-h4"&gt;Nishanth D Aluhonnu&lt;/h3&gt; 
   &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/nishanth-d-aluhonnu-a3687712a/" target="_blank" rel="noopener"&gt;Nishanth&lt;/a&gt; is a Software Engineer specializing in DevOps, cloud infrastructure, observability, automation, and large-scale distributed systems. He is passionate about automation and emerging technologies including agentic AI and intelligent systems to simplify infrastructure operations, enhance monitoring, and enable automated root cause analysis. He enjoys strategy games like Dota, solving Capture the Flag (CTF) challenges, and exploring cybersecurity.&lt;/p&gt; 
- &lt;/div&gt; 
-&lt;/footer&gt;</content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>Keep inference running through regional capacity shortfalls with cross-Region inference routing in Amazon SageMaker AI</title>
-		<link>https://aws.amazon.com/blogs/machine-learning/keep-inference-running-through-regional-capacity-shortfalls-with-cross-region-inference-routing-in-amazon-sagemaker-ai/</link>
-		
-		<dc:creator><![CDATA[Dmitry Soldatkin]]></dc:creator>
-		<pubDate>Thu, 19 Nov 2026 18:20:54 +0000</pubDate>
-				<category><![CDATA[Advanced (300)]]></category>
-		<category><![CDATA[Amazon SageMaker AI]]></category>
-		<category><![CDATA[Technical How-to]]></category>
-		<guid isPermaLink="false">f762308a567b8d6343b1b8fca29e935ce6c79914</guid>
-
-					<description>Cross-Region inference routing in Amazon SageMaker AI gives your application one invocation path across the endpoints and inference components you already run, in one or more AWS Regions and AWS accounts. The router prefers its own Region and shifts new requests to another destination only when the local one can't serve reliably.</description>
-										<content:encoded>&lt;p&gt;Serving a model from more than one AWS Region is a well-established pattern for highly available inference: when one Region runs short of GPU capacity, requests move to another. The pattern is simple to describe and hard to operate. Until now, if you served models on Amazon SageMaker AI managed endpoints, cross-Region routing was a piece you still had to build yourself.&lt;/p&gt; 
-&lt;p&gt;Today, we’re introducing cross-Region inference routing in Amazon SageMaker AI. It uses a new resource, the inference router, that gives your application one invocation path across the endpoints and inference components you already run, in one or more AWS Regions and AWS accounts. You register the destinations that serve a model, and your application invokes the router instead of a specific endpoint. The router keeps requests in its own Region while the local destination is healthy, shifts new requests to another registered destination when it isn’t, and returns traffic gradually after recovery.&lt;/p&gt; 
-&lt;p&gt;In this post, we explain how cross-Region inference routing decides where each request runs, walk through an example with one model in two Regions, and cover monitoring, limits, and what you pay. For a cross-account deployment that serves several models, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/how-salesforce-is-advancing-global-scale-model-serving-with-cross-region-inference-routing-in-amazon-sagemaker-ai/"&gt;How Salesforce is advancing global-scale model serving with cross-Region inference routing in Amazon SageMaker AI&lt;/a&gt;.&lt;/p&gt; 
-&lt;h2 id="when-one-region-runs-short-of-capacity"&gt;When one Region runs short of capacity&lt;/h2&gt; 
-&lt;p&gt;A SageMaker AI endpoint runs in one AWS Region and one account. When autoscaling can’t add instances of the type your endpoint needs, requests throttle and time out, even when the same model has spare capacity in another Region. To use that capacity, your application must detect a struggling endpoint and switch Regions, decide which errors are safe to retry without running the model twice, move traffic back after recovery without flapping, and manage access to endpoints in other accounts. That code sits on the critical path of every request, and every team serving models across Regions maintains its own version of it.&lt;/p&gt; 
-&lt;h2 id="how-cross-region-inference-routing-works"&gt;How cross-Region inference routing works&lt;/h2&gt; 
-&lt;p&gt;Cross-Region inference routing is based on a few core ideas:&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;&lt;strong&gt;You decide where your model might run –&lt;/strong&gt; For each model, you choose which endpoints and inference components the router might use.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;SageMaker AI decides which destination serves each request –&lt;/strong&gt;&amp;nbsp;The router prefers its own Region and shifts new requests to another destination only when the local one can’t serve reliably.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Your endpoints stay the same –&lt;/strong&gt;&amp;nbsp;You deploy endpoints as you do today, with the same models, configurations, instance pools, and autoscaling. Direct &lt;code&gt;InvokeEndpoint&lt;/code&gt; calls keep working, and the router passes &lt;code&gt;InferenceId&lt;/code&gt; and &lt;code&gt;CustomAttributes&lt;/code&gt; through, as &lt;code&gt;InvokeEndpoint&lt;/code&gt; does.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;You can see every decision –&lt;/strong&gt;&amp;nbsp;Each real-time response tells you which destination served the request and why.&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;p&gt;A few terms describe the pieces:&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;&lt;strong&gt;Inference router&lt;/strong&gt; – A Regional SageMaker AI resource in your account that your application invokes.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Routing target&lt;/strong&gt; – A name for one logical model on a router, such as &lt;code&gt;fraud-model&lt;/code&gt;. A router can hold many routing targets, and each fails over independently of the others.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Destination&lt;/strong&gt; – A real-time endpoint, inference component, or asynchronous endpoint registered under a routing target, identified by its full Amazon Resource Name (ARN), which tells the router its Region and account. A routing target holds either real-time destinations, which can mix endpoints and inference components across Regions and accounts, or asynchronous endpoints only.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Local destination&lt;/strong&gt; – A destination in the router’s Region, preferred while it’s healthy.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Routing reason&lt;/strong&gt; – A value returned with each real-time response that explains where the request went and why.&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;p&gt;The Region you create the router in is its local Region. To prefer a different Region, create a router there. The router doesn’t create capacity, scale your endpoints, deploy models, or copy model artifacts and container images. Each destination must already be running in its Region.&lt;/p&gt; 
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-1-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-1-1.png" alt="Inference router architecture: a client invokes a router in Region A, which sends requests to a local destination and falls back to destinations in Region B in the same account and in another account" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 1: Each request goes to a healthy destination, with the router preferring destinations in its own Region&lt;/p&gt;
-&lt;/div&gt; 
-&lt;h3 id="how-routing-decisions-are-made"&gt;How routing decisions are made&lt;/h3&gt; 
-&lt;p&gt;The router considers only destinations that are registered on the routing target and that it’s authorized to invoke. Among those, it prefers destinations in its own Region, and when more than one local destination is healthy, it spreads requests across them evenly. Requests leave the Region only when local destinations can’t serve reliably. To detect that, SageMaker AI calculates a health score for each destination from its recent requests, measured in the destination’s own Region. Server errors (5xx), throttles, and timeouts lower the score. Errors from the SageMaker AI platform (for example, failed health check) lower it the most. Errors caused by the request itself, such as invalid input, don’t lower it, because the same request would fail in any Region. Model latency isn’t an input, so an endpoint that keeps returning successful responses keeps its traffic. Signals such as failed instance launches or an endpoint running fewer instances than its autoscaling target make the router react faster, but only after the destination starts failing requests.&lt;/p&gt; 
-&lt;p&gt;The router evaluates each destination’s health and publishes it to Amazon CloudWatch as one of three states. A &lt;code&gt;healthy&lt;/code&gt; destination serves normally. An &lt;code&gt;overloaded&lt;/code&gt; destination still serves, and the router moves part of its traffic away. A &lt;code&gt;degraded&lt;/code&gt; destination is failing or can’t serve, so the router moves most of its traffic away and keeps a small share to detect recovery.&lt;/p&gt; 
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-2-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-2-1.png" alt="Diagram of the three destination health states (healthy, overloaded, degraded) and the share of traffic each one receives" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 2: How each destination health state changes the traffic the router sends to it&lt;/p&gt;
-&lt;/div&gt; 
-&lt;p&gt;SageMaker AI manages failover thresholds and timing, so you don’t need to tune any thresholds. If health information for remote destinations goes stale, the router keeps traffic in its own Region, so a gap in monitoring never moves traffic on its own.&lt;/p&gt; 
-&lt;h3 id="when-traffic-moves-and-when-it-comes-back"&gt;When traffic moves, and when it comes back&lt;/h3&gt; 
-&lt;p&gt;The more requests fail, the more traffic moves, so a destination need not fail outright first. Traffic starts to move within about a minute of sustained errors, or longer for a destination with little traffic. Traffic that leaves the local Region is spread across the healthy remote destinations in proportion to their health. You can’t set weights or a fallback order. After recovery, traffic returns over several minutes, more slowly than it left. Requests in progress aren’t interrupted.&lt;/p&gt; 
-&lt;p&gt;When a destination fails a real-time request without running the model, the router retries that request once on a different destination. This covers, for example, a throttle, a 503 error, a model that isn’t ready, a rejection by a cross-Region traffic cap, or access denied by the destination. The router never retries timeouts, 500 errors, or model errors.&lt;/p&gt; 
-&lt;p&gt;For asynchronous requests, the router tries each eligible destination once, local destinations first, until one accepts the request.&lt;/p&gt; 
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-3-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-3-1.png" alt="Flow diagram: a real-time request fails at one destination before the model runs and is retried once on another destination" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 3: The router retries a real-time request once on another destination, and only when the model didn’t run&lt;/p&gt;
-&lt;/div&gt; 
-&lt;p&gt;Figure 4 shows where requests were served in one of our tests with a test model.&lt;/p&gt; 
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-4-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-4-1.png" alt="Chart of where test requests were served as the local endpoint was overloaded, a cross-account destination lost access, and recovered" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 4: Where requests were served as the local endpoint was overloaded, a destination in another account lost and regained access, and the local endpoint recovered&lt;/p&gt;
-&lt;/div&gt; 
-&lt;h2 id="what-you-can-route"&gt;What you can route&lt;/h2&gt; 
-&lt;p&gt;The following use cases show common ways to use cross-Region inference routing in Amazon SageMaker AI.&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;&lt;strong&gt;Keep serving when one Region runs short of GPU capacity.&lt;/strong&gt; When your G-series instance type runs short in US East (Ohio) during peak traffic and requests start to throttle, the router shifts new requests to the same model in US West (Oregon), where autoscaling absorbs the overflow, and moves traffic back gradually after US East (Ohio) recovers.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Route across endpoints owned by separate AWS accounts.&lt;/strong&gt; When a central platform account owns the router and other accounts own the endpoints, each endpoint owner grants access to one named router, and requests reach those endpoints only through that router. We cover the setup after this list.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Serve many models from one router.&lt;/strong&gt; Create one router with one routing target per model, each listing that model’s destinations, and pass the routing target name on each request. Each model fails over independently.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Put the router behind your own gateway.&lt;/strong&gt; If you operate an API or model gateway, you can point its SageMaker AI integration at the router, so SageMaker AI handles Region selection for SageMaker-hosted models while your gateway decides when to use a different provider. For example, see the &lt;a href="https://aws.amazon.com/blogs/machine-learning/how-salesforce-is-advancing-global-scale-model-serving-with-cross-region-inference-routing-in-amazon-sagemaker-ai/"&gt;Salesforce post&lt;/a&gt;.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Route asynchronous requests.&lt;/strong&gt; Asynchronous endpoints, in the router’s account or in other accounts, can be destinations. Your application calls &lt;code&gt;InvokeInferenceRouterAsync&lt;/code&gt; with the routing target name and the Amazon Simple Storage Service (Amazon S3) input location, and gets back an &lt;code&gt;InferenceId&lt;/code&gt; and the output and failure locations, as with &lt;code&gt;InvokeEndpointAsync&lt;/code&gt;.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Protect a receiving endpoint from other Regions’ overflow.&lt;/strong&gt; On a real-time endpoint, you can set an optional cross-Region traffic cap so that requests from other Regions can use only part of its capacity. Your endpoint’s local callers keep the rest. We cover the details later in this section.&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;p&gt;When a destination belongs to a different account than the router, both accounts must allow each request. On the endpoint side, the owner attaches a resource-based policy that allows the router account to invoke the endpoint, and the &lt;code&gt;sagemaker:SourceInferenceRouterArn&lt;/code&gt; condition key limits that access to one named router. The following policy allows only &lt;code&gt;my-router&lt;/code&gt; in account 444455556666 to invoke the endpoint. Its second statement has no router condition and lets the router account read the endpoint’s status. Without that statement, the destination shows its status as unknown.&lt;/p&gt; 
-&lt;div class="hide-language"&gt; 
- &lt;pre&gt;&lt;code class="language-json"&gt;{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowOneRouter",
-      "Effect": "Allow",
-      "Principal": {"AWS": "arn:aws:iam::444455556666:root"},
-      "Action": ["sagemaker:InvokeEndpoint", "sagemaker:InvokeEndpointAsync"],
-      "Resource": "arn:aws:sagemaker:us-west-2:111122223333:endpoint/my-endpoint",
-      "Condition": {"ArnEquals": {
-        "sagemaker:SourceInferenceRouterArn": "arn:aws:sagemaker:us-east-2:444455556666:inference-router/my-router"}}
-    },
-    {
-      "Sid": "AllowStatusVisibility",
-      "Effect": "Allow",
-      "Principal": {"AWS": "arn:aws:iam::444455556666:root"},
-      "Action": "sagemaker:DescribeEndpoint",
-      "Resource": "arn:aws:sagemaker:us-west-2:111122223333:endpoint/my-endpoint"
-    }
-  ]
-}&lt;/code&gt;&lt;/pre&gt; 
-&lt;/div&gt; 
-&lt;p&gt;In the router account, callers need &lt;code&gt;sagemaker:InvokeInferenceRouter&lt;/code&gt; (or &lt;code&gt;sagemaker:InvokeInferenceRouterAsync&lt;/code&gt;) on the router and &lt;code&gt;sagemaker:InvokeEndpoint&lt;/code&gt; (or &lt;code&gt;sagemaker:InvokeEndpointAsync&lt;/code&gt;) on every destination, because the router invokes each destination on the caller’s behalf. A router never gives a caller access to an endpoint they couldn’t call directly. For &lt;code&gt;DescribeInferenceRouter&lt;/code&gt; to report each destination’s status, callers also need &lt;code&gt;sagemaker:DescribeEndpoint&lt;/code&gt; on endpoints and &lt;code&gt;sagemaker:DescribeInferenceComponent&lt;/code&gt; on inference components. Applications in other accounts call the router by assuming a role in the router account. For a walkthrough, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/how-salesforce-is-advancing-global-scale-model-serving-with-cross-region-inference-routing-in-amazon-sagemaker-ai/"&gt;How Salesforce is advancing global-scale model serving with cross-Region inference routing in Amazon SageMaker AI&lt;/a&gt;&amp;nbsp;and &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/inference-router-cross-account.html" target="_blank" rel="noopener"&gt;User Guide on cross-account destinations&lt;/a&gt;.&lt;/p&gt; 
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-5-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-5-1.png" alt="Controls the endpoint owner keeps: an endpoint policy that allows one named router, and an optional cross-Region traffic cap" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 5: Controls the endpoint owner keeps: an endpoint policy that allows one named router, and an optional cross-Region traffic cap&lt;/p&gt;
-&lt;/div&gt; 
-&lt;h3 id="protect-a-receiving-endpoint-with-a-cross-region-traffic-cap"&gt;Protect a receiving endpoint with a cross-Region traffic cap&lt;/h3&gt; 
-&lt;p&gt;When the router moves requests away from a Region that’s short on capacity, those requests land on endpoints that already serve their own Region’s callers. By default, a receiving endpoint accepts any amount of cross-Region traffic, so a surge of overflow can push it into throttling. With a cross-Region traffic cap, the endpoint owner decides how much of the endpoint’s capacity other Regions might use.&lt;/p&gt; 
-&lt;p&gt;You set the cap in &lt;code&gt;CreateEndpointConfig&lt;/code&gt; with &lt;code&gt;CrossRegionTrafficConfig&lt;/code&gt;, which takes two required values. &lt;code&gt;MaxInvocationsPerSecondPerInstance&lt;/code&gt; is the number of invocations per second that one instance can take, which you measure with a load test of your model, instance type, and typical payload. &lt;code&gt;MaxCrossRegionPercentPerEndpoint&lt;/code&gt; is the share of that capacity that other Regions might use. SageMaker AI multiplies the per-instance rate by the instances in service and applies the percentage, so the cap follows autoscaling. For example, with 50 invocations per second per instance, a 20 percent cap, and 4 instances in service, the endpoint accepts up to 40 requests per second from other Regions. When autoscaling adds 2 instances, the cap rises to 60 requests per second.&lt;/p&gt; 
-&lt;div class="hide-language"&gt; 
- &lt;pre&gt;&lt;code class="language-python"&gt;sm = boto3.client("sagemaker", region_name="us-west-2")
-sm.create_endpoint_config(
-    EndpointConfigName="my-model-config-us-west-2",
-    ProductionVariants=[...],  # your existing variants, unchanged
-    CrossRegionTrafficConfig={
-        "MaxInvocationsPerSecondPerInstance": 50,
-        "MaxCrossRegionPercentPerEndpoint": 20,
-    },
-)&lt;/code&gt;&lt;/pre&gt; 
-&lt;/div&gt; 
-&lt;p&gt;Only requests from other Regions count against the cap. Requests from the endpoint’s own Region, including direct &lt;code&gt;InvokeEndpoint&lt;/code&gt; calls and calls from a router in the same Region, are never throttled by it. When cross-Region requests exceed the cap, the endpoint rejects the extra requests before your model runs, and the router retries each one once on a different destination. If no other destination can take the request, your application gets a throttling error.&lt;/p&gt; 
-&lt;p&gt;The cap applies to real-time endpoints, and all inference components on an endpoint share it. For an endpoint that hosts inference components, load test one instance with its usual mix of inference components and payloads to measure &lt;code&gt;MaxInvocationsPerSecondPerInstance&lt;/code&gt;, and run the test again when that mix or your payloads change. If you leave out &lt;code&gt;CrossRegionTrafficConfig&lt;/code&gt;, the endpoint accepts any amount of cross-Region traffic.&lt;/p&gt; 
-&lt;h2 id="get-started-one-model-in-two-regions"&gt;Get started: One model in two Regions&lt;/h2&gt; 
-&lt;p&gt;In this example, we deploy Qwen3-4B with the vLLM container as an inference component in US East (Ohio) and US West (Oregon), in one account. Because the inference router doesn’t support response streaming, the application sends non-streaming requests, and each request must complete within about a minute, the same limit as &lt;code&gt;InvokeEndpoint&lt;/code&gt;. We then create a router in US East (Ohio) with one routing target that lists both:&lt;/p&gt; 
-&lt;div class="hide-language"&gt; 
- &lt;pre&gt;&lt;code class="language-python"&gt;sm = boto3.client("sagemaker", region_name="us-east-2")
-rt = boto3.client("sagemaker-inference-router-runtime", region_name="us-east-2")
-
-sm.create_inference_router(
-    InferenceRouterName="my-router",
-    RoutingTargets=[{
-        "Name": "my-model",
-        "Destinations": [
-            {"ResourceArn": "arn:aws:sagemaker:us-east-2:111122223333:inference-component/ic-us-east-2"},
-            {"ResourceArn": "arn:aws:sagemaker:us-west-2:111122223333:inference-component/ic-us-west-2"},
-        ],
-    }],
-)&lt;/code&gt;&lt;/pre&gt; 
-&lt;/div&gt; 
-&lt;p&gt;Run &lt;code&gt;DescribeInferenceRouter&lt;/code&gt; and confirm that each destination’s &lt;code&gt;RoutingStatus&lt;/code&gt; is &lt;code&gt;Routable&lt;/code&gt; before you send traffic.&lt;/p&gt; 
-&lt;p&gt;The application invokes the router with the routing target name and the same payload it would send to &lt;code&gt;InvokeEndpoint&lt;/code&gt;, and reads the serving destination and routing reason from the response:&lt;/p&gt; 
-&lt;div class="hide-language"&gt; 
- &lt;pre&gt;&lt;code class="language-python"&gt;resp = rt.invoke_inference_router(
-    InferenceRouterName="my-router",
-    RoutingTargetName="my-model",
-    ContentType="application/json",
-    Body=json.dumps({"messages": [{"role": "user", "content": "Who are you?"}]}),
-)
-print("Served by:", resp["InvokedRoutedResourceArn"])
-print("Reason:   ", resp["RoutingReason"])&lt;/code&gt;&lt;/pre&gt; 
-&lt;/div&gt; 
-&lt;h3 id="what-we-observed"&gt;What we observed&lt;/h3&gt; 
-&lt;table border="1px" width="100%" cellpadding="10px"&gt; 
- &lt;tbody&gt; 
-  &lt;tr&gt; 
-   &lt;td&gt;&lt;strong&gt;Step&lt;/strong&gt;&lt;/td&gt; 
-   &lt;td&gt;&lt;strong&gt;&lt;code&gt;RoutingStatus&lt;/code&gt; in &lt;code&gt;DescribeInferenceRouter&lt;/code&gt; (us-east-2 / us-west-2)&lt;/strong&gt;&lt;/td&gt; 
-   &lt;td&gt;&lt;strong&gt;Served by&lt;/strong&gt;&lt;/td&gt; 
-   &lt;td&gt;&lt;strong&gt;Routing reason&lt;/strong&gt;&lt;/td&gt; 
-  &lt;/tr&gt; 
-  &lt;tr&gt; 
-   &lt;td&gt;Both inference components running&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;Routable&lt;/code&gt; / &lt;code&gt;Routable&lt;/code&gt;&lt;/td&gt; 
-   &lt;td&gt;us-east-2&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;local-preferred&lt;/code&gt;&lt;/td&gt; 
-  &lt;/tr&gt; 
-  &lt;tr&gt; 
-   &lt;td&gt;us-east-2 inference component removed&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;Unroutable&lt;/code&gt; / &lt;code&gt;Routable&lt;/code&gt;&lt;/td&gt; 
-   &lt;td&gt;us-west-2&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;only-healthy&lt;/code&gt;&lt;/td&gt; 
-  &lt;/tr&gt; 
-  &lt;tr&gt; 
-   &lt;td&gt;us-east-2 inference component restored&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;Routable&lt;/code&gt; / &lt;code&gt;Routable&lt;/code&gt;&lt;/td&gt; 
-   &lt;td&gt;us-west-2&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;only-healthy&lt;/code&gt;&lt;/td&gt; 
-  &lt;/tr&gt; 
-  &lt;tr&gt; 
-   &lt;td&gt;Traffic back in us-east-2&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;Routable&lt;/code&gt; / &lt;code&gt;Routable&lt;/code&gt;&lt;/td&gt; 
-   &lt;td&gt;us-east-2&lt;/td&gt; 
-   &lt;td&gt;&lt;code&gt;local-preferred&lt;/code&gt;&lt;/td&gt; 
-  &lt;/tr&gt; 
- &lt;/tbody&gt; 
-&lt;/table&gt; 
-&lt;p&gt;Traffic stayed in US East (Ohio) while its inference component ran, moved to US West (Oregon) with no change to the application when we removed it, and came back after we restored it.&lt;/p&gt; 
-&lt;p&gt;The complete &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/03-features/inference-router" target="_blank" rel="noopener"&gt;notebook&lt;/a&gt; for this example is available on GitHub.&lt;/p&gt; 
-&lt;p&gt;&lt;strong&gt;Tip: &lt;/strong&gt;Use instance pools and cross-Region inference routing together. With a capacity-aware instance pool, SageMaker AI can use another instance type in the same Region at creation and during scale-out. The router moves new requests to another Region when the local endpoint as a whole can’t serve. For details, see &lt;a href="https://aws.amazon.com/blogs/machine-learning/capacity-aware-inference-automatic-instance-fallback-for-sagemaker-ai-endpoints/" target="_blank" rel="noopener"&gt;Capacity-aware inference: Automatic instance fallback for SageMaker AI endpoints&lt;/a&gt;.&lt;/p&gt; 
-&lt;h2 id="see-where-each-request-went"&gt;See where each request went&lt;/h2&gt; 
-&lt;p&gt;The inference router gives you two views of routing: a record on every real-time response and metrics in CloudWatch.&lt;/p&gt; 
-&lt;h3 id="per-request-routing-record"&gt;Per-request routing record&lt;/h3&gt; 
-&lt;p&gt;Every real-time response includes the ARN of the destination that served the request in &lt;code&gt;InvokedRoutedResourceArn&lt;/code&gt;, and the routing reason in &lt;code&gt;RoutingReason&lt;/code&gt;. The routing reason is one of the following:&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;&lt;code&gt;local-preferred&lt;/code&gt; – Served by a healthy destination in the router’s Region.&lt;/li&gt; 
- &lt;li&gt;&lt;code&gt;capacity-available&lt;/code&gt; – Served by a destination with available capacity.&lt;/li&gt; 
- &lt;li&gt;&lt;code&gt;failover&lt;/code&gt; – Moved away from a destination that couldn’t serve reliably.&lt;/li&gt; 
- &lt;li&gt;&lt;code&gt;only-healthy&lt;/code&gt; – Served by the only eligible destination that was healthy.&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;p&gt;We recommend logging both values with your application’s own request logs.&lt;/p&gt; 
-&lt;p&gt;Asynchronous responses don’t include the serving destination. Router metrics in CloudWatch show where asynchronous requests were placed.&lt;/p&gt; 
-&lt;h3 id="router-metrics-in-cloudwatch"&gt;Router metrics in CloudWatch&lt;/h3&gt; 
-&lt;p&gt;The router publishes OpenTelemetry metrics to CloudWatch in its own account and Region, labeled with the router, routing target, and destination:&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;&lt;code&gt;aws.sagemaker.inference_router.invocations&lt;/code&gt; – Requests per destination, with an &lt;code&gt;error.type&lt;/code&gt; label on failures (&lt;code&gt;invocation_4xx&lt;/code&gt;, &lt;code&gt;invocation_5xx&lt;/code&gt;, or &lt;code&gt;invocation_model_error&lt;/code&gt;).&lt;/li&gt; 
- &lt;li&gt;&lt;code&gt;aws.sagemaker.inference_router.destination.duration&lt;/code&gt; – Time at the destination, including your model.&lt;/li&gt; 
- &lt;li&gt;&lt;code&gt;aws.sagemaker.inference_router.overhead.duration&lt;/code&gt; – The router’s own work plus network time to and from another Region.&lt;/li&gt; 
- &lt;li&gt;&lt;code&gt;aws.sagemaker.inference_router.destination.status&lt;/code&gt; – Each destination as &lt;code&gt;healthy&lt;/code&gt;, &lt;code&gt;overloaded&lt;/code&gt;, or &lt;code&gt;degraded&lt;/code&gt;.&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;p&gt;Alarm on destinations that aren’t healthy and on the error rate across all error types. See &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/inference-router-monitor.html" target="_blank" rel="noopener"&gt;Monitor an inference routers with Amazon CloudWatch and AWS CloudTrail&lt;/a&gt;.&lt;/p&gt; 
-&lt;div style="width: 810px" class="wp-caption alignnone"&gt;
- &lt;a href="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-6-1.png" target="_blank" rel="noopener"&gt;&lt;img src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-6-1.png" alt="Chart over time of requests per destination, from the router’s CloudWatch invocations metric, during the test in Figure 4" width="800"&gt;&lt;/a&gt;
- &lt;p class="wp-caption-text"&gt;Figure 6: Requests per destination from the router’s CloudWatch invocations metric during the test shown in Figure 4&lt;/p&gt;
-&lt;/div&gt; 
-&lt;p&gt;Each destination endpoint keeps publishing its existing SageMaker AI metrics in its own account and Region. To view them in one place, use CloudWatch cross-account observability and cross-account cross-Region dashboards.&lt;/p&gt; 
-&lt;p&gt;AWS CloudTrail records the router’s API calls (create, update, delete, describe, and list) as management events and router invocations as data events. You enable data events on your trail as you do for other SageMaker AI data events.&lt;/p&gt; 
-&lt;h2 id="plan-your-deployment"&gt;Plan your deployment&lt;/h2&gt; 
-&lt;p&gt;Keep the following in mind when you design with the inference router:&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;&lt;strong&gt;Put the router in the Region where most of your traffic originates.&lt;/strong&gt; The router always prefers destinations in its own Region.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Size each Region for its own traffic plus the overflow you want it to absorb.&lt;/strong&gt; By default, a receiving endpoint accepts any amount of cross-Region traffic, so configure autoscaling with headroom for the overflow you expect. To protect an endpoint’s local callers, set a cross-Region traffic cap, as described in &lt;a href="#protect-a-receiving-endpoint-with-a-cross-region-traffic-cap"&gt;Protect a receiving endpoint with a cross-Region traffic cap&lt;/a&gt;. If every remote destination reaches its cap, requests beyond the combined caps return throttling errors.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Keep a low-cost standby Region.&lt;/strong&gt; You can register an inference component in another Region and keep its cost low, but plan for how it gets capacity. A remote inference component with zero copies receives only a small share of traffic during failover, and those requests fail until it has copies. Keep at least one copy running, or configure autoscaling on copies and confirm that it scales out before you rely on the standby Region.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Plan for resilience at the entry point.&lt;/strong&gt; A router is regional, so if its Region is impaired, calls to it fail. Create routers in two Regions and switch between them on the client side.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Register only destinations where your data might be processed.&lt;/strong&gt; A request can be processed in the router’s Region or in any Region where you’ve registered a destination. For data that must stay in one geography, use a separate router, for example one for US data and one for EU data. You are responsible for configuring your routers to align with your data residency and compliance obligations.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Keep your own retries modest.&lt;/strong&gt; A throttling error means every destination was busy, and a service-unavailable error means no destination could take the request. A service-unavailable error after about a minute means the request timed out and the model might have run, so don’t retry it automatically.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Remove deleted destinations from the router.&lt;/strong&gt; Traffic already avoids a deleted endpoint, but the router never removes a destination on its own.&lt;/li&gt; 
- &lt;li&gt;&lt;strong&gt;Call the router privately.&lt;/strong&gt; Applications in a virtual private cloud (VPC) can call the router through an interface VPC endpoint (AWS PrivateLink), which supports IPv4 (IPv6/dual-stack not supported).&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;p&gt;Also note the following limitations:&lt;/p&gt; 
-&lt;ul&gt; 
- &lt;li&gt;Response streaming isn’t supported.&lt;/li&gt; 
- &lt;li&gt;A real-time request that the destination doesn’t respond to within about a minute fails with a service-unavailable error.&lt;/li&gt; 
- &lt;li&gt;Each router holds up to 20 routing targets, each routing target holds up to 10 destinations, and real-time payloads can be up to 6 MB. For default quotas, such as routers per account and request rates, and how to request an increase, see &lt;a href="https://docs.aws.amazon.com/general/latest/gr/sagemaker.html#limits_sagemaker"&gt;Service Quotas in the Amazon SageMaker AI documentation.&lt;/a&gt;&lt;/li&gt; 
-&lt;/ul&gt; 
-&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt; 
-&lt;p&gt;Cross-Region inference routing in Amazon SageMaker AI gives your application one invocation path across the endpoints and inference components you already run, in multiple AWS Regions and AWS accounts. The router prefers its own Region, shifts new requests when a destination can’t serve reliably, returns traffic gradually after recovery, and shows you where each request ran and why. Your endpoints, models, containers, and autoscaling policies don’t change.&lt;/p&gt; 
-&lt;p&gt;Cross-Region inference routing is generally available starting today in most commercial AWS Regions (except me-south-1 and me-central-1), for real-time and asynchronous inference.&lt;/p&gt; 
-&lt;p&gt;There is no additional charge for cross-Region inference routing in Amazon SageMaker AI. You pay for the SageMaker AI endpoints and inference components that serve your requests at standard SageMaker AI pricing, whether a request reaches them directly or through an inference router. The inference router publishes metrics to Amazon CloudWatch in the router’s account, and you pay standard CloudWatch rates for those metrics and any queries you run on them. For details, see &lt;a href="https://aws.amazon.com/sagemaker/ai/pricing/" target="_blank" rel="noopener"&gt;Amazon SageMaker AI pricing.&lt;/a&gt;&lt;/p&gt; 
-&lt;p&gt;To get started, see the &lt;a href="https://docs.aws.amazon.com/sagemaker/latest/dg/inference-router.html" target="_blank" rel="noopener"&gt;Amazon SageMaker AI documentation&lt;/a&gt; on cross-Region inference routing and explore the sample &lt;a href="https://github.com/aws-samples/sagemaker-genai-hosting-examples/tree/main/03-features/inference-router" target="_blank" rel="noopener"&gt;notebook&lt;/a&gt; on GitHub.&lt;/p&gt; 
-&lt;hr style="width: 100%"&gt; 
-&lt;h2&gt;About the authors&lt;/h2&gt; 
-&lt;footer&gt; 
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-7-1.jpg" alt="Dmitry Soldatkin" width="100" height="133"&gt;
-  &lt;/div&gt; 
-  &lt;h3 class="lb-h4"&gt;Dmitry Soldatkin&lt;/h3&gt; 
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/dmitry-soldatkin/" target="_blank" rel="noopener"&gt;Dmitry&lt;/a&gt; is a Worldwide Leader for Specialist Solutions Architecture, Amazon SageMaker AI Inference at AWS. He helps customers design, build, and optimize generative AI and machine learning solutions, with a focus on inference performance optimization, deep learning, and scaling ML across the enterprise. In previous roles, he led teams at financial services, insurance, and telecommunications companies.&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-8-1.jpg" alt="Apoorva Chandra" width="100" height="133"&gt;
-  &lt;/div&gt; 
-  &lt;h3 class="lb-h4"&gt;Apoorva Chandra&lt;/h3&gt; 
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/apoorva-chandra1/" target="_blank" rel="noopener"&gt;Apoorva&lt;/a&gt; is a Product Manager on the Amazon SageMaker AI Inference team, where she focuses on the endpoint experience and hosting experience. She works with customers deploying generative AI models in production to make accelerated compute easier to obtain, more cost-efficient to run, and more predictable to operate. Outside of work, Apoorva enjoys hiking, exploring coffee shops, and spending time with friends.&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-9-1.jpg" alt="Deepti Ragha" width="100" height="133"&gt;
-  &lt;/div&gt; 
-  &lt;h3 class="lb-h4"&gt;Deepti Ragha&lt;/h3&gt; 
-  &lt;p style="overflow: hidden"&gt;Deepti is a Senior Software Development Engineer on the Amazon SageMaker AI team, specializing in ML inference infrastructure and model hosting optimization. She builds features that improve deployment performance, availability and reduce inference costs, and make ML accessible to organizations of all sizes. Outside of work, she enjoys traveling, hiking, and gardening.&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-10-1.jpg" alt="Felipe Lopez" width="100" height="133"&gt;
-  &lt;/div&gt; 
-  &lt;h3 class="lb-h4"&gt;Felipe Lopez&lt;/h3&gt; 
-  &lt;p style="overflow: hidden"&gt;&lt;a href="https://www.linkedin.com/in/felipelopez/" target="_blank" rel="noopener"&gt;Felipe&lt;/a&gt; is a Principal AI/ML Specialist Solutions Architect at AWS. Prior to joining AWS, Felipe worked with GE Digital and SLB, where he focused on modeling and optimization products for industrial applications.&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class="blog-author-box" style="padding-top: 2.0em"&gt; 
-  &lt;div class="blog-author-image" style="margin-right: 1.0em"&gt;
-   &lt;img loading="lazy" class="alignnone size-full" src="https://d2908q01vomqb2.cloudfront.net/f1f836cb4ea6efb2a0b1b99f41ad8b103eff4b59/2026/11/17/ML-22377-11-1.jpg" alt="Barkha Saxena" width="100" height="133"&gt;
-  &lt;/div&gt; 
-  &lt;h3 class="lb-h4"&gt;Barkha Saxena&lt;/h3&gt; 
-  &lt;p style="overflow: hidden"&gt;Barkha is a Software Development Engineer at Amazon SageMaker AI Inference team, specializing in ML inference infrastructure and model serving optimization. Her work spans efficient multi-adapter inference, which serves hundreds of fine-tuned LoRA adapters from a single endpoint, and bidirectional streaming for low-latency, real-time applications such as voice agents. Outside work, she enjoys table tennis, painting, and puzzles.&lt;/p&gt; 
  &lt;/div&gt; 
 &lt;/footer&gt;</content:encoded>
 					
