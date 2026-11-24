@@ -4,450 +4,378 @@
   <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commits/dev"/>
   <link type="application/atom+xml" rel="self" href="https://github.com/anomalyco/models.dev/commits/dev.atom"/>
   <title>Recent Commits to models.dev:dev</title>
-  <updated>2026-11-23T06:45:31Z</updated>
+  <updated>2026-11-24T08:26:53Z</updated>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/b53eb09d1ef8296252deba01e78bfd81c85d36d7</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b53eb09d1ef8296252deba01e78bfd81c85d36d7"/>
+    <id>tag:github.com,2008:Grit::Commit/8eb615a0f56d912a991e3b5bf2181c2994d02b6c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/8eb615a0f56d912a991e3b5bf2181c2994d02b6c"/>
     <title>
-        chore(sync): update Prime Inference model catalog (#14302)
+        opencode: add kimi-k3.1-pro (#14395)
     </title>
-    <updated>2026-11-23T06:45:31Z</updated>
+    <updated>2026-11-24T08:26:53Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/1549082?s=30&amp;v=4"/>
+    <author>
+      <name>opencode-agent</name>
+      <uri>https://github.com/opencode-agent</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;opencode: add kimi-k3.1-pro (#14395)
+
+Co-authored-by: Daniel &amp;lt;daniel@anoma.ly&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/d43f0a24289c13545a2f71ecd47d39027d5f6e30</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/d43f0a24289c13545a2f71ecd47d39027d5f6e30"/>
+    <title>
+        chore(sync): update Vercel AI Gateway model catalog (#14393)
+    </title>
+    <updated>2026-11-24T06:37:03Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Prime Inference model catalog (#14302)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Vercel AI Gateway model catalog (#14393)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/841bae9504bc913a9c63d77fb08b270674157a78</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/841bae9504bc913a9c63d77fb08b270674157a78"/>
+    <id>tag:github.com,2008:Grit::Commit/9e300217e762b7915cd0ed14960650386b0f7cdc</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9e300217e762b7915cd0ed14960650386b0f7cdc"/>
     <title>
-        chore(sync): update Venice model catalog (#14303)
+        chore(sync): update Prime Inference model catalog (#14392)
     </title>
-    <updated>2026-11-23T06:44:40Z</updated>
+    <updated>2026-11-24T06:36:38Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Venice model catalog (#14303)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Prime Inference model catalog (#14392)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/491fc9e5727a3cd2f7c932dccde326fb4c85fc6d</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/491fc9e5727a3cd2f7c932dccde326fb4c85fc6d"/>
+    <id>tag:github.com,2008:Grit::Commit/0792bde2a9f7347242e1a2debf36a795bb7dd1b1</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/0792bde2a9f7347242e1a2debf36a795bb7dd1b1"/>
     <title>
-        chore(sync): update LLM Gateway model catalog (#14299)
+        chore(sync): update Kilo model catalog (#14389)
     </title>
-    <updated>2026-11-23T06:44:01Z</updated>
+    <updated>2026-11-24T06:36:27Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update LLM Gateway model catalog (#14299)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#14389)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/a7768bf877c143d30d5d6ef1153a1f079ccb7997</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a7768bf877c143d30d5d6ef1153a1f079ccb7997"/>
+    <id>tag:github.com,2008:Grit::Commit/712278946fdc856a75017e328d48d106451eaaad</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/712278946fdc856a75017e328d48d106451eaaad"/>
     <title>
-        chore(sync): update OpenRouter model catalog (#14301)
+        chore(sync): update OpenRouter model catalog (#14391)
     </title>
-    <updated>2026-11-23T06:43:59Z</updated>
+    <updated>2026-11-24T06:36:21Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#14301)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#14391)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/db42d59b32e34a2185a1b17bcbaf4e7217e5f143</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/db42d59b32e34a2185a1b17bcbaf4e7217e5f143"/>
+    <id>tag:github.com,2008:Grit::Commit/bf26fec338854d1a63048a52c1cac93e046691b8</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/bf26fec338854d1a63048a52c1cac93e046691b8"/>
     <title>
-        chore(sync): update NanoGPT model catalog (#14300)
+        chore(sync): update NanoGPT model catalog (#14390)
     </title>
-    <updated>2026-11-23T06:43:52Z</updated>
+    <updated>2026-11-24T06:36:16Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#14300)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#14390)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/cb9f4379895f2e58ff164bb8af99ff11e3c71e13</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/cb9f4379895f2e58ff164bb8af99ff11e3c71e13"/>
+    <id>tag:github.com,2008:Grit::Commit/fe8743f1e508d6d03623dff5ddbc2e848bff758b</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/fe8743f1e508d6d03623dff5ddbc2e848bff758b"/>
     <title>
-        chore(sync): update Kilo model catalog (#14298)
+        chore(sync): update Eden AI model catalog (#14387)
     </title>
-    <updated>2026-11-23T06:43:49Z</updated>
+    <updated>2026-11-24T06:36:12Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#14298)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Eden AI model catalog (#14387)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/f6d27e462f38fadf8a3ec1cde2538283d689a735</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f6d27e462f38fadf8a3ec1cde2538283d689a735"/>
+    <id>tag:github.com,2008:Grit::Commit/f0ec36942562fab3d9986326d5f543a026f95225</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f0ec36942562fab3d9986326d5f543a026f95225"/>
     <title>
-        chore(sync): update Inceptron model catalog (#14297)
+        chore(sync): update Keln model catalog (#14388)
     </title>
-    <updated>2026-11-23T06:43:23Z</updated>
+    <updated>2026-11-24T06:35:59Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Inceptron model catalog (#14297)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Keln model catalog (#14388)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/9c7c8412182a9b37c3db2eb9e0eac9c3dc248f62</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9c7c8412182a9b37c3db2eb9e0eac9c3dc248f62"/>
+    <id>tag:github.com,2008:Grit::Commit/9c2eadc496364e25c9808974868c9a2ddbe3e299</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9c2eadc496364e25c9808974868c9a2ddbe3e299"/>
     <title>
-        chore(sync): update Eden AI model catalog (#14296)
+        chore(sync): update DigitalOcean model catalog (#14386)
     </title>
-    <updated>2026-11-23T06:43:07Z</updated>
+    <updated>2026-11-24T06:35:40Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Eden AI model catalog (#14296)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update DigitalOcean model catalog (#14386)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/a734c58c63cb08df0cf9c47dc42a0b1dc7cfd38e</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/a734c58c63cb08df0cf9c47dc42a0b1dc7cfd38e"/>
+    <id>tag:github.com,2008:Grit::Commit/2548b4583cce12f2bb3ec91f008472680310ff2e</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/2548b4583cce12f2bb3ec91f008472680310ff2e"/>
     <title>
-        feat(zai-coding-plan, zhipuai-coding-plan): add GLM-5.4 (#14293)
+        fix(opper): list the shared effort levels for deepseek-v4-flash (#14322)
     </title>
-    <updated>2026-11-23T04:50:35Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/22657774?s=30&amp;v=4"/>
+    <updated>2026-11-24T05:51:45Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/1262441?s=30&amp;v=4"/>
     <author>
-      <name>heimoshuiyu</name>
-      <uri>https://github.com/heimoshuiyu</uri>
+      <name>mattias-lundell</name>
+      <uri>https://github.com/mattias-lundell</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(zai-coding-plan, zhipuai-coding-plan): add GLM-5.4 (#14293)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(opper): list the shared effort levels for deepseek-v4-flash (#14322)
 
-Adds the lab file zhipuai/glm-5.4 and its entries on the Z.AI Coding Plan
-and Zhipu AI Coding Plan, where the model is served from 2026-11-23. The
-pay-as-you-go APIs do not serve it yet, so there are no zai/zhipuai entries.
+* fix(opper): list the shared effort levels for deepseek-v4-flash
 
-Reasoning controls, tools, caching and per-API flags follow GLM-5.3 on the
-same APIs. Input formats follow the lab&amp;#39;s vision and file items, as on
-GLM-5.3-Flash. Limits follow GLM-5.3. Weights and the lab&amp;#39;s model page are
-not published yet, so open_weights is false and the description is
-provisional.
+Every pooled member of Opper&amp;#39;s deepseek-v4-flash pool now takes
+reasoning_effort, and none, low, medium and high are the levels they
+share (https://api.opper.ai/v3/models, read 2026-11-23). The entry
+listed no effort control, so clients could not turn thinking on.
 
-bun validate passes. bun run v1:check adds three entries to v1
-(zai-coding-plan/glm-5.4, zhipuai-coding-plan/glm-5.4, lab zhipuai/glm-5.4)
-and changes no existing field.&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/5ac63b800ba60984514632ae15bc1b52349e0fd6</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/5ac63b800ba60984514632ae15bc1b52349e0fd6"/>
-    <title>
-        feat(sarvam): add Token Factory models and move the provider to /v2 (…
-    </title>
-    <updated>2026-11-23T04:42:22Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/350250514?s=30&amp;v=4"/>
-    <author>
-      <name>vikashmaddi-sarvam</name>
-      <uri>https://github.com/vikashmaddi-sarvam</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(sarvam): add Token Factory models and move the provider to /v2 (#13896)
+Co-Authored-By: Claude Fable 5.2 &amp;lt;noreply@anthropic.com&amp;gt;
 
-* feat(sarvam): add Token Factory models and move the provider to /v2
+* opper/deepseek-v4-flash: say why max is left out and how medium is served
 
-Add the open-source models Sarvam serves on /v2 (GLM 5.3, GLM 5.3 Flash,
-Gemma 4, DeepSeek V4.1 Flash 1017 Standard and Interactive), add
-sarvam-105b-conversations, add Sarvam Prism as a decision model on
-/v2/systemone, add the provider logo, and correct sarvam-105b to the current
-introductory pricing and the 128,000-token window the host publishes.
+Co-Authored-By: Claude Fable 5.2 &amp;lt;noreply@anthropic.com&amp;gt;
 
-Move the provider default to https://api.sarvam.ai/v2, the base URL the
-Token Factory docs publish, and point the provider docs at the Token Factory
-models index. Remove sarvam-30b: the API returns 400 &amp;quot;has been deprecated&amp;quot;
-on /v1 and 404 on /v2, and the provider page does not hide deprecated rows,
-so keeping it would leave a dead model on the page.
+* opper/deepseek-v4-flash: header states the live probe results per member
 
-sarvam-105b sets compatibility.max_tokens_field = &amp;quot;max_tokens&amp;quot;: the host
-rejects max_completion_tokens above 32,768 but accepts max_tokens up to the
-window, and opencode sends max_completion_tokens by default.
-sarvam-105b-conversations does not need the override: its window is 32,000
-and max_completion_tokens=32000 returns 200.
-
-Address the automated review: author DeepSeek reasoning as effort with none
-and no toggle, cite the image caps and defaults from GET /v2/models, add
-capabilities.cache to every model that prices cache reads, move citations
-into the leading header blocks, drop sarvam-prism&amp;#39;s redundant base_url, cite
-the pricing page&amp;#39;s own 94 INR per USD conversion, and correct Gemma 4 to
-reasoning_effort none|low|high|max with default none plus the
-reasoning_content and max_tokens compatibility fields. Sarvam Prism&amp;#39;s lab
-entry is open weights with a 131,072-token context from the 2026-11-03 blog,
-and the provider entry overrides the context to the 32,768 that /v2/models
-publishes.
-
-No sync module: GET /v2/models publishes no prices and lists provisioned-only
-models alongside GA ones, so a sync module would need a hand-maintained price
-table and an access filter. That is a separate change.
-
-Testing:
-- bun validate: pass
-- bun run v1:check: exits 1 with only the changes above
-- bun run test (packages/sdk): 25 pass, 0 fail
-- bun test: 857 pass, 13 pre-existing failures identical on a clean tree
-- Live API: all seven chat model IDs return 200; vision on glm5.3-flash,
-  gemma4, deepseekv4.1-flash-1017 and its interactive variant; tools on all
-  seven chat models; reasoning effort low/high/max, none and the null toggle
-  verified.
-- gemma4: default and &amp;quot;none&amp;quot; return 0 reasoning tokens; low/medium/high/max
-  return 200 with reasoning_content.
-- sarvam-105b-conversations: max_completion_tokens=32000 returns 200; 32769
-  returns 400 (max_model_len 32768).
-- sarvam-prism: noul, choice and score questions all return 200 on
-  POST /v2/systemone.
-- sarvam-30b: 400 &amp;quot;has been deprecated&amp;quot; on /v1, 404 on /v2.
-- opencode 2.3.0 with the generated catalog: lists all seven chat models and
-  runs prompts through sarvam-105b, glm5.3, gemma4,
-  deepseekv4.1-flash-1017 and its interactive variant.
-
-🪷 Generated with Sarvam Code
-
-Co-authored-by: Sarvam Code &amp;lt;code@sarvam.ai&amp;gt;
-
-* fix(sarvam): keep the Sarvam 30B lab file, sarvam-prism family and weights link
+Co-Authored-By: Claude Fable 5.2 &amp;lt;noreply@anthropic.com&amp;gt;
 
 ---------
 
-Co-authored-by: Vikash Maddi &amp;lt;vikashmaddi-sarvam@users.noreply.github.com&amp;gt;
-Co-authored-by: Sarvam Code &amp;lt;code@sarvam.ai&amp;gt;
-Co-authored-by: Aiden Cline &amp;lt;aidenpcline@gmail.com&amp;gt;&lt;/pre&gt;
+Co-authored-by: Claude Fable 5.2 &amp;lt;noreply@anthropic.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/b4d864d8186c539819328e6d42438eac46ad493c</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b4d864d8186c539819328e6d42438eac46ad493c"/>
+    <id>tag:github.com,2008:Grit::Commit/1e3919d83f71b110518bd266292e76c1ea7b59d8</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/1e3919d83f71b110518bd266292e76c1ea7b59d8"/>
     <title>
-        fix(kilo): link Ultramarine 1 Flash to its lab file (#14292)
+        chore(sync): update Venice model catalog (#14380)
     </title>
-    <updated>2026-11-23T04:17:30Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
-    <author>
-      <name>rekram1-node</name>
-      <uri>https://github.com/rekram1-node</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(kilo): link Ultramarine 1 Flash to its lab file (#14292)&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/b0948a5fc725390dd4308ec209e16c6c12faab27</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b0948a5fc725390dd4308ec209e16c6c12faab27"/>
-    <title>
-        fix: Ultramarine&#39;s Concentrate controls via Vercel&#39;s linked file; fam…
-    </title>
-    <updated>2026-11-23T04:09:27Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
-    <author>
-      <name>rekram1-node</name>
-      <uri>https://github.com/rekram1-node</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix: Ultramarine&amp;#39;s Concentrate controls via Vercel&amp;#39;s linked file; family section (#14291)&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/bba79d64a8ca4d7b8290340778613fdb01aac30b</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/bba79d64a8ca4d7b8290340778613fdb01aac30b"/>
-    <title>
-        feat: lab files for Ultramarine 1 Flash and Grok 4.20 Multi-Agent, an…
-    </title>
-    <updated>2026-11-23T04:04:17Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
-    <author>
-      <name>rekram1-node</name>
-      <uri>https://github.com/rekram1-node</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat: lab files for Ultramarine 1 Flash and Grok 4.20 Multi-Agent, and their Concentrate entries (#14290)&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/759af3eccc0a29c8e672f0b03687a164588ac5e4</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/759af3eccc0a29c8e672f0b03687a164588ac5e4"/>
-    <title>
-        chore(sync): update AI/ML API model catalog (#14269)
-    </title>
-    <updated>2026-11-23T03:36:58Z</updated>
+    <updated>2026-11-24T04:16:36Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
     <author>
       <name>models-dev-automation</name>
       <uri>https://github.com/models-dev-automation</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update AI/ML API model catalog (#14269)
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Venice model catalog (#14380)
 
 Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/72177d79e4c1e91a1ba5604b5e68c380e73a7158</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/72177d79e4c1e91a1ba5604b5e68c380e73a7158"/>
+    <id>tag:github.com,2008:Grit::Commit/54eae6d9d617f66e20905e40ee73079b669b30c8</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/54eae6d9d617f66e20905e40ee73079b669b30c8"/>
     <title>
-        feat(amazon-bedrock): add Writer Palmyra Vision 7B (#14288)
+        chore(sync): update Vercel AI Gateway model catalog (#14381)
     </title>
-    <updated>2026-11-23T01:18:47Z</updated>
+    <updated>2026-11-24T04:16:23Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
+    <author>
+      <name>models-dev-automation</name>
+      <uri>https://github.com/models-dev-automation</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Vercel AI Gateway model catalog (#14381)
+
+Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/2a6732b8134735eadb3e1195647f1c25b04410ca</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/2a6732b8134735eadb3e1195647f1c25b04410ca"/>
+    <title>
+        chore(sync): update OpenRouter model catalog (#14379)
+    </title>
+    <updated>2026-11-24T04:16:16Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
+    <author>
+      <name>models-dev-automation</name>
+      <uri>https://github.com/models-dev-automation</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#14379)
+
+Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/f3e447ca61c5046515bd6d1cee067667c87fccb6</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/f3e447ca61c5046515bd6d1cee067667c87fccb6"/>
+    <title>
+        chore(sync): update DevPass (LLM Gateway) model catalog (#14377)
+    </title>
+    <updated>2026-11-24T04:16:04Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
+    <author>
+      <name>models-dev-automation</name>
+      <uri>https://github.com/models-dev-automation</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update DevPass (LLM Gateway) model catalog (#14377)
+
+Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/3957c8cddeb51ee3da1569d0bb66897fff0e29e3</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/3957c8cddeb51ee3da1569d0bb66897fff0e29e3"/>
+    <title>
+        chore(sync): update NanoGPT model catalog (#14378)
+    </title>
+    <updated>2026-11-24T04:16:00Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
+    <author>
+      <name>models-dev-automation</name>
+      <uri>https://github.com/models-dev-automation</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update NanoGPT model catalog (#14378)
+
+Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/5909c5894880fc1e5b4354e5d0a02672a0f13c5a</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/5909c5894880fc1e5b4354e5d0a02672a0f13c5a"/>
+    <title>
+        chore(sync): update LLM Gateway model catalog (#14376)
+    </title>
+    <updated>2026-11-24T04:15:29Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
+    <author>
+      <name>models-dev-automation</name>
+      <uri>https://github.com/models-dev-automation</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update LLM Gateway model catalog (#14376)
+
+Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/97da0ec81588d6af0aa202353d4df3a65cfde88d</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/97da0ec81588d6af0aa202353d4df3a65cfde88d"/>
+    <title>
+        chore(sync): update Kilo model catalog (#14375)
+    </title>
+    <updated>2026-11-24T04:15:17Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
+    <author>
+      <name>models-dev-automation</name>
+      <uri>https://github.com/models-dev-automation</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Kilo model catalog (#14375)
+
+Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/38c2e35cfea2a12393bee0c0655133a57430c9b4</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/38c2e35cfea2a12393bee0c0655133a57430c9b4"/>
+    <title>
+        fix(huggingface): Inkling 2 Mini context is io-net&#39;s 262K window (#14…
+    </title>
+    <updated>2026-11-24T04:11:49Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
       <name>rekram1-node</name>
       <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(amazon-bedrock): add Writer Palmyra Vision 7B (#14288)&lt;/pre&gt;
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(huggingface): Inkling 2 Mini context is io-net&amp;#39;s 262K window (#14372)&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/9c3db6e9c1ed410b97b379a94694c0559e8d00fe</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/9c3db6e9c1ed410b97b379a94694c0559e8d00fe"/>
+    <id>tag:github.com,2008:Grit::Commit/b4cef71df8205d38fa3c95217adfa97fb2d906cf</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/b4cef71df8205d38fa3c95217adfa97fb2d906cf"/>
     <title>
-        fix(steadyrouter): tag the docs link and drop deepseek-v4-pro-0813 (#…
+        fix(morph): treat Kimi K3.1 Pro Abliterated as approval-only (#14371)
     </title>
-    <updated>2026-11-23T01:11:28Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/351740447?s=30&amp;v=4"/>
+    <updated>2026-11-24T04:08:13Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
-      <name>steadyrouter-dev</name>
-      <uri>https://github.com/steadyrouter-dev</uri>
+      <name>rekram1-node</name>
+      <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(steadyrouter): tag the docs link and drop deepseek-v4-pro-0813 (#14254)
-
-Co-authored-by: steadyrouter-dev &amp;lt;351740447+steadyrouter-dev@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;fix(morph): treat Kimi K3.1 Pro Abliterated as approval-only (#14371)&lt;/pre&gt;
     </content>
   </entry>
   <entry>
-    <id>tag:github.com,2008:Grit::Commit/8501b08c1e11af3089d944226ade90311c6d1592</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/8501b08c1e11af3089d944226ade90311c6d1592"/>
+    <id>tag:github.com,2008:Grit::Commit/7fc2dc163910979bdea1b6670b0089304100dd57</id>
+    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/7fc2dc163910979bdea1b6670b0089304100dd57"/>
     <title>
-        feat: add PrimaLabs provider (#14213)
+        feat: add Nebius DeepSeek V4.1 Flash 1017 fast, Deep Infra Hy4 flash …
     </title>
-    <updated>2026-11-23T01:11:15Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/339565627?s=30&amp;v=4"/>
+    <updated>2026-11-24T04:06:06Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/63023139?s=30&amp;v=4"/>
     <author>
-      <name>tprasanna-primalabs</name>
-      <uri>https://github.com/tprasanna-primalabs</uri>
+      <name>rekram1-node</name>
+      <uri>https://github.com/rekram1-node</uri>
     </author>
     <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat: add PrimaLabs provider (#14213)
-
-Adds PrimaLabs (https://primalabs.ai), an OpenAI-compatible serverless
-inference host, with its six catalog models. Every model uses base_model
-and authors only host-specific values (reasoning effort, cache, limits,
-modalities, pricing), sourced from docs.primalabs.ai and GET /v1/models
-(checked against the live catalog on 2026-11-21).
-
-Signed-off-by: prasanna &amp;lt;339565627+tprasanna-primalabs@users.noreply.github.com&amp;gt;
-Co-authored-by: prasanna &amp;lt;339565627+tprasanna-primalabs@users.noreply.github.com&amp;gt;
-Co-authored-by: Thomas Randall &amp;lt;thomas@primalabs.ai&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/88f9fcf305ba94d01a1b6e7eee97d24dade26d0d</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/88f9fcf305ba94d01a1b6e7eee97d24dade26d0d"/>
-    <title>
-        feat(modal): add Kimi K3.1 Pro and Qwen3.8-Max VL (#14242)
-    </title>
-    <updated>2026-11-23T01:10:44Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/53109993?s=30&amp;v=4"/>
-    <author>
-      <name>hndrr</name>
-      <uri>https://github.com/hndrr</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat(modal): add Kimi K3.1 Pro and Qwen3.8-Max VL (#14242)
-
-* feat(modal): add Kimi K3.1 Pro and Qwen3.8-Max VL
-
-* fix(modal): publish Kimi K3.1 Pro reasoning effort levels
-
-* docs(modal): source Qwen VL model identity and limits
-
----------
-
-Co-authored-by: Codex &amp;lt;codex@openai.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/64024c69a6f07917838de4b6a15f7be465e4d7c4</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/64024c69a6f07917838de4b6a15f7be465e4d7c4"/>
-    <title>
-        chore(sync): update Prime Inference model catalog (#14287)
-    </title>
-    <updated>2026-11-23T00:49:04Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
-    <author>
-      <name>models-dev-automation</name>
-      <uri>https://github.com/models-dev-automation</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update Prime Inference model catalog (#14287)
-
-Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
-    </content>
-  </entry>
-  <entry>
-    <id>tag:github.com,2008:Grit::Commit/ece8270832e6d1f1ba4c8f7a1e12a93b82b3445f</id>
-    <link type="text/html" rel="alternate" href="https://github.com/anomalyco/models.dev/commit/ece8270832e6d1f1ba4c8f7a1e12a93b82b3445f"/>
-    <title>
-        chore(sync): update OpenRouter model catalog (#14286)
-    </title>
-    <updated>2026-11-23T00:48:59Z</updated>
-    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/66570915?s=30&amp;v=4"/>
-    <author>
-      <name>models-dev-automation</name>
-      <uri>https://github.com/models-dev-automation</uri>
-    </author>
-    <content type="html">
-      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;chore(sync): update OpenRouter model catalog (#14286)
-
-Co-authored-by: models-dev-automation[bot] &amp;lt;349537023+models-dev-automation[bot]@users.noreply.github.com&amp;gt;&lt;/pre&gt;
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;feat: add Nebius DeepSeek V4.1 Flash 1017 fast, Deep Infra Hy4 flash and Hugging Face Inkling 2 Mini (#14370)&lt;/pre&gt;
     </content>
   </entry>
 </feed>
