@@ -89,6 +89,7 @@
 - [Concepts](https://docs.together.ai/docs/post-training/concepts.md): Understand how a post-training run works, from model resources and sessions to checkpoints and deployment.
 - [Supported models](https://docs.together.ai/docs/post-training/supported-models.md): Look up the training limits, chat template behavior, and deployment options of every post-training base model.
 - [Pricing](https://docs.together.ai/docs/post-training/pricing.md): Estimate post-training GPU costs and see how per-minute billing, refunds on failure, and the minimum credit balance work.
+- [Estimate rollout time and cost](https://docs.together.ai/docs/post-training/rollout-estimator.md): Estimate the time, GPU-hours, and cost of post-training rollouts for your model and workload.
 - [Compare training methods](https://docs.together.ai/docs/post-training/training-methods.md): Choose SFT, DPO, or GRPO based on the training data you can produce, and run methods in sequence.
 - [LoRA vs. full-weight training](https://docs.together.ai/docs/post-training/lora-vs-full-weight.md): Choose between training a LoRA adapter and updating every model weight, and compare cost, limits, and deployment for each mode.
 - [Supervised fine-tuning](https://docs.together.ai/docs/post-training/sft.md): Train a model on example responses with supervised fine-tuning, and use a loss mask to choose which tokens train.
