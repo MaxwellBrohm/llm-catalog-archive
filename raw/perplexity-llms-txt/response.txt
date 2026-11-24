@@ -54,14 +54,16 @@
 - [Search Date and Time Filters](https://docs.perplexity.ai/docs/search/filters/date-time-filters.md): Restrict Search API results by publication date, last-updated date, or a relative period such as the past week.
 - [Search Language Filter](https://docs.perplexity.ai/docs/search/filters/language-filter.md): Return Search API results in specific languages with ISO 639-1 language codes.
 - [Search Domain Filter](https://docs.perplexity.ai/docs/search/filters/domain-filter.md): Include or exclude Search API results by domain, subdomain, path, or top-level domain with search_domain_filter.
+- [Time Machine](https://docs.perplexity.ai/docs/search/time-machine.md): Search the web as of a past time with snapshot_as_of on the Search API, then read the same pages at that time with the Context API.
 - [Use Search API with the OpenAI SDK](https://docs.perplexity.ai/docs/search/agent-sdks/openai.md): Register Perplexity's Search API as a function tool inside the OpenAI Responses API and run the standard tool-call loop with GPT models.
 - [Use Search API with the Anthropic SDK](https://docs.perplexity.ai/docs/search/agent-sdks/anthropic.md): Register Perplexity's Search API as a tool inside the Anthropic Messages API and run the standard tool-use loop with Claude.
 - [Use Search API with the Google Gemini SDK](https://docs.perplexity.ai/docs/search/agent-sdks/gemini.md): Register Perplexity's Search API as a function tool inside Google's google-genai SDK and run the tool-call loop with Gemini models.
 - [Search API Best Practices](https://docs.perplexity.ai/docs/search/best-practices.md): Write effective Search API queries, split broad topics into several queries, narrow results with filters, size max_results, and handle rate limits.
 - [Perplexity Search SDK](https://docs.perplexity.ai/docs/search-sdk/overview.md): An agents-first Python SDK that brings Perplexity's Search as Code approach to your applications: composable retrieval primitives that agents orchestrate in code.
-- [Overview](https://docs.perplexity.ai/docs/monitors/overview.md): Schedule web searches or page checks. Read the saved results. Manage your monitors.
+- [Overview](https://docs.perplexity.ai/docs/monitors/overview.md): Schedule web searches, page checks, or Agent API tasks. Read the saved results. Manage your monitors.
 - [Search](https://docs.perplexity.ai/docs/monitors/search-monitoring.md): Run a search on a schedule and read new, relevant results through the API.
 - [Page](https://docs.perplexity.ai/docs/monitors/page-monitoring.md): Monitor known pages, set a baseline, and read meaningful text changes.
+- [Agent](https://docs.perplexity.ai/docs/monitors/agent-monitoring.md): Run an Agent API task on a schedule and read new, relevant updates through the API.
 - [Context API quickstart](https://docs.perplexity.ai/docs/context/quickstart.md): Fetch Markdown, HTML, links, highlights, and page metadata from URLs you already have, and score each page with yes or no criteria.
 - [Formats and freshness](https://docs.perplexity.ai/docs/context/formats-and-freshness.md): Choose what each Context API result returns, how old a stored copy can be, and how to handle URLs that fail.
 - [Score pages with criteria](https://docs.perplexity.ai/docs/context/criteria.md): Add yes or no questions to a Context API request. A decision model answers them for each fetched page, so you can filter pages before your model reads them.
@@ -190,7 +192,7 @@
 - [Retrieve a batch](https://docs.perplexity.ai/api-reference/batches-get.md)
 - [Cancel a batch](https://docs.perplexity.ai/api-reference/batches-cancel-post.md): Moves the batch to `cancelling`; it becomes `cancelled` once running items stop. Completed items stay in the output file and are billed. Cancelling a cancelled or cancelling batch returns it unchanged.
 - [Search the web](https://docs.perplexity.ai/api-reference/search-post.md): POST /search returns ranked web results for one query or up to five queries, with title, URL, extracted text, and dates for each result.
-- [Create a monitor](https://docs.perplexity.ai/api-reference/monitors-create-post.md): Create an active Search or Page monitor.
+- [Create a monitor](https://docs.perplexity.ai/api-reference/monitors-create-post.md): Create an active monitor.
 - [List monitors](https://docs.perplexity.ai/api-reference/monitors-list-get.md): List the monitors in your API organization, newest first.
 - [Retrieve a monitor](https://docs.perplexity.ai/api-reference/monitors-get.md): Read the configuration, status, next scheduled run, and last finished run of a monitor.
 - [Update a monitor](https://docs.perplexity.ai/api-reference/monitors-update-patch.md): Replace the name, goal, targets, schedule, webhook, or metadata of a monitor.
