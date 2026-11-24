@@ -934,7 +934,10 @@ const response = await client.responses.create({
       type: "mcp",
       server_label: "firecrawl",
       server_description: "Web scraping and content extraction capabilities",
-      server_url: "https://mcp.firecrawl.dev/<APIKEY>/v2/mcp",
+      server_url: "https://mcp.firecrawl.dev/v2/mcp",
+      headers: {
+        Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}`
+      },
       require_approval: "never"
     }
   ],
@@ -1068,7 +1071,10 @@ response = client.responses.create(
             "type": "mcp",
             "server_label": "firecrawl",
             "server_description": "Web scraping and content extraction capabilities",
-            "server_url": "https://mcp.firecrawl.dev/<APIKEY>/v2/mcp",
+            "server_url": "https://mcp.firecrawl.dev/v2/mcp",
+            "headers": {
+                "Authorization": f"Bearer {os.environ.get('FIRECRAWL_API_KEY')}"
+            },
             "require_approval": "never"
         }
     ],
@@ -16696,13 +16702,13 @@ URL: https://console.groq.com/docs/firecrawl
 
 ## Firecrawl + Groq: AI-Powered Web Scraping & Data Extraction
 
-[Firecrawl](https://firecrawl.dev) is an enterprise-grade web scraping platform that turns any website into clean, AI-ready data. Combined with Groq's fast inference through MCP, you can build intelligent agents that scrape websites, extract structured data, and conduct deep research with natural language instructions.
+[Firecrawl](https://firecrawl.dev) is an enterprise-grade web scraping platform that turns any website into clean, AI-ready data. Combined with Groq's fast inference through MCP, you can build intelligent agents that scrape websites, extract structured data, and research the web with natural language instructions.
 
 **Key Features:**
 - **Enterprise Web Scraping:** Handles JavaScript, authentication, and anti-bot detection automatically
 - **Structured Extraction:** Define JSON schemas and get consistent data across sources
-- **Deep Research:** Multi-hop reasoning that synthesizes information from multiple pages
-- **Batch Processing:** Scrape multiple URLs efficiently with parallel processing
+- **Web Research:** Search the web and synthesize information from multiple pages
+- **Site Crawling:** Map a site and crawl many pages under it
 - **Fast Results:** Sub-10 second responses when combined with Groq's inference
 
 ## Quick Start
@@ -16729,14 +16735,15 @@ from openai import OpenAI
 from openai.types import responses as openai_responses
 
 client = OpenAI(
-    base_url="https://api.groq.com/api/openai/v1",
+    base_url="https://api.groq.com/openai/v1",
     api_key=os.getenv("GROQ_API_KEY")
 )
 
 tools = [
     openai_responses.tool_param.Mcp(
         server_label="firecrawl",
-        server_url=f"https://mcp.firecrawl.dev/{os.getenv('FIRECRAWL_API_KEY')}/v2/mcp",
+        server_url="https://mcp.firecrawl.dev/v2/mcp",
+        headers={"Authorization": f"Bearer {os.getenv('FIRECRAWL_API_KEY')}"},
         type="mcp",
         require_approval="never",
     )
@@ -16776,11 +16783,11 @@ response = client.responses.create(
 print(response.output_text)
 ```
 
-### Deep Research & Multi-Hop Analysis
+### Multi-Source Web Research
 
-Conduct comprehensive research across multiple sources:
+Search the web and synthesize findings across multiple pages:
 
-```python deep_research.py
+```python web_research.py
 response = client.responses.create(
     model="openai/gpt-oss-120b",
     input="""Research "latest trends in AI model inference speed and performance":
@@ -16797,17 +16804,15 @@ response = client.responses.create(
 print(response.output_text)
 ```
 
-### Batch Web Scraping
+### Multi-Page Scraping
 
-Scrape multiple URLs in parallel:
+Map a site, then scrape the pages that matter:
 
-```python batch_scraping.py
+```python multi_page_scraping.py
 response = client.responses.create(
     model="openai/gpt-oss-120b",
-    input="""Batch scrape these URLs and summarize key findings:
-    - https://arxiv.org/abs/2401.xxxxx
-    - https://arxiv.org/abs/2402.xxxxx
-    - https://arxiv.org/abs/2403.xxxxx""",
+    input="""Map https://console.groq.com/docs, pick the three pages about tool use,
+    scrape them, and summarize the key findings from each.""",
     tools=tools,
     temperature=0.1,
 )
@@ -16817,18 +16822,20 @@ print(response.output_text)
 
 ## Available Firecrawl MCP Tools
 
-Firecrawl MCP provides several powerful tools for web scraping, data extraction, and research:
+Firecrawl MCP provides these core tools for web scraping, data extraction, and research. See the [Firecrawl MCP tools reference](https://docs.firecrawl.dev/mcp-server/tools) for the full, current list.
 
 | Tool | Description |
 |------|-------------|
-| **`firecrawl_scrape`** | Scrape content from a single URL with advanced options and formatting |
-| **`firecrawl_batch_scrape`** | Scrape multiple URLs efficiently with built-in rate limiting and parallel processing |
-| **`firecrawl_check_batch_status`** | Check the status of a batch operation and retrieve results |
+| **`firecrawl_scrape`** | Scrape a single URL as Markdown, or as structured JSON with a schema |
+| **`firecrawl_map`** | List the URLs on a site without fetching their content |
 | **`firecrawl_search`** | Search the web and optionally extract content from search results |
-| **`firecrawl_crawl`** | Start an asynchronous crawl with advanced options for depth and link following |
-| **`firecrawl_extract`** | Extract structured information from web pages using LLM capabilities and JSON schemas |
-| **`firecrawl_deep_research`** | Conduct comprehensive deep web research with intelligent crawling and LLM analysis |
-| **`firecrawl_generate_llmstxt`** | Generate standardized llms.txt files that define how LLMs should interact with a site |
+| **`firecrawl_crawl`** | Crawl many pages under a site and return the results |
+| **`firecrawl_check_crawl_status`** | Check a crawl job by ID |
+| **`firecrawl_parse`** | Parse documents such as PDFs and spreadsheets |
+| **`firecrawl_agent`** | Start an autonomous research job that returns structured data |
+| **`firecrawl_agent_status`** | Check an agent job and retrieve its results |
+
+Use `allowed_tools` on the MCP tool to limit the model to the tools your application needs.
 
 **Challenge:** Build an AI-powered competitive intelligence system that monitors competitor websites, extracts key business metrics, and generates automated reports using Firecrawl and Groq!
 
@@ -16838,7 +16845,7 @@ For more detailed documentation and resources on building web intelligence appli
 
 - [Firecrawl Documentation](https://docs.firecrawl.dev)
 - [Firecrawl API Reference](https://docs.firecrawl.dev/api-reference)
-- [Firecrawl MCP Server](https://mcp.firecrawl.dev)
+- [Firecrawl MCP Server](https://docs.firecrawl.dev/mcp-server)
 - [Groq API Cookbook: Firecrawl MCP Tutorial](https://github.com/groq/groq-api-cookbook/blob/main/tutorials/03-mcp/mcp-firecrawl/mcp-firecrawl.ipynb)
 - [Groq Responses API Documentation](https://console.groq.com/docs/api-reference#responses)
 
