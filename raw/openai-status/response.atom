@@ -2,11 +2,25 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://status.openai.com/</id>
     <title>OpenAI status</title>
-    <updated>2026-11-21T07:06:57.823Z</updated>
+    <updated>2026-11-24T09:53:56.958Z</updated>
     <generator>incident.io</generator>
     <link rel="alternate" href="https://status.openai.com/"/>
     <subtitle>OpenAI status page updates</subtitle>
     <icon>https://storage.googleapis.com/incident-io-status-page-logos/01H537TKYPX5W42WRCKR1AGPFT/openai-1/v0bc3jd3.png</icon>
+    <entry>
+        <title type="html"><![CDATA[Elevated errors with GPT-6 conversations on paid ChatGPT plans]]></title>
+        <id>https://status.openai.com//incidents/01M84HKHX73RF7HTVZQ2A9GFXP</id>
+        <link href="https://status.openai.com//incidents/01M84HKHX73RF7HTVZQ2A9GFXP"/>
+        <updated>2026-11-23T16:38:46.609Z</updated>
+        <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All affected services are operating normally again. We’re sorry for the disruption, and we appreciate your patience.<br/><br/><b>Affected components</b>
+          <ul>
+          <li>Conversations (Operational)</li>
+          </ul>]]></summary>
+        <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All affected services are operating normally again. We’re sorry for the disruption, and we appreciate your patience.<br/><br/><b>Affected components</b>
+          <ul>
+          <li>Conversations (Operational)</li>
+          </ul>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Elevated error rates for gpt-6 Luna API requests]]></title>
         <id>https://status.openai.com//incidents/01M7T8MRF9SDBDNQ62Z6V156ZZ</id>
