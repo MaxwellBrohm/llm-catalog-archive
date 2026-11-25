@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Tue, 17 Nov 2026 11:32:11 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 24 Nov 2026 20:31:02 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,361 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>ExecuTorch-TensorRT: PyTorch Robot Policies at NVIDIA TensorRT Speed</title>
+		<link>https://pytorch.org/blog/executorch-tensorrt-pytorch-robot-policies-at-nvidia-tensorrt-speed/</link>
+		
+		<dc:creator><![CDATA[the Torch-TensorRT team at NVIDIA and the PyTorch team at Meta]]></dc:creator>
+		<pubDate>Tue, 24 Nov 2026 20:31:02 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=213608</guid>
+
+					<description><![CDATA[<p>TL;DR With Torch-TensorRT 2.15 and ExecuTorch 1.6 you can compile a PyTorch model with TensorRT, save it as an ExecuTorch program, and run it from C++ or Python without loading...</p>
+<p>The post <a href="https://pytorch.org/blog/executorch-tensorrt-pytorch-robot-policies-at-nvidia-tensorrt-speed/">ExecuTorch-TensorRT: PyTorch Robot Policies at NVIDIA TensorRT Speed</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h2>TL;DR</h2>
+<ul>
+<li>With Torch-TensorRT 2.15 and ExecuTorch 1.6 you can compile a PyTorch model with TensorRT, save it as an ExecuTorch program, and run it from C++ or Python without loading torch. You stay in PyTorch the whole way, and whatever TensorRT can&#8217;t handle can still run on the GPU.</li>
+<li>On an NVIDIA Jetson Orin Nano it comes within 4% of the fastest TensorRT setup we measured, in both speed and memory. A 3.6-billion-parameter policy fits on the 8 GB board, where PyTorch eager mode runs out of memory.</li>
+<li>You compile with one <code>pip install "torch_tensorrt[executorch]"</code>. To run, the robot needs only ExecuTorch and a small TensorRT backend, not PyTorch.</li>
+</ul>
+<p>We talked about this work at PyTorch Conference 2026: <a href="https://www.youtube.com/watch?v=7TY7yBE1qQo">Deploying Robot Policies Across Many Targets with ExecuTorch</a>.</p>
+<p><!-- IMAGE PLACEHOLDER: image1 (demo video still). Download from the Doc and upload via the WP media library. Link it to the video: https://drive.google.com/file/d/1r62DX8_2RLIsxj-u1xwqNHwfjavjVNiD/view --></p>
+<div style="width: 720px;" class="wp-video"><video class="wp-video-shortcode" id="video-213608-1" width="720" height="1280" preload="metadata" controls="controls"><source type="video/mp4" src="https://pytorch.org/wp-content/uploads/2026/11/et-trt.mp4?_=1" /><a href="https://pytorch.org/wp-content/uploads/2026/11/et-trt.mp4">https://pytorch.org/wp-content/uploads/2026/11/et-trt.mp4</a></video></div>
+<p>&nbsp;</p>
+<p><em>GR00T 1.7 (3B) on a Jetson Orin Nano 8GB: about 200 ms per action chunk.</em></p>
+<h2>Why is it hard to run a PyTorch model with TensorRT on a robot?</h2>
+<p>A robot runs its models on its own computer, like <a href="https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-thor/">NVIDIA Jetson AGX Thor</a> or a custom board, and they have to finish on time. A policy, the model that decides what the robot does next, returns a short plan at a time, called an action chunk, say 50 actions. If the next chunk isn&#8217;t ready when the robot finishes the current one, the robot stops and waits. And everything shares the same memory: the CPU, the GPU, the cameras and every model. Offloading to a server adds a network round trip, which can easily take 100 ms, over a link the robot can&#8217;t always count on.</p>
+<p>On NVIDIA hardware the fastest way to run a model is <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>, NVIDIA&#8217;s inference compiler. Until now, getting a PyTorch model into TensorRT meant one of four things:</p>
+<ul>
+<li><strong>Go through ONNX.</strong> We call this ONNX-TensorRT in the tables. Export the model to an <a href="https://onnx.ai/">ONNX</a> file and build a TensorRT engine from it. It&#8217;s fast and well proven, but your model has to get through two converters you don&#8217;t own: PyTorch&#8217;s ONNX exporter and TensorRT&#8217;s ONNX parser. If either one doesn&#8217;t know an op, the build fails, and the usual way out is writing a <a href="https://docs.nvidia.com/deeplearning/tensorrt/latest/inference-library/extending-custom-layers.html">TensorRT plugin</a> in C++.</li>
+<li><strong>Write it by hand.</strong> Rebuild the model layer by layer with TensorRT&#8217;s <a href="https://docs.nvidia.com/deeplearning/tensorrt/latest/inference-library/c-api-docs.html#network-definition-scratch-c-api">network definition API</a>. <a href="https://github.com/wang-xinyu/tensorrtx">tensorrtx</a> does this for many popular models, and early <a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a> did it for language models. You get full control, but every new model is new work, and checking the result against PyTorch is on you.</li>
+<li><strong>Use TensorRT Model Connect.</strong> NVIDIA&#8217;s <a href="https://github.com/NVIDIA/TensorRT-Model-Connect">TensorRT Model Connect</a>, in public preview, builds TensorRT engines straight from supported Hugging Face checkpoints, with no ONNX step, and runs them from C++ without PyTorch. It covers the models on its supported list.</li>
+<li><strong>Use Torch-TensorRT inside PyTorch.</strong> <a href="https://docs.pytorch.org/TensorRT/">Torch-TensorRT</a> converts PyTorch ops to TensorRT directly, no ONNX file involved. But what it normally produces, an ExportedProgram or an <a href="https://docs.pytorch.org/docs/stable/torch.compiler_aot_inductor.html">AOTInductor</a> .pt2 package, needs <a href="https://docs.pytorch.org/cppdocs/installing.html">libtorch</a> to run. That&#8217;s more than 1 GB of libraries, and a process that loads it holds hundreds of MB that inference never uses.</li>
+</ul>
+<p><!-- IMAGE PLACEHOLDER: image2 (the ONNX route and the ExecuTorch route). Download from the Doc and upload via the WP media library. --></p>
+<p><em><a href="https://pytorch.org/wp-content/uploads/2026/11/routes.svg"><img decoding="async" class="alignnone size-full wp-image-213612" src="https://pytorch.org/wp-content/uploads/2026/11/routes.svg" alt="" /></a></em></p>
+<p><em>The ONNX route and the ExecuTorch route.</em></p>
+<p>Today we&#8217;re adding a new way: Torch-TensorRT 2.15 compiles the model with TensorRT and saves it as an ExecuTorch 1.6 program that runs without libtorch. It skips ONNX and captures the model with PyTorch&#8217;s own <code>torch.export</code>. If TensorRT can&#8217;t convert part of the model, preprocessing included, you can send that part to ExecuTorch&#8217;s CUDA backend, which runs it on the GPU in the same program on the same CUDA stream instead of failing the build. The TensorRT parts are ordinary TensorRT engines, so the model runs about as fast as it does when you call TensorRT directly.</p>
+<h2>How it works</h2>
+<p><a href="https://executorch.ai/">ExecuTorch</a> is PyTorch&#8217;s solution for running models on edge devices. You compile a model ahead of time into a program, and a small runtime runs it without libtorch, from C++ or Python. Hardware support comes from <a href="https://docs.pytorch.org/executorch/1.6/backends-overview.html">backends</a>: besides TensorRT there are <a href="https://docs.pytorch.org/executorch/1.6/backends/cuda/cuda-overview.html">CUDA</a>, <a href="https://docs.pytorch.org/executorch/1.6/build-run-openvino.html">Intel OpenVINO</a>, <a href="https://docs.pytorch.org/executorch/1.6/backends-qualcomm.html">Qualcomm QNN</a>, <a href="https://docs.pytorch.org/executorch/1.6/backends/coreml/coreml-overview.html">Apple Core ML</a> and <a href="https://docs.pytorch.org/executorch/1.6/backends/mlx/mlx-overview.html">MLX</a>, <a href="https://docs.pytorch.org/executorch/1.6/backends/arm-ethos-u/arm-ethos-u-overview.html">Arm</a>, <a href="https://docs.pytorch.org/executorch/1.6/backends/vulkan/vulkan-overview.html">Vulkan</a>, and <a href="https://docs.pytorch.org/executorch/1.6/backends/xnnpack/xnnpack-overview.html">XNNPACK</a> for CPUs. Torch-TensorRT could already save ExecuTorch programs with <code>output_format="executorch"</code>. What&#8217;s new in Torch-TensorRT 2.15 and ExecuTorch 1.6 is that the workflow is production ready: one install, prebuilt C++ libraries, a Python runtime that doesn&#8217;t need PyTorch, and a few features for small boards. We call it ExecuTorch-TensorRT.</p>
+<p>Take a toy model that needs two backends:</p>
+<pre><code class="language-python">class Toy(torch.nn.Module):
+    def forward(self, x):
+        return torch.cos(torch.erfinv(torch.tanh(x)))</code></pre>
+<p><!-- IMAGE PLACEHOLDER: image3 (the toy model, split across two backends). Download from the Doc and upload via the WP media library. --></p>
+<p>&nbsp;</p>
+<p><em><a href="https://pytorch.org/wp-content/uploads/2026/11/split.svg"><img decoding="async" class="alignnone size-full wp-image-213613" src="https://pytorch.org/wp-content/uploads/2026/11/split.svg" alt="" /></a></em></p>
+<p><em>The toy model, split across two backends.</em></p>
+<ol>
+<li><strong>Capture and split.</strong> <a href="https://docs.pytorch.org/docs/stable/export.html">torch.export</a> turns the model into a graph of PyTorch ops. TensorRT claims every part it can convert. It has no converter for <code>erfinv</code>, so the ExecuTorch <a href="https://docs.pytorch.org/executorch/1.6/backends/cuda/cuda-overview.html">CUDA backend</a> takes that part instead. The compiler tells you which ops didn&#8217;t go to TensorRT, and why.</li>
+<li><strong>Compile and pack.</strong> TensorRT builds an engine for each part it claimed, and the CUDA backend compiles its part with AOTInductor. The engines go into a .pte file, and the CUDA backend&#8217;s weights go into a .ptd data file next to it.</li>
+<li><strong>Load and run.</strong> On the robot, the ExecuTorch runtime hands each part to its backend. Inputs, outputs and the tensors passed between the two backends can stay on the GPU, with no round trip through the CPU. If you set <code>use_cuda_graphs=True</code>, each engine&#8217;s GPU work is recorded once as a <a href="https://developer.nvidia.com/blog/cuda-graphs/">CUDA graph</a> and replayed with a single launch, which makes every call cheaper.</li>
+</ol>
+<p>If your model has a custom op that neither TensorRT nor the CUDA backend can compile, you still don&#8217;t need a TensorRT plugin in C++. Write the op as a <a href="https://triton-lang.org/">Triton</a> kernel and register it with <code>torch.library.triton_op</code>. The CUDA backend compiles it into the program like any other part of the model, and the robot runs it without Triton or PyTorch installed. ExecuTorch&#8217;s own CUDA kernels for attention, mixture-of-experts layers and 4-bit matmuls are written this way.</p>
+<h2>Getting started</h2>
+<h3>Install</h3>
+<pre><code class="language-bash">pip install "torch_tensorrt[executorch]"</code></pre>
+<p>That gets you PyTorch, Torch-TensorRT, ExecuTorch and a small TensorRT backend for ExecuTorch. You need PyTorch only to compile. The compiled program runs without it; see <em>Run, in Python, without torch</em> for the smaller install for the robot. The wheels are built for CUDA 13.2 on Linux, x86-64 and Arm64, which on an NVIDIA Jetson means <a href="https://developer.nvidia.com/embedded/jetpack">JetPack</a> 7.2 or newer. On Arm64 the first install also pulls about 2.6 GB of TensorRT libraries from NVIDIA, so give it a few minutes. It can&#8217;t reuse the TensorRT that ships with NVIDIA JetPack, because Torch-TensorRT 2.15 needs TensorRT 11.4 and JetPack 7.2 comes with TensorRT 10.</p>
+<h3>Export, in Python</h3>
+<pre><code class="language-python">import torch
+import torch_tensorrt
+from executorch.backends.cuda.cuda_backend import CudaBackend
+from executorch.backends.cuda.cuda_partitioner import CudaPartitioner
+
+with torch.no_grad():
+    model = MyPolicy().eval().cuda()
+    example = (torch.randn(1, 3, 224, 224, device="cuda"),)
+    exported = torch.export.export(model, example)
+    trt_model = torch_tensorrt.dynamo.compile(
+        exported, arg_inputs=example, min_block_size=1, truncate_double=True
+    )
+    torch_tensorrt.save(
+        trt_model,
+        "policy.pte",
+        output_format="executorch",
+        # Everything TensorRT does not take goes to the CUDA backend.
+        partitioners=[CudaPartitioner([CudaBackend.generate_method_name_compile_spec("forward")])],
+    )</code></pre>
+<p>The CUDA backend needs a CUDA toolkit (nvcc) at export time, and it writes <code>aoti_cuda_blob.ptd</code> next to the .pte. Give each export its own folder and ship both files. If your model has several parts, say a vision encoder and an action head, you can put them all in one program, one method per part, with <code>torch_tensorrt.executorch.export()</code>. It gives you back a program you can still edit before saving.</p>
+<h3>Run, in Python, without torch</h3>
+<p>In ExecuTorch 1.6 the Python runtime no longer needs the torch library. NumPy arrays in, NumPy arrays out:</p>
+<pre><code class="language-python">import numpy as np
+import torch_tensorrt_executorch_runtime  # registers the TensorRT backend
+from executorch.runtime import Runtime
+
+program = Runtime.get().load_program("policy.pte", data_path="aoti_cuda_blob.ptd")
+policy = program.load_method("forward")
+actions = np.asarray(policy.execute([np.zeros((1, 3, 224, 224), np.float32)])[0])</code></pre>
+<p>This matters on a small board. On the Orin Nano, just importing PyTorch takes about 2.2 s and 550 MB. For a robot that only runs models, this installs just the runtime, the TensorRT backend, and the TensorRT and CUDA libraries they need, about 4.6 GB instead of 11 GB for the full install:</p>
+<pre><code class="language-bash">pip install --no-deps executorch==1.6.0 torch-tensorrt-executorch-runtime==0.2.1 \
+  nvidia-cuda-runtime==13.2.86 tensorrt-cu13-libs==11.4.0.106 numpy</code></pre>
+<h3>Run, in C++</h3>
+<pre><code class="language-cpp">#include &lt;executorch/extension/module/module.h&gt;
+#include &lt;executorch/extension/tensor/tensor.h&gt;
+
+using namespace executorch::aten;
+using namespace executorch::extension;
+
+Module policy("policy.pte", "aoti_cuda_blob.ptd");
+std::vector&lt;float&gt; pixels(1 * 3 * 224 * 224);  // filled from the camera
+auto observation = make_tensor_ptr({1, 3, 224, 224}, pixels);
+auto actions = policy.forward(observation);</code></pre>
+<p>To build the app, link the CMake packages that come with the pip install. The <a href="https://docs.pytorch.org/TensorRT/user_guide/runtime_performance/executorch.html#run-from-c">Torch-TensorRT ExecuTorch guide</a> has a complete CMakeLists.txt.</p>
+<p>If the input is already on the GPU, a camera frame for example, you can skip the copies to and from the CPU. Export with device inputs and outputs (see <a href="https://docs.pytorch.org/executorch/1.6/backends/cuda/cuda-overview.html#activation-memory-who-owns-the-gpu-copies">the CUDA backend docs</a>) and pass the GPU pointer directly:</p>
+<pre><code class="language-cpp">// A camera pipeline already wrote the image to GPU memory.
+float* gpu_pixels = camera.gpu_frame();
+
+// The policy writes its actions to GPU memory that you own.
+float* gpu_actions = nullptr;
+cudaMalloc(&amp;gpu_actions, 50 * 6 * sizeof(float));  // 50 actions, 6 joints each
+auto actions = from_blob(gpu_actions, {1, 50, 6}, ScalarType::Float, DeviceType::CUDA);
+policy.set_output(*actions);
+
+policy.forward(from_blob(gpu_pixels, {1, 3, 224, 224}, ScalarType::Float, DeviceType::CUDA));</code></pre>
+<h2>Performance</h2>
+<p>We took four robot policies from <a href="https://github.com/huggingface/lerobot">LeRobot</a>, Hugging Face&#8217;s robot-learning library: <a href="https://huggingface.co/docs/lerobot/act">ACT</a>, <a href="https://huggingface.co/docs/lerobot/smolvla">SmolVLA</a>, <a href="https://huggingface.co/docs/lerobot/pi05">pi0.5</a> and <a href="https://huggingface.co/nvidia/GR00T-N1.7-3B">GR00T 1.7</a>. Each one ran five ways on a <a href="https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/">Jetson Orin Nano Super</a> (8 GB, about $250), with the same trained weights, the same inputs, and nothing quantized.</p>
+<p><strong>Time per action chunk on the Orin Nano</strong>, milliseconds, lower is better:</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>ExecuTorch-TensorRT</th>
+<th>ONNX-TensorRT</th>
+<th>Torch-TensorRT</th>
+<th><a href="https://docs.pytorch.org/docs/stable/generated/torch.compile.html">torch.compile</a></th>
+<th>PyTorch eager</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACT (52M)</td>
+<td>26</td>
+<td><strong>25</strong></td>
+<td>26</td>
+<td>42</td>
+<td>48</td>
+</tr>
+<tr>
+<td>SmolVLA (450M)</td>
+<td><strong>120</strong></td>
+<td>121</td>
+<td><strong>120</strong></td>
+<td>159</td>
+<td>765</td>
+</tr>
+<tr>
+<td>pi0.5 (3.6B)</td>
+<td>467</td>
+<td><strong>452</strong></td>
+<td>out of memory</td>
+<td>out of memory</td>
+<td>out of memory</td>
+</tr>
+<tr>
+<td>GR00T 1.7 (3B, fine-tuned)</td>
+<td>215</td>
+<td><strong>208</strong></td>
+<td>215</td>
+<td>out of memory</td>
+<td>out of memory</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Memory on the Orin Nano</strong>: what the policy&#8217;s process holds while it runs, CPU and GPU together, MiB, lower is better:</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>ExecuTorch-TensorRT</th>
+<th>ONNX-TensorRT</th>
+<th>Torch-TensorRT</th>
+<th>torch.compile</th>
+<th>PyTorch eager</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACT</td>
+<td><strong>407</strong></td>
+<td>415</td>
+<td>1083</td>
+<td>1642</td>
+<td>1435</td>
+</tr>
+<tr>
+<td>SmolVLA</td>
+<td><strong>1146</strong></td>
+<td>1178</td>
+<td>2615</td>
+<td>4125</td>
+<td>3095</td>
+</tr>
+<tr>
+<td>pi0.5</td>
+<td>5538</td>
+<td><strong>5429</strong></td>
+<td>out of memory</td>
+<td>out of memory</td>
+<td>out of memory</td>
+</tr>
+<tr>
+<td>GR00T 1.7</td>
+<td>5301</td>
+<td><strong>5272</strong></td>
+<td>6464</td>
+<td>out of memory</td>
+<td>out of memory</td>
+</tr>
+</tbody>
+</table>
+<p><em>Time: median of three runs of 100 chunks, after 20 warm-up chunks. Memory: median of three runs, over the last 30 s of 120 s; files the process only reads, such as the program files, are not counted, and a range means the runs differed by more than 5%. The TensorRT columns and torch.compile replay <a href="https://developer.nvidia.com/blog/cuda-graphs/">CUDA graphs</a>. Maximum power, GPU clock locked. Bold is best in the row. Differences of a few milliseconds are within run-to-run noise. Measured with the released Torch-TensorRT 2.15.0 and ExecuTorch 1.6.0.</em> <a href="https://github.com/shoumikhin/lerobot/blob/53bcdad3e4/examples/export/README.md"><em>Benchmark method and full tables</em></a><em>.</em></p>
+<p>A few things stand out:</p>
+<ul>
+<li>On the Orin Nano, ExecuTorch-TensorRT is within 4% of ONNX-TensorRT on every policy, and up to 6.4x faster than PyTorch eager mode.</li>
+<li>Memory is about the same as ONNX-TensorRT, and lower on the two small policies. The Torch-TensorRT column runs the same TensorRT engines inside PyTorch. That costs 0.7 to 1.4 GB more, and pi0.5 doesn&#8217;t fit at all.</li>
+<li>pi0.5, with 3.6 billion parameters, makes a chunk of 50 actions in about half a second on the 8 GB Orin Nano, where PyTorch eager mode runs out of memory.</li>
+</ul>
+<p>On an NVIDIA Jetson AGX Thor developer kit, the high-end robot board, resource limits are less of an issue, but memory efficiency still lets more workloads fit on the device. Again, the compiled paths end up with similar performance.</p>
+<p><strong>Time per action chunk on Thor</strong>, milliseconds, lower is better:</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>ExecuTorch-TensorRT</th>
+<th>ONNX-TensorRT</th>
+<th>Torch-TensorRT</th>
+<th>torch.compile</th>
+<th>PyTorch eager</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACT</td>
+<td>3.9</td>
+<td><strong>3.4</strong></td>
+<td>3.5</td>
+<td>6.3</td>
+<td>9.9</td>
+</tr>
+<tr>
+<td>SmolVLA</td>
+<td>29.6</td>
+<td><strong>29.5</strong></td>
+<td><strong>29.5</strong></td>
+<td>39.9</td>
+<td>165.1</td>
+</tr>
+<tr>
+<td>pi0.5</td>
+<td>80.5</td>
+<td>86.1</td>
+<td><strong>78.2</strong></td>
+<td>90.6</td>
+<td>218.9</td>
+</tr>
+<tr>
+<td>GR00T 1.7</td>
+<td>59.7</td>
+<td><strong>58.4</strong></td>
+<td>59.5</td>
+<td>65.3</td>
+<td>94.3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Memory on Thor</strong>, MiB, lower is better:</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>ExecuTorch-TensorRT</th>
+<th>ONNX-TensorRT</th>
+<th>Torch-TensorRT</th>
+<th>torch.compile</th>
+<th>PyTorch eager</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACT</td>
+<td>443</td>
+<td><strong>440</strong></td>
+<td>1000</td>
+<td>2066</td>
+<td>1793</td>
+</tr>
+<tr>
+<td>SmolVLA</td>
+<td><strong>1185</strong></td>
+<td>1205</td>
+<td>2701</td>
+<td>4479 to 5203</td>
+<td>3344 to 3568</td>
+</tr>
+<tr>
+<td>pi0.5</td>
+<td>5617</td>
+<td><strong>5495</strong></td>
+<td>7326</td>
+<td>7905</td>
+<td>7421</td>
+</tr>
+<tr>
+<td>GR00T 1.7</td>
+<td>5314</td>
+<td><strong>5261</strong></td>
+<td>6525</td>
+<td>7520</td>
+<td>7042</td>
+</tr>
+</tbody>
+</table>
+<p><em>Same method as on the Orin Nano.</em></p>
+<p>It isn&#8217;t limited to robot policies. We ran the same split on a 26-billion-parameter <a href="https://ai.google.dev/gemma">Gemma 4</a> language model with 4-bit weights on an A100. TensorRT took some parts, the CUDA backend took the rest, and the output tokens were exactly the same as with the CUDA backend alone.</p>
+<h2>Big policies on a small board</h2>
+<p>For best performance, a TensorRT engine is built for one kind of GPU, so you build it on the same kind of board it runs on. Building needs the whole model in memory, and on the 8 GB Orin Nano there isn&#8217;t room to build a 3.6-billion-parameter policy in one piece. So we split pi0.5 and GR00T into a chain of smaller programs. Each one is built in its own process from only its own weights, so the full checkpoint is never in memory at once. Both policies make actions by repeating one &#8220;denoising&#8221; step, so that step is a single program that runs ten times for pi0.5 and four times for GR00T. The programs hand tensors to each other on the GPU.</p>
+<p>At run time the TensorRT backend loads its engines through ExecuTorch&#8217;s shared GPU memory allocator, so there are no extra copies. Without it, pi0.5&#8217;s second engine wouldn&#8217;t load on the Orin Nano at all. Engines can also be larger than 2 GB and can live in a .ptd file next to the .pte, like other large data in ExecuTorch. On discrete GPUs, <a href="https://docs.pytorch.org/TensorRT/tutorials/_rendered_examples/dynamo/weight_streaming_example.html">weight streaming</a> also runs engines that don&#8217;t fit in GPU memory.</p>
+<h2>Several policies on one GPU</h2>
+<p>A robot rarely runs just one model. A big policy plans the next moves, a perception model looks at every camera frame, and a small controller has to run at a fixed, high rate. They all share one GPU&#8217;s memory and compute.</p>
+<p>Memory is the easier part. If one process loads the same program twice, say one policy per arm, Torch-TensorRT 2.15 keeps its engines in GPU memory only once. On the Orin Nano the second load took 76 MiB instead of 805 MiB. There&#8217;s also an option to let many engines share one working buffer per GPU.</p>
+<p>Compute is harder. A big model can fill every <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html#gpu-hardware-model">streaming multiprocessor</a> (SM), and everything else has to wait.</p>
+<p>A CUDA <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/green-contexts.html">green context</a> gives a model its own fixed set of SMs. Every GPU backend in an ExecuTorch program runs on the <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html#cuda-streams">CUDA stream</a> you pick, so you create one stream per green context and run each policy on its own stream, in its own thread. It has to be a thread per policy, because <code>forward()</code> waits for its GPU work to finish:</p>
+<pre><code class="language-cpp">#include &lt;executorch/extension/cuda/caller_stream.h&gt;
+
+using namespace executorch::extension::cuda;
+
+// One thread per policy. Each thread has its own green context and stream.
+void run_policy(Module&amp; policy, cudaStream_t stream) {
+  CallerStreamGuard guard(stream);  // this thread's GPU work runs on this policy's SMs
+  while (running) {
+    policy.forward(next_input(policy));
+  }
+}</code></pre>
+<p>The helper is in <code>executorch::extension::cuda</code> and works with both the TensorRT and CUDA backends. A few limits:</p>
+<ul>
+<li>Memory bandwidth and other GPU resources are still shared, so delays get shorter but don&#8217;t go away.</li>
+<li>Jetsons don&#8217;t have many SMs (8 on the Orin Nano, 20 on the AGX Thor), so you can only split them a few ways.</li>
+<li>Torch-TensorRT builds each engine for the whole GPU. On a green context TensorRT warns about that, and an engine that uses kernels needing more SMs than the context has can fail, so give each green context enough SMs for its engine.</li>
+</ul>
+<h2>What&#8217;s next</h2>
+<ul>
+<li><strong>End-to-end compilation for big policies.</strong> NVIDIA is working on compiling big models without splitting them by hand, so a Jetson Orin Nano can build pi0.5 and GR00T as a single program, with lower latency and a simpler workflow.</li>
+<li><strong>LeRobot.</strong> We&#8217;re working with the Hugging Face <a href="https://huggingface.co/docs/lerobot">LeRobot</a> team on ExecuTorch export for LeRobot policies, so exported policies run faster than in PyTorch eager mode or torch.compile and don&#8217;t need PyTorch to run. You can follow which policies export and run on each GPU in <a href="https://github.com/pytorch/executorch/issues/24353">this tracking issue</a>, which uses newer builds than the tables above.</li>
+</ul>
+<h2>Learn more</h2>
+<ul>
+<li>ExecuTorch <a href="https://docs.pytorch.org/executorch/1.6/backends/tensorrt/tensorrt-overview.html">TensorRT backend docs</a></li>
+<li>Torch-TensorRT <a href="https://docs.pytorch.org/TensorRT/user_guide/runtime_performance/executorch.html">ExecuTorch deployment guide</a></li>
+<li>Examples in <a href="https://github.com/pytorch/TensorRT/tree/main/examples/torchtrt_executorch_example">examples/torchtrt_executorch_example</a></li>
+</ul>
+<p>What model do you want to run, on which board, and where does it break today? Tell us in an issue on <a href="https://github.com/pytorch/TensorRT/issues">Torch-TensorRT</a> or <a href="https://github.com/pytorch/executorch/issues">ExecuTorch</a>.</p>
+<p>The post <a href="https://pytorch.org/blog/executorch-tensorrt-pytorch-robot-policies-at-nvidia-tensorrt-speed/">ExecuTorch-TensorRT: PyTorch Robot Policies at NVIDIA TensorRT Speed</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>Celebrating the 2026 PyTorch Foundation Contributor Award Winners and Nominees</title>
 		<link>https://pytorch.org/blog/2026-pytorch-foundation-contributor-awards/</link>
 		
@@ -964,76 +1319,7 @@ for model in models:
 		
 		
 			</item>
-		<item>
-		<title>Announcing the Special Interest Group (SIG) for Ray on Accelerators</title>
-		<link>https://pytorch.org/blog/announcing-the-special-interest-group-sig-for-ray-on-accelerators/</link>
-		
-		<dc:creator><![CDATA[Zhe Zhang, Mengjin Yan, Ryan O’Leary, Richard Liaw]]></dc:creator>
-		<pubDate>Mon, 02 Nov 2026 17:45:32 +0000</pubDate>
-				<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=208672</guid>
-
-					<description><![CDATA[<p>Today, we are announcing the Special Interest Group (SIG) for Ray on hardware accelerators. When Ray was created in UC Berkeley over 10 years ago, the computing landscape looked very...</p>
-<p>The post <a href="https://pytorch.org/blog/announcing-the-special-interest-group-sig-for-ray-on-accelerators/">Announcing the Special Interest Group (SIG) for Ray on Accelerators</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p>Today, we are announcing the Special Interest Group (SIG) for Ray on hardware accelerators.</p>
-<p>When Ray was created in UC Berkeley over 10 years ago, the computing landscape looked very different. At the time, “distributed computing” referred to CPU clusters running frameworks like Apache Hadoop and Apache Spark. GPUs were only just moving from graphics and scientific computing into machine learning.</p>
-<p>Today, <em>accelerated computing</em> is front and center in the development and deployment of AI, and accelerators and their capabilities have become more specialized and diverse. For example:</p>
-<ul>
-<li>NVIDIA RTX PRO 6000 Blackwell Server Edition GPUs support flexible workloads spanning AI training, inference, graphics, and video</li>
-<li>NVIDIA HGX B200 and the full-stack platform provide substantially greater memory capacity to support larger models, and NVIDIA GB200 NVL72 connects 72 NVIDIA Blackwell GPUs for communication-intensive, large-scale training and inference.</li>
-<li>AMD MI355X also provides substantial memory capacity for large models</li>
-<li>Google Ironwood TPUs target massive-scale AI workloads</li>
-<li>NVIDIA Groq 3 LPUs specialize in low-latency inference.</li>
-</ul>
-<p>The Ray community has been actively working on keeping up with this shift. Today, Ray <a href="https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html">supports more than a dozen kinds of hardware accelerators</a>, from NVIDIA and AMD GPUs to TPUs, Trainium, Gaudi and others. We believe now is a crucial time to build on this foundation with a more ambitious, systematic effort across Ray to make accelerators easy to use, efficient at scale, and reliable in production.</p>
-<p>The Accelerator Special Interest Group aims to bring together hardware vendors, Ray contributors, and application developers to define and advance a shared, vendor-neutral roadmap for accelerator support in Ray. This public interest group will be responsible for enabling Ray workloads to continue evolving in an era of fragmented, specialized accelerators.</p>
-<p>Our initial roadmap focuses on 3 core areas: <strong>Development and Testing Infrastructure, Hardware Awareness Capabilities, and Networking/Transport</strong>, outlined in the following sections.</p>
-<h2>Development and Testing Infra</h2>
-<p>Reliable accelerator support requires dependable access to hardware for development, testing, and debugging. Maintainers and contributors need to validate changes on the devices they affect, reproduce failures, and catch regressions before they reach users. As agentic software engineering accelerates development, reliable testing and verification become even more important: both human contributors and coding agents need reproducible feedback from real hardware and representative workloads. We want to make this a routine part of contributing to Ray, with a clear path for hardware vendors and cloud providers to contribute resources and expertise.</p>
-<p>Our initial priorities are:</p>
-<ul>
-<li><strong>Shared hardware access</strong>. Establish a documented process for bringing cloud and vendor-hosted accelerators into Ray’s development and testing infrastructure, including access for contributors to reproduce and debug failures.</li>
-<li><strong>Reproducible development and test environments</strong>. Provide maintained environments with explicit driver, runtime, and dependency versions, so contributors can reproduce CI results and validate changes consistently across providers.</li>
-<li><strong>Broader CI coverage</strong>. Extend existing pipelines with targeted checks for pull requests and broader nightly and release testing. Coverage should include distributed workloads, failure recovery, and performance regressions, alongside basic device functionality.</li>
-<li><strong>Sustainable operation and ownership</strong>. Define responsibilities for maintaining environments, investigating failures, and keeping integrations working across releases. Make test results and infrastructure health visible, and manage capacity and costs so the infrastructure can grow with participation.</li>
-</ul>
-<h2>Hardware-aware Scheduling</h2>
-<p>For applications to get the most out of an accelerator, Ray first has to know what hardware each node has and how it is structured. As the accelerator ecosystem evolves, accelerator nodes are no longer just a count of identical devices. Workload performance depends on the interconnectivity of devices, their relationship to CPUs and NICs, and node groupings into larger domains like racks and TPU slices.</p>
-<p>Our goal is to give Ray an accurate and consistent picture of this structure across vendors and platforms. With that picture, Ray’s scheduler can place tasks and actors on the right hardware, and users can see what their cluster is made of and how it is connected.</p>
-<p>Our initial priorities are:</p>
-<ul>
-<li><strong>Common hardware interfaces.</strong> Define vendor-neutral interfaces for labeling hardware, representing its architecture, and describing its specifications, so applications and libraries can target capabilities instead of writing vendor-specific code. This includes a consistent way to identify accelerator SKUs, including new ones at launch. It also includes a documented extension point and checklist for vendors adding a new accelerator.</li>
-<li><strong>Hardened discovery.</strong> Strengthen Ray’s discovery mechanism, with clear ownership for each accelerator’s integration, and back it with the CI coverage described in the previous section. Discovery should capture the topology and architecture of the hardware, not just the type and number of devices.</li>
-<li><strong>Platform and cloud integration.</strong> Work with cloud providers and deployment platforms so that discovery reflects the underlying structure wherever a cluster runs. Some of this information, such as which rack or slice a node belongs to, is only available from the platform, not from the node itself.</li>
-<li><strong>Hardware visibility.</strong> Provide ways to view the accelerators in a cluster and how they are connected, alongside accelerator metrics on the Ray dashboard. This lets users confirm that Ray sees their hardware correctly and understand where their work was placed. It also gives contributors a way to verify new integrations.</li>
-<li><strong>Clear user guides.</strong> Document how Ray discovers and represents hardware, and how to use that information when placing work. Good guides help both application developers and the coding agents that increasingly write Ray code for them.</li>
-</ul>
-<h2>Networking and I/O Transport</h2>
-<p>Moving data between accelerators is often just as important as running computation on the accelerator itself. Modern AI workloads, like large scale reinforcement learning, require moving large model weight tensors across devices and nodes from training to inference workers. Historically, Ray’s object store was built for CPU data, meaning accelerator tensors had to be copied to host memory, serialized, and sent over standard host networking before reaching another device.</p>
-<p>To avoid that bottleneck, <strong>Ray Direct Transport (RDT)</strong> was introduced to enable actors to pass references to tensors through Ray while transferring the actual data directly between devices and using high performance transports like UCX and RDMA. Our goal is to make high-speed, direct data transfer work reliably across different accelerators, frameworks, and network fabrics, while keeping Ray’s familiar programming model.</p>
-<p>Our initial priorities are:</p>
-<ul>
-<li><strong>Broad transport integrations</strong>. Support a wider range of accelerators, frameworks, and interconnects in RDT so Ray can select the fastest path between Actors, whether over intra-slice TPU ICI, scale-up NVIDIA NVLink, or scale-out GPUDirect RDMA.</li>
-<li><strong>Transport lifecycle and recovery</strong>. Ensure each hardware transport cleanly handles initialization, teardown, and error recovery on real devices, so RDT works reliably as actors scale or restart in dynamic workloads like reinforcement learning and disaggregated serving.</li>
-<li><strong>Validated recipes and observability</strong>. Enable cloud and hardware providers to publish validated deployment configurations, benchmark high-throughput workloads, and surface clear diagnostics and transport metrics.</li>
-</ul>
-<h2>Scope</h2>
-<p>While core scheduling and placement logic remain in Ray Core, SIG Accelerator is responsible for defining the plug-in interfaces, CI testing, and maturity tiers for accelerators in Ray. Hardware vendors and cloud providers contribute and maintain their own device plugins, transports, and day-zero support for new SKUs, while framework authors and ML practitioners ground our roadmap in real workload needs.</p>
-<h2>Get Involved</h2>
-<p>Whether you are building a new accelerator integration, running large-scale training or inference on Ray, or providing cloud and CI infrastructure, we invite you to get involved!</p>
-<ul>
-<li>Join the conversation on the <a href="https://www.ray.io/join-slack">Ray Slack</a>.</li>
-<li>Attend our community meetings to discuss proposals, review roadmap priorities, and share workload feedback.</li>
-<li>Check out open accelerator related <a href="https://github.com/ray-project/ray/issues">issues</a> and PRs on Github and contribute upstream.</li>
-</ul>
-<p>The post <a href="https://pytorch.org/blog/announcing-the-special-interest-group-sig-for-ray-on-accelerators/">Announcing the Special Interest Group (SIG) for Ray on Accelerators</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4842 metric#misses=63 metric#hit-ratio=98.7 metric#bytes=1507734 metric#prefetches=286 metric#store-reads=36 metric#store-writes=7 metric#store-hits=293 metric#store-misses=47 metric#sql-queries=17 metric#ms-total=643.01 metric#ms-cache=23.19 metric#ms-cache-avg=0.5521 metric#ms-cache-ratio=3.6 sample#redis-hits=864943435 sample#redis-misses=191673986 sample#redis-hit-ratio=81.9 sample#redis-ops-per-sec=100 sample#redis-evicted-keys=1988761 sample#redis-used-memory=271334840 sample#redis-used-memory-rss=297689088 sample#redis-memory-fragmentation-ratio=1.1 sample#redis-connected-clients=2 sample#redis-tracking-clients=0 sample#redis-rejected-connections=0 sample#redis-keys=194003 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4728 metric#misses=62 metric#hit-ratio=98.7 metric#bytes=1573133 metric#prefetches=152 metric#store-reads=70 metric#store-writes=6 metric#store-hits=303 metric#store-misses=46 metric#sql-queries=17 metric#ms-total=735.22 metric#ms-cache=44.13 metric#ms-cache-avg=0.5884 metric#ms-cache-ratio=6.0 -->
