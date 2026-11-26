@@ -2,11 +2,43 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://status.openai.com/</id>
     <title>OpenAI status</title>
-    <updated>2026-11-24T09:53:56.958Z</updated>
+    <updated>2026-11-26T08:17:25.986Z</updated>
     <generator>incident.io</generator>
     <link rel="alternate" href="https://status.openai.com/"/>
     <subtitle>OpenAI status page updates</subtitle>
     <icon>https://storage.googleapis.com/incident-io-status-page-logos/01H537TKYPX5W42WRCKR1AGPFT/openai-1/v0bc3jd3.png</icon>
+    <entry>
+        <title type="html"><![CDATA[Elevated errors with Codex GitHub reviews and pull request merges]]></title>
+        <id>https://status.openai.com//incidents/01M89RGC3STKK2MT53TXHFMY4H</id>
+        <link href="https://status.openai.com//incidents/01M89RGC3STKK2MT53TXHFMY4H"/>
+        <updated>2026-11-25T16:58:51.832Z</updated>
+        <summary type="html"><![CDATA[<b>Status: Monitoring</b><br/><br/>GitHub reports that the service disruption affecting pull requests and webhooks has been mitigated. We are monitoring Codex automated pull request reviews and merge operations to confirm recovery and stability.<br/><br/><b>Affected components</b>
+          <ul>
+          <li>Codex Web (Degraded performance)</li>
+          </ul>]]></summary>
+        <content type="html"><![CDATA[<b>Status: Monitoring</b><br/><br/>GitHub reports that the service disruption affecting pull requests and webhooks has been mitigated. We are monitoring Codex automated pull request reviews and merge operations to confirm recovery and stability.<br/><br/><b>Affected components</b>
+          <ul>
+          <li>Codex Web (Degraded performance)</li>
+          </ul>]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ChatGPT, ChatGPT Work, and Codex Cloud are experiencing elevated conversation errors]]></title>
+        <id>https://status.openai.com//incidents/01M898HVZGXFV2XC4775CG9GF8</id>
+        <link href="https://status.openai.com//incidents/01M898HVZGXFV2XC4775CG9GF8"/>
+        <updated>2026-11-25T16:12:21.883Z</updated>
+        <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All affected services are operating normally again. We’re sorry for the disruption, and we appreciate your patience.<br/><br/><b>Affected components</b>
+          <ul>
+          <li>Conversations (Operational)</li>
+<li>Codex Web (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+          </ul>]]></summary>
+        <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All affected services are operating normally again. We’re sorry for the disruption, and we appreciate your patience.<br/><br/><b>Affected components</b>
+          <ul>
+          <li>Conversations (Operational)</li>
+<li>Codex Web (Operational)</li>
+<li>ChatGPT Work (Operational)</li>
+          </ul>]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Elevated errors with GPT-6 conversations on paid ChatGPT plans]]></title>
         <id>https://status.openai.com//incidents/01M84HKHX73RF7HTVZQ2A9GFXP</id>
@@ -1693,22 +1725,6 @@ Some Codex remote control users may need to pair their mobile device again follo
         <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
           <ul>
           <li>ChatGPT Work (Operational)</li>
-          </ul>]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Users may experience an increase in error rates in Workspace Agents and ChatGPT Work on Web and Mobile]]></title>
-        <id>https://status.openai.com//incidents/01M1263309PD7VYV8EF95W2M2P</id>
-        <link href="https://status.openai.com//incidents/01M1263309PD7VYV8EF95W2M2P"/>
-        <updated>2026-08-27T22:14:44.310Z</updated>
-        <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
-          <ul>
-          <li>Agent (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
-          </ul>]]></summary>
-        <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>All impacted services have now fully recovered.<br/><br/><b>Affected components</b>
-          <ul>
-          <li>Agent (Operational)</li>
-<li>ChatGPT Work (Operational)</li>
           </ul>]]></content>
     </entry>
 </feed>
