@@ -7,16 +7,28 @@
   <description>The Hugging Face blog</description>
   <language>en-US</language>
   <item>
-   <title>Microduck Obstacle Avoidance: A Sim2Real Workflow with Isaac Lab and Newton</title>
-   <pubDate>Tue, 24 Nov 2026 16:34:13 GMT</pubDate>
-   <link>https://huggingface.co/blog/nvidia/microduck-obstacle-avoidance</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/microduck-obstacle-avoidance</guid>
+   <title>Building on Nemotron 3.5 Parse: Open Data, Fine-Tuning, and Faster Inference</title>
+   <pubDate>Thu, 26 Nov 2026 05:05:36 GMT</pubDate>
+   <link>https://huggingface.co/blog/nvidia/building-on-nemotron-35-parse-open-data-fine-tunin</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/nvidia/building-on-nemotron-35-parse-open-data-fine-tunin</guid>
   </item>
   <item>
-   <title>RoboTrack: Point tracking for real-world robotic manipulation</title>
-   <pubDate>Mon, 23 Nov 2026 17:20:37 GMT</pubDate>
-   <link>https://huggingface.co/blog/allenai/robotrack</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/allenai/robotrack</guid>
+   <title>Where scientists draw the line on AI agents</title>
+   <pubDate>Wed, 25 Nov 2026 18:52:55 GMT</pubDate>
+   <link>https://huggingface.co/blog/allenai/where-scientists-draw-the-line-on-ai-agents</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/allenai/where-scientists-draw-the-line-on-ai-agents</guid>
+  </item>
+  <item>
+   <title>An Indic Voice Agent with CUGA</title>
+   <pubDate>Wed, 25 Nov 2026 10:22:09 GMT</pubDate>
+   <link>https://huggingface.co/blog/ibm-research/an-indic-voice-agent-with-cuga</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/an-indic-voice-agent-with-cuga</guid>
+  </item>
+  <item>
+   <title>Hill-climbing Inkling 2 Mini inference on one RTX PRO 6000</title>
+   <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/inkling-2-mini-inference-hillclimb</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/inkling-2-mini-inference-hillclimb</guid>
   </item>
   <item>
    <title>How to build and maintain an agentic evaluation</title>
@@ -47,12 +59,6 @@
    <pubDate>Wed, 18 Nov 2026 18:53:43 GMT</pubDate>
    <link>https://huggingface.co/blog/Dharma-AI/predicting-fine-tuning-time</link>
    <guid isPermaLink="false">https://huggingface.co/blog/Dharma-AI/predicting-fine-tuning-time</guid>
-  </item>
-  <item>
-   <title>Time-Series Models in the Streamhouse: A New Frontier and Use Cases</title>
-   <pubDate>Wed, 18 Nov 2026 15:00:23 GMT</pubDate>
-   <link>https://huggingface.co/blog/ibm-research/time-series-powered-streamhouse</link>
-   <guid isPermaLink="false">https://huggingface.co/blog/ibm-research/time-series-powered-streamhouse</guid>
   </item>
   <item>
    <title>180B Parameters, 32GB of RAM: Pushing MoE Inference to the Limit with Transformers</title>
