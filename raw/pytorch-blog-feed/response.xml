@@ -12,7 +12,7 @@
 	<atom:link href="https://pytorch.org/blog/feed/" rel="self" type="application/rss+xml" />
 	<link>https://pytorch.org/blog/</link>
 	<description></description>
-	<lastBuildDate>Tue, 24 Nov 2026 20:31:02 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 26 Nov 2026 02:44:16 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -28,6 +28,98 @@
 	<height>32</height>
 </image> 
 	<item>
+		<title>Explore the PyTorch Day China 2026 Schedule</title>
+		<link>https://pytorch.org/blog/explore-the-pytorch-day-china-2026-schedule/</link>
+		
+		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
+		<pubDate>Thu, 26 Nov 2026 02:44:16 +0000</pubDate>
+				<category><![CDATA[Announcements]]></category>
+		<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=214086</guid>
+
+					<description><![CDATA[<p>The next wave of AI innovation is happening now. Join the developers, researchers, engineers, and industry leaders driving that progress at PyTorch Day China 2026, taking place December 12 in...</p>
+<p>The post <a href="https://pytorch.org/blog/explore-the-pytorch-day-china-2026-schedule/">Explore the PyTorch Day China 2026 Schedule</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p><span style="font-weight: 400;"><img fetchpriority="high" decoding="async" class="alignnone size-large wp-image-214091" src="https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-Schedule-1024x536.jpeg" alt="PyTorch Day China Schedule" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-Schedule-1024x536.jpeg 1024w, https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-Schedule-300x157.jpeg 300w, https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-Schedule.jpeg 1200w" sizes="(max-width: 1024px) 100vw, 1024px" />The next wave of AI innovation is happening now. Join the developers, researchers, engineers, and industry leaders driving that progress at </span><a href="https://www.lfopensource.cn/pytorch-day-china/"><b>PyTorch Day China 2026</b></a><span style="font-weight: 400;">, taking place </span>December 12 <span style="font-weight: 400;">in </span>Beijing. <span style="font-weight: 400;">Co-hosted by Alibaba Cloud, AMD, and the PyTorch Foundation, this community-driven event brings together the people and technologies shaping the future of open source AI. </span></p>
+<p><span style="font-weight: 400;">Whether you&#8217;re building AI applications, optimizing models, advancing hardware acceleration, or contributing to open source projects, PyTorch Day China offers valuable opportunities to gain new insights, exchange ideas, and connect with the community. </span><a href="https://www.lfopensource.cn/pytorch-day-china/register/"><span style="font-weight: 400;">Register now</span></a><span style="font-weight: 400;"> to explore cutting-edge advancements in training, inference, responsible AI, and more.</span></p>
+<h2><b>Featured Sessions</b></h2>
+<p><span style="font-weight: 400;">Get inspired by technical presentations from leading experts and innovators. A few featured sessions include:</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><a href="https://www.lfopensource.cn/pytorch-day-china/program/schedule/?id=1382914"><b>Accelerating PyTorch on AMD GPUs with FlyDSL</b></a><span style="font-weight: 400;"> &#8211; Xiaobing Zhang, Shijie Feng, and Xudong Yuan, </span>AMD</li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://www.lfopensource.cn/pytorch-day-china/program/schedule/?id=1383175"><b>Beyond KV Cache: Mooncake Evolves from Inference Caching to Agentic AI Data Infrastructure</b></a><span style="font-weight: 400;"> &#8211; Teng Ma, </span>Mooncake Maintainer<span style="font-weight: 400;"> </span></li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://www.lfopensource.cn/pytorch-day-china/program/schedule/?id=1383719"><b>Finish RL Training Faster: Bitwise-Identical Rollout and Training Across NVIDIA and AMD GPUs</b></a><span style="font-weight: 400;"> &#8211; Ao Shen, </span>Inferact</li>
+<li style="font-weight: 400;" aria-level="1"><a href="https://www.lfopensource.cn/pytorch-day-china/program/schedule/?id=1382956"><b>PyTorch on RISC-V: Upstream Support and Deployment with RuyiAI</b></a><span style="font-weight: 400;"> &#8211; Hongbin Zhang &amp; Yixuan Chen,</span> Institute of Software, Chinese Academy of Sciences</li>
+</ul>
+<p><a href="https://www.lfopensource.cn/pytorch-day-china/program/schedule/"><span style="font-weight: 400;">View the full schedule.</span></a></p>
+<h2><b>Why Attend?</b></h2>
+<p><span style="font-weight: 400;">Discover new approaches to model training, post-training, inference optimization, and agentic AI.</span></p>
+<ul>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Hear directly from industry experts and project maintainers about real-world implementations, performance breakthroughs, and emerging technologies.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Explore advancements across AMD GPUs, RISC-V, and heterogeneous computing architectures.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Meet developers, researchers, engineers, and technology leaders working to advance the AI ecosystem.</span></li>
+<li style="font-weight: 400;" aria-level="1"><span style="font-weight: 400;">Exchange ideas, explore new tools and projects, and discover opportunities to contribute to the future of open source AI.</span></li>
+</ul>
+<h2><b>Be Part of the Conversation</b></h2>
+<p><span style="font-weight: 400;">Deepen your technical knowledge, connect with industry peers, and contribute to the open source community at PyTorch Day China. This is your chance to exchange ideas and help shape what&#8217;s next. </span><span style="font-weight: 400;">Join us in Beijing on </span>December 12<span style="font-weight: 400;"> and be part of the innovation. <a href="https://www.lfopensource.cn/pytorch-day-china/register/">Register for free now.</a></span></p>
+<p>The post <a href="https://pytorch.org/blog/explore-the-pytorch-day-china-2026-schedule/">Explore the PyTorch Day China 2026 Schedule</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>vLLM Singapore Meetup: Faster Prefill, Agent-Written Kernels and the Road to Vera Rubin</title>
+		<link>https://pytorch.org/blog/vllm-singapore-meetup-faster-prefill-agent-written-kernels-and-the-road-to-vera-rubin/</link>
+		
+		<dc:creator><![CDATA[vLLM Team]]></dc:creator>
+		<pubDate>Wed, 25 Nov 2026 18:03:15 +0000</pubDate>
+				<category><![CDATA[Blog]]></category>
+		<guid isPermaLink="false">https://pytorch.org/?p=213956</guid>
+
+					<description><![CDATA[<p>TL;DR At the Singapore vLLM meetup, engineers from Inferact, NVIDIA, and Alibaba Cloud showcased how the community is advancing open source AI inference through pipeline parallelism optimizations, agent-written kernels, real-time...</p>
+<p>The post <a href="https://pytorch.org/blog/vllm-singapore-meetup-faster-prefill-agent-written-kernels-and-the-road-to-vera-rubin/">vLLM Singapore Meetup: Faster Prefill, Agent-Written Kernels and the Road to Vera Rubin</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<h2>TL;DR</h2>
+<p>At the Singapore vLLM meetup, engineers from Inferact, NVIDIA, and Alibaba Cloud showcased how the community is advancing open source AI inference through pipeline parallelism optimizations, agent-written kernels, real-time multimodal world models, and day-zero support for next-generation hardware like NVIDIA&#8217;s Vera Rubin platform.</p>
+<h2>Introduction</h2>
+<p>On November 13, 2026, the vLLM community gathered at SGInnovate in Singapore for a half-day technical meetup hosted by Inferact and NVIDIA. Engineers from Inferact, NVIDIA and Alibaba Cloud, together with <a href="https://github.com/vllm-project/vllm-omni">vLLM-Omni</a> contributors, shared what they are building right now, from high-throughput prefill and RL training to running vLLM on workstation-class Blackwell GPUs and NVIDIA&#8217;s Vera Rubin platform.</p>
+<p><!-- IMAGE PLACEHOLDER: RWS08437 (image1) - upload via WP media library --></p>
+<p>vLLM, born at UC Berkeley and now hosted under the PyTorch Foundation, serves hundreds of model architectures across a wide range of accelerators. Two themes ran through the day: squeezing throughput out of communication-bound layouts, and using AI agents to write and tune kernels.</p>
+<h2><img decoding="async" class="alignnone wp-image-213963 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image5.jpg" alt="" width="2046" height="1364" srcset="https://pytorch.org/wp-content/uploads/2026/11/image5.jpg 2046w, https://pytorch.org/wp-content/uploads/2026/11/image5-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image5-1024x683.jpg 1024w" sizes="(max-width: 2046px) 100vw, 2046px" /></h2>
+<h2>Highlights from the Meetup</h2>
+<h3>1. Optimizing Pipeline Parallelism for High-Throughput Prefill in vLLM</h3>
+<p><!-- IMAGE PLACEHOLDER: RWS08488 (image2) - upload via WP media library --></p>
+<p><img decoding="async" class="alignnone wp-image-213967 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image7.jpg" alt="" width="1264" height="843" srcset="https://pytorch.org/wp-content/uploads/2026/11/image7.jpg 1264w, https://pytorch.org/wp-content/uploads/2026/11/image7-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image7-1024x683.jpg 1024w" sizes="(max-width: 1264px) 100vw, 1264px" /></p>
+<p>Thien Tran, Member of Technical Staff from Inferact made the case for pipeline parallelism (PP) as a throughput layout for prefill. In agentic traffic, one turn carries roughly 100K input tokens (about 95% cached), so a 3 s time-to-first-token (TTFT) target for 5K new tokens leaves a per-token budget about 33× tighter than decode&#8217;s. On MiniMax-M3.1-Flash on 2× GB300, PP2 delivered up to 1.37× the max throughput of TEP2 + SP, because PP removes most of the collectives that compete with compute. Thien walked through the fixes that make PP work in practice: balancing stages by measured time rather than layer count, capping step size to shrink pipeline fill and drain, and moving activation transfers onto the copy engines, which cut p50 TTFT by 13–20% near saturation and is now on by default on NVLink. With fixed step sizes, TEP2 + SP still wins at tight TTFT targets (0.75 s) while PP2 wins at looser ones. A new PP-aware scheduler sizes each micro-batch from the queue, matches the best hand-tuned step size with no tuning, and puts PP2 ahead from about 0.5 s upward.</p>
+<h3>2. vLLM on SM12x: From Usable to Efficient</h3>
+<p><!-- IMAGE PLACEHOLDER: RWS08504 (image3) - upload via WP media library --></p>
+<p><img decoding="async" class="alignnone wp-image-213966 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image6.jpg" alt="" width="1238" height="825" srcset="https://pytorch.org/wp-content/uploads/2026/11/image6.jpg 1238w, https://pytorch.org/wp-content/uploads/2026/11/image6-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image6-1024x682.jpg 1024w" sizes="(max-width: 1238px) 100vw, 1238px" /></p>
+<p>Jie Fang, DevTech Compute Engineer from NVIDIA showed how SM12x cards (RTX PRO and DGX Spark) went in six months from having no DeepSeek-V4 path in vLLM to near-peak efficiency. FlashInfer feature categories with dedicated SM12x kernels grew from 0 of 17 in January to 14 in October, and monthly SM12x pull requests rose from 6 to 121, helped by AI coding agents. Kernels only help if the framework selects them: a one-line dispatch fix gave +17.7% throughput, and preferring W4A4 for NVFP4 linears gave +23.8%. These cards have PCIe Gen5 but no NVLink, so the choice of parallelism sets the communication cost. TP2 × PP2 instead of TP4 gave 1.37× prefill throughput, and communication-aware weight offloading let DeepSeek-V4-Pro start on 8× RTX PRO 6000. The headline results: a 32K-token prefill in 939 ms on 8× RTX PRO 5000, MoE decode reading weights at 98–99% of measured DRAM peak, and video generation cut from 213.4 s to 4.92 s for a 5.17 s clip, a real-time factor of 0.95.</p>
+<h3>3. Making World Models Interactive: Real-Time Inference with vLLM-Omni</h3>
+<p><!-- IMAGE PLACEHOLDER: RWS08599 (image4) - upload via WP media library --></p>
+<p><img decoding="async" class="alignnone wp-image-213960 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image2.jpg" alt="" width="1245" height="830" srcset="https://pytorch.org/wp-content/uploads/2026/11/image2.jpg 1245w, https://pytorch.org/wp-content/uploads/2026/11/image2-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image2-1024x683.jpg 1024w" sizes="(max-width: 1245px) 100vw, 1245px" /></p>
+<p>Taichang Zhou, a vLLM-Omni committer, showed how vLLM-Omni, which extends vLLM from text-only models to omni-modality models and supports 100+ architectures, now serves LingBot-World 2.0, an interactive video world model, in real time for one session on 4× H200. The key piece is a new AR-Diffusion engine that reuses vLLM&#8217;s paged KV cache manager to generate video chunk by chunk. The rule of thumb is KV lifetime: if K/V lives for one request, the model runs on the DiffusionEngine; if it lives for a whole interactive session, it runs on the new engine. Ulysses sequence parallelism cut one block on H200 from 2,397 ms to 725 ms. Per 12-frame chunk, the latest main is 1.9× faster than September with no quality loss, and 2.75× faster (22.5 fps) with every opt-in option, well above the 12 fps real-time bar. The team also previewed Noisy PP, which lets later chunks start on earlier chunks&#8217; in-progress KV and lifted steady-state throughput 2.85× on CausVid-Wan 1.3B, and announced OpenDirector, an open-source video agent built on vLLM-Omni.</p>
+<h3>4. Finish RL Training Faster: Zero-Mismatch Kernels and Simple Async RL</h3>
+<p><!-- IMAGE PLACEHOLDER: RWS08644 (image5) - upload via WP media library --></p>
+<p><img decoding="async" class="alignnone wp-image-213961 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image3.jpg" alt="" width="1250" height="833" srcset="https://pytorch.org/wp-content/uploads/2026/11/image3.jpg 1250w, https://pytorch.org/wp-content/uploads/2026/11/image3-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image3-1024x682.jpg 1024w" sizes="(max-width: 1250px) 100vw, 1250px" /></p>
+<p>Ao Shen, Member of Technical Staff from Inferact, presenting joint work with NVIDIA DevTech and NVIDIA Research, argued that an RL trainer must learn from exactly what the rollout produced. Floating-point addition is not associative, so vLLM rollout kernels and trainer kernels split the same sum differently and drift apart. On DeepSeek V4, standard kernels showed rising KL mismatch and the run collapsed within about 100 RL steps, while exact kernels held KL at 0. The team brought the cost of exact kernels down to about 10% of rollout speed with an agent loop that first makes each layer match bit for bit, then swaps in faster kernels and re-checks that the diff stays zero. The skill is open source and worked on Nemotron, DeepSeek V4.1 and Kimi K3.1, where zero diff was ready on the day the model came out. With exact kernels, async RL no longer needs clipping, gates or dropped samples: REINFORCE Zero simply reweights every token, reaching 48.80% accuracy against 48.91% for sync RL while cutting time per update from 49.4 s to 20.6 s, a 2.40× speedup.</p>
+<h3>5. vLLM on NVIDIA Vera Rubin: Architecture, Locality Domains and Kernels</h3>
+<p><!-- IMAGE PLACEHOLDER: RWS08658 (image6) - upload via WP media library --></p>
+<p><img decoding="async" class="alignnone wp-image-213962 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image4.jpg" alt="" width="2046" height="1364" srcset="https://pytorch.org/wp-content/uploads/2026/11/image4.jpg 2046w, https://pytorch.org/wp-content/uploads/2026/11/image4-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image4-1024x683.jpg 1024w" sizes="(max-width: 2046px) 100vw, 2046px" /></p>
+<p>Hao Lu, Software Engineer from NVIDIA, speaking for a joint effort of the vLLM team, Inferact, Red Hat and NVIDIA, explained that vLLM ran on Vera Rubin from day 0 because Blackwell kernels run unchanged, but peak performance needs Rubin-specific kernels such as double-K MMA. The central idea is that Rubin behaves like a NUMA GPU: each of its two dies is a locality domain with its own SMs, L2 and HBM4 stacks, and by default about half of a kernel&#8217;s memory traffic crosses the L2 fabric. The rule is to co-locate memory and compute, and to query the locality-domain count rather than assume it. In vLLM, localizing MoE experts in decode brings the most benefit, and memory-bound decode kernels gained 8–29%, with TMA load rising from 13.4 to 18.7 TB/s against a 19.2 TB/s HBM peak. On InferenceX, MiniMax M3.1-Flash on Vera Rubin NVL72 reached about 4.3~6.5× the tokens per dollar of GB300 at matched interactivity.</p>
+<h3>6. Enterprise Scale Agent Infra</h3>
+<p><!-- IMAGE PLACEHOLDER: RWS08696 (image7) - upload via WP media library --></p>
+<p><img decoding="async" class="alignnone wp-image-213959 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/image1.jpg" alt="" width="1246" height="830" srcset="https://pytorch.org/wp-content/uploads/2026/11/image1.jpg 1246w, https://pytorch.org/wp-content/uploads/2026/11/image1-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/image1-1024x682.jpg 1024w" sizes="(max-width: 1246px) 100vw, 1246px" /></p>
+<p>Sean Zhan, Senior Director from Alibaba Cloud International, shared the session Enterprise Scale Agent Infra. As enterprise software shifts from &#8220;humans calling tools&#8221; to &#8220;agents executing autonomously,&#8221; risk and cost are moving down from the model layer to the execution layer. Agents need to run concurrently, mutate system state, and hold real credentials — every execution is a security-boundary event. MicroVMs deliver hardware-grade isolation, least-privilege policies constrain network egress and credentials, full audit trails make every action replayable, and snapshotting and hibernation make million-scale concurrency economically viable. Sean shared many insightful ideas during this session.</p>
+<h2>Closing Thoughts</h2>
+<p>From faster prefill and efficient support for new hardware to AI agents that write and tune kernels, this meetup showed a vLLM community that keeps pushing the boundaries of inference, together with its partners across the ecosystem. Our thanks go to Inferact and NVIDIA for hosting, to all the speakers, and to everyone who joined us at SGInnovate. As the core engine grows stronger and the hardware ecosystem keeps expanding, vLLM is becoming a solid foundation for putting large models into real-world use. We look forward to our next gathering and to the continued growth of the vLLM community!</p>
+<p>The post <a href="https://pytorch.org/blog/vllm-singapore-meetup-faster-prefill-agent-written-kernels-and-the-road-to-vera-rubin/">vLLM Singapore Meetup: Faster Prefill, Agent-Written Kernels and the Road to Vera Rubin</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
 		<title>ExecuTorch-TensorRT: PyTorch Robot Policies at NVIDIA TensorRT Speed</title>
 		<link>https://pytorch.org/blog/executorch-tensorrt-pytorch-robot-policies-at-nvidia-tensorrt-speed/</link>
 		
@@ -380,7 +472,8 @@ void run_policy(Module&amp; policy, cudaStream_t stream) {
 ]]></content:encoded>
 					
 		
-		
+		<enclosure url="https://pytorch.org/wp-content/uploads/2026/11/et-trt.mp4" length="6264777" type="video/mp4" />
+
 			</item>
 		<item>
 		<title>Celebrating the 2026 PyTorch Foundation Contributor Award Winners and Nominees</title>
@@ -395,7 +488,7 @@ void run_policy(Module&amp; policy, cudaStream_t stream) {
 					<description><![CDATA[<p>The PyTorch Foundation is proud to celebrate the winners and nominees of the fourth annual PyTorch Foundation Contributor Awards! Presented on the keynote stage at PyTorch Conference 2026 in San...</p>
 <p>The post <a href="https://pytorch.org/blog/2026-pytorch-foundation-contributor-awards/">Celebrating the 2026 PyTorch Foundation Contributor Award Winners and Nominees</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
 ]]></description>
-										<content:encoded><![CDATA[<p><img fetchpriority="high" decoding="async" class="aligncenter wp-image-211821 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image.png" alt="" width="1280" height="720" srcset="https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image.png 1280w, https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image-1024x576.png 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
+										<content:encoded><![CDATA[<p><img decoding="async" class="aligncenter wp-image-211821 size-full" src="https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image.png" alt="" width="1280" height="720" srcset="https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image.png 1280w, https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/11/contributor-award-featured-image-1024x576.png 1024w" sizes="(max-width: 1280px) 100vw, 1280px" /></p>
 <p><span style="font-weight: 400;">The PyTorch Foundation is proud to celebrate the winners and nominees of the fourth annual</span><a href="https://pytorch.org/contributor-awards/"> <span style="font-weight: 400;">PyTorch Foundation Contributor Awards</span></a><span style="font-weight: 400;">!</span></p>
 <p><span style="font-weight: 400;">Presented on the keynote stage at PyTorch Conference 2026 in San Jose, California, these awards recognize the individuals whose dedication, innovation, and contributions help advance open source projects and strengthen the communities around them.</span></p>
 <h3><span style="font-weight: 400;">2026 Awards at a Glance</span></h3>
@@ -1217,109 +1310,7 @@ for model in models:
 		
 		
 			</item>
-		<item>
-		<title>Call for Proposals: PyTorch Day China 2026</title>
-		<link>https://pytorch.org/blog/call-for-proposals-pytorch-day-china-2026/</link>
-		
-		<dc:creator><![CDATA[PyTorch Foundation]]></dc:creator>
-		<pubDate>Wed, 04 Nov 2026 20:29:55 +0000</pubDate>
-				<category><![CDATA[Announcements]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=209539</guid>
-
-					<description><![CDATA[<p>The Call for Proposals for PyTorch Day China 2026 closes November 10 at 23:59 China Standard Time. The event takes place in Beijing on December 12, bringing together PyTorch developers,...</p>
-<p>The post <a href="https://pytorch.org/blog/call-for-proposals-pytorch-day-china-2026/">Call for Proposals: PyTorch Day China 2026</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p><img decoding="async" class="alignnone size-large wp-image-209574" src="https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header-1024x536.png" alt="CFP PyTorch Day China 2026" width="1024" height="536" srcset="https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header-1024x536.png 1024w, https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header-300x157.png 300w, https://pytorch.org/wp-content/uploads/2026/11/PyTorch-Day-China-2026-CFP-email-header.png 1200w" sizes="(max-width: 1024px) 100vw, 1024px" />The <a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#overview">Call for Proposals</a> for <a href="https://www.lfopensource.cn/pytorch-day-china/">PyTorch Day China 2026</a> closes <strong>November 10 at 23:59 China Standard Time</strong>. The event takes place in <strong>Beijing on December 12</strong>, bringing together PyTorch developers, machine learning engineers, AI researchers, and open source AI leaders from across China and beyond.</p>
-<p>The call welcomes <a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#submission-types">session presentations and lightning talks</a> across five topic areas:</p>
-<ul>
-<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>Model Training &amp; Post-Training</strong></a><strong>:</strong> Distributed training, SFT, reinforcement learning, preference optimization, and techniques for improving training efficiency and performance.</li>
-<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>Efficient Inference &amp; Deployment</strong></a><strong>:</strong> LLM inference, quantization, optimization, deployment strategies, and production-ready AI solutions.</li>
-<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>PyTorch Core &amp; Hardware Acceleration</strong></a><strong>:</strong> Compilation, kernel optimization, performance profiling, and GPU and AI accelerator technologies.</li>
-<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>Physical AI</strong></a><strong>:</strong> Robotics, intelligent devices, Vision-Language-Action (VLA) models, perception and control systems, and simulation-based training.</li>
-<li><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/#suggested-topics"><strong>PyTorch Ecosystem &amp; Applications</strong></a><strong>:</strong> Tools, applications, and innovations expanding the PyTorch ecosystem.</li>
-</ul>
-<p>CFP notifications are scheduled for <strong>November 17</strong>, followed by the <strong>schedule announcement on November 18</strong>.</p>
-<p><a href="https://www.lfopensource.cn/pytorch-day-china/program/call-for-proposals/">Submit a proposal by November 10 at 23:59 China Standard Time.</a></p>
-<p>The post <a href="https://pytorch.org/blog/call-for-proposals-pytorch-day-china-2026/">Call for Proposals: PyTorch Day China 2026</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
-		<item>
-		<title>KVCache Meetup Korea 2026: Event Recap</title>
-		<link>https://pytorch.org/blog/kvcache-meetup-korea-2026-event-recap/</link>
-		
-		<dc:creator><![CDATA[Junghwan Park (PyTorch Foundation Ambassador, Lead maintainer of PyTorchKR)]]></dc:creator>
-		<pubDate>Tue, 03 Nov 2026 09:22:03 +0000</pubDate>
-				<category><![CDATA[Ambassador Post]]></category>
-		<category><![CDATA[Blog]]></category>
-		<guid isPermaLink="false">https://pytorch.org/?p=209226</guid>
-
-					<description><![CDATA[<p>On the evening of Sep 30, 2026, PyTorchKR and XCENA co-hosted KVCache Meetup Korea. PyTorchKR is a major AI/ML community in Korea, and XCENA is a startup that focuses on...</p>
-<p>The post <a href="https://pytorch.org/blog/kvcache-meetup-korea-2026-event-recap/">KVCache Meetup Korea 2026: Event Recap</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></description>
-										<content:encoded><![CDATA[<p>On the evening of Sep 30, 2026, <a href="https://pytorch.kr">PyTorchKR</a> and <a href="https://xcena.com">XCENA</a> co-hosted KVCache Meetup Korea. PyTorchKR is a major AI/ML community in Korea, and XCENA is a startup that focuses on CXL (Compute Express Link). Tensormesh, the company behind LMCache, also sponsored the event. Speakers from XCENA, SK hynix, FuriosaAI, and LMCache shared their work on large language model (LLM) inference and KV Cache optimization. LLM inference runs a language model to generate output. KV Cache stores attention data for reuse during inference.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209227" src="https://pytorch.org/wp-content/uploads/2026/11/01-audience-300x146.jpg" alt="" width="600" height="293" srcset="https://pytorch.org/wp-content/uploads/2026/11/01-audience-300x146.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/01-audience-1024x500.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" />  <img decoding="async" class="alignnone wp-image-209230" src="https://pytorch.org/wp-content/uploads/2026/11/02-audience-300x135.jpg" alt="" width="600" height="270" srcset="https://pytorch.org/wp-content/uploads/2026/11/02-audience-300x135.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/02-audience-1024x461.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
-<em>Attendees at KVCache Meetup Korea 2026.</em></p>
-<p>Talks covered CXL memory expansion, GPU and high-bandwidth memory (HBM) bottlenecks, request scheduling on RNGD, and LMCache MP Mode. The sessions showed how hardware and serving software handle KV Cache in different ways. Serving software processes requests that run a model.</p>
-<h2>Registration and Opening</h2>
-<p>The program combined technical talks with opportunities for attendees to connect. Attendees who wanted to join the networking chose up to two interest stickers at registration. The five categories were Model, Serving, Infra, Hardware, and Memory.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209240" src="https://pytorch.org/wp-content/uploads/2026/11/03-registration-300x200.jpg" alt="" width="600" height="400" srcset="https://pytorch.org/wp-content/uploads/2026/11/03-registration-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/03-registration-1024x683.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" />  <img decoding="async" class="alignnone wp-image-209246" src="https://pytorch.org/wp-content/uploads/2026/11/04-registration-300x200.jpg" alt="" width="600" height="400" srcset="https://pytorch.org/wp-content/uploads/2026/11/04-registration-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/04-registration-1024x683.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
-<em>Attendees chose their interest stickers at registration.</em></p>
-<p>PyTorchKR organizer Junghwan Park and XCENA CPO Juhyun Kim opened the event. The speakers were Jooho Lee from XCENA, Sejin Oh from SK hynix, Donghun Lee from FuriosaAI, and Baoloong Mao from LMCache. They shared their experiences and approaches.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209249" src="https://pytorch.org/wp-content/uploads/2026/11/05-opening-pytorchkr-300x169.jpg" alt="" width="600" height="338" srcset="https://pytorch.org/wp-content/uploads/2026/11/05-opening-pytorchkr-300x169.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/05-opening-pytorchkr-1024x576.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" />   <img decoding="async" class="alignnone wp-image-209251" src="https://pytorch.org/wp-content/uploads/2026/11/06-opening-xcena-300x200.jpg" alt="" width="600" height="400" srcset="https://pytorch.org/wp-content/uploads/2026/11/06-opening-xcena-300x200.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/06-opening-xcena-1024x683.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
-<em>Junghwan Park from PyTorchKR (left) and Juhyun Kim, CPO at XCENA (right), welcomed the attendees.</em></p>
-<h2>CXL and KV Cache Storage: Jooho Lee, XCENA</h2>
-<p>The session “CXL for KVCache” started with the basics of CXL and memory expansion. Jooho Lee explained how CXL expands the memory space that CPUs can access with load/store instructions. He also described a setup where multiple hosts use a memory pool and introduced <a href="https://github.com/xcena-dev/maru">Maru</a>. Maru is a high-performance KV Cache storage engine that XCENA released as an open-source project. It helps LLM inference use shared CXL memory efficiently.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209252 size-large" src="https://pytorch.org/wp-content/uploads/2026/11/07-xcena-1024x683.jpg" alt="" width="1024" height="683" srcset="https://pytorch.org/wp-content/uploads/2026/11/07-xcena-1024x683.jpg 1024w, https://pytorch.org/wp-content/uploads/2026/11/07-xcena-300x200.jpg 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></em><br />
-<em>Jooho Lee from XCENA presented “CXL for KVCache.”</em></p>
-<p>The KV Cache design combined DRAM and SSD storage in a CXL memory pool. It kept frequently used cache in DRAM and less frequently used cache on SSDs. Maru connects the inference engine to these storage layers. Optimizing LLM inference requires more than storing a large amount of cache. The path and cost of moving cache to the GPU also matter.</p>
-<p>The talk also covered splitting computation for experts in mixture-of-experts (MoE) models between a GPU and MX1. Experts are specialized parts of a model. The design places some weights in memory near MX1 and processes them there. It transfers intermediate values, called activations, and computation results instead of the full weights. The session started with KV Cache storage and also covered weight placement and ways to reduce data movement.</p>
-<h2>GPU Compute and HBM Bandwidth: Sejin Oh, SK hynix</h2>
-<p>Sejin Oh presented “Analyzing Utilization of GPU and HBM in LLM Serving Systems.” The talk examined how prefill and decode use system resources. Prefill processes the prompt, and decode generates output tokens. The session presented Roofline analysis alongside measurements from a running system. Roofline analysis compares compute and memory bandwidth limits.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209253 size-large" src="https://pytorch.org/wp-content/uploads/2026/11/08-skhynix-session__image-1024x576.png" alt="" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/11/08-skhynix-session__image-1024x576.png 1024w, https://pytorch.org/wp-content/uploads/2026/11/08-skhynix-session__image-300x169.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></em><br />
-<em>Sejin Oh from SK hynix presented the analysis of GPU compute and HBM bandwidth.</em></p>
-<p>The experiments used two H100 GPUs, Llama 3.1 8B, and vLLM. GPU compute use was high during the main projection operations in prefill. During decode, HBM bandwidth use was high. The experiments also explained the difference between TTFT and TPOT. TTFT measures the time to the first output token. TPOT measures the time per output token.</p>
-<p>Reusing KV Cache reduces computation during prefill. After that reduction, memory bandwidth can become the bottleneck. Whether a service needs more memory capacity or bandwidth depends on its input and output lengths, batch size, and other operating conditions.</p>
-<h2>Scheduling and KV Cache on RNGD: Donghun Lee, FuriosaAI</h2>
-<p><a href="https://furiosa.ai/">FuriosaAI</a> is building Furiosa-LLM, its own inference engine for running LLMs on RNGD. In “LLM Inference Engine for RNGD,” Donghun Lee shared engineering problems from building the engine, including request scheduling and KV Cache management. He followed each request from arrival to execution. He explained PagedAttention for KV Cache blocks, Continuous batching for active requests, and Chunked prefill for smaller prompt segments. He also introduced buckets, or tensor shapes compiled before execution.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209254 size-large" src="https://pytorch.org/wp-content/uploads/2026/11/09-furiosaai-1024x576.jpg" alt="" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/11/09-furiosaai-1024x576.jpg 1024w, https://pytorch.org/wp-content/uploads/2026/11/09-furiosaai-300x169.jpg 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></em><br />
-<em>Donghun Lee from FuriosaAI explained how to share KV Cache outside a node.</em></p>
-<p>Combining requests into one batch increases throughput, or the number of requests processed over time. Larger batches can need larger buckets and increase latency, or response delay. Furiosa-LLM measures the execution cost on the actual hardware. It merges two batches when the combined cost is lower than processing them separately. The decision also accounts for the context length of each request and the cost of padding. Padding fills unused positions in a fixed tensor shape.</p>
-<p>The talk compared the benefit of cache reuse with the cost of transferring it. The slides used a 12,370-token prompt, with one request at a time and three measurements for each condition. Retrieving the host cache and generating the first token took about 92 ms. Recomputing the cache took about 900 ms. Under those test conditions, retrieving the host cache was faster. He also explained how to overlap cache transfer with computation at each layer.</p>
-<p>The benefit depends on the amount of data transferred and the available bandwidth. Experimental features included a network-shared cache and running prefill and decode on separate resources. He also discussed plans for future expansion.</p>
-<h2>‘LMCache: A Unified KV Cache Management Layer with Multi-Platform Architecture’: Baoloong Mao, LMCache</h2>
-<p><a href="https://lmcache.ai/">LMCache</a> maintainer and core architect Baoloong Mao presented “A Unified KV Cache Management Layer with Multi-Platform Architecture.” LMCache is an open-source KV Cache project created by the team that founded <a href="https://tensormesh.ai/about/">Tensormesh</a>. He explained how LMCache connects different inference engines with storage systems and hardware. He focused on MP Mode, which moves cache management from inside the inference engine into a separate process.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209255 size-large" src="https://pytorch.org/wp-content/uploads/2026/11/10-lmcache-1024x576.jpg" alt="" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/11/10-lmcache-1024x576.jpg 1024w, https://pytorch.org/wp-content/uploads/2026/11/10-lmcache-300x169.jpg 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></em><br />
-<em>Baoloong Mao from LMCache introduced the unified KV Cache layer and MP Mode.</em></p>
-<p>In MP Mode, CUDA IPC allows processes to share GPU memory. IPC means communication between processes. The processes exchange control information such as block IDs. They use a shared CPU memory pool within a node to reduce duplicate storage. MP Mode also reads and loads data from several storage layers in parallel. This design separates inference computation from cache I/O, or data transfers, to reduce competition for resources.</p>
-<p>The session also covered deployment and operations. Topics included deployment on Kubernetes and monitoring cache hit rates and cache lifetimes. A cache hit means that the requested data is available. The talk also covered isolating failures between inference and cache processes. External plugins allow connections to more storage systems and devices.</p>
-<h2>Q&amp;A and Networking</h2>
-<p>In the Q&amp;A session, the speakers returned to the stage to answer questions from attendees. Questions included separating prefill and decode, compared with mixed batching. Mixed batching processes prefill and decode work together. Attendees also asked about the roles of LMCache and the cache features built into vLLM. Another topic was the plan to extend MP Mode across multiple nodes.</p>
-<p><em>  <img decoding="async" class="alignnone wp-image-209256" src="https://pytorch.org/wp-content/uploads/2026/11/11-qa-session-300x169.jpg" alt="" width="600" height="338" srcset="https://pytorch.org/wp-content/uploads/2026/11/11-qa-session-300x169.jpg 300w, https://pytorch.org/wp-content/uploads/2026/11/11-qa-session-1024x576.jpg 1024w" sizes="(max-width: 600px) 100vw, 600px" />    <img decoding="async" class="alignnone wp-image-209257" src="https://pytorch.org/wp-content/uploads/2026/11/12-qa-panel-left__image-300x200.png" alt="" width="600" height="400" srcset="https://pytorch.org/wp-content/uploads/2026/11/12-qa-panel-left__image-300x200.png 300w, https://pytorch.org/wp-content/uploads/2026/11/12-qa-panel-left__image-1024x683.png 1024w" sizes="(max-width: 600px) 100vw, 600px" />    <img decoding="async" class="alignnone wp-image-209258" src="https://pytorch.org/wp-content/uploads/2026/11/13-qa-panel-right__image-300x200.png" alt="" width="600" height="400" srcset="https://pytorch.org/wp-content/uploads/2026/11/13-qa-panel-right__image-300x200.png 300w, https://pytorch.org/wp-content/uploads/2026/11/13-qa-panel-right__image-1024x683.png 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
-<em>The speakers answered live questions together after the talks.</em></p>
-<p>After the Q&amp;A, attendees from different fields gathered in small groups to talk. Their interest stickers helped them find people with similar interests. Speakers and attendees exchanged ideas and heard different perspectives.</p>
-<p>Conversations also continued around the CXL server from XCENA at the venue. Attendees examined the hardware up close and asked questions. They linked the memory expansion techniques from the talks to the hardware on display.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209259" src="https://pytorch.org/wp-content/uploads/2026/11/14-networking-conversation__image-300x200.png" alt="" width="600" height="400" srcset="https://pytorch.org/wp-content/uploads/2026/11/14-networking-conversation__image-300x200.png 300w, https://pytorch.org/wp-content/uploads/2026/11/14-networking-conversation__image.png 800w" sizes="(max-width: 600px) 100vw, 600px" />  <img decoding="async" class="alignnone wp-image-209260" src="https://pytorch.org/wp-content/uploads/2026/11/15-networking-cxl-server__image-300x169.png" alt="" width="600" height="338" srcset="https://pytorch.org/wp-content/uploads/2026/11/15-networking-cxl-server__image-300x169.png 300w, https://pytorch.org/wp-content/uploads/2026/11/15-networking-cxl-server__image-1024x576.png 1024w" sizes="(max-width: 600px) 100vw, 600px" /></em><br />
-<em>Attendees talked during the networking session.</em></p>
-<h2>Feedback from 72 Survey Responses</h2>
-<p>The following summary draws on 72 survey responses. All numbers and percentages below use the survey responses as their base. Some questions allowed multiple selections.</p>
-<p><img decoding="async" class="alignnone wp-image-209261" src="https://pytorch.org/wp-content/uploads/2026/11/19-survey-72-satisfaction-en-300x201.png" alt="" width="600" height="402" srcset="https://pytorch.org/wp-content/uploads/2026/11/19-survey-72-satisfaction-en-300x201.png 300w, https://pytorch.org/wp-content/uploads/2026/11/19-survey-72-satisfaction-en-1024x687.png 1024w" sizes="(max-width: 600px) 100vw, 600px" /> <img decoding="async" class="alignnone wp-image-209264" src="https://pytorch.org/wp-content/uploads/2026/11/20-survey-72-role-career-matrix-en-300x194.png" alt="" width="600" height="388" srcset="https://pytorch.org/wp-content/uploads/2026/11/20-survey-72-role-career-matrix-en-300x194.png 300w, https://pytorch.org/wp-content/uploads/2026/11/20-survey-72-role-career-matrix-en-1024x663.png 1024w" sizes="(max-width: 600px) 100vw, 600px" /><br />
-<em>Event satisfaction and work experience by role, based on 72 survey responses.</em></p>
-<p>In the feedback questions, 48 respondents selected the program as a positive point (66.7%). The venue and facilities received 30 selections (41.7%). The atmosphere for conversations and the event timing each received 22 selections (30.6%). This question allowed multiple selections. Respondents gave positive feedback on the talks and the chance to meet other attendees.</p>
-<p>Repeated comments mentioned microphone quality and volume, screen visibility from the back rows, and limited space. Some respondents also asked for interpretation or translation to help them follow the English talks. Some respondents also asked for a dedicated session where developers in the same field can talk. Requests for future events included real production examples, vLLM and SGLang internals, compilers for neural processing units (NPUs), recent inference optimization techniques, and demos. Respondents wanted details about problems, trial and error, and solutions from real deployments. They asked speakers to explain these experiences, as well as their products.</p>
-<p><em><img decoding="async" class="alignnone wp-image-209267 size-large" src="https://pytorch.org/wp-content/uploads/2026/11/18-group-photo__image-1024x576.png" alt="" width="1024" height="576" srcset="https://pytorch.org/wp-content/uploads/2026/11/18-group-photo__image-1024x576.png 1024w, https://pytorch.org/wp-content/uploads/2026/11/18-group-photo__image-300x169.png 300w" sizes="(max-width: 1024px) 100vw, 1024px" /></em><br />
-<em>Group photo from KVCache Meetup Korea.</em></p>
-<p><a href="https://pytorch.kr">PyTorchKR</a> will use this feedback to plan and run future events. Thank you to everyone who joined the event on a weekday evening. The organizers also thank the speakers who shared their knowledge and experience. Thank you to PyTorchKR and XCENA for organizing the event, and to Tensormesh for its support.</p>
-<p>The post <a href="https://pytorch.org/blog/kvcache-meetup-korea-2026-event-recap/">KVCache Meetup Korea 2026: Event Recap</a> appeared first on <a href="https://pytorch.org">PyTorch</a>.</p>
-]]></content:encoded>
-					
-		
-		
-			</item>
 	</channel>
 </rss>
 
-<!-- plugin=object-cache-pro client=phpredis metric#hits=4728 metric#misses=62 metric#hit-ratio=98.7 metric#bytes=1573133 metric#prefetches=152 metric#store-reads=70 metric#store-writes=6 metric#store-hits=303 metric#store-misses=46 metric#sql-queries=17 metric#ms-total=735.22 metric#ms-cache=44.13 metric#ms-cache-avg=0.5884 metric#ms-cache-ratio=6.0 -->
+<!-- plugin=object-cache-pro client=phpredis metric#hits=4768 metric#misses=63 metric#hit-ratio=98.7 metric#bytes=1515381 metric#prefetches=270 metric#store-reads=36 metric#store-writes=6 metric#store-hits=277 metric#store-misses=47 metric#sql-queries=17 metric#ms-total=511.83 metric#ms-cache=21.78 metric#ms-cache-avg=0.5313 metric#ms-cache-ratio=4.3 -->
