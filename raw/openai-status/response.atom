@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://status.openai.com/</id>
     <title>OpenAI status</title>
-    <updated>2026-11-26T08:17:25.986Z</updated>
+    <updated>2026-11-27T08:32:42.146Z</updated>
     <generator>incident.io</generator>
     <link rel="alternate" href="https://status.openai.com/"/>
     <subtitle>OpenAI status page updates</subtitle>
@@ -11,14 +11,14 @@
         <title type="html"><![CDATA[Elevated errors with Codex GitHub reviews and pull request merges]]></title>
         <id>https://status.openai.com//incidents/01M89RGC3STKK2MT53TXHFMY4H</id>
         <link href="https://status.openai.com//incidents/01M89RGC3STKK2MT53TXHFMY4H"/>
-        <updated>2026-11-25T16:58:51.832Z</updated>
-        <summary type="html"><![CDATA[<b>Status: Monitoring</b><br/><br/>GitHub reports that the service disruption affecting pull requests and webhooks has been mitigated. We are monitoring Codex automated pull request reviews and merge operations to confirm recovery and stability.<br/><br/><b>Affected components</b>
+        <updated>2026-11-26T14:07:54.563Z</updated>
+        <summary type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>The GitHub service disruption has been resolved. Codex automated GitHub pull request reviews and merges are operating normally<br/><br/><b>Affected components</b>
           <ul>
-          <li>Codex Web (Degraded performance)</li>
+          <li>Codex Web (Operational)</li>
           </ul>]]></summary>
-        <content type="html"><![CDATA[<b>Status: Monitoring</b><br/><br/>GitHub reports that the service disruption affecting pull requests and webhooks has been mitigated. We are monitoring Codex automated pull request reviews and merge operations to confirm recovery and stability.<br/><br/><b>Affected components</b>
+        <content type="html"><![CDATA[<b>Status: Resolved</b><br/><br/>The GitHub service disruption has been resolved. Codex automated GitHub pull request reviews and merges are operating normally<br/><br/><b>Affected components</b>
           <ul>
-          <li>Codex Web (Degraded performance)</li>
+          <li>Codex Web (Operational)</li>
           </ul>]]></content>
     </entry>
     <entry>
