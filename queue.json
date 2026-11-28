@@ -1,0 +1,178 @@
+{
+  "candidates": [
+    {
+      "id": "9a7d6e06dfbbe21a3b6b49a2a4ee003b95c1eceb:incident_opened:tag:status.claude.com,2005:Incident/32066449",
+      "type": "incident_opened",
+      "sentence": "The claude-status feed listed an incident titled \"Degraded performance for Claude Fable 5.2\" at \"https://status.claude.com/incidents/0x1yvzkfmmxj\".",
+      "source": "claude-status",
+      "stamp": {
+        "iso": "2026-11-28T07:48:41.000Z",
+        "kind": "origin"
+      },
+      "bits": 6.2,
+      "why": [
+        "incident_opened is rare in the archive: +6.20 bits"
+      ],
+      "entities": [
+        "subject:incident_opened:tag:status.claude.com,2005:Incident/32066449"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The claude-status feed listed an incident titled \"Degraded performance for Claude Fable 5.2\" at \"https://status.claude.com/incidents/0x1yvzkfmmxj\".\n\nhttps://diffwire.dev/changes/9a7d6e06dfbbe21a3b6b49a2a4ee003b95c1eceb.html",
+        "url": "https://diffwire.dev/changes/9a7d6e06dfbbe21a3b6b49a2a4ee003b95c1eceb.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20claude-status%20feed%20listed%20an%20incident%20titled%20%22Degraded%20performance%20for%20Claude%20Fable%205.2%22%20at%20%22https%3A%2F%2Fstatus.claude.com%2Fincidents%2F0x1yvzkfmmxj%22.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F9a7d6e06dfbbe21a3b6b49a2a4ee003b95c1eceb.html"
+      },
+      "why_here": "broadcast, once the vendor's own audience has it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "00e15487df00125521353262d75105a067a23cf6:model_removed:z-ai/glm-5.2:batch",
+      "type": "model_removed",
+      "sentence": "The catalog id \"z-ai/glm-5.2:batch\" left OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-11-28T10:18:30.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.89,
+      "why": [
+        "model_removed is rare in the archive: +5.89 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:z-ai/glm-5.2:batch",
+        "lab:lab/zai"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The catalog id \"z-ai/glm-5.2:batch\" left OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/00e15487df00125521353262d75105a067a23cf6.html",
+        "url": "https://diffwire.dev/changes/00e15487df00125521353262d75105a067a23cf6.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22z-ai%2Fglm-5.2%3Abatch%22%20left%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F00e15487df00125521353262d75105a067a23cf6.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "3e4cc092ef72397bb37d6bb71c513fcb8cc9936b:model_removed:inclusionai/ling-3.2-flash:free",
+      "type": "model_removed",
+      "sentence": "The catalog id \"inclusionai/ling-3.2-flash:free\" left OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-11-27T19:32:30.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.89,
+      "why": [
+        "model_removed is rare in the archive: +5.89 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:inclusionai/ling-3.2-flash:free"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The catalog id \"inclusionai/ling-3.2-flash:free\" left OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/3e4cc092ef72397bb37d6bb71c513fcb8cc9936b.html",
+        "url": "https://diffwire.dev/changes/3e4cc092ef72397bb37d6bb71c513fcb8cc9936b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22inclusionai%2Fling-3.2-flash%3Afree%22%20left%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F3e4cc092ef72397bb37d6bb71c513fcb8cc9936b.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "769b1bee36cba13ca30f1e4df767bb137f93f7b0:model_removed:qwen/qwen3-235b-a22b-thinking-2507",
+      "type": "model_removed",
+      "sentence": "The catalog id \"qwen/qwen3-235b-a22b-thinking-2507\" left OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-11-28T02:09:48.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.89,
+      "why": [
+        "model_removed is rare in the archive: +5.89 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:qwen/qwen3-235b-a22b-thinking-2507",
+        "lab:lab/qwen"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The catalog id \"qwen/qwen3-235b-a22b-thinking-2507\" left OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/769b1bee36cba13ca30f1e4df767bb137f93f7b0.html",
+        "url": "https://diffwire.dev/changes/769b1bee36cba13ca30f1e4df767bb137f93f7b0.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22qwen%2Fqwen3-235b-a22b-thinking-2507%22%20left%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F769b1bee36cba13ca30f1e4df767bb137f93f7b0.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    },
+    {
+      "id": "3e4cc092ef72397bb37d6bb71c513fcb8cc9936b:model_added:inclusionai/ling-3.2-flash",
+      "type": "model_added",
+      "sentence": "The catalog id \"inclusionai/ling-3.2-flash\" entered OpenRouter's catalog.",
+      "source": "openrouter-models",
+      "stamp": {
+        "iso": "2026-11-27T19:32:30.000Z",
+        "kind": "origin"
+      },
+      "bits": 5.5,
+      "why": [
+        "model_added is rare in the archive: +5.50 bits"
+      ],
+      "entities": [
+        "model:model/openrouter:inclusionai/ling-3.2-flash"
+      ],
+      "facts": [],
+      "post": {
+        "platform": "bluesky",
+        "venue": "bluesky",
+        "label": "Bluesky",
+        "title": null,
+        "titleBy": null,
+        "text": "The catalog id \"inclusionai/ling-3.2-flash\" entered OpenRouter's catalog.\n\nhttps://diffwire.dev/changes/3e4cc092ef72397bb37d6bb71c513fcb8cc9936b.html",
+        "url": "https://diffwire.dev/changes/3e4cc092ef72397bb37d6bb71c513fcb8cc9936b.html",
+        "submitUrl": "https://bsky.app/intent/compose?text=The%20catalog%20id%20%22inclusionai%2Fling-3.2-flash%22%20entered%20OpenRouter's%20catalog.%0A%0Ahttps%3A%2F%2Fdiffwire.dev%2Fchanges%2F3e4cc092ef72397bb37d6bb71c513fcb8cc9936b.html"
+      },
+      "why_here": "broadcast, once the discussion venues have had it",
+      "flair": null,
+      "needs_flair": false,
+      "others": [],
+      "shortfalls": []
+    }
+  ],
+  "funnel": {
+    "seen": 11285,
+    "postableType": 917,
+    "notOnCooldown": 917,
+    "aboveFloor": 5
+  },
+  "generated_at": "2026-11-28T12:07:00.000Z"
+}
